@@ -23,7 +23,6 @@ if(($row = $result->fetch_assoc()) !== null){
         $message['username'] = $row['username'];
         $message['name'] = $row['name'];
         $message['role_code'] = $row['role_code'];
-        $message['customer'] = $row['customer'];
         
 		$stmt->close();
 		$db->close();

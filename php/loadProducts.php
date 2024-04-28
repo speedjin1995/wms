@@ -19,42 +19,30 @@ if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
 }
 
 if($searchValue != ''){
-   $searchQuery = " and (users.name like '%".$searchValue."%' or 
-        users.username like '%".$searchValue."%' or
-        roles.role_name like'%".$searchValue."%' ) ";
+   $searchQuery = " AND (product_name like '%".$searchValue."%' OR remark like '%".$searchValue."%')";
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from users, roles, companies WHERE users.role_code = roles.role_code AND users.customer = companies.id AND users.deleted = '0'");
+$sel = mysqli_query($db,"select count(*) as allcount from products WHERE deleted = '0'");
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from users, roles, companies WHERE users.role_code = roles.role_code AND users.customer = companies.id AND users.deleted = '0'".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from products WHERE deleted = '0'".$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select users.id, users.username, users.name, users.created_date, users.created_by, roles.role_name, companies.name AS company from users, roles, companies WHERE 
-users.role_code = roles.role_code AND users.customer = companies.id AND users.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select * from products WHERE deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
-    $joined_date = '-';
-    $expired_date = '-';
-    
-    if($row['created_date'] != null && $row['created_date'] != ""){
-      $joined_date = date("d-m-Y", strtotime($row['created_date']));
-    }
-    
     $data[] = array( 
       "id"=>$row['id'],
-      "name"=>$row['name'],
-      "username"=>$row['username'],
-      "role_name"=>$row['role_name'],
-      "company"=>$row['company'],
-      "created_date"=>$joined_date
+      "product_name"=>$row['product_name'],
+      "remark"=>$row['remark'],
+      "deleted"=>$row['deleted']
     );
 }
 

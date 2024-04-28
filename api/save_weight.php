@@ -5,54 +5,34 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 $post = json_decode(file_get_contents('php://input'), true);
 
-if(isset($post['status'], $post['doNo'], $post['vehicleNumber'], $post['driverName'], $post['product'], $post['totalCagesWeight']
-, $post['totalCagesCount'], $post['totalBirdWeight'], $post['totalBirdCount'], $post['timestampData'], $post['capturedData']
-, $post['averageBird'], $post['farm'], $post['startTime'], $post['weightDetails'], $post['endTime'])){
+if(isset($post['product'], $post['productCode'], $post['units'], $post['gross'], $post['tare'], $post['net']
+, $post['pre_tare'], $post['high'], $post['low'], $post['staffName'], $post['location'], $post['createdDatetime'])){
 
-	$status = $post['status'];
-	$doNo = $post['doNo'];
-	$vehicleNumber = $post['vehicleNumber'];
-	$driverName = $post['driverName'];
 	$product = $post['product'];
-	$totalCagesWeight = $post['totalCagesWeight'];
-	$totalCagesCount = $post['totalCagesCount'];
-	$totalBirdWeight = $post['totalBirdWeight'];
-	$totalBirdCount = $post['totalBirdCount'];
-	$timestampData = $post['timestampData'];
-	$capturedData = $post['capturedData'];
-	$averageBird = $post['averageBird'];
-	$farmId = $post['farm'];
-	$weightDetails = $post['weightDetails'];
-	$startTime = $post['startTime'];
-	$endTime = $post['endTime'];
+	$productDesc = $post['productCode'];
+	$units = $post['units'];
+	$gross= $post['gross'];
+	$tare = $post['tare'];
+	$net = $post['net'];
+	$high = $post['high'];
+	$low = $post['low'];
+	$pre_tare = $post['pre_tare'];
+	$staffName = $post['staffName'];
+	$location = $post['location'];
+	$createdDatetime = $post['createdDatetime'];
+	$status = '0';
 
 	$remark = null;
-	$customerName = null;
-	$supplierName = null;
-	$serialNo = "";
 	$today = date("Y-m-d 00:00:00");
-
-	if(isset($post['customerName']) && $post['customerName'] != null && $post['customerName'] != ''){
-		$customerName = $post['customerName'];
-	}
 	
-	if(isset($post['supplierName']) && $post['supplierName'] != null && $post['supplierName'] != ''){
-		$supplierName = $post['supplierName'];
-	}
-	
-	if(isset($post['remark']) && $post['remark'] != null && $post['remark'] != ''){
-		$remark = $post['remark'];
+	if(isset($post['remarks']) && $post['remarks'] != null && $post['remarks'] != ''){
+		$remark = $post['remarks'];
 	}
 
-	if(isset($post['serialNo']) && $post['serialNo'] == null || $post['serialNo'] == ''){
-	    if($status == 'Sales'){
-	        $serialNo = 'S'.date("Ymd");
-	    }
-	    else{
-	        $serialNo = 'P'.date("Ymd");
-	    }
+	if(!isset($post['serialNo']) || $post['serialNo'] == null || $post['serialNo'] == ''){
+	    $serialNo = date("Ymd");
 
-		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM weighing WHERE created_datetime >= ? AND status = ?")) {
+		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM weighing WHERE created_datetime >= ? AND deleted = ?")) {
             $select_stmt->bind_param('ss', $today, $status);
             
             // Execute the prepared query.
@@ -83,13 +63,10 @@ if(isset($post['status'], $post['doNo'], $post['vehicleNumber'], $post['driverNa
 		}
 	}
 
-	if ($insert_stmt = $db->prepare("INSERT INTO weighing (serial_no, po_no, customer, supplier, product, driver_name, lorry_no, 
-	farm_id, remark, average_bird, weight_data, total_cages_weight, total_cages_count, total_bird_weight, total_bird_count, status, 
-	start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
-	    $data = json_encode($weightDetails);
-		$insert_stmt->bind_param('ssssssssssssssssss', $serialNo, $doNo, $customerName, $supplierName, $product, $driverName, 
-		$vehicleNumber, $farmId, $remark, $averageBird, $data, $totalCagesWeight, $totalCagesCount, $totalBirdWeight, $totalBirdCount, 
-		$status, $startTime, $endTime);		
+	if ($insert_stmt = $db->prepare("INSERT INTO weighing (serial_no, product, product_desc, units, gross, tare, net, 
+	pre_tare, remark, created_datetime, created_by, weighted_by, locations, high, low) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
+	    $insert_stmt->bind_param('sssssssssssssss', $serialNo, $product, $productDesc, $units, $gross, $tare, 
+		$net, $pre_tare, $remark, $createdDatetime, $staffName, $staffName, $location, $high, $low);		
 		// Execute the prepared query.
 		if (! $insert_stmt->execute()){
 			echo json_encode(
