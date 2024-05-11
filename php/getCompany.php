@@ -31,6 +31,13 @@ if(isset($_POST['userID'])){
                 $message['address4'] = $row['address4'];
                 $message['phone'] = $row['phone'];
                 $message['email'] = $row['email'];
+
+                if($row['products'] != null){
+                    $message['products'] = json_decode($row['products'], true);
+                }
+                else{
+                    $message['products'] = array();
+                }
             }
             
             echo json_encode(

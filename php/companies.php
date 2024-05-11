@@ -3,7 +3,7 @@ require_once "db_connect.php";
 
 session_start();
 
-if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $_POST['email'])){
+if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $_POST['email'], $_POST['products'])){
     $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
     $reg_no = filter_input(INPUT_POST, 'reg_no', FILTER_SANITIZE_STRING);
 	$address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_STRING);
@@ -12,6 +12,8 @@ if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $
     $address4 = null;
     $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_STRING);
+    $products = $_POST['products'];
+    $products = json_encode($products);
 
     if(isset($_POST['address2']) && $_POST['address2'] != null && $_POST['address2'] != ''){
         $address2 = filter_input(INPUT_POST, 'address2', FILTER_SANITIZE_STRING);
@@ -34,8 +36,8 @@ if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, products=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $products, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -60,8 +62,8 @@ if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO companies (reg_no, name, address, address2, address3, address4, phone, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email);
+        if ($insert_stmt = $db->prepare("INSERT INTO companies (reg_no, name, address, address2, address3, address4, phone, email, products) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $products);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

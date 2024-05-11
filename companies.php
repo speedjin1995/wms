@@ -104,6 +104,14 @@ else{
                   <label for="email">Email *</label>
                   <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email" required>
                 </div>
+                <div class="form-group">
+                  <label for="products">Products *</label>
+                  <select class="select2" style="width: 100%;" id="products" name="products[]" multiple="multiple" required> 
+                    <option value="weighing">Weighing</option>
+                    <option value="pricing">Pricing</option>
+                    <option value="counting">Counting</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
@@ -119,6 +127,11 @@ else{
 
 <script>
 $(function () {
+    $('.select2').select2({
+      allowClear: true,
+      placeholder: "Please Select"
+    });
+
     $("#supplierTable").DataTable({
         "responsive": true,
         "autoWidth": false,
@@ -185,6 +198,7 @@ $(function () {
         $('#addModal').find('#address4').val("");
         $('#addModal').find('#phone').val("");
         $('#addModal').find('#email').val("");
+        $('#addModal').find('#products').select2('destroy').val('').select2();
         $('#addModal').modal('show');
         
         $('#supplierForm').validate({
@@ -269,6 +283,7 @@ function edit(id){
             $('#addModal').find('#address4').val(obj.message.address4);
             $('#addModal').find('#phone').val(obj.message.phone);
             $('#addModal').find('#email').val(obj.message.email);
+            $('#addModal').find("select[name='products[]']").val(obj.message.products).trigger('change');
             $('#addModal').modal('show');
             
             $('#supplierForm').validate({

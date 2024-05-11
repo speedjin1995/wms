@@ -1,9 +1,14 @@
 <?php
 require_once 'db_connect.php';
 
+$post = json_decode(file_get_contents('php://input'), true);
+
+$staffId = $post['userId'];
+$userId = $post['uid'];
+
 $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
-$locations = $db->query("SELECT * FROM locations WHERE deleted = '0'");
-$products = $db->query("SELECT * FROM products WHERE deleted = '0'");
+$locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer='".$staffId."'");
+$products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer='".$staffId."'");
 
 $data1 = array();
 $data2 = array();
