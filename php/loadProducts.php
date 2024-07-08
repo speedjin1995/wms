@@ -41,6 +41,8 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     $data[] = array( 
       "id"=>$row['id'],
       "product_name"=>$row['product_name'],
+      "price"=>$row['price'],
+      "weight"=>$row['weight'],
       "remark"=>$row['remark'],
       "deleted"=>$row['deleted']
     );

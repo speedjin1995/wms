@@ -3,12 +3,12 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if(!isset($_SESSION['adminID'])){
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
 }
 else{
-  $user = $_SESSION['userID'];
+  $user = $_SESSION['adminID'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = '0'");
   $users = $db->query("SELECT * FROM users WHERE deleted = '0'");
 }

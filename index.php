@@ -3,13 +3,13 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['adminID'])){
+if(!isset($_SESSION['userID'])){
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
 }
 else{
-  $user = $_SESSION['adminID'];
-  $stmt = $db->prepare("SELECT * from admins where id = ?");
+  $user = $_SESSION['userID'];
+  $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
 	$result = $stmt->get_result();
@@ -331,42 +331,118 @@ to get the desired effect
         <ul class="nav nav-pills nav-sidebar flex-column" id="sideMenu" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
             with font-awesome or any other icon font library -->
-          <li class="nav-item">
-            <a href="#companies" data-file="companies.php"  class="nav-link link">
-              <i class="nav-icon fas fa-building"></i>
-              <p>Companies</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#users" data-file="users.php" class="nav-link link">
-              <i class="nav-icon fas fa-user"></i>
-              <p>Users</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#indicators" data-file="indicators.php" class="nav-link link">
-              <i class="nav-icon fas fa-chart-pie"></i>
-              <p>Indicators</p>
-            </a>
-          </li>
           <!--li class="nav-item">
-            <a href="#printers" data-file="printers.php" class="nav-link link">
-              <i class="nav-icon fas fa-print"></i>
-              <p>Printer</p>
+            <a href="#dashboard" data-file="dashboard.php" class="nav-link link">
+              <i class="nav-icon fas fa-user"></i>
+              <p>Dashboard</p>
             </a>
           </li-->
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Weighing<i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <li class="nav-item">
+                <a href="#weighing" data-file="weightPage.php" class="nav-link link">
+                  <i class="nav-icon fas fa-balance-scale"></i>
+                  <p>Weight Weighing</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#counting" data-file="countPage.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p>Count Weighing</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#batching" data-file="batchPage.php" class="nav-link link">
+                  <i class="nav-icon fas fa-file-alt"></i>
+                  <p>Batch Weighing</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#pricing" data-file="pricePage.php" class="nav-link link">
+                  <i class="nav-icon fas fa-dollar-sign"></i>
+                  <p>Price Weighing</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <!--li class="nav-item">
+            <a href="#counting" data-file="countingPage.php" class="nav-link link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>Counting Weighing</p>
+            </a>
+          </li-->
+          <?php 
+              if($role == "ADMIN"){
+                echo '<li class="nav-item">
+                <a href="#users" data-file="users.php" class="nav-link link">
+                  <i class="nav-icon fas fa-user"></i>
+                  <p>Staffs</p>
+                </a>
+              </li>
+              <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon fas fa-database"></i>
+                  <p>Master Data<i class="fas fa-angle-left right"></i></p>
+                </a>
+                <ul class="nav nav-treeview" style="display: none;">
+                   <li class="nav-item">
+                    <a href="#units" data-file="units.php" class="nav-link link">
+                      <i class="nav-icon fas fa-balance-scale"></i>
+                      <p>Units</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#products" data-file="products.php" class="nav-link link">
+                      <i class="nav-icon fas fa-shopping-cart"></i>
+                      <p>Products</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#locations" data-file="locations.php" class="nav-link link">
+                      <i class="nav-icon fas fa-shopping-bag"></i>
+                      <p>Location</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>';
+              }
+          ?>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-cogs"></i>
               <p>Settings<i class="fas fa-angle-left right"></i></p>
             </a>
+        
             <ul class="nav nav-treeview" style="display: none;">
+              <?php 
+                if($role == "ADMIN"){
+                  echo '<li class="nav-item">
+                  <a href="#company" data-file="company.php" class="nav-link link">
+                    <i class="nav-icon fas fa-building"></i>
+                    <p>Company Profile</p>
+                  </a>
+                </li>';
+                }
+              ?>
+
+              <li class="nav-item">
+                <a href="#setup" data-file="setup.php" class="nav-link link">
+                  <i class="nav-icon fas fa-user-cog"></i>
+                  <p>Port Setup</p>
+                </a>
+              </li>
+
               <li class="nav-item">
                 <a href="#myprofile" data-file="myprofile.php" class="nav-link link">
                   <i class="nav-icon fas fa-id-badge"></i>
                   <p>Profile</p>
                 </a>
               </li>
+          
               <li class="nav-item">
                 <a href="#changepassword" data-file="changePassword.php" class="nav-link link">
                   <i class="nav-icon fas fa-key"></i>
@@ -474,7 +550,7 @@ $(function () {
       });
   });
   
-  $("a[href='#companies']").click();
+  $("a[href='#counting']").click();
 });
 </script>
 </body>

@@ -3,13 +3,13 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['adminID'])){
+if(!isset($_SESSION['userID'])){
     echo '<script type="text/javascript">';
     echo 'window.location.href = "login.html";</script>';
 }
 else{
-    $id = $_SESSION['adminID'];
-    $stmt = $db->prepare("SELECT * from admins where id = ?");
+    $id = $_SESSION['userID'];
+    $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $id);
 	$stmt->execute();
 	$result = $stmt->get_result();

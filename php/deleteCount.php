@@ -9,10 +9,9 @@ if(!isset($_SESSION['userID'])){
 
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
-	$del = "0";
-	
-	if ($stmt2 = $db->prepare("UPDATE products SET deleted=? WHERE id=?")) {
-		$stmt2->bind_param('ss', $del , $id);
+	$del = "1";
+	if ($stmt2 = $db->prepare("UPDATE counting SET deleted=? WHERE id=?")) {
+		$stmt2->bind_param('ss', $del ,$id);
 		
 		if($stmt2->execute()){
 			$stmt2->close();
@@ -21,7 +20,7 @@ if(isset($_POST['userID'])){
 			echo json_encode(
     	        array(
     	            "status"=> "success", 
-    	            "message"=> "Reactivated"
+    	            "message"=> "Deleted"
     	        )
     	    );
 		} else{

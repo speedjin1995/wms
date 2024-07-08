@@ -7,7 +7,7 @@ $username=$_POST['userEmail'];
 $password=$_POST['userPassword'];
 $now = date("Y-m-d H:i:s");
 
-$stmt = $db->prepare("SELECT * from users where username= ?");
+$stmt = $db->prepare("SELECT * from admins where username= ?");
 $stmt->bind_param('s', $username);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -16,7 +16,7 @@ if(($row = $result->fetch_assoc()) !== null){
 	$password = hash('sha512', $password . $row['salt']);
 	
 	if($password == $row['password']){
-		$_SESSION['userID']=$row['id'];
+		$_SESSION['adminID']=$row['id'];
 		$stmt->close();
 		$db->close();
 		

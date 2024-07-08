@@ -5,8 +5,9 @@ session_start();
 
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
+    $del = "1";
 
-    if ($update_stmt = $db->prepare("SELECT * FROM printers WHERE id=?")) {
+    if ($update_stmt = $db->prepare("SELECT * FROM counting WHERE id=?")) {
         $update_stmt->bind_param('s', $id);
         
         // Execute the prepared query.
@@ -21,13 +22,15 @@ if(isset($_POST['userID'])){
             $result = $update_stmt->get_result();
             $message = array();
             
-            while ($row = $result->fetch_assoc()) {
-                $message['id'] = $row['id'];
-                $message['name'] = $row['name'];
-                $message['mac_address'] = $row['mac_address'];
-                $message['udid'] = $row['udid'];
-                $message['customer'] = $row['customer'];
-                $message['users'] = $row['users'];
+            if ($row = $result->fetch_assoc()) {
+                $message['serial_no'] = $row['serial_no'];
+                $message['batch_no'] = $row['batch_no'];
+                $message['product'] = $row['product'];
+                $message['product_desc'] = $row['product_desc'];
+                $message['gross'] = $row['gross'];
+                $message['unit'] = $row['unit'];
+                $message['count'] = $row['count'];
+                $message['remark'] = $row['remark'];
             }
             
             echo json_encode(
