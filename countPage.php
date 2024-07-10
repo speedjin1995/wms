@@ -30,10 +30,11 @@ else{
     $stopbits = $row['stopbits'];
   }
 
-  $products2 = $db->query("SELECT * FROM products WHERE deleted = '0'");
-  $products = $db->query("SELECT * FROM products WHERE deleted = '0'");
+  $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
+  $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
+  $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
 }
 ?>
 
@@ -170,15 +171,22 @@ else{
 
         <div class="modal-body" >
           <div class="row">
-            <div class="col-md-6">
-              <div class="small-box bg-success">
+            <div class="col-md-4">
+              <div class="small-box bg-primary">
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="indicatorWeight">0.00kg</h4>
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="small-box bg-danger">
+            <div class="col-md-4">
+              <div class="small-box bg-warning">
+                <div class="inner">
+                  <h4 style="text-align: center; font-size: 50px" id="unitCountWeight">0.00kg</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="small-box bg-green">
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="countingWeight">0</h4>
                 </div>
@@ -201,13 +209,62 @@ else{
                 <select class="form-control" style="width: 100%;" id="product" name="product" required>
                   <option selected="selected">-</option>
                   <?php while($row5=mysqli_fetch_assoc($products)){ ?>
-                    <option value="<?=$row5['id'] ?>" data-description="<?=$row5['product_name'] ?>" data-unit="<?=$row5['weight'] ?>"><?=$row5['product_name'] ?></option>
+                    <option 
+                      value="<?=$row5['id'] ?>" 
+                      data-description="<?=$row5['product_name'] ?>" 
+                      data-batch="<?=$row5['batch_no'] ?>" 
+                      data-uom="<?=$row5['uom'] ?>" 
+                      data-unit="<?=$row5['weight'] ?>"><?=$row5['product_name'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Supplier *</label>
+                <select class="form-control" style="width: 100%;" id="supplies" name="supplies" required>
+                  <option selected="selected">-</option>
+                  <?php while($rows=mysqli_fetch_assoc($supplies)){ ?>
+                    <option value="<?=$rows['id'] ?>"><?=$rows['supplier_name'] ?></option>
                   <?php } ?>
                 </select>
               </div>
             </div>
           </div>
-
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Batch No. *</label>
+                <input class="form-control" type="text" placeholder="Batch No" id="batchNumber" name="batchNumber" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Article No. *</label>
+                <input class="form-control" type="text" placeholder="Article No" id="articleNumber" name="articleNumber" required>
+              </div>
+            </div>
+          
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>IQC No. *</label>
+                <input class="form-control" type="text" placeholder="IQC No" id="iqcNumber" name="iqcNumber" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>UOM * </label>
+                <select class="form-control" style="width: 100%;" id="uom" name="uom"> 
+                  <option selected="selected">-</option>
+                  <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
+                    <option value="<?=$rowunits['id'] ?>"><?=$rowunits['units'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+          </div>
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
@@ -723,26 +780,40 @@ $(function () {
   $('#extendModal').find('#currentWeight').on('change', function(){
     var weight = $('#product :selected').data('unit');
     var cweight = $('#currentWeight').val();
+    $('#indicatorWeight').text(cweight.toString() + ' kg');
 
     if(weight && cweight){
       var count = parseFloat(cweight) / parseFloat(weight);
       count = parseFloat(count).toFixed(0);
       $('#actualCount').val(count);
+      $('#countingWeight').text(count);
     }
   });
 
   $('#extendModal').find('#product').on('change', function () {
     var desc = $('#product :selected').data('description');
     var weight = $('#product :selected').data('unit');
+    var batch = $('#product :selected').data('batch')? $('#product :selected').data('batch') : '';
+    var uom = $('#product :selected').data('uom') ? $('#product :selected').data('uom') : '';
     var cweight = $('#currentWeight').val();
+
     $('#unitWeight').val(weight);
+    $('#unitCountWeight').text(weight.toString() + ' kg');
+
     $('#productDesc').val(desc);
+    $('#uom').val(uom).trigger('change');
+    $('#batchNumber').val(batch);
 
     if(weight && cweight){
       var count = parseFloat(cweight) / parseFloat(weight);
       count = parseFloat(count).toFixed(0);
       $('#actualCount').val(count);
+      $('#countingWeight').text(count);
     }
+  });
+
+  $('#extendModal').find('#uom').on('change', function () {
+    
   });
 });
 
@@ -877,11 +948,16 @@ function formatNormal (row) {
 function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNumber').val("");
+  $('#extendModal').find('#batchNumber').val("");
+  $('#extendModal').find('#articleNumber').val("");
+  $('#extendModal').find('#iqcNumber').val("");
   $('#extendModal').find('#productDesc').val('');
   $('#extendModal').find('#product').val('');
+  $('#extendModal').find('#uom').val('');
   $('#extendModal').find('#currentWeight').attr('readonly', true).val('');
   $('#extendModal').find('#unitWeight').attr('readonly', true).val('');
   $('#extendModal').find('#actualCount').val("");
+  $('#extendModal').find('#supplies').val("");
   $('#extendModal').find('#remark').val("");
   $('#extendModal').modal('show');
   
@@ -912,8 +988,13 @@ function edit(id) {
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#serialNumber').val(obj.message.serial_no);
+      $('#extendModal').find('#batchNumber').val(obj.message.batch_no);
+      $('#extendModal').find('#articleNumber').val(obj.message.article_code);
+      $('#extendModal').find('#iqcNumber').val(obj.message.iqc_no);
       $('#extendModal').find('#productDesc').val(obj.message.product_desc);
       $('#extendModal').find('#product').val(obj.message.product);
+      $('#extendModal').find('#uom').val(obj.message.uom);
+      $('#extendModal').find('#supplies').val(obj.message.supplier);
       $('#extendModal').find('#currentWeight').val(obj.message.gross);
       $('#extendModal').find('#unitWeight').val(obj.message.unit);
       $('#extendModal').find('#actualCount').val(obj.message.count);

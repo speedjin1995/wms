@@ -23,12 +23,17 @@ if(isset($_POST['userID'])){
             $message = array();
             
             if ($row = $result->fetch_assoc()) {
+                $message['id'] = $row['id'];
                 $message['serial_no'] = $row['serial_no'];
                 $message['batch_no'] = $row['batch_no'];
+                $message['article_code'] = $row['article_code'];
+                $message['iqc_no'] = $row['iqc_no'];
+                $message['supplier'] = $row['supplier'];
+                $message['unit'] = $row['unit'];
                 $message['product'] = $row['product'];
                 $message['product_desc'] = $row['product_desc'];
                 $message['gross'] = $row['gross'];
-                $message['unit'] = $row['unit'];
+                $message['uom'] = $row['uom'];
                 $message['count'] = $row['count'];
                 $message['remark'] = $row['remark'];
             }

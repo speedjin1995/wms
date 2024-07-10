@@ -23,8 +23,15 @@ if(isset($_POST['userID'])){
             
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
+                $message['product_code'] = $row['product_code'];
                 $message['product_name'] = $row['product_name'];
+                $message['product_sn'] = $row['product_sn'];
+                $message['batch_no'] = $row['batch_no'];
+                $message['parts_no'] = $row['parts_no'];
+                $message['uom'] = $row['uom'];
                 $message['remark'] = $row['remark'];
+                $message['price'] = $row['price'];
+                $message['weight'] = $row['weight'];
             }
             
             echo json_encode(

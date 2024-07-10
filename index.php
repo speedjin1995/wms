@@ -396,6 +396,12 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#supplier" data-file="suppliers.php" class="nav-link link">
+                      <i class="nav-icon fas fa-file-alt"></i>
+                      <p>Supplier</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#products" data-file="products.php" class="nav-link link">
                       <i class="nav-icon fas fa-shopping-cart"></i>
                       <p>Products</p>
@@ -478,7 +484,7 @@ to get the desired effect
 
   <!-- Main Footer -->
   <footer class="main-footer">
-    <strong>Copyright &copy; 2022 <a href="#">SyncWeight</a>.</strong>All rights reserved.<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.0.0 </div>
+    <strong>Copyright &copy; 2024 <a href="#">SyncWeight</a>.</strong>All rights reserved.<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.0.0 </div>
   </footer>
 </div>
 <!-- ./wrapper -->
@@ -552,6 +558,30 @@ $(function () {
   
   $("a[href='#counting']").click();
 });
+
+function conversion(from, to) {
+  if (confirm('Are you sure you want to delete this items?')) {
+    $('#spinnerLoading').show();
+    $.post('php/deleteCount.php', {userID: id}, function(data){
+      var obj = JSON.parse(data);
+
+      if(obj.status === 'success'){
+        toastr["success"](obj.message, "Success:");
+        $('#weightTable').DataTable().ajax.reload();
+        /*$.get('weightPage.php', function(data) {
+          $('#mainContents').html(data);
+        });*/
+      }
+      else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+      }
+      else{
+        toastr["error"]("Something wrong when activate", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    });
+  }
+}
 </script>
 </body>
 </html>

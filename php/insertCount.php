@@ -3,12 +3,19 @@ require_once 'db_connect.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 
-if(isset($_POST['productDesc'], $_POST['product'], $_POST['currentWeight'], $_POST['unitWeight'], $_POST['actualCount'])){
+if(isset($_POST['supplies'], $_POST['productDesc'], $_POST['product'], $_POST['batchNumber'], $_POST['currentWeight'], 
+$_POST['unitWeight'], $_POST['actualCount'], $_POST['articleNumber'], $_POST['iqcNumber'], $_POST['uom'])){
 	$productDesc = filter_input(INPUT_POST, 'productDesc', FILTER_SANITIZE_STRING);
 	$product = filter_input(INPUT_POST, 'product', FILTER_SANITIZE_STRING);
 	$currentWeight = filter_input(INPUT_POST, 'currentWeight', FILTER_SANITIZE_STRING);
 	$unitWeight = filter_input(INPUT_POST, 'unitWeight', FILTER_SANITIZE_STRING);
 	$actualCount = filter_input(INPUT_POST, 'actualCount', FILTER_SANITIZE_STRING);
+    $supplies = filter_input(INPUT_POST, 'supplies', FILTER_SANITIZE_STRING);
+	$batchNumber = filter_input(INPUT_POST, 'batchNumber', FILTER_SANITIZE_STRING);
+	$articleNumber = filter_input(INPUT_POST, 'articleNumber', FILTER_SANITIZE_STRING);
+	$iqcNumber = filter_input(INPUT_POST, 'iqcNumber', FILTER_SANITIZE_STRING);
+	$uom = filter_input(INPUT_POST, 'uom', FILTER_SANITIZE_STRING);
+
     $today = date("Y-m-d 00:00:00");
 
     $user = $_SESSION['userID'];
@@ -55,13 +62,12 @@ if(isset($_POST['productDesc'], $_POST['product'], $_POST['currentWeight'], $_PO
 		}
 	}
 
-    if(!isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE counting SET product=?, product_desc=?, gross=?, unit=?, count=?, remark=? WHERE id=?")){
-            $update_stmt->bind_param('sssssss', $product, $productDesc, $currentWeight, $unitWeight, $actualCount, $remark, $_POST['id']);
+    if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
+        if ($update_stmt = $db->prepare("UPDATE counting SET product=?, product_desc=?, gross=?, unit=?, count=?, remark=?, supplier=?, batch_no=?, article_code=?, iqc_no=?, uom=? WHERE id=?")){
+            $update_stmt->bind_param('ssssssssssss', $product, $productDesc, $currentWeight, $unitWeight, $actualCount, $remark, $supplies, $batchNumber, $articleNumber, $iqcNumber, $uom, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
-
                 echo json_encode(
                     array(
                         "status"=> "failed", 
@@ -93,9 +99,9 @@ if(isset($_POST['productDesc'], $_POST['product'], $_POST['currentWeight'], $_PO
     
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO counting (serial_no, product, product_desc, gross, unit, count, remark, created_by, company) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
-            $insert_stmt->bind_param('sssssssss', $serialNo, $product, $productDesc, $currentWeight, $unitWeight, $actualCount, $remark, $user, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO counting (serial_no, product, product_desc, gross, unit, count, remark, created_by, company, supplier, batch_no, article_code, iqc_no, uom) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+            $insert_stmt->bind_param('ssssssssssssss', $serialNo, $product, $productDesc, $currentWeight, $unitWeight, $actualCount, $remark, $user, $company, $supplies, $batchNumber, $articleNumber, $iqcNumber, $uom);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){

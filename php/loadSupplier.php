@@ -14,7 +14,7 @@ $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Sear
 ## Search 
 $searchQuery = " ";
 if($searchValue != ''){
-  $searchQuery = "WHERE (supplier_name like '%".$searchValue."%' or supplier_code like '%".$searchValue."%')";
+  $searchQuery = "AND (supplier_name like '%".$searchValue."%' or supplier_code like '%".$searchValue."%')";
 }
 
 ## Total number of records without filtering
@@ -28,7 +28,7 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select * from supplies ".$searchQuery." order by deleted, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select * from supplies WHERE deleted = '0' ".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
