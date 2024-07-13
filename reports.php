@@ -40,6 +40,68 @@ else{
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
+  <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="form-group col-3">
+                <label>From Date:</label>
+                <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
+                  <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
+                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
+                </div>
+              </div>
+
+              <div class="form-group col-3">
+                <label>To Date:</label>
+                <div class="input-group date" id="toDatePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
+                  <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Supplier</label>
+                  <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
+                    <option value="" selected disabled hidden>Please Select</option>
+                    <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
+                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Product</label>
+                  <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
+                    <option selected="selected">-</option>
+                    <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
+                      <option value="<?=$rowStatus2['id'] ?>"><?=$rowStatus2['product_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-9"></div>
+              <div class="col-3">
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                  <i class="fas fa-search"></i>
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-danger">
@@ -60,11 +122,13 @@ else{
               <thead>
                 <tr>
                   <th>Serial <br>No.</th>
+                  <th>Batch <br>No.</th>
+                  <th>Article <br>No.</th>
+                  <th>IQC <br>No.</th>
                   <th>Product</th>
                   <th>Gross <br>Weight</th>
                   <th>Unit <br>Weight</th>
                   <th>Count</th>
-                  <th></th>
                 </tr>
               </thead>
             </table>
@@ -77,6 +141,35 @@ else{
 
 <script>
 $(function () {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  const yesterday = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  $('.select2').select2({
+    allowClear: true,
+    placeholder: "Please Select"
+  });
+
+  //Date picker
+  $('#fromDate').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY',
+    defaultDate: new Date
+  });
+
+  $('#toDate').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY',
+    defaultDate: new Date
+  });
+
+  var fromDateI = $('#fromDate').val();
+  var toDateI = $('#toDate').val();
+  var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+  var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+
   var table = $("#weightTable").DataTable({
     "responsive": true,
     "autoWidth": false,
@@ -87,55 +180,88 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-        'url':'php/loadCount.php'
+      'url':'php/filterCount.php',
+      'data': {
+        fromDate: fromDateI,
+        toDate: toDateI,
+        product: productI,
+        supplier: supplierNoI
+      } 
     },
     'columns': [
       { data: 'serial_no' },
+      { data: 'batch_no' },
+      { data: 'article_code' },
+      { data: 'iqc_no' },
       { data: 'product_name' },
       { data: 'gross' },
       { data: 'unit' },
       { data: 'count' },
-      { 
+      /*{ 
         data: 'id',
         render: function ( data, type, row ) {
           return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
         }
-      }
+      }*/
     ]
   });
 
-  // Add event listener for opening and closing details
-  $('#weightTable tbody').on('click', 'td.dt-control', function () {
-    var tr = $(this).closest('tr');
-    var row = table.row( tr );
+  $('#filterSearch').on('click', function(){
+    //$('#spinnerLoading').show();
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
-    if ( row.child.isShown() ) {
-      // This row is already open - close it
-      row.child.hide();
-      tr.removeClass('shown');
-    }
-    else {
-      // Open this row
-      <?php 
-        if($role == "ADMIN"){
-          echo 'row.child( format(row.data()) ).show();tr.addClass("shown");';
-        }
-        else{
-          echo 'row.child( formatNormal(row.data()) ).show();tr.addClass("shown");';
-        }
-      ?>
-    }
-  });
-  
-  //Date picker
-  $('#fromDate').datetimepicker({
-      icons: { time: 'far fa-clock' },
-      format: 'DD/MM/YYYY hh:mm:ss A'
+    //Destroy the old Datatable
+    $("#weightTable").DataTable().clear().destroy();
+
+    //Create new Datatable
+    table = $("#weightTable").DataTable({
+      "responsive": true,
+      "autoWidth": false,
+      'processing': true,
+      'serverSide': true,
+      'serverMethod': 'post',
+      'searching': false,
+      'order': [[ 1, 'asc' ]],
+      'columnDefs': [ { orderable: false, targets: [0] }],
+      'ajax': {
+        'url':'php/filterCount.php',
+        'data': {
+          fromDate: fromDateI,
+          toDate: toDateI,
+          product: productI,
+          supplier: supplierNoI
+        } 
+      },
+      'columns': [
+        { data: 'serial_no' },
+        { data: 'batch_no' },
+        { data: 'article_code' },
+        { data: 'iqc_no' },
+        { data: 'product_name' },
+        { data: 'gross' },
+        { data: 'unit' },
+        { data: 'count' },
+        /*{ 
+          data: 'id',
+          render: function ( data, type, row ) {
+            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          }
+        }*/
+      ]
+    });
   });
 
-  $('#toDate').datetimepicker({
-      icons: { time: 'far fa-clock' },
-      format: 'DD/MM/YYYY hh:mm:ss A'
+  $('#exportExcel').on('click', function(){
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+    
+    window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+
+    "&supplier="+supplierNoI+"&product="+productI);
   });
 });
 </script>

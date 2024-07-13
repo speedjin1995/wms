@@ -1,7 +1,11 @@
 <?php
-
 require_once 'db_connect.php';
-// // Load the database configuration file 
+require_once '../vendor/autoload.php'; 
+use PhpOffice\PhpSpreadsheet\Spreadsheet; 
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+session_start();
+$company = $_SESSION['customer'];
  
 // Filter the excel data 
 function filterData(&$str){ 
@@ -11,86 +15,73 @@ function filterData(&$str){
 } 
  
 // Excel file name for download 
-$fileName = "Weight-data_" . date('Y-m-d') . ".xls";
+$fileName = "Report_" . date('Y-m-d') . ".xlsx";
  
 // Column names 
-$fields = array('SERIAL NO', 'CUSTOMER', 'PRODUCT NO', 'VEHICLE NO', 'DRIVER NAME', 'FARM', 'WEIGHTED BY', 'START WEIGHT DATE', 'END WEIGHT DATE', 
-                'GROSS WEIGHT', 'TARE WEIGHT', 'REDUCE WEIGHT', 'NET WEIGHT', 'NUMBER OF BIRDS', 'NUMBER OF CAGES',
-                'GRADE', 'GENDER', 'HOUSE NUMBER', 'GROUP NUMBER', 'WEIGHT DATE TIME', 'REMARKS'); 
+// Create a new Spreadsheet
+$spreadsheet = new Spreadsheet();
 
+// Get the active worksheet
+$sheet = $spreadsheet->getActiveSheet();
+
+// Column names 
+$fields = array('No', 'Date', 'Serial No.', 'Batch No.', 'Article No.', 'Iqc No.', 'Supplier', 'Product', 'Gross Weight', 'Unit Weight', 'Qty'); 
 
 // Display column names as first row 
-$excelData = implode("\t", array_values($fields)) . "\n"; 
+$sheet->fromArray($fields, NULL, 'A1');
 
 ## Search 
-$searchQuery = " ";
+$searchQuery = "";
 
 if($_GET['fromDate'] != null && $_GET['fromDate'] != ''){
-    $fromDate = new DateTime($_GET['fromDate']);
-    $fromDateTime = date_format($fromDate,"Y-m-d H:i:s");
-    $searchQuery = " and created_datetime >= '".$fromDateTime."'";
+    $dateTime = DateTime::createFromFormat('d/m/Y', $_GET['fromDate']);
+    $fromDateTime = $dateTime->format('Y-m-d 00:00:00');
+    $searchQuery .= " and counting.created_datetime >= '".$fromDateTime."'";
 }
 
 if($_GET['toDate'] != null && $_GET['toDate'] != ''){
-    $toDate = new DateTime($_GET['toDate']);
-    $toDateTime = date_format($toDate,"Y-m-d H:i:s");
-    $searchQuery .= " and created_datetime <= '".$toDateTime."'";
+    $dateTime = DateTime::createFromFormat('d/m/Y', $_GET['toDate']);
+    $toDateTime = $dateTime->format('Y-m-d 23:59:59');
+    $searchQuery .= " and counting.created_datetime <= '".$toDateTime."'";
 }
 
-if($_GET['farm'] != null && $_GET['farm'] != '' && $_GET['farm'] != '-'){
-    $searchQuery .= " and farm_id = '".$_GET['farm']."'";
+if($_GET['product'] != null && $_GET['product'] != '' && $_GET['product'] != '-'){
+    $searchQuery .= " and products.id = '".$_GET['product']."'";
 }
 
-if($_GET['customer'] != null && $_GET['customer'] != '' && $_GET['customer'] != '-'){
-    $searchQuery .= " and customer = '".$_GET['customer']."'";
+if($_GET['supplier'] != null && $_GET['supplier'] != '' && $_GET['supplier'] != '-'){
+    $searchQuery .= " and counting.supplier = '".$_GET['supplier']."'";
 }
 
 // Fetch records from database
-$query = $db->query("select * FROM weighing WHERE deleted = '0' AND start_time IS NOT NULL AND end_time IS NOT NULL".$searchQuery."");
+$query = $db->query("select counting.*, products.product_name, supplies.supplier_name from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company'".$searchQuery);
+$rowIndex = 2; // Start from the second row
+$count = 1;
 
-echo $query->num_rows;
 if($query->num_rows > 0){ 
     // Output each row of the data 
     while($row = $query->fetch_assoc()){ 
-        $cid = $row['weighted_by'];
-        $weight_data = json_decode($row['weight_data'], true);
-        $weight_time = json_decode($row['weight_time'], true);
-        $weighted_by = '';
-            
-        if ($update_stmt = $db->prepare("SELECT * FROM users WHERE id=?")) {
-            $update_stmt->bind_param('s', $cid);
-        
-            // Execute the prepared query.
-            if ($update_stmt->execute()) {
-                $result = $update_stmt->get_result();
-                
-                if ($row2 = $result->fetch_assoc()) {
-                    $weighted_by = $row2['name'];
-                }
-            }
-        }
-        
-        for($i=0; $i<count($weight_data); $i++){
-            $lineData = array($row['serial_no'], $row['customer'], $row['product'], $row['lorry_no'], $row['driver_name'], $row['farm_id'],
-            $weighted_by, $row['start_time'], $row['end_time'], $weight_data[$i]['grossWeight'], $weight_data[$i]['tareWeight'], 
-            $weight_data[$i]['reduceWeight'], $weight_data[$i]['netWeight'], $weight_data[$i]['numberOfBirds'], $weight_data[$i]['numberOfCages'], 
-            $weight_data[$i]['grade'], $weight_data[$i]['sex'], $weight_data[$i]['houseNumber'], $weight_data[$i]['groupNumber'], $weight_time[$i], 
-            $weight_data[$i]['remark']);
-        }
-        
+        $lineData = array($count, substr($row['created_datetime'], 0, 10), $row['serial_no'], $row['batch_no'], $row['article_code'], 
+        $row['iqc_no'], $row['supplier_name'], $row['product_name'], $row['gross'], $row['unit'], $row['count']);
+
         array_walk($lineData, 'filterData'); 
-        $excelData .= implode("\t", array_values($lineData)) . "\n"; 
+        $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
+        $rowIndex++;
+        $count++;
     } 
 }else{ 
-    $excelData .= 'No records found...'. "\n"; 
+    $sheet->setCellValue('A'.$rowIndex, 'No records found...');
 } 
- 
-// Headers for download 
-header("Content-Type: application/vnd.ms-excel"); 
-header("Content-Disposition: attachment; filename=\"$fileName\""); 
- 
-// Render excel data 
-echo $excelData; 
- 
+
+// Create a writer object
+$writer = new Xlsx($spreadsheet);
+
+// Output to browser
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="'.$fileName.'"');
+header('Cache-Control: max-age=0');
+
+// Save the spreadsheet
+$writer->save('php://output');
 exit;
 ?>
