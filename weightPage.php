@@ -654,7 +654,7 @@ $(function () {
       }
     ],
     "rowCallback": function( row, data, index ) {
-      $('td', row).css('background-color', '#E6E6FA');
+      //$('td', row).css('background-color', '#E6E6FA');
     },
     "drawCallback": function(settings) {
       $('#salesInfo').text(settings.json.salesTotal);
@@ -838,7 +838,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       },
       "drawCallback": function(settings) {
         $('#salesInfo').text(settings.json.salesTotal);
@@ -907,7 +907,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       }
     });
   });
@@ -971,7 +971,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       }
     });
   });
@@ -1035,7 +1035,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       }
     });
   });

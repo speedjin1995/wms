@@ -73,9 +73,18 @@ else{
       cursor: pointer
     }
   
+    .table-striped > tbody > tr{
+      background-color: #f9acb3; 
+      color:black;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd){
+      background-color: #f9acb3; 
+      color:black;
+    }
+
     thead {
-      /* background: #dddcdc */
-      background-color: #007bff; 
+      background-color: #dc3545; 
       color:white;
     }
   
@@ -300,17 +309,17 @@ to get the desired effect
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars bg-success"></i></a>
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars" style="color: #E20B10;"></i></a>
       </li>
     </ul>
   </nav>
   <!-- Main Sidebar Container -->
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #3d44c1;">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #400003;">
     <!-- Brand Logo -->
-    <a href="#" class="brand-link logo-switch" style="line-height: 5;">
-      <img src="assets/logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs">
-      <img src="assets/logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content;">
+    <a href="#" class="brand-link logo-switch">
+      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs">
+      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 80%;max-height: auto;">
     </a>
 
     <!-- Sidebar -->
@@ -321,7 +330,7 @@ to get the desired effect
             <img src="assets/user-avatar.png" class="img-circle elevation-2" alt="User Image">
           </div>
           <div class="info" style="white-space: nowrap;">
-            <p style="font-size:0.75rem; color:#E3E3E3; margin-bottom:0rem; color:#1888CA">Welcome</p>
+            <p style="font-size:0.75rem; color:#E3E3E3; margin-bottom:0rem;">Welcome</p>
             <a href="#myprofile" data-file="myprofile.php" id="goToProfile" class="d-block"><?=$name ?></a>
           </div>
       </div>
@@ -343,19 +352,19 @@ to get the desired effect
               <p>Weighing<i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
-              <li class="nav-item">
+              <!--li class="nav-item">
                 <a href="#weighing" data-file="weightPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-balance-scale"></i>
                   <p>Weight Weighing</p>
                 </a>
-              </li>
+              </li-->
               <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p>Count Weighing</p>
                 </a>
               </li>
-              <li class="nav-item">
+              <!--li class="nav-item">
                 <a href="#batching" data-file="batchPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-file-alt"></i>
                   <p>Batch Weighing</p>
@@ -366,15 +375,15 @@ to get the desired effect
                   <i class="nav-icon fas fa-dollar-sign"></i>
                   <p>Price Weighing</p>
                 </a>
-              </li>
+              </li-->
             </ul>
           </li>
-          <!--li class="nav-item">
-            <a href="#counting" data-file="countingPage.php" class="nav-link link">
+          <li class="nav-item">
+            <a href="#reports" data-file="reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
-              <p>Counting Weighing</p>
+              <p>Reports</p>
             </a>
-          </li-->
+          </li>
           <?php 
               if($role == "ADMIN"){
                 echo '<li class="nav-item">
@@ -513,6 +522,14 @@ to get the desired effect
 <script src="plugins/sheets/xlsx.full.min.js"></script>
 
 <script>
+// Define the conversion factors
+const conversionFactors = {
+  kg: { kg: 1, g: 1000, oz: 35.27396, lbs: 2.20462 },
+  g: { g: 1, kg: 0.001, oz: 0.03527396, lbs: 0.00220462 },
+  oz: { oz: 1, kg: 0.0283495, g: 28.3495, lbs: 0.0625 },
+  lbs: { lbs: 1, kg: 0.453592, g: 453.592, oz: 16 },
+};
+
 $(function () {
   toastr.options = {
     "closeButton": false,
@@ -559,29 +576,14 @@ $(function () {
   $("a[href='#counting']").click();
 });
 
-function conversion(from, to) {
-  if (confirm('Are you sure you want to delete this items?')) {
-    $('#spinnerLoading').show();
-    $.post('php/deleteCount.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
 
-      if(obj.status === 'success'){
-        toastr["success"](obj.message, "Success:");
-        $('#weightTable').DataTable().ajax.reload();
-        /*$.get('weightPage.php', function(data) {
-          $('#mainContents').html(data);
-        });*/
-      }
-      else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
-      }
-      else{
-        toastr["error"]("Something wrong when activate", "Failed:");
-      }
-      $('#spinnerLoading').hide();
-    });
-  }
+
+// Function to convert between units
+function convertUnits(value, fromUnit, toUnit) {
+  var convertedValue = value * (conversionFactors[fromUnit][toUnit] || 1);
+  return convertedValue;
 }
+
 </script>
 </body>
 </html>

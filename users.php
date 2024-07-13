@@ -118,7 +118,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       },
     });
     

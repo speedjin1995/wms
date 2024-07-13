@@ -37,6 +37,12 @@ else{
   $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
 }
 ?>
+<select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
+  <option selected="selected">-</option>
+  <?php while($rowunits2=mysqli_fetch_assoc($units1)){ ?>
+    <option value="<?=$rowunits2['id'] ?>"><?=$rowunits2['units'] ?></option>
+  <?php } ?>
+</select>
 
 <style>
   @media screen and (min-width: 676px) {
@@ -45,6 +51,7 @@ else{
     }
   }
 </style>
+
 <div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
@@ -125,7 +132,7 @@ else{
       </div> -->
 
       <div class="col-lg-12">
-        <div class="card card-primary">
+        <div class="card card-danger">
           <div class="card-header">
             <div class="row">
               <div class="col-6"></div>
@@ -171,8 +178,10 @@ else{
 
         <div class="modal-body" >
           <div class="row">
+
             <div class="col-md-4">
               <div class="small-box bg-primary">
+                <a href="#" class="small-box-footer">Total Weight</a>
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="indicatorWeight">0.00kg</h4>
                 </div>
@@ -180,13 +189,15 @@ else{
             </div>
             <div class="col-md-4">
               <div class="small-box bg-warning">
+                <a href="#" class="small-box-footer">Unit Weight / PCS</a>
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="unitCountWeight">0.00kg</h4>
                 </div>
               </div>
             </div>
             <div class="col-md-4">
-              <div class="small-box bg-green">
+              <div class="small-box bg-success">
+                <a href="#" class="small-box-footer">Total Count / PCS</a>
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="countingWeight">0</h4>
                 </div>
@@ -277,7 +288,6 @@ else{
                 </label>
                 <div class="input-group">
                   <input class="form-control" type="number" placeholder="Current Weight" id="currentWeight" name="currentWeight" readonly required/>
-                  <div class="input-group-text bg-primary color-palette"><i id="changeWeight">KG/G</i></div>
                   <button type="button" class="btn btn-primary" id="inCButton"><i class="fas fa-sync"></i></button>
                 </div>
               </div>
@@ -287,7 +297,6 @@ else{
               <label>Unit Weight *</label>
               <div class="input-group">
                 <input class="form-control" type="number" placeholder="Unit Weight" id="unitWeight" name="unitWeight" min="0" readonly/>
-                <div class="input-group-text bg-danger color-palette"><i id="changeReduceWeight">KG/G</i></div>
               </div>
             </div>
 
@@ -295,7 +304,6 @@ else{
               <label>Count *</label>
               <div class="input-group">
                 <input class="form-control" type="number" placeholder="Actual Count" id="actualCount" name="actualCount" readonly/>
-                <div class="input-group-text bg-success color-palette"><i id="changeWeightActual">KG/G</i></div>
               </div>
             </div>
           </div>
@@ -385,6 +393,8 @@ var rate = 1;
 var currency = "1";
 
 $(function () {
+  $('#uomhidden').hide();
+
   var table = $("#weightTable").DataTable({
     "responsive": true,
     "autoWidth": false,
@@ -406,12 +416,12 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ],
     "rowCallback": function( row, data, index ) {
-      $('td', row).css('background-color', '#E6E6FA');
+      //$('td', row).css('background-color', '#E6E6FA');
     },
     "drawCallback": function(settings) {
       /*$('#salesInfo').text(settings.json.salesTotal);
@@ -454,7 +464,7 @@ $(function () {
       format: 'DD/MM/YYYY hh:mm:ss A'
   });
 
-  /*$.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
+  $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
     if(data == "true"){
       $('#indicatorConnected').addClass('bg-primary');
       $('#checkingConnection').removeClass('bg-danger');
@@ -472,22 +482,27 @@ $(function () {
       if(data != "Error"){
         console.log("Data Received:" + data);
         var text = data.split(" ");
-        $('#indicatorWeight').html(text[text.length - 1]);
-        $('#indicatorConnected').addClass('bg-primary');
-        $('#checkingConnection').removeClass('bg-danger');
-      }
-      else{
-        $('#indicatorConnected').removeClass('bg-primary');
-        $('#checkingConnection').addClass('bg-danger');
+
+        if(text.length > 2){
+          $('#indicatorWeight').html(text[text.length - 2] + ' ' + text[text.length - 1]);
+          var convertTog1 = convertUnits(text[text.length - 2], text[text.length - 1], 'g');
+
+          if($('#uom').val() && $('#product').val()){
+            var uomDesc = $("#uomhidden option[value='"+$('#uom').val()+"']").text();
+            var weight = $('#product :selected').data('unit');
+            var convertTog2 = convertUnits(weight, uomDesc, 'g');
+            var count = parseFloat(convertTog1) / parseFloat(convertTog2);
+            $('#countingWeight').text(count.toFixed(0));
+          }
+        }
       }
     });
-  }, 500);*/
+  }, 500);
 
   $.validator.setDefaults({
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
           $('#spinnerLoading').show();
-
            
         $.post('php/insertCount.php', $('#extendForm').serialize(), function(data){
           var obj = JSON.parse(data); 
@@ -544,12 +559,12 @@ $(function () {
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
           }
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       },
       "drawCallback": function(settings) {
         /*$('#salesInfo').text(settings.json.salesTotal);
@@ -618,7 +633,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       }
     });
   });
@@ -682,7 +697,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       }
     });
   });
@@ -746,7 +761,7 @@ $(function () {
         }
       ],
       "rowCallback": function( row, data, index ) {
-        $('td', row).css('background-color', '#E6E6FA');
+        //$('td', row).css('background-color', '#E6E6FA');
       }
     });
   });
@@ -772,15 +787,17 @@ $(function () {
 
   $('#extendModal').find('#inCButton').on('click', function(){
     var text = $('#indicatorWeight').text();
-    var weight = parseFloat(text.substring(0, text.length-2))
+    var weight = parseFloat(text.replace("kg","").replace("g","").replace("oz","").replace("lbs",""))
     $('#currentWeight').val(weight.toFixed(2));
     $('#currentWeight').trigger("change");
   });
 
   $('#extendModal').find('#currentWeight').on('change', function(){
     var weight = $('#product :selected').data('unit');
+    var uom = $('#product :selected').data('uom') ? $('#product :selected').data('uom') : '';
+    var uomDesc = $("#uomhidden option[value='"+uom+"']").text();
     var cweight = $('#currentWeight').val();
-    $('#indicatorWeight').text(cweight.toString() + ' kg');
+    $('#indicatorWeight').text(cweight.toString() + ' ' + uomDesc);
 
     if(weight && cweight){
       var count = parseFloat(cweight) / parseFloat(weight);
@@ -797,8 +814,10 @@ $(function () {
     var uom = $('#product :selected').data('uom') ? $('#product :selected').data('uom') : '';
     var cweight = $('#currentWeight').val();
 
+    var uomDesc = $("#uomhidden option[value='"+uom+"']").text();
+
     $('#unitWeight').val(weight);
-    $('#unitCountWeight').text(weight.toString() + ' kg');
+    $('#unitCountWeight').text(weight.toString() + ' ' + uomDesc);
 
     $('#productDesc').val(desc);
     $('#uom').val(uom).trigger('change');
