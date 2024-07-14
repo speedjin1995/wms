@@ -131,17 +131,17 @@ if(isset($_POST['userID'])){
         <table class="table">
             <tbody>
                 <tr> 
-                    <td style="width: 30%;border-top:0px;">
+                    <td style="width: 30%;border-top:0px;padding-top: 0.5px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">Datetime</span>
                         </p>
                     </td>
-                    <td style="width: 5%;border-top:0px;">
+                    <td style="width: 5%;border-top:0px;padding-top: 0.5px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">:</span>
                         </p>
                     </td>
-                    <td style="width: 65%;border-top:0px;">
+                    <td style="width: 65%;border-top:0px;padding-top: 0.5px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">'.$formattedDateTime.'</span>
                         </p>
@@ -233,10 +233,27 @@ if(isset($_POST['userID'])){
                     </td>
                 </tr>
             </tbody>
-        </table><br>
+        </table>
         
         <table class="table">
             <tbody>
+                <tr>
+                    <td style="width: 40%;border-top:0px;padding-top: 0.5px;">
+                        <p>
+                            <span style="font-size: 5px;font-family: sans-serif;">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width: 10%;border-top:0px;padding-top: 0.5px;">
+                        <p>
+                            <span style="font-size: 5px;font-family: sans-serif;">&nbsp;</span>
+                        </p>
+                    </td>
+                    <td style="width: 50%;border-top:0px;padding-top: 0.5px;">
+                        <p>
+                            <span style="font-size: 5px;font-family: sans-serif;">&nbsp;</span>
+                        </p>
+                    </td>
+                </tr>
                 <tr>
                     <td style="width: 40%;border-top:0px;">
                         <p>
