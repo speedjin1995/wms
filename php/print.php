@@ -24,12 +24,31 @@ if(isset($_POST['userID'])){
                 $createdDateTime->modify('+8 hours');
                 $formattedDateTime = $createdDateTime->format('d/m/Y H:i:s');
 
+                $uom = 'g';
+  
+                if($row['uom']!=null && $row['uom']!=''){
+                    $id = $row['uom'];
+
+                    if ($update_stmt = $db->prepare("SELECT * FROM units WHERE id=?")) {
+                    $update_stmt->bind_param('s', $id);
+                    
+                    // Execute the prepared query.
+                    if ($update_stmt->execute()) {
+                        $result1 = $update_stmt->get_result();
+                        
+                        if ($row1 = $result1->fetch_assoc()) {
+                        $uom = $row1['units'];
+                        }
+                    }
+                    }
+                }
+
                 $message = '<html>
     <head>
         <style>
             @media print {
                 @page {
-                    size: 50mm 40mm; /* Set the page size to 50mm x 40mm */
+                    size: 50mm 40mm potrait; /* Set the page size to 50mm x 40mm */
                     margin: 0; /* Remove default margins */
                 }
             } 
@@ -207,14 +226,14 @@ if(isset($_POST['userID'])){
                 <tr>
                     <td style="width: 40%;border-top:0px;">
                         <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">T.W.: '.$row['gross'].'</span><br>
-                            <span style="font-size: 10px;font-family: sans-serif;">U.W.: '.$row['unit'].'</span>
+                            <span style="font-size: 10px;font-family: sans-serif;">T.W.: '.$row['gross'].' '.$uom.'</span><br>
+                            <span style="font-size: 10px;font-family: sans-serif;">U.W.: '.$row['unit'].' '.$uom.'</span>
                         </p>
                     </td>
                     <td style="width: 10%;border-top:0px;">&nbsp</td>
                     <td style="width: 50%;border-top:0px;">
                         <p>
-                            <span style="font-size: 14px;font-family: sans-serif;">'.$row['count'].'</span>
+                            <span style="font-size: 14px;font-family: sans-serif;">'.$row['count'].' PCS</span>
                         </p>
                     </td>
                 </tr>
