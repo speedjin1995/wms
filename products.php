@@ -34,9 +34,10 @@ $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
           <table id="productTable" class="table table-bordered table-striped">
             <thead>
               <tr>
+                <th>Product Code</th>
                 <th>Product Name</th>
-                <th>Price</th>
-                <th>Weight (kg)</th>
+                <!--th>Price</th-->
+                <th>Weight</th>
                 <th>Remark</th>
                 <th>Actions</th>
               </tr>
@@ -93,17 +94,17 @@ $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
                     <?php } ?>
                   </select>
                 </div>
+                <div class="form-group">
+                  <label for="weight">Unit Weight</label>
+                  <input type="number" class="form-control" name="weight" id="weight" placeholder="Enter Product Weight">
+                </div>
                 <div class="form-group"> 
                   <label for="remark">Remark </label>
                   <textarea class="form-control" id="remark" name="remark" placeholder="Enter your remark"></textarea>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display:none;">
                   <label for="price">Price</label>
                   <input type="number" class="form-control" name="price" id="price" placeholder="Enter Product Price">
-                </div>
-                <div class="form-group">
-                  <label for="weight">Unit Weight</label>
-                  <input type="number" class="form-control" name="weight" id="weight" placeholder="Enter Product Weight">
                 </div>
               </div>
             </div>
@@ -133,8 +134,9 @@ $(function () {
       }
     },
     'columns': [
+      { data: 'product_code' },
       { data: 'product_name' },
-      { data: 'price' },
+      //{ data: 'price' },
       { data: 'weight' },
       { data: 'remark' },
       { 

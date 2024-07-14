@@ -40,7 +40,7 @@ else{
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-  <div class="row">
+    <div class="row">
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
@@ -131,6 +131,14 @@ else{
                   <th>Count</th>
                 </tr>
               </thead>
+              <tfoot>
+                <tr>
+                    <th colspan="5">Total</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -203,7 +211,39 @@ $(function () {
           return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
         }
       }*/
-    ]
+    ],
+    "footerCallback": function(row, data, start, end, display) {
+      var api = this.api();
+
+      // Calculate total for 'total_cages' column
+      var totalCages = api
+          .column(5, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
+
+      // Calculate total for 'total_birds' column
+      var totalBirds = api
+          .column(6, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseInt(b);
+          }, 0);
+
+      var totalConts = api
+        .column(7, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+            return a + parseFloat(b);
+        }, 0);
+
+
+      // Update footer with the total
+      $(api.column(5).footer()).html(totalCages);
+      $(api.column(6).footer()).html(totalBirds);
+      $(api.column(7).footer()).html(totalConts);
+    }
   });
 
   $('#filterSearch').on('click', function(){
@@ -250,7 +290,39 @@ $(function () {
             return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
           }
         }*/
-      ]
+      ],
+      "footerCallback": function(row, data, start, end, display) {
+        var api = this.api();
+
+        // Calculate total for 'total_cages' column
+        var totalCages = api
+            .column(5, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
+
+        // Calculate total for 'total_birds' column
+        var totalBirds = api
+            .column(6, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
+
+        var totalConts = api
+          .column(7, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
+
+
+        // Update footer with the total
+        $(api.column(5).footer()).html(totalCages);
+        $(api.column(6).footer()).html(totalBirds);
+        $(api.column(7).footer()).html(totalConts);
+      }
     });
   });
 

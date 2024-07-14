@@ -66,81 +66,80 @@ else{
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-    <!--div div class="row">
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box" id="saleCard">
-          <span class="info-box-icon bg-info">
-            <i class="fas fa-shopping-cart"></i>
-          </span>
-          <div class="info-box-content">
-            <span class="info-box-text">Sales</span>
-            <span class="info-box-number" id="salesInfo">0</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box" id="purchaseCard">
-          <span class="info-box-icon bg-success">
-            <i class="fas fa-shopping-basket"></i>
-          </span>
-          <div class="info-box-content">
-            <span class="info-box-text">Purchase</span>
-            <span class="info-box-number" id="purchaseInfo">0</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="info-box" id="miscCard">
-          <span class="info-box-icon bg-warning">
-            <i class="fas fa-warehouse" style="color: white;"></i>
-          </span>
-          <div class="info-box-content">
-            <span class="info-box-text">Miscellaneous</span>
-            <span class="info-box-number" id="localInfo">0</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-3 col-sm-6 col-12">
-        <div class="input-group-text color-palette" id="indicatorConnected"><i>Indicator Connected</i></div>
-        <div class="input-group-text bg-danger color-palette" id="checkingConnection"><i>Checking Connection</i></div>
-      </div>
-    </div-->
-
-    <div class="row">
-
-      <!-- <div class="col-lg-12">
+  <div class="row">
+      <div class="col-lg-12">
         <div class="card">
-          <div class="card-header">
+          <div class="card-body">
             <div class="row">
-              <div class="col-4">
-                <div class="input-group-text color-palette" id="indicatorConnected"><i>Indicator Connected</i></div>
+              <div class="form-group col-3">
+                <label>From Date:</label>
+                <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
+                  <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
+                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
+                </div>
               </div>
-              <div class="col-4">
-                <div class="input-group-text bg-danger color-palette" id="checkingConnection"><i>Checking Connection</i></div>
+
+              <div class="form-group col-3">
+                <label>To Date:</label>
+                <div class="input-group date" id="toDatePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
+                  <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+                </div>
               </div>
-              <div class="col-4">
-                <button type="button" class="btn btn-block bg-gradient-primary"  onclick="setup()">
-                  Setup
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Supplier</label>
+                  <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
+                    <option value="" selected disabled hidden>Please Select</option>
+                    <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
+                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Product</label>
+                  <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
+                    <option selected="selected">-</option>
+                    <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
+                      <option value="<?=$rowStatus2['id'] ?>"><?=$rowStatus2['product_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-9"></div>
+              <div class="col-3">
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                  <i class="fas fa-search"></i>
+                  Search
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </div> -->
+      </div>
+    </div>
 
+    <div class="row">
       <div class="col-lg-12">
         <div class="card card-danger">
           <div class="card-header">
             <div class="row">
-              <div class="col-6"></div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn">Refresh</button>
+              <div class="col-8"></div>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" onclick="newEntry()">Add New Count</button>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New Count</button>
               </div>
             </div>
           </div>
@@ -149,14 +148,24 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
-                  <th>Serial <br>No.</th>
+                  <th>Serial No.</th>
+                  <th>Created Datetime</th>
                   <th>Product</th>
-                  <th>Gross <br>Weight</th>
-                  <th>Unit <br>Weight</th>
+                  <th>Gross Weight</th>
+                  <th>Unit Weight</th>
                   <th>Count</th>
-                  <th></th>
+                  <th>Action</th>
                 </tr>
               </thead>
+              <tfoot>
+                <tr>
+                    <th colspan="3">Total</th>
+                    <th></th>
+                    <th></th>
+                    <th></th> 
+                    <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -181,7 +190,7 @@ else{
 
             <div class="col-md-4">
               <div class="small-box bg-primary">
-                <a href="#" class="small-box-footer">Total Weight</a>
+                <a href="#" class="small-box-footer"><b>Total Weight</b></a>
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="indicatorWeight">0.00kg</h4>
                 </div>
@@ -189,7 +198,7 @@ else{
             </div>
             <div class="col-md-4">
               <div class="small-box bg-warning">
-                <a href="#" class="small-box-footer">Unit Weight / PCS</a>
+                <a href="#" class="small-box-footer"><b>Unit Weight / PCS</b></a>
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="unitCountWeight">0.00kg</h4>
                 </div>
@@ -197,7 +206,7 @@ else{
             </div>
             <div class="col-md-4">
               <div class="small-box bg-success">
-                <a href="#" class="small-box-footer">Total Count / PCS</a>
+                <a href="#" class="small-box-footer"><b>Total Count / PCS</b></a>
                 <div class="inner">
                   <h4 style="text-align: center; font-size: 50px" id="countingWeight">0</h4>
                 </div>
@@ -395,6 +404,29 @@ var currency = "1";
 $(function () {
   $('#uomhidden').hide();
 
+  const today = new Date();
+  const tomorrow = new Date(today);
+  const yesterday = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  yesterday.setDate(yesterday.getDate() - 7);
+
+  $('#fromDatePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY',
+    defaultDate: today
+  });
+
+  $('#toDatePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY',
+    defaultDate: today
+  });
+
+  var fromDateI = $('#fromDate').val();
+  var toDateI = $('#toDate').val();
+  var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+  var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+
   var table = $("#weightTable").DataTable({
     "responsive": true,
     "autoWidth": false,
@@ -405,10 +437,17 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-        'url':'php/loadCount.php'
+      'url':'php/filterCount.php',
+      'data': {
+        fromDate: fromDateI,
+        toDate: toDateI,
+        product: productI,
+        supplier: supplierNoI
+      } 
     },
     'columns': [
       { data: 'serial_no' },
+      { data: 'created_datetime' },
       { data: 'product_name' },
       { data: 'gross' },
       { data: 'unit' },
@@ -420,13 +459,36 @@ $(function () {
         }
       }
     ],
-    "rowCallback": function( row, data, index ) {
-      //$('td', row).css('background-color', '#E6E6FA');
-    },
-    "drawCallback": function(settings) {
-      /*$('#salesInfo').text(settings.json.salesTotal);
-      $('#purchaseInfo').text(settings.json.purchaseTotal);
-      $('#localInfo').text(settings.json.localTotal);*/
+    "footerCallback": function(row, data, start, end, display) {
+      var api = this.api();
+
+      // Calculate total for 'total_cages' column
+      var totalCages = api
+          .column(3, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
+
+      // Calculate total for 'total_birds' column
+      var totalBirds = api
+          .column(4, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
+
+      var totalConts = api
+        .column(5, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+            return a + parseFloat(b);
+        }, 0);
+
+      // Update footer with the total
+      $(api.column(3).footer()).html(totalCages);
+      $(api.column(4).footer()).html(totalBirds);
+      $(api.column(5).footer()).html(totalConts);
     }
   });
 
@@ -452,16 +514,82 @@ $(function () {
       ?>
     }
   });
-  
-  //Date picker
-  $('#fromDate').datetimepicker({
-      icons: { time: 'far fa-clock' },
-      format: 'DD/MM/YYYY hh:mm:ss A'
-  });
 
-  $('#toDate').datetimepicker({
-      icons: { time: 'far fa-clock' },
-      format: 'DD/MM/YYYY hh:mm:ss A'
+  $('#filterSearch').on('click', function(){
+    //$('#spinnerLoading').show();
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+
+    //Destroy the old Datatable
+    $("#weightTable").DataTable().clear().destroy();
+
+    //Create new Datatable
+    table = $("#weightTable").DataTable({
+      "responsive": true,
+      "autoWidth": false,
+      'processing': true,
+      'serverSide': true,
+      'serverMethod': 'post',
+      'searching': true,
+      'order': [[ 1, 'asc' ]],
+      'columnDefs': [ { orderable: false, targets: [0] }],
+      'ajax': {
+        'url':'php/filterCount.php',
+        'data': {
+          fromDate: fromDateI,
+          toDate: toDateI,
+          product: productI,
+          supplier: supplierNoI
+        } 
+      },
+      'columns': [
+        { data: 'serial_no' },
+        { data: 'created_datetime' },
+        { data: 'product_name' },
+        { data: 'gross' },
+        { data: 'unit' },
+        { data: 'count' },
+        { 
+          data: 'id',
+          render: function ( data, type, row ) {
+            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          }
+        }
+      ],
+      "footerCallback": function(row, data, start, end, display) {
+        var api = this.api();
+
+        // Calculate total for 'total_cages' column
+        var totalCages = api
+            .column(3, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
+
+        // Calculate total for 'total_birds' column
+        var totalBirds = api
+            .column(4, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
+
+        var totalConts = api
+          .column(5, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
+
+        // Update footer with the total
+        $(api.column(3).footer()).html(totalCages);
+        $(api.column(4).footer()).html(totalBirds);
+        $(api.column(5).footer()).html(totalConts);
+      }
+    });
   });
 
   $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
@@ -788,7 +916,7 @@ $(function () {
   $('#extendModal').find('#inCButton').on('click', function(){
     var text = $('#indicatorWeight').text();
     var weight = parseFloat(text.replace("kg","").replace("g","").replace("oz","").replace("lbs",""))
-    $('#currentWeight').val(weight.toFixed(2));
+    $('#currentWeight').val(weight.toFixed(3));
     $('#currentWeight').trigger("change");
   });
 
@@ -1080,10 +1208,6 @@ function print(id) {
         printWindow.print();
         printWindow.close();
       }, 500);
-
-      /*$.get('weightPage.php', function(data) {
-        $('#mainContents').html(data);
-      });*/
     }
     else if(obj.status === 'failed'){
       toastr["error"](obj.message, "Failed:");

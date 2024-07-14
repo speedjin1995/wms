@@ -43,12 +43,21 @@ $query = $db->query("SELECT counting.*, products.product_name, supplies.supplier
 try {
     // Initialize mPDF with a custom temporary directory
     $mpdfConfig = [
+        'mode' => 'utf-8',
+        'format' => 'A4-L',
         'tempDir' => __DIR__ . '/pdf' // Ensure this directory is writable
     ];
     $mpdf = new Mpdf($mpdfConfig);
 
-    // Set PDF header
-    $header = '<h2>Report</h2>';
+    // Get the logo image
+    $logo = '<img src="../assets/logo_customer.png" width="30%" height="auto" style="vertical-align: middle;">';
+
+    // Get the date range for the report title
+    $fromDate = !empty($_GET['fromDate']) ? $_GET['fromDate'] : 'N/A';
+    $toDate = !empty($_GET['toDate']) ? $_GET['toDate'] : 'N/A';
+
+    // Set PDF header with logo and dynamic report title
+    $header = '<h2 style="display: inline-block; vertical-align: middle;">'.$logo.'&nbsp;&nbsp;&nbsp; Report from '.$fromDate.' to '.$toDate.'</h2>';
     $header .= '<table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">';
     $header .= '<thead>';
     $header .= '<tr>';
@@ -76,13 +85,27 @@ try {
             $content .= '<td>'.$row['unit'].'</td>';
             $content .= '<td>'.$row['count'].'</td>';
             $content .= '</tr>';
+
+            $totalGross += $row['gross'];
+            $totalUnit += $row['unit'];
+            $totalCount += $row['count'];
+
             $count++;
         } 
     } else { 
         $content .= '<tr><td colspan="11">No records found...</td></tr>';
     }
 
+    // Footer with summation of gross, unit, and count
     $content .= '</tbody>';
+    $content .= '<tfoot>';
+    $content .= '<tr>';
+    $content .= '<td colspan="8" style="text-align:right;"><strong>Total</strong></td>';
+    $content .= '<td><strong>'.$totalGross.'</strong></td>';
+    $content .= '<td><strong>'.$totalUnit.'</strong></td>';
+    $content .= '<td><strong>'.$totalCount.'</strong></td>';
+    $content .= '</tr>';
+    $content .= '</tfoot>';
     $content .= '</table>';
 
     // Write PDF content

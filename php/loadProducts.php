@@ -38,14 +38,36 @@ $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
-    $data[] = array( 
-      "id"=>$row['id'],
-      "product_name"=>$row['product_name'],
-      "price"=>$row['price'],
-      "weight"=>$row['weight'],
-      "remark"=>$row['remark'],
-      "deleted"=>$row['deleted']
-    );
+  $uom = 'g';
+  
+  if($row['uom']!=null && $row['uom']!=''){
+    $id = $row['uom'];
+
+    if ($update_stmt = $db->prepare("SELECT * FROM units WHERE id=?")) {
+      $update_stmt->bind_param('s', $id);
+      
+      // Execute the prepared query.
+      if ($update_stmt->execute()) {
+        $result1 = $update_stmt->get_result();
+        
+        if ($row1 = $result1->fetch_assoc()) {
+          $uom = $row1['units'];
+        }
+      }
+    }
+  }
+
+  $data[] = array( 
+    "id"=>$row['id'],
+    "product_code"=>$row['product_code'],
+    "product_name"=>$row['product_name'],
+    "price"=>$row['price'],
+    "weight"=>$row['weight'].' '.$uom,
+    "uom"=>$row['uom'],
+    "unit"=>$uom,
+    "remark"=>$row['remark'],
+    "deleted"=>$row['deleted']
+  );
 }
 
 ## Response
