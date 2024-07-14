@@ -119,32 +119,46 @@ if(isset($_POST['userID'])){
         $message .= '<table class="table">
             <tbody>
                 <tr>
-                    <td style="width: 40%;border-top:0px;">
+                    <td style="width: 20%;border-top:0px;">&nbsp;</td>
+                    <td style="width: 60%;border-top:0px;">
                         <img src="assets/logo_customer.png" width="100%" height="auto" />
                     </td>
-                    <td style="width: 60%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">'.$formattedDateTime.'</span>
-                        </p>
-                    </td>
+                    <td style="width: 20%;border-top:0px;">&nbsp;</td>
                 </tr>
             </tbody>
         </table>
 
         <table class="table">
             <tbody>
+                <tr> 
+                    <td style="width: 30%;border-top:0px;">
+                        <p>
+                            <span style="font-size: 10px;font-family: sans-serif;">Datetime</span>
+                        </p>
+                    </td>
+                    <td style="width: 5%;border-top:0px;">
+                        <p>
+                            <span style="font-size: 10px;font-family: sans-serif;">:</span>
+                        </p>
+                    </td>
+                    <td style="width: 65%;border-top:0px;">
+                        <p>
+                            <span style="font-size: 10px;font-family: sans-serif;">'.$formattedDateTime.'</span>
+                        </p>
+                    </td>
+                </tr>
                 <tr>
                     <td style="width: 30%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">Supplier</span>
                         </p>
                     </td>
-                    <td style="width: 10%;border-top:0px;">
+                    <td style="width: 5%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">:</span>
                         </p>
                     </td>
-                    <td style="width: 60%;border-top:0px;">
+                    <td style="width: 65%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">'.$row['supplier_name'].'</span>
                         </p>
@@ -156,12 +170,12 @@ if(isset($_POST['userID'])){
                             <span style="font-size: 10px;font-family: sans-serif;">Item</span>
                         </p>
                     </td>
-                    <td style="width: 10%;border-top:0px;">
+                    <td style="width: 5%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">:</span>
                         </p>
                     </td>
-                    <td style="width: 60%;border-top:0px;">
+                    <td style="width: 65%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">'.$row['product_name'].'</span>
                         </p>
@@ -173,12 +187,12 @@ if(isset($_POST['userID'])){
                             <span style="font-size: 10px;font-family: sans-serif;">IQC No.</span>
                         </p>
                     </td>
-                    <td style="width: 10%;border-top:0px;">
+                    <td style="width: 5%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">:</span>
                         </p>
                     </td>
-                    <td style="width: 60%;border-top:0px;">
+                    <td style="width: 65%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">'.$row['batch_no'].'</span>
                         </p>
@@ -190,12 +204,12 @@ if(isset($_POST['userID'])){
                             <span style="font-size: 10px;font-family: sans-serif;">Article No.</span>
                         </p>
                     </td>
-                    <td style="width: 10%;border-top:0px;">
+                    <td style="width: 5%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">:</span>
                         </p>
                     </td>
-                    <td style="width: 60%;border-top:0px;">
+                    <td style="width: 65%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">'.$row['article_code'].'</span>
                         </p>
@@ -207,12 +221,12 @@ if(isset($_POST['userID'])){
                             <span style="font-size: 10px;font-family: sans-serif;">Batch No.</span>
                         </p>
                     </td>
-                    <td style="width: 10%;border-top:0px;">
+                    <td style="width: 5%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">:</span>
                         </p>
                     </td>
-                    <td style="width: 60%;border-top:0px;">
+                    <td style="width: 65%;border-top:0px;">
                         <p>
                             <span style="font-size: 10px;font-family: sans-serif;">'.$row['batch_no'].'</span>
                         </p>

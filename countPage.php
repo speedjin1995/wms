@@ -10,6 +10,7 @@ if(!isset($_SESSION['userID'])){
 else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
+  
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -150,6 +151,7 @@ else{
                 <tr>
                   <th>Serial No.</th>
                   <th>Created Datetime</th>
+                  <th>Supplier</th>
                   <th>Product</th>
                   <th>Gross Weight</th>
                   <th>Unit Weight</th>
@@ -159,7 +161,7 @@ else{
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="3">Total</th>
+                    <th colspan="4">Total</th>
                     <th></th>
                     <th></th>
                     <th></th> 
@@ -192,7 +194,7 @@ else{
               <div class="small-box bg-primary">
                 <a href="#" class="small-box-footer"><b>Total Weight</b></a>
                 <div class="inner">
-                  <h4 style="text-align: center; font-size: 50px" id="indicatorWeight">0.00kg</h4>
+                  <h4 style="text-align: center; font-size: 50px" id="indicatorWeight">0.000g</h4>
                 </div>
               </div>
             </div>
@@ -200,7 +202,7 @@ else{
               <div class="small-box bg-warning">
                 <a href="#" class="small-box-footer"><b>Unit Weight / PCS</b></a>
                 <div class="inner">
-                  <h4 style="text-align: center; font-size: 50px" id="unitCountWeight">0.00kg</h4>
+                  <h4 style="text-align: center; font-size: 50px" id="unitCountWeight">0.000g</h4>
                 </div>
               </div>
             </div>
@@ -228,7 +230,7 @@ else{
                 <input type="hidden" class="form-control" id="productDesc" name="productDesc">
                 <select class="form-control" style="width: 100%;" id="product" name="product" required>
                   <option selected="selected">-</option>
-                  <?php while($row5=mysqli_fetch_assoc($products)){ ?>
+                  <?php while($row5=mysqli_fetch_assoc($products2)){ ?>
                     <option 
                       value="<?=$row5['id'] ?>" 
                       data-description="<?=$row5['product_name'] ?>" 
@@ -448,6 +450,7 @@ $(function () {
     'columns': [
       { data: 'serial_no' },
       { data: 'created_datetime' },
+      { data: 'supplier_name' },
       { data: 'product_name' },
       { data: 'gross' },
       { data: 'unit' },
@@ -464,7 +467,7 @@ $(function () {
 
       // Calculate total for 'total_cages' column
       var totalCages = api
-          .column(3, { page: 'current' })
+          .column(4, { page: 'current' })
           .data()
           .reduce(function(a, b) {
               return a + parseFloat(b);
@@ -472,23 +475,23 @@ $(function () {
 
       // Calculate total for 'total_birds' column
       var totalBirds = api
-          .column(4, { page: 'current' })
+          .column(5, { page: 'current' })
           .data()
           .reduce(function(a, b) {
               return a + parseFloat(b);
           }, 0);
 
       var totalConts = api
-        .column(5, { page: 'current' })
+        .column(6, { page: 'current' })
         .data()
         .reduce(function(a, b) {
             return a + parseFloat(b);
         }, 0);
 
       // Update footer with the total
-      $(api.column(3).footer()).html(totalCages);
-      $(api.column(4).footer()).html(totalBirds);
-      $(api.column(5).footer()).html(totalConts);
+      $(api.column(4).footer()).html(totalCages);
+      $(api.column(5).footer()).html(totalBirds);
+      $(api.column(6).footer()).html(totalConts);
     }
   });
 
@@ -547,6 +550,7 @@ $(function () {
       'columns': [
         { data: 'serial_no' },
         { data: 'created_datetime' },
+        { data: 'supplier_name' },
         { data: 'product_name' },
         { data: 'gross' },
         { data: 'unit' },
@@ -563,7 +567,7 @@ $(function () {
 
         // Calculate total for 'total_cages' column
         var totalCages = api
-            .column(3, { page: 'current' })
+            .column(4, { page: 'current' })
             .data()
             .reduce(function(a, b) {
                 return a + parseFloat(b);
@@ -571,22 +575,22 @@ $(function () {
 
         // Calculate total for 'total_birds' column
         var totalBirds = api
-            .column(4, { page: 'current' })
+            .column(5, { page: 'current' })
             .data()
             .reduce(function(a, b) {
                 return a + parseFloat(b);
             }, 0);
 
         var totalConts = api
-          .column(5, { page: 'current' })
+          .column(6, { page: 'current' })
           .data()
           .reduce(function(a, b) {
               return a + parseFloat(b);
           }, 0);
 
         // Update footer with the total
-        $(api.column(3).footer()).html(totalCages);
-        $(api.column(4).footer()).html(totalBirds);
+        $(api.column(4).footer()).html(totalCages);
+        $(api.column(5).footer()).html(totalBirds);
         $(api.column(5).footer()).html(totalConts);
       }
     });
@@ -653,14 +657,10 @@ $(function () {
   });
 
   $('#refreshBtn').on('click', function(){
-    var fromDateValue = '';
-    var toDateValue = '';
-    var statusFilter = '';
-    var customerNoFilter = '';
-    var vehicleFilter = '';
-    var invoiceFilter = '';
-    var batchFilter = '';
-    var productFilter = '';
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -676,10 +676,18 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-          'url':'php/loadCount.php'
+        'url':'php/filterCount.php',
+        'data': {
+          fromDate: fromDateI,
+          toDate: toDateI,
+          product: productI,
+          supplier: supplierNoI
+        } 
       },
       'columns': [
         { data: 'serial_no' },
+        { data: 'created_datetime' },
+        { data: 'supplier_name' },
         { data: 'product_name' },
         { data: 'gross' },
         { data: 'unit' },
@@ -691,211 +699,38 @@ $(function () {
           }
         }
       ],
-      "rowCallback": function( row, data, index ) {
-        //$('td', row).css('background-color', '#E6E6FA');
-      },
-      "drawCallback": function(settings) {
-        /*$('#salesInfo').text(settings.json.salesTotal);
-        $('#purchaseInfo').text(settings.json.purchaseTotal);
-        $('#localInfo').text(settings.json.localTotal);*/
+      "footerCallback": function(row, data, start, end, display) {
+        var api = this.api();
+
+        // Calculate total for 'total_cages' column
+        var totalCages = api
+            .column(4, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
+
+        // Calculate total for 'total_birds' column
+        var totalBirds = api
+            .column(5, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
+
+        var totalConts = api
+          .column(6, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
+
+        // Update footer with the total
+        $(api.column(4).footer()).html(totalCages);
+        $(api.column(5).footer()).html(totalBirds);
+        $(api.column(5).footer()).html(totalConts);
       }
     });
-  });
-
-  $('#saleCard').on('click', function(){
-    var fromDateValue = '';
-    var toDateValue = '';
-    var statusFilter = '1';
-    var customerNoFilter = '';
-    var vehicleFilter = '';
-    var invoiceFilter = '';
-    var batchFilter = '';
-    var productFilter = '';
-
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
-
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'searching': true,
-      'order': [[ 1, 'asc' ]],
-      'columnDefs': [ { orderable: false, targets: [0] }],
-      'ajax': {
-        'type': 'POST',
-        'url':'php/filterWeight.php',
-        'data': {
-          fromDate: fromDateValue,
-          toDate: toDateValue,
-          status: statusFilter,
-          customer: customerNoFilter,
-          vehicle: vehicleFilter,
-          invoice: invoiceFilter,
-          batch: batchFilter,
-          product: productFilter,
-        } 
-      },
-      'columns': [
-        { data: 'no' },
-        { data: 'pStatus' },
-        { data: 'status' },
-        { data: 'serialNo' },
-        { data: 'veh_number' },
-        { data: 'product_name' },
-        { data: 'currentWeight' },
-        { data: 'inCDateTime' },
-        { data: 'tare' },
-        { data: 'outGDateTime' },
-        { data: 'totalWeight' },
-        { 
-          className: 'dt-control',
-          orderable: false,
-          data: null,
-          render: function ( data, type, row ) {
-            return '<td class="table-elipse" data-toggle="collapse" data-target="#demo'+row.serialNo+'"><i class="fas fa-angle-down"></i></td>';
-          }
-        }
-      ],
-      "rowCallback": function( row, data, index ) {
-        //$('td', row).css('background-color', '#E6E6FA');
-      }
-    });
-  });
-
-  $('#purchaseCard').on('click', function(){
-    var fromDateValue = '';
-    var toDateValue = '';
-    var statusFilter = '2';
-    var customerNoFilter = '';
-    var vehicleFilter = '';
-    var invoiceFilter = '';
-    var batchFilter = '';
-    var productFilter = '';
-
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
-
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'searching': true,
-      'order': [[ 1, 'asc' ]],
-      'columnDefs': [ { orderable: false, targets: [0] }],
-      'ajax': {
-        'type': 'POST',
-        'url':'php/filterWeight.php',
-        'data': {
-          fromDate: fromDateValue,
-          toDate: toDateValue,
-          status: statusFilter,
-          customer: customerNoFilter,
-          vehicle: vehicleFilter,
-          invoice: invoiceFilter,
-          batch: batchFilter,
-          product: productFilter,
-        } 
-      },
-      'columns': [
-        { data: 'no' },
-        { data: 'pStatus' },
-        { data: 'status' },
-        { data: 'serialNo' },
-        { data: 'veh_number' },
-        { data: 'product_name' },
-        { data: 'currentWeight' },
-        { data: 'inCDateTime' },
-        { data: 'tare' },
-        { data: 'outGDateTime' },
-        { data: 'totalWeight' },
-        { 
-          className: 'dt-control',
-          orderable: false,
-          data: null,
-          render: function ( data, type, row ) {
-            return '<td class="table-elipse" data-toggle="collapse" data-target="#demo'+row.serialNo+'"><i class="fas fa-angle-down"></i></td>';
-          }
-        }
-      ],
-      "rowCallback": function( row, data, index ) {
-        //$('td', row).css('background-color', '#E6E6FA');
-      }
-    });
-  });
-
-  $('#miscCard').on('click', function(){
-    var fromDateValue = '';
-    var toDateValue = '';
-    var statusFilter = '3';
-    var customerNoFilter = '';
-    var vehicleFilter = '';
-    var invoiceFilter = '';
-    var batchFilter = '';
-    var productFilter = '';
-
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
-
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'searching': true,
-      'order': [[ 1, 'asc' ]],
-      'columnDefs': [ { orderable: false, targets: [0] }],
-      'ajax': {
-        'type': 'POST',
-        'url':'php/filterWeight.php',
-        'data': {
-          fromDate: fromDateValue,
-          toDate: toDateValue,
-          status: statusFilter,
-          customer: customerNoFilter,
-          vehicle: vehicleFilter,
-          invoice: invoiceFilter,
-          batch: batchFilter,
-          product: productFilter,
-        } 
-      },
-      'columns': [
-        { data: 'no' },
-        { data: 'pStatus' },
-        { data: 'status' },
-        { data: 'serialNo' },
-        { data: 'veh_number' },
-        { data: 'product_name' },
-        { data: 'currentWeight' },
-        { data: 'inCDateTime' },
-        { data: 'tare' },
-        { data: 'outGDateTime' },
-        { data: 'totalWeight' },
-        { 
-          className: 'dt-control',
-          orderable: false,
-          data: null,
-          render: function ( data, type, row ) {
-            return '<td class="table-elipse" data-toggle="collapse" data-target="#demo'+row.serialNo+'"><i class="fas fa-angle-down"></i></td>';
-          }
-        }
-      ],
-      "rowCallback": function( row, data, index ) {
-        //$('td', row).css('background-color', '#E6E6FA');
-      }
-    });
-  });
-
-  $('#datePicker').on('click', function () {
-    $('#datePicker').attr('data-info', '1');
   });
   
   <?php 
