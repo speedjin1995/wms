@@ -53,12 +53,59 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select counting.*, products.product_name, supplies.supplier_name from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select counting.*, products.product_name, products.uom as puom, supplies.supplier_name from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
+  $uom = 'g';
+  $puom = 'g';
+  $gross = $row['gross'];
+  $unit = $row['unit'];
+  
+  if($row['uom']!=null && $row['uom']!=''){
+    $id = $row['uom'];
+
+    if ($update_stmt = $db->prepare("SELECT * FROM units WHERE id=?")) {
+      $update_stmt->bind_param('s', $id);
+      
+      // Execute the prepared query.
+      if ($update_stmt->execute()) {
+        $result1 = $update_stmt->get_result();
+        
+        if ($row1 = $result1->fetch_assoc()) {
+          $uom = $row1['units'];
+        }
+      }
+    }
+  }
+  
+  if($row['puom']!=null && $row['puom']!=''){
+    $id = $row['puom'];
+
+    if ($update_stmt2 = $db->prepare("SELECT * FROM units WHERE id=?")) {
+      $update_stmt2->bind_param('s', $id);
+      
+      // Execute the prepared query.
+      if ($update_stmt2->execute()) {
+        $result2 = $update_stmt2->get_result();
+        
+        if ($row2 = $result2->fetch_assoc()) {
+          $puom = $row2['units'];
+        }
+      }
+    }
+  }
+  
+  if(strtoupper($uom) == 'KG'){
+      $gross = (float)$gross * 1000;
+  }
+  
+  if(strtoupper($puom) == 'KG'){
+      $unit = (float)$unit * 1000;
+  }
+    
   $data[] = array( 
     "id"=>$row['id'],
     "serial_no"=>$row['serial_no'],
@@ -69,9 +116,9 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "product_desc"=>$row['product_desc'],
     "supplier_name"=>$row['supplier_name'],
     "product"=>$row['product'],
-    "gross"=>$row['gross'],
-    "unit"=>$row['unit'],
-    "count"=>$row['count'],
+    "gross"=>$gross.' g',
+    "unit"=>$unit.' g',
+    "count"=>$row['count'].' PCS',
     "remark"=>$row['remark'],
     "created_datetime"=>$row['created_datetime'],
     "created_by"=>$row['created_by'],

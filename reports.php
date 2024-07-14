@@ -122,6 +122,7 @@ else{
               <thead>
                 <tr>
                   <th>Serial <br>No.</th>
+                  <th>Created <br> Datetime</th>
                   <th>Supplier</th>
                   <th>Batch <br>No.</th>
                   <th>Article <br>No.</th>
@@ -134,7 +135,7 @@ else{
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="6">Total</th>
+                    <th colspan="7">Total</th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -199,6 +200,7 @@ $(function () {
     },
     'columns': [
       { data: 'serial_no' },
+      { data: 'created_datetime' },
       { data: 'supplier_name' },
       { data: 'batch_no' },
       { data: 'article_code' },
@@ -219,7 +221,7 @@ $(function () {
 
       // Calculate total for 'total_cages' column
       var totalCages = api
-          .column(6, { page: 'current' })
+          .column(7, { page: 'current' })
           .data()
           .reduce(function(a, b) {
               return a + parseFloat(b);
@@ -227,14 +229,14 @@ $(function () {
 
       // Calculate total for 'total_birds' column
       var totalBirds = api
-          .column(7, { page: 'current' })
+          .column(8, { page: 'current' })
           .data()
           .reduce(function(a, b) {
               return a + parseInt(b);
           }, 0);
 
       var totalConts = api
-        .column(8, { page: 'current' })
+        .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
             return a + parseFloat(b);
@@ -242,9 +244,9 @@ $(function () {
 
 
       // Update footer with the total
-      $(api.column(6).footer()).html(totalCages.toFixed(3));
-      $(api.column(7).footer()).html(totalBirds.toFixed(3));
-      $(api.column(8).footer()).html(totalConts);
+      $(api.column(7).footer()).html(totalCages.toFixed(3));
+      $(api.column(8).footer()).html(totalBirds.toFixed(3));
+      $(api.column(9).footer()).html(totalConts);
     }
   });
 
@@ -279,6 +281,7 @@ $(function () {
       },
       'columns': [
         { data: 'serial_no' },
+        { data: 'created_datetime' },
         { data: 'supplier_name' },
         { data: 'batch_no' },
         { data: 'article_code' },
@@ -293,7 +296,7 @@ $(function () {
 
         // Calculate total for 'total_cages' column
         var totalCages = api
-            .column(6, { page: 'current' })
+            .column(7, { page: 'current' })
             .data()
             .reduce(function(a, b) {
                 return a + parseFloat(b);
@@ -301,14 +304,14 @@ $(function () {
 
         // Calculate total for 'total_birds' column
         var totalBirds = api
-            .column(6, { page: 'current' })
+            .column(8, { page: 'current' })
             .data()
             .reduce(function(a, b) {
                 return a + parseFloat(b);
             }, 0);
 
         var totalConts = api
-          .column(8, { page: 'current' })
+          .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
               return a + parseFloat(b);
@@ -316,9 +319,9 @@ $(function () {
 
 
         // Update footer with the total
-        $(api.column(6).footer()).html(totalCages.toFixed(3));
-        $(api.column(7).footer()).html(totalBirds.toFixed(3));
-        $(api.column(8).footer()).html(totalConts);
+        $(api.column(7).footer()).html(totalCages.toFixed(3));
+        $(api.column(8).footer()).html(totalBirds.toFixed(3));
+        $(api.column(9).footer()).html(totalConts);
       }
     });
   });

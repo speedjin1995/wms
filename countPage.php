@@ -36,6 +36,7 @@ else{
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
+  $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
 }
 ?>
 <select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
@@ -246,7 +247,7 @@ else{
                 <label>Supplier *</label>
                 <select class="form-control" style="width: 100%;" id="supplies" name="supplies" required>
                   <option selected="selected">-</option>
-                  <?php while($rows=mysqli_fetch_assoc($supplies)){ ?>
+                  <?php while($rows=mysqli_fetch_assoc($supplies2)){ ?>
                     <option value="<?=$rows['id'] ?>"><?=$rows['supplier_name'] ?></option>
                   <?php } ?>
                 </select>
