@@ -61,7 +61,11 @@ $count = 1;
 if($query->num_rows > 0){ 
     // Output each row of the data 
     while($row = $query->fetch_assoc()){ 
-        $lineData = array($count, substr($row['created_datetime'], 0, 10), $row['serial_no'], $row['batch_no'], $row['article_code'], 
+        $createdDateTime = new DateTime($row['created_datetime']);
+        $createdDateTime->modify('+8 hours');
+        $formattedDateTime = $createdDateTime->format('d/m/Y H:i:s');
+
+        $lineData = array($count, $formattedDateTime, $row['serial_no'], $row['batch_no'], $row['article_code'], 
         $row['iqc_no'], $row['supplier_name'], $row['product_name'], $row['gross'], $row['unit'], $row['count']);
 
         array_walk($lineData, 'filterData'); 

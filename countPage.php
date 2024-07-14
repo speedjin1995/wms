@@ -490,8 +490,8 @@ $(function () {
         }, 0);
 
       // Update footer with the total
-      $(api.column(4).footer()).html(totalCages);
-      $(api.column(5).footer()).html(totalBirds);
+      $(api.column(4).footer()).html(totalCages.toFixed(3));
+      $(api.column(5).footer()).html(totalBirds.toFixed(3));
       $(api.column(6).footer()).html(totalConts);
     }
   });
@@ -590,9 +590,9 @@ $(function () {
           }, 0);
 
         // Update footer with the total
-        $(api.column(4).footer()).html(totalCages);
-        $(api.column(5).footer()).html(totalBirds);
-        $(api.column(5).footer()).html(totalConts);
+        $(api.column(4).footer()).html(totalCages.toFixed(3));
+        $(api.column(5).footer()).html(totalBirds.toFixed(3));
+        $(api.column(6).footer()).html(totalConts);
       }
     });
   });
@@ -727,8 +727,8 @@ $(function () {
           }, 0);
 
         // Update footer with the total
-        $(api.column(4).footer()).html(totalCages);
-        $(api.column(5).footer()).html(totalBirds);
+        $(api.column(4).footer()).html(totalCages.toFixed(3));
+        $(api.column(5).footer()).html(totalBirds.toFixed(3));
         $(api.column(5).footer()).html(totalConts);
       }
     });

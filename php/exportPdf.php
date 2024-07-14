@@ -33,7 +33,7 @@ if (!empty($_GET['supplier']) && $_GET['supplier'] != '-') {
 }
 
 // Fetch records from database
-$query = $db->query("SELECT counting.*, products.product_name, supplies.supplier_name 
+$query = $db->query("SELECT counting.*, products.product_name, products.uom as puom, supplies.supplier_name 
                      FROM counting 
                      JOIN products ON counting.product = products.id 
                      JOIN supplies ON counting.supplier = supplies.id 
@@ -72,18 +72,69 @@ try {
     if ($query->num_rows > 0) { 
         $count = 1;
         while ($row = $query->fetch_assoc()) { 
+            $createdDateTime = new DateTime($row['created_datetime']);
+            $createdDateTime->modify('+8 hours');
+            $formattedDateTime = $createdDateTime->format('d/m/Y H:i:s');
+
+            $uom = 'g';
+            $puom = 'g';
+            $gross = $row['gross'];
+            $unit = $row['unit'];
+            
+            if($row['uom']!=null && $row['uom']!=''){
+                $id = $row['uom'];
+
+                if ($update_stmt = $db->prepare("SELECT * FROM units WHERE id=?")) {
+                $update_stmt->bind_param('s', $id);
+                
+                // Execute the prepared query.
+                if ($update_stmt->execute()) {
+                    $result1 = $update_stmt->get_result();
+                    
+                    if ($row1 = $result1->fetch_assoc()) {
+                        $uom = $row1['units'];
+                        }
+                    }
+                }
+            }
+            
+            if($row['puom']!=null && $row['puom']!=''){
+                $id = $row['puom'];
+
+                if ($update_stmt2 = $db->prepare("SELECT * FROM units WHERE id=?")) {
+                $update_stmt2->bind_param('s', $id);
+                
+                // Execute the prepared query.
+                if ($update_stmt2->execute()) {
+                    $result2 = $update_stmt2->get_result();
+                    
+                    if ($row2 = $result2->fetch_assoc()) {
+                        $puom = $row2['units'];
+                        }
+                    }
+                }
+            }
+            
+            if(strtoupper($uom) == 'KG'){
+                $gross = (float)$gross * 1000;
+            }
+            
+            if(strtoupper($puom) == 'KG'){
+                $unit = (float)$unit * 1000;
+            }
+
             $content .= '<tr>';
             $content .= '<td>'.$count.'</td>';
-            $content .= '<td>'.substr($row['created_datetime'], 0, 10).'</td>';
+            $content .= '<td>'.$formattedDateTime.'</td>';
             $content .= '<td>'.$row['serial_no'].'</td>';
             $content .= '<td>'.$row['batch_no'].'</td>';
             $content .= '<td>'.$row['article_code'].'</td>';
             $content .= '<td>'.$row['iqc_no'].'</td>';
             $content .= '<td>'.$row['supplier_name'].'</td>';
             $content .= '<td>'.$row['product_name'].'</td>';
-            $content .= '<td>'.$row['gross'].'</td>';
-            $content .= '<td>'.$row['unit'].'</td>';
-            $content .= '<td>'.$row['count'].'</td>';
+            $content .= '<td>'.$gross.' g</td>';
+            $content .= '<td>'.$unit.' g</td>';
+            $content .= '<td>'.$row['count'].' PCS</td>';
             $content .= '</tr>';
 
             $totalGross += $row['gross'];
@@ -101,9 +152,9 @@ try {
     $content .= '<tfoot>';
     $content .= '<tr>';
     $content .= '<td colspan="8" style="text-align:right;"><strong>Total</strong></td>';
-    $content .= '<td><strong>'.$totalGross.'</strong></td>';
-    $content .= '<td><strong>'.$totalUnit.'</strong></td>';
-    $content .= '<td><strong>'.$totalCount.'</strong></td>';
+    $content .= '<td><strong>'.$totalGross.' g</strong></td>';
+    $content .= '<td><strong>'.$totalUnit.' g</strong></td>';
+    $content .= '<td><strong>'.$totalCount.' PCS</strong></td>';
     $content .= '</tr>';
     $content .= '</tfoot>';
     $content .= '</table>';
