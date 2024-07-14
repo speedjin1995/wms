@@ -145,7 +145,7 @@ $(function () {
   const tomorrow = new Date(today);
   const yesterday = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setDate(yesterday.getDate() - 7);
 
   $('.select2').select2({
     allowClear: true,
@@ -153,16 +153,16 @@ $(function () {
   });
 
   //Date picker
-  $('#fromDate').datetimepicker({
+  $('#fromDatePicker').datetimepicker({
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
-    defaultDate: new Date
+    defaultDate: yesterday
   });
 
-  $('#toDate').datetimepicker({
+  $('#toDatePicker').datetimepicker({
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
-    defaultDate: new Date
+    defaultDate: today
   });
 
   var fromDateI = $('#fromDate').val();
@@ -261,6 +261,16 @@ $(function () {
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     
     window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+
+    "&supplier="+supplierNoI+"&product="+productI);
+  });
+
+  $('#exportPdf').on('click', function(){
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+    
+    window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+
     "&supplier="+supplierNoI+"&product="+productI);
   });
 });

@@ -25,7 +25,7 @@ if(isset($_POST['userID'])){
         <style>
             @media print {
                 @page {
-                    size: 50mm 40mm; /* Set the page size to 50mm x 40mm */
+                    size: 50mm 40mm portrait; /* Set the page size to 50mm x 40mm */
                     margin: 0; /* Remove default margins */
                 }
             } 
