@@ -108,12 +108,12 @@ else{
                   <label for="products">Products *</label>
                   <select class="select2" style="width: 100%;" id="products" name="products[]" multiple="multiple" required> 
                     <option value="weighing">Weighing</option>
-                    <option value="pricing">Pricing</option>
+                    <!--option value="pricing">Pricing</option>
                     <option value="counting">Counting</option>
                     <option value="waste">Waste/Scrap</option>
-                    <option value="packing">Packing</option>
-                    <option value="weighbridge">Weighbridge</option>
                     <option value="fruits">Fruits</option>
+                    <option value="packing">Packing</option-->
+                    <option value="weighbridge">Weighbridge</option>
                   </select>
                 </div>
               </div>
