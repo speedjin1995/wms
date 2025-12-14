@@ -1,0 +1,275 @@
+<?php
+require_once 'db_connect.php';
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+session_start();
+$post = json_decode(file_get_contents('php://input'), true);
+
+if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['incoming_datetime'], $post['indicator'], $post['company'], $post['staffName'], $post['createdDatetime'])){
+    $transaction_status = $post['transaction_status'];
+    $product = $post['product'];
+    $gross= $post['gross'];
+    $incoming_datetime = $post['incoming_datetime'];
+    $company = $post['company'];
+    $indicator = $post['indicator'];
+    $staffName = $post['staffName'];
+	$createdDatetime = $post['createdDatetime'];
+	$transaction_date = $createdDatetime;
+	$weight_type = 'Normal';
+	$today = date("Y-m-d 00:00:00");
+
+    $customer = null;
+    $supplier = null;
+    $vehicle = null;
+    $transporter = null;
+    $driver = null;
+    $destination = null;
+    $tare = null;
+    $outgoing_datetime = null;
+    $net = null;
+    $reduce = '0';
+    $final_weight = null;
+    $po_no = null;
+    $do_no = null;
+    $order_weight = null;
+    $weight_difference = null;
+    $container_no = null;
+    $seal_no = null;
+	$remark = null;
+	$is_complete = 'N';
+	
+	if(isset($post['customer']) && $post['customer'] != null && $post['customer'] != ''){
+		$customer = $post['customer'];
+	}
+	
+	if(isset($post['supplier']) && $post['supplier'] != null && $post['supplier'] != ''){
+		$supplier = $post['supplier'];
+	}
+	
+	if(isset($post['vehicle']) && $post['vehicle'] != null && $post['vehicle'] != ''){
+		$vehicle = $post['vehicle'];
+	}
+	
+	if(isset($post['transporter']) && $post['transporter'] != null && $post['transporter'] != ''){
+		$transporter = $post['transporter'];
+	}
+	
+	if(isset($post['driver']) && $post['driver'] != null && $post['driver'] != ''){
+		$driver = $post['driver'];
+	}
+	
+	if(isset($post['destination']) && $post['destination'] != null && $post['destination'] != ''){
+		$destination = $post['destination'];
+	}
+	
+	if(isset($post['tare']) && $post['tare'] != null && $post['tare'] != ''){
+		$tare = $post['tare'];
+	}
+	
+	if(isset($post['outgoing_datetime']) && $post['outgoing_datetime'] != null && $post['outgoing_datetime'] != ''){
+		$outgoing_datetime = $post['outgoing_datetime'];
+	}
+	
+	if(isset($post['net']) && $post['net'] != null && $post['net'] != ''){
+		$net = $post['net'];
+	}
+	
+	if(isset($post['reduce']) && $post['reduce'] != null && $post['reduce'] != ''){
+		$reduce = $post['reduce'];
+	}
+	
+	if(isset($post['final_weight']) && $post['final_weight'] != null && $post['final_weight'] != ''){
+		$final_weight = $post['final_weight'];
+	}
+	
+	if(isset($post['po_no']) && $post['po_no'] != null && $post['po_no'] != ''){
+		$po_no = $post['po_no'];
+	}
+	
+	if(isset($post['do_no']) && $post['do_no'] != null && $post['do_no'] != ''){
+		$do_no = $post['do_no'];
+	}
+	
+	if(isset($post['order_weight']) && $post['order_weight'] != null && $post['order_weight'] != ''){
+		$order_weight = $post['order_weight'];
+	}
+	
+	if(isset($post['weight_difference']) && $post['weight_difference'] != null && $post['weight_difference'] != ''){
+		$weight_difference = $post['weight_difference'];
+	}
+	
+	if(isset($post['container_no']) && $post['container_no'] != null && $post['container_no'] != ''){
+		$container_no = $post['container_no'];
+	}
+	
+	if(isset($post['seal_no']) && $post['seal_no'] != null && $post['seal_no'] != ''){
+		$seal_no = $post['seal_no'];
+	}
+	
+	if(isset($post['remarks']) && $post['remarks'] != null && $post['remarks'] != ''){
+		$remark = $post['remarks'];
+	}
+	
+	if($weight_type == 'Normal' && ($gross != null && $tare != null)){
+        $is_complete = 'Y';
+    }
+    /*else if($weight_type == 'Container' && ($gross != null && $tareOutgoing != null && $gross2 != null && $tareOutgoing2 != null)){
+        $isComplete = 'Y';
+    }*/
+    else{
+        $is_complete = 'N';
+    }
+    
+    try{
+        if(isset($post['id']) && $post['id'] != null && $post['id'] != ''){
+            $serialNo = '';
+            
+            if($update_stmt = $db->prepare("UPDATE Weight SET transaction_status=?, lorry_plate_no1=?, order_weight=?, customer_name=?, supplier_name=?, product_name=?, container_no=?, 
+            seal_no=?, purchase_order=?, delivery_no=?, transporter=?, driver_name=?, destination=?, remarks=?, gross_weight1=?, gross_weight1_date=?, tare_weight1=?, tare_weight1_date=?,
+            nett_weight1=?, reduce_weight=?, final_weight=?, weight_different=?, is_complete=?, modified_date=?, modified_by=?, indicator_id=? WHERE id = ?")){
+                $update_stmt->bind_param('sssssssssssssssssssssssssss', $transaction_status, $vehicle, $order_weight, $customer, $supplier, $product, $container_no, $seal_no, $po_no, $do_no, 
+                $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, $final_weight, $weight_difference, $is_complete, 
+                $createdDatetime, $staffName, $indicator, $post['id']);	
+                
+                if (! $update_stmt->execute()){ // Execute the prepared query.
+        			echo json_encode(
+        				array(
+        					"status"=> "failed", 
+        					"message"=> $update_stmt->error
+        				)
+        			);
+        		} 
+        		else{
+        		    $weightId = $post['id'];
+        			$update_stmt->close();
+        			
+        			echo json_encode(
+        				array(
+        					"status"=> "success", 
+        					"message"=> "Updated Successfully!!",
+        					"serialNo"=> $serialNo,
+        					"id"=> $weightId
+        				)
+        			);
+        		}
+        
+        		$db->close();
+            }
+            else{
+        		echo json_encode(
+        			array(
+        				"status"=> "failed", 
+        				"message"=> "cannot prepare update statement"
+        			)
+        		);  
+        	}
+        }
+        else{
+            $serialNo = '';
+            
+            if(!isset($post['serialNo']) || $post['serialNo'] == null || $post['serialNo'] == ''){
+                $serialNo = 'S';
+                
+                if($transaction_status == 'Purchase'){
+                    $serialNo = 'P';
+                }
+                else if($transaction_status == 'Misc'){
+                    $serialNo = 'M';
+                }
+                
+        	    $serialNo .= date("Ymd");
+        
+        		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM Weight WHERE created_date >= ?")) {
+                    $select_stmt->bind_param('s', $today);
+                    
+                    // Execute the prepared query.
+                    if (! $select_stmt->execute()) {
+                        echo json_encode(
+                            array(
+                                "status" => "failed",
+                                "message" => "Failed to get latest count"
+                            )); 
+                    }
+                    else{
+                        $result = $select_stmt->get_result();
+                        $count = 1;
+                        
+                        if ($row = $result->fetch_assoc()) {
+                            $count = (int)$row['COUNT(*)'] + 1;
+                            $select_stmt->close();
+                        }
+        
+                        $charSize = strlen(strval($count));
+        
+                        for($i=0; $i<(4-(int)$charSize); $i++){
+                            $serialNo.='0';  // S0000
+                        }
+                
+                        $serialNo .= strval($count);  //S00009
+        			}
+        		}
+        	}
+        	else{
+        	    $serialNo = $post['serialNo'];
+        	}
+        
+        	if ($insert_stmt = $db->prepare("INSERT INTO Weight (transaction_id, transaction_status, weight_type, transaction_date, lorry_plate_no1, order_weight, customer_name, 
+        	supplier_name, product_name, container_no, seal_no, purchase_order, delivery_no, transporter, driver_name, destination, remarks, gross_weight1, gross_weight1_date, 
+        	tare_weight1, tare_weight1_date, nett_weight1, reduce_weight, final_weight, weight_different, is_complete, created_date, created_by, company, modified_date, modified_by, 
+        	indicator_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
+        	    $insert_stmt->bind_param('ssssssssssssssssssssssssssssssss', $serialNo, $transaction_status, $weight_type, $transaction_date, $vehicle, $order_weight, $customer, $supplier, 
+        	    $product, $container_no, $seal_no, $po_no, $do_no, $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, 
+        	    $final_weight, $weight_difference, $is_complete, $createdDatetime, $staffName, $company, $createdDatetime, $staffName, $indicator);	
+        		
+        		if (! $insert_stmt->execute()){ // Execute the prepared query.
+        			echo json_encode(
+        				array(
+        					"status"=> "failed", 
+        					"message"=> $insert_stmt->error
+        				)
+        			);
+        		} 
+        		else{
+        		    $weightId = $insert_stmt->insert_id;
+        			$insert_stmt->close();
+        			
+        			echo json_encode(
+        				array(
+        					"status"=> "success", 
+        					"message"=> "Added Successfully!!",
+        					"serialNo"=> $serialNo,
+        					"id"=> $weightId
+        				)
+        			);
+        		}
+        
+        		$db->close();
+        	}
+        	else{
+        		echo json_encode(
+        			array(
+        				"status"=> "failed", 
+        				"message"=> "cannot prepare insert statement"
+        			)
+        		);  
+        	}
+        }
+    }
+    catch(Exception $e){
+        echo json_encode(
+            array(
+                "status"=> "failed", 
+                "message"=> $e->getMessage()
+            )
+        ); 
+    }
+} 
+else{
+    echo json_encode(
+        array(
+            "status"=> "failed", 
+            "message"=> "Please fill in all the fields"
+        )
+    );     
+}
+?>

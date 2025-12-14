@@ -7,7 +7,7 @@ $post = json_decode(file_get_contents('php://input'), true);
 $now = date("Y-m-d H:i:s");
 $userId = $post['uid'];
 
-$stmt = $db->prepare("SELECT weighing.*, products.product_name, locations.locations AS location_name, units.units AS unit_name, users.name from weighing, products, locations, units, users WHERE weighing.product = products.id AND weighing.locations = locations.id AND weighing.units = units.id AND weighing.created_by = users.id AND weighing.deleted = '0' AND weighing.type = 'BATCH' AND weighted_by =?  ORDER BY weighing.created_datetime DESC");
+$stmt = $db->prepare("SELECT weighing.*, products.product_name, locations.locations AS location_name, units.units AS unit_name, users.name from weighing, products, locations, units, users WHERE weighing.product = products.id AND weighing.locations = locations.id AND weighing.units = units.id AND weighing.created_by = users.id AND weighing.deleted = '0' AND weighing.type = 'BATCH' AND weighted_by =? ORDER BY weighing.created_datetime DESC");
 $stmt->bind_param('s', $userId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -58,6 +58,7 @@ $db->close();
 echo json_encode(
     array(
         "status"=> "success", 
+        "userId"=> $userId,
         "message"=> $message
     )
 );

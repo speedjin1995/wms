@@ -104,7 +104,7 @@ else{
     </div>
     <div class="row">
       <div class="col-lg-12">
-        <div class="card card-danger">
+        <div class="card card-info">
           <div class="card-header">
             <div class="row">
               <div class="col-6"></div>

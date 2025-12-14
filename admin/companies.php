@@ -110,6 +110,10 @@ else{
                     <option value="weighing">Weighing</option>
                     <option value="pricing">Pricing</option>
                     <option value="counting">Counting</option>
+                    <option value="waste">Waste/Scrap</option>
+                    <option value="packing">Packing</option>
+                    <option value="weighbridge">Weighbridge</option>
+                    <option value="fruits">Fruits</option>
                   </select>
                 </div>
               </div>

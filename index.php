@@ -74,17 +74,17 @@ else{
     }
   
     .table-striped > tbody > tr{
-      background-color: #f9acb3; 
-      color:black;
+      background-color: #14a2b8; 
+      color:white;
     }
 
     .table-striped > tbody > tr:nth-of-type(odd){
-      background-color: #f9acb3; 
-      color:black;
+      background-color: #14a2b8; 
+      color:white;
     }
 
     thead {
-      background-color: #dc3545; 
+      background-color: #00528c; 
       color:white;
     }
   
@@ -309,17 +309,17 @@ to get the desired effect
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars" style="color: #E20B10;"></i></a>
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars" style="color: #457ba1;"></i></a>
       </li>
     </ul>
   </nav>
   <!-- Main Sidebar Container -->
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #400003;">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #457ba1;">
     <!-- Brand Logo -->
-    <a href="#" class="brand-link logo-switch">
+    <a href="#" class="brand-link logo-switch" style="line-height: 5;">
       <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs">
-      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 80%;max-height: auto;">
+      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content;">
     </a>
 
     <!-- Sidebar -->

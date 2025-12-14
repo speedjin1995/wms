@@ -3,13 +3,16 @@ require_once "db_connect.php";
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+/*if(!isset($_SESSION['userID'])){
     echo '<script type="text/javascript">';
     echo 'window.location.href = "../login.html";</script>';
 }
 else{
     $userId = $_SESSION['userID'];
-}
+    $userId = '1';
+}*/
+
+$userId = '1';
 
 if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['customer'])){
     $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);

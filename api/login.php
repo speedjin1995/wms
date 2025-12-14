@@ -9,13 +9,14 @@ $username=$post['userEmail'];
 $password=$post['userPassword'];
 $now = date("Y-m-d H:i:s");
 
-$stmt = $db->prepare("SELECT users.*, companies.reg_no, companies.name AS comp_name, companies.address, companies.address2, companies.address3, companies.address4, companies.phone, companies.email from users, companies where users.customer = companies.id AND users.username= ?");
+$stmt = $db->prepare("SELECT users.*, companies.reg_no, companies.name AS comp_name, companies.address, companies.address2, companies.address3, companies.address4, companies.phone, companies.fax, companies.email, companies.products as products, companies.sst as sst from users, companies where users.customer = companies.id AND users.username= ?");
 $stmt->bind_param('s', $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if(($row = $result->fetch_assoc()) !== null){
 	$password = hash('sha512', $password . $row['salt']);
+	$modules = json_decode($row['products'], true);
 	
 	if($password == $row['password']){
 	    $message = array();
@@ -24,6 +25,12 @@ if(($row = $result->fetch_assoc()) !== null){
         $message['name'] = $row['name'];
         $message['role_code'] = $row['role_code'];
         $message['customer'] = $row['customer'];
+        $message['weighing'] = in_array('weighing', $modules) ? 'Y' : 'N';
+        $message['pricings'] = in_array('pricing', $modules) ? 'Y' : 'N';
+        $message['wastings'] = in_array('waste', $modules) ? 'Y' : 'N';
+        $message['packings'] = in_array('packing', $modules) ? 'Y' : 'N';
+        $message['weighbridges'] = in_array('weighbridge', $modules) ? 'Y' : 'N';
+        $message['fruits'] = in_array('fruits', $modules) ? 'Y' : 'N';
         $message['customer_det'] = array(
             "id" => $row['customer'],
             "reg_no" => $row['reg_no'],
@@ -33,7 +40,9 @@ if(($row = $result->fetch_assoc()) !== null){
             "address3" => $row['address3'],
             "address4" => $row['address4'],
             "phone" => $row['phone'],
-            "email" => $row['email']
+            "fax" => $row['fax'],
+            "email" => $row['email'],
+            "sst" => $row['sst']
         );
         
 		$stmt->close();
@@ -50,7 +59,7 @@ if(($row = $result->fetch_assoc()) !== null){
 		echo json_encode(
             array(
                 "status"=> "failed", 
-                "message"=> $update_stmt->error
+                "message"=> $stmt->error
             )
         );
 	}
@@ -60,7 +69,7 @@ else{
 	 echo json_encode(
         array(
             "status"=> "failed", 
-            "message"=> $update_stmt->error
+            "message"=> $stmt->error
         )
     );
 }
