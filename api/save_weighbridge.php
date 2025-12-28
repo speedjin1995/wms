@@ -17,6 +17,7 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
 	$transaction_date = $createdDatetime;
 	$weight_type = 'Normal';
 	$today = date("Y-m-d 00:00:00");
+	$is_manual = 'N';
 
     $customer = null;
     $supplier = null;
@@ -36,7 +37,15 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
     $container_no = null;
     $seal_no = null;
 	$remark = null;
+	$price_type = 'FIXED';
+	$unit_price = null;
+    $total_price = null;
+	$remark = null;
 	$is_complete = 'N';
+	
+	if(isset($post['is_manual']) && $post['is_manual'] != null && $post['is_manual'] != ''){
+		$is_manual = $post['is_manual'];
+	}
 	
 	if(isset($post['customer']) && $post['customer'] != null && $post['customer'] != ''){
 		$customer = $post['customer'];
@@ -106,6 +115,18 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
 		$seal_no = $post['seal_no'];
 	}
 	
+	if(isset($post['price_type']) && $post['price_type'] != null && $post['price_type'] != ''){
+		$price_type = $post['price_type'];
+	}
+	
+	if(isset($post['unit_price']) && $post['unit_price'] != null && $post['unit_price'] != ''){
+		$unit_price = $post['unit_price'];
+	}
+	
+	if(isset($post['total_price']) && $post['total_price'] != null && $post['total_price'] != ''){
+		$total_price = $post['total_price'];
+	}
+	
 	if(isset($post['remarks']) && $post['remarks'] != null && $post['remarks'] != ''){
 		$remark = $post['remarks'];
 	}
@@ -126,10 +147,11 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
             
             if($update_stmt = $db->prepare("UPDATE Weight SET transaction_status=?, lorry_plate_no1=?, order_weight=?, customer_name=?, supplier_name=?, product_name=?, container_no=?, 
             seal_no=?, purchase_order=?, delivery_no=?, transporter=?, driver_name=?, destination=?, remarks=?, gross_weight1=?, gross_weight1_date=?, tare_weight1=?, tare_weight1_date=?,
-            nett_weight1=?, reduce_weight=?, final_weight=?, weight_different=?, is_complete=?, modified_date=?, modified_by=?, indicator_id=? WHERE id = ?")){
-                $update_stmt->bind_param('sssssssssssssssssssssssssss', $transaction_status, $vehicle, $order_weight, $customer, $supplier, $product, $container_no, $seal_no, $po_no, $do_no, 
-                $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, $final_weight, $weight_difference, $is_complete, 
-                $createdDatetime, $staffName, $indicator, $post['id']);	
+            nett_weight1=?, reduce_weight=?, final_weight=?, weight_different=?, is_complete=?, modified_date=?, modified_by=?, indicator_id=?, manual_weight=?, sub_total=?, unit_price=?, 
+            total_price=? WHERE id = ?")){
+                $update_stmt->bind_param('sssssssssssssssssssssssssssssss', $transaction_status, $vehicle, $order_weight, $customer, $supplier, $product, $container_no, $seal_no, 
+                $po_no, $do_no, $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, $final_weight, $weight_difference, 
+                $is_complete, $createdDatetime, $staffName, $indicator, $is_manual, $price_type, $unit_price, $total_price, $post['id']);	
                 
                 if (! $update_stmt->execute()){ // Execute the prepared query.
         			echo json_encode(
@@ -141,6 +163,15 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
         		} 
         		else{
         		    $weightId = $post['id'];
+        		    $select_stmt = $db->prepare("SELECT transaction_id from Weight WHERE id = ?");
+                    $select_stmt->bind_param('s', $weightId);
+                    $select_stmt->execute();
+                    $select_result = $select_stmt->get_result();
+                    
+                    if($select_row = $select_result->fetch_assoc()){
+        		        $serialNo = $select_row['transaction_id'];
+                    }
+        		    
         			$update_stmt->close();
         			
         			echo json_encode(
@@ -216,10 +247,12 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
         	if ($insert_stmt = $db->prepare("INSERT INTO Weight (transaction_id, transaction_status, weight_type, transaction_date, lorry_plate_no1, order_weight, customer_name, 
         	supplier_name, product_name, container_no, seal_no, purchase_order, delivery_no, transporter, driver_name, destination, remarks, gross_weight1, gross_weight1_date, 
         	tare_weight1, tare_weight1_date, nett_weight1, reduce_weight, final_weight, weight_different, is_complete, created_date, created_by, company, modified_date, modified_by, 
-        	indicator_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
-        	    $insert_stmt->bind_param('ssssssssssssssssssssssssssssssss', $serialNo, $transaction_status, $weight_type, $transaction_date, $vehicle, $order_weight, $customer, $supplier, 
+        	indicator_id, manual_weight, sub_total, unit_price, total_price) 
+        	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
+        	    $insert_stmt->bind_param('ssssssssssssssssssssssssssssssssssss', $serialNo, $transaction_status, $weight_type, $transaction_date, $vehicle, $order_weight, $customer, $supplier, 
         	    $product, $container_no, $seal_no, $po_no, $do_no, $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, 
-        	    $final_weight, $weight_difference, $is_complete, $createdDatetime, $staffName, $company, $createdDatetime, $staffName, $indicator);	
+        	    $final_weight, $weight_difference, $is_complete, $createdDatetime, $staffName, $company, $createdDatetime, $staffName, $indicator, $is_manual, $price_type, $unit_price, 
+        	    $total_price);	
         		
         		if (! $insert_stmt->execute()){ // Execute the prepared query.
         			echo json_encode(

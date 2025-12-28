@@ -15,7 +15,9 @@ while($row = $result->fetch_assoc()){
 	$message[] = array( 
         "id"=>$row['id'],
         "name"=>$row['name'],
-        "mac_address"=>$row['mac_address']
+        "mac_address"=>$row['mac_address'],
+        "udid"=>$row['udid'],
+        "indicator"=>$row['indicator']
     );
 }
 

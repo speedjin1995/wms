@@ -32,12 +32,18 @@ while($row = $result->fetch_assoc()){
         'final_weight'=>$row['final_weight'],
         'order_weight'=>$row['order_weight'],
         'weight_different'=>$row['weight_different'],
+        'purchase_order'=>$row['purchase_order'],
+        'delivery_no'=>$row['delivery_no'],
         'container_no'=>$row['container_no'],
         'seal_no'=>$row['seal_no'],
         'created_by'=>$row['created_by'],
         'created_datetime'=>$row['created_date'],
         'remark'=>$row['remarks'],
-        'status'=>$row['is_complete'] == 'Y' ? 'Complete' : 'Pending'
+        'status'=>$row['is_complete'] == 'Y' ? 'Complete' : 'Pending',
+        'manual_weight'=>$row['manual_weight'],
+        'unit_price'=>$row['unit_price'],
+        'total_price'=>$row['total_price'],
+        'sub_total'=>$row['sub_total']
     );
 }
 
