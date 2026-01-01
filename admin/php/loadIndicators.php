@@ -39,7 +39,8 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "mac_address"=>$row['mac_address'],
       "udid"=>$row['udid'],
       "customer"=>$row['customer'],
-      "user"=>$row['user']
+      "user"=>$row['user'],
+      "indicator"=>$row['indicator']
     );
 }
 

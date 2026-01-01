@@ -3,16 +3,17 @@ require_once "db_connect.php";
 
 session_start();
 
-if(isset($_POST['code'], $_POST['mac'], $_POST['udid'], $_POST['customer'], $_POST['users'])){
+if(isset($_POST['code'], $_POST['mac'], $_POST['udid'], $_POST['customer'], $_POST['users'], $_POST['indicator'])){
     $name = filter_input(INPUT_POST, 'code', FILTER_SANITIZE_STRING);
     $mac_address = filter_input(INPUT_POST, 'mac', FILTER_SANITIZE_STRING);
     $udid = filter_input(INPUT_POST, 'udid', FILTER_SANITIZE_STRING);
     $customer = filter_input(INPUT_POST, 'customer', FILTER_SANITIZE_STRING);
     $users = filter_input(INPUT_POST, 'users', FILTER_SANITIZE_STRING);
+    $indicator = filter_input(INPUT_POST, 'indicator', FILTER_SANITIZE_STRING);
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE indicators SET name=?, mac_address=?, udid=?, customer=?, users=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssss', $name, $mac_address, $udid, $customer, $users, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE indicators SET name=?, mac_address=?, udid=?, customer=?, users=?, indicator=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssss', $name, $mac_address, $udid, $customer, $users, $indicator, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -37,8 +38,8 @@ if(isset($_POST['code'], $_POST['mac'], $_POST['udid'], $_POST['customer'], $_PO
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO indicators (name, mac_address, udid, customer, users) VALUES (?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssss', $name, $mac_address, $udid, $customer, $users);
+        if ($insert_stmt = $db->prepare("INSERT INTO indicators (name, mac_address, udid, customer, users, indicator) VALUES (?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssss', $name, $mac_address, $udid, $customer, $users, $indicator);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

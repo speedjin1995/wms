@@ -28,6 +28,7 @@ if(isset($_POST['userID'])){
                 $message['udid'] = $row['udid'];
                 $message['customer'] = $row['customer'];
                 $message['users'] = $row['users'];
+                $message['indicator'] = $row['indicator'];
             }
             
             echo json_encode(

@@ -48,6 +48,7 @@ else{
                                     <th>UDID</th>
                                     <th>Customer</th>
                                     <th>User</th>
+                                    <th>Indicator</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
@@ -104,6 +105,15 @@ else{
                         <?php } ?>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Indicator *</label>
+                    <select class="form-control" id="indicator" name="indicator" required>
+                        <option select="selected" value="X722">X722</option>
+                        <option select="selected" value="D2008">D2008</option>
+                        <option select="selected" value="EX2001">EX2001</option>
+                        <option select="selected" value="BDI2001B">BDI2001B</option>
+                    </select>
+                </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
@@ -134,6 +144,7 @@ $(function () {
             { data: 'udid' },
             { data: 'customer' },
             { data: 'user' },
+            { data: 'indicator' },
             { 
                 data: 'id',
                 render: function (data, type, row) {
@@ -178,6 +189,7 @@ $(function () {
         $('#addModal').find('#udid').val("");
         $('#addModal').find('#customer').val("");
         $('#addModal').find('#users').val("");
+        $('#addModal').find('#indicator').val("");
         $('#addModal').modal('show');
         
         $('#productForm').validate({
@@ -258,6 +270,7 @@ function edit(id){
             $('#addModal').find('#udid').val(obj.message.udid);
             $('#addModal').find('#customer').val(obj.message.customer);
             $('#addModal').find('#users').val(obj.message.users);
+            $('#addModal').find('#indicator').val(obj.message.indicator);
             $('#addModal').modal('show');
             
             $('#productForm').validate({
