@@ -423,6 +423,12 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#drivers" data-file="drivers.php" class="nav-link link">
+                      <i class="nav-icon fas fa-id-card"></i>
+                      <p>Drivers</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#vehicles" data-file="vehicles.php" class="nav-link link">
                       <i class="nav-icon fas fa-truck"></i>
                       <p>Vehicles</p>
