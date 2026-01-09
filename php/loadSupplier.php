@@ -1,4 +1,5 @@
 <?php
+session_start();
 ## Database configuration
 require_once 'db_connect.php';
 
@@ -12,9 +13,15 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = " ";
+$searchQuery = "WHERE 1=1";
+$company = $_SESSION['customer'];
+$user = $_SESSION['userID'];
+if ($user != 2){
+  $searchQuery .= " AND customer = '".$company."'";
+}
+
 if($searchValue != ''){
-  $searchQuery = "AND (supplier_name like '%".$searchValue."%' or supplier_code like '%".$searchValue."%')";
+  $searchQuery .= " AND (supplier_name like '%".$searchValue."%' or supplier_code like '%".$searchValue."%')";
 }
 
 ## Total number of records without filtering
@@ -28,21 +35,21 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select * from supplies WHERE deleted = '0' ".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select * from supplies ".$searchQuery." order by deleted, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
-    $data[] = array( 
-      'id'=>$row['id'],
-      'supplier_code'=>$row['supplier_code'],
-      "reg_no"=>$row['reg_no'],
-      'supplier_name'=>$row['supplier_name'],
-      'supplier_address'=>$row['supplier_address'].$row['supplier_address2'].$row['supplier_address3'].$row['supplier_address4'],
-      'supplier_phone'=>$row['supplier_phone'],
-      'pic'=>$row['pic'],
-      "deleted"=>$row['deleted']
-    );
+  $data[] = array( 
+    'id'=>$row['id'],
+    'supplier_code'=>$row['supplier_code'],
+    "reg_no"=>$row['reg_no'],
+    'supplier_name'=>$row['supplier_name'],
+    'supplier_address'=>$row['supplier_address'].$row['supplier_address2'].$row['supplier_address3'].$row['supplier_address4'],
+    'supplier_phone'=>$row['supplier_phone'],
+    'pic'=>$row['pic'],
+    "deleted"=>$row['deleted']
+  );
 }
 
 ## Response

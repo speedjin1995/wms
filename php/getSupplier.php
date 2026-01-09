@@ -30,8 +30,10 @@ if(isset($_POST['userID'])){
                 $message['supplier_address2'] = $row['supplier_address2'];
                 $message['supplier_address3'] = $row['supplier_address3'];
                 $message['supplier_address4'] = $row['supplier_address4'];
+                $message['states'] = $row['states'];
                 $message['supplier_phone'] = $row['supplier_phone'];
                 $message['pic'] = $row['pic'];
+                $message['customer'] = $row['customer'];
             }
             
             echo json_encode(
