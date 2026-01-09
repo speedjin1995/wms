@@ -8,8 +8,10 @@ if(!isset($_SESSION['userID'])){
   echo 'window.location.href = "login.html";</script>';
 }
 else{
+  $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $states = $db->query("SELECT * FROM states");
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
 }
 ?>
 
@@ -32,13 +34,13 @@ else{
 				<div class="card">
 					<div class="card-header">
               <div class="row">
-                  <div class="col-5"></div>
-                  <div class="col-2">
+                  <div class="col-9"></div>
+                  <!-- <div class="col-2">
                       <input type="file" id="fileInput" accept=".xlsx, .xls" />
                   </div>
                   <div class="col-2">
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
-                  </div>                            
+                  </div>                             -->
                   <div class="col-3">
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers">Add Customers</button>
                   </div>
@@ -54,7 +56,7 @@ else{
 									<th>Address</th>
 									<th>Phone</th>
 									<th>PIC</th>
-									<th>Actions</th>
+									<th width="10%">Actions</th>
 								</tr>
 							</thead>
 						</table>
@@ -79,6 +81,14 @@ else{
               <div class="card-body">
                 <div class="form-group">
                   <input type="hidden" class="form-control" id="id" name="id">
+                </div>
+                <div class="form-group" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
+                  <label for="code">Company *</label>
+                  <select class="form-control" style="width: 100%;" id="company" name="company" required>
+                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
                 <div class="form-group">
                   <label for="code">Customer Code *</label>
@@ -146,7 +156,10 @@ $(function () {
         'serverSide': true,
         'serverMethod': 'post',
         'ajax': {
-          'url':'php/loadCustomers.php'
+          'url':'php/loadCustomers.php',
+          'data': {
+            company: <?=$company ?>
+          }
         },
         'columns': [
           { data: 'customer_code' },
@@ -294,6 +307,7 @@ function edit(id){
             $('#addModal').find('#states').val(obj.message.states);
             $('#addModal').find('#phone').val(obj.message.customer_phone);
             $('#addModal').find('#email').val(obj.message.pic);
+            $('#addModal').find('#company').val(obj.message.customer);
             $('#addModal').modal('show');
             
             $('#customerForm').validate({

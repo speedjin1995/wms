@@ -405,6 +405,12 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#customer" data-file="customers.php" class="nav-link link">
+                      <i class="nav-icon fas fa-users"></i>
+                      <p>Customer</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#supplier" data-file="suppliers.php" class="nav-link link">
                       <i class="nav-icon fas fa-file-alt"></i>
                       <p>Supplier</p>
