@@ -361,7 +361,7 @@ to get the desired effect
               <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
-                  <p>Count Weighing</p>
+                  <p>Weighing Records</p>
                 </a>
               </li>
               <!--li class="nav-item">
@@ -420,6 +420,12 @@ to get the desired effect
                     <a href="#products" data-file="products.php" class="nav-link link">
                       <i class="nav-icon fas fa-shopping-cart"></i>
                       <p>Products</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#vehicles" data-file="vehicles.php" class="nav-link link">
+                      <i class="nav-icon fas fa-truck"></i>
+                      <p>Vehicles</p>
                     </a>
                   </li>
                   <li class="nav-item">
