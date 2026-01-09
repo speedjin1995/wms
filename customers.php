@@ -336,10 +336,10 @@ function edit(id){
           $('#addModal').find('#address2').val(obj.message.customer_address2);
           $('#addModal').find('#address3').val(obj.message.customer_address3);
           $('#addModal').find('#address4').val(obj.message.customer_address4);
-          $('#addModal').find('#states').val(obj.message.states);
+          $('#addModal').find('#states').val(obj.message.states).trigger('change');
           $('#addModal').find('#phone').val(obj.message.customer_phone);
           $('#addModal').find('#email').val(obj.message.pic);
-          $('#addModal').find('#company').val(obj.message.customer);
+          $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').modal('show');
           
           $('#customerForm').validate({
