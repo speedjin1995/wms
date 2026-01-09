@@ -189,9 +189,6 @@ $(function () {
     'serverMethod': 'post',
     'ajax': {
       'url':'php/loadCustomers.php',
-      'data': {
-        company: <?=$company ?>
-      }
     },
     'columns': [
       { data: 'customer_code' },
