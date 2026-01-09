@@ -84,7 +84,7 @@ else{
                 </div>
                 <div class="form-group" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
                   <label for="code">Company *</label>
-                  <select class="form-control" style="width: 100%;" id="company" name="company" required>
+                  <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
                     <?php } ?>
@@ -119,7 +119,7 @@ else{
                 </div>
                 <div class="form-group">
                   <label>States</label>
-                  <select class="form-control" style="width: 100%;" id="states" name="states">
+                  <select class="form-control select2" style="width: 100%;" id="states" name="states">
                     <option selected="selected">-</option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
                       <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
@@ -147,97 +147,129 @@ else{
     <!-- /.modal-dialog -->
 </div>
 
+<!-- jQuery -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<script src="plugins/jquery-validation/jquery.validate.min.js"></script>
+<!-- Bootstrap -->
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE -->
+<script src="dist/js/adminlte.js"></script>
+<!-- OPTIONAL SCRIPTS -->
+<script src="plugins/select2/js/select2.full.min.js"></script>
+<script src="plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+<script src="plugins/moment/moment.min.js"></script>
+<script src="plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="plugins/toastr/toastr.min.js"></script>
+<script src="plugins/daterangepicker/daterangepicker.js"></script>
+<script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+<script src="plugins/chart.js/Chart.min.js"></script>
+<script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script>
-$(function () {
-    $("#customerTable").DataTable({
-        "responsive": true,
-        "autoWidth": false,
-        'processing': true,
-        'serverSide': true,
-        'serverMethod': 'post',
-        'ajax': {
-          'url':'php/loadCustomers.php',
-          'data': {
-            company: <?=$company ?>
-          }
-        },
-        'columns': [
-          { data: 'customer_code' },
-          { data: 'reg_no' },
-          { data: 'customer_name' },
-          { data: 'customer_address' },
-          { data: 'customer_phone' },
-          { data: 'pic' },
-          { 
-            data: 'deleted',
-            render: function (data, type, row) {
-              if (data == 0) {
-                return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-              } 
-              else{
-                return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
-              }
-            }
-          }
-        ],
-        "rowCallback": function( row, data, index ) {
 
-            //$('td', row).css('background-color', '#E6E6FA');
-        },        
+$(function () {
+  $('.select2').each(function() {
+    $(this).select2({
+        allowClear: true,
+        placeholder: "Please Select",
+        // Conditionally set dropdownParent based on the element’s location
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
     });
+  });
+
+  $("#customerTable").DataTable({
+    "responsive": true,
+    "autoWidth": false,
+    'processing': true,
+    'serverSide': true,
+    'serverMethod': 'post',
+    'ajax': {
+      'url':'php/loadCustomers.php',
+      'data': {
+        company: <?=$company ?>
+      }
+    },
+    'columns': [
+      { data: 'customer_code' },
+      { data: 'reg_no' },
+      { data: 'customer_name' },
+      { data: 'customer_address' },
+      { data: 'customer_phone' },
+      { data: 'pic' },
+      { 
+        data: 'deleted',
+        render: function (data, type, row) {
+          if (data == 0) {
+            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          } 
+          else{
+            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+          }
+        }
+      }
+    ],
+    "rowCallback": function( row, data, index ) {
+
+        //$('td', row).css('background-color', '#E6E6FA');
+    },        
+  });
+  
+  $.validator.setDefaults({
+      submitHandler: function () {
+          $('#spinnerLoading').show();
+          $.post('php/customers.php', $('#customerForm').serialize(), function(data){
+              var obj = JSON.parse(data); 
+              
+              if(obj.status === 'success'){
+                $('#addModal').modal('hide');
+                toastr["success"](obj.message, "Success:");
+                $('#customerTable').DataTable().ajax.reload();
+                $('#spinnerLoading').hide();
+              }
+              else if(obj.status === 'failed'){
+                toastr["error"](obj.message, "Failed:");
+                $('#spinnerLoading').hide();
+              }
+              else{
+                toastr["error"]("Something wrong when edit", "Failed:");
+                $('#spinnerLoading').hide();
+              }
+          });
+      }
+  });
+
+  $('#addCustomers').on('click', function(){
+    $('#addModal').find('#id').val("");
+    $('#addModal').find('#code').val("");
+    $('#addModal').find('#reg_no').val("");
+    $('#addModal').find('#name').val("");
+    $('#addModal').find('#address').val("");
+    $('#addModal').find('#address2').val("");
+    $('#addModal').find('#address3').val("");
+    $('#addModal').find('#address4').val("");
+    $('#addModal').find('#states').val("");
+    $('#addModal').find('#phone').val("");
+    $('#addModal').find('#email').val("");
+    $('#addModal').modal('show');
     
-    $.validator.setDefaults({
-        submitHandler: function () {
-            $('#spinnerLoading').show();
-            $.post('php/customers.php', $('#customerForm').serialize(), function(data){
-                var obj = JSON.parse(data); 
-                
-                if(obj.status === 'success'){
-                  $('#addModal').modal('hide');
-                  toastr["success"](obj.message, "Success:");
-                  $('#customerTable').DataTable().ajax.reload();
-                  $('#spinnerLoading').hide();
-                }
-                else if(obj.status === 'failed'){
-                  toastr["error"](obj.message, "Failed:");
-                  $('#spinnerLoading').hide();
-                }
-                else{
-                  toastr["error"]("Something wrong when edit", "Failed:");
-                  $('#spinnerLoading').hide();
-                }
-            });
+    $('#customerForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
         }
     });
-
-    $('#addCustomers').on('click', function(){
-      $('#addModal').find('#id').val("");
-      $('#addModal').find('#code').val("");
-      $('#addModal').find('#reg_no').val("");
-      $('#addModal').find('#name').val("");
-      $('#addModal').find('#address').val("");
-      $('#addModal').find('#address2').val("");
-      $('#addModal').find('#address3').val("");
-      $('#addModal').find('#address4').val("");
-      $('#addModal').find('#states').val("");
-      $('#addModal').find('#phone').val("");
-      $('#addModal').find('#email').val("");
-      $('#addModal').modal('show');
-      
-      $('#customerForm').validate({
-          errorElement: 'span',
-          errorPlacement: function (error, element) {
-              error.addClass('invalid-feedback');
-              element.closest('.form-group').append(error);
-          },
-          highlight: function (element, errorClass, validClass) {
-              $(element).addClass('is-invalid');
-          },
-          unhighlight: function (element, errorClass, validClass) {
-              $(element).removeClass('is-invalid');
-          }
-      });
-    });
+  });
 
   document.getElementById('fileInput').addEventListener('change', function (e) {
     const file = e.target.files[0];
@@ -291,47 +323,47 @@ $(function () {
 });
 
 function edit(id){
-    $('#spinnerLoading').show();
-    $.post('php/getCustomer.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
-        
-        if(obj.status === 'success'){
-            $('#addModal').find('#id').val(obj.message.id);
-            $('#addModal').find('#code').val(obj.message.customer_code);
-            $('#addModal').find('#reg_no').val(obj.message.reg_no);
-            $('#addModal').find('#name').val(obj.message.customer_name);
-            $('#addModal').find('#address').val(obj.message.customer_address);
-            $('#addModal').find('#address2').val(obj.message.customer_address2);
-            $('#addModal').find('#address3').val(obj.message.customer_address3);
-            $('#addModal').find('#address4').val(obj.message.customer_address4);
-            $('#addModal').find('#states').val(obj.message.states);
-            $('#addModal').find('#phone').val(obj.message.customer_phone);
-            $('#addModal').find('#email').val(obj.message.pic);
-            $('#addModal').find('#company').val(obj.message.customer);
-            $('#addModal').modal('show');
-            
-            $('#customerForm').validate({
-                errorElement: 'span',
-                errorPlacement: function (error, element) {
-                    error.addClass('invalid-feedback');
-                    element.closest('.form-group').append(error);
-                },
-                highlight: function (element, errorClass, validClass) {
-                    $(element).addClass('is-invalid');
-                },
-                unhighlight: function (element, errorClass, validClass) {
-                    $(element).removeClass('is-invalid');
-                }
-            });
-        }
-        else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-        }
-        else{
-            toastr["error"]("Something wrong when activate", "Failed:");
-        }
-        $('#spinnerLoading').hide();
-    });
+  $('#spinnerLoading').show();
+  $.post('php/getCustomer.php', {userID: id}, function(data){
+      var obj = JSON.parse(data);
+      
+      if(obj.status === 'success'){
+          $('#addModal').find('#id').val(obj.message.id);
+          $('#addModal').find('#code').val(obj.message.customer_code);
+          $('#addModal').find('#reg_no').val(obj.message.reg_no);
+          $('#addModal').find('#name').val(obj.message.customer_name);
+          $('#addModal').find('#address').val(obj.message.customer_address);
+          $('#addModal').find('#address2').val(obj.message.customer_address2);
+          $('#addModal').find('#address3').val(obj.message.customer_address3);
+          $('#addModal').find('#address4').val(obj.message.customer_address4);
+          $('#addModal').find('#states').val(obj.message.states);
+          $('#addModal').find('#phone').val(obj.message.customer_phone);
+          $('#addModal').find('#email').val(obj.message.pic);
+          $('#addModal').find('#company').val(obj.message.customer);
+          $('#addModal').modal('show');
+          
+          $('#customerForm').validate({
+              errorElement: 'span',
+              errorPlacement: function (error, element) {
+                  error.addClass('invalid-feedback');
+                  element.closest('.form-group').append(error);
+              },
+              highlight: function (element, errorClass, validClass) {
+                  $(element).addClass('is-invalid');
+              },
+              unhighlight: function (element, errorClass, validClass) {
+                  $(element).removeClass('is-invalid');
+              }
+          });
+      }
+      else if(obj.status === 'failed'){
+          toastr["error"](obj.message, "Failed:");
+      }
+      else{
+          toastr["error"]("Something wrong when activate", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+  });
 }
 
 function deactivate(id){
