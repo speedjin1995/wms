@@ -10,7 +10,6 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
-  $states = $db->query("SELECT * FROM states");
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
 
   if ($user != 2){
@@ -26,7 +25,7 @@ else{
     <div class="container-fluid">
         <div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark">Customers</h1>
+				<h1 class="m-0 text-dark">Vehicles</h1>
 			</div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
