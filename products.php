@@ -119,13 +119,20 @@ else{
                   <label for="weight">Unit Weight</label>
                   <input type="number" class="form-control" name="weight" id="weight" placeholder="Enter Product Weight">
                 </div>
+                <div class="form-group">
+                  <label for="pricingType">Pricing Type</label>
+                  <select class="form-control" style="width: 100%;" id="pricingType" name="pricingType"> 
+                    <option selected="selected">Fixed</option>
+                    <option>Float</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="price">Price</label>
+                  <input type="number" class="form-control" name="price" id="price" placeholder="Enter Product Price">
+                </div>
                 <div class="form-group"> 
                   <label for="remark">Remark </label>
                   <textarea class="form-control" id="remark" name="remark" placeholder="Enter your remark"></textarea>
-                </div>
-                <div class="form-group" style="display:none;">
-                  <label for="price">Price</label>
-                  <input type="number" class="form-control" name="price" id="price" placeholder="Enter Product Price">
                 </div>
               </div>
             </div>
@@ -214,6 +221,7 @@ $(function () {
     $('#addModal').find('#part').val("");
     $('#addModal').find('#uom').val("");
     $('#addModal').find('#remark').val("");
+    $('#addModal').find('#pricingType').val("Fixed");
     $('#addModal').find('#price').val("");
     $('#addModal').find('#weight').val("");
     $('#addModal').modal('show');
@@ -248,6 +256,7 @@ function edit(id){
       $('#addModal').find('#part').val(obj.message.parts_no);
       $('#addModal').find('#uom').val(obj.message.uom);
       $('#addModal').find('#remark').val(obj.message.remark);
+      $('#addModal').find('#pricingType').val(obj.message.pricing_type);
       $('#addModal').find('#price').val(obj.message.price);
       $('#addModal').find('#weight').val(obj.message.weight);
       $('#addModal').find('#company').val(obj.message.customer).trigger('change');

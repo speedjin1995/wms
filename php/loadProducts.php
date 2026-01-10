@@ -63,6 +63,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "id"=>$row['id'],
     "product_code"=>$row['product_code'],
     "product_name"=>$row['product_name'],
+    "pricing_type"=>$row['pricing_type'],
     "price"=>$row['price'],
     "weight"=>$row['weight'].' '.$uom,
     "uom"=>$row['uom'],

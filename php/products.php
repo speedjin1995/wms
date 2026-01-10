@@ -13,6 +13,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     $part = null;
     $uom = null;
     $remark = null;
+    $pricingType = null;
     $price = null;
     $weight = null;
 
@@ -36,6 +37,10 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         $remark = filter_input(INPUT_POST, 'remark', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['pricingType']) && $_POST['pricingType'] != null && $_POST['pricingType'] != ''){
+        $pricingType = filter_input(INPUT_POST, 'pricingType', FILTER_SANITIZE_STRING);
+    }
+
     if(isset($_POST['price']) && $_POST['price'] != null && $_POST['price'] != ''){
         $price = filter_input(INPUT_POST, 'price', FILTER_SANITIZE_STRING);
     }
@@ -45,8 +50,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, price=?, weight=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $price, $weight, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, price=?, weight=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -71,8 +76,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, price, weight, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $price, $weight, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, weight, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $company);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
