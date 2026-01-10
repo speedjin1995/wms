@@ -63,6 +63,40 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 );
             }
             else{
+                # Product_Customers 
+                if (isset($_POST['no'])){
+                    $no = $_POST['no'];
+                    $customers =  $_POST['customers'];
+                    $customerPricingType = $_POST['customerPricingType'];
+                    $customerPrice = $_POST['customerPrice'];
+                    $deleteStatus = 1;
+                    if(isset($no) && $no != null && count($no) > 0){
+                        # Delete all existing product rawmat records tied to the product id then reinsert
+                        if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted=? WHERE product_id=?")){
+                            $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
+    
+                            // Execute the prepared query.
+                            if (! $delete_stmt->execute()) {
+                                echo json_encode(
+                                    array(
+                                        "status"=> "failed", 
+                                        "message"=> $delete_stmt->error
+                                    )
+                                );
+                            }
+                            else{
+                                foreach ($no as $key => $number) {
+                                    if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
+                                        $product_stmt->bind_param('ssss', $_POST['id'], $customers[$key], $customerPricingType[$key], $customerPrice[$key]);
+                                        $product_stmt->execute();
+                                        $product_stmt->close();
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                }
+
                 $update_stmt->close();
                 $db->close();
                 
@@ -89,6 +123,26 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 );
             }
             else{
+                $productId = $insert_stmt->insert_id;
+
+                # Product_RawMat 
+                if(isset($_POST['no'])){
+                    $no = $_POST['no'];
+                    $customers =  $_POST['customers'];
+                    $customerPricingType = $_POST['customerPricingType'];
+                    $customerPrice = $_POST['customerPrice'];
+
+                    if(isset($no) && $no != null && count($no) > 0){
+                        foreach ($no as $key => $number) {
+                            if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
+                                $product_stmt->bind_param('ssss', $productId, $customers[$key], $customerPricingType[$key], $customerPrice[$key]);
+                                $product_stmt->execute();
+                                $product_stmt->close();
+                            }
+                        }
+                    }
+                }
+
                 $insert_stmt->close();
                 $db->close();
                 
