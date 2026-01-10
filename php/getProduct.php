@@ -32,6 +32,7 @@ if(isset($_POST['userID'])){
                 $message['remark'] = $row['remark'];
                 $message['price'] = $row['price'];
                 $message['weight'] = $row['weight'];
+                $message['customer'] = $row['customer'];
             }
             
             echo json_encode(

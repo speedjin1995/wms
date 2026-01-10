@@ -2,8 +2,16 @@
 require_once 'php/db_connect.php';
 session_start();
 
-$company = $_SESSION['customer'];
-$units = $db->query("SELECT * FROM units WHERE deleted = '0'");
+if(!isset($_SESSION['userID'])){
+  echo '<script type="text/javascript">';
+  echo 'window.location.href = "login.html";</script>';
+}
+else{
+  $company = $_SESSION['customer'];
+  $user = $_SESSION['userID'];
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
+  $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
+}
 ?>
 
 <div class="content-header">
@@ -23,12 +31,18 @@ $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-            <div class="row">
-                <div class="col-6"></div>
-                <div class="col-6">
-                    <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProducts">Add Products</button>
-                </div>
+          <div class="row">
+            <div class="col-9"></div>
+            <!-- <div class="col-2">
+                <input type="file" id="fileInput" accept=".xlsx, .xls" />
             </div>
+            <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
+            </div>                             -->
+            <div class="col-3">
+              <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProducts">Add Products</button>
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <table id="productTable" class="table table-bordered table-striped">
@@ -62,8 +76,15 @@ $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
             </div>
             <div class="modal-body">
               <div class="card-body">
-                <input type="hidden" class="form-control" id="company" name="company" value="<?=$company ?>">
                 <input type="hidden" class="form-control" id="id" name="id">
+                <div class="form-group" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
+                  <label for="code">Company *</label>
+                  <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
+                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
                 <div class="form-group">
                   <label for="code">Product Code *</label>
                   <input type="text" class="form-control" name="code" id="code" placeholder="Enter Product Code" required>
@@ -121,6 +142,15 @@ $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
 
 <script>
 $(function () {
+  $('.select2').each(function() {
+    $(this).select2({
+        allowClear: true,
+        placeholder: "Please Select",
+        // Conditionally set dropdownParent based on the element’s location
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+    });
+  });
+  
   $("#productTable").DataTable({
     "responsive": true,
     "autoWidth": false,
@@ -220,6 +250,7 @@ function edit(id){
       $('#addModal').find('#remark').val(obj.message.remark);
       $('#addModal').find('#price').val(obj.message.price);
       $('#addModal').find('#weight').val(obj.message.weight);
+      $('#addModal').find('#company').val(obj.message.customer).trigger('change');
       $('#addModal').modal('show');
       
       $('#productForm').validate({
