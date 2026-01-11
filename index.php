@@ -440,12 +440,12 @@ to get the desired effect
                       <p>Grades</p>
                     </a>
                   </li>
-                  <li class="nav-item">
+                  <!--li class="nav-item">
                     <a href="#locations" data-file="locations.php" class="nav-link link">
                       <i class="nav-icon fas fa-shopping-bag"></i>
                       <p>Location</p>
                     </a>
-                  </li>
+                  </li -->
                 </ul>
               </li>';
               }
