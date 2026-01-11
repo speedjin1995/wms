@@ -47,11 +47,28 @@ while($row2=mysqli_fetch_assoc($locations)){
 }
 
 while($row3=mysqli_fetch_assoc($products)){
+    $pricing_type = $row3['pricing_type'];
+    $price=$row3['price'];
+    
+    if($customer != ''){
+        $product_cus = $db->query("SELECT * FROM product_customers WHERE product_id = '".$row3['id']."' AND customer_id='".$customer."'");
+        
+        if($rowPC=mysqli_fetch_assoc($product_cus)){
+            $pricing_type = $rowPC['pricing_type'];
+            $price=$rowPC['price'];
+        }
+        else{
+            $pricing_type = $row3['pricing_type'];
+            $price=$row3['price'];
+        }
+    }
+    
     $data3[] = array( 
         'id'=>$row3['id'],
         'product_name'=>$row3['product_name'],
         'remark'=>$row3['remark'],
-        'price'=>$row3['price'],
+        'price'=>$price,
+        'pricing_type'=>$pricing_type,
         'weight'=>$row3['weight']
     );
 }
