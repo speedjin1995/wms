@@ -17,6 +17,7 @@ $sizes = $db->query("SELECT * FROM size WHERE deleted = '0' AND customer='".$sta
 $specs = $db->query("SELECT * FROM spec WHERE deleted = '0' AND customer='".$staffId."'");
 $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer='".$staffId."'");
 $destinations = $db->query("SELECT * FROM destinations WHERE deleted = '0' AND customer='".$staffId."'");
+$grades = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer='".$staffId."'");
 
 $data1 = array();
 $data2 = array();
@@ -29,6 +30,7 @@ $data8 = array();
 $data9 = array();
 $data10 = array();
 $data11 = array();
+$data12 = array();
 
 while($row1=mysqli_fetch_assoc($units)){
     $data1[] = array( 
@@ -126,6 +128,13 @@ while($row11=mysqli_fetch_assoc($destinations)){
     );
 }
 
+while($row12=mysqli_fetch_assoc($grades)){
+    $data12[] = array( 
+        'id'=>$row12['id'],
+        'units'=>$row12['units']
+    );
+}
+
 $db->close();
 
 echo json_encode(
@@ -141,7 +150,8 @@ echo json_encode(
         "sizes"=> $data8, 
         "specs"=> $data9, 
         "driverslist"=> $data10, 
-        "destinations"=> $data11
+        "destinations"=> $data11,
+        "grades"=> $data12
     )
 );
 ?>
