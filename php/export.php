@@ -1,5 +1,6 @@
 <?php
 require_once 'db_connect.php';
+require_once 'lookup.php';
 require_once '../vendor/autoload.php'; 
 use PhpOffice\PhpSpreadsheet\Spreadsheet; 
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -13,11 +14,145 @@ function filterData(&$str){
     $str = preg_replace("/\r?\n/", "\\n", $str); 
     if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"'; 
 } 
+
+function arrangeByGrade($weighingDetails) {
+    $arranged = [];
+    
+    if(isset($weighingDetails) && !empty($weighingDetails)) {
+        foreach($weighingDetails as $detail) {
+            $grade = $detail['grade'] ?? 'Unknown';
+            if(!isset($arranged[$grade])) {
+                $arranged[$grade] = [];
+            }
+            $arranged[$grade][] = $detail;
+        }
+    }
+    
+    return $arranged;
+}
  
 // Excel file name for download 
 $fileName = "Report_" . date('Y-m-d') . ".xlsx";
- 
-// Column names 
+
+// Build search query
+$searchQuery = "";
+
+if(isset($_GET['fromDate']) && $_GET['fromDate'] != null && $_GET['fromDate'] != ''){
+    $dateTime = DateTime::createFromFormat('d/m/Y', $_GET['fromDate']);
+    $fromDate = $dateTime->format('d/m/Y');
+    $fromDateTime = $dateTime->format('Y-m-d 00:00:00');
+    $searchQuery .= " AND wholesales.created_datetime >= '".$fromDateTime."'";
+}
+
+if(isset($_GET['toDate']) && $_GET['toDate'] != null && $_GET['toDate'] != ''){
+    $dateTime = DateTime::createFromFormat('d/m/Y', $_GET['toDate']);
+    $toDate = $dateTime->format('d/m/Y');
+    $toDateTime = $dateTime->format('Y-m-d 23:59:59');
+    $searchQuery .= " AND wholesales.created_datetime <= '".$toDateTime."'";
+}
+
+if(isset($_GET['status']) && $_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
+    $searchQuery .= " AND wholesales.status = '".mysqli_real_escape_string($db, $_GET['status'])."'";
+}
+
+if(isset($_GET['product']) && $_GET['product'] != null && $_GET['product'] != '' && $_GET['product'] != '-'){
+    $searchQuery .= " AND wholesales.product = '".mysqli_real_escape_string($db, $_GET['product'])."'";
+}
+
+if(isset($_GET['customer']) && $_GET['customer'] != null && $_GET['customer'] != '' && $_GET['customer'] != '-'){
+    $searchQuery .= " AND wholesales.customer = '".mysqli_real_escape_string($db, $_GET['customer'])."'";
+}
+
+if(isset($_GET['supplier']) && $_GET['supplier'] != null && $_GET['supplier'] != '' && $_GET['supplier'] != '-'){
+    $searchQuery .= " AND wholesales.supplier = '".mysqli_real_escape_string($db, $_GET['supplier'])."'";
+}
+
+$isMulti = '';
+if(isset($_GET['isMulti']) && $_GET['isMulti'] != null && $_GET['isMulti'] != '' && $_GET['isMulti'] != '-'){
+    $isMulti = $_GET['isMulti'];
+}
+
+// Fetch records from database
+if($isMulti == 'Y'){
+    if(isset($_GET['ids']) && $_GET['ids'] != null && $_GET['ids'] != '' && $_GET['ids'] != '-'){
+        $ids = $_GET['ids'];
+    }
+    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (".$ids.")");
+}else{
+    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
+}
+
+$gradeColumns = [];
+$allRows = [];
+
+// First pass: collect all data and unique grades
+if ($query->num_rows > 0) { 
+    $count = 1;
+    while ($row = $query->fetch_assoc()) { 
+        $createdDateTime = new DateTime($row['created_datetime']);
+        $formattedDate = $createdDateTime->format('d/m/Y');
+        $formattedTime = $createdDateTime->format('H:i:s');
+
+        // Reserve for Weighing Details
+        $weighingDetails = json_decode($row['weight_details'], true);
+        $arrangedDetails = arrangeByGrade($weighingDetails);
+
+        $totalWeight = 0;
+        $totalBinWeight = 0;
+        $totalRejectWeight = 0;
+        $actualWeight = 0;
+        $totalPrice = 0;
+        $actualPrice = 0;
+        $gradeWeights = [];
+        
+        foreach ($arrangedDetails as $grade => $details) {
+            $gradeColumns[] = 'Grade '.$grade;
+            $gradeNettWeight = 0;
+            foreach ($details as $detail) {
+                $gradeNettWeight += floatval($detail['net'] ?? 0);
+
+                $totalWeight += floatval($detail['gross'] ?? 0);
+                $totalBinWeight += floatval($detail['tare'] ?? 0);
+                $totalRejectWeight += floatval($detail['reject'] ?? 0);
+
+                if ($detail['fixedfloat'] == 'fixed'){
+                    $totalPrice += floatval($detail['price'] ?? 0);
+                    $actualPrice += floatval($detail['price'] ?? 0);
+                }else{
+                    $totalPrice += floatval($detail['gross'] ?? 0) * floatval($detail['price'] ?? 0);
+                    $actualPrice += (floatval($detail['net'] ?? 0) - floatval($detail['reject'] ?? 0)) * floatval($detail['price'] ?? 0);
+                }
+            }
+            $gradeWeights['Grade '.$grade] = $gradeNettWeight;
+        }
+
+        $actualWeight = $totalWeight - $totalBinWeight - $totalRejectWeight;
+
+        $allRows[] = [
+            'count' => $count,
+            'formattedDate' => $formattedDate,
+            'formattedTime' => $formattedTime,
+            'serial_no' => $row['serial_no'],
+            'po_no' => $row['po_no'],
+            'product' => searchProductNameById($row['product'], $db),
+            'gradeWeights' => $gradeWeights,
+            'totalWeight' => $totalWeight,
+            'totalBinWeight' => $totalBinWeight,
+            'total_reject' => $totalRejectWeight,
+            'actualWeight' => $actualWeight,
+            'totalPrice' => $totalPrice,
+            'actualPrice' => $actualPrice,
+            'vehicle_no' => $row['vehicle_no'],
+            'driver' => $row['driver'],
+            'weighted_by' => searchUserNameById($row['weighted_by'], $db)
+        ];
+
+        $count++;
+    } 
+}
+
+$gradeColumns = array_unique($gradeColumns);
+
 // Create a new Spreadsheet
 $spreadsheet = new Spreadsheet();
 
@@ -25,57 +160,57 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
-$fields = array('No', 'Date', 'Serial No.', 'Batch No.', 'Article No.', 'Iqc No.', 'Supplier', 'Product', 'Gross Weight', 'Unit Weight', 'Qty'); 
+$fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Product Description');
+
+// Add grade columns
+foreach ($gradeColumns as $gradeCol) {
+    $fields[] = $gradeCol;
+}
+
+$fields = array_merge($fields, array('Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight', 'Total Price (RM)', 'Actual Price (RM)', 'Vehicle No.', 'Driver Name', 'Weigh By'));
 
 // Display column names as first row 
 $sheet->fromArray($fields, NULL, 'A1');
 
-## Search 
-$searchQuery = "";
-
-if($_GET['fromDate'] != null && $_GET['fromDate'] != ''){
-    $dateTime = DateTime::createFromFormat('d/m/Y', $_GET['fromDate']);
-    $fromDateTime = $dateTime->format('Y-m-d 00:00:00');
-    $searchQuery .= " and counting.created_datetime >= '".$fromDateTime."'";
-}
-
-if($_GET['toDate'] != null && $_GET['toDate'] != ''){
-    $dateTime = DateTime::createFromFormat('d/m/Y', $_GET['toDate']);
-    $toDateTime = $dateTime->format('Y-m-d 23:59:59');
-    $searchQuery .= " and counting.created_datetime <= '".$toDateTime."'";
-}
-
-if($_GET['product'] != null && $_GET['product'] != '' && $_GET['product'] != '-'){
-    $searchQuery .= " and products.id = '".$_GET['product']."'";
-}
-
-if($_GET['supplier'] != null && $_GET['supplier'] != '' && $_GET['supplier'] != '-'){
-    $searchQuery .= " and counting.supplier = '".$_GET['supplier']."'";
-}
-
-// Fetch records from database
-$query = $db->query("select counting.*, products.product_name, supplies.supplier_name from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company'".$searchQuery);
 $rowIndex = 2; // Start from the second row
-$count = 1;
 
-if($query->num_rows > 0){ 
+if (!empty($allRows)) {
     // Output each row of the data 
-    while($row = $query->fetch_assoc()){ 
-        $createdDateTime = new DateTime($row['created_datetime']);
-        $createdDateTime->modify('+8 hours');
-        $formattedDateTime = $createdDateTime->format('d/m/Y H:i:s');
+    foreach ($allRows as $rowData) {
+        $lineData = array(
+            $rowData['count'],
+            $rowData['formattedDate'],
+            $rowData['formattedTime'],
+            $rowData['serial_no'],
+            $rowData['po_no'],
+            $rowData['product']
+        );
 
-        $lineData = array($count, $formattedDateTime, $row['serial_no'], $row['batch_no'], $row['article_code'], 
-        $row['iqc_no'], $row['supplier_name'], $row['product_name'], $row['gross'], $row['unit'], $row['count']);
+        // Add grade weights in correct order
+        foreach ($gradeColumns as $gradeCol) {
+            $lineData[] = number_format(($rowData['gradeWeights'][$gradeCol] ?? 0), 2);
+        }
+
+        // Add remaining data
+        $lineData = array_merge($lineData, array(
+            number_format($rowData['totalWeight'], 2),
+            number_format($rowData['totalBinWeight'], 2),
+            number_format($rowData['total_reject'], 2),
+            number_format($rowData['actualWeight'], 2),
+            number_format($rowData['totalPrice'], 2),
+            number_format($rowData['actualPrice'], 2),
+            $rowData['vehicle_no'],
+            $rowData['driver'],
+            $rowData['weighted_by']
+        ));
 
         array_walk($lineData, 'filterData'); 
         $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
         $rowIndex++;
-        $count++;
-    } 
-}else{ 
+    }
+} else {
     $sheet->setCellValue('A'.$rowIndex, 'No records found...');
-} 
+}
 
 // Create a writer object
 $writer = new Xlsx($spreadsheet);
@@ -87,5 +222,7 @@ header('Cache-Control: max-age=0');
 
 // Save the spreadsheet
 $writer->save('php://output');
+
+
 exit;
 ?>

@@ -400,11 +400,26 @@ $(function () {
   $('#exportExcel').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    
-    window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+
-    "&supplier="+supplierNoI+"&product="+productI);
+
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#weightTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0){
+      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=Y&ids="+selectedIds);
+    }else{
+      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=N");
+    }
   });
 
   $('#exportPdf').on('click', function(){
