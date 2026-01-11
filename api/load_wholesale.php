@@ -77,6 +77,10 @@ while($row = $result->fetch_assoc()){
         'weighted_by'=> $row['weighted_by'],
         'staffName'=> $row['name'],
         'indicator'=> $row['indicator'],
+        'total_item'=> $row['total_item'],
+        'total_weight'=> $row['total_weight'],
+        'total_reject'=> $row['total_reject'],
+        'total_price'=> $row['total_price'],
         'weight' => json_decode($row['weight_details'], true)
     );
 }
