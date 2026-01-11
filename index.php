@@ -435,6 +435,12 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#transporters" data-file="transporters.php" class="nav-link link">
+                      <i class="nav-icon fas fa-shipping-fast"></i>
+                      <p>Transporters</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#grades" data-file="grades.php" class="nav-link link">
                       <i class="nav-icon fas fa-star"></i>
                       <p>Grades</p>
