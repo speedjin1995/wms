@@ -36,7 +36,7 @@ if(isset($_POST['userID'])){
                 $message['customer'] = $row['customer'];
 
                 // retrieve product customers
-                $empQuery = "SELECT * FROM Product_Customers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
+                $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
                 $empRecords = mysqli_query($db, $empQuery);
                 $productCustomers = array();
                 $productCustomerCount = 1;
