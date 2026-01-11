@@ -107,7 +107,7 @@ else{
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-6">
+                  <!-- <div class="col-6">
                     <div class="form-group mb-2">
                       <label for="serial">Serial No</label>
                       <input type="text" class="form-control" name="serial" id="serial" placeholder="Serial No.">
@@ -118,10 +118,10 @@ else{
                       <label for="batch">Batch No</label>
                       <input type="text" class="form-control" name="batch" id="batch" placeholder="Batch No.">
                     </div>
-                  </div>
+                  </div> -->
                 </div>
                 <div class="row">
-                  <div class="col-6">
+                  <!-- <div class="col-6">
                     <div class="form-group mb-2">
                       <label for="part">Parts No</label>
                       <input type="text" class="form-control" name="part" id="part" placeholder="Part No.">
@@ -137,7 +137,7 @@ else{
                         <?php } ?>
                       </select>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
                 <div class="row">
                   <div class="col-6">
