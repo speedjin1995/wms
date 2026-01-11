@@ -113,7 +113,7 @@ else{
                     <option value="waste">Waste/Scrap</option>
                     <option value="packing">Packing</option>
                     <option value="weighbridge">Weighbridge</option>
-                    <option value="fruits">Fruits</option>
+                    <option value="wholesale">Wholesales</option>
                   </select>
                 </div>
               </div>
