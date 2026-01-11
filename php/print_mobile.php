@@ -30,8 +30,8 @@ function arrangeByGrade($weighingDetails) {
     return ['arranged' => $arranged, 'earliest_time' => $earliest_time, 'latest_time' => $latest_time];
 }
 
-if(isset($_POST['userID'])){
-    $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
+if(isset($_GET['userID'])){
+    $id = filter_input(INPUT_GET, 'userID', FILTER_SANITIZE_STRING);
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);
@@ -241,12 +241,7 @@ if(isset($_POST['userID'])){
                 </body>
                 </html>';
 
-                echo json_encode(
-                    array(
-                        "status" => "success",
-                        "message" => $message
-                    )
-                );
+                echo $message;
             }
             else{
                 echo json_encode(
