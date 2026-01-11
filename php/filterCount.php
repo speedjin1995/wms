@@ -55,7 +55,7 @@ $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 
 if ($user != 2){
-  $searchQuery .= " AND customer = '".$company."'";
+  $searchQuery .= " AND company = '".$company."'";
 }
 
 ## Total number of records without filtering
