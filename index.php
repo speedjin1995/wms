@@ -73,18 +73,18 @@ else{
       cursor: pointer
     }
   
-    .table-striped > tbody > tr{
-      background-color: #14a2b8; 
+    /* .table-striped > tbody > tr{
+      background-color: #007bff; 
       color:white;
     }
 
     .table-striped > tbody > tr:nth-of-type(odd){
       background-color: #14a2b8; 
       color:white;
-    }
+    } */
 
     thead {
-      background-color: #00528c; 
+      background-color: #007bff; 
       color:white;
     }
   
@@ -309,17 +309,17 @@ to get the desired effect
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars" style="color: #457ba1;"></i></a>
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars bg-success"></i></a>
       </li>
     </ul>
   </nav>
   <!-- Main Sidebar Container -->
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #457ba1;">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #3d44c1;">
     <!-- Brand Logo -->
     <a href="#" class="brand-link logo-switch" style="line-height: 5;">
-      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs">
-      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content;">
+      <img src="assets/logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs">
+      <img src="assets/logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content;">
     </a>
 
     <!-- Sidebar -->
@@ -361,7 +361,7 @@ to get the desired effect
               <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
-                  <p>Count Weighing</p>
+                  <p>Weighing Records</p>
                 </a>
               </li>
               <!--li class="nav-item">
@@ -405,6 +405,12 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#customer" data-file="customers.php" class="nav-link link">
+                      <i class="nav-icon fas fa-users"></i>
+                      <p>Customer</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#supplier" data-file="suppliers.php" class="nav-link link">
                       <i class="nav-icon fas fa-file-alt"></i>
                       <p>Supplier</p>
@@ -414,6 +420,24 @@ to get the desired effect
                     <a href="#products" data-file="products.php" class="nav-link link">
                       <i class="nav-icon fas fa-shopping-cart"></i>
                       <p>Products</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#drivers" data-file="drivers.php" class="nav-link link">
+                      <i class="nav-icon fas fa-id-card"></i>
+                      <p>Drivers</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#vehicles" data-file="vehicles.php" class="nav-link link">
+                      <i class="nav-icon fas fa-truck"></i>
+                      <p>Vehicles</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#grades" data-file="grades.php" class="nav-link link">
+                      <i class="nav-icon fas fa-star"></i>
+                      <p>Grades</p>
                     </a>
                   </li>
                   <li class="nav-item">

@@ -13,6 +13,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     $part = null;
     $uom = null;
     $remark = null;
+    $pricingType = null;
     $price = null;
     $weight = null;
 
@@ -36,6 +37,10 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         $remark = filter_input(INPUT_POST, 'remark', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['pricingType']) && $_POST['pricingType'] != null && $_POST['pricingType'] != ''){
+        $pricingType = filter_input(INPUT_POST, 'pricingType', FILTER_SANITIZE_STRING);
+    }
+
     if(isset($_POST['price']) && $_POST['price'] != null && $_POST['price'] != ''){
         $price = filter_input(INPUT_POST, 'price', FILTER_SANITIZE_STRING);
     }
@@ -45,8 +50,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, price=?, weight=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $price, $weight, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, price=?, weight=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -58,6 +63,40 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 );
             }
             else{
+                # Product_Customers 
+                if (isset($_POST['no'])){
+                    $no = $_POST['no'];
+                    $customers =  $_POST['customers'];
+                    $customerPricingType = $_POST['customerPricingType'];
+                    $customerPrice = $_POST['customerPrice'];
+                    $deleteStatus = 1;
+                    if(isset($no) && $no != null && count($no) > 0){
+                        # Delete all existing product rawmat records tied to the product id then reinsert
+                        if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted=? WHERE product_id=?")){
+                            $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
+    
+                            // Execute the prepared query.
+                            if (! $delete_stmt->execute()) {
+                                echo json_encode(
+                                    array(
+                                        "status"=> "failed", 
+                                        "message"=> $delete_stmt->error
+                                    )
+                                );
+                            }
+                            else{
+                                foreach ($no as $key => $number) {
+                                    if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
+                                        $product_stmt->bind_param('ssss', $_POST['id'], $customers[$key], $customerPricingType[$key], $customerPrice[$key]);
+                                        $product_stmt->execute();
+                                        $product_stmt->close();
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                }
+
                 $update_stmt->close();
                 $db->close();
                 
@@ -71,8 +110,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, price, weight, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $price, $weight, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, weight, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $company);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
@@ -84,6 +123,26 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 );
             }
             else{
+                $productId = $insert_stmt->insert_id;
+
+                # Product_RawMat 
+                if(isset($_POST['no'])){
+                    $no = $_POST['no'];
+                    $customers =  $_POST['customers'];
+                    $customerPricingType = $_POST['customerPricingType'];
+                    $customerPrice = $_POST['customerPrice'];
+
+                    if(isset($no) && $no != null && count($no) > 0){
+                        foreach ($no as $key => $number) {
+                            if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
+                                $product_stmt->bind_param('ssss', $productId, $customers[$key], $customerPricingType[$key], $customerPrice[$key]);
+                                $product_stmt->execute();
+                                $product_stmt->close();
+                            }
+                        }
+                    }
+                }
+
                 $insert_stmt->close();
                 $db->close();
                 

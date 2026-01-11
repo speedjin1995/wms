@@ -1,4 +1,5 @@
 <?php
+session_start();
 ## Database configuration
 require_once 'db_connect.php';
 
@@ -12,14 +13,15 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = " ";
-
-if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-  $searchQuery = " AND customer = '".$_POST['id']."'";
+$searchQuery = "WHERE deleted = 0";
+$company = $_SESSION['customer'];
+$user = $_SESSION['userID'];
+if ($user != 2){
+  $searchQuery .= " AND customer = '".$company."'";
 }
 
 if($searchValue != ''){
-   $searchQuery = " AND (product_name like '%".$searchValue."%' OR remark like '%".$searchValue."%')";
+  $searchQuery .= " AND (product_name like '%".$searchValue."%' or remark like '%".$searchValue."%')";
 }
 
 ## Total number of records without filtering
@@ -28,12 +30,12 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from products WHERE deleted = '0'".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from products ".$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select * from products WHERE deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select * from products ".$searchQuery." order by deleted, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
@@ -61,6 +63,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "id"=>$row['id'],
     "product_code"=>$row['product_code'],
     "product_name"=>$row['product_name'],
+    "pricing_type"=>$row['pricing_type'],
     "price"=>$row['price'],
     "weight"=>$row['weight'].' '.$uom,
     "uom"=>$row['uom'],

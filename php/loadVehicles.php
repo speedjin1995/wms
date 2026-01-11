@@ -17,39 +17,37 @@ $searchQuery = "WHERE 1=1";
 $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 if ($user != 2){
-  $searchQuery .= " AND customer = '".$company."'";
+  $searchQuery .= " AND vehicles.customer = '".$company."'";
 }
 
 if($searchValue != ''){
-  $searchQuery .= " AND (supplier_name like '%".$searchValue."%' or supplier_code like '%".$searchValue."%')";
+  $searchQuery .= " AND (vehicles.veh_number like '%".$searchValue."%')";
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from supplies");
+$sel = mysqli_query($db,"select count(*) as allcount from vehicles");
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from supplies ".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from vehicles ".$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select * from supplies ".$searchQuery." order by deleted, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select vehicles.*, drivers.driver_name as driver_name from vehicles LEFT JOIN drivers ON vehicles.driver = drivers.id ".$searchQuery." order by deleted, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
-  $data[] = array( 
-    'id'=>$row['id'],
-    'supplier_code'=>$row['supplier_code'],
-    "reg_no"=>$row['reg_no'],
-    'supplier_name'=>$row['supplier_name'],
-    'supplier_address'=>$row['supplier_address'].$row['supplier_address2'].$row['supplier_address3'].$row['supplier_address4'],
-    'supplier_phone'=>$row['supplier_phone'],
-    'pic'=>$row['pic'],
-    "deleted"=>$row['deleted']
-  );
+    $data[] = array( 
+      "id"=>$row['id'],
+      "veh_number"=>$row['veh_number'],
+      "driver_name"=>$row['driver_name'],
+      "attandence_1"=>$row['attandence_1'],
+      "attandence_2"=>$row['attandence_2'],
+      "deleted"=>$row['deleted']
+    );
 }
 
 ## Response

@@ -3,14 +3,16 @@ require_once "db_connect.php";
 
 session_start();
 
-if(isset($_POST['code'], $_POST['name'])){
+if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $code = filter_input(INPUT_POST, 'code', FILTER_SANITIZE_STRING);
     $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
+    $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
     $reg_no = null;
 	$address = null;
     $address2 = null;
     $address3 = null;
     $address4 = null;
+    $states = null;
     $phone = null;
     $email = null;
 
@@ -34,6 +36,10 @@ if(isset($_POST['code'], $_POST['name'])){
         $address4 = filter_input(INPUT_POST, 'address4', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['states']) && $_POST['states'] != null && $_POST['states'] != ''){
+        $states = filter_input(INPUT_POST, 'states', FILTER_SANITIZE_STRING);
+    }
+
     if(isset($_POST['phone']) && $_POST['phone'] != null && $_POST['phone'] != ''){
         $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
     }
@@ -43,8 +49,8 @@ if(isset($_POST['code'], $_POST['name'])){
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, customer_phone=?, pic=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, customer_phone=?, pic=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -69,8 +75,8 @@ if(isset($_POST['code'], $_POST['name'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, customer_phone, pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email);
+        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $company);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

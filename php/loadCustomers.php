@@ -1,4 +1,5 @@
 <?php
+session_start();
 ## Database configuration
 require_once 'db_connect.php';
 
@@ -12,9 +13,15 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = " ";
+$searchQuery = "WHERE 1=1";
+$company = $_SESSION['customer'];
+$user = $_SESSION['userID'];
+if ($user != 2){
+  $searchQuery .= " AND customer = '".$company."'";
+}
+
 if($searchValue != ''){
-  $searchQuery = "WHERE (customer_name like '%".$searchValue."%' or customer_code like '%".$searchValue."%')";
+  $searchQuery .= " AND (customer_name like '%".$searchValue."%' or customer_code like '%".$searchValue."%')";
 }
 
 ## Total number of records without filtering
@@ -38,7 +45,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "customer_code"=>$row['customer_code'],
       "reg_no"=>$row['reg_no'],
       "customer_name"=>$row['customer_name'],
-      "customer_address"=>$row['customer_address'].$row['customer_address2'].$row['customer_address3'].$row['customer_address4'],
+      "customer_address"=>$row['customer_address'].'<br>'.$row['customer_address2'].'<br>'.$row['customer_address3'].'<br>'.$row['customer_address4'],
       "customer_phone"=>$row['customer_phone'],
       "pic"=>$row['pic'],
       "deleted"=>$row['deleted']

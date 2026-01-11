@@ -6,7 +6,7 @@ session_start();
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($update_stmt = $db->prepare("SELECT * FROM supplies WHERE id=?")) {
+    if ($update_stmt = $db->prepare("SELECT * FROM grades WHERE id=?")) {
         $update_stmt->bind_param('s', $id);
         
         // Execute the prepared query.
@@ -23,16 +23,7 @@ if(isset($_POST['userID'])){
             
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
-                $message['supplier_code'] = $row['supplier_code'];
-                $message['reg_no'] = $row['reg_no'];
-                $message['supplier_name'] = $row['supplier_name'];
-                $message['supplier_address'] = $row['supplier_address'];
-                $message['supplier_address2'] = $row['supplier_address2'];
-                $message['supplier_address3'] = $row['supplier_address3'];
-                $message['supplier_address4'] = $row['supplier_address4'];
-                $message['states'] = $row['states'];
-                $message['supplier_phone'] = $row['supplier_phone'];
-                $message['pic'] = $row['pic'];
+                $message['units'] = $row['units'];
                 $message['customer'] = $row['customer'];
             }
             
