@@ -141,7 +141,7 @@ else{
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
               </div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportExcel">Export Excel</button>
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel">Export Excel</button>
               </div>
             </div>
           </div>
@@ -150,6 +150,7 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
+                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th>Serial <br>No.</th>
                   <th>PO <br>No.</th>
                   <th>Created <br> Datetime</th>
@@ -206,6 +207,11 @@ $(function () {
     defaultDate: today
   });
 
+  $('#selectAllCheckbox').on('change', function() {
+    var checkboxes = $('#weightTable tbody input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+  });
+
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
   var statusI = $('#statusFilter').val();
@@ -234,6 +240,15 @@ $(function () {
       } 
     },
     'columns': [
+      {
+        // Add a checkbox with a unique ID for each row
+        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        className: 'select-checkbox',
+        orderable: false,
+        render: function (data, type, row) {
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+        }
+      },
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'created_datetime' },
@@ -320,6 +335,15 @@ $(function () {
         } 
       },
       'columns': [
+        {
+          // Add a checkbox with a unique ID for each row
+          data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+          className: 'select-checkbox',
+          orderable: false,
+          render: function (data, type, row) {
+              return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+          }
+        },
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'created_datetime' },
@@ -376,21 +400,51 @@ $(function () {
   $('#exportExcel').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    
-    window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+
-    "&supplier="+supplierNoI+"&product="+productI);
+
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#weightTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0){
+      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=Y&ids="+selectedIds);
+    }else{
+      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=N");
+    }
   });
 
   $('#exportPdf').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    
-    window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+
-    "&supplier="+supplierNoI+"&product="+productI);
+
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#weightTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0){
+      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=Y&ids="+selectedIds);
+    }else{
+      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=N");
+    }
   });
 
   $('#statusFilter').on('change', function(){
