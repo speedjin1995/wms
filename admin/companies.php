@@ -114,6 +114,7 @@ else{
                     <option value="packing">Packing</option>
                     <option value="weighbridge">Weighbridge</option>
                     <option value="wholesale">Wholesales</option>
+                    <option value="validation">Validation</option>
                   </select>
                 </div>
               </div>
