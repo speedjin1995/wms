@@ -58,8 +58,8 @@ else{
 								<tr>
                   <th>Vehicle Number</th>
                   <th>Driver</th>
-									<th>Attendence 1</th>
-									<th>Attendence 2</th>
+									<!-- <th>Attendence 1</th>
+									<th>Attendence 2</th> -->
 									<th>Actions</th>
 								</tr>
 							</thead>
@@ -106,14 +106,14 @@ else{
                     <?php } ?>
                   </select>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                   <label for="name">Attendence 1</label>
                   <input type="text" class="form-control" name="attendence1" id="attendence1" placeholder="Enter Attendence 1">
                 </div>
                 <div class="form-group">
                   <label for="name">Attendence 2</label>
                   <input type="text" class="form-control" name="attendence2" id="attendence2" placeholder="Enter Attendence 2">
-                </div>
+                </div> -->
               </div>
             </div>
             <div class="modal-footer justify-content-between">
@@ -173,8 +173,8 @@ $(function () {
     'columns': [
       { data: 'veh_number' },
       { data: 'driver_name' },
-      { data: 'attandence_1' },
-      { data: 'attandence_2' },
+      // { data: 'attandence_1' },
+      // { data: 'attandence_2' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
