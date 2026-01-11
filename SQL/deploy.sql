@@ -24,3 +24,12 @@ CREATE TABLE `product_customers` (
 ALTER TABLE `product_customers` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `product_customers` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- 11/01/2025 --
+ALTER TABLE `users` CHANGE `baudrate` `baudrate` VARCHAR(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL;
+
+ALTER TABLE `users` CHANGE `databits` `databits` VARCHAR(5) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL;
+
+ALTER TABLE `users` CHANGE `parity` `parity` VARCHAR(5) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL;
+
+ALTER TABLE `users` CHANGE `stopbits` `stopbits` VARCHAR(5) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL;

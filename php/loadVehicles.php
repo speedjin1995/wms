@@ -13,7 +13,7 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = "WHERE 1=1";
+$searchQuery = "WHERE 1=1 AND vehicles.deleted = 0 ";
 $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 if ($user != 2){

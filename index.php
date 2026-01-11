@@ -386,12 +386,7 @@ to get the desired effect
           </li>
           <?php 
               if($role == "ADMIN"){
-                echo '<li class="nav-item">
-                <a href="#users" data-file="users.php" class="nav-link link">
-                  <i class="nav-icon fas fa-user"></i>
-                  <p>Staffs</p>
-                </a>
-              </li>
+                echo '
               <li class="nav-item has-treeview">
                 <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-database"></i>
@@ -466,11 +461,17 @@ to get the desired effect
               <?php 
                 if($role == "ADMIN"){
                   echo '<li class="nav-item">
-                  <a href="#company" data-file="company.php" class="nav-link link">
-                    <i class="nav-icon fas fa-building"></i>
-                    <p>Company Profile</p>
-                  </a>
-                </li>';
+                          <a href="#company" data-file="company.php" class="nav-link link">
+                            <i class="nav-icon fas fa-building"></i>
+                            <p>Company Profile</p>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a href="#users" data-file="users.php" class="nav-link link">
+                            <i class="nav-icon fas fa-user"></i>
+                            <p>Staffs</p>
+                          </a>
+                        </li>';
                 }
               ?>
 
