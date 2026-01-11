@@ -141,7 +141,7 @@ else{
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
               </div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportExcel">Export Excel</button>
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel">Export Excel</button>
               </div>
             </div>
           </div>
@@ -386,11 +386,13 @@ $(function () {
   $('#exportPdf').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     
-    window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+
-    "&supplier="+supplierNoI+"&product="+productI);
+    window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+    "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI);
   });
 
   $('#statusFilter').on('change', function(){
