@@ -30,7 +30,7 @@ if(($row = $result->fetch_assoc()) !== null){
         $message['wastings'] = in_array('waste', $modules) ? 'Y' : 'N';
         $message['packings'] = in_array('packing', $modules) ? 'Y' : 'N';
         $message['weighbridges'] = in_array('weighbridge', $modules) ? 'Y' : 'N';
-        $message['fruits'] = in_array('fruits', $modules) ? 'Y' : 'N';
+        $message['wholesales'] = in_array('wholesale', $modules) ? 'Y' : 'N';
         $message['customer_det'] = array(
             "id" => $row['customer'],
             "reg_no" => $row['reg_no'],
