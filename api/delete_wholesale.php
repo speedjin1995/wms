@@ -6,7 +6,7 @@ $post = json_decode(file_get_contents('php://input'), true);
 $id = $post['id'];
 $deleted = '1';
 
-$stmt = $db->prepare("UPDATE waste SET deleted =? WHERE id =?");
+$stmt = $db->prepare("UPDATE wholesales SET deleted =? WHERE id =?");
 $stmt->bind_param('ss', $deleted, $id);
 
 
