@@ -5,6 +5,11 @@ $post = json_decode(file_get_contents('php://input'), true);
 
 $staffId = $post['userId'];
 $userId = $post['uid'];
+$customer = "";
+
+if(isset($post['customer']) && $post['customer']!=null && $post['customer']!=''){
+    $customer = $post['customer'];
+}
 
 $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
 $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer='".$staffId."'");
