@@ -408,14 +408,19 @@ $(function () {
 });
 
 function printSlip(id) {
-  $.post('php/exportSlip.php', {id: id}, function(data){
-    var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-    printWindow.document.write(data);
-    printWindow.document.close();
-    setTimeout(function(){
-      printWindow.print();
-      printWindow.close();
-    }, 500);
+  $.post('php/print.php', {userID: id}, function(data){
+    var response = JSON.parse(data);
+    if(response.status === 'success') {
+      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+      printWindow.document.write(response.message);
+      printWindow.document.close();
+      setTimeout(function(){
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    } else {
+      alert('Error: ' + response.message);
+    }
   });
 }
 </script>

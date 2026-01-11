@@ -1,12 +1,41 @@
 <?php
 require_once 'db_connect.php';
+require_once 'lookup.php';
 session_start();
 $company = $_SESSION['customer'];
+
+function arrangeByGrade($weighingDetails) {
+    $arranged = [];
+    $earliest_time = null;
+    $latest_time = null;
+    
+    if(isset($weighingDetails) && !empty($weighingDetails)) {
+        foreach($weighingDetails as $detail) {
+            $grade = $detail['grade'] ?? 'Unknown';
+            if(!isset($arranged[$grade])) {
+                $arranged[$grade] = [];
+            }
+            $arranged[$grade][] = $detail;
+            
+            // Track earliest and latest times
+            if(isset($detail['time'])) {
+                if($earliest_time == null || $detail['time'] < $earliest_time) {
+                    $earliest_time = $detail['time'];
+                }
+                if($latest_time == null || $detail['time'] > $latest_time) {
+                    $latest_time = $detail['time'];
+                }
+            }
+        }
+    }
+    
+    return ['arranged' => $arranged, 'earliest_time' => $earliest_time, 'latest_time' => $latest_time];
+}
 
 if(isset($_POST['userID'])){
     $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($select_stmt = $db->prepare("select counting.*, products.product_name, supplies.supplier_name from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company' AND counting.id=?")) {
+    if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);
 
         if (! $select_stmt->execute()) {
@@ -19,262 +48,200 @@ if(isset($_POST['userID'])){
         else{
             $result = $select_stmt->get_result();
 
-            if ($row = $result->fetch_assoc()) {
-                $createdDateTime = new DateTime($row['created_datetime']);
-                $createdDateTime->modify('+8 hours');
-                $formattedDateTime = $createdDateTime->format('d/m/Y H:i:s');
+            if ($wholesale = $result->fetch_assoc()) {
+                $weighingDetails = json_decode($wholesale['weight_details'], true);
+                $arrangedData = arrangeByGrade($weighingDetails);
 
-                $uom = 'g';
-  
-                if($row['uom']!=null && $row['uom']!=''){
-                    $id = $row['uom'];
-
-                    if ($update_stmt = $db->prepare("SELECT * FROM units WHERE id=?")) {
-                    $update_stmt->bind_param('s', $id);
-                    
-                    // Execute the prepared query.
-                    if ($update_stmt->execute()) {
-                        $result1 = $update_stmt->get_result();
+                $message = '
+                <html>
+                <head>
+                    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+                    <style>
+                        /* Bootstrap CSS */
+                        .container-fluid { width: 100%; padding-right: 10px; padding-left: 10px; margin-right: auto; margin-left: auto; }
+                        .row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }
+                        .col-4 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 33.333333%; max-width: 33.333333%; box-sizing: border-box; }
+                        .d-flex { display: flex !important; }
+                        .justify-content-between { justify-content: space-between !important; }
+                        .align-items-center { align-items: center !important; }
+                        .mb-2 { margin-bottom: 0.5rem !important; }
+                        .mb-3 { margin-bottom: 1rem !important; }
+                        .text-center { text-align: center !important; }
+                        .font-weight-bold { font-weight: 700 !important; }
+                        .text-danger { color: #dc3545 !important; }
                         
-                        if ($row1 = $result1->fetch_assoc()) {
-                        $uom = $row1['units'];
+                        /* Custom styles */
+                        body { font-family: Arial, sans-serif; margin-left: 10px; margin-right: 30px; }
+                        .company-name { font-weight: bold; font-size: 16px; }
+                        .address { font-size: 16px; }
+                        .title { font-size: 18px; }
+                        .transaction-id { font-size: 14px; }
+                        .info-row { margin-bottom: 5px; font-size: 12px; display: flex; }
+                        .col-4:nth-child(1) .info-label { width: 120px; flex-shrink: 0; }
+                        .col-4:nth-child(2) .info-label { width: 130px; flex-shrink: 0; }
+                        .col-4:nth-child(3) .info-label { width: 90px; flex-shrink: 0; }
+                        .info-value { flex: 1; }
+                        .grade-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                        .grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }
+                        .grade-table th { background-color: #f0f0f0; }
+                        .grade-table .no-border-sides { border-left: none; border-right: none; }
+
+                        /* Paged.js styles */
+                        @page {
+                            size: A4;
+                            margin: 70mm 5mm 20mm 5mm;
+                            @top-left {
+                                content: element(running-header);
+                            }
+                        }
+
+                        .running-header {
+                            position: running(running-header);
+                            width: 100%;
+                            text-align: left;
+
+                        }
+
+                        .page-content {
+                            margin-top: 0;
+                        }
+                        
+                        .page-break {
+                            page-break-before: always;
+                            break-before: page;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="running-header">
+                        <div class="mb-1">
+                            <div class="company-name">'.$wholesale['name'].'</div>
+                            <div class="address">'.$wholesale['address'].' '.$wholesale['address2'].'</div>
+                            <div class="address">'.$wholesale['address3'].' '.$wholesale['address4'].'</div>
+                            <hr>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="title font-weight-bold">'.($wholesale['status'] == 'DISPATCH' ? 'Dispatch' : 'Receiving').' REPORT WEIGHING</div>
+                            <div class="transaction-id text-danger font-weight-bold">Transaction ID : '.$wholesale['serial_no'].'</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12" style="padding-left: 5px;">
+                                <div class="info-row">From Date : '.date('d/m/Y', strtotime($wholesale['created_datetime'])).'</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-1">
+                            <div class="col-4">
+                                <div class="info-row"><span class="info-label">From '.($wholesale['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
+                                <div class="info-row"><span class="info-label">Product Description</span><span class="info-value">: '.searchProductNameById($wholesale['product'], $db).'</span></div>
+                                <div class="info-row"><span class="info-label">To Vehicle Plate</span><span class="info-value">: '.$wholesale['vehicle_no'].'</span></div>
+                                <div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">: '.$wholesale['driver'].'</span></div>
+                            </div>
+                            <div class="col-4">
+                                <div class="info-row"><span class="info-label">Actual Weight</span><span class="info-value">: '.number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2).' kg</span></div>
+                                <div class="info-row"><span class="info-label">Reject Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_reject'], 2).' kg</span></div>
+                                <div class="info-row"><span class="info-label">Total Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_weight'], 2).' kg</span></div>
+                                <div class="info-row"><span class="info-label">Sub Total Amount</span><span class="info-value">: RM'.number_format($wholesale['total_price'], 2).'</span></div>
+                            </div>
+                            <div class="col-4">
+                                <div class="info-row"><span class="info-label">Purchase No</span><span class="info-value">: '.$wholesale['po_no'].'</span></div>
+                                <div class="info-row"><span class="info-label">Weigh By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
+                                <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.$arrangedData['earliest_time'].'</span></div>
+                                <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.$arrangedData['latest_time'].'</span></div>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+
+                    <div class="container-fluid">
+                        <div class="grade-section page-content">';
+                
+                // Get unique grades from the arranged data
+                $grades = array_keys($arrangedData['arranged']);
+                
+                // Display tables dynamically based on number of grades
+                $totalGrades = count($grades);
+                $rowsNeeded = ceil($totalGrades / 3);
+                
+                for($row = 0; $row < $rowsNeeded; $row++) {
+                    // Add page break after every 6 grades (every 2 rows)
+                    if($row > 0 && $row % 2 == 0) {
+                        $message .= '<div class="row mb-3 page-break">';
+                    } else {
+                        $message .= '<div class="row mb-3">';
+                    }
+                    
+                    for($col = 0; $col < 3; $col++) {
+                        $gradeIndex = $row * 3 + $col;
+                        if($gradeIndex < $totalGrades) {
+                            $grade = $grades[$gradeIndex];
+                            $items = $arrangedData['arranged'][$grade]; 
+                            
+                            $message .= '<div class="col-4">';
+                            $message .= '<table class="grade-table">';
+                            $message .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">GRADE : ' . $grade . '</td></tr>';
+                            $message .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+                            
+                            $totalGross = 0;
+                            $totalTare = 0;
+                            $totalNet = 0;
+                            $totalPrice = 0;
+                            
+                            // Display up to 10 items per grade
+                            for($i = 0; $i < 10; $i++) {
+                                if($i < count($items)) {
+                                    $item = $items[$i];
+                                    $gross = floatval($item['gross'] ?? 0);
+                                    $tare = floatval($item['tare'] ?? 0);
+                                    $net = floatval($item['net'] ?? 0);
+                                    $price = floatval($item['price'] ?? 0);
+                                    $pricingType = $item['fixedfloat'];
+
+                                    if ($pricingType == 'fixed') {
+                                        $totalPrice += $price ?? 0;
+                                    } else {
+                                        $totalPrice += $net * ($price ?? 0);
+                                    }
+                                } else {
+                                    $gross = $tare = $net = $price = 0;
+                                    $totalPrice += 0;
+                                }
+
+                                $totalGross += $gross;
+                                $totalTare += $tare;
+                                $totalNet += $net;
+                                
+                                $message .= '<tr>';
+                                $message .= '<td>' . ($i + 1) . '</td>';
+                                $message .= '<td>' . number_format($gross, 1) . ' kg</td>';
+                                $message .= '<td>' . number_format($tare, 1) . ' kg</td>';
+                                $message .= '<td>' . number_format($net, 1) . ' kg</td>';
+                                $message .= '</tr>';
+                            }
+                            
+                            $message .= '<tr style="font-weight: bold;">';
+                            $message .= '<td style="border-right: none;">T</td>';
+                            $message .= '<td style="border-left: none; border-right: none;">' . number_format($totalGross, 1) . ' kg</td>';
+                            $message .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 1) . ' kg</td>';
+                            $message .= '<td style="border-left: none;">' . number_format($totalNet, 1) . ' kg</td>';
+                            $message .= '</tr>';
+                            $message .= '<tr>';
+                            $message .= '<td colspan="2">Price /kg</td>';
+                            $message .= '<td colspan="2">RM ' . number_format($totalPrice, 2) . '</td>';
+                            $message .= '</tr>';
+                            $message .= '</table>';
+                            $message .= '</div>';
                         }
                     }
-                    }
+                    $message .= '</div>';
                 }
-
-                $message = '<html>
-    <head>
-        <style>
-            @media print {
-                @page {
-                    size: 50mm 40mm potrait; /* Set the page size to 50mm x 40mm */
-                    margin: 0; /* Remove default margins */
-                }
-            } 
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            } 
-            
-            .table th, .table td {
-                padding: 1px;
-                vertical-align: top;
-            } 
-            
-            .table-bordered {
-                border: 1px solid #000000;
-            } 
-            
-            .table-bordered th, .table-bordered td {
-                border: 1px solid #000000;
-                font-family: sans-serif;
-            } 
-            
-            .row {
-                display: flex;
-                flex-wrap: wrap;
-                margin-top: 20px;
-            } 
-            
-            .col-md-3{
-                position: relative;
-                width: 25%;
-            }
-            
-            .col-md-9{
-                position: relative;
-                width: 75%;
-            }
-            
-            .col-md-7{
-                position: relative;
-                width: 58.333333%;
-            }
-            
-            .col-md-5{
-                position: relative;
-                width: 41.666667%;
-            }
-            
-            .col-md-6{
-                position: relative;
-                width: 50%;
-            }
-            
-            .col-md-4{
-                position: relative;
-                width: 33.333333%;
-            }
-            
-            .col-md-8{
-                position: relative;
-                width: 66.666667%;
-            }
-        </style>
-    </head>
-    
-    <body>';
-        $message .= '<table class="table">
-            <tbody>
-                <tr>
-                    <td style="width: 20%;border-top:0px;">&nbsp;</td>
-                    <td style="width: 60%;border-top:0px;">
-                        <img src="assets/logo_customer.png" width="100%" height="auto" />
-                    </td>
-                    <td style="width: 20%;border-top:0px;">&nbsp;</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <table class="table">
-            <tbody>
-                <tr> 
-                    <td style="width: 30%;border-top:0px;padding-top: 0.5px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">Datetime</span>
-                        </p>
-                    </td>
-                    <td style="width: 5%;border-top:0px;padding-top: 0.5px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">:</span>
-                        </p>
-                    </td>
-                    <td style="width: 65%;border-top:0px;padding-top: 0.5px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">'.$formattedDateTime.'</span>
-                        </p>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 30%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">Supplier</span>
-                        </p>
-                    </td>
-                    <td style="width: 5%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">:</span>
-                        </p>
-                    </td>
-                    <td style="width: 65%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">'.$row['supplier_name'].'</span>
-                        </p>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 30%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">Item</span>
-                        </p>
-                    </td>
-                    <td style="width: 5%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">:</span>
-                        </p>
-                    </td>
-                    <td style="width: 65%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">'.$row['product_name'].'</span>
-                        </p>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 30%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">IQC No.</span>
-                        </p>
-                    </td>
-                    <td style="width: 5%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">:</span>
-                        </p>
-                    </td>
-                    <td style="width: 65%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">'.$row['batch_no'].'</span>
-                        </p>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 30%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">Article No.</span>
-                        </p>
-                    </td>
-                    <td style="width: 5%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">:</span>
-                        </p>
-                    </td>
-                    <td style="width: 65%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">'.$row['article_code'].'</span>
-                        </p>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 30%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">Batch No.</span>
-                        </p>
-                    </td>
-                    <td style="width: 5%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">:</span>
-                        </p>
-                    </td>
-                    <td style="width: 65%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">'.$row['batch_no'].'</span>
-                        </p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td style="width: 40%;border-top:0px;padding-top: 0.5px;">
-                        <p>
-                            <span style="font-size: 5px;font-family: sans-serif;">&nbsp;</span>
-                        </p>
-                    </td>
-                    <td style="width: 10%;border-top:0px;padding-top: 0.5px;">
-                        <p>
-                            <span style="font-size: 5px;font-family: sans-serif;">&nbsp;</span>
-                        </p>
-                    </td>
-                    <td style="width: 50%;border-top:0px;padding-top: 0.5px;">
-                        <p>
-                            <span style="font-size: 5px;font-family: sans-serif;">&nbsp;</span>
-                        </p>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 40%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 10px;font-family: sans-serif;">T.W.: '.$row['gross'].' '.$uom.'</span><br>
-                            <span style="font-size: 10px;font-family: sans-serif;">U.W.: '.$row['unit'].' '.$uom.'</span>
-                        </p>
-                    </td>
-                    <td style="width: 10%;border-top:0px;">&nbsp</td>
-                    <td style="width: 50%;border-top:0px;">
-                        <p>
-                            <span style="font-size: 14px;font-family: sans-serif;">'.$row['count'].' PCS</span>
-                        </p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>';
-
-    $message .= '</body>
-</html>';
-
                 
+                $message .= '</div>
+                    </div>
+                </body>
+                </html>';
 
                 echo json_encode(
                     array(
