@@ -5,43 +5,89 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 $post = json_decode(file_get_contents('php://input'), true);
 
-if(isset($post['product'], $post['productCode'], $post['units'], $post['gross'], $post['tare'], $post['net'], $post['company']
-, $post['pre_tare'], $post['high'], $post['low'], $post['staffName'], $post['location'], $post['createdDatetime'], $post['indicator'])){
+$services = 'Save_Waste';
+$requests = json_encode($post);
 
-    $company = $post['company'];
-	$product = $post['product'];
-	$productDesc = $post['productCode'];
-	$units = $post['units'];
-	$gross= $post['gross'];
-	$tare = $post['tare'];
-	$net = $post['net'];
-	$high = $post['high'];
-	$low = $post['low'];
-	$pre_tare = $post['pre_tare'];
-	$staffName = $post['staffName'];
-	$location = $post['location'];
-	$createdDatetime = $post['createdDatetime'];
+$stmtL = $db->prepare("INSERT INTO api_requests (services, request) VALUES (?, ?)");
+$stmtL->bind_param('ss', $services, $requests);
+$stmtL->execute();
+
+if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverName'], $post['driverIc'], $post['startTime']
+, $post['UID'], $post['company'], $post['indicator'], $post['totalItem'], $post['totalWeight'], $post['totalReject']
+, $post['totalPrice'], $post['weightList'])){
+	$status = $post['status'];
+	$do_no = $post['do_no'];
+	$vehicleNumber = $post['vehicleNumber'];
+	$driverName = $post['driverName'];
+	$driverIc = $post['driverIc'];
+	$UID = $post['UID'];
+	$company = $post['company'];
 	$indicator = $post['indicator'];
-	$status = '0';
-	$type = 'INDIVIDUAL';
+	$weightDetails = $post['weightList'];
+	$startTime = $post['startTime'];
+	$totalItem = $post['totalItem'];
+	$totalWeight = $post['totalWeight'];
+	$totalReject = $post['totalReject'];
+	$totalPrice = $post['totalPrice'];
+	
+	$currentDateTimeObj = new DateTime();
+    $currentDateTime = $currentDateTimeObj->format("Y-m-d H:i:s");
+	$startDateTimeObj = new DateTime($startTime);
+    $startDateTime = $startDateTimeObj->format("Y-m-d 00:00:00");
+    $startDateTime2 = $startDateTimeObj->format("Ymd");
 
-	$do_no = null;
+    $customerName = null;
+	$supplierName = null;
+	$customerName2 = null;
+	$supplierName2 = null;
 	$remark = null;
+	$serialNo = "";
 	$today = date("Y-m-d 00:00:00");
 	
-	if(isset($post['do_no']) && $post['do_no'] != null && $post['do_no'] != ''){
-		$do_no = $post['do_no'];
+	if($status == 'DISPATCH'){
+	    if($post['customerName'] == 'OTHERS'){
+	        $customerName2 = $post['customerName2'];
+	    }
+		else{
+		    $customerName = $post['customerName'];
+		    $customerName2 = null;
+		}
 	}
 	
-	if(isset($post['remarks']) && $post['remarks'] != null && $post['remarks'] != ''){
-		$remark = $post['remarks'];
+	if($status == 'RECEIVING'){
+		if($post['supplierName'] == 'OTHERS'){
+	        $supplierName2 = $post['supplierName2'];
+	    }
+		else{
+		    $supplierName = $post['supplierName'];
+		    $supplierName2 = null;
+		}
+	}
+	
+	if($post['vehicleNumber'] == 'OTHERS'){
+        $vehicleNumber = $post['vehicleNumber2'];
+    }
+	else{
+	    $vehicleNumber = $post['vehicleNumber'];
+	}
+	
+	if($post['driverName'] == 'OTHERS'){
+        $driverName = $post['driverName2'];
+    }
+	else{
+	    $driverName = $post['driverName'];
+	}
+	
+	if(isset($post['remark']) && $post['remark'] != null && $post['remark'] != ''){
+		$remark = $post['remark'];
 	}
 
 	if(!isset($post['serialNo']) || $post['serialNo'] == null || $post['serialNo'] == ''){
-	    $serialNo = date("Ymd");
+	    $prefix = ($status == 'DISPATCH' ? 'S' : 'P');
+		$serialNo = $prefix.$startDateTime2;
 
-		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM weighing WHERE created_datetime >= ? AND deleted = ? AND type = 'INDIVIDUAL'")) {
-            $select_stmt->bind_param('ss', $today, $status);
+		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM waste WHERE created_datetime >= ? AND status = ? AND deleted='0'")) {
+            $select_stmt->bind_param('ss', $startDateTime, $status);
             
             // Execute the prepared query.
             if (! $select_stmt->execute()) {
@@ -57,7 +103,6 @@ if(isset($post['product'], $post['productCode'], $post['units'], $post['gross'],
                 
                 if ($row = $result->fetch_assoc()) {
                     $count = (int)$row['COUNT(*)'] + 1;
-                    $select_stmt->close();
                 }
 
                 $charSize = strlen(strval($count));
@@ -67,14 +112,101 @@ if(isset($post['product'], $post['productCode'], $post['units'], $post['gross'],
                 }
         
                 $serialNo .= strval($count);  //S00009
+                
+                // Check serial
+                do {
+                    // Generate the serial number
+                    if ($select_stmt2 = $db->prepare("SELECT COUNT(*) FROM waste WHERE serial_no = ?")) {
+                        $select_stmt2->bind_param('s', $serialNo);
+                        
+                        // Execute the prepared query to check if the serial number exists
+                        if (! $select_stmt2->execute()) {
+                            break; // Exit the loop if there's an error
+                        }
+                        
+                        $result = $select_stmt2->get_result();
+                        $row = $result->fetch_assoc();
+                        $existing_count = (int)$row['COUNT(*)'];
+                        
+                        if ($existing_count == 0) {
+                            // If the serial number does not exist in the table, exit the loop
+                            break;
+                        }
+                        
+                        // If the serial number already exists, increment the count and generate a new serial number
+                        $count++; // Increment the count
+                        $charSize = strlen(strval($count));
+                        $serialNo = 'S'.$startDateTime2; // Reset the serial number
+                        
+                        // Generate the new serial number
+                        for($ind = 0; $ind < (4 - (int)$charSize); $ind++) {
+                            $serialNo .= '0'; // Append leading zeros
+                        }
+                        $serialNo .= strval($count); // Append the count
+                    }
+                } while (true);
 			}
 		}
+		
+		$select_stmt->close();
 	}
+	/*else{
+	    
+	}*/
 
-	if ($insert_stmt = $db->prepare("INSERT INTO weighing (serial_no, po_no, product, product_desc, units, gross, tare, net, 
-	pre_tare, remark, created_datetime, created_by, company, weighted_by, locations, high, low, type, indicator) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
-	    $insert_stmt->bind_param('sssssssssssssssssss', $serialNo, $do_no, $product, $productDesc, $units, $gross, $tare, 
-            $net, $pre_tare, $remark, $createdDatetime, $staffName, $company, $staffName, $location, $high, $low, $type, $indicator);	
+    /*if((isset($post['id']) && $post['id'] != null && $post['id'] != '')){
+		$id = $post['id'];
+		$data = json_encode($weightDetails);
+		$data2 = json_encode($timestampData);
+		$data3 = json_encode($cageDetails);
+
+		if ($update_stmt = $db->prepare("UPDATE weighing SET customer=?, supplier=?, product=?, driver_name=?, lorry_no=?, farm_id=?, average_cage=?, average_bird=?, 
+		minimum_weight=?, maximum_weight=?, weight_data=?, remark=?, start_time=?, weight_time=?, end_time=?, total_cage=?, number_of_cages=?, total_cages_weight=?, 
+		follower1=?, follower2=?, status=?, po_no=?, cage_data=?, weighted_by=? WHERE id=?")){
+			$update_stmt->bind_param('sssssssssssssssssssssssss', $customerName, $supplierName, $product, $driverName, 
+			$vehicleNumber, $farmId, $averageCage, $averageBird, $minWeight, $maxWeight, $data, $remark, $startTime, 
+			$data2, $endTime, $cratesCount, $numberOfCages, $totalCagesWeight, $attandence1, $attandence2, $status, $doNo, $data3, $weighted_by, $id);
+		
+			// Execute the prepared query.
+			if (! $update_stmt->execute()){
+				echo json_encode(
+					array(
+						"status"=> "failed", 
+						"message"=> $update_stmt->error
+					)
+				);
+			} 
+			else{
+				$update_stmt->close();
+				$db->close();
+				
+				echo json_encode(
+					array(
+						"status"=> "success", 
+						"message"=> "Updated Successfully!!",
+						"serialNo" => $post['serialNo'],
+						"weightId" => $id
+					)
+				);
+			}
+		}
+		else{
+			echo json_encode(
+				array(
+					"status"=> "failed", 
+					"message"=> "cannot prepare statement"
+				)
+			);  
+		}
+	}
+	else{*/
+	if ($insert_stmt = $db->prepare("INSERT INTO waste (serial_no, po_no, status, customer, supplier, vehicle_no, driver, driver_ic, 
+	    weight_details, remark, created_datetime, created_by, company, weighted_by, indicator, other_customer, other_supplier, total_item, 
+		total_weight, total_reject, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+        $data = json_encode($weightDetails);
+		$insert_stmt->bind_param('sssssssssssssssssssss', $serialNo, $do_no, $status, $customerName, $supplierName, $vehicleNumber, 
+		$driverName, $driverIc, $data, $remark, $startTime, $UID, $company, $UID, $indicator, $customerName2, $supplierName2, $totalItem, 
+		$totalWeight, $totalReject, $totalPrice);		
 		// Execute the prepared query.
 		if (! $insert_stmt->execute()){
 			echo json_encode(
@@ -85,18 +217,19 @@ if(isset($post['product'], $post['productCode'], $post['units'], $post['gross'],
 			);
 		} 
 		else{
+			$id = $insert_stmt->insert_id;
 			$insert_stmt->close();
+			$db->close();
 			
 			echo json_encode(
 				array(
 					"status"=> "success", 
 					"message"=> "Added Successfully!!",
-					"serialNo"=> $serialNo
+					"serialNo"=> $serialNo,
+					"weightId" => $id
 				)
 			);
 		}
-
-		$db->close();
 	}
 	else{
 		echo json_encode(
@@ -106,6 +239,7 @@ if(isset($post['product'], $post['productCode'], $post['units'], $post['gross'],
 			)
 		);  
 	}
+	//}
 } 
 else{
     echo json_encode(
