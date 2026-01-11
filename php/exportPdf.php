@@ -43,11 +43,23 @@ if(isset($_GET['supplier']) && $_GET['supplier'] != null && $_GET['supplier'] !=
     $searchQuery .= " AND wholesales.supplier = '".mysqli_real_escape_string($db, $_GET['supplier'])."'";
 }
 
+$isMulti = '';
+if(isset($_GET['isMulti']) && $_GET['isMulti'] != null && $_GET['isMulti'] != '' && $_GET['isMulti'] != '-'){
+    $isMulti = $_GET['isMulti'];
+}
+
 // Get Company Detail
 $companyDetail = searchCompanyById($company, $db);
 
 // Fetch records from database
-$query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
+if($isMulti == 'Y'){
+    if(isset($_GET['ids']) && $_GET['ids'] != null && $_GET['ids'] != '' && $_GET['ids'] != '-'){
+        $ids = $_GET['ids'];
+    }
+    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (".$ids.")");
+}else{
+    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
+}
 
 try {
     // Initialize mPDF with a custom temporary directory
@@ -162,7 +174,7 @@ try {
             $content .= '</tr>';
         }
     } else { 
-        $content .= '<tr><td colspan="11">No records found...</td></tr>';
+        $content .= '<tr><td colspan="15">No records found...</td></tr>';
     }
 
     // Set PDF header with logo and dynamic report title
