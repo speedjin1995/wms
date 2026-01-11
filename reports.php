@@ -20,8 +20,15 @@ else{
     $role = $row['role_code'];
   }
 
-  $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
-  $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
+  if ($user != 2){
+    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company'");
+  } else {
+    $products = $db->query("SELECT * FROM products WHERE deleted = '0'");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0'");
+  }
 }
 ?>
 
@@ -65,6 +72,28 @@ else{
               </div>
 
               <div class="col-3">
+                <div class="form-group">
+                  <label>Status</label>
+                  <select class="form-control" id="statusFilter" name="statusFilter">
+                    <option value="DISPATCH" selected>Dispatch</option>
+                    <option value="RECEIVING">Receiving</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3" id="customerDiv">
+                <div class="form-group">
+                  <label>Customer</label>
+                  <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
+                    <option value="" selected disabled hidden>Please Select</option>
+                    <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
+                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3" id="supplierDiv" style="display: none;">
                 <div class="form-group">
                   <label>Supplier</label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
@@ -122,25 +151,27 @@ else{
               <thead>
                 <tr>
                   <th>Serial <br>No.</th>
+                  <th>PO <br>No.</th>
                   <th>Created <br> Datetime</th>
-                  <th>Supplier</th>
-                  <th>Batch <br>No.</th>
-                  <th>Article <br>No.</th>
-                  <th>IQC <br>No.</th>
+                  <th>Customer/Supplier</th>
                   <th>Product</th>
-                  <th>Gross <br>Weight</th>
-                  <th>Unit <br>Weight</th>
-                  <th>Count</th>
+                  <th>Vehicle <br>No.</th>
+                  <th>Driver</th>
+                  <th>Total <br>Item</th>
+                  <th>Total <br>Weight</th>
+                  <th>Total <br>Reject</th>
+                  <th>Total <br>Price</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tfoot>
+              <!-- <tfoot>
                 <tr>
-                    <th colspan="7">Total</th>
+                    <th colspan="8">Total</th>
                     <th></th>
                     <th></th>
                     <th></th>
                 </tr>
-              </tfoot>
+              </tfoot> -->
             </table>
           </div>
         </div>
@@ -177,7 +208,9 @@ $(function () {
 
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
+  var statusI = $('#statusFilter').val();
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+  var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
@@ -194,67 +227,72 @@ $(function () {
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
+        status: statusI,
         product: productI,
+        customer: customerNoI,
         supplier: supplierNoI
       } 
     },
     'columns': [
       { data: 'serial_no' },
+      { data: 'po_no' },
       { data: 'created_datetime' },
-      { data: 'supplier_name' },
-      { data: 'batch_no' },
-      { data: 'article_code' },
-      { data: 'iqc_no' },
-      { data: 'product_name' },
-      { data: 'gross' },
-      { data: 'unit' },
-      { data: 'count' },
-      /*{ 
+      { data: 'customer_supplier' },
+      { data: 'product' },
+      { data: 'vehicle_no' },
+      { data: 'driver' },
+      { data: 'total_item' },
+      { data: 'total_weight' },
+      { data: 'total_reject' },
+      { data: 'total_price' },
+      { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
         }
-      }*/
+      }
     ],
-    "footerCallback": function(row, data, start, end, display) {
-      var api = this.api();
+    // "footerCallback": function(row, data, start, end, display) {
+    //   var api = this.api();
 
-      // Calculate total for 'total_cages' column
-      var totalCages = api
-          .column(7, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-              return a + parseFloat(b);
-          }, 0);
+    //   // Calculate total for 'total_cages' column
+    //   var totalCages = api
+    //       .column(7, { page: 'current' })
+    //       .data()
+    //       .reduce(function(a, b) {
+    //           return a + parseFloat(b);
+    //       }, 0);
 
-      // Calculate total for 'total_birds' column
-      var totalBirds = api
-          .column(8, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-              return a + parseInt(b);
-          }, 0);
+    //   // Calculate total for 'total_birds' column
+    //   var totalBirds = api
+    //       .column(8, { page: 'current' })
+    //       .data()
+    //       .reduce(function(a, b) {
+    //           return a + parseInt(b);
+    //       }, 0);
 
-      var totalConts = api
-        .column(9, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-            return a + parseFloat(b);
-        }, 0);
+    //   var totalConts = api
+    //     .column(9, { page: 'current' })
+    //     .data()
+    //     .reduce(function(a, b) {
+    //         return a + parseFloat(b);
+    //     }, 0);
 
 
-      // Update footer with the total
-      $(api.column(7).footer()).html(totalCages.toFixed(3));
-      $(api.column(8).footer()).html(totalBirds.toFixed(3));
-      $(api.column(9).footer()).html(totalConts);
-    }
+    //   // Update footer with the total
+    //   $(api.column(7).footer()).html(totalCages.toFixed(3));
+    //   $(api.column(8).footer()).html(totalBirds.toFixed(3));
+    //   $(api.column(9).footer()).html(totalConts);
+    // }
   });
 
   $('#filterSearch').on('click', function(){
     //$('#spinnerLoading').show();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
     //Destroy the old Datatable
@@ -275,54 +313,63 @@ $(function () {
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
+          status: statusI,
           product: productI,
+          customer: customerNoI,
           supplier: supplierNoI
         } 
       },
       'columns': [
         { data: 'serial_no' },
+        { data: 'po_no' },
         { data: 'created_datetime' },
-        { data: 'supplier_name' },
-        { data: 'batch_no' },
-        { data: 'article_code' },
-        { data: 'iqc_no' },
-        { data: 'product_name' },
-        { data: 'gross' },
-        { data: 'unit' },
-        { data: 'count' }
+        { data: 'customer_supplier' },
+        { data: 'product' },
+        { data: 'vehicle_no' },
+        { data: 'driver' },
+        { data: 'total_item' },
+        { data: 'total_weight' },
+        { data: 'total_reject' },
+        { data: 'total_price' },
+        { 
+          data: 'id',
+          render: function ( data, type, row ) {
+            return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          }
+        }
       ],
-      "footerCallback": function(row, data, start, end, display) {
-        var api = this.api();
+      // "footerCallback": function(row, data, start, end, display) {
+      //   var api = this.api();
 
-        // Calculate total for 'total_cages' column
-        var totalCages = api
-            .column(7, { page: 'current' })
-            .data()
-            .reduce(function(a, b) {
-                return a + parseFloat(b);
-            }, 0);
+      //   // Calculate total for 'total_cages' column
+      //   var totalCages = api
+      //       .column(7, { page: 'current' })
+      //       .data()
+      //       .reduce(function(a, b) {
+      //           return a + parseFloat(b);
+      //       }, 0);
 
-        // Calculate total for 'total_birds' column
-        var totalBirds = api
-            .column(8, { page: 'current' })
-            .data()
-            .reduce(function(a, b) {
-                return a + parseFloat(b);
-            }, 0);
+      //   // Calculate total for 'total_birds' column
+      //   var totalBirds = api
+      //       .column(8, { page: 'current' })
+      //       .data()
+      //       .reduce(function(a, b) {
+      //           return a + parseFloat(b);
+      //       }, 0);
 
-        var totalConts = api
-          .column(9, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-              return a + parseFloat(b);
-          }, 0);
+      //   var totalConts = api
+      //     .column(9, { page: 'current' })
+      //     .data()
+      //     .reduce(function(a, b) {
+      //         return a + parseFloat(b);
+      //     }, 0);
 
 
-        // Update footer with the total
-        $(api.column(7).footer()).html(totalCages.toFixed(3));
-        $(api.column(8).footer()).html(totalBirds.toFixed(3));
-        $(api.column(9).footer()).html(totalConts);
-      }
+      //   // Update footer with the total
+      //   $(api.column(7).footer()).html(totalCages.toFixed(3));
+      //   $(api.column(8).footer()).html(totalBirds.toFixed(3));
+      //   $(api.column(9).footer()).html(totalConts);
+      // }
     });
   });
 
@@ -345,5 +392,30 @@ $(function () {
     window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+
     "&supplier="+supplierNoI+"&product="+productI);
   });
+
+  $('#statusFilter').on('change', function(){
+    var status = $(this).val();
+    $('#customerNoFilter').val('').trigger('change');
+    $('#supplierNoFilter').val('').trigger('change');
+    if (status == 'DISPATCH'){
+      $('#supplierDiv').hide();
+      $('#customerDiv').show();
+    } else {
+      $('#customerDiv').hide();
+      $('#supplierDiv').show();
+    }
+  });
 });
+
+function printSlip(id) {
+  $.post('php/exportSlip.php', {id: id}, function(data){
+    var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+    printWindow.document.write(data);
+    printWindow.document.close();
+    setTimeout(function(){
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  });
+}
 </script>
