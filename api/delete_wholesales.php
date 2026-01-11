@@ -10,7 +10,7 @@ $success = true;
 for($i=0; $i<count($ids); $i++){
     $id = $ids[$i];
     
-    $stmt = $db->prepare("UPDATE waste SET deleted =? WHERE id =?");
+    $stmt = $db->prepare("UPDATE wholesales SET deleted =? WHERE id =?");
     $stmt->bind_param('ss', $deleted, $id);
     
     

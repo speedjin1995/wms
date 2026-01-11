@@ -5,7 +5,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 $post = json_decode(file_get_contents('php://input'), true);
 
-$services = 'Save_Waste';
+$services = 'Save_Wholesales';
 $requests = json_encode($post);
 
 $stmtL = $db->prepare("INSERT INTO api_requests (services, request) VALUES (?, ?)");
@@ -86,7 +86,7 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	    $prefix = ($status == 'DISPATCH' ? 'S' : 'P');
 		$serialNo = $prefix.$startDateTime2;
 
-		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM waste WHERE created_datetime >= ? AND status = ? AND deleted='0'")) {
+		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE created_datetime >= ? AND status = ? AND deleted='0'")) {
             $select_stmt->bind_param('ss', $startDateTime, $status);
             
             // Execute the prepared query.
@@ -116,7 +116,7 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
                 // Check serial
                 do {
                     // Generate the serial number
-                    if ($select_stmt2 = $db->prepare("SELECT COUNT(*) FROM waste WHERE serial_no = ?")) {
+                    if ($select_stmt2 = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE serial_no = ?")) {
                         $select_stmt2->bind_param('s', $serialNo);
                         
                         // Execute the prepared query to check if the serial number exists
@@ -200,7 +200,7 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 		}
 	}
 	else{*/
-	if ($insert_stmt = $db->prepare("INSERT INTO waste (serial_no, po_no, status, customer, supplier, vehicle_no, driver, driver_ic, 
+	if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, status, customer, supplier, vehicle_no, driver, driver_ic, 
 	    weight_details, remark, created_datetime, created_by, company, weighted_by, indicator, other_customer, other_supplier, total_item, 
 		total_weight, total_reject, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
         $data = json_encode($weightDetails);

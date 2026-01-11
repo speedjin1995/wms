@@ -112,6 +112,8 @@ else{
                         <option select="selected" value="D2008">D2008</option>
                         <option select="selected" value="EX2001">EX2001</option>
                         <option select="selected" value="BDI2001B">BDI2001B</option>
+                        <option select="selected" value="D722S">D722S</option>
+                        <option select="selected" value="i10">i10</option>
                     </select>
                 </div>
               </div>
