@@ -36,3 +36,14 @@ ALTER TABLE `users` CHANGE `stopbits` `stopbits` VARCHAR(5) CHARACTER SET utf8mb
 
 -- 12/01/2026 --
 ALTER TABLE `companies` ADD `parent` INT(11) NULL AFTER `products`;
+
+CREATE TABLE `product_grades` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade_id` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+ALTER TABLE `product_grades` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `product_grades` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
