@@ -21,19 +21,25 @@ else{
   }
 
   if ($user != 2){
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company'");
-    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company'");
+    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
+    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
+    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer = '$company' ORDER BY driver_name ASC");
+    $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
   } else {
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0'");
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0'");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0'");
-    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0'");
+    $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
+    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
+    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' ORDER BY driver_name ASC");
+    $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -163,7 +169,7 @@ else{
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
-              <div class="col-2">
+              <div class="col-2" style="visibility: hidden;">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New</button>
               </div>
             </div>
@@ -184,6 +190,7 @@ else{
                   <th>Total <br>Weight</th>
                   <th>Total <br>Reject</th>
                   <th>Total <br>Price</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <!-- <tfoot>
@@ -215,144 +222,86 @@ else{
         </div>
 
         <div class="modal-body" >
-          <div class="row">
-
-            <div class="col-md-4">
-              <div class="small-box bg-primary">
-                <a href="#" class="small-box-footer"><b>Total Weight</b></a>
-                <div class="inner">
-                  <h4 style="text-align: center; font-size: 50px" id="indicatorWeight">0.000g</h4>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="small-box bg-warning">
-                <a href="#" class="small-box-footer"><b>Unit Weight / PCS</b></a>
-                <div class="inner">
-                  <h4 style="text-align: center; font-size: 50px" id="unitCountWeight">0.000g</h4>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="small-box bg-success">
-                <a href="#" class="small-box-footer"><b>Total Count / PCS</b></a>
-                <div class="inner">
-                  <h4 style="text-align: center; font-size: 50px" id="countingWeight">0</h4>
-                </div>
-              </div>
-            </div>
-          </div>
-              
-          <div class="row">
-            <div class="col-md-4">
-              <input type="hidden" class="form-control" id="id" name="id">
-              <div class="form-group">
-                <label>Serial No. *</label>
-                <input class="form-control" type="text" placeholder="Serial No" id="serialNumber" name="serialNumber" readonly>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>Product *</label>
-                <input type="hidden" class="form-control" id="productDesc" name="productDesc">
-                <select class="form-control" style="width: 100%;" id="product" name="product" required>
-                  <option selected="selected">-</option>
-                  <?php while($row5=mysqli_fetch_assoc($products2)){ ?>
-                    <option 
-                      value="<?=$row5['id'] ?>" 
-                      data-description="<?=$row5['product_name'] ?>" 
-                      data-batch="<?=$row5['batch_no'] ?>" 
-                      data-uom="<?=$row5['uom'] ?>" 
-                      data-unit="<?=$row5['weight'] ?>"><?=$row5['product_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>Supplier *</label>
-                <select class="form-control" style="width: 100%;" id="supplies" name="supplies" required>
-                  <option selected="selected">-</option>
-                  <?php while($rows=mysqli_fetch_assoc($supplies2)){ ?>
-                    <option value="<?=$rows['id'] ?>"><?=$rows['supplier_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>Batch No. *</label>
-                <input class="form-control" type="text" placeholder="Batch No" id="batchNumber" name="batchNumber" required>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>Article No. *</label>
-                <input class="form-control" type="text" placeholder="Article No" id="articleNumber" name="articleNumber" required>
-              </div>
-            </div>
+          <input type="hidden" class="form-control" id="id" name="id">
           
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>IQC No. *</label>
-                <input class="form-control" type="text" placeholder="IQC No" id="iqcNumber" name="iqcNumber" required>
-              </div>
-            </div>
-          </div>
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
-                <label>UOM * </label>
-                <select class="form-control" style="width: 100%;" id="uom" name="uom"> 
-                  <option selected="selected">-</option>
-                  <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
-                    <option value="<?=$rowunits['id'] ?>"><?=$rowunits['units'] ?></option>
+                <label>Status *</label>
+                <select class="form-control" id="status" name="status" required>
+                  <option value="DISPATCH">Dispatch</option>
+                  <option value="RECEIVING">Receiving</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="customerDiv">
+              <div class="form-group">
+                <label>Customer</label>
+                <select class="form-control select2" id="customer" name="customer">
+                  <option value="" selected disabled hidden>Please Select</option>
+                  <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
+                    <option value="<?=$rowCustomer3['id'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="supplierDiv">
+              <div class="form-group">
+                <label>Supplier</label>
+                <select class="form-control select2" id="supplier" name="supplier">
+                  <option value="" selected disabled hidden>Please Select</option>
+                  <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
+                    <option value="<?=$rowSupplier3['id'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Vehicle No.</label>
+                <select class="form-control select2" id="vehicle" name="vehicle">
+                  <option value="" selected disabled hidden>Please Select</option>
+                  <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
+                    <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Driver</label>
+                <select class="form-control select2" id="driver" name="driver">
+                  <option value="" selected disabled hidden>Please Select</option>
+                  <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
+                    <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
                   <?php } ?>
                 </select>
               </div>
             </div>
           </div>
+          
+          <hr>
+          <h5>Weight Details</h5>
           <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>Gross Weight *
-                <?php 
-                  if($role == "ADMIN"){         
-                    echo '<span style="padding-left: 60px;"><input type="checkbox" class="form-check-input" id="manual" name="manual" value="0"/>Manual</span>';
-                  }
-                ?>
-                </label>
-                <div class="input-group">
-                  <input class="form-control" type="number" placeholder="Current Weight" id="currentWeight" name="currentWeight" readonly required/>
-                  <button type="button" class="btn btn-primary" id="inCButton"><i class="fas fa-sync"></i></button>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group col-md-4">
-              <label>Unit Weight *</label>
-              <div class="input-group">
-                <input class="form-control" type="number" placeholder="Unit Weight" id="unitWeight" name="unitWeight" min="0" readonly/>
-              </div>
-            </div>
-
-            <div class="form-group col-md-4">
-              <label>Count *</label>
-              <div class="input-group">
-                <input class="form-control" type="number" placeholder="Actual Count" id="actualCount" name="actualCount" readonly/>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
-                  <label>Remark</label>
-                  <textarea class="form-control" rows="1" placeholder="Enter ..." id="remark" name="remark"></textarea>
-                </div>
-              </div>                                            
+            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Grade</th>
+                  <th>Gross</th>
+                  <th>Tare</th>
+                  <th>Net</th>
+                  <th>Reject</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                  <th>Time</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="weightDetailsTable">
+                <!-- Weight details will be populated here -->
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -442,12 +391,15 @@ $(function () {
       { data: 'total_weight' },
       { data: 'total_reject' },
       { data: 'total_price' },
-      // { 
-      //   data: 'id',
-      //   render: function ( data, type, row ) {
-      //     return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-      //   }
-      // }
+      { 
+        data: 'id',
+        render: function ( data, type, row ) {
+          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
+          // '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
+          // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
+          '</div>';
+        }
+      }
     ],
     // "footerCallback": function(row, data, start, end, display) {
     //   var api = this.api();
@@ -575,12 +527,15 @@ $(function () {
         { data: 'total_weight' },
         { data: 'total_reject' },
         { data: 'total_price' },
-        // { 
-        //   data: 'id',
-        //   render: function ( data, type, row ) {
-        //     return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-        //   }
-        // }
+        { 
+          data: 'id',
+          render: function ( data, type, row ) {
+            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
+            // '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
+            // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
+            '</div>';
+          }
+        }
       ],
       // "footerCallback": function(row, data, start, end, display) {
       //   var api = this.api();
@@ -817,6 +772,18 @@ $(function () {
   $('#extendModal').find('#uom').on('change', function () {
     
   });
+
+  $('#extendModal').find('#status').on('change', function () {
+    var status = $(this).val();
+    if(status == "DISPATCH"){
+      $('#extendModal').find('#customerDiv').show();
+      $('#extendModal').find('#supplierDiv').hide();
+    }
+    else{
+      $('#extendModal').find('#customerDiv').hide();
+      $('#extendModal').find('#supplierDiv').show();
+    }
+  });
 });
 
 function updatePrices(isFromCurrency, rat){
@@ -1014,17 +981,14 @@ function formatNormal (row) {
 function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNumber').val("");
-  $('#extendModal').find('#batchNumber').val("");
-  $('#extendModal').find('#articleNumber').val("");
-  $('#extendModal').find('#iqcNumber').val("");
-  $('#extendModal').find('#productDesc').val('');
-  $('#extendModal').find('#product').val('');
-  $('#extendModal').find('#uom').val('');
-  $('#extendModal').find('#currentWeight').attr('readonly', true).val('');
-  $('#extendModal').find('#unitWeight').attr('readonly', true).val('');
-  $('#extendModal').find('#actualCount').val("");
-  $('#extendModal').find('#supplies').val("");
+  $('#extendModal').find('#poNumber').val("");
+  $('#extendModal').find('#status').val("DISPATCH");
+  $('#extendModal').find('#customer').val("").trigger('change');
+  $('#extendModal').find('#supplier').val("").trigger('change');
+  $('#extendModal').find('#vehicleNo').val("");
+  $('#extendModal').find('#driver').val("");
   $('#extendModal').find('#remark').val("");
+  $('#weightDetailsTable').empty();
   $('#extendModal').modal('show');
   
   $('#extendForm').validate({
@@ -1048,23 +1012,70 @@ function numberWithCommas(x) {
 
 function edit(id) {
   $('#spinnerLoading').show();
-  $.post('php/getCount.php', {userID: id}, function(data){
+  $.post('php/getWholesale.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
-      $('#extendModal').find('#serialNumber').val(obj.message.serial_no);
-      $('#extendModal').find('#batchNumber').val(obj.message.batch_no);
-      $('#extendModal').find('#articleNumber').val(obj.message.article_code);
-      $('#extendModal').find('#iqcNumber').val(obj.message.iqc_no);
-      $('#extendModal').find('#productDesc').val(obj.message.product_desc);
-      $('#extendModal').find('#product').val(obj.message.product);
-      $('#extendModal').find('#uom').val(obj.message.uom);
-      $('#extendModal').find('#supplies').val(obj.message.supplier);
-      $('#extendModal').find('#currentWeight').val(obj.message.gross);
-      $('#extendModal').find('#unitWeight').val(obj.message.unit);
-      $('#extendModal').find('#actualCount').val(obj.message.count);
+      $('#extendModal').find('#status').val(obj.message.status).trigger('change');
+      $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
+      $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
+      $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
+      $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
       $('#extendModal').find('#remark').val(obj.message.remark);
+      
+      // Populate weight details table
+      var tbody = $('#weightDetailsTable');
+      tbody.empty();
+      
+      if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
+        for(var i = 0; i < obj.message.weightDetails.length; i++) {
+          var detail = obj.message.weightDetails[i];
+          var row = `
+            <tr class="details">
+              <td style="display:none">
+                <input type="hidden" id="product${i}" name="weightDetails[${i}][product]" value="${detail.product}">
+                <input type="hidden" id="product_desc${i}" name="weightDetails[${i}][product_desc]" value="${detail.product_desc}">
+                <input type="hidden" id="pretare${i}" name="weightDetails[${i}][pretare]" value="${detail.pretare}">
+                <input type="hidden" id="unit${i}" name="weightDetails[${i}][unit]" value="${detail.unit}">
+                <input type="hidden" id="package${i}" name="weightDetails[${i}][package]" value="${detail.package}">
+                <input type="hidden" id="fixedfloat${i}" name="weightDetails[${i}][fixedfloat]" value="${detail.fixedfloat}">
+                <input type="hidden" id="isedit${i}" name="weightDetails[${i}][isedit]" value="${detail.isedit}">
+              </td>
+              <td><input type="hidden" id="product_name${i}" name="weightDetails[${i}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
+              <td>
+                <select class="form-control select2" id="grade${i}" name="weightDetails[${i}][grade]">
+                  <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
+                    <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
+                  <?php } ?>
+                </select>
+              </td>
+              <td><input type="hidden" id="gross${i}" name="weightDetails[${i}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="tare${i}" name="weightDetails[${i}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="net${i}" name="weightDetails[${i}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td><input type="number" class="form-control" id="reject${i}" name="weightDetails[${i}][reject]" value="${detail.reject || '0.00'}"></td>
+              <td><input type="hidden" id="price${i}" name="weightDetails[${i}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td><input type="hidden" id="total${i}" name="weightDetails[${i}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td><input type="hidden" id="time${i}" name="weightDetails[${i}][time]" value="${detail.time}">${detail.time}</td>
+              <td><button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button></td>
+            </tr>
+          `;
+          tbody.append(row);
+          
+          // Set the selected value for the grade dropdown
+          tbody.find(`select[name="weightDetails[${i}][grade]"]`).val(detail.grade);
+        }
+
+        $('.select2').each(function() {
+          $(this).select2({
+              allowClear: true,
+              placeholder: "Please Select",
+              // Conditionally set dropdownParent based on the element’s location
+              dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+          });
+        });
+      }
+      
       $('#extendModal').modal('show');
 
       $('#extendForm').validate({
@@ -1089,6 +1100,10 @@ function edit(id) {
     }
     $('#spinnerLoading').hide();
   });
+}
+
+function removeWeightDetail(button) {
+  $(button).closest('tr').remove();
 }
 
 function deactivate(id) {
