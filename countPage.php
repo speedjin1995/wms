@@ -10,49 +10,42 @@ if(!isset($_SESSION['userID'])){
 else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
-  
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
-  $port = 'COM5';
-  $baudrate = 9600;
-  $databits = "8";
-  $parity = "N";
-  $stopbits = '1';
 	
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
-    $port = $row['port'];
-    $baudrate = $row['baudrate'];
-    $databits = $row['databits'];
-    $parity = $row['parity'];
-    $stopbits = $row['stopbits'];
   }
 
-  if ($user != 2) {
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
+  if ($user != 2){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
+    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
-  }else{
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0'");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company'");
+    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company'");
+  } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0'");
+    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0'");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0'");
+    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0'");
   }
+
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
-  
 }
 ?>
-<select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
+<!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
   <option selected="selected">-</option>
   <?php while($rowunits2=mysqli_fetch_assoc($units1)){ ?>
     <option value="<?=$rowunits2['id'] ?>"><?=$rowunits2['units'] ?></option>
   <?php } ?>
-</select>
+</select-->
 
 <style>
   @media screen and (min-width: 676px) {
@@ -102,6 +95,28 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
+                  <label>Status</label>
+                  <select class="form-control" id="statusFilter" name="statusFilter">
+                    <option value="DISPATCH" selected>Dispatch</option>
+                    <option value="RECEIVING">Receiving</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3" id="customerDiv">
+                <div class="form-group">
+                  <label>Customer</label>
+                  <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
+                    <option value="" selected disabled hidden>Please Select</option>
+                    <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
+                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
                   <label>Supplier</label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
                     <option value="" selected disabled hidden>Please Select</option>
@@ -144,10 +159,10 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-8"></div>
-              <div class="col-2">
+              <div class="col-10"></div>
+              <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
-              </div>
+              </div> -->
               <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New</button>
               </div>
@@ -158,17 +173,20 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
-                  <th>Serial No.</th>
-                  <th>Created Datetime</th>
-                  <th>Supplier</th>
+                  <th>Serial <br>No.</th>
+                  <th>PO <br>No.</th>
+                  <th>Created <br> Datetime</th>
+                  <th>Customer/Supplier</th>
                   <th>Product</th>
-                  <th>Gross Weight</th>
-                  <th>Unit Weight</th>
-                  <th>Count</th>
-                  <th>Action</th>
+                  <th>Vehicle <br>No.</th>
+                  <th>Driver</th>
+                  <th>Total <br>Item</th>
+                  <th>Total <br>Weight</th>
+                  <th>Total <br>Reject</th>
+                  <th>Total <br>Price</th>
                 </tr>
               </thead>
-              <tfoot>
+              <!-- <tfoot>
                 <tr>
                     <th colspan="4">Total</th>
                     <th></th>
@@ -176,7 +194,7 @@ else{
                     <th></th> 
                     <th></th>
                 </tr>
-              </tfoot>
+              </tfoot> -->
             </table>
           </div>
         </div>
@@ -345,64 +363,7 @@ else{
       </form>
     </div> <!-- /.modal-content -->
   </div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->
-
-<div class="modal fade" id="setupModal">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-
-    <form role="form" id="setupForm">
-      <div class="modal-header bg-gray-dark color-palette">
-        <h4 class="modal-title">Setup</h4>
-        <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-4">
-            <div class="form-group">
-              <label>Serial Port</label>
-              <input class="form-control" type="text" id="serialPort" name="serialPort" value="<?=$port ?>">
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="form-group">
-              <label>Baud Rate</label>
-              <input class="form-control" type="number" id="serialPortBaudRate" name="serialPortBaudRate" value="<?=$baudrate ?>">
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="form-group">
-              <label>Data Bits</label>
-              <input class="form-control" type="text" id="serialPortDataBits" name="serialPortDataBits" value="<?=$databits ?>">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-4">
-            <div class="form-group">
-              <label>Parity</label>
-              <input class="form-control" type="text" id="serialPortParity" name="serialPortParity" value="<?=$parity ?>">
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="form-group">
-              <label>Stop bits</label>
-              <input class="form-control" type="text" id="serialPortStopBits" name="serialPortStopBits" value="<?=$stopbits ?>">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Save</button>
-      </div>
-
-    </form>
-  </div>
-</div>      
+</div> <!-- /.modal -->   
 
 <script>
 // Values
@@ -444,7 +405,9 @@ $(function () {
 
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
+  var statusI = $('#statusFilter').val();
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+  var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
@@ -461,56 +424,62 @@ $(function () {
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
+        status: statusI,
         product: productI,
+        customer: customerNoI,
         supplier: supplierNoI
       } 
     },
     'columns': [
       { data: 'serial_no' },
+      { data: 'po_no' },
       { data: 'created_datetime' },
-      { data: 'supplier_name' },
-      { data: 'product_name' },
-      { data: 'gross' },
-      { data: 'unit' },
-      { data: 'count' },
-      { 
-        data: 'id',
-        render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-        }
-      }
+      { data: 'customer_supplier' },
+      { data: 'product' },
+      { data: 'vehicle_no' },
+      { data: 'driver' },
+      { data: 'total_item' },
+      { data: 'total_weight' },
+      { data: 'total_reject' },
+      { data: 'total_price' },
+      // { 
+      //   data: 'id',
+      //   render: function ( data, type, row ) {
+      //     return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+      //   }
+      // }
     ],
-    "footerCallback": function(row, data, start, end, display) {
-      var api = this.api();
+    // "footerCallback": function(row, data, start, end, display) {
+    //   var api = this.api();
 
-      // Calculate total for 'total_cages' column
-      var totalCages = api
-          .column(4, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-              return a + parseFloat(b);
-          }, 0);
+    //   // Calculate total for 'total_cages' column
+    //   var totalCages = api
+    //       .column(4, { page: 'current' })
+    //       .data()
+    //       .reduce(function(a, b) {
+    //           return a + parseFloat(b);
+    //       }, 0);
 
-      // Calculate total for 'total_birds' column
-      var totalBirds = api
-          .column(5, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-              return a + parseFloat(b);
-          }, 0);
+    //   // Calculate total for 'total_birds' column
+    //   var totalBirds = api
+    //       .column(5, { page: 'current' })
+    //       .data()
+    //       .reduce(function(a, b) {
+    //           return a + parseFloat(b);
+    //       }, 0);
 
-      var totalConts = api
-        .column(6, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-            return a + parseFloat(b);
-        }, 0);
+    //   var totalConts = api
+    //     .column(6, { page: 'current' })
+    //     .data()
+    //     .reduce(function(a, b) {
+    //         return a + parseFloat(b);
+    //     }, 0);
 
-      // Update footer with the total
-      $(api.column(4).footer()).html(totalCages.toFixed(3));
-      $(api.column(5).footer()).html(totalBirds.toFixed(3));
-      $(api.column(6).footer()).html(totalConts);
-    }
+    //   // Update footer with the total
+    //   $(api.column(4).footer()).html(totalCages.toFixed(3));
+    //   $(api.column(5).footer()).html(totalBirds.toFixed(3));
+    //   $(api.column(6).footer()).html(totalConts);
+    // }
   });
 
   // Add event listener for opening and closing details
@@ -540,7 +509,9 @@ $(function () {
     //$('#spinnerLoading').show();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
     //Destroy the old Datatable
@@ -561,56 +532,62 @@ $(function () {
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
+          status: statusI,
           product: productI,
+          customer: customerNoI,
           supplier: supplierNoI
         } 
       },
       'columns': [
         { data: 'serial_no' },
+        { data: 'po_no' },
         { data: 'created_datetime' },
-        { data: 'supplier_name' },
-        { data: 'product_name' },
-        { data: 'gross' },
-        { data: 'unit' },
-        { data: 'count' },
-        { 
-          data: 'id',
-          render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-          }
-        }
+        { data: 'customer_supplier' },
+        { data: 'product' },
+        { data: 'vehicle_no' },
+        { data: 'driver' },
+        { data: 'total_item' },
+        { data: 'total_weight' },
+        { data: 'total_reject' },
+        { data: 'total_price' },
+        // { 
+        //   data: 'id',
+        //   render: function ( data, type, row ) {
+        //     return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+        //   }
+        // }
       ],
-      "footerCallback": function(row, data, start, end, display) {
-        var api = this.api();
+      // "footerCallback": function(row, data, start, end, display) {
+      //   var api = this.api();
 
-        // Calculate total for 'total_cages' column
-        var totalCages = api
-            .column(4, { page: 'current' })
-            .data()
-            .reduce(function(a, b) {
-                return a + parseFloat(b);
-            }, 0);
+      //   // Calculate total for 'total_cages' column
+      //   var totalCages = api
+      //       .column(4, { page: 'current' })
+      //       .data()
+      //       .reduce(function(a, b) {
+      //           return a + parseFloat(b);
+      //       }, 0);
 
-        // Calculate total for 'total_birds' column
-        var totalBirds = api
-            .column(5, { page: 'current' })
-            .data()
-            .reduce(function(a, b) {
-                return a + parseFloat(b);
-            }, 0);
+      //   // Calculate total for 'total_birds' column
+      //   var totalBirds = api
+      //       .column(5, { page: 'current' })
+      //       .data()
+      //       .reduce(function(a, b) {
+      //           return a + parseFloat(b);
+      //       }, 0);
 
-        var totalConts = api
-          .column(6, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-              return a + parseFloat(b);
-          }, 0);
+      //   var totalConts = api
+      //     .column(6, { page: 'current' })
+      //     .data()
+      //     .reduce(function(a, b) {
+      //         return a + parseFloat(b);
+      //     }, 0);
 
-        // Update footer with the total
-        $(api.column(4).footer()).html(totalCages.toFixed(3));
-        $(api.column(5).footer()).html(totalBirds.toFixed(3));
-        $(api.column(6).footer()).html(totalConts);
-      }
+      //   // Update footer with the total
+      //   $(api.column(4).footer()).html(totalCages.toFixed(3));
+      //   $(api.column(5).footer()).html(totalBirds.toFixed(3));
+      //   $(api.column(6).footer()).html(totalConts);
+      // }
     });
   });
 
