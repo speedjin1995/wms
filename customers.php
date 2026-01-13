@@ -12,6 +12,12 @@ else{
   $user = $_SESSION['userID'];
   $states = $db->query("SELECT * FROM states");
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
+
+  if ($user != 2){
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '$company'");
+  }else{
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0");
+  }
 }
 ?>
 
@@ -90,6 +96,14 @@ else{
                     <?php } ?>
                   </select>
                 </div>
+                <div class="form-group"> 
+                  <label for="parent">Parent </label>
+                  <select class="form-control select2" style="width: 100%;" id="parent" name="parent">
+                    <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
+                      <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
                 <div class="form-group">
                   <label for="code">Customer Code *</label>
                   <input type="text" class="form-control" name="code" id="code" placeholder="Enter Customer Code" maxlength="10" required>
@@ -105,6 +119,7 @@ else{
                 <div class="form-group"> 
                   <label for="address">Address </label>
                   <input type="text" class="form-control" name="address" id="address" placeholder="Enter  Address">
+                </div>
                 <div class="form-group"> 
                   <label for="address">Address 2</label>
                   <input type="text" class="form-control" name="address2" id="address2" placeholder="Enter  Address">
@@ -251,6 +266,7 @@ $(function () {
     $('#addModal').find('#states').val("");
     $('#addModal').find('#phone').val("");
     $('#addModal').find('#email').val("");
+    $('#addModal').find('#parent').val("").trigger('change');
     $('#addModal').modal('show');
     
     $('#customerForm').validate({
@@ -337,6 +353,7 @@ function edit(id){
           $('#addModal').find('#phone').val(obj.message.customer_phone);
           $('#addModal').find('#email').val(obj.message.pic);
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+          $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
           $('#addModal').modal('show');
           
           $('#customerForm').validate({

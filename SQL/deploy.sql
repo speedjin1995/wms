@@ -47,3 +47,7 @@ CREATE TABLE `product_grades` (
 ALTER TABLE `product_grades` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `product_grades` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `customers` ADD `parent` INT(11) NULL AFTER `pic`;
+
+ALTER TABLE `supplies` ADD `parent` INT(11) NULL AFTER `pic`;
