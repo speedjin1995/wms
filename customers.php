@@ -240,6 +240,15 @@ $(function () {
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
                 $('#customerTable').DataTable().ajax.reload();
+                
+                // Refresh the parent dropdown
+                $.get('php/getCustomers.php', function(customers) {
+                  $('#parent').empty().append('<option value="">Please Select</option>');
+                  customers.forEach(function(customer) {
+                    $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
+                  });
+                });
+                
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
