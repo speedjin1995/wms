@@ -482,28 +482,53 @@ $(function () {
     // }
   });
 
-  // Add event listener for opening and closing details
-  $('#weightTable tbody').on('click', 'td.dt-control', function () {
-    var tr = $(this).closest('tr');
-    var row = table.row( tr );
+  // Add event listener for opening and closing details on row click
+  $('#weightTable tbody').on('click', 'tr', function (e) {
+      var tr = $(this); // The row that was clicked
+      var row = table.row(tr);
 
-    if ( row.child.isShown() ) {
-      // This row is already open - close it
-      row.child.hide();
-      tr.removeClass('shown');
-    }
-    else {
-      // Open this row
-      <?php 
-        if($role == "ADMIN"){
-          echo 'row.child( format(row.data()) ).show();tr.addClass("shown");';
-        }
-        else{
-          echo 'row.child( formatNormal(row.data()) ).show();tr.addClass("shown");';
-        }
-      ?>
-    }
+      // Exclude specific td elements by checking the event target
+      if ($(e.target).closest('td').hasClass('select-checkbox') || $(e.target).closest('td').hasClass('action-button')) {
+        return;
+      }
+
+      if (row.child.isShown()) {
+          // This row is already open - close it
+          row.child.hide();
+          tr.removeClass('shown');
+      } else {
+          $.post('php/getWholesale.php', { userID: row.data().id}, function (data) {
+            var obj = JSON.parse(data);
+            if (obj.status === 'success') {
+              row.child(format(obj.message)).show();
+              tr.addClass("shown");
+            }
+          });
+      }
   });
+
+  // Add event listener for opening and closing details
+  // $('#weightTable tbody').on('click', 'td.dt-control', function () {
+  //   var tr = $(this).closest('tr');
+  //   var row = table.row( tr );
+
+  //   if ( row.child.isShown() ) {
+  //     // This row is already open - close it
+  //     row.child.hide();
+  //     tr.removeClass('shown');
+  //   }
+  //   else {
+  //     // Open this row
+  //     <?php 
+  //       if($role == "ADMIN"){
+  //         echo 'row.child( format(row.data()) ).show();tr.addClass("shown");';
+  //       }
+  //       else{
+  //         echo 'row.child( formatNormal(row.data()) ).show();tr.addClass("shown");';
+  //       }
+  //     ?>
+  //   }
+  // });
 
   $('#filterSearch').on('click', function(){
     //$('#spinnerLoading').show();
@@ -591,40 +616,40 @@ $(function () {
     });
   });
 
-  $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
-    if(data == "true"){
-      $('#indicatorConnected').addClass('bg-primary');
-      $('#checkingConnection').removeClass('bg-danger');
-      //$('#captureWeight').removeAttr('disabled');
-    }
-    else{
-      $('#indicatorConnected').removeClass('bg-primary');
-      $('#checkingConnection').addClass('bg-danger');
-      //$('#captureWeight').attr('disabled', true);
-    }
-  });
+  // $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
+  //   if(data == "true"){
+  //     $('#indicatorConnected').addClass('bg-primary');
+  //     $('#checkingConnection').removeClass('bg-danger');
+  //     //$('#captureWeight').removeAttr('disabled');
+  //   }
+  //   else{
+  //     $('#indicatorConnected').removeClass('bg-primary');
+  //     $('#checkingConnection').addClass('bg-danger');
+  //     //$('#captureWeight').attr('disabled', true);
+  //   }
+  // });
   
-  setInterval(function () {
-    $.post('http://127.0.0.1:5002/handshaking', function(data){
-      if(data != "Error"){
-        console.log("Data Received:" + data);
-        var text = data.split(" ");
+  // setInterval(function () {
+  //   $.post('http://127.0.0.1:5002/handshaking', function(data){
+  //     if(data != "Error"){
+  //       console.log("Data Received:" + data);
+  //       var text = data.split(" ");
 
-        if(text.length > 2){
-          $('#indicatorWeight').html(text[text.length - 2] + ' ' + text[text.length - 1]);
-          var convertTog1 = convertUnits(text[text.length - 2], text[text.length - 1], 'g');
+  //       if(text.length > 2){
+  //         $('#indicatorWeight').html(text[text.length - 2] + ' ' + text[text.length - 1]);
+  //         var convertTog1 = convertUnits(text[text.length - 2], text[text.length - 1], 'g');
 
-          if($('#uom').val() && $('#product').val()){
-            var uomDesc = $("#uomhidden option[value='"+$('#uom').val()+"']").text();
-            var weight = $('#product :selected').data('unit');
-            var convertTog2 = convertUnits(weight, uomDesc, 'g');
-            var count = parseFloat(convertTog1) / parseFloat(convertTog2);
-            $('#countingWeight').text(count.toFixed(0));
-          }
-        }
-      }
-    });
-  }, 500);
+  //         if($('#uom').val() && $('#product').val()){
+  //           var uomDesc = $("#uomhidden option[value='"+$('#uom').val()+"']").text();
+  //           var weight = $('#product :selected').data('unit');
+  //           var convertTog2 = convertUnits(weight, uomDesc, 'g');
+  //           var count = parseFloat(convertTog1) / parseFloat(convertTog2);
+  //           $('#countingWeight').text(count.toFixed(0));
+  //         }
+  //       }
+  //     }
+  //   });
+  // }, 500);
 
   $.validator.setDefaults({
     submitHandler: function () {
@@ -861,35 +886,107 @@ function updateWeights(){
 }
 
 function format (row) {
-  return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
-  '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
-  '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
-  '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
-  '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
-  '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
-  '</p></div><div class="col-md-3"><p>Package: '+row.packages+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
-  '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
-  '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
-  '</p></div><div class="col-md-3 money"><p>Unit Price: '+row.unitPrice+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
-  '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
-  '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
-  '</p></div><div class="col-md-3 money"><p>Total Weight: '+row.totalPrice+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
-  '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
-  '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
-  ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
-  '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
-  '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
-  '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
-  '</p></div></div>';
-  ;
+  var returnString = `
+  <!-- Wholesale Information -->
+  <div class="row">
+      <p><span><strong style="font-size:120%; text-decoration: underline;">Wholesale Order Information</strong></span><br>
+      <div class="col-3">
+          <p><strong>Serial No:</strong> ${row.serial_no}</p>
+      </div>
+      <div class="col-3">
+          <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
+      </div>
+      <div class="col-3">
+          <p><strong>Driver:</strong> ${row.driver}</p>
+      </div>
+      <div class="col-3">
+          <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
+      </div>
+  </div>
+  <hr>
+  <div class="row">
+      <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+          <thead>
+              <tr>
+                  <th>Product</th>
+                  <th>Grade</th>
+                  <th>Gross</th>
+                  <th>Tare</th>
+                  <th>Net</th>
+                  <th>Reject</th>
+                  <th>Price</th>
+                  <th>Unit</th>
+                  <th>Total</th>
+                  <th>Time</th>`;
+                  // if (userRole == 'SADMIN' || userRole == 'ADMIN' || userRole == 'MANAGER' ) {
+                  //     returnString += `<th>Action</th>`;
+                  // }
+
+              returnString += `</tr>
+          </thead>
+          <tbody>`;
+
+          for (var i = 0; i < row.weightDetails.length; i++) {
+              var detail = row.weightDetails[i]; 
+              
+              returnString += `
+                  <tr>
+                      <td>${detail.product_name}</td>
+                      <td>${detail.grade}</td>
+                      <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+                      <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+                      <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+                      <td>${detail.reject ? parseFloat(detail.reject).toFixed(2) : '0.00'} ${detail.unit}</td>
+                      <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
+                      <td>${detail.unit}</td>
+                      <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+                      <td>${detail.time}</td>`;
+                      // if (userRole == 'SADMIN' || userRole == 'ADMIN' || userRole == 'MANAGER' ) {
+                      //     returnString += `
+                      //     <td>
+                      //         <button title="Edit" type="button" id="edit${row.id}" onclick="edit(${row.id})" class="btn btn-warning btn-sm">
+                      //             <i class="fas fa-pen"></i>
+                      //         </button>
+                      //     </td>`;
+                      // }
+                  returnString += `</tr>`;
+          }
+
+          returnString += `</tbody>
+      </table>
+  </div>
+  `;
+  
+  return returnString;
+  // return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
+  // '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
+  // '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
+  // '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
+  // '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
+  // '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
+  // '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
+  // '</p></div><div class="col-md-3"><p>Package: '+row.packages+
+  // '</p></div></div><div class="row"><div class="col-md-3">'+
+  // '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
+  // '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
+  // '</p></div><div class="col-md-3 money"><p>Unit Price: '+row.unitPrice+
+  // '</p></div></div><div class="row"><div class="col-md-3">'+
+  // '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
+  // '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
+  // '</p></div><div class="col-md-3 money"><p>Total Weight: '+row.totalPrice+
+  // '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
+  // '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
+  // '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
+  // '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
+  // ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
+  // ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
+  // ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
+  // ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
+  // '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
+  // '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
+  // '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
+  // '</p></div></div>';
+  // ;
 }
 
 function formatNormal (row) {
