@@ -1,5 +1,7 @@
 <?php
 require_once "db_connect.php";
+require_once "lookup.php";
+$db->set_charset("utf8mb4");
 
 session_start();
 
@@ -40,6 +42,12 @@ if(isset($_POST['userID'])){
                 $message['total_reject'] = $row['total_reject'];
                 $message['total_price'] = $row['total_price'];
                 $message['remark'] = $row['remark'];
+
+                if ($row['status'] == 'DISPATCH'){
+                    $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
+                }else{
+                    $message['customer_supplier'] = searchSupplierNameById($row['supplier'], $row['other_supplier'], $db);
+                }
 
                 if (isset($row['weight_details']) && !empty($row['weight_details'])){
                     $weightDetails = json_decode($row['weight_details'], true);

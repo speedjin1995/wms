@@ -889,40 +889,39 @@ function format (row) {
   var returnString = `
   <!-- Wholesale Information -->
   <div class="row">
-      <p><span><strong style="font-size:120%; text-decoration: underline;">Wholesale Order Information</strong></span><br>
-      <div class="col-3">
-          <p><strong>Serial No:</strong> ${row.serial_no}</p>
-      </div>
-      <div class="col-3">
-          <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
-      </div>
-      <div class="col-3">
-          <p><strong>Driver:</strong> ${row.driver}</p>
-      </div>
-      <div class="col-3">
-          <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
-      </div>
+    <p><span><strong style="font-size:120%; text-decoration: underline;">Wholesale Order Information</strong></span>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
+      <p><strong>Serial No:</strong> ${row.serial_no}</p>
+      <p><strong>PO No:</strong> ${row.po_no}</p>
+      <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
+      <p><strong>Driver:</strong> ${row.driver}</p>
+    </div>
+    <div class="col-6">
+      <p><strong>Total Item:</strong> ${row.total_item}</p>
+      <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
+      <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
+      <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
+    </div>
   </div>
   <hr>
   <div class="row">
       <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
           <thead>
               <tr>
-                  <th>Product</th>
-                  <th>Grade</th>
-                  <th>Gross</th>
-                  <th>Tare</th>
-                  <th>Net</th>
-                  <th>Reject</th>
-                  <th>Price</th>
-                  <th>Unit</th>
-                  <th>Total</th>
-                  <th>Time</th>`;
-                  // if (userRole == 'SADMIN' || userRole == 'ADMIN' || userRole == 'MANAGER' ) {
-                  //     returnString += `<th>Action</th>`;
-                  // }
-
-              returnString += `</tr>
+                <th>Product</th>
+                <th>Grade</th>
+                <th>Gross</th>
+                <th>Tare</th>
+                <th>Net</th>
+                <th>Reject</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Time</th>`;
+              returnString += `
+              </tr>
           </thead>
           <tbody>`;
 
@@ -931,28 +930,21 @@ function format (row) {
               
               returnString += `
                   <tr>
-                      <td>${detail.product_name}</td>
-                      <td>${detail.grade}</td>
-                      <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-                      <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-                      <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-                      <td>${detail.reject ? parseFloat(detail.reject).toFixed(2) : '0.00'} ${detail.unit}</td>
-                      <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-                      <td>${detail.unit}</td>
-                      <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-                      <td>${detail.time}</td>`;
-                      // if (userRole == 'SADMIN' || userRole == 'ADMIN' || userRole == 'MANAGER' ) {
-                      //     returnString += `
-                      //     <td>
-                      //         <button title="Edit" type="button" id="edit${row.id}" onclick="edit(${row.id})" class="btn btn-warning btn-sm">
-                      //             <i class="fas fa-pen"></i>
-                      //         </button>
-                      //     </td>`;
-                      // }
-                  returnString += `</tr>`;
+                    <td>${detail.product_name}</td>
+                    <td>${detail.grade}</td>
+                    <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+                    <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+                    <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+                    <td>${detail.reject ? parseFloat(detail.reject).toFixed(2) : '0.00'} ${detail.unit}</td>
+                    <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
+                    <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+                    <td>${detail.time}</td>`;
+                  returnString += `
+                  </tr>`;
           }
 
-          returnString += `</tbody>
+          returnString += `
+          </tbody>
       </table>
   </div>
   `;
