@@ -87,7 +87,7 @@ if(isset($_POST['userID'])){
                         /* Paged.js styles */
                         @page {
                             size: A4;
-                            margin: 70mm 5mm 20mm 5mm;
+                            margin: 80mm 5mm 20mm 5mm;
                             @top-left {
                                 content: element(running-header);
                             }
@@ -97,7 +97,6 @@ if(isset($_POST['userID'])){
                             position: running(running-header);
                             width: 100%;
                             text-align: left;
-
                         }
 
                         .page-content {
@@ -114,8 +113,10 @@ if(isset($_POST['userID'])){
                     <div class="running-header">
                         <div class="mb-1">
                             <div class="company-name">'.$wholesale['name'].'</div>
-                            <div class="address">'.$wholesale['address'].' '.$wholesale['address2'].'</div>
-                            <div class="address">'.$wholesale['address3'].' '.$wholesale['address4'].'</div>
+                            <div class="address">'.$wholesale['address'].'</div>
+                            <div class="address">'.$wholesale['address2'].'</div>
+                            <div class="address">'.$wholesale['address3'].'</div>
+                            <div class="address">'.$wholesale['address4'].'</div>
                             <hr>
                         </div>
 
