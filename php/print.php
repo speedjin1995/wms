@@ -171,6 +171,9 @@ if(isset($_POST['userID'])){
                         .info-row { margin-bottom: 5px; font-size: 14px; display: flex; }
                         .info-label { width: 120px; flex-shrink: 0; }
                         .info-value { flex: 1; }
+                        .header-row { margin-bottom: 5px; font-size: 14px; display: flex; }
+                        .header-label { width: 120px; flex-shrink: 0; }
+                        .header-value { flex: 1; }
                         .grade-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
                         .grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }
                         .grade-table th { background-color: #f0f0f0; }
@@ -212,17 +215,17 @@ if(isset($_POST['userID'])){
                                 <div class="address">'.$wholesale['address4'].'</div>
                             </div>
                             <div class="col-4">
-                                <div class="address">Transaction ID : '.$wholesale['serial_no'].'</div>
-                                <div class="address">Status : '.($wholesale['status'] == 'DISPATCH' ? 'Dispatch' : 'Incoming').'</div>
-                                <div class="address">From Date : '.date('d/m/Y', strtotime($wholesale['created_datetime'])).'</div>
-                                <div class="address">Purchase No : '.$wholesale['po_no'].'</div>
+                                <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>
+                                <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.($wholesale['status'] == 'DISPATCH' ? 'Dispatch' : 'Incoming').'</span></div>
+                                <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['created_datetime'])).'</span></div>
+                                <div class="header-row"><span class="header-label">Purchase No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div>
                             </div>
                         </div>
                         <hr>
                         
                         <div class="row mb-1">
                             <div class="col-8">
-                                <div class="info-row"><span class="info-label">From '.($wholesale['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
+                                <div class="info-row"><span class="info-label">To '.($wholesale['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
                                 <div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">: '.$wholesale['driver'].'</span></div>
                                 <div class="info-row"><span class="info-label">Driver IC</span><span class="info-value">: '.$wholesale['driver_ic'].'</span></div>
                                 <div class="info-row"><span class="info-label">Actual Weight</span><span class="info-value">: '.number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2).' kg</span></div>
