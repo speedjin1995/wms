@@ -239,10 +239,17 @@ else{
                 <label>Customer</label>
                 <select class="form-control select2" id="customer" name="customer">
                   <option value="" selected disabled hidden>Please Select</option>
+                  <option value="OTHERS">Others</option>
                   <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
                     <option value="<?=$rowCustomer3['id'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="customerOtherDiv">
+              <div class="form-group">
+                <label>Customer Other</label>
+                <input type="text" class="form-control" id="customerOther" name="customerOther">
               </div>
             </div>
             <div class="col-md-4" id="supplierDiv">
@@ -250,10 +257,17 @@ else{
                 <label>Supplier</label>
                 <select class="form-control select2" id="supplier" name="supplier">
                   <option value="" selected disabled hidden>Please Select</option>
+                  <option value="OTHERS">Others</option>
                   <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
                     <option value="<?=$rowSupplier3['id'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="supplierOtherDiv">
+              <div class="form-group">
+                <label>Supplier Other</label>
+                <input type="text" class="form-control" id="supplierOther" name="supplierOther">
               </div>
             </div>
             <div class="col-md-4">
@@ -609,9 +623,9 @@ $(function () {
   $.validator.setDefaults({
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
-          $('#spinnerLoading').show();
+        $('#spinnerLoading').show();
            
-        $.post('php/insertCount.php', $('#extendForm').serialize(), function(data){
+        $.post('php/wholesales.php', $('#extendForm').serialize(), function(data){
           var obj = JSON.parse(data); 
           if(obj.status === 'success'){
             $('#extendModal').modal('hide');
@@ -782,6 +796,26 @@ $(function () {
     else{
       $('#extendModal').find('#customerDiv').hide();
       $('#extendModal').find('#supplierDiv').show();
+    }
+  });
+
+  $('#extendModal').find('#customer').on('change', function () {
+    var customer = $(this).val();
+    if(customer == "OTHERS"){
+      $('#extendModal').find('#customerOtherDiv').show();
+    }
+    else{
+      $('#extendModal').find('#customerOtherDiv').hide();
+    }
+  });
+
+  $('#extendModal').find('#supplier').on('change', function () {
+    var supplier = $(this).val();
+    if(supplier == "OTHERS"){
+      $('#extendModal').find('#supplierOtherDiv').show();
+    }
+    else{
+      $('#extendModal').find('#supplierOtherDiv').hide();
     }
   });
 });
@@ -1053,7 +1087,7 @@ function edit(id) {
               <td><input type="hidden" id="gross${i}" name="weightDetails[${i}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${i}" name="weightDetails[${i}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${i}" name="weightDetails[${i}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="number" class="form-control" id="reject${i}" name="weightDetails[${i}][reject]" value="${detail.reject || '0.00'}"></td>
+              <td><input type="number" class="form-control" id="reject${i}" name="weightDetails[${i}][reject]" value="${parseFloat(detail.reject).toFixed(2) || '0.00'}"></td>
               <td><input type="hidden" id="price${i}" name="weightDetails[${i}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td><input type="hidden" id="total${i}" name="weightDetails[${i}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${i}" name="weightDetails[${i}][time]" value="${detail.time}">${detail.time}</td>
