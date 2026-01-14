@@ -109,7 +109,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" id="customerDiv">
+              <div class="col-3" id="customerStatusDiv">
                 <div class="form-group">
                   <label>Customer</label>
                   <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
@@ -121,7 +121,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3">
+              <div class="col-3" id="supplierStatusDiv" style="display: none;">
                 <div class="form-group">
                   <label>Supplier</label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
@@ -785,6 +785,18 @@ $(function () {
 
   $('#extendModal').find('#uom').on('change', function () {
     
+  });
+
+  $('#statusFilter').on('change', function () {
+    var status = $(this).val();
+    if(status == "DISPATCH"){
+      $('#customerStatusDiv').show();
+      $('#supplierStatusDiv').hide();
+    }
+    else{
+      $('#customerStatusDiv').hide();
+      $('#supplierStatusDiv').show();
+    }
   });
 
   $('#extendModal').find('#status').on('change', function () {
