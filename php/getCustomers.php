@@ -12,9 +12,9 @@ $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 
 if ($user != 2){
-    $customers = $db->query("SELECT id, customer_name FROM customers WHERE deleted = 0 AND customer = '$company'");
+    $customers = $db->query("SELECT id, customer_name FROM customers WHERE deleted = 0 AND customer = '$company' ORDER BY customer_name ASC");
 } else {
-    $customers = $db->query("SELECT id, customer_name FROM customers WHERE deleted = 0");
+    $customers = $db->query("SELECT id, customer_name FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
 }
 
 $customerList = [];

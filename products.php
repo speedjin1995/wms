@@ -9,16 +9,16 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
-  $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+  $units = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
 
   if ($user != 2){
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."'");
-    $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."'");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
+    $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
   }
   else{
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0");
-    $grades = $db->query("SELECT * FROM grades WHERE deleted = 0");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
+    $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
   }
 }
 ?>
