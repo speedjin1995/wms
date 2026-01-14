@@ -9,11 +9,14 @@ function arrangeByGrade($weighingDetails) {
     
     if(isset($weighingDetails) && !empty($weighingDetails)) {
         foreach($weighingDetails as $detail) {
+            $product = $detail['product'] ?? 'Unknown';
             $grade = $detail['grade'] ?? 'Unknown';
-            if(!isset($arranged[$grade])) {
-                $arranged[$grade] = [];
+            $key = $product . ' - ' . $grade;
+            
+            if(!isset($arranged[$key])) {
+                $arranged[$key] = [];
             }
-            $arranged[$grade][] = $detail;
+            $arranged[$key][] = $detail;
             
             // Track earliest and latest times
             if(isset($detail['time'])) {
@@ -68,12 +71,14 @@ if(isset($_POST['userID'])){
                     for($col = 0; $col < 3; $col++) {
                         $gradeIndex = $row * 3 + $col;
                         if($gradeIndex < $totalGrades) {
-                            $grade = $grades[$gradeIndex];
-                            $items = $arrangedData['arranged'][$grade]; 
+                            $key = $grades[$gradeIndex];
+                            $product = searchProductNameById(explode(' - ', $key)[0], $db);
+                            $grade = explode(' - ', $key)[1];
+                            $items = $arrangedData['arranged'][$key]; 
                             
                             $weightDetails .= '<div class="col-4">';
                             $weightDetails .= '<table class="grade-table">';
-                            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">GRADE : ' . $grade . '</td></tr>';
+                            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">'.$product.' GRADE : ' . $grade . '</td></tr>';
                             $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
                             
                             $totalGross = 0;
