@@ -359,11 +359,17 @@ to get the desired effect
                 </a>
               </li> -->
               <li class="nav-item">
-                <a href="#counting" data-file="countPage.php" class="nav-link link">
+                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p>Weighing Records</p>
                 </a>
               </li>
+              <!-- <li class="nav-item">
+                <a href="#counting" data-file="countPage.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p>Weighing Records</p>
+                </a>
+              </li> -->
               <!-- <li class="nav-item">
                 <a href="#batching" data-file="batchPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-file-alt"></i>
@@ -604,7 +610,7 @@ $(function () {
       });
   });
   
-  $("a[href='#counting']").click();
+  $("a[href='#wholesales']").click();
 });
 
 

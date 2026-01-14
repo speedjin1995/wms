@@ -10,48 +10,41 @@ if(!isset($_SESSION['userID'])){
 else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
+  
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
+  $port = 'COM5';
+  $baudrate = 9600;
+  $databits = "8";
+  $parity = "N";
+  $stopbits = '1';
 	
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
+    $port = $row['port'];
+    $baudrate = $row['baudrate'];
+    $databits = $row['databits'];
+    $parity = $row['parity'];
+    $stopbits = $row['stopbits'];
   }
 
-  if ($user != 2){
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
-    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
-    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer = '$company' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
-  } else {
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
-    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
-    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
-  }
-
+  $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
+  $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
+  $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
+  $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
 }
 ?>
-<!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
+<select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
   <option selected="selected">-</option>
   <?php while($rowunits2=mysqli_fetch_assoc($units1)){ ?>
     <option value="<?=$rowunits2['id'] ?>"><?=$rowunits2['units'] ?></option>
   <?php } ?>
-</select-->
+</select>
 
 <style>
   @media screen and (min-width: 676px) {
@@ -65,7 +58,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Weighing Record</h1>
+        <h1 class="m-0 text-dark">Count Weighing</h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -96,28 +89,6 @@ else{
                   <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                   </div>
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label>Status</label>
-                  <select class="form-control" id="statusFilter" name="statusFilter">
-                    <option value="DISPATCH" selected>Dispatch</option>
-                    <option value="RECEIVING">Receiving</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3" id="customerDiv">
-                <div class="form-group">
-                  <label>Customer</label>
-                  <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
-                    <?php } ?>
-                  </select>
                 </div>
               </div>
 
@@ -165,12 +136,12 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"></div>
-              <!-- <div class="col-2">
+              <div class="col-8"></div>
+              <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
-              </div> -->
-              <div class="col-2" style="visibility: hidden;">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New</button>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New Count</button>
               </div>
             </div>
           </div>
@@ -179,21 +150,17 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
-                  <th>Serial <br>No.</th>
-                  <th>PO <br>No.</th>
-                  <th>Created <br> Datetime</th>
-                  <th>Customer/Supplier</th>
+                  <th>Serial No.</th>
+                  <th>Created Datetime</th>
+                  <th>Supplier</th>
                   <th>Product</th>
-                  <th>Vehicle <br>No.</th>
-                  <th>Driver</th>
-                  <th>Total <br>Item</th>
-                  <th>Total <br>Weight</th>
-                  <th>Total <br>Reject</th>
-                  <th>Total <br>Price</th>
+                  <th>Gross Weight</th>
+                  <th>Unit Weight</th>
+                  <th>Count</th>
                   <th>Action</th>
                 </tr>
               </thead>
-              <!-- <tfoot>
+              <tfoot>
                 <tr>
                     <th colspan="4">Total</th>
                     <th></th>
@@ -201,7 +168,7 @@ else{
                     <th></th> 
                     <th></th>
                 </tr>
-              </tfoot> -->
+              </tfoot>
             </table>
           </div>
         </div>
@@ -222,86 +189,144 @@ else{
         </div>
 
         <div class="modal-body" >
-          <input type="hidden" class="form-control" id="id" name="id">
-          
+          <div class="row">
+
+            <div class="col-md-4">
+              <div class="small-box bg-primary">
+                <a href="#" class="small-box-footer"><b>Total Weight</b></a>
+                <div class="inner">
+                  <h4 style="text-align: center; font-size: 50px" id="indicatorWeight">0.000g</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="small-box bg-warning">
+                <a href="#" class="small-box-footer"><b>Unit Weight / PCS</b></a>
+                <div class="inner">
+                  <h4 style="text-align: center; font-size: 50px" id="unitCountWeight">0.000g</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="small-box bg-success">
+                <a href="#" class="small-box-footer"><b>Total Count / PCS</b></a>
+                <div class="inner">
+                  <h4 style="text-align: center; font-size: 50px" id="countingWeight">0</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+              
           <div class="row">
             <div class="col-md-4">
+              <input type="hidden" class="form-control" id="id" name="id">
               <div class="form-group">
-                <label>Status *</label>
-                <select class="form-control" id="status" name="status" required>
-                  <option value="DISPATCH">Dispatch</option>
-                  <option value="RECEIVING">Receiving</option>
-                </select>
+                <label>Serial No. *</label>
+                <input class="form-control" type="text" placeholder="Serial No" id="serialNumber" name="serialNumber" readonly>
               </div>
             </div>
-            <div class="col-md-4" id="customerDiv">
+            <div class="col-md-4">
               <div class="form-group">
-                <label>Customer</label>
-                <select class="form-control select2" id="customer" name="customer">
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
-                    <option value="<?=$rowCustomer3['id'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4" id="supplierDiv">
-              <div class="form-group">
-                <label>Supplier</label>
-                <select class="form-control select2" id="supplier" name="supplier">
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
-                    <option value="<?=$rowSupplier3['id'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                <label>Product *</label>
+                <input type="hidden" class="form-control" id="productDesc" name="productDesc">
+                <select class="form-control" style="width: 100%;" id="product" name="product" required>
+                  <option selected="selected">-</option>
+                  <?php while($row5=mysqli_fetch_assoc($products2)){ ?>
+                    <option 
+                      value="<?=$row5['id'] ?>" 
+                      data-description="<?=$row5['product_name'] ?>" 
+                      data-batch="<?=$row5['batch_no'] ?>" 
+                      data-uom="<?=$row5['uom'] ?>" 
+                      data-unit="<?=$row5['weight'] ?>"><?=$row5['product_name'] ?></option>
                   <?php } ?>
                 </select>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label>Vehicle No.</label>
-                <select class="form-control select2" id="vehicle" name="vehicle">
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
-                    <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>Driver</label>
-                <select class="form-control select2" id="driver" name="driver">
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
-                    <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
+                <label>Supplier *</label>
+                <select class="form-control" style="width: 100%;" id="supplies" name="supplies" required>
+                  <option selected="selected">-</option>
+                  <?php while($rows=mysqli_fetch_assoc($supplies2)){ ?>
+                    <option value="<?=$rows['id'] ?>"><?=$rows['supplier_name'] ?></option>
                   <?php } ?>
                 </select>
               </div>
             </div>
           </div>
-          
-          <hr>
-          <h5>Weight Details</h5>
           <div class="row">
-            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Grade</th>
-                  <th>Gross</th>
-                  <th>Tare</th>
-                  <th>Net</th>
-                  <th>Reject</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                  <th>Time</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="weightDetailsTable">
-                <!-- Weight details will be populated here -->
-              </tbody>
-            </table>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Batch No. *</label>
+                <input class="form-control" type="text" placeholder="Batch No" id="batchNumber" name="batchNumber" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Article No. *</label>
+                <input class="form-control" type="text" placeholder="Article No" id="articleNumber" name="articleNumber" required>
+              </div>
+            </div>
+          
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>IQC No. *</label>
+                <input class="form-control" type="text" placeholder="IQC No" id="iqcNumber" name="iqcNumber" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>UOM * </label>
+                <select class="form-control" style="width: 100%;" id="uom" name="uom"> 
+                  <option selected="selected">-</option>
+                  <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
+                    <option value="<?=$rowunits['id'] ?>"><?=$rowunits['units'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Gross Weight *
+                <?php 
+                  if($role == "ADMIN"){         
+                    echo '<span style="padding-left: 60px;"><input type="checkbox" class="form-check-input" id="manual" name="manual" value="0"/>Manual</span>';
+                  }
+                ?>
+                </label>
+                <div class="input-group">
+                  <input class="form-control" type="number" placeholder="Current Weight" id="currentWeight" name="currentWeight" readonly required/>
+                  <button type="button" class="btn btn-primary" id="inCButton"><i class="fas fa-sync"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-4">
+              <label>Unit Weight *</label>
+              <div class="input-group">
+                <input class="form-control" type="number" placeholder="Unit Weight" id="unitWeight" name="unitWeight" min="0" readonly/>
+              </div>
+            </div>
+
+            <div class="form-group col-md-4">
+              <label>Count *</label>
+              <div class="input-group">
+                <input class="form-control" type="number" placeholder="Actual Count" id="actualCount" name="actualCount" readonly/>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                  <label>Remark</label>
+                  <textarea class="form-control" rows="1" placeholder="Enter ..." id="remark" name="remark"></textarea>
+                </div>
+              </div>                                            
           </div>
         </div>
 
@@ -312,7 +337,64 @@ else{
       </form>
     </div> <!-- /.modal-content -->
   </div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->   
+</div> <!-- /.modal -->
+
+<div class="modal fade" id="setupModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+    <form role="form" id="setupForm">
+      <div class="modal-header bg-gray-dark color-palette">
+        <h4 class="modal-title">Setup</h4>
+        <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-4">
+            <div class="form-group">
+              <label>Serial Port</label>
+              <input class="form-control" type="text" id="serialPort" name="serialPort" value="<?=$port ?>">
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="form-group">
+              <label>Baud Rate</label>
+              <input class="form-control" type="number" id="serialPortBaudRate" name="serialPortBaudRate" value="<?=$baudrate ?>">
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="form-group">
+              <label>Data Bits</label>
+              <input class="form-control" type="text" id="serialPortDataBits" name="serialPortDataBits" value="<?=$databits ?>">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <div class="form-group">
+              <label>Parity</label>
+              <input class="form-control" type="text" id="serialPortParity" name="serialPortParity" value="<?=$parity ?>">
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="form-group">
+              <label>Stop bits</label>
+              <input class="form-control" type="text" id="serialPortStopBits" name="serialPortStopBits" value="<?=$stopbits ?>">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+
+    </form>
+  </div>
+</div>      
 
 <script>
 // Values
@@ -343,20 +425,9 @@ $(function () {
     defaultDate: today
   });
 
-  $('.select2').each(function() {
-    $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-    });
-  });
-
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
-  var statusI = $('#statusFilter').val();
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-  var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
@@ -373,122 +444,86 @@ $(function () {
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
-        status: statusI,
         product: productI,
-        customer: customerNoI,
         supplier: supplierNoI
       } 
     },
     'columns': [
       { data: 'serial_no' },
-      { data: 'po_no' },
       { data: 'created_datetime' },
-      { data: 'customer_supplier' },
-      { data: 'product' },
-      { data: 'vehicle_no' },
-      { data: 'driver' },
-      { data: 'total_item' },
-      { data: 'total_weight' },
-      { data: 'total_reject' },
-      { data: 'total_price' },
+      { data: 'supplier_name' },
+      { data: 'product_name' },
+      { data: 'gross' },
+      { data: 'unit' },
+      { data: 'count' },
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-          // '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
-          // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
-          '</div>';
+          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ],
-    // "footerCallback": function(row, data, start, end, display) {
-    //   var api = this.api();
+    "footerCallback": function(row, data, start, end, display) {
+      var api = this.api();
 
-    //   // Calculate total for 'total_cages' column
-    //   var totalCages = api
-    //       .column(4, { page: 'current' })
-    //       .data()
-    //       .reduce(function(a, b) {
-    //           return a + parseFloat(b);
-    //       }, 0);
+      // Calculate total for 'total_cages' column
+      var totalCages = api
+          .column(4, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
 
-    //   // Calculate total for 'total_birds' column
-    //   var totalBirds = api
-    //       .column(5, { page: 'current' })
-    //       .data()
-    //       .reduce(function(a, b) {
-    //           return a + parseFloat(b);
-    //       }, 0);
+      // Calculate total for 'total_birds' column
+      var totalBirds = api
+          .column(5, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
 
-    //   var totalConts = api
-    //     .column(6, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //         return a + parseFloat(b);
-    //     }, 0);
+      var totalConts = api
+        .column(6, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+            return a + parseFloat(b);
+        }, 0);
 
-    //   // Update footer with the total
-    //   $(api.column(4).footer()).html(totalCages.toFixed(3));
-    //   $(api.column(5).footer()).html(totalBirds.toFixed(3));
-    //   $(api.column(6).footer()).html(totalConts);
-    // }
-  });
-
-  // Add event listener for opening and closing details on row click
-  $('#weightTable tbody').on('click', 'tr', function (e) {
-      var tr = $(this); // The row that was clicked
-      var row = table.row(tr);
-
-      // Exclude specific td elements by checking the event target
-      if ($(e.target).closest('td').hasClass('select-checkbox') || $(e.target).closest('td').hasClass('action-button')) {
-        return;
-      }
-
-      if (row.child.isShown()) {
-          // This row is already open - close it
-          row.child.hide();
-          tr.removeClass('shown');
-      } else {
-          $.post('php/getWholesale.php', { userID: row.data().id}, function (data) {
-            var obj = JSON.parse(data);
-            if (obj.status === 'success') {
-              row.child(format(obj.message)).show();
-              tr.addClass("shown");
-            }
-          });
-      }
+      // Update footer with the total
+      $(api.column(4).footer()).html(totalCages.toFixed(3));
+      $(api.column(5).footer()).html(totalBirds.toFixed(3));
+      $(api.column(6).footer()).html(totalConts);
+    }
   });
 
   // Add event listener for opening and closing details
-  // $('#weightTable tbody').on('click', 'td.dt-control', function () {
-  //   var tr = $(this).closest('tr');
-  //   var row = table.row( tr );
+  $('#weightTable tbody').on('click', 'td.dt-control', function () {
+    var tr = $(this).closest('tr');
+    var row = table.row( tr );
 
-  //   if ( row.child.isShown() ) {
-  //     // This row is already open - close it
-  //     row.child.hide();
-  //     tr.removeClass('shown');
-  //   }
-  //   else {
-  //     // Open this row
-  //     <?php 
-  //       if($role == "ADMIN"){
-  //         echo 'row.child( format(row.data()) ).show();tr.addClass("shown");';
-  //       }
-  //       else{
-  //         echo 'row.child( formatNormal(row.data()) ).show();tr.addClass("shown");';
-  //       }
-  //     ?>
-  //   }
-  // });
+    if ( row.child.isShown() ) {
+      // This row is already open - close it
+      row.child.hide();
+      tr.removeClass('shown');
+    }
+    else {
+      // Open this row
+      <?php 
+        if($role == "ADMIN"){
+          echo 'row.child( format(row.data()) ).show();tr.addClass("shown");';
+        }
+        else{
+          echo 'row.child( formatNormal(row.data()) ).show();tr.addClass("shown");';
+        }
+      ?>
+    }
+  });
 
   $('#filterSearch').on('click', function(){
     //$('#spinnerLoading').show();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
-    var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
 
     //Destroy the old Datatable
@@ -509,102 +544,93 @@ $(function () {
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
-          status: statusI,
           product: productI,
-          customer: customerNoI,
           supplier: supplierNoI
         } 
       },
       'columns': [
         { data: 'serial_no' },
-        { data: 'po_no' },
         { data: 'created_datetime' },
-        { data: 'customer_supplier' },
-        { data: 'product' },
-        { data: 'vehicle_no' },
-        { data: 'driver' },
-        { data: 'total_item' },
-        { data: 'total_weight' },
-        { data: 'total_reject' },
-        { data: 'total_price' },
+        { data: 'supplier_name' },
+        { data: 'product_name' },
+        { data: 'gross' },
+        { data: 'unit' },
+        { data: 'count' },
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-            // '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
-            // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
-            '</div>';
+            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
           }
         }
       ],
-      // "footerCallback": function(row, data, start, end, display) {
-      //   var api = this.api();
+      "footerCallback": function(row, data, start, end, display) {
+        var api = this.api();
 
-      //   // Calculate total for 'total_cages' column
-      //   var totalCages = api
-      //       .column(4, { page: 'current' })
-      //       .data()
-      //       .reduce(function(a, b) {
-      //           return a + parseFloat(b);
-      //       }, 0);
+        // Calculate total for 'total_cages' column
+        var totalCages = api
+            .column(4, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
 
-      //   // Calculate total for 'total_birds' column
-      //   var totalBirds = api
-      //       .column(5, { page: 'current' })
-      //       .data()
-      //       .reduce(function(a, b) {
-      //           return a + parseFloat(b);
-      //       }, 0);
+        // Calculate total for 'total_birds' column
+        var totalBirds = api
+            .column(5, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+                return a + parseFloat(b);
+            }, 0);
 
-      //   var totalConts = api
-      //     .column(6, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //         return a + parseFloat(b);
-      //     }, 0);
+        var totalConts = api
+          .column(6, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+              return a + parseFloat(b);
+          }, 0);
 
-      //   // Update footer with the total
-      //   $(api.column(4).footer()).html(totalCages.toFixed(3));
-      //   $(api.column(5).footer()).html(totalBirds.toFixed(3));
-      //   $(api.column(6).footer()).html(totalConts);
-      // }
+        // Update footer with the total
+        $(api.column(4).footer()).html(totalCages.toFixed(3));
+        $(api.column(5).footer()).html(totalBirds.toFixed(3));
+        $(api.column(6).footer()).html(totalConts);
+      }
     });
   });
 
-  // $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
-  //   if(data == "true"){
-  //     $('#indicatorConnected').addClass('bg-primary');
-  //     $('#checkingConnection').removeClass('bg-danger');
-  //     //$('#captureWeight').removeAttr('disabled');
-  //   }
-  //   else{
-  //     $('#indicatorConnected').removeClass('bg-primary');
-  //     $('#checkingConnection').addClass('bg-danger');
-  //     //$('#captureWeight').attr('disabled', true);
-  //   }
-  // });
+  $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
+    if(data == "true"){
+      $('#indicatorConnected').addClass('bg-primary');
+      $('#checkingConnection').removeClass('bg-danger');
+      //$('#captureWeight').removeAttr('disabled');
+    }
+    else{
+      $('#indicatorConnected').removeClass('bg-primary');
+      $('#checkingConnection').addClass('bg-danger');
+      //$('#captureWeight').attr('disabled', true);
+    }
+  });
   
-  // setInterval(function () {
-  //   $.post('http://127.0.0.1:5002/handshaking', function(data){
-  //     if(data != "Error"){
-  //       console.log("Data Received:" + data);
-  //       var text = data.split(" ");
+  setInterval(function () {
+    $.post('http://127.0.0.1:5002/handshaking', function(data){
+      if(data != "Error"){
+        console.log("Data Received:" + data);
+        var text = data.split(" ");
 
-  //       if(text.length > 2){
-  //         $('#indicatorWeight').html(text[text.length - 2] + ' ' + text[text.length - 1]);
-  //         var convertTog1 = convertUnits(text[text.length - 2], text[text.length - 1], 'g');
+        if(text.length > 2){
+          $('#indicatorWeight').html(text[text.length - 2] + ' ' + text[text.length - 1]);
+          var convertTog1 = convertUnits(text[text.length - 2], text[text.length - 1], 'g');
 
-  //         if($('#uom').val() && $('#product').val()){
-  //           var uomDesc = $("#uomhidden option[value='"+$('#uom').val()+"']").text();
-  //           var weight = $('#product :selected').data('unit');
-  //           var convertTog2 = convertUnits(weight, uomDesc, 'g');
-  //           var count = parseFloat(convertTog1) / parseFloat(convertTog2);
-  //           $('#countingWeight').text(count.toFixed(0));
-  //         }
-  //       }
-  //     }
-  //   });
-  // }, 500);
+          if($('#uom').val() && $('#product').val()){
+            var uomDesc = $("#uomhidden option[value='"+$('#uom').val()+"']").text();
+            var weight = $('#product :selected').data('unit');
+            var convertTog2 = convertUnits(weight, uomDesc, 'g');
+            var count = parseFloat(convertTog1) / parseFloat(convertTog2);
+            $('#countingWeight').text(count.toFixed(0));
+          }
+        }
+      }
+    });
+  }, 500);
 
   $.validator.setDefaults({
     submitHandler: function () {
@@ -772,18 +798,6 @@ $(function () {
   $('#extendModal').find('#uom').on('change', function () {
     
   });
-
-  $('#extendModal').find('#status').on('change', function () {
-    var status = $(this).val();
-    if(status == "DISPATCH"){
-      $('#extendModal').find('#customerDiv').show();
-      $('#extendModal').find('#supplierDiv').hide();
-    }
-    else{
-      $('#extendModal').find('#customerDiv').hide();
-      $('#extendModal').find('#supplierDiv').show();
-    }
-  });
 });
 
 function updatePrices(isFromCurrency, rat){
@@ -853,99 +867,35 @@ function updateWeights(){
 }
 
 function format (row) {
-  var returnString = `
-  <!-- Wholesale Information -->
-  <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;">Wholesale Order Information</strong></span>
-  </div>
-  <div class="row">
-    <div class="col-6">
-      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
-      <p><strong>Serial No:</strong> ${row.serial_no}</p>
-      <p><strong>PO No:</strong> ${row.po_no}</p>
-      <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
-      <p><strong>Driver:</strong> ${row.driver}</p>
-    </div>
-    <div class="col-6">
-      <p><strong>Total Item:</strong> ${row.total_item}</p>
-      <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
-    </div>
-  </div>
-  <hr>
-  <div class="row">
-      <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-          <thead>
-              <tr>
-                <th>Product</th>
-                <th>Grade</th>
-                <th>Gross</th>
-                <th>Tare</th>
-                <th>Net</th>
-                <th>Reject</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th>Time</th>`;
-              returnString += `
-              </tr>
-          </thead>
-          <tbody>`;
-
-          for (var i = 0; i < row.weightDetails.length; i++) {
-              var detail = row.weightDetails[i]; 
-              
-              returnString += `
-                  <tr>
-                    <td>${detail.product_name}</td>
-                    <td>${detail.grade}</td>
-                    <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-                    <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-                    <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-                    <td>${detail.reject ? parseFloat(detail.reject).toFixed(2) : '0.00'} ${detail.unit}</td>
-                    <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-                    <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-                    <td>${detail.time}</td>`;
-                  returnString += `
-                  </tr>`;
-          }
-
-          returnString += `
-          </tbody>
-      </table>
-  </div>
-  `;
-  
-  return returnString;
-  // return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
-  // '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
-  // '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
-  // '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
-  // '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
-  // '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
-  // '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
-  // '</p></div><div class="col-md-3"><p>Package: '+row.packages+
-  // '</p></div></div><div class="row"><div class="col-md-3">'+
-  // '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
-  // '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
-  // '</p></div><div class="col-md-3 money"><p>Unit Price: '+row.unitPrice+
-  // '</p></div></div><div class="row"><div class="col-md-3">'+
-  // '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
-  // '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
-  // '</p></div><div class="col-md-3 money"><p>Total Weight: '+row.totalPrice+
-  // '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
-  // '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
-  // '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  // '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  // ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
-  // ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  // ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  // ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
-  // '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
-  // '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
-  // '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
-  // '</p></div></div>';
-  // ;
+  return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
+  '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
+  '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
+  '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
+  '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
+  '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
+  '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
+  '</p></div><div class="col-md-3"><p>Package: '+row.packages+
+  '</p></div></div><div class="row"><div class="col-md-3">'+
+  '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
+  '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
+  '</p></div><div class="col-md-3 money"><p>Unit Price: '+row.unitPrice+
+  '</p></div></div><div class="row"><div class="col-md-3">'+
+  '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
+  '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
+  '</p></div><div class="col-md-3 money"><p>Total Weight: '+row.totalPrice+
+  '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
+  '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
+  '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
+  '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
+  ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
+  ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
+  ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
+  ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
+  '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
+  '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
+  '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
+  '</p></div></div>';
+  ;
 }
 
 function formatNormal (row) {
@@ -981,14 +931,17 @@ function formatNormal (row) {
 function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNumber').val("");
-  $('#extendModal').find('#poNumber').val("");
-  $('#extendModal').find('#status').val("DISPATCH");
-  $('#extendModal').find('#customer').val("").trigger('change');
-  $('#extendModal').find('#supplier').val("").trigger('change');
-  $('#extendModal').find('#vehicleNo').val("");
-  $('#extendModal').find('#driver').val("");
+  $('#extendModal').find('#batchNumber').val("");
+  $('#extendModal').find('#articleNumber').val("");
+  $('#extendModal').find('#iqcNumber').val("");
+  $('#extendModal').find('#productDesc').val('');
+  $('#extendModal').find('#product').val('');
+  $('#extendModal').find('#uom').val('');
+  $('#extendModal').find('#currentWeight').attr('readonly', true).val('');
+  $('#extendModal').find('#unitWeight').attr('readonly', true).val('');
+  $('#extendModal').find('#actualCount').val("");
+  $('#extendModal').find('#supplies').val("");
   $('#extendModal').find('#remark').val("");
-  $('#weightDetailsTable').empty();
   $('#extendModal').modal('show');
   
   $('#extendForm').validate({
@@ -1012,70 +965,23 @@ function numberWithCommas(x) {
 
 function edit(id) {
   $('#spinnerLoading').show();
-  $.post('php/getWholesale.php', {userID: id}, function(data){
+  $.post('php/getCount.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
-      $('#extendModal').find('#status').val(obj.message.status).trigger('change');
-      $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
-      $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
-      $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
-      $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
+      $('#extendModal').find('#serialNumber').val(obj.message.serial_no);
+      $('#extendModal').find('#batchNumber').val(obj.message.batch_no);
+      $('#extendModal').find('#articleNumber').val(obj.message.article_code);
+      $('#extendModal').find('#iqcNumber').val(obj.message.iqc_no);
+      $('#extendModal').find('#productDesc').val(obj.message.product_desc);
+      $('#extendModal').find('#product').val(obj.message.product);
+      $('#extendModal').find('#uom').val(obj.message.uom);
+      $('#extendModal').find('#supplies').val(obj.message.supplier);
+      $('#extendModal').find('#currentWeight').val(obj.message.gross);
+      $('#extendModal').find('#unitWeight').val(obj.message.unit);
+      $('#extendModal').find('#actualCount').val(obj.message.count);
       $('#extendModal').find('#remark').val(obj.message.remark);
-      
-      // Populate weight details table
-      var tbody = $('#weightDetailsTable');
-      tbody.empty();
-      
-      if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
-        for(var i = 0; i < obj.message.weightDetails.length; i++) {
-          var detail = obj.message.weightDetails[i];
-          var row = `
-            <tr class="details">
-              <td style="display:none">
-                <input type="hidden" id="product${i}" name="weightDetails[${i}][product]" value="${detail.product}">
-                <input type="hidden" id="product_desc${i}" name="weightDetails[${i}][product_desc]" value="${detail.product_desc}">
-                <input type="hidden" id="pretare${i}" name="weightDetails[${i}][pretare]" value="${detail.pretare}">
-                <input type="hidden" id="unit${i}" name="weightDetails[${i}][unit]" value="${detail.unit}">
-                <input type="hidden" id="package${i}" name="weightDetails[${i}][package]" value="${detail.package}">
-                <input type="hidden" id="fixedfloat${i}" name="weightDetails[${i}][fixedfloat]" value="${detail.fixedfloat}">
-                <input type="hidden" id="isedit${i}" name="weightDetails[${i}][isedit]" value="${detail.isedit}">
-              </td>
-              <td><input type="hidden" id="product_name${i}" name="weightDetails[${i}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
-              <td>
-                <select class="form-control select2" id="grade${i}" name="weightDetails[${i}][grade]">
-                  <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-                    <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
-                  <?php } ?>
-                </select>
-              </td>
-              <td><input type="hidden" id="gross${i}" name="weightDetails[${i}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="tare${i}" name="weightDetails[${i}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="net${i}" name="weightDetails[${i}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="number" class="form-control" id="reject${i}" name="weightDetails[${i}][reject]" value="${detail.reject || '0.00'}"></td>
-              <td><input type="hidden" id="price${i}" name="weightDetails[${i}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td><input type="hidden" id="total${i}" name="weightDetails[${i}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td><input type="hidden" id="time${i}" name="weightDetails[${i}][time]" value="${detail.time}">${detail.time}</td>
-              <td><button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button></td>
-            </tr>
-          `;
-          tbody.append(row);
-          
-          // Set the selected value for the grade dropdown
-          tbody.find(`select[name="weightDetails[${i}][grade]"]`).val(detail.grade);
-        }
-
-        $('.select2').each(function() {
-          $(this).select2({
-              allowClear: true,
-              placeholder: "Please Select",
-              // Conditionally set dropdownParent based on the element’s location
-              dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-          });
-        });
-      }
-      
       $('#extendModal').modal('show');
 
       $('#extendForm').validate({
@@ -1100,10 +1006,6 @@ function edit(id) {
     }
     $('#spinnerLoading').hide();
   });
-}
-
-function removeWeightDetail(button) {
-  $(button).closest('tr').remove();
 }
 
 function deactivate(id) {

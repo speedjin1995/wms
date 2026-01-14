@@ -229,7 +229,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterCount.php',
+      'url':'php/filterWholesale.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -324,7 +324,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterCount.php',
+        'url':'php/filterWholesale.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
