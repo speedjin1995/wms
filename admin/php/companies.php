@@ -14,6 +14,8 @@ if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_STRING);
     $products = $_POST['products'];
     $products = json_encode($products);
+    $packages = $_POST['packages'];
+    $packages = json_encode($packages);
     $company = null;
 
     if(isset($_POST['address2']) && $_POST['address2'] != null && $_POST['address2'] != ''){
@@ -41,8 +43,8 @@ if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, products=?, parent=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $products, $company, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, products=?, packages=?, parent=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $products, $packages, $company, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -67,8 +69,8 @@ if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO companies (reg_no, name, address, address2, address3, address4, phone, email, products, parent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $products, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO companies (reg_no, name, address, address2, address3, address4, phone, email, products, packages, parent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssss', $reg_no, $name, $address, $address2, $address3, $address4, $phone, $email, $products, $packages, $company);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

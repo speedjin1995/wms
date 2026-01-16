@@ -51,3 +51,6 @@ ALTER TABLE `product_grades` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `customers` ADD `parent` INT(11) NULL AFTER `pic`;
 
 ALTER TABLE `supplies` ADD `parent` INT(11) NULL AFTER `pic`;
+
+-- 16/01/2026 --
+ALTER TABLE `companies` ADD `packages` TEXT NOT NULL DEFAULT '[]' AFTER `products`;
