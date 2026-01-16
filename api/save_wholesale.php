@@ -153,6 +153,30 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	/*else{
 	    
 	}*/
+	
+	/*if ($select_stmt2 = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE po_no = ? AND weighted_by = ? AND vehicle_no = ?")) {
+	    $select_stmt2->bind_param('sss', $do_no, $weighted_by, $vehicleNumber);
+        // Execute the prepared query.
+        if (! $select_stmt2->execute()) {
+            echo json_encode(
+                array(
+                    "status" => "failed",
+                    "message" => $select_stmt2->error
+                )); 
+        }
+        else{
+            $result = $select_stmt2->get_result();
+            $count = 1;
+            
+            if ($row = $result->fetch_assoc()) {
+                if((int)$row['COUNT(*)'] > 0){
+                    $insert = false;
+                }
+            }
+		}
+	}
+	
+	$select_stmt2->close();*/
 
     /*if((isset($post['id']) && $post['id'] != null && $post['id'] != '')){
 		$id = $post['id'];
