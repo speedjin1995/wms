@@ -50,6 +50,91 @@ if(isset($_POST['userID'])){
                 $weighingDetails = json_decode($wholesale['weight_details'], true);
                 $arrangedData = arrangeByGrade($weighingDetails);
 
+                // Build weight details tables
+                $weightDetails = '';
+                $grades = array_keys($arrangedData['arranged']);
+                $totalGrades = count($grades);
+                $rowsNeeded = ceil($totalGrades / 3);
+                
+                $totalCages = 0;
+                $totalCagesWeight = 0;
+                for($row = 0; $row < $rowsNeeded; $row++) {
+                    if($row > 0 && $row % 2 == 0) {
+                        $weightDetails .= '<div class="row mb-3 page-break">';
+                    } else {
+                        $weightDetails .= '<div class="row mb-3">';
+                    }
+                    
+                    for($col = 0; $col < 3; $col++) {
+                        $gradeIndex = $row * 3 + $col;
+                        if($gradeIndex < $totalGrades) {
+                            $key = $grades[$gradeIndex];
+                            $product = searchProductNameById(explode(' - ', $key)[0], $db);
+                            $grade = explode(' - ', $key)[1];
+                            $items = $arrangedData['arranged'][$key]; 
+                            
+                            $weightDetails .= '<div class="col-4">';
+                            $weightDetails .= '<table class="grade-table">';
+                            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">'.$product.' GRADE : ' . $grade . '</td></tr>';
+                            $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+                            
+                            $totalGross = 0;
+                            $totalTare = 0;
+                            $totalNet = 0;
+                            $totalPrice = 0;
+                            
+                            for($i = 0; $i < 10; $i++) {
+                                if($i < count($items)) {
+                                    $totalCages += 1;
+                                    $item = $items[$i];
+                                    $gross = floatval($item['gross'] ?? 0);
+                                    $tare = floatval($item['tare'] ?? 0);
+                                    $net = floatval($item['net'] ?? 0);
+                                    $price = floatval($item['price'] ?? 0);
+                                    $pricingType = $item['fixedfloat'];
+
+                                    if ($pricingType == 'fixed') {
+                                        $totalPrice += $price ?? 0;
+                                    } else {
+                                        $totalPrice += $net * ($price ?? 0);
+                                    }
+
+                                    $totalCagesWeight += $tare;
+                                } else {
+                                    $gross = $tare = $net = $price = '';
+                                    $totalPrice += 0;
+                                    $totalCagesWeight += 0;
+                                }
+
+                                $totalGross += $gross != '' ? $gross : 0;
+                                $totalTare += $tare != '' ? $tare : 0;
+                                $totalNet += $net != '' ? $net : 0;
+                                
+                                $weightDetails .= '<tr>';
+                                $weightDetails .= '<td>' . ($i + 1) . '</td>';
+                                $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 1) . ' kg' : '') . '</td>';
+                                $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 1) . ' kg' : '') . '</td>';
+                                $weightDetails .= '<td>' . ($net != '' ? number_format($net, 1) . ' kg' : '') . '</td>';
+                                $weightDetails .= '</tr>';
+                            }
+                            
+                            $weightDetails .= '<tr style="font-weight: bold;">';
+                            $weightDetails .= '<td style="border-right: none;">T</td>';
+                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalGross, 1) . ' kg</td>';
+                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 1) . ' kg</td>';
+                            $weightDetails .= '<td style="border-left: none;">' . number_format($totalNet, 1) . ' kg</td>';
+                            $weightDetails .= '</tr>';
+                            $weightDetails .= '<tr>';
+                            $weightDetails .= '<td colspan="2">Price /kg</td>';
+                            $weightDetails .= '<td colspan="2">RM ' . number_format($totalPrice, 2) . '</td>';
+                            $weightDetails .= '</tr>';
+                            $weightDetails .= '</table>';
+                            $weightDetails .= '</div>';
+                        }
+                    }
+                    $weightDetails .= '</div>';
+                }
+
                 $message = '
                 <html>
                 <head>
