@@ -119,6 +119,14 @@ else{
                   </select>
                 </div>
                 <div class="form-group">
+                  <label for="packages">Package *</label>
+                  <select class="select2" style="width: 100%;" id="packages" name="packages[]" multiple="multiple" required> 
+                    <option value="S">Standalone</option>
+                    <option value="M">Medium</option>
+                    <option value="P">Professional</option>
+                  </select>
+                </div>
+                <div class="form-group">
                   <label for="company">Parent</label>
                   <select class="select2" style="width: 100%;" id="company" name="company"> 
                     <option select="selected" value="">Please Select</option>
@@ -214,6 +222,7 @@ $(function () {
         $('#addModal').find('#phone').val("");
         $('#addModal').find('#email').val("");
         $('#addModal').find('#products').select2('destroy').val('').select2();
+        $('#addModal').find('#packages').select2('destroy').val('').select2();
         $('#addModal').find('#company').val('').trigger('change');
         $('#addModal').modal('show');
         
@@ -300,6 +309,7 @@ function edit(id){
             $('#addModal').find('#phone').val(obj.message.phone);
             $('#addModal').find('#email').val(obj.message.email);
             $('#addModal').find("select[name='products[]']").val(obj.message.products).trigger('change');
+            $('#addModal').find("select[name='packages[]']").val(obj.message.packages).trigger('change');
             $('#addModal').find('#company').val(obj.message.parent).trigger('change');
             $('#addModal').modal('show');
             
