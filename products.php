@@ -9,14 +9,16 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
-  $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+  $units = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
 
   if ($user != 2){
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."'");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
+    $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
   }
   else{
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
+    $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
   }
 }
 ?>
@@ -169,14 +171,19 @@ else{
                   <textarea class="form-control" id="remark" name="remark" placeholder="Enter remark" rows="2"></textarea>
                 </div>
 
-                <div class="row col-12">
+                <div class="row">
                   <div class="col-12">
                     <div class="card bg-light">
-                      <div class="card-header p-2">
-                        <div class="d-flex justify-content-end">
-                          <div class="flex-shrink-0">
-                            <button type="button" class="btn btn-success add-customer"><i class="ri-add-circle-line align-middle me-1"></i>Add Customer</button>
-                          </div> 
+                      <div class="card-header">
+                        <div class="row">
+                          <div class="col-10">
+                            <h3>Customers</h3>
+                          </div>
+                          <div class="col-2">
+                            <button type="button" class="btn btn-success add-customer">
+                              <i class="ri-add-circle-line align-middle me-1"></i>Add Customer
+                            </button>
+                          </div>
                         </div>
                       </div>
                       <div class="card-body">
@@ -184,13 +191,13 @@ else{
                           <div class="col-xxl-12 col-lg-12 mb-3">
                             <table class="table table-primary">
                               <thead>
-                                  <tr>
-                                      <th width="10%">No</th>
-                                      <th>Customer</th>
-                                      <th>Pricing Type</th>
-                                      <th>Price (RM)</th>
-                                      <th>Action</th>
-                                  </tr>
+                                <tr>
+                                  <th width="10%">No</th>
+                                  <th>Customer</th>
+                                  <th>Pricing Type</th>
+                                  <th>Price (RM)</th>
+                                  <th>Action</th>
+                                </tr>
                               </thead>
                               <tbody id="customerTable"></tbody>
                             </table>
@@ -200,6 +207,42 @@ else{
                     </div>
                   </div>
                 </div>
+
+                <div class="row">
+                  <div class="col-12">
+                    <div class="card bg-light">
+                      <div class="card-header">
+                        <div class="row">
+                          <div class="col-10">
+                            <h3>Grades</h3>
+                          </div>
+                          <div class="col-2">
+                            <button type="button" class="btn btn-success add-grade">
+                              <i class="ri-add-circle-line align-middle me-1"></i>Add Grade
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-xxl-12 col-lg-12 mb-3">
+                            <table class="table table-primary">
+                              <thead>
+                                <tr>
+                                  <th width="10%">No</th>
+                                  <th>Unit</th>
+                                  <th>Action</th>
+                                </tr>
+                              </thead>
+                              <tbody id="gradeTable"></tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
             <div class="modal-footer justify-content-between">
@@ -259,15 +302,37 @@ else{
       <input type="number" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
-        <button class="btn btn-success" id="remove" style="background-color: #f06548;">
-            <i class="fa fa-times"></i>
-        </button>
+      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+          <i class="fa fa-times"></i>
+      </button>
+    </td>
+  </tr>
+</script>
+
+<script type="text/html" id="gradeDetail">
+  <tr class="details">
+    <td>
+      <input type="text" class="form-control" id="gradeNo" name="gradeNo" readonly>
+      <input type="text" class="form-control" id="productGradeId" name="productGradeId" hidden>
+    </td>
+    <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="grades" name="grades">
+        <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
+          <option value="<?=$rowGrade['id'] ?>"><?=$rowGrade['units']?></option>
+        <?php } ?>
+      </select>
+    </td>
+    <td class="d-flex" style="text-align:center">
+      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+          <i class="fa fa-times"></i>
+      </button>
     </td>
   </tr>
 </script>
 
 <script>
 var customerRowCount = $("#customerTable").find(".details").length;
+var gradeRowCount = $("#gradeTable").find(".details").length;
 
 $(function () {
   $('.select2').each(function() {
@@ -350,6 +415,10 @@ $(function () {
     customerRowCount = 0;
     $('#customerTable').html('');
 
+    // clear grade table
+    gradeRowCount = 0;
+    $('#gradeTable').html('');
+
     $('#addModal').modal('show');
     
     $('#productForm').validate({
@@ -407,6 +476,45 @@ $(function () {
 
     customerRowCount++;
   });
+
+  // Find and remove selected table rows
+  $("#gradeTable").on('click', 'button[id^="remove"]', function () {
+    $(this).parents("tr").remove();
+
+    $("#gradeTable tr").each(function (index) {
+        $(this).find('input[name^="no"]').val(index + 1);
+    });
+  });
+
+  $(".add-grade").click(function(){
+    var $addContents = $("#gradeDetail").clone();
+    $("#gradeTable").append($addContents.html());
+
+    $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount);
+    $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
+    $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
+
+    $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(gradeRowCount+1);
+    $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#addModal')
+    });
+
+    // Apply custom styling to Select2 elements in addModal
+    $('#gradeTable .select2-container .select2-selection--single').css({
+      'padding-top': '4px',
+      'padding-bottom': '4px',
+      'height': 'auto'
+    });
+
+    $('#gradeTable .select2-container .select2-selection__arrow').css({
+      'padding-top': '33px',
+      'height': 'auto'
+    });
+
+    gradeRowCount++;
+  });
 });
 
 function edit(id){
@@ -463,6 +571,42 @@ function edit(id){
           });
 
           customerRowCount++;
+        }
+      }
+
+      // grade table
+      $('#gradeTable').html('');
+      gradeRowCount = 0;
+      if (obj.message.productGrades.length > 0){
+        for(var i = 0; i < obj.message.productGrades.length; i++){
+          var item = obj.message.productGrades[i];
+          var $addContents = $("#gradeDetail").clone();
+          $("#gradeTable").append($addContents.html());
+
+          $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount);
+          $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
+          $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
+
+          $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(item.no);
+          $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id).select2({
+            allowClear: true,
+            placeholder: "Please Select",
+            dropdownParent: $('#addModal')
+          });
+
+          // Apply custom styling to Select2 elements in addModal
+          $('#gradeTable .select2-container .select2-selection--single').css({
+            'padding-top': '4px',
+            'padding-bottom': '4px',
+            'height': 'auto'
+          });
+
+          $('#gradeTable .select2-container .select2-selection__arrow').css({
+            'padding-top': '33px',
+            'height': 'auto'
+          });
+
+          gradeRowCount++;
         }
       }
 

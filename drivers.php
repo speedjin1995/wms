@@ -10,7 +10,7 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
 }
 ?>
 

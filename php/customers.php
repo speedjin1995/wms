@@ -15,6 +15,7 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $states = null;
     $phone = null;
     $email = null;
+    $parent = null;
 
     if(isset($_POST['reg_no']) && $_POST['reg_no'] != null && $_POST['reg_no'] != ''){
         $reg_no = filter_input(INPUT_POST, 'reg_no', FILTER_SANITIZE_STRING);
@@ -48,9 +49,13 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['parent']) && $_POST['parent'] != null && $_POST['parent'] != ''){
+        $parent = filter_input(INPUT_POST, 'parent', FILTER_SANITIZE_STRING);
+    }
+
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, customer_phone=?, pic=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, customer_phone=?, pic=?, parent=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $parent, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -75,8 +80,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, parent, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $parent, $company);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

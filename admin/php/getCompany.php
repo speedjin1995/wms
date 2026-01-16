@@ -31,6 +31,7 @@ if(isset($_POST['userID'])){
                 $message['address4'] = $row['address4'];
                 $message['phone'] = $row['phone'];
                 $message['email'] = $row['email'];
+                $message['parent'] = $row['parent'];
 
                 if($row['products'] != null){
                     $message['products'] = json_decode($row['products'], true);
