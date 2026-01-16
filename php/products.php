@@ -63,7 +63,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 );
             }
             else{
-                # Product_Customers 
+                # product_customers 
                 if (isset($_POST['no'])){
                     $no = $_POST['no'];
                     $customers =  $_POST['customers'];
@@ -88,6 +88,38 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                 foreach ($no as $key => $number) {
                                     if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
                                         $product_stmt->bind_param('ssss', $_POST['id'], $customers[$key], $customerPricingType[$key], $customerPrice[$key]);
+                                        $product_stmt->execute();
+                                        $product_stmt->close();
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                }
+
+                # product_grade 
+                if (isset($_POST['gradeNo'])){
+                    $no = $_POST['gradeNo'];
+                    $grades =  $_POST['grades'];
+                    $deleteStatus = 1;
+                    if(isset($no) && $no != null && count($no) > 0){
+                        # Delete all existing product rawmat records tied to the product id then reinsert
+                        if ($delete_stmt = $db->prepare("UPDATE product_grades SET deleted=? WHERE product_id=?")){
+                            $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
+    
+                            // Execute the prepared query.
+                            if (! $delete_stmt->execute()) {
+                                echo json_encode(
+                                    array(
+                                        "status"=> "failed", 
+                                        "message"=> $delete_stmt->error
+                                    )
+                                );
+                            }
+                            else{
+                                foreach ($no as $key => $number) {
+                                    if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id) VALUES (?, ?)")){
+                                        $product_stmt->bind_param('ss', $_POST['id'], $grades[$key]);
                                         $product_stmt->execute();
                                         $product_stmt->close();
                                     }
@@ -125,7 +157,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
             else{
                 $productId = $insert_stmt->insert_id;
 
-                # Product_RawMat 
+                # product_customers
                 if(isset($_POST['no'])){
                     $no = $_POST['no'];
                     $customers =  $_POST['customers'];
@@ -136,6 +168,22 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                         foreach ($no as $key => $number) {
                             if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
                                 $product_stmt->bind_param('ssss', $productId, $customers[$key], $customerPricingType[$key], $customerPrice[$key]);
+                                $product_stmt->execute();
+                                $product_stmt->close();
+                            }
+                        }
+                    }
+                }
+
+                # product_customers
+                if(isset($_POST['gradeNo'])){
+                    $no = $_POST['gradeNo'];
+                    $grades = $_POST['grades'];
+
+                    if(isset($no) && $no != null && count($no) > 0){
+                        foreach ($no as $key => $number) {
+                            if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id) VALUES (?, ?)")){
+                                $product_stmt->bind_param('ss', $productId, $grades[$key]);
                                 $product_stmt->execute();
                                 $product_stmt->close();
                             }

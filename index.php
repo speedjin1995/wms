@@ -346,25 +346,31 @@ to get the desired effect
               <p>Dashboard</p>
             </a>
           </li-->
-          <!--li class="nav-item has-treeview menu-open">
+          <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>Weighing<i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a href="#weighing" data-file="weightPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-balance-scale"></i>
                   <p>Weight Weighing</p>
                 </a>
-              </li>
+              </li> -->
               <li class="nav-item">
-                <a href="#counting" data-file="countPage.php" class="nav-link link">
+                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p>Weighing Records</p>
                 </a>
               </li>
-              <li class="nav-item">
+              <!-- <li class="nav-item">
+                <a href="#counting" data-file="countPage.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p>Weighing Records</p>
+                </a>
+              </li> -->
+              <!-- <li class="nav-item">
                 <a href="#batching" data-file="batchPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-file-alt"></i>
                   <p>Batch Weighing</p>
@@ -375,9 +381,9 @@ to get the desired effect
                   <i class="nav-icon fas fa-dollar-sign"></i>
                   <p>Price Weighing</p>
                 </a>
-              </li>
+              </li> -->
             </ul>
-          </li-->
+          </li>
           <li class="nav-item">
             <a href="#reports" data-file="reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
@@ -604,7 +610,7 @@ $(function () {
       });
   });
   
-  $("a[href='#reports']").click();
+  $("a[href='#wholesales']").click();
 });
 
 

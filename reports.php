@@ -21,13 +21,13 @@ else{
   }
 
   if ($user != 2){
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company'");
+    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
   } else {
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0'");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0'");
+    $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
   }
 }
 ?>
@@ -229,7 +229,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterCount.php',
+      'url':'php/filterWholesale.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -324,7 +324,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterCount.php',
+        'url':'php/filterWholesale.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,

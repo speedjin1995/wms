@@ -31,20 +31,12 @@ else{
     $stopbits = $row['stopbits'];
   }
 
-  if ($user != 2) {
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
-  }else{
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0'");
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0'");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0'");
-  }
+  $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
+  $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company'");
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
-  
+  $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
+  $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company'");
 }
 ?>
 <select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
@@ -66,7 +58,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Weighing Record</h1>
+        <h1 class="m-0 text-dark">Count Weighing</h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -149,7 +141,7 @@ else{
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New</button>
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New Count</button>
               </div>
             </div>
           </div>
@@ -431,15 +423,6 @@ $(function () {
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
     defaultDate: today
-  });
-
-  $('.select2').each(function() {
-    $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-    });
   });
 
   var fromDateI = $('#fromDate').val();
