@@ -1,8 +1,8 @@
 <?php
 ## Database configuration
 require_once 'db_connect.php';
+require_once 'lookup.php';
 session_start();
-$company = $_SESSION['customer'];
 
 ## Read value
 $draw = $_POST['draw'];
@@ -19,107 +19,76 @@ $searchQuery = " ";
 if($_POST['fromDate'] != null && $_POST['fromDate'] != ''){
   $dateTime = DateTime::createFromFormat('d/m/Y', $_POST['fromDate']);
   $fromDateTime = $dateTime->format('Y-m-d 00:00:00');
-  $searchQuery .= " and counting.created_datetime >= '".$fromDateTime."'";
+  $searchQuery .= " and wholesales.created_datetime >= '".$fromDateTime."'";
 }
 
 if($_POST['toDate'] != null && $_POST['toDate'] != ''){
   $dateTime = DateTime::createFromFormat('d/m/Y', $_POST['toDate']);
   $toDateTime = $dateTime->format('Y-m-d 23:59:59');
-	$searchQuery .= " and counting.created_datetime <= '".$toDateTime."'";
+	$searchQuery .= " and wholesales.created_datetime <= '".$toDateTime."'";
+}
+
+if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
+  $searchQuery .= " and wholesales.status = '".$_POST['status']."'";
 }
 
 if($_POST['product'] != null && $_POST['product'] != '' && $_POST['product'] != '-'){
-  $searchQuery .= " and products.id = '".$_POST['product']."'";
+  $searchQuery .= " and wholesales.product = '".$_POST['product']."'";
+}
+
+if($_POST['customer'] != null && $_POST['customer'] != '' && $_POST['customer'] != '-'){
+  $searchQuery .= " and wholesales.customer = '".$_POST['customer']."'";
 }
 
 if($_POST['supplier'] != null && $_POST['supplier'] != '' && $_POST['supplier'] != '-'){
-  $searchQuery .= " and counting.supplier = '".$_POST['supplier']."'";
+  $searchQuery .= " and wholesales.supplier = '".$_POST['supplier']."'";
 }
 
 ## Search 
 if($searchValue != ''){
-   $searchQuery = " and (products.product_name like '%".$searchValue."%' or 
-        counting.serial_no like '%".$searchValue."%') ";
+   $searchQuery = " and (wholesales.serial_no like '%".$searchValue."%' or 
+        wholesales.po_no like '%".$searchValue."%' or
+        wholesales.vehicle_no like '%".$searchValue."%') ";
+}
+
+$company = $_SESSION['customer'];
+$user = $_SESSION['userID'];
+
+if ($user != 2){
+  $searchQuery .= " AND company = '".$company."'";
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company'");
+$sel = mysqli_query($db,"select count(*) as allcount from wholesales where wholesales.deleted = '0'");
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company'".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from wholesales where wholesales.deleted = '0'".$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select counting.*, products.product_name, products.uom as puom, supplies.supplier_name from counting, products, supplies where counting.product = products.id AND counting.supplier = supplies.id AND counting.deleted = '0' AND counting.company = '$company'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
-
+$empQuery = "select wholesales.* from wholesales where wholesales.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
-  $uom = 'g';
-  $puom = 'g';
-  $gross = $row['gross'];
-  $unit = $row['unit'];
-  
-  if($row['uom']!=null && $row['uom']!=''){
-    $id = $row['uom'];
-
-    if ($update_stmt = $db->prepare("SELECT * FROM units WHERE id=?")) {
-      $update_stmt->bind_param('s', $id);
-      
-      // Execute the prepared query.
-      if ($update_stmt->execute()) {
-        $result1 = $update_stmt->get_result();
-        
-        if ($row1 = $result1->fetch_assoc()) {
-          $uom = $row1['units'];
-        }
-      }
-    }
-  }
-  
-  if($row['puom']!=null && $row['puom']!=''){
-    $id = $row['puom'];
-
-    if ($update_stmt2 = $db->prepare("SELECT * FROM units WHERE id=?")) {
-      $update_stmt2->bind_param('s', $id);
-      
-      // Execute the prepared query.
-      if ($update_stmt2->execute()) {
-        $result2 = $update_stmt2->get_result();
-        
-        if ($row2 = $result2->fetch_assoc()) {
-          $puom = $row2['units'];
-        }
-      }
-    }
-  }
-  
-  if(strtoupper($uom) == 'KG'){
-      $gross = (float)$gross * 1000;
-  }
-  
-  if(strtoupper($puom) == 'KG'){
-      $unit = (float)$unit * 1000;
-  }
-    
   $data[] = array( 
     "id"=>$row['id'],
     "serial_no"=>$row['serial_no'],
-    "batch_no"=>$row['batch_no'] ?? '',
-    "article_code"=>$row['article_code'] ?? '',
-    "iqc_no"=>$row['iqc_no'] ?? '',
-    "product_name"=>$row['product_name'],
-    "product_desc"=>$row['product_desc'],
-    "supplier_name"=>$row['supplier_name'],
-    "product"=>$row['product'],
-    "gross"=>$gross.' g',
-    "unit"=>$unit.' g',
-    "count"=>$row['count'].' PCS',
-    "remark"=>$row['remark'],
+    "po_no"=>$row['po_no'] ?? '',
+    "status"=>$row['status'],
+    "customer_supplier"=>($row['status'] == 'DISPATCH') ? searchCustomerNameById($row['customer'], $row['other_customer'], $db) : searchSupplierNameById($row['supplier'], $row['other_supplier'], $db),
+    "product"=>searchProductNameById($row['product'], $db) ?? '',
+    "vehicle_no"=>$row['vehicle_no'],
+    "driver"=>$row['driver'] ?? '',
+    "driver_ic"=>$row['driver_ic'] ?? '',
+    "total_item"=>$row['total_item'],
+    "total_weight"=>$row['total_weight'],
+    "total_reject"=>$row['total_reject'],
+    "total_price"=>$row['total_price'],
+    "remark"=>$row['remark'] ?? '',
     "created_datetime"=>$row['created_datetime'],
     "created_by"=>$row['created_by'],
     "company"=>$row['company']

@@ -15,7 +15,6 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $states = null;
     $phone = null;
     $email = null;
-    $parent = null;
 
     if(isset($_POST['reg_no']) && $_POST['reg_no'] != null && $_POST['reg_no'] != ''){
         $reg_no = filter_input(INPUT_POST, 'reg_no', FILTER_SANITIZE_STRING);
@@ -49,13 +48,9 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_STRING);
     }
 
-    if(isset($_POST['parent']) && $_POST['parent'] != null && $_POST['parent'] != ''){
-        $parent = filter_input(INPUT_POST, 'parent', FILTER_SANITIZE_STRING);
-    }
-
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, pic=?, parent=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $parent, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, pic=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -80,8 +75,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, pic, customer, parent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $company, $parent);
+        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, pic, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $email, $company);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

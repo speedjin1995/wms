@@ -34,7 +34,6 @@ if(isset($_POST['userID'])){
                 $message['supplier_phone'] = $row['supplier_phone'];
                 $message['pic'] = $row['pic'];
                 $message['customer'] = $row['customer'];
-                $message['parent'] = $row['parent'];
             }
             
             echo json_encode(

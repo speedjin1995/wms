@@ -10,13 +10,13 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
 
   if ($user != 2){
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = 0 AND customer = '".$company."' ORDER BY driver_name ASC");
+    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = 0 AND customer = '".$company."'");
   }
   else{
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = 0 ORDER BY driver_name ASC");
+    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = 0");
   }
 }
 ?>
