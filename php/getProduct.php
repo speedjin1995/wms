@@ -54,23 +54,6 @@ if(isset($_POST['userID'])){
                 }
 
                 $message['productCustomers'] = $productCustomers;
-
-                // retrieve product grades
-                $empQuery = "SELECT * FROM product_grades WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
-                $empRecords = mysqli_query($db, $empQuery);
-                $productGrades = array();
-                $productGradeCount = 1;
-
-                while($row2 = mysqli_fetch_assoc($empRecords)) {
-                    $productGrades[] = array(
-                        "no" => $productGradeCount,
-                        "id" => $row2['id'],
-                        "product_id" => $row2['product_id'],
-                        "grade_id" => $row2['grade_id'],
-                    );
-                    $productGradeCount++;
-                }
-                $message['productGrades'] = $productGrades;
             }
             
             echo json_encode(

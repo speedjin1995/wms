@@ -20,14 +20,9 @@ else{
 	
 	if(($row = $result->fetch_assoc()) !== null){
         $name = $row['name'];
-        $regNo = $row['reg_no'];
         $address = $row['address'];
-        $address2 = $row['address2'];
-        $address3 = $row['address3'];
-        $address4 = $row['address4'];
         $phone = $row['phone'];
         $email = $row['email'];
-        $fax = $row['fax'];
     }
 }
 ?>
@@ -47,30 +42,13 @@ else{
 		<form role="form" id="profileForm" novalidate="novalidate">
 			<div class="card-body">
 				<div class="form-group">
-					<label for="regNo">Company Reg No. *</label>
-					<input type="text" class="form-control" id="regNo" name="regNo" value="<?=$regNo ?>" placeholder="Enter Company Reg No." required>
-				</div>
-
-				<div class="form-group">
 					<label for="name">Company Name *</label>
-					<input type="text" class="form-control" id="name" name="name" value="<?=$name ?>" placeholder="Enter Company Name" required>
+					<input type="text" class="form-control" id="name" name="name" value="<?=$name ?>" placeholder="Enter Company Name" required="">
 				</div>
 				
 				<div class="form-group">
-					<label for="address">Company Address Line 1 *</label>
-                    <input type="text" class="form-control" id="address1" name="address1" value="<?=$address ?>" placeholder="Enter Company Address Line 1" required>
-				</div>
-				<div class="form-group">
-					<label for="address2">Company Address Line 2</label>
-                    <input type="text" class="form-control" id="address2" name="address2" value="<?=$address2 ?>" placeholder="Enter Company Address Line 2">
-				</div>
-				<div class="form-group">
-					<label for="address3">Company Address Line 3</label>
-                    <input type="text" class="form-control" id="address3" name="address3" value="<?=$address3 ?>" placeholder="Enter Company Address Line 3">
-				</div>
-				<div class="form-group">
-					<label for="address4">Company Address Line 4</label>
-                    <input type="text" class="form-control" id="address4" name="address4" value="<?=$address4 ?>" placeholder="Enter Company Address Line 4">
+					<label for="address">Company Address *</label>
+                    <textarea class="form-control" name="address" id="address" rows="3" placeholder="Enter Address" required=""><?=$address ?></textarea>
 				</div>
 
                 <div class="form-group">
@@ -81,11 +59,6 @@ else{
                 <div class="form-group">
 					<label for="name">Company Email </label>
 					<input type="email" class="form-control" id="email" name="email" value="<?=$email ?>" placeholder="Enter Email">
-				</div>
-
-                <div class="form-group">
-					<label for="name">Company Fax </label>
-					<input type="text" class="form-control" id="fax" name="fax" value="<?=$fax ?>" placeholder="Enter Fax">
 				</div>
 			</div>
 			

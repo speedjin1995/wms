@@ -10,14 +10,8 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
-  $states = $db->query("SELECT * FROM states ORDER BY states ASC");
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
-
-  if ($user != 2){
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 AND customer = '$company' ORDER BY supplier_name ASC");
-  }else{
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 ORDER BY supplier_name ASC");
-  }
+  $states = $db->query("SELECT * FROM states");
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0");
 }
 ?>
 
@@ -86,14 +80,6 @@ else{
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-                <div class="form-group"> 
-                  <label for="parent">Parent </label>
-                  <select class="form-control select2" style="width: 100%;" id="parent" name="parent">
-                    <?php while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
-                      <option value="<?=$rowSupplier['id'] ?>"><?=$rowSupplier['supplier_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -226,14 +212,6 @@ $(function () {
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
                 $('#supplierTable').DataTable().ajax.reload();
-                // Refresh the parent dropdown
-                $.get('php/getSuppliers.php', function(data) {
-                  var suppliers = JSON.parse(data);
-                  $('#parent').empty().append('<option value="">Please Select</option>');
-                  suppliers.forEach(function(supplier) {
-                    $('#parent').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
-                  });
-                });
                 //$('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -260,7 +238,6 @@ $(function () {
       $('#addModal').find('#states').val("");
       $('#addModal').find('#phone').val("");
       $('#addModal').find('#email').val("");
-      $('#addModal').find('#parent').val("").trigger('change');
       $('#addModal').modal('show');
       
       $('#supplierForm').validate({
@@ -297,7 +274,6 @@ function edit(id){
           $('#addModal').find('#phone').val(obj.message.supplier_phone);
           $('#addModal').find('#email').val(obj.message.pic);
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
-          $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
           $('#addModal').modal('show');
           
           $('#supplierForm').validate({

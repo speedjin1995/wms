@@ -9,7 +9,6 @@ if(!isset($_SESSION['adminID'])){
 }
 else{
   $user = $_SESSION['adminID'];
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = '0'");
 }
 ?>
 
@@ -47,7 +46,7 @@ else{
 									<th>Address</th>
 									<th>Phone</th>
 									<th>Email</th>
-									<th width="10%">Actions</th>
+									<th>Actions</th>
 								</tr>
 							</thead>
 						</table>
@@ -116,15 +115,6 @@ else{
                     <option value="weighbridge">Weighbridge</option>
                     <option value="wholesale">Wholesales</option>
                     <option value="validation">Validation</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="company">Parent</label>
-                  <select class="select2" style="width: 100%;" id="company" name="company"> 
-                    <option select="selected" value="">Please Select</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($companies)){ ?>
-                      <option value="<?= $rowCustomer2['id'] ?>"><?= $rowCustomer2['name'] ?></option>
-                    <?php } ?>
                   </select>
                 </div>
               </div>
@@ -214,7 +204,6 @@ $(function () {
         $('#addModal').find('#phone').val("");
         $('#addModal').find('#email').val("");
         $('#addModal').find('#products').select2('destroy').val('').select2();
-        $('#addModal').find('#company').val('').trigger('change');
         $('#addModal').modal('show');
         
         $('#supplierForm').validate({
@@ -300,7 +289,6 @@ function edit(id){
             $('#addModal').find('#phone').val(obj.message.phone);
             $('#addModal').find('#email').val(obj.message.email);
             $('#addModal').find("select[name='products[]']").val(obj.message.products).trigger('change');
-            $('#addModal').find('#company').val(obj.message.parent).trigger('change');
             $('#addModal').modal('show');
             
             $('#supplierForm').validate({
