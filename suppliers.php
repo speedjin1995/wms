@@ -49,6 +49,7 @@ else{
 						<table id="supplierTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
+                  <th>Parent </th>
                   <th>Code </th>
                   <th>Reg No.</th>
 									<th>Name</th>
@@ -198,6 +199,7 @@ $(function () {
         'url':'php/loadSupplier.php'
     },
     'columns': [
+        { data: 'parent' },
         { data: 'supplier_code' },
         { data: 'reg_no' },
         { data: 'supplier_name' },

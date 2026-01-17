@@ -56,6 +56,7 @@ else{
 						<table id="customerTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
+                  <th>Parent</th>
                   <th>Code</th>
                   <th>Reg No.</th>
 									<th>Name</th>
@@ -206,6 +207,7 @@ $(function () {
       'url':'php/loadCustomers.php',
     },
     'columns': [
+      { data: 'parent' },
       { data: 'customer_code' },
       { data: 'reg_no' },
       { data: 'customer_name' },
