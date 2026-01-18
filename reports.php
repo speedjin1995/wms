@@ -152,17 +152,18 @@ else{
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th>Serial <br>No.</th>
-                  <th>PO <br>No.</th>
+                  <th>DO/PO <br>No.</th>
                   <th>Created <br> Datetime</th>
-                  <th>Customer/Supplier</th>
-                  <th>Product</th>
+                  <th>Parent</th>
+                  <th>Customer/<br>Supplier</th>
                   <th>Vehicle <br>No.</th>
                   <th>Driver</th>
                   <th>Total <br>Item</th>
                   <th>Total <br>Weight</th>
                   <th>Total <br>Reject</th>
-                  <th>Total <br>Price</th>
-                  <th>Actions</th>
+                  <th>Weighed <br>By</th>
+                  <th>Checked <br>By</th>
+                  <th width="10%">Action</th>
                 </tr>
               </thead>
               <!-- <tfoot>
@@ -252,14 +253,15 @@ $(function () {
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'created_datetime' },
+      { data: 'parent' },
       { data: 'customer_supplier' },
-      { data: 'product' },
       { data: 'vehicle_no' },
       { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
       { data: 'total_reject' },
-      { data: 'total_price' },
+      { data: 'weighted_by' },
+      { data: 'checked_by' },
       { 
         data: 'id',
         render: function ( data, type, row ) {
@@ -347,14 +349,15 @@ $(function () {
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'created_datetime' },
+        { data: 'parent' },
         { data: 'customer_supplier' },
-        { data: 'product' },
         { data: 'vehicle_no' },
         { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
         { data: 'total_reject' },
-        { data: 'total_price' },
+        { data: 'weighted_by' },
+        { data: 'checked_by' },
         { 
           data: 'id',
           render: function ( data, type, row ) {
