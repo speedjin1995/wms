@@ -182,7 +182,7 @@ else{
                   <th>Serial <br>No.</th>
                   <th>PO <br>No.</th>
                   <th>Created <br> Datetime</th>
-                  <th>Customer/Supplier</th>
+                  <th>Customer/<br>Supplier</th>
                   <th>Product</th>
                   <th>Vehicle <br>No.</th>
                   <th>Driver</th>
@@ -190,7 +190,7 @@ else{
                   <th>Total <br>Weight</th>
                   <th>Total <br>Reject</th>
                   <th>Total <br>Price</th>
-                  <th>Action</th>
+                  <th width="10%">Action</th>
                 </tr>
               </thead>
               <!-- <tfoot>
@@ -408,7 +408,7 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
+          return '<div class="row"><div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
           '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
           // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
           '</div>';
@@ -544,7 +544,7 @@ $(function () {
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
+            return '<div class="row"><div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
             '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
             // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
             '</div>';
