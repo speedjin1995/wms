@@ -68,13 +68,35 @@ while($row3=mysqli_fetch_assoc($products)){
         }
     }
     
+    // ===== Fetch grades for this product =====
+    $pgrades = [];
+
+    $gradeSql = "
+        SELECT g.id, g.units
+        FROM product_grades pg
+        INNER JOIN grades g ON g.id = pg.grade_id
+        WHERE pg.product_id = '{$row3['id']}'
+          AND pg.deleted = 0
+          AND g.deleted = 0
+    ";
+
+    $gradeResult = $db->query($gradeSql);
+
+    while ($g = mysqli_fetch_assoc($gradeResult)) {
+        $pgrades[] = [
+            'id'    => $g['id'],
+            'units' => $g['units'],
+        ];
+    }
+    
     $data3[] = array( 
         'id'=>$row3['id'],
         'product_name'=>$row3['product_name'],
         'remark'=>$row3['remark'],
         'price'=>$price,
         'pricing_type'=>$pricing_type,
-        'weight'=>$row3['weight']
+        'weight'=>$row3['weight'],
+        'grades'=> $pgrades
     );
 }
 

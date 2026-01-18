@@ -24,7 +24,9 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	$company = $post['company'];
 	$indicator = $post['indicator'];
 	$weightDetails = $post['weightList'];
+	$rejectDetails = $post['rejectList'];
 	$startTime = $post['startTime'];
+	$endTime = $post['createdDatetime'];
 	$totalItem = $post['totalItem'];
 	$totalWeight = $post['totalWeight'];
 	$totalReject = $post['totalReject'];
@@ -36,11 +38,13 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
     $startDateTime = $startDateTimeObj->format("Y-m-d 00:00:00");
     $startDateTime2 = $startDateTimeObj->format("Ymd");
 
+    $security_bill = null;
     $customerName = null;
 	$supplierName = null;
 	$customerName2 = null;
 	$supplierName2 = null;
 	$remark = null;
+	$checkedStaff = null;
 	$serialNo = "";
 	$today = date("Y-m-d 00:00:00");
 	
@@ -80,6 +84,14 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	
 	if(isset($post['remark']) && $post['remark'] != null && $post['remark'] != ''){
 		$remark = $post['remark'];
+	}
+	
+	if(isset($post['security_bill']) && $post['security_bill'] != null && $post['security_bill'] != ''){
+		$security_bill = $post['security_bill'];
+	}
+	
+	if(isset($post['checkedStaff']) && $post['checkedStaff'] != null && $post['checkedStaff'] != ''){
+		$checkedStaff = $post['checkedStaff'];
 	}
 
 	if(!isset($post['serialNo']) || $post['serialNo'] == null || $post['serialNo'] == ''){
@@ -150,9 +162,9 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 		
 		$select_stmt->close();
 	}
-	/*else{
-	    
-	}*/
+	else{
+	    $serialNo = $post['serialNo'];
+	}
 	
 	/*if ($select_stmt2 = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE po_no = ? AND weighted_by = ? AND vehicle_no = ?")) {
 	    $select_stmt2->bind_param('sss', $do_no, $weighted_by, $vehicleNumber);
@@ -178,59 +190,14 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	
 	$select_stmt2->close();*/
 
-    /*if((isset($post['id']) && $post['id'] != null && $post['id'] != '')){
-		$id = $post['id'];
-		$data = json_encode($weightDetails);
-		$data2 = json_encode($timestampData);
-		$data3 = json_encode($cageDetails);
-
-		if ($update_stmt = $db->prepare("UPDATE weighing SET customer=?, supplier=?, product=?, driver_name=?, lorry_no=?, farm_id=?, average_cage=?, average_bird=?, 
-		minimum_weight=?, maximum_weight=?, weight_data=?, remark=?, start_time=?, weight_time=?, end_time=?, total_cage=?, number_of_cages=?, total_cages_weight=?, 
-		follower1=?, follower2=?, status=?, po_no=?, cage_data=?, weighted_by=? WHERE id=?")){
-			$update_stmt->bind_param('sssssssssssssssssssssssss', $customerName, $supplierName, $product, $driverName, 
-			$vehicleNumber, $farmId, $averageCage, $averageBird, $minWeight, $maxWeight, $data, $remark, $startTime, 
-			$data2, $endTime, $cratesCount, $numberOfCages, $totalCagesWeight, $attandence1, $attandence2, $status, $doNo, $data3, $weighted_by, $id);
-		
-			// Execute the prepared query.
-			if (! $update_stmt->execute()){
-				echo json_encode(
-					array(
-						"status"=> "failed", 
-						"message"=> $update_stmt->error
-					)
-				);
-			} 
-			else{
-				$update_stmt->close();
-				$db->close();
-				
-				echo json_encode(
-					array(
-						"status"=> "success", 
-						"message"=> "Updated Successfully!!",
-						"serialNo" => $post['serialNo'],
-						"weightId" => $id
-					)
-				);
-			}
-		}
-		else{
-			echo json_encode(
-				array(
-					"status"=> "failed", 
-					"message"=> "cannot prepare statement"
-				)
-			);  
-		}
-	}
-	else{*/
-	if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, status, customer, supplier, vehicle_no, driver, driver_ic, 
-	    weight_details, remark, created_datetime, created_by, company, weighted_by, indicator, other_customer, other_supplier, total_item, 
-		total_weight, total_reject, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+    if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, supplier, vehicle_no, driver, driver_ic, 
+	    weight_details, reject_details, remark, created_datetime, created_by, end_time, company, weighted_by, indicator, other_customer, other_supplier, 
+	    checked_by, total_item, total_weight, total_reject, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
         $data = json_encode($weightDetails);
-		$insert_stmt->bind_param('sssssssssssssssssssss', $serialNo, $do_no, $status, $customerName, $supplierName, $vehicleNumber, 
-		$driverName, $driverIc, $data, $remark, $startTime, $UID, $company, $UID, $indicator, $customerName2, $supplierName2, $totalItem, 
-		$totalWeight, $totalReject, $totalPrice);		
+        $data2 = json_encode($rejectDetails);
+		$insert_stmt->bind_param('sssssssssssssssssssssssss', $serialNo, $do_no, $security_bill, $status, $customerName, $supplierName, $vehicleNumber, 
+		$driverName, $driverIc, $data, $data2, $remark, $startTime, $UID, $endTime, $company, $UID, $indicator, $customerName2, $supplierName2, $checkedStaff, 
+		$totalItem, $totalWeight, $totalReject, $totalPrice);		
 		// Execute the prepared query.
 		if (! $insert_stmt->execute()){
 			echo json_encode(

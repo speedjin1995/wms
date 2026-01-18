@@ -1,6 +1,13 @@
 <?php
+header("Content-Type: text/html; charset=UTF-8");
+header("Cache-Control: no-cache, must-revalidate");
+header("Pragma: no-cache");
+ini_set('display_errors', 0);
+
 require_once 'db_connect.php';
 require_once 'lookup.php';
+
+$message = '<html>';
 
 function arrangeByGrade($weighingDetails) {
     $arranged = [];
@@ -31,7 +38,7 @@ function arrangeByGrade($weighingDetails) {
 }
 
 if(isset($_GET['userID'])){
-    $id = filter_input(INPUT_GET, 'userID', FILTER_SANITIZE_STRING);
+    $id = $_GET['userID'];
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);
@@ -50,10 +57,7 @@ if(isset($_GET['userID'])){
                 $weighingDetails = json_decode($wholesale['weight_details'], true);
                 $arrangedData = arrangeByGrade($weighingDetails);
 
-                $message = '
-                <html>
-                <head>
-                    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+                $message .= '<head>
                     <style>
                         /* Bootstrap CSS */
                         .container-fluid { width: 100%; padding-right: 10px; padding-left: 10px; margin-right: auto; margin-left: auto; }
@@ -83,22 +87,6 @@ if(isset($_GET['userID'])){
                         .grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }
                         .grade-table th { background-color: #f0f0f0; }
                         .grade-table .no-border-sides { border-left: none; border-right: none; }
-
-                        /* Paged.js styles */
-                        @page {
-                            size: A4;
-                            margin: 70mm 5mm 20mm 5mm;
-                            @top-left {
-                                content: element(running-header);
-                            }
-                        }
-
-                        .running-header {
-                            position: running(running-header);
-                            width: 100%;
-                            text-align: left;
-
-                        }
 
                         .page-content {
                             margin-top: 0;
@@ -244,29 +232,16 @@ if(isset($_GET['userID'])){
                 echo $message;
             }
             else{
-                echo json_encode(
-                    array(
-                        "status" => "failed",
-                        "message" => "Data Not Found"
-                    )); 
+                echo "Data not found";
             }
         }
     }
     else{
-        echo json_encode(
-            array(
-                "status" => "failed",
-                "message" => "Something went wrong"
-            )); 
+        echo "Something went wrong"; 
     }
 }
 else{
-    echo json_encode(
-        array(
-            "status"=> "failed", 
-            "message"=> "Please fill in all the fields"
-        )
-    ); 
+    echo "Please fill in all the fields"; 
 }
 
 ?>
