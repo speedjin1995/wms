@@ -287,9 +287,9 @@ if(isset($_POST['userID'])){
                                 <div class="info-row"><span class="info-label">Total Cages</span><span class="info-value">: '.number_format($totalCages).'</span></div>
                                 <div class="info-row"><span class="info-label">Cages Weight</span><span class="info-value">: '.number_format($totalCagesWeight, 2).' kg</span></div>
                                 <div class="info-row"><span class="info-label">Weight By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
-                                <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: </span></div>
-                                <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.$arrangedData['earliest_time'].'</span></div>
-                                <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.$arrangedData['latest_time'].'</span></div>
+                                <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: '.$wholesale['checked_by'].'</span></div>
+                                <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['created_datetime'])).'</span></div>
+                                <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['end_time'])).'</span></div>
                             </div>
                         </div>
                         <hr>
