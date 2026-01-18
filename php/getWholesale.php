@@ -54,6 +54,12 @@ if(isset($_POST['userID'])){
                 }
 
                 $message['weightDetails'] = $weightDetails;
+
+                if (isset($row['reject_details']) && !empty($row['reject_details'])){
+                    $rejectDetails = json_decode($row['reject_details'], true);
+                }
+
+                $message['rejectDetails'] = $rejectDetails;
             }
             
             echo json_encode(
