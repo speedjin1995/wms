@@ -143,43 +143,58 @@ if(isset($_GET['userID'])){
                 }
 
                 // Add reject table as the last table
-                $lastRowCols = $totalGrades % 3;
-                if($lastRowCols == 0) $lastRowCols = 3;
-                if($lastRowCols < 3) {
+                if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details'])) {
+                    $rejectDetails = json_decode($wholesale['reject_details'], true);
+                    $lastRowCols = $totalGrades % 3;
+                    if($lastRowCols == 0) $lastRowCols = 3;
                     $weightDetails .= '<div class="row">';
                     $weightDetails .= '<div class="col-4">';
                     $weightDetails .= '<table class="grade-table">';
                     $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
                     $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                    for($i = 1; $i <= 10; $i++) {
-                        $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
+                    
+                    $rejectGross = 0;
+                    $rejectTare = 0;
+                    $rejectNet = 0;
+                    $rejectPrice = 0;
+                    
+                    for($i = 0; $i < 10; $i++) {
+                        if($i < count($rejectDetails)) {
+                            $item = $rejectDetails[$i];
+                            $gross = floatval($item['gross'] ?? 0);
+                            $tare = floatval($item['tare'] ?? 0);
+                            $net = floatval($item['net'] ?? 0);
+                            $price = floatval($item['price'] ?? 0);
+                            $pricingType = $item['fixedfloat'];
+                            
+                            if ($pricingType == 'fixed') {
+                                $rejectPrice += $price ?? 0;
+                            } else {
+                                $rejectPrice += $net * ($price ?? 0);
+                            }
+                        } else {
+                            $gross = $tare = $net = '';
+                        }
+                        
+                        $rejectGross += $gross != '' ? $gross : 0;
+                        $rejectTare += $tare != '' ? $tare : 0;
+                        $rejectNet += $net != '' ? $net : 0;
+                        
+                        $weightDetails .= '<tr>';
+                        $weightDetails .= '<td>' . ($i + 1) . '</td>';
+                        $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 1) . ' kg' : '') . '</td>';
+                        $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 1) . ' kg' : '') . '</td>';
+                        $weightDetails .= '<td>' . ($net != '' ? number_format($net, 1) . ' kg' : '') . '</td>';
+                        $weightDetails .= '</tr>';
                     }
+                    
                     $weightDetails .= '<tr style="font-weight: bold;">';
                     $weightDetails .= '<td style="border-right: none;">T</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none;"></td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectGross, 1) . ' kg</td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectTare, 1) . ' kg</td>';
+                    $weightDetails .= '<td style="border-left: none;">' . number_format($rejectNet, 1) . ' kg</td>';
                     $weightDetails .= '</tr>';
-                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
-                    $weightDetails .= '</table>';
-                    $weightDetails .= '</div>';
-                    $weightDetails .= '</div>';
-                } else {
-                    $weightDetails .= '<div class="row">';
-                    $weightDetails .= '<div class="col-4">';
-                    $weightDetails .= '<table class="grade-table">';
-                    $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-                    $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                    for($i = 1; $i <= 10; $i++) {
-                        $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
-                    }
-                    $weightDetails .= '<tr style="font-weight: bold;">';
-                    $weightDetails .= '<td style="border-right: none;">T</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none;"></td>';
-                    $weightDetails .= '</tr>';
-                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
+                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2">RM ' . number_format($rejectPrice, 2) . '</td></tr>';
                     $weightDetails .= '</table>';
                     $weightDetails .= '</div>';
                     $weightDetails .= '</div>';
@@ -290,9 +305,9 @@ if(isset($_GET['userID'])){
                                 <div class="info-row"><span class="info-label">Total Cages</span><span class="info-value">: '.number_format($totalCages).'</span></div>
                                 <div class="info-row"><span class="info-label">Cages Weight</span><span class="info-value">: '.number_format($totalCagesWeight, 2).' kg</span></div>
                                 <div class="info-row"><span class="info-label">Weight By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
-                                <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: </span></div>
-                                <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.$arrangedData['earliest_time'].'</span></div>
-                                <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.$arrangedData['latest_time'].'</span></div>
+                                <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: '.$wholesale['checked_by'].'</span></div>
+                                <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['created_datetime'])).'</span></div>
+                                <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['end_time'])).'</span></div>
                             </div>
                         </div>
                         <hr>

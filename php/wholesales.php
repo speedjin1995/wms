@@ -13,6 +13,11 @@ if(isset($_POST['status'])){
     $driver = null;
     $totalReject = 0.00;
     $weightDetails = [];
+    $rejectDetails = [];
+    $totalItem = 0;
+    $totalNet = 0;
+    $totalPrice = 0;
+
 
     if(isset($_POST['customer']) && $_POST['customer'] != null && $_POST['customer'] != ''){
 		$customer = $_POST['customer'];
@@ -40,36 +45,65 @@ if(isset($_POST['status'])){
 
     if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
 		$data = $_POST['weightDetails'];
-
         foreach($data as $weightDetail){
-            // Calculate total reject
-            $totalReject += floatval($weightDetail['reject'] ?? 0.0);
-
             $weightDetails[] = [
                 'gross' => $weightDetail['gross'] ?? '',
                 'tare' => $weightDetail['tare'] ?? '',
                 'pretare' => $weightDetail['pretare'] ?? '0.0',
                 'net' => $weightDetail['net'] ?? '',
+                'reject' => $weightDetail['reject'] ?? '',
+                'isRejected' => $weightDetail['isRejected'] ?? 'N',
                 'product' => $weightDetail['product'] ?? '',
                 'product_name' => $weightDetail['product_name'] ?? '',
                 'product_desc' => $weightDetail['product_desc'] ?? '',
                 'price' => $weightDetail['price'] ?? '',
                 'unit' => $weightDetail['unit'] ?? '',
                 'package' => $weightDetail['package'] ?? '',
-                'time' => $weightDetail['time'] ?? '',
-                'reject' => $weightDetail['reject'] ?? '',
                 'total' => $weightDetail['total'] ?? '',
                 'fixedfloat' => $weightDetail['fixedfloat'] ?? '',
+                'time' => $weightDetail['time'] ?? '',
+                'grade' => $weightDetail['grade'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
-                'grade' => $weightDetail['grade'] ?? ''
             ];
+
+            $totalItem++;
+            $totalNet += floatval($weightDetail['net'] ?? 0.0);
+            $totalPrice += floatval($weightDetail['price'] ?? 0.0);
+        }
+    }
+
+    if(isset($_POST['rejectDetails']) && $_POST['rejectDetails'] != null && $_POST['rejectDetails'] != ''){
+		$data = $_POST['rejectDetails'];
+        foreach($data as $rejectDetail){
+            $rejectDetails[] = [
+                'gross' => $rejectDetail['gross'] ?? '',
+                'tare' => $rejectDetail['tare'] ?? '',
+                'pretare' => $rejectDetail['pretare'] ?? '0.0',
+                'net' => $rejectDetail['net'] ?? '',
+                'reject' => $rejectDetail['reject'] ?? '',
+                'isRejected' => $rejectDetail['isRejected'] ?? 'N',
+                'product' => $rejectDetail['product'] ?? '',
+                'product_name' => $rejectDetail['product_name'] ?? '',
+                'product_desc' => $rejectDetail['product_desc'] ?? '',
+                'price' => $rejectDetail['price'] ?? '',
+                'unit' => $rejectDetail['unit'] ?? '',
+                'package' => $rejectDetail['package'] ?? '',
+                'total' => $rejectDetail['total'] ?? '',
+                'fixedfloat' => $rejectDetail['fixedfloat'] ?? '',
+                'time' => $rejectDetail['time'] ?? '',
+                'grade' => $rejectDetail['grade'] ?? '',
+                'isedit' => $rejectDetail['isedit'] ?? 'N',
+            ];
+
+            $totalReject += floatval($rejectDetail['net'] ?? 0.0);
         }
     }
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE wholesales SET status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, total_reject=?, weight_details=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE wholesales SET status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, total_reject=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_price=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
-            $update_stmt->bind_param('ssssssssss', $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $totalReject, $weightDetailsJson, $_POST['id']);
+            $rejectDetailsJson = json_encode($rejectDetails);
+            $update_stmt->bind_param('ssssssssssssss', $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $totalReject, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalPrice, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){

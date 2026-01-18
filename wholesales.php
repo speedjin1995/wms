@@ -30,6 +30,7 @@ else{
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer = '$company' ORDER BY driver_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
+    $grades2 = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -40,6 +41,7 @@ else{
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' ORDER BY driver_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
+    $grades2 = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -180,16 +182,17 @@ else{
               <thead>
                 <tr>
                   <th>Serial <br>No.</th>
-                  <th>PO <br>No.</th>
+                  <th>DO/PO <br>No.</th>
                   <th>Created <br> Datetime</th>
+                  <th>Parent</th>
                   <th>Customer/<br>Supplier</th>
-                  <th>Product</th>
                   <th>Vehicle <br>No.</th>
                   <th>Driver</th>
                   <th>Total <br>Item</th>
                   <th>Total <br>Weight</th>
                   <th>Total <br>Reject</th>
-                  <th>Total <br>Price</th>
+                  <th>Weighed <br>By</th>
+                  <th>Checked <br>By</th>
                   <th width="10%">Action</th>
                 </tr>
               </thead>
@@ -305,7 +308,6 @@ else{
                   <th>Gross</th>
                   <th>Tare</th>
                   <th>Net</th>
-                  <th>Reject</th>
                   <th>Price</th>
                   <th>Total</th>
                   <th>Time</th>
@@ -315,6 +317,53 @@ else{
               <tbody id="weightDetailsTable">
                 <!-- Weight details will be populated here -->
               </tbody>
+              <tfoot id="weightDetailsFooter">
+                <tr>
+                  <th colspan="2">Total</th>
+                  <th id="totalWeightGross">0.00</th>
+                  <th id="totalWeightTare">0.00</th>
+                  <th id="totalWeightNet">0.00</th>
+                  <th></th>
+                  <th id="totalWeightPrice">0.00</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <hr>
+          <h5>Reject Details</h5>
+          <div class="row">
+            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Grade</th>
+                  <th>Gross</th>
+                  <th>Tare</th>
+                  <th>Net</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                  <th>Time</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="rejectDetailsTable">
+                <!-- Weight details will be populated here -->
+              </tbody>
+              <tfoot id="rejectDetailsFooter">
+                <tr>
+                  <th colspan="2">Total</th>
+                  <th id="totalRejectGross">0.00</th>
+                  <th id="totalRejectTare">0.00</th>
+                  <th id="totalRejectNet">0.00</th>
+                  <th></th>
+                  <th id="totalRejectPrice">0.00</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -328,6 +377,34 @@ else{
   </div> <!-- /.modal-dialog -->
 </div> <!-- /.modal -->   
 
+<div class="modal fade" id="cancelModal">
+  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+    <div class="modal-content">
+      <form role="form" id="cancelForm">
+        <div class="modal-header bg-gray-dark color-palette">
+          <h4 class="modal-title">Delete Reason</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Delete Reason *</label>
+                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+              </div>
+            </div>
+            <input type="hidden" class="form-control" id="id" name="id">
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" id="submitCancel">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
 // Values
 var controlflow = "None";
@@ -335,10 +412,12 @@ var indicatorUnit = "kg";
 var weightUnit = "1";
 var rate = 1;
 var currency = "1";
+var weightCount = 0;
+var rejectCount = 0;
 
 $(function () {
   $('#uomhidden').hide();
-
+  var userRole = '<?=$role ?>';
   const today = new Date();
   const tomorrow = new Date(today);
   const yesterday = new Date(today);
@@ -397,21 +476,29 @@ $(function () {
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'created_datetime' },
+      { data: 'parent' },
       { data: 'customer_supplier' },
-      { data: 'product' },
       { data: 'vehicle_no' },
       { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
       { data: 'total_reject' },
-      { data: 'total_price' },
+      { data: 'weighted_by' },
+      { data: 'checked_by' },
       { 
         data: 'id',
+        class: 'action-button',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-          '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
-          // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
-          '</div>';
+          var buttons = '<div class="row">';
+          if(userRole == 'ADMIN') {
+            buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+          }
+          buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
+          if(userRole == 'ADMIN') {
+            buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+          }
+          buttons += '</div>';
+          return buttons;
         }
       }
     ],
@@ -533,21 +620,31 @@ $(function () {
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'created_datetime' },
+        { data: 'parent' },
         { data: 'customer_supplier' },
-        { data: 'product' },
         { data: 'vehicle_no' },
         { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
         { data: 'total_reject' },
-        { data: 'total_price' },
+        { data: 'weighted_by' },
+        { data: 'checked_by' },
         { 
           data: 'id',
+          class: 'action-button',
           render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-            '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
-            // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
-            '</div>';
+            var buttons = '<div class="row">';
+            if(userRole == 'ADMIN') {
+              buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+            }
+            buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
+
+            if(userRole == 'ADMIN') {
+              buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+            }
+            
+            buttons += '</div>';
+            return buttons;
           }
         }
       ],
@@ -639,6 +736,25 @@ $(function () {
             toastr["error"]("Something wrong when edit", "Failed:");
           }
 
+          $('#spinnerLoading').hide();
+        });
+      }else if($('#cancelModal').hasClass('show')){
+        $('#spinnerLoading').show();
+        $.post('php/deleteWholesale.php', $('#cancelForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+
+          if(obj.status === 'success'){
+            $('#cancelModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#weightTable').DataTable().ajax.reload();
+            
+          }
+          else if(obj.status === 'failed'){
+            toastr["error"](obj.message, "Failed:");
+          }
+          else{
+            toastr["error"]("Something wrong when delete", "Failed:");
+          }
           $('#spinnerLoading').hide();
         });
       }
@@ -906,8 +1022,10 @@ function format (row) {
   </div>
   <div class="row">
     <div class="col-6">
-      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
       <p><strong>Serial No:</strong> ${row.serial_no}</p>
+      <p><strong>Parent:</strong> ${row.parent}</p>
+      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
+      <p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p>
       <p><strong>PO No:</strong> ${row.po_no}</p>
       <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
       <p><strong>Driver:</strong> ${row.driver}</p>
@@ -917,48 +1035,133 @@ function format (row) {
       <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
       <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
       <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
+      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
+      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <p><strong>Remarks:</strong> ${row.remark || ''}</p>
     </div>
   </div>
   <hr>
+  <h3>Weighing Details</h3>
   <div class="row">
-      <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-          <thead>
-              <tr>
-                <th>Product</th>
-                <th>Grade</th>
-                <th>Gross</th>
-                <th>Tare</th>
-                <th>Net</th>
-                <th>Reject</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th>Time</th>`;
-              returnString += `
-              </tr>
-          </thead>
-          <tbody>`;
-
-          for (var i = 0; i < row.weightDetails.length; i++) {
-              var detail = row.weightDetails[i]; 
-              
-              returnString += `
-                  <tr>
-                    <td>${detail.product_name}</td>
-                    <td>${detail.grade}</td>
-                    <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-                    <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-                    <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-                    <td>${detail.reject ? parseFloat(detail.reject).toFixed(2) : '0.00'} ${detail.unit}</td>
-                    <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-                    <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-                    <td>${detail.time}</td>`;
-                  returnString += `
-                  </tr>`;
-          }
-
+    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+      <thead>
+          <tr>
+            <th>Product</th>
+            <th>Grade</th>
+            <th>Gross</th>
+            <th>Tare</th>
+            <th>Net</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Time</th>`;
           returnString += `
-          </tbody>
-      </table>
+          </tr>
+      </thead>
+      <tbody>`;
+
+      var totalWeightGross = 0;
+      var totalWeightTare = 0;
+      var totalWeightNet = 0;
+      var totalWeightPrice = 0;
+      for (var i = 0; i < row.weightDetails.length; i++) {
+        var detail = row.weightDetails[i]; 
+        
+        returnString += `
+            <tr>
+              <td>${detail.product_name}</td>
+              <td>${detail.grade}</td>
+              <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td>${detail.time}</td>`;
+            returnString += `
+            </tr>`;
+
+        totalWeightGross += parseFloat(detail.gross);
+        totalWeightTare += parseFloat(detail.tare);
+        totalWeightNet += parseFloat(detail.net);
+        totalWeightPrice += parseFloat(detail.total);
+      }
+
+      returnString += `
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="2">Total</th>
+          <th>${totalWeightGross.toFixed(2)}</th>
+          <th>${totalWeightTare.toFixed(2)}</th>
+          <th>${totalWeightNet.toFixed(2)}</th>
+          <th></th>
+          <th>RM ${totalWeightPrice.toFixed(2)}</th>
+          <th></th>
+        </tr>
+    </table>
+  </div>
+
+  <hr>
+  <h3>Reject Details</h3>
+  <div class="row">
+    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+      <thead>
+          <tr>
+            <th>Product</th>
+            <th>Grade</th>
+            <th>Gross</th>
+            <th>Tare</th>
+            <th>Net</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Time</th>`;
+          returnString += `
+          </tr>
+      </thead>
+      <tbody>`;
+
+      var totalRejectGross = 0;
+      var totalRejectTare = 0;
+      var totalRejectNet = 0;
+      var totalRejectPrice = 0;
+      for (var i = 0; i < row.rejectDetails.length; i++) {
+        var detail = row.rejectDetails[i]; 
+        
+        returnString += `
+            <tr>
+              <td>${detail.product_name}</td>
+              <td>${detail.grade}</td>
+              <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td>${detail.time}</td>`;
+            returnString += `
+            </tr>`;
+
+        totalRejectGross += parseFloat(detail.gross);
+        totalRejectTare += parseFloat(detail.tare);
+        totalRejectNet += parseFloat(detail.net);
+        totalRejectPrice += parseFloat(detail.total);
+      }
+
+      returnString += `
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="2">Total</th>
+          <th>${totalRejectGross.toFixed(2)}</th>
+          <th>${totalRejectTare.toFixed(2)}</th>
+          <th>${totalRejectNet.toFixed(2)}</th>
+          <th></th>
+          <th>RM ${totalRejectPrice.toFixed(2)}</th>
+          <th></th>
+        </tr>
+    </table>
   </div>
   `;
   
@@ -1075,52 +1278,135 @@ function edit(id) {
       tbody.empty();
       
       if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
+        var totalGross = 0;
+        var totalTare = 0;
+        var totalNet = 0;
+        var totalPrice = 0;
+
         for(var i = 0; i < obj.message.weightDetails.length; i++) {
           var detail = obj.message.weightDetails[i];
+          var idx = weightCount++;
           var row = `
             <tr class="details">
               <td style="display:none">
-                <input type="hidden" id="product${i}" name="weightDetails[${i}][product]" value="${detail.product}">
-                <input type="hidden" id="product_desc${i}" name="weightDetails[${i}][product_desc]" value="${detail.product_desc}">
-                <input type="hidden" id="pretare${i}" name="weightDetails[${i}][pretare]" value="${detail.pretare}">
-                <input type="hidden" id="unit${i}" name="weightDetails[${i}][unit]" value="${detail.unit}">
-                <input type="hidden" id="package${i}" name="weightDetails[${i}][package]" value="${detail.package}">
-                <input type="hidden" id="fixedfloat${i}" name="weightDetails[${i}][fixedfloat]" value="${detail.fixedfloat}">
-                <input type="hidden" id="isedit${i}" name="weightDetails[${i}][isedit]" value="${detail.isedit}">
+                <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="${detail.product}">
+                <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="${detail.product_desc}">
+                <input type="hidden" id="pretare${idx}" name="weightDetails[${idx}][pretare]" value="${detail.pretare}">
+                <input type="hidden" id="unit${idx}" name="weightDetails[${idx}][unit]" value="${detail.unit}">
+                <input type="hidden" id="package${idx}" name="weightDetails[${idx}][package]" value="${detail.package}">
+                <input type="hidden" id="fixedfloat${idx}" name="weightDetails[${idx}][fixedfloat]" value="${detail.fixedfloat}">
+                <input type="hidden" id="isedit${idx}" name="weightDetails[${idx}][isedit]" value="${detail.isedit}">
+                <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="${detail.reject}">
+                <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="${detail.isRejected}">
               </td>
-              <td><input type="hidden" id="product_name${i}" name="weightDetails[${i}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
+              <td><input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
               <td>
-                <select class="form-control select2" id="grade${i}" name="weightDetails[${i}][grade]">
+                <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
                   <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
                     <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
                   <?php } ?>
                 </select>
               </td>
-              <td><input type="hidden" id="gross${i}" name="weightDetails[${i}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="tare${i}" name="weightDetails[${i}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="net${i}" name="weightDetails[${i}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="number" class="form-control" id="reject${i}" name="weightDetails[${i}][reject]" value="${parseFloat(detail.reject).toFixed(2) || '0.00'}"></td>
-              <td><input type="hidden" id="price${i}" name="weightDetails[${i}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td><input type="hidden" id="total${i}" name="weightDetails[${i}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td><input type="hidden" id="time${i}" name="weightDetails[${i}][time]" value="${detail.time}">${detail.time}</td>
-              <td><button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button></td>
+              <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
+              <td>
+                <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+              </td>
             </tr>
           `;
           tbody.append(row);
           
           // Set the selected value for the grade dropdown
-          tbody.find(`select[name="weightDetails[${i}][grade]"]`).val(detail.grade);
+          tbody.find(`select[name="weightDetails[${idx}][grade]"]`).val(detail.grade);
+
+          totalGross += parseFloat(detail.gross);
+          totalTare += parseFloat(detail.tare);
+          totalNet += parseFloat(detail.net);
+          totalPrice += parseFloat(detail.total);
         }
 
-        $('.select2').each(function() {
-          $(this).select2({
-              allowClear: true,
-              placeholder: "Please Select",
-              // Conditionally set dropdownParent based on the element’s location
-              dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-          });
-        });
+        $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightTare').text(totalTare.toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightNet').text(totalNet.toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightPrice').text('RM' + totalPrice .toFixed(2));
       }
+      
+      // Populate reject details table
+      var tbody = $('#rejectDetailsTable');
+      tbody.empty();
+      
+      if(obj.message.rejectDetails && obj.message.rejectDetails.length > 0) {
+        var totalRejectGross = 0;
+        var totalRejectTare = 0;
+        var totalRejectNet = 0;
+        var totalRejectPrice = 0;
+
+        for(var i = 0; i < obj.message.rejectDetails.length; i++) {
+          var detail = obj.message.rejectDetails[i];
+          var idx = rejectCount++;
+          var row = `
+            <tr class="details">
+              <td style="display:none">
+                <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="${detail.product}">
+                <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="${detail.product_desc}">
+                <input type="hidden" id="pretare${idx}" name="rejectDetails[${idx}][pretare]" value="${detail.pretare}">
+                <input type="hidden" id="unit${idx}" name="rejectDetails[${idx}][unit]" value="${detail.unit}">
+                <input type="hidden" id="package${idx}" name="rejectDetails[${idx}][package]" value="${detail.package}">
+                <input type="hidden" id="fixedfloat${idx}" name="rejectDetails[${idx}][fixedfloat]" value="${detail.fixedfloat}">
+                <input type="hidden" id="isedit${idx}" name="rejectDetails[${idx}][isedit]" value="${detail.isedit}">
+                <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="${detail.reject}">
+                <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="${detail.isRejected}">
+              </td>
+              <td><input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
+              <td>
+                <select class="form-control select2" id="grade${idx}" name="rejectDetails[${idx}][grade]">
+                  <?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?>
+                    <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
+                  <?php } ?>
+                </select>
+              </td>
+              <td><input type="hidden" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
+              <td>
+                <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          `;
+          tbody.append(row);
+          
+          // Set the selected value for the grade dropdown
+          tbody.find(`select[name="rejectDetails[${idx}][grade]"]`).val(detail.grade);
+
+          totalRejectGross += parseFloat(detail.gross);
+          totalRejectTare += parseFloat(detail.tare);
+          totalRejectNet += parseFloat(detail.net);
+          totalRejectPrice += parseFloat(detail.total);
+        }
+
+        $('#rejectDetailsFooter').find('#totalRejectGross').text(totalRejectGross.toFixed(2));
+        $('#rejectDetailsFooter').find('#totalRejectTare').text(totalRejectTare.toFixed(2));
+        $('#rejectDetailsFooter').find('#totalRejectNet').text(totalRejectNet.toFixed(2));
+        $('#rejectDetailsFooter').find('#totalRejectPrice').text('RM' + totalRejectPrice.toFixed(2));
+      }
+
+      $('.select2').each(function() {
+        $(this).select2({
+          allowClear: true,
+          placeholder: "Please Select",
+          // Conditionally set dropdownParent based on the element’s location
+          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        });
+      });
       
       $('#extendModal').modal('show');
 
@@ -1148,30 +1434,123 @@ function edit(id) {
   });
 }
 
+function rejectRow(button) {
+  var row = $(button).closest('tr');
+  var rejectIndex = $('#rejectDetailsTable tr').length;
+  
+  row.find('input[type="hidden"], select').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      var newName = name.replace('weightDetails', 'rejectDetails').replace(/\[\d+\]/, '[' + rejectIndex + ']');
+      $(this).attr('name', newName);
+    }
+  });
+  
+  row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
+  row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
+  
+  $('#rejectDetailsTable').append(row);
+  reindexWeightDetails();
+  updateTotals();
+}
+
+function acceptRow(button) {
+  var row = $(button).closest('tr');
+  var weightIndex = $('#weightDetailsTable tr').length;
+  
+  row.find('input[type="hidden"], select').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      var newName = name.replace('rejectDetails', 'weightDetails').replace(/\[\d+\]/, '[' + weightIndex + ']');
+      $(this).attr('name', newName);
+    }
+  });
+  
+  row.find('button[onclick*="acceptRow"]').replaceWith('<button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>');
+  row.find('button[onclick*="removeRejectDetail"]').attr('onclick', 'removeWeightDetail(this)');
+  
+  $('#weightDetailsTable').append(row);
+  reindexRejectDetails();
+  updateTotals();
+}
+
+function reindexWeightDetails() {
+  $('#weightDetailsTable tr').each(function(index) {
+    $(this).find('input[type="hidden"], select').each(function() {
+      var name = $(this).attr('name');
+      if(name) {
+        $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
+      }
+    });
+  });
+}
+
+function reindexRejectDetails() {
+  $('#rejectDetailsTable tr').each(function(index) {
+    $(this).find('input[type="hidden"], select').each(function() {
+      var name = $(this).attr('name');
+      if(name) {
+        $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
+      }
+    });
+  });
+}
+
 function removeWeightDetail(button) {
   $(button).closest('tr').remove();
+  reindexWeightDetails();
+  updateTotals();
+}
+
+function removeRejectDetail(button) {
+  $(button).closest('tr').remove();
+  reindexRejectDetails();
+  updateTotals();
+}
+
+function updateTotals() {
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0;
+  $('#weightDetailsTable tr').each(function() {
+    totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+    totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
+    totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
+    totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+  });
+  $('#totalWeightGross').text(totalGross.toFixed(2));
+  $('#totalWeightTare').text(totalTare.toFixed(2));
+  $('#totalWeightNet').text(totalNet.toFixed(2));
+  $('#totalWeightPrice').text('RM' + totalPrice.toFixed(2));
+  
+  var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0;
+  $('#rejectDetailsTable tr').each(function() {
+    totalRejectGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+    totalRejectTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
+    totalRejectNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
+    totalRejectPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+  });
+  $('#totalRejectGross').text(totalRejectGross.toFixed(2));
+  $('#totalRejectTare').text(totalRejectTare.toFixed(2));
+  $('#totalRejectNet').text(totalRejectNet.toFixed(2));
+  $('#totalRejectPrice').text('RM' + totalRejectPrice.toFixed(2));
 }
 
 function deactivate(id) {
-  if (confirm('Are you sure you want to delete this items?')) {
-    $('#spinnerLoading').show();
-    $.post('php/deleteCount.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  if (confirm('Are you sure you want to delete this item?')) {
+    $('#cancelModal').find('#id').val(id);
+    $('#cancelModal').modal('show');
 
-      if(obj.status === 'success'){
-        toastr["success"](obj.message, "Success:");
-        $('#weightTable').DataTable().ajax.reload();
-        /*$.get('weightPage.php', function(data) {
-          $('#mainContents').html(data);
-        });*/
+    $('#cancelForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+          $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+          $(element).removeClass('is-invalid');
       }
-      else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
-      }
-      else{
-        toastr["error"]("Something wrong when activate", "Failed:");
-      }
-      $('#spinnerLoading').hide();
     });
   }
 }

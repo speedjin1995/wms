@@ -74,12 +74,24 @@ $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
+  if ($row['status'] == 'DISPATCH'){
+    $customerSupplier = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
+    $parentId = searchCustomerParentById($row['customer'], $db);
+    $parent = searchCustomerNameById($parentId, '', $db);
+  }else{
+    $customerSupplier = searchSupplierNameById($row['supplier'], $row['other_supplier'], $db);
+    $parentId = searchSupplierParentById($row['supplier'], $db);
+    $parent = searchSupplierNameById($parentId, '', $db);
+  }
+
+
   $data[] = array( 
     "id"=>$row['id'],
     "serial_no"=>$row['serial_no'],
     "po_no"=>$row['po_no'] ?? '',
     "status"=>$row['status'],
-    "customer_supplier"=>($row['status'] == 'DISPATCH') ? searchCustomerNameById($row['customer'], $row['other_customer'], $db) : searchSupplierNameById($row['supplier'], $row['other_supplier'], $db),
+    "parent"=>$parent,
+    "customer_supplier"=>$customerSupplier,
     "product"=>searchProductNameById($row['product'], $db) ?? '',
     "vehicle_no"=>$row['vehicle_no'],
     "driver"=>$row['driver'] ?? '',
@@ -91,7 +103,9 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "remark"=>$row['remark'] ?? '',
     "created_datetime"=>$row['created_datetime'],
     "created_by"=>$row['created_by'],
-    "company"=>$row['company']
+    "company"=>$row['company'],
+    "weighted_by"=>searchUserNameById($row['weighted_by'], $db),
+    "checked_by"=>$row['checked_by']
   );
 }
 
