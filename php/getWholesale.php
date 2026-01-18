@@ -56,12 +56,14 @@ if(isset($_POST['userID'])){
                     $message['parent'] = searchSupplierNameById($parentId, '', $db);
                 }
 
+                $weightDetails = array();
                 if (isset($row['weight_details']) && !empty($row['weight_details'])){
                     $weightDetails = json_decode($row['weight_details'], true);
                 }
 
                 $message['weightDetails'] = $weightDetails;
 
+                $rejectDetails = array();
                 if (isset($row['reject_details']) && !empty($row['reject_details'])){
                     $rejectDetails = json_decode($row['reject_details'], true);
                 }
