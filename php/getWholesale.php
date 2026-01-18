@@ -26,6 +26,7 @@ if(isset($_POST['userID'])){
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
                 $message['serial_no'] = $row['serial_no'];
+                $message['security_bills'] = $row['security_bills'];
                 $message['po_no'] = $row['po_no'];
                 $message['status'] = $row['status'];
                 $message['customer'] = $row['customer'];
@@ -41,12 +42,18 @@ if(isset($_POST['userID'])){
                 $message['total_weight'] = $row['total_weight'];
                 $message['total_reject'] = $row['total_reject'];
                 $message['total_price'] = $row['total_price'];
+                $message['weighted_by'] = searchUserNameById($row['weighted_by'], $db);
+                $message['checked_by'] = $row['checked_by'];
                 $message['remark'] = $row['remark'];
 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
+                    $parentId = searchCustomerParentById($row['customer'], $db);
+                    $message['parent'] = searchCustomerNameById($parentId, '', $db);
                 }else{
                     $message['customer_supplier'] = searchSupplierNameById($row['supplier'], $row['other_supplier'], $db);
+                    $parentId = searchSupplierParentById($row['supplier'], $db);
+                    $message['parent'] = searchSupplierNameById($parentId, '', $db);
                 }
 
                 if (isset($row['weight_details']) && !empty($row['weight_details'])){

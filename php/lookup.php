@@ -17,6 +17,24 @@ function searchCompanyById($value, $db) {
     return $id;
 }
 
+function searchCustomerParentById($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM customers WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['parent'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
+
 function searchCustomerIdByName($value, $db) {
     $id = '';
 
@@ -49,6 +67,24 @@ function searchCustomerNameById($value, $otherValue, $db) {
             $result = $select_stmt->get_result();
             if ($row = $result->fetch_assoc()) {
                 $id = $row['customer_name'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
+
+function searchSupplierParentById($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM supplies WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['parent'];
             }
             $select_stmt->close();
         }

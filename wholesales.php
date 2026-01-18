@@ -182,16 +182,17 @@ else{
               <thead>
                 <tr>
                   <th>Serial <br>No.</th>
-                  <th>PO <br>No.</th>
+                  <th>DO/PO <br>No.</th>
                   <th>Created <br> Datetime</th>
+                  <th>Parent</th>
                   <th>Customer/<br>Supplier</th>
-                  <th>Product</th>
                   <th>Vehicle <br>No.</th>
                   <th>Driver</th>
                   <th>Total <br>Item</th>
                   <th>Total <br>Weight</th>
                   <th>Total <br>Reject</th>
-                  <th>Total <br>Price</th>
+                  <th>Weighed <br>By</th>
+                  <th>Checked <br>By</th>
                   <th width="10%">Action</th>
                 </tr>
               </thead>
@@ -475,14 +476,15 @@ $(function () {
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'created_datetime' },
+      { data: 'parent' },
       { data: 'customer_supplier' },
-      { data: 'product' },
       { data: 'vehicle_no' },
       { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
       { data: 'total_reject' },
-      { data: 'total_price' },
+      { data: 'weighted_by' },
+      { data: 'checked_by' },
       { 
         data: 'id',
         class: 'action-button',
@@ -618,14 +620,15 @@ $(function () {
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'created_datetime' },
+        { data: 'parent' },
         { data: 'customer_supplier' },
-        { data: 'product' },
         { data: 'vehicle_no' },
         { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
         { data: 'total_reject' },
-        { data: 'total_price' },
+        { data: 'weighted_by' },
+        { data: 'checked_by' },
         { 
           data: 'id',
           class: 'action-button',
@@ -1019,8 +1022,10 @@ function format (row) {
   </div>
   <div class="row">
     <div class="col-6">
-      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
       <p><strong>Serial No:</strong> ${row.serial_no}</p>
+      <p><strong>Parent:</strong> ${row.parent}</p>
+      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
+      <p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p>
       <p><strong>PO No:</strong> ${row.po_no}</p>
       <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
       <p><strong>Driver:</strong> ${row.driver}</p>
@@ -1030,48 +1035,133 @@ function format (row) {
       <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
       <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
       <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
+      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
+      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <p><strong>Remarks:</strong> ${row.remark || ''}</p>
     </div>
   </div>
   <hr>
+  <h3>Weighing Details</h3>
   <div class="row">
-      <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-          <thead>
-              <tr>
-                <th>Product</th>
-                <th>Grade</th>
-                <th>Gross</th>
-                <th>Tare</th>
-                <th>Net</th>
-                <th>Reject</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th>Time</th>`;
-              returnString += `
-              </tr>
-          </thead>
-          <tbody>`;
-
-          for (var i = 0; i < row.weightDetails.length; i++) {
-              var detail = row.weightDetails[i]; 
-              
-              returnString += `
-                  <tr>
-                    <td>${detail.product_name}</td>
-                    <td>${detail.grade}</td>
-                    <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-                    <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-                    <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-                    <td>${detail.reject ? parseFloat(detail.reject).toFixed(2) : '0.00'} ${detail.unit}</td>
-                    <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-                    <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-                    <td>${detail.time}</td>`;
-                  returnString += `
-                  </tr>`;
-          }
-
+    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+      <thead>
+          <tr>
+            <th>Product</th>
+            <th>Grade</th>
+            <th>Gross</th>
+            <th>Tare</th>
+            <th>Net</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Time</th>`;
           returnString += `
-          </tbody>
-      </table>
+          </tr>
+      </thead>
+      <tbody>`;
+
+      var totalWeightGross = 0;
+      var totalWeightTare = 0;
+      var totalWeightNet = 0;
+      var totalWeightPrice = 0;
+      for (var i = 0; i < row.weightDetails.length; i++) {
+        var detail = row.weightDetails[i]; 
+        
+        returnString += `
+            <tr>
+              <td>${detail.product_name}</td>
+              <td>${detail.grade}</td>
+              <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td>${detail.time}</td>`;
+            returnString += `
+            </tr>`;
+
+        totalWeightGross += parseFloat(detail.gross);
+        totalWeightTare += parseFloat(detail.tare);
+        totalWeightNet += parseFloat(detail.net);
+        totalWeightPrice += parseFloat(detail.total);
+      }
+
+      returnString += `
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="2">Total</th>
+          <th>${totalWeightGross.toFixed(2)}</th>
+          <th>${totalWeightTare.toFixed(2)}</th>
+          <th>${totalWeightNet.toFixed(2)}</th>
+          <th></th>
+          <th>RM ${totalWeightPrice.toFixed(2)}</th>
+          <th></th>
+        </tr>
+    </table>
+  </div>
+
+  <hr>
+  <h3>Reject Details</h3>
+  <div class="row">
+    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+      <thead>
+          <tr>
+            <th>Product</th>
+            <th>Grade</th>
+            <th>Gross</th>
+            <th>Tare</th>
+            <th>Net</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Time</th>`;
+          returnString += `
+          </tr>
+      </thead>
+      <tbody>`;
+
+      var totalRejectGross = 0;
+      var totalRejectTare = 0;
+      var totalRejectNet = 0;
+      var totalRejectPrice = 0;
+      for (var i = 0; i < row.rejectDetails.length; i++) {
+        var detail = row.rejectDetails[i]; 
+        
+        returnString += `
+            <tr>
+              <td>${detail.product_name}</td>
+              <td>${detail.grade}</td>
+              <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td>${detail.time}</td>`;
+            returnString += `
+            </tr>`;
+
+        totalRejectGross += parseFloat(detail.gross);
+        totalRejectTare += parseFloat(detail.tare);
+        totalRejectNet += parseFloat(detail.net);
+        totalRejectPrice += parseFloat(detail.total);
+      }
+
+      returnString += `
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="2">Total</th>
+          <th>${totalRejectGross.toFixed(2)}</th>
+          <th>${totalRejectTare.toFixed(2)}</th>
+          <th>${totalRejectNet.toFixed(2)}</th>
+          <th></th>
+          <th>RM ${totalRejectPrice.toFixed(2)}</th>
+          <th></th>
+        </tr>
+    </table>
   </div>
   `;
   
