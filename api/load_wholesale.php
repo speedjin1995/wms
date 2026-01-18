@@ -64,6 +64,7 @@ while($row = $result->fetch_assoc()){
         'id'=> $row['id'],
         'serial_no'=> $row['serial_no'],
         'po_no'=> $row['po_no'],
+        'security_bills'=> $row['security_bills'],
         'status'=> $row['status'],
         'customer'=> $row['customer'],
         'customer_name'=> $customerName,
@@ -74,6 +75,8 @@ while($row = $result->fetch_assoc()){
         'driver_ic'=> $row['driver_ic'],
         'remark'=> $row['remark'],
         'created_datetime'=> $row['created_datetime'],
+        'end_time'=> $row['end_time'],
+        'checked_by'=> $row['checked_by'],
         'weighted_by'=> $row['weighted_by'],
         'staffName'=> $row['name'],
         'indicator'=> $row['indicator'],
@@ -81,7 +84,8 @@ while($row = $result->fetch_assoc()){
         'total_weight'=> $row['total_weight'],
         'total_reject'=> $row['total_reject'],
         'total_price'=> $row['total_price'],
-        'weight' => json_decode($row['weight_details'], true)
+        'weight' => json_decode($row['weight_details'], true),
+        'rejects' => json_decode($row['reject_details'], true)
     );
 }
 

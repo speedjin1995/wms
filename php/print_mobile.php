@@ -1,6 +1,13 @@
 <?php
+header("Content-Type: text/html; charset=UTF-8");
+header("Cache-Control: no-cache, must-revalidate");
+header("Pragma: no-cache");
+ini_set('display_errors', 0);
+
 require_once 'db_connect.php';
 require_once 'lookup.php';
+
+$message = '<html>';
 
 function arrangeByGrade($weighingDetails) {
     $arranged = [];
@@ -34,7 +41,7 @@ function arrangeByGrade($weighingDetails) {
 }
 
 if(isset($_GET['userID'])){
-    $id = filter_input(INPUT_GET, 'userID', FILTER_SANITIZE_STRING);
+    $id = $_GET['userID'];
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);
@@ -53,120 +60,7 @@ if(isset($_GET['userID'])){
                 $weighingDetails = json_decode($wholesale['weight_details'], true);
                 $arrangedData = arrangeByGrade($weighingDetails);
 
-                // Build weight details tables
-                $weightDetails = '';
-                $grades = array_keys($arrangedData['arranged']);
-                $totalGrades = count($grades);
-                $rowsNeeded = ceil($totalGrades / 3);
-                
-                $totalCages = 0;
-                $totalCagesWeight = 0;
-                for($row = 0; $row < $rowsNeeded; $row++) {
-                    if($row > 0 && $row % 2 == 0) {
-                        $weightDetails .= '<div class="row mb-3 page-break">';
-                    } else {
-                        $weightDetails .= '<div class="row mb-3">';
-                    }
-                    
-                    for($col = 0; $col < 3; $col++) {
-                        $gradeIndex = $row * 3 + $col;
-                        if($gradeIndex < $totalGrades) {
-                            $key = $grades[$gradeIndex];
-                            $product = searchProductNameById(explode(' - ', $key)[0], $db);
-                            $grade = explode(' - ', $key)[1];
-                            $items = $arrangedData['arranged'][$key]; 
-                            
-                            $weightDetails .= '<div class="col-4">';
-                            $weightDetails .= '<table class="grade-table">';
-                            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">'.$product.' GRADE : ' . $grade . '</td></tr>';
-                            $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                            
-                            $totalGross = 0;
-                            $totalTare = 0;
-                            $totalNet = 0;
-                            $totalPrice = 0;
-                            
-                            for($i = 0; $i < 10; $i++) {
-                                if($i < count($items)) {
-                                    $totalCages += 1;
-                                    $item = $items[$i];
-                                    $gross = floatval($item['gross'] ?? 0);
-                                    $tare = floatval($item['tare'] ?? 0);
-                                    $net = floatval($item['net'] ?? 0);
-                                    $price = floatval($item['price'] ?? 0);
-                                    $pricingType = $item['fixedfloat'];
-
-                                    if ($pricingType == 'fixed') {
-                                        $totalPrice += $price ?? 0;
-                                    } else {
-                                        $totalPrice += $net * ($price ?? 0);
-                                    }
-
-                                    $totalCagesWeight += $tare;
-                                } else {
-                                    $gross = $tare = $net = $price = '';
-                                    $totalPrice += 0;
-                                    $totalCagesWeight += 0;
-                                }
-
-                                $totalGross += $gross != '' ? $gross : 0;
-                                $totalTare += $tare != '' ? $tare : 0;
-                                $totalNet += $net != '' ? $net : 0;
-                                
-                                $weightDetails .= '<tr>';
-                                $weightDetails .= '<td>' . ($i + 1) . '</td>';
-                                $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 1) . ' kg' : '') . '</td>';
-                                $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 1) . ' kg' : '') . '</td>';
-                                $weightDetails .= '<td>' . ($net != '' ? number_format($net, 1) . ' kg' : '') . '</td>';
-                                $weightDetails .= '</tr>';
-                            }
-                            
-                            $weightDetails .= '<tr style="font-weight: bold;">';
-                            $weightDetails .= '<td style="border-right: none;">T</td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalGross, 1) . ' kg</td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 1) . ' kg</td>';
-                            $weightDetails .= '<td style="border-left: none;">' . number_format($totalNet, 1) . ' kg</td>';
-                            $weightDetails .= '</tr>';
-                            $weightDetails .= '<tr>';
-                            $weightDetails .= '<td colspan="2">Price /kg</td>';
-                            $weightDetails .= '<td colspan="2">RM ' . number_format($totalPrice, 2) . '</td>';
-                            $weightDetails .= '</tr>';
-                            $weightDetails .= '</table>';
-                            $weightDetails .= '</div>';
-                        }
-                    }
-                    
-                    // Add reject table to the last row if there's space
-                    if($row == $rowsNeeded - 1) {
-                        $lastRowCols = $totalGrades % 3;
-                        if($lastRowCols == 0) $lastRowCols = 3;
-                        if($lastRowCols < 3) {
-                            $weightDetails .= '<div class="col-4">';
-                            $weightDetails .= '<table class="grade-table">';
-                            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-                            $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                            for($i = 1; $i <= 10; $i++) {
-                                $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
-                            }
-                            $weightDetails .= '<tr style="font-weight: bold;">';
-                            $weightDetails .= '<td style="border-right: none;">T</td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                            $weightDetails .= '<td style="border-left: none;"></td>';
-                            $weightDetails .= '</tr>';
-                            $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
-                            $weightDetails .= '</table>';
-                            $weightDetails .= '</div>';
-                        }
-                    }
-                    
-                    $weightDetails .= '</div>';
-                }
-
-                $message = '
-                <html>
-                <head>
-                    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+                $message .= '<head>
                     <style>
                         /* Bootstrap CSS */
                         .container-fluid { width: 100%; padding-right: 10px; padding-left: 10px; margin-right: auto; margin-left: auto; }
@@ -208,21 +102,6 @@ if(isset($_GET['userID'])){
                         .grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }
                         .grade-table th { background-color: #f0f0f0; }
                         .grade-table .no-border-sides { border-left: none; border-right: none; }
-
-                        /* Paged.js styles */
-                        @page {
-                            size: A4;
-                            margin: 80mm 5mm 20mm 5mm;
-                            @top-left {
-                                content: element(running-header);
-                            }
-                        }
-
-                        .running-header {
-                            position: running(running-header);
-                            width: 100%;
-                            text-align: left;
-                        }
 
                         .page-content {
                             margin-top: 0;
@@ -285,29 +164,16 @@ if(isset($_GET['userID'])){
                 echo $message;
             }
             else{
-                echo json_encode(
-                    array(
-                        "status" => "failed",
-                        "message" => "Data Not Found"
-                    )); 
+                echo "Data not found";
             }
         }
     }
     else{
-        echo json_encode(
-            array(
-                "status" => "failed",
-                "message" => "Something went wrong"
-            )); 
+        echo "Something went wrong"; 
     }
 }
 else{
-    echo json_encode(
-        array(
-            "status"=> "failed", 
-            "message"=> "Please fill in all the fields"
-        )
-    ); 
+    echo "Please fill in all the fields"; 
 }
 
 ?>
