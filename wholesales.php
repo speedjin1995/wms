@@ -409,7 +409,7 @@ $(function () {
         data: 'id',
         render: function ( data, type, row ) {
           return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-          // '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
+          '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
           // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
           '</div>';
         }
@@ -545,7 +545,7 @@ $(function () {
           data: 'id',
           render: function ( data, type, row ) {
             return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-            // '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
+            '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
             // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
             '</div>';
           }
@@ -1179,9 +1179,8 @@ function deactivate(id) {
 function print(id) {
   $.post('php/print.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
-
-    if(obj.status === 'success'){
-      var printWindow = window.open('', '', 'height=400,width=800');
+    if(obj.status === 'success') {
+      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
       printWindow.document.write(obj.message);
       printWindow.document.close();
       setTimeout(function(){
@@ -1190,10 +1189,10 @@ function print(id) {
       }, 500);
     }
     else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
+      alert(obj.message);
     }
     else{
-      toastr["error"]("Something wrong when activate", "Failed:");
+      alert("Something wrong when activate");
     }
   });
 }
