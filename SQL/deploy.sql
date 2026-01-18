@@ -54,3 +54,6 @@ ALTER TABLE `supplies` ADD `parent` INT(11) NULL AFTER `pic`;
 
 -- 16/01/2026 --
 ALTER TABLE `companies` ADD `packages` TEXT NOT NULL DEFAULT '[]' AFTER `products`;
+
+-- 18/01/2026 --
+ALTER TABLE `wholesales` ADD `delete_reason` TEXT NULL AFTER `deleted`;

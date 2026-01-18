@@ -376,6 +376,34 @@ else{
   </div> <!-- /.modal-dialog -->
 </div> <!-- /.modal -->   
 
+<div class="modal fade" id="cancelModal">
+  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+    <div class="modal-content">
+      <form role="form" id="cancelForm">
+        <div class="modal-header bg-gray-dark color-palette">
+          <h4 class="modal-title">Delete Reason</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Delete Reason *</label>
+                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+              </div>
+            </div>
+            <input type="hidden" class="form-control" id="id" name="id">
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" id="submitCancel">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
 // Values
 var controlflow = "None";
@@ -388,7 +416,7 @@ var rejectCount = 0;
 
 $(function () {
   $('#uomhidden').hide();
-
+  var userRole = '<?=$role ?>';
   const today = new Date();
   const tomorrow = new Date(today);
   const yesterday = new Date(today);
@@ -459,10 +487,16 @@ $(function () {
         data: 'id',
         class: 'action-button',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-          '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
-          // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
-          '</div>';
+          var buttons = '<div class="row">';
+          if(userRole == 'ADMIN') {
+            buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+          }
+          buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
+          if(userRole == 'ADMIN') {
+            buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+          }
+          buttons += '</div>';
+          return buttons;
         }
       }
     ],
@@ -596,10 +630,18 @@ $(function () {
           data: 'id',
           class: 'action-button',
           render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>'+
-            '<div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>'+
-            // '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>'+
-            '</div>';
+            var buttons = '<div class="row">';
+            if(userRole == 'ADMIN') {
+              buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+            }
+            buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
+
+            if(userRole == 'ADMIN') {
+              buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+            }
+            
+            buttons += '</div>';
+            return buttons;
           }
         }
       ],
@@ -691,6 +733,25 @@ $(function () {
             toastr["error"]("Something wrong when edit", "Failed:");
           }
 
+          $('#spinnerLoading').hide();
+        });
+      }else if($('#cancelModal').hasClass('show')){
+        $('#spinnerLoading').show();
+        $.post('php/deleteWholesale.php', $('#cancelForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+
+          if(obj.status === 'success'){
+            $('#cancelModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#weightTable').DataTable().ajax.reload();
+            
+          }
+          else if(obj.status === 'failed'){
+            toastr["error"](obj.message, "Failed:");
+          }
+          else{
+            toastr["error"]("Something wrong when delete", "Failed:");
+          }
           $('#spinnerLoading').hide();
         });
       }
@@ -1384,25 +1445,22 @@ function updateTotals() {
 }
 
 function deactivate(id) {
-  if (confirm('Are you sure you want to delete this items?')) {
-    $('#spinnerLoading').show();
-    $.post('php/deleteCount.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  if (confirm('Are you sure you want to delete this item?')) {
+    $('#cancelModal').find('#id').val(id);
+    $('#cancelModal').modal('show');
 
-      if(obj.status === 'success'){
-        toastr["success"](obj.message, "Success:");
-        $('#weightTable').DataTable().ajax.reload();
-        /*$.get('weightPage.php', function(data) {
-          $('#mainContents').html(data);
-        });*/
+    $('#cancelForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+          $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+          $(element).removeClass('is-invalid');
       }
-      else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
-      }
-      else{
-        toastr["error"]("Something wrong when activate", "Failed:");
-      }
-      $('#spinnerLoading').hide();
     });
   }
 }
