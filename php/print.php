@@ -136,30 +136,49 @@ if(isset($_POST['userID'])){
                         }
                     }
                     
-                    // Add reject table to the last row if there's space
-                    if($row == $rowsNeeded - 1) {
-                        $lastRowCols = $totalGrades % 3;
-                        if($lastRowCols == 0) $lastRowCols = 3;
-                        if($lastRowCols < 3) {
-                            $weightDetails .= '<div class="col-4">';
-                            $weightDetails .= '<table class="grade-table">';
-                            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-                            $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                            for($i = 1; $i <= 10; $i++) {
-                                $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
-                            }
-                            $weightDetails .= '<tr style="font-weight: bold;">';
-                            $weightDetails .= '<td style="border-right: none;">T</td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                            $weightDetails .= '<td style="border-left: none;"></td>';
-                            $weightDetails .= '</tr>';
-                            $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
-                            $weightDetails .= '</table>';
-                            $weightDetails .= '</div>';
-                        }
+                    $weightDetails .= '</div>';
+                }
+                
+                // Add reject table as the last table
+                $lastRowCols = $totalGrades % 3;
+                if($lastRowCols == 0) $lastRowCols = 3;
+                if($lastRowCols < 3) {
+                    $weightDetails .= '<div class="row">';
+                    $weightDetails .= '<div class="col-4">';
+                    $weightDetails .= '<table class="grade-table">';
+                    $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
+                    $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+                    for($i = 1; $i <= 10; $i++) {
+                        $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
                     }
-                    
+                    $weightDetails .= '<tr style="font-weight: bold;">';
+                    $weightDetails .= '<td style="border-right: none;">T</td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
+                    $weightDetails .= '<td style="border-left: none;"></td>';
+                    $weightDetails .= '</tr>';
+                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
+                    $weightDetails .= '</table>';
+                    $weightDetails .= '</div>';
+                    $weightDetails .= '</div>';
+                } else {
+                    $weightDetails .= '<div class="row">';
+                    $weightDetails .= '<div class="col-4">';
+                    $weightDetails .= '<table class="grade-table">';
+                    $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
+                    $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+                    for($i = 1; $i <= 10; $i++) {
+                        $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
+                    }
+                    $weightDetails .= '<tr style="font-weight: bold;">';
+                    $weightDetails .= '<td style="border-right: none;">T</td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
+                    $weightDetails .= '<td style="border-left: none;"></td>';
+                    $weightDetails .= '</tr>';
+                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
+                    $weightDetails .= '</table>';
+                    $weightDetails .= '</div>';
                     $weightDetails .= '</div>';
                 }
 
