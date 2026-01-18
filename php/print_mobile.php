@@ -143,47 +143,60 @@ if(isset($_GET['userID'])){
                 }
 
                 // Add reject table as the last table
+                $rejectDetails = json_decode($wholesale['reject_details'], true);
                 $lastRowCols = $totalGrades % 3;
                 if($lastRowCols == 0) $lastRowCols = 3;
-                if($lastRowCols < 3) {
-                    $weightDetails .= '<div class="row">';
-                    $weightDetails .= '<div class="col-4">';
-                    $weightDetails .= '<table class="grade-table">';
-                    $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-                    $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                    for($i = 1; $i <= 10; $i++) {
-                        $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
+                $weightDetails .= '<div class="row">';
+                $weightDetails .= '<div class="col-4">';
+                $weightDetails .= '<table class="grade-table">';
+                $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
+                $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+                
+                $rejectGross = 0;
+                $rejectTare = 0;
+                $rejectNet = 0;
+                $rejectPrice = 0;
+                
+                for($i = 0; $i < 10; $i++) {
+                    if($i < count($rejectDetails)) {
+                        $item = $rejectDetails[$i];
+                        $gross = floatval($item['gross'] ?? 0);
+                        $tare = floatval($item['tare'] ?? 0);
+                        $net = floatval($item['net'] ?? 0);
+                        $price = floatval($item['price'] ?? 0);
+                        $pricingType = $item['fixedfloat'];
+                        
+                        if ($pricingType == 'fixed') {
+                            $rejectPrice += $price ?? 0;
+                        } else {
+                            $rejectPrice += $net * ($price ?? 0);
+                        }
+                    } else {
+                        $gross = $tare = $net = '';
                     }
-                    $weightDetails .= '<tr style="font-weight: bold;">';
-                    $weightDetails .= '<td style="border-right: none;">T</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none;"></td>';
+                    
+                    $rejectGross += $gross != '' ? $gross : 0;
+                    $rejectTare += $tare != '' ? $tare : 0;
+                    $rejectNet += $net != '' ? $net : 0;
+                    
+                    $weightDetails .= '<tr>';
+                    $weightDetails .= '<td>' . ($i + 1) . '</td>';
+                    $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 1) . ' kg' : '') . '</td>';
+                    $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 1) . ' kg' : '') . '</td>';
+                    $weightDetails .= '<td>' . ($net != '' ? number_format($net, 1) . ' kg' : '') . '</td>';
                     $weightDetails .= '</tr>';
-                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
-                    $weightDetails .= '</table>';
-                    $weightDetails .= '</div>';
-                    $weightDetails .= '</div>';
-                } else {
-                    $weightDetails .= '<div class="row">';
-                    $weightDetails .= '<div class="col-4">';
-                    $weightDetails .= '<table class="grade-table">';
-                    $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-                    $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                    for($i = 1; $i <= 10; $i++) {
-                        $weightDetails .= '<tr><td>'.$i.'</td><td></td><td></td><td></td></tr>';
-                    }
-                    $weightDetails .= '<tr style="font-weight: bold;">';
-                    $weightDetails .= '<td style="border-right: none;">T</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;"></td>';
-                    $weightDetails .= '<td style="border-left: none;"></td>';
-                    $weightDetails .= '</tr>';
-                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2"></td></tr>';
-                    $weightDetails .= '</table>';
-                    $weightDetails .= '</div>';
-                    $weightDetails .= '</div>';
                 }
+                
+                $weightDetails .= '<tr style="font-weight: bold;">';
+                $weightDetails .= '<td style="border-right: none;">T</td>';
+                $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectGross, 1) . ' kg</td>';
+                $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectTare, 1) . ' kg</td>';
+                $weightDetails .= '<td style="border-left: none;">' . number_format($rejectNet, 1) . ' kg</td>';
+                $weightDetails .= '</tr>';
+                $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2">RM ' . number_format($rejectPrice, 2) . '</td></tr>';
+                $weightDetails .= '</table>';
+                $weightDetails .= '</div>';
+                $weightDetails .= '</div>';
 
                 $message = '
                 <html>
