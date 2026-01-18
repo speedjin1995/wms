@@ -15,10 +15,12 @@ else{
 	$result = $stmt->get_result();
   $role = 'NORMAL';
   $name = '';
+  $username = '';
 	
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
     $name = $row['name'];
+    $username = $row['username'];
   }
 }
 ?>
@@ -312,7 +314,28 @@ to get the desired effect
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars bg-success"></i></a>
       </li>
     </ul>
+    
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" style="background-color: #f4f4f4; border-radius: 50%; padding: 8px; margin-right: 15px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-user" style="font-size: 16px; color: #666;"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          <h6 class="dropdown-header">Welcome <?=$username ?>!</h6>
+          <a href="#myprofile" data-file="myprofile.php" class="dropdown-item link">
+            <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> 
+            <span class="align-middle">Profile</span>
+          </a>
+          <a class="dropdown-item" href="php/logout.php">
+            <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> 
+            <span class="align-middle">Logout</span>
+          </a>
+        </div>
+      </li>
+    </ul>
   </nav>
+
   <!-- Main Sidebar Container -->
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
   <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #3d44c1;">
@@ -435,12 +458,12 @@ to get the desired effect
                       <p>Vehicles</p>
                     </a>
                   </li>
-                  <li class="nav-item">
+                  <!--li class="nav-item">
                     <a href="#transporters" data-file="transporters.php" class="nav-link link">
                       <i class="nav-icon fas fa-shipping-fast"></i>
                       <p>Transporters</p>
                     </a>
-                  </li>
+                  </li-->
                   <li class="nav-item">
                     <a href="#grades" data-file="grades.php" class="nav-link link">
                       <i class="nav-icon fas fa-star"></i>
@@ -587,10 +610,22 @@ $(function () {
   }
   
   $('#sideMenu').on('click', '.link', function(){
-      $('#spinnerLoading').hide();
+      $('#spinnerLoading').show();
       var files = $(this).attr('data-file');
       $('#sideMenu').find('.active').removeClass('active');
       $(this).addClass('active');
+      
+      $.get(files, function(data) {
+        $('#mainContents').html(data);
+        $('#spinnerLoading').hide();
+      });
+  });
+
+  // Handle dropdown links
+  $('.dropdown-menu').on('click', '.link', function(){
+      $('#spinnerLoading').show();
+      var files = $(this).attr('data-file');
+      $('#sideMenu').find('.active').removeClass('active');
       
       $.get(files, function(data) {
         $('#mainContents').html(data);

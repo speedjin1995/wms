@@ -129,17 +129,7 @@ else{
                       <input type="text" class="form-control" name="part" id="part" placeholder="Part No.">
                     </div>
                   </div>
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="uom">UOM</label>
-                      <select class="form-control" id="uom" name="uom"> 
-                        <option selected="selected">-</option>
-                        <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
-                          <option value="<?=$rowunits['id'] ?>"><?=$rowunits['units'] ?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div> -->
+                  -->
                 </div>
                 <div class="row">
                   <div class="col-6">
@@ -165,6 +155,17 @@ else{
                       <input type="number" class="form-control" name="price" id="price" placeholder="Price">
                     </div>
                   </div>
+                  <div class="col-6">
+                    <div class="form-group mb-2">
+                      <label for="uom">Unit</label>
+                      <select class="form-control" id="uom" name="uom"> 
+                        <option selected="selected">-</option>
+                        <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
+                          <option value="<?=$rowunits['id'] ?>"><?=$rowunits['units'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div> 
                 </div>
                 <div class="form-group mb-3"> 
                   <label for="remark">Remark</label>
@@ -405,7 +406,7 @@ $(function () {
     $('#addModal').find('#serial').val("");
     $('#addModal').find('#batch').val("");
     $('#addModal').find('#part').val("");
-    $('#addModal').find('#uom').val("");
+    $('#addModal').find('#unit').val("");
     $('#addModal').find('#remark').val("");
     $('#addModal').find('#pricingType').val("Fixed");
     $('#addModal').find('#price').val("");

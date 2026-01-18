@@ -58,6 +58,7 @@ else{
 								<tr>
                   <th>Code</th>
                   <th>Reg No.</th>
+                  <th>Parent</th>
 									<th>Name</th>
 									<th>Address</th>
 									<th>Phone</th>
@@ -208,6 +209,7 @@ $(function () {
     'columns': [
       { data: 'customer_code' },
       { data: 'reg_no' },
+      { data: 'parent' },
       { data: 'customer_name' },
       { data: 'customer_address' },
       { data: 'customer_phone' },

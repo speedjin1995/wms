@@ -51,6 +51,7 @@ else{
 								<tr>
                   <th>Code </th>
                   <th>Reg No.</th>
+                  <th>Parent </th>
 									<th>Name</th>
 									<th>Address</th>
 									<th>Phone</th>
@@ -200,6 +201,7 @@ $(function () {
     'columns': [
         { data: 'supplier_code' },
         { data: 'reg_no' },
+        { data: 'parent' },
         { data: 'supplier_name' },
         { data: 'supplier_address' },
         { data: 'supplier_phone' },
