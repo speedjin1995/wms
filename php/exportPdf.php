@@ -126,6 +126,11 @@ try {
                 'formattedTime' => $formattedTime,
                 'serial_no' => $row['serial_no'],
                 'po_no' => $row['po_no'],
+                'status' => $row['status'],
+                'customer' => $row['customer'],
+                'other_customer' => $row['other_customer'],
+                'supplier' => $row['supplier'],
+                'other_supplier' => $row['other_supplier'],
                 'product' => searchProductNameById($row['product'], $db),
                 'gradeWeights' => $gradeWeights,
                 'totalWeight' => $totalWeight,
@@ -155,7 +160,7 @@ try {
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
             $content .= '<td>'.$rowData['po_no'].'</td>';
-            $content .= '<td>'.$rowData['product'].'</td>';
+            $content .= '<td>'.(($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db)) .'</td>';
 
             // Output grade columns in correct order
             foreach ($gradeColumns as $gradeCol) {
@@ -210,8 +215,10 @@ try {
             <div class="company-info mb-1">
                 <div class="fw-bold">'.$companyDetail['name'].'</div>
                 <div class="text-muted">
-                    <div>'.$companyDetail['address']. ' ' . $companyDetail['address2'].'</div>
-                    <div>'.$companyDetail['address3']. ' ' . $companyDetail['address4'].'</div>
+                    <div>'.$companyDetail['address'].'</div>
+                    <div>'.$companyDetail['address2'].'</div>
+                    <div>'.$companyDetail['address3'].'</div>
+                    <div>'.$companyDetail['address4'].'</div>
                 </div>
             </div>
             <hr class="border-dark">
@@ -227,7 +234,7 @@ try {
                     </tr>
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div>
+                            <!--div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div-->
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">Weight Status: '.($_GET['status'] == 'DISPATCH' ? 'Sales' : 'Purchase').'</div>
@@ -244,8 +251,8 @@ try {
                             <th>Date</th>
                             <th>Time</th>
                             <th>Weigh Slip No.</th>
-                            <th>Delivery No.</th>
-                            <th>Product Description</th>';
+                            <th>'.($_GET['status'] == 'DISPATCH' ? 'PO' : 'Delivery').' No.</th>
+                            <th>'.($_GET['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').' Name</th>';
 
                             if (!empty($gradeColumns) && count($gradeColumns) > 0){
                                 foreach ($gradeColumns as $gradeCol){

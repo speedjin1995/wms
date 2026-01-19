@@ -134,6 +134,11 @@ if ($query->num_rows > 0) {
             'formattedTime' => $formattedTime,
             'serial_no' => $row['serial_no'],
             'po_no' => $row['po_no'],
+            'status' => $row['status'],
+            'customer' => $row['customer'],
+            'other_customer' => $row['other_customer'],
+            'supplier' => $row['supplier'],
+            'other_supplier' => $row['other_supplier'],
             'product' => searchProductNameById($row['product'], $db),
             'gradeWeights' => $gradeWeights,
             'totalWeight' => $totalWeight,
@@ -160,7 +165,11 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
-$fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Product Description');
+if($_GET['status'] == 'DISPATCH') {
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'PO No.', 'Customer');
+}else{
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Supplier');
+}
 
 // Add grade columns
 foreach ($gradeColumns as $gradeCol) {
@@ -183,7 +192,7 @@ if (!empty($allRows)) {
             $rowData['formattedTime'],
             $rowData['serial_no'],
             $rowData['po_no'],
-            $rowData['product']
+            ($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db)
         );
 
         // Add grade weights in correct order

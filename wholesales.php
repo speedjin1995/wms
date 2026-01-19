@@ -135,7 +135,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3">
+              <!--div class="col-3">
                 <div class="form-group">
                   <label>Product</label>
                   <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
@@ -145,7 +145,7 @@ else{
                     <?php } ?>
                   </select>
                 </div>
-              </div>
+              </div-->
             </div>
 
             <div class="row">
