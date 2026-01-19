@@ -140,7 +140,7 @@ if(isset($_POST['userID'])){
                 }
                 
                 // Add reject table as the last table
-                if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details'])) {
+                if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) && $wholesale['reject_details'] != '[]') {
                     $rejectDetails = json_decode($wholesale['reject_details'], true);
                     $lastRowCols = $totalGrades % 3;
                     if($lastRowCols == 0) $lastRowCols = 3;
