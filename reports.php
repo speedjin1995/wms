@@ -163,7 +163,7 @@ else{
                   <th>Total <br>Reject</th>
                   <th>Weighed <br>By</th>
                   <th>Checked <br>By</th>
-                  <th width="10%">Action</th>
+                  <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <!-- <tfoot>
@@ -262,12 +262,12 @@ $(function () {
       { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
-      { 
-        data: 'id',
-        render: function ( data, type, row ) {
-          return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-        }
-      }
+      // { 
+      //   data: 'id',
+      //   render: function ( data, type, row ) {
+      //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+      //   }
+      // }
     ],
     // "footerCallback": function(row, data, start, end, display) {
     //   var api = this.api();
@@ -358,12 +358,12 @@ $(function () {
         { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
-        { 
-          data: 'id',
-          render: function ( data, type, row ) {
-            return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-          }
-        }
+        // { 
+        //   data: 'id',
+        //   render: function ( data, type, row ) {
+        //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+        //   }
+        // }
       ],
       // "footerCallback": function(row, data, start, end, display) {
       //   var api = this.api();
