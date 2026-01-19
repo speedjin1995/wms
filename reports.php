@@ -166,14 +166,16 @@ else{
                   <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
-              <!-- <tfoot>
+              <tfoot>
                 <tr>
                     <th colspan="8">Total</th>
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
+                    <th></th>
                 </tr>
-              </tfoot> -->
+              </tfoot>
             </table>
           </div>
         </div>
@@ -269,38 +271,34 @@ $(function () {
       //   }
       // }
     ],
-    // "footerCallback": function(row, data, start, end, display) {
-    //   var api = this.api();
+    "footerCallback": function(row, data, start, end, display) {
+      var api = this.api();
 
-    //   // Calculate total for 'total_cages' column
-    //   var totalCages = api
-    //       .column(7, { page: 'current' })
-    //       .data()
-    //       .reduce(function(a, b) {
-    //           return a + parseFloat(b);
-    //       }, 0);
+      var totalItem = api
+        .column(8, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+          return a + parseFloat(b || 0);
+        }, 0);
 
-    //   // Calculate total for 'total_birds' column
-    //   var totalBirds = api
-    //       .column(8, { page: 'current' })
-    //       .data()
-    //       .reduce(function(a, b) {
-    //           return a + parseInt(b);
-    //       }, 0);
+      var totalWeight = api
+        .column(9, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+          return a + parseFloat(b || 0);
+        }, 0);
 
-    //   var totalConts = api
-    //     .column(9, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //         return a + parseFloat(b);
-    //     }, 0);
+      var totalReject = api
+        .column(10, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+          return a + parseFloat(b || 0);
+        }, 0);
 
-
-    //   // Update footer with the total
-    //   $(api.column(7).footer()).html(totalCages.toFixed(3));
-    //   $(api.column(8).footer()).html(totalBirds.toFixed(3));
-    //   $(api.column(9).footer()).html(totalConts);
-    // }
+      $(api.column(8).footer()).html(totalItem);
+      $(api.column(9).footer()).html(totalWeight.toFixed(2));
+      $(api.column(10).footer()).html(totalReject.toFixed(2));
+    }
   });
 
   $('#filterSearch').on('click', function(){
@@ -365,38 +363,34 @@ $(function () {
         //   }
         // }
       ],
-      // "footerCallback": function(row, data, start, end, display) {
-      //   var api = this.api();
+      "footerCallback": function(row, data, start, end, display) {
+        var api = this.api();
 
-      //   // Calculate total for 'total_cages' column
-      //   var totalCages = api
-      //       .column(7, { page: 'current' })
-      //       .data()
-      //       .reduce(function(a, b) {
-      //           return a + parseFloat(b);
-      //       }, 0);
+        var totalItem = api
+          .column(8, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+            return a + parseFloat(b || 0);
+          }, 0);
 
-      //   // Calculate total for 'total_birds' column
-      //   var totalBirds = api
-      //       .column(8, { page: 'current' })
-      //       .data()
-      //       .reduce(function(a, b) {
-      //           return a + parseFloat(b);
-      //       }, 0);
+        var totalWeight = api
+          .column(9, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+            return a + parseFloat(b || 0);
+          }, 0);
 
-      //   var totalConts = api
-      //     .column(9, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //         return a + parseFloat(b);
-      //     }, 0);
+        var totalReject = api
+          .column(10, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+            return a + parseFloat(b || 0);
+          }, 0);
 
-
-      //   // Update footer with the total
-      //   $(api.column(7).footer()).html(totalCages.toFixed(3));
-      //   $(api.column(8).footer()).html(totalBirds.toFixed(3));
-      //   $(api.column(9).footer()).html(totalConts);
-      // }
+        $(api.column(8).footer()).html(totalItem);
+        $(api.column(9).footer()).html(totalWeight.toFixed(2));
+        $(api.column(10).footer()).html(totalReject.toFixed(2));
+      }
     });
   });
 
