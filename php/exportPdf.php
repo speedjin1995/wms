@@ -125,6 +125,7 @@ try {
                 'formattedDate' => $formattedDate,
                 'formattedTime' => $formattedTime,
                 'serial_no' => $row['serial_no'],
+                'security_bills' => $row['security_bills'],
                 'po_no' => $row['po_no'],
                 'status' => $row['status'],
                 'customer' => $row['customer'],
@@ -160,6 +161,11 @@ try {
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
             $content .= '<td>'.$rowData['po_no'].'</td>';
+
+            if ($_GET['status'] == 'RECEIVING') {
+                $content .= '<td>'.$rowData['security_bills'].'</td>';
+            }
+
             $content .= '<td>'.(($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db)) .'</td>';
 
             // Output grade columns in correct order
@@ -251,7 +257,15 @@ try {
                             <th>Date</th>
                             <th>Time</th>
                             <th>Weigh Slip No.</th>
-                            <th>'.($_GET['status'] == 'DISPATCH' ? 'PO' : 'Delivery').' No.</th>
+                            <th>'.($_GET['status'] == 'DISPATCH' ? 'Purchase' : 'Delivery').' No.</th>';
+
+                            if ($_GET['status'] == 'RECEIVING') {
+                                $html .= '
+                                    <th>Security Bill</th>
+                                ';
+                            }
+
+                            $html .= '
                             <th>'.($_GET['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').' Name</th>';
 
                             if (!empty($gradeColumns) && count($gradeColumns) > 0){
