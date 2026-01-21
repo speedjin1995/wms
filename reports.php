@@ -24,10 +24,15 @@ else{
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
+    $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
+
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
+    $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
   }
 }
 ?>
@@ -100,6 +105,37 @@ else{
                     <option value="" selected disabled hidden>Please Select</option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
                       <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Vehicle No</label>
+                  <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
+                    <option value="" selected disabled hidden>Please Select</option>
+                    <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
+                      <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Checked By</label>
+                  <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="Please Enter Name">
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label>Weighted By</label>
+                  <select class="form-control select2" id="weightByFilter" name="weightByFilter">
+                    <option value="" selected disabled hidden>Please Select</option>
+                    <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
+                      <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -221,6 +257,9 @@ $(function () {
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+  var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+  var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+  var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -239,7 +278,10 @@ $(function () {
         status: statusI,
         product: productI,
         customer: customerNoI,
-        supplier: supplierNoI
+        supplier: supplierNoI,
+        vehicle: vehicleNoI,
+        checkedBy: checkedByI,
+        weightedBy: weightedByI
       } 
     },
     'columns': [
@@ -309,6 +351,9 @@ $(function () {
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -331,7 +376,10 @@ $(function () {
           status: statusI,
           product: productI,
           customer: customerNoI,
-          supplier: supplierNoI
+          supplier: supplierNoI,
+          vehicle: vehicleNoI,
+          checkedBy: checkedByI,
+          weightedBy: weightedByI
         } 
       },
       'columns': [
@@ -401,7 +449,9 @@ $(function () {
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-
+    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var selectedIds = []; // An array to store the selected 'id' values
 
     $("#weightTable tbody input[type='checkbox']").each(function () {
@@ -412,10 +462,12 @@ $(function () {
 
     if (selectedIds.length > 0){
       window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=Y&ids="+selectedIds);
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
       window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=N");
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
   });
 
@@ -426,6 +478,9 @@ $(function () {
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
     var selectedIds = []; // An array to store the selected 'id' values
 
@@ -437,10 +492,12 @@ $(function () {
 
     if (selectedIds.length > 0){
       window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=Y&ids="+selectedIds);
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
       window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&isMulti=N");
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
   });
 
