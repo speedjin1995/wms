@@ -50,6 +50,7 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	
 	if($status == 'DISPATCH'){
 	    if($post['customerName'] == 'OTHERS'){
+			$customerName = $post['customerName'];
 	        $customerName2 = $post['customerName2'];
 	    }
 		else{
@@ -60,6 +61,7 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	
 	if($status == 'RECEIVING'){
 		if($post['supplierName'] == 'OTHERS'){
+			$supplierName = $post['supplierName'];
 	        $supplierName2 = $post['supplierName2'];
 	    }
 		else{

@@ -43,6 +43,18 @@ if(isset($_GET['supplier']) && $_GET['supplier'] != null && $_GET['supplier'] !=
     $searchQuery .= " AND wholesales.supplier = '".mysqli_real_escape_string($db, $_GET['supplier'])."'";
 }
 
+if(isset($_GET['vehicle']) && $_GET['vehicle'] != null && $_GET['vehicle'] != '' && $_GET['vehicle'] != '-'){
+  $searchQuery .= " and wholesales.vehicle_no = '".mysqli_real_escape_string($db, $_GET['vehicle'])."'";
+}
+
+if(isset($_GET['checkedBy']) && $_GET['checkedBy'] != null && $_GET['checkedBy'] != '' && $_GET['checkedBy'] != '-'){
+  $searchQuery .= " and wholesales.checked_by = '".mysqli_real_escape_string($db, $_GET['checkedBy'])."'";
+}
+
+if(isset($_GET['weightedBy']) && $_GET['weightedBy'] != null && $_GET['weightedBy'] != '' && $_GET['weightedBy'] != '-'){
+  $searchQuery .= " and wholesales.weighted_by = '".mysqli_real_escape_string($db, $_GET['weightedBy'])."'";
+}
+
 $isMulti = '';
 if(isset($_GET['isMulti']) && $_GET['isMulti'] != null && $_GET['isMulti'] != '' && $_GET['isMulti'] != '-'){
     $isMulti = $_GET['isMulti'];
@@ -125,6 +137,7 @@ try {
                 'formattedDate' => $formattedDate,
                 'formattedTime' => $formattedTime,
                 'serial_no' => $row['serial_no'],
+                'security_bills' => $row['security_bills'],
                 'po_no' => $row['po_no'],
                 'status' => $row['status'],
                 'customer' => $row['customer'],
@@ -160,6 +173,11 @@ try {
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
             $content .= '<td>'.$rowData['po_no'].'</td>';
+
+            if ($_GET['status'] == 'RECEIVING') {
+                $content .= '<td>'.$rowData['security_bills'].'</td>';
+            }
+
             $content .= '<td>'.(($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db)) .'</td>';
 
             // Output grade columns in correct order
@@ -251,7 +269,15 @@ try {
                             <th>Date</th>
                             <th>Time</th>
                             <th>Weigh Slip No.</th>
-                            <th>'.($_GET['status'] == 'DISPATCH' ? 'PO' : 'Delivery').' No.</th>
+                            <th>'.($_GET['status'] == 'DISPATCH' ? 'Purchase' : 'Delivery').' No.</th>';
+
+                            if ($_GET['status'] == 'RECEIVING') {
+                                $html .= '
+                                    <th>Security Bill</th>
+                                ';
+                            }
+
+                            $html .= '
                             <th>'.($_GET['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').' Name</th>';
 
                             if (!empty($gradeColumns) && count($gradeColumns) > 0){

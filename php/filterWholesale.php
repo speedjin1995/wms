@@ -44,6 +44,18 @@ if($_POST['supplier'] != null && $_POST['supplier'] != '' && $_POST['supplier'] 
   $searchQuery .= " and wholesales.supplier = '".$_POST['supplier']."'";
 }
 
+if($_POST['vehicle'] != null && $_POST['vehicle'] != '' && $_POST['vehicle'] != '-'){
+  $searchQuery .= " and wholesales.vehicle_no = '".$_POST['vehicle']."'";
+}
+
+if($_POST['checkedBy'] != null && $_POST['checkedBy'] != '' && $_POST['checkedBy'] != '-'){
+  $searchQuery .= " and wholesales.checked_by = '".$_POST['checkedBy']."'";
+}
+
+if($_POST['weightedBy'] != null && $_POST['weightedBy'] != '' && $_POST['weightedBy'] != '-'){
+  $searchQuery .= " and wholesales.weighted_by = '".$_POST['weightedBy']."'";
+}
+
 ## Search 
 if($searchValue != ''){
    $searchQuery = " and (wholesales.serial_no like '%".$searchValue."%' or 

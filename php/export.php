@@ -67,6 +67,18 @@ if(isset($_GET['supplier']) && $_GET['supplier'] != null && $_GET['supplier'] !=
     $searchQuery .= " AND wholesales.supplier = '".mysqli_real_escape_string($db, $_GET['supplier'])."'";
 }
 
+if(isset($_GET['vehicle']) && $_GET['vehicle'] != null && $_GET['vehicle'] != '' && $_GET['vehicle'] != '-'){
+  $searchQuery .= " and wholesales.vehicle_no = '".mysqli_real_escape_string($db, $_GET['vehicle'])."'";
+}
+
+if(isset($_GET['checkedBy']) && $_GET['checkedBy'] != null && $_GET['checkedBy'] != '' && $_GET['checkedBy'] != '-'){
+  $searchQuery .= " and wholesales.checked_by = '".mysqli_real_escape_string($db, $_GET['checkedBy'])."'";
+}
+
+if(isset($_GET['weightedBy']) && $_GET['weightedBy'] != null && $_GET['weightedBy'] != '' && $_GET['weightedBy'] != '-'){
+  $searchQuery .= " and wholesales.weighted_by = '".mysqli_real_escape_string($db, $_GET['weightedBy'])."'";
+}
+
 $isMulti = '';
 if(isset($_GET['isMulti']) && $_GET['isMulti'] != null && $_GET['isMulti'] != '' && $_GET['isMulti'] != '-'){
     $isMulti = $_GET['isMulti'];
@@ -134,6 +146,7 @@ if ($query->num_rows > 0) {
             'formattedTime' => $formattedTime,
             'serial_no' => $row['serial_no'],
             'po_no' => $row['po_no'],
+            'security_bills' => $row['security_bills'],
             'status' => $row['status'],
             'customer' => $row['customer'],
             'other_customer' => $row['other_customer'],
@@ -166,9 +179,9 @@ $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
 if($_GET['status'] == 'DISPATCH') {
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'PO No.', 'Customer');
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Customer');
 }else{
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Supplier');
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Security Bill No.', 'Supplier');
 }
 
 // Add grade columns
@@ -191,9 +204,14 @@ if (!empty($allRows)) {
             $rowData['formattedDate'],
             $rowData['formattedTime'],
             $rowData['serial_no'],
-            $rowData['po_no'],
-            ($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db)
+            $rowData['po_no']
         );
+        
+        if($_GET['status'] == 'RECEIVING') {
+            $lineData[] = $rowData['security_bills'];
+        }
+        
+        $lineData[] = ($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
 
         // Add grade weights in correct order
         foreach ($gradeColumns as $gradeCol) {
