@@ -54,7 +54,7 @@ $(function () {
     $.validator.setDefaults({
         submitHandler: function () {
             $('#spinnerLoading').show();
-            $.post('php/changePassword.php', $('#passwordForm').serialize(), function(data){
+            $.post('php/changepassword.php', $('#passwordForm').serialize(), function(data){
                 var obj = JSON.parse(data); 
                 
                 if(obj.status === 'success'){
