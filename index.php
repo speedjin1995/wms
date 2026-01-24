@@ -392,7 +392,7 @@ to get the desired effect
               <li class="nav-item">
                 <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
-                  <p>Weighing Records</p>
+                  <p>Wholesales</p>
                 </a>
               </li>
               <?php } ?>
