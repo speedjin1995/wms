@@ -109,12 +109,12 @@
                         <div class="modules-txt">Wholesales</div>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=counting">
+                <!-- <a href="php/setModule.php?module=counting">
                     <div class="modules-box modules-box-3">
                         <img src="assets/accounting-system.png" alt="Weighing Brdige" class="modules-img">
                         <div class="modules-txt">Counting</div>
                     </div>
-                </a>
+                </a> -->
             </div>
         </div>
     </body>

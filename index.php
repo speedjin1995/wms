@@ -388,18 +388,22 @@ to get the desired effect
                   <p>Weight Weighing</p>
                 </a>
               </li> -->
+              <?php if ($module == 'wholesale') { ?>
               <li class="nav-item">
                 <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
-                  <p>Weighing Records</p>
+                  <p>Wholesales</p>
                 </a>
               </li>
+              <?php } ?>
+              <?php if ($module == 'weighing') { ?>
               <li class="nav-item">
                 <a href="#weighbridges" data-file="weighbridges.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p>Weighbridge</p>
                 </a>
               </li>
+              <?php } ?>
               <!-- <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
@@ -420,12 +424,14 @@ to get the desired effect
               </li> -->
             </ul>
           </li>
+          <?php if ($module == 'wholesale') { ?>
           <li class="nav-item">
             <a href="#reports" data-file="reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
               <p>Reports</p>
             </a>
           </li>
+          <?php } ?>
           <?php 
               if($role == "ADMIN"){
                 echo '<li class="nav-item has-treeview">
@@ -657,7 +663,13 @@ $(function () {
       });
   });
   
+  <?php if ($module == 'wholesale') { ?>
   $("a[href='#wholesales']").click();
+  <?php } else if ($module == 'weighing') { ?>
+  $("a[href='#weighbridges']").click();
+  <?php } else { ?>
+  window.location.href = 'home.php';
+  <?php } ?>
 });
 
 
