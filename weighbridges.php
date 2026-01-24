@@ -42,7 +42,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Weighings</h1>
+        <h1 class="m-0 text-dark">Weighbridge</h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -169,7 +169,7 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-6">Weighings</div>
+              <div class="col-6">Weighbridge</div>
               <!-- <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
               </div>
@@ -260,7 +260,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWeight.php',
+      'url':'php/filterWeighbridge.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -360,7 +360,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWeight.php',
+        'url':'php/filterWeighbridge.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -509,7 +509,7 @@ $(function () {
 });
 
 function printSlip(id) {
-  $.post('php/printWeight.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
+  $.post('php/printWeighbridge.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
     var response = JSON.parse(data);
     if(response.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);

@@ -388,9 +388,9 @@ to get the desired effect
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#weighings" data-file="weighings.php" class="nav-link link">
+                <a href="#weighbridges" data-file="weighbridges.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
-                  <p>Weighings</p>
+                  <p>Weighbridge</p>
                 </a>
               </li>
               <!-- <li class="nav-item">
