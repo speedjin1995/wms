@@ -88,7 +88,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" id="customerDiv">
+              <div class="col-3" id="customerDiv" style="display: none;">
                 <div class="form-group">
                   <label>Customer</label>
                   <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
@@ -100,7 +100,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" id="supplierDiv" style="display: none;">
+              <div class="col-3" id="supplierDiv">
                 <div class="form-group">
                   <label>Supplier</label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
