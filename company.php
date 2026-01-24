@@ -8,9 +8,9 @@ if(!isset($_SESSION['userID'])){
     echo 'window.location.href = "login.html";</script>';
 }
 else{
-    $id = '1';
+    $company = $_SESSION['customer'];
     $stmt = $db->prepare("SELECT * from companies where id = ?");
-	$stmt->bind_param('s', $id);
+	$stmt->bind_param('s', $company);
 	$stmt->execute();
 	$result = $stmt->get_result();
     $name = '';
