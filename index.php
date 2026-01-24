@@ -432,6 +432,14 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
+          <?php if ($module == 'weighing') { ?>
+          <li class="nav-item">
+            <a href="#reportsWb" data-file="reportsWb.php" class="nav-link link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>Reports</p>
+            </a>
+          </li>
+          <?php } ?>
           <?php 
               if($role == "ADMIN"){
                 echo '<li class="nav-item has-treeview">
