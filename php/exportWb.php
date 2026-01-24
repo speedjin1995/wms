@@ -192,7 +192,7 @@ foreach($arrangedData as $status => $customerSuppliers) {
             ];
             
             if ($row['transaction_status'] == 'Purchase') {
-                $lineData[] = '';
+                $lineData[] = $row['invoice_no'];
             }
             
             $lineData = array_merge($lineData, [
@@ -211,7 +211,7 @@ foreach($arrangedData as $status => $customerSuppliers) {
                 searchDriverIcByDriverName($row['driver_name'], $company, $db),
                 searchUserNameById($row['created_by'], $db),
                 searchUserNameById($row['modified_by'], $db),
-                ''
+                searchUserNameById($row['approved_by'], $db)
             ]);
             
             $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);

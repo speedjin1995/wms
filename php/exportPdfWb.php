@@ -262,7 +262,7 @@ try {
                         <td>'.($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['delivery_no'] : $row['purchase_order']).'</td>';
 
                         if ($row['transaction_status'] == 'Purchase') {
-                            $html .= '<td></td>';
+                            $html .= '<td>'.$row['invoice_no'].'</td>';
                         }
 
                         $html .= '
@@ -281,7 +281,7 @@ try {
                         <td>'.searchDriverIcByDriverName($row['driver_name'], $company, $db).'</td>
                         <td>'.searchUserNameById($row['created_by'], $db).'</td>
                         <td>'.searchUserNameById($row['modified_by'], $db).'</td>
-                        <td></td>
+                        <td>'.searchUserNameById($row['approved_by'], $db).'</td>
                     </tr>
                 ';
                 $count++;
