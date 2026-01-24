@@ -24,7 +24,7 @@ if(($row = $result->fetch_assoc()) !== null){
 			$db->close();
 			
 			echo '<script type="text/javascript">';
-			echo 'window.location.href = "../index.php";</script>';
+			echo 'window.location.href = "../home.php";</script>';
 		} 
 		else{
 			echo '<script type="text/javascript">alert("Login unsuccessful, password or username is not matched");';
