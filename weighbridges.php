@@ -80,8 +80,9 @@ else{
                 <div class="form-group">
                   <label>Transaction Status</label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
+                    <option>-</option>
                     <option value="Sales">Dispatch</option>
-                    <option value="Purchase" selected>Receiving</option>
+                    <option value="Purchase">Receiving</option>
                     <!-- <option value="Local">Internal Transfer</option>
                     <option value="Misc">Miscellaneous</option> -->
                   </select>

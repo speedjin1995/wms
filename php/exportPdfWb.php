@@ -99,7 +99,9 @@ try {
     }
     
     // Arrange by customer or supplier
-    $arrangedData = arrangeByCustomerOrSupplier($allRows, $_GET['transactionStatus']);
+    $result = arrangeByCustomerOrSupplier($allRows);
+    $arrangedData = $result['data'];
+    $dateRanges = $result['dateRanges'];
     
     // Set PDF header with logo and dynamic report title
     $html = '
@@ -145,146 +147,175 @@ try {
     
     // Generate grouped sections
     $groupIndex = 0;
-    $totalGroups = count($arrangedData);
-    foreach($arrangedData as $customerSupplier => $rows) {
+    $totalGroups = 0;
+    foreach($arrangedData as $status => $customerSuppliers) {
+        $totalGroups += count($customerSuppliers);
+    }
+    
+    foreach($arrangedData as $status => $customerSuppliers) {
+        if ($status == 'Sales') {
+            $reportType = 'DISPATCH';
+        } elseif ($status == 'Purchase') {
+            $reportType = 'RECEIVING';
+        } elseif ($status == 'Local') {
+            $reportType = 'INTERNAL TRANSFER';
+        } elseif ($status == 'Misc') {
+            $reportType = 'MISCELLANEOUS';
+        } else {
+            $reportType = strtoupper($status);
+        }
+
         $html .= '
             <div class="header mb-1">
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="border: none; text-align: left; padding: 0 0 5px 0; font-size: 14px;">
-                            <div class="fw-bold">WEEKLY MONTHLY '.($_GET['transactionStatus'] == 'Sales' ? 'DISPATCH' : 'RECEIVING').' REPORT WEIGHING</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border: none; text-align: left; font-size: 12px;">
-                            <div>'.($_GET['transactionStatus'] == 'Sales' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier.'</div>
-                        </td>
-                        <td style="border: none; text-align: left; font-size: 12px;">
-                            <div>From Date: '.$_GET['fromDate'].' - '.$_GET['toDate'].'</div>
+                            <div class="fw-bold">WEEKLY MONTHLY '.$reportType.' REPORT WEIGHING</div>
                         </td>
                     </tr>
                 </table>
             </div>
             <hr class="border-dark">
-            <div class="table-container">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>NO</th>
-                            <th>DATE</th>
-                            <th>TIME</th>
-                            <th>WEIGHING SLIP NO</th>
-                            <th>'.($_GET['transactionStatus'] == 'Sales' ? 'DELIVERY' : 'PURCHASE').' No.</th>';
-
-                            if ($_GET['transactionStatus'] == 'Purchase') {
-                                $html .= '
-                                    <th>SEC BILL NO</th>
-                                ';
-                            }
-
-                            $html .= '
-                            <th>PRODUCT DESCRIPTION</th>
-                            <th>VEHICLE NO</th>
-                            <th>IN WEIGHT (KG)</th>
-                            <th>IN DATE/TIME</th>
-                            <th>OUT WEIGHT (KG)</th>
-                            <th>OUT DATE/TIME</th>
-                            <th>REDUCE WEIGHT (KG)</th>
-                            <th>NETT WEIGHT (KG)</th>
-                            <th>'.($_GET['transactionStatus'] == 'Sales' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)</th>
-                            <th>VARIANCE (KG)</th>
-                            <th>VARIANCE (%)</th>
-                            <th>DRIVER NAME</th>
-                            <th>DRIVER IC</th>
-                            <th>WEIGH BY</th>
-                            <th>MODIFIED BY</th>
-                            <th>CHECKED BY</th>
-                        </tr>
-                    </thead>
-                    <tbody>';
-        
-        $count = 1;
-        $subtotal_in = 0;
-        $subtotal_out = 0;
-        $subtotal_reduce = 0;
-        $subtotal_nett = 0;
-        $subtotal_supply = 0;
-        $subtotal_variance = 0;
-        
-        foreach($rows as $row) {
-            $transaction_date = new DateTime($row['transaction_date']);
-            $formattedDate = $transaction_date->format('d/m/Y');
-            $formattedTime = $transaction_date->format('H:i:s');
-            
-            $subtotal_in += $row['gross_weight1'];
-            $subtotal_out += $row['tare_weight1'];
-            $subtotal_reduce += $row['reduce_weight'];
-            $subtotal_nett += $row['final_weight'];
-            $subtotal_supply += ($row['transaction_status'] == 'Sales' ? $row['order_weight'] : $row['supplier_weight']);
-            $subtotal_variance += $row['weight_different'];
+        ';
+        foreach($customerSuppliers as $customerSupplier => $rows) {
+            $key = $status.'_'.$customerSupplier;
+            $fromDate = date('d/m/Y', strtotime($dateRanges[$key]['from']));
+            $toDate = date('d/m/Y', strtotime($dateRanges[$key]['to']));
 
             $html .= '
-                <tr>
-                    <td>'.$count.'</td>
-                    <td>'.$formattedDate.'</td>
-                    <td>'.$formattedTime.'</td>
-                    <td>'.$row['transaction_id'].'</td>
-                    <td>'.($row['transaction_status'] == 'Sales' ? $row['delivery_no'] : $row['purchase_order']).'</td>';
+                <div class="header mb-1">
+                    <table style="width: 100%; border: none;">
+                        <tr>
+                            <td style="border: none; text-align: left; font-size: 12px;">
+                                <div>'.($status == 'Sales' || $status == 'Misc' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier.'</div>
+                            </td>
+                            <td style="border: none; text-align: left; font-size: 12px;">
+                                <div>From Date: '.$fromDate.' - '.$toDate.'</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <hr class="border-dark">
+                <div class="table-container">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>NO</th>
+                                <th>DATE</th>
+                                <th>TIME</th>
+                                <th>WEIGHING SLIP NO</th>
+                                <th>'.($status == 'Sales' || $status == 'Misc' ? 'DELIVERY' : 'PURCHASE').' No.</th>';
 
-                    if ($row['transaction_status'] == 'Purchase') {
-                        $html .= '<td></td>';
-                    }
+                                if ($status == 'Purchase') {
+                                    $html .= '
+                                        <th>SEC BILL NO</th>
+                                    ';
+                                }
 
-                    $html .= '
-                    <td>'.$row['product_name'].'</td>
-                    <td>'.$row['lorry_plate_no1'].'</td>
-                    <td>'.number_format($row['gross_weight1'], 2).'</td>
-                    <td>'.$row['gross_weight1_date'].'</td>
-                    <td>'.number_format($row['tare_weight1'], 2).'</td>
-                    <td>'.$row['tare_weight1_date'].'</td>
-                    <td>'.number_format($row['reduce_weight'], 2).'</td>
-                    <td>'.number_format($row['final_weight'], 2).'</td>
-                    <td>'.number_format(($row['transaction_status'] == 'Sales' ? $row['order_weight'] : $row['supplier_weight']), 2).'</td>
-                    <td>'.number_format($row['weight_different'], 2).'</td>
-                    <td>'.$row['weight_different_perc'].'</td>
-                    <td>'.$row['driver_name'].'</td>
-                    <td>'.searchDriverIcByDriverName($row['driver_name'], $company, $db).'</td>
-                    <td>'.searchUserNameById($row['created_by'], $db).'</td>
-                    <td>'.searchUserNameById($row['modified_by'], $db).'</td>
+                                $html .= '
+                                <th>PRODUCT DESCRIPTION</th>
+                                <th>VEHICLE NO</th>
+                                <th>IN WEIGHT (KG)</th>
+                                <th>IN DATE/TIME</th>
+                                <th>OUT WEIGHT (KG)</th>
+                                <th>OUT DATE/TIME</th>
+                                <th>REDUCE WEIGHT (KG)</th>
+                                <th>NETT WEIGHT (KG)</th>
+                                <th>'.($status == 'Sales' || $status == 'Misc' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)</th>
+                                <th>VARIANCE (KG)</th>
+                                <th>VARIANCE (%)</th>
+                                <th>DRIVER NAME</th>
+                                <th>DRIVER IC</th>
+                                <th>WEIGH BY</th>
+                                <th>MODIFIED BY</th>
+                                <th>CHECKED BY</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
+            
+            $count = 1;
+            $subtotal_in = 0;
+            $subtotal_out = 0;
+            $subtotal_reduce = 0;
+            $subtotal_nett = 0;
+            $subtotal_supply = 0;
+            $subtotal_variance = 0;
+            
+            foreach($rows as $row) {
+                $transaction_date = new DateTime($row['transaction_date']);
+                $formattedDate = $transaction_date->format('d/m/Y');
+                $formattedTime = $transaction_date->format('H:i:s');
+                
+                $subtotal_in += $row['gross_weight1'];
+                $subtotal_out += $row['tare_weight1'];
+                $subtotal_reduce += $row['reduce_weight'];
+                $subtotal_nett += $row['final_weight'];
+                $subtotal_supply += ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']);
+                $subtotal_variance += $row['weight_different'];
+
+                $html .= '
+                    <tr>
+                        <td>'.$count.'</td>
+                        <td>'.$formattedDate.'</td>
+                        <td>'.$formattedTime.'</td>
+                        <td>'.$row['transaction_id'].'</td>
+                        <td>'.($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['delivery_no'] : $row['purchase_order']).'</td>';
+
+                        if ($row['transaction_status'] == 'Purchase') {
+                            $html .= '<td></td>';
+                        }
+
+                        $html .= '
+                        <td>'.$row['product_name'].'</td>
+                        <td>'.$row['lorry_plate_no1'].'</td>
+                        <td>'.number_format($row['gross_weight1'], 2).'</td>
+                        <td>'.$row['gross_weight1_date'].'</td>
+                        <td>'.number_format($row['tare_weight1'], 2).'</td>
+                        <td>'.$row['tare_weight1_date'].'</td>
+                        <td>'.number_format($row['reduce_weight'], 2).'</td>
+                        <td>'.number_format($row['final_weight'], 2).'</td>
+                        <td>'.number_format(($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']), 2).'</td>
+                        <td>'.number_format($row['weight_different'], 2).'</td>
+                        <td>'.$row['weight_different_perc'].'</td>
+                        <td>'.$row['driver_name'].'</td>
+                        <td>'.searchDriverIcByDriverName($row['driver_name'], $company, $db).'</td>
+                        <td>'.searchUserNameById($row['created_by'], $db).'</td>
+                        <td>'.searchUserNameById($row['modified_by'], $db).'</td>
+                        <td></td>
+                    </tr>
+                ';
+                $count++;
+            }
+            
+            // Subtotal row
+            $html .= '
+                <tr style="font-weight: bold;">
+                    <td colspan="'.($status == 'Purchase' ? '8' : '7').'" style="text-align: right;">SUBTOTAL</td>
+                    <td>'.number_format($subtotal_in, 2).'</td>
                     <td></td>
+                    <td>'.number_format($subtotal_out, 2).'</td>
+                    <td></td>
+                    <td>'.number_format($subtotal_reduce, 2).'</td>
+                    <td>'.number_format($subtotal_nett, 2).'</td>
+                    <td>'.number_format($subtotal_supply, 2).'</td>
+                    <td>'.number_format($subtotal_variance, 2).'</td>
+                    <td colspan="6"></td>
                 </tr>
             ';
-            $count++;
+            
+            $html .= '
+                        </tbody>
+                    </table>
+                </div>
+            ';
+            
+            // Add hr only if not last row
+            if($groupIndex < $totalGroups - 1) {
+                $html .= '<hr class="border-dark">';
+            }
+            
+            $groupIndex++;
         }
-        
-        // Subtotal row
-        $html .= '
-            <tr style="font-weight: bold;">
-                <td colspan="'.($_GET['transactionStatus'] == 'Purchase' ? '8' : '7').'" style="text-align: right;">SUBTOTAL</td>
-                <td>'.number_format($subtotal_in, 2).'</td>
-                <td></td>
-                <td>'.number_format($subtotal_out, 2).'</td>
-                <td></td>
-                <td>'.number_format($subtotal_reduce, 2).'</td>
-                <td>'.number_format($subtotal_nett, 2).'</td>
-                <td>'.number_format($subtotal_supply, 2).'</td>
-                <td>'.number_format($subtotal_variance, 2).'</td>
-                <td colspan="6"></td>
-            </tr>
-        ';
-        
-        $html .= '
-                    </tbody>
-                </table>
-            </div>
-        ';
-        
-        // Add hr only if not last row
-        if($groupIndex < $totalGroups - 1) {
-            $html .= '<hr class="border-dark">';
-        }
-        
-        $groupIndex++;
     }
 
     $html .= '
@@ -303,20 +334,38 @@ try {
     echo $e->getMessage();
 }
 
-function arrangeByCustomerOrSupplier($data, $status) {
+function arrangeByCustomerOrSupplier($data) {
     $arranged = [];
+    $dateRanges = [];
     
     if(isset($data) && !empty($data)) {
         foreach($data as $row) {
-            $key = ($status == 'Sales') ? $row['customer_name'] : $row['supplier_name'];
-            if(!isset($arranged[$key])) {
-                $arranged[$key] = [];
+            $statusKey = $row['transaction_status'];
+            $customerSupplierKey = ($statusKey == 'Sales' || $statusKey == 'Misc') ? $row['customer_name'] : $row['supplier_name'];
+            
+            if(!isset($arranged[$statusKey])) {
+                $arranged[$statusKey] = [];
             }
-            $arranged[$key][] = $row;
+            if(!isset($arranged[$statusKey][$customerSupplierKey])) {
+                $arranged[$statusKey][$customerSupplierKey] = [];
+            }
+            $arranged[$statusKey][$customerSupplierKey][] = $row;
+            
+            $key = $statusKey.'_'.$customerSupplierKey;
+            if(!isset($dateRanges[$key])) {
+                $dateRanges[$key] = ['from' => $row['transaction_date'], 'to' => $row['transaction_date']];
+            } else {
+                if($row['transaction_date'] < $dateRanges[$key]['from']) {
+                    $dateRanges[$key]['from'] = $row['transaction_date'];
+                }
+                if($row['transaction_date'] > $dateRanges[$key]['to']) {
+                    $dateRanges[$key]['to'] = $row['transaction_date'];
+                }
+            }
         }
     }
     
-    return $arranged;
+    return ['data' => $arranged, 'dateRanges' => $dateRanges];
 }
 exit;
 ?>

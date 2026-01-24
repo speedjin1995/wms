@@ -80,8 +80,9 @@ else{
                 <div class="form-group">
                   <label>Transaction Status</label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
+                    <option selected>-</option>
                     <option value="Sales">Dispatch</option>
-                    <option value="Purchase" selected>Receiving</option>
+                    <option value="Purchase">Receiving</option>
                     <!-- <option value="Local">Internal Transfer</option>
                     <option value="Misc">Miscellaneous</option> -->
                   </select>
@@ -445,7 +446,7 @@ $(function () {
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
     var statusI = $('#statusFilter').val() ? $('#statusFilter').val() : '';
     var transactionIdI = $('#transactionIDFilter').val() ? $('#transactionIDFilter').val() : '';
-    
+
     var selectedIds = []; // An array to store the selected 'id' values
     $("#weightTable tbody input[type='checkbox']").each(function () {
       if (this.checked) {

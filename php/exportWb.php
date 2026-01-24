@@ -86,7 +86,9 @@ if ($query->num_rows > 0) {
 }
 
 // Arrange by customer or supplier
-$arrangedData = arrangeByCustomerOrSupplier($allRows, $_GET['transactionStatus']);
+$result = arrangeByCustomerOrSupplier($allRows, $_GET['transactionStatus']);
+$arrangedData = $result['data'];
+$dateRanges = $result['dateRanges'];
 
 // Create a new Spreadsheet
 $spreadsheet = new Spreadsheet();
@@ -108,119 +110,136 @@ $sheet->setCellValue('A'.$rowIndex, $companyDetail['address4']);
 $rowIndex += 2;
 
 // Generate grouped sections
-foreach($arrangedData as $customerSupplier => $rows) {
-    // Column headers
-    $headers = ['NO', 'DATE', 'TIME', 'WEIGHING SLIP NO', ($_GET['transactionStatus'] == 'Sales' ? 'DELIVERY' : 'PURCHASE').' No.'];
-    
-    if ($_GET['transactionStatus'] == 'Purchase') {
-        $headers[] = 'SEC BILL NO';
+foreach($arrangedData as $status => $customerSuppliers) {
+    if ($status == 'Sales') {
+        $reportType = 'DISPATCH';
+    } elseif ($status == 'Purchase') {
+        $reportType = 'RECEIVING';
+    } elseif ($status == 'Local') {
+        $reportType = 'INTERNAL TRANSFER';
+    } elseif ($status == 'Misc') {
+        $reportType = 'MISCELLANEOUS';
+    } else {
+        $reportType = strtoupper($status);
     }
-    
-    $headers = array_merge($headers, [
-        'PRODUCT DESCRIPTION', 'VEHICLE NO', 'IN WEIGHT (KG)', 'IN DATE/TIME', 
-        'OUT WEIGHT (KG)', 'OUT DATE/TIME', 'REDUCE WEIGHT (KG)', 'NETT WEIGHT (KG)',
-        ($_GET['transactionStatus'] == 'Sales' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)',
-        'VARIANCE (KG)', 'VARIANCE (%)', 'DRIVER NAME', 'DRIVER IC', 
-        'WEIGH BY', 'MODIFIED BY', 'CHECKED BY'
-    ]);
-    
-    $lastCol = chr(64 + count($headers));
-    
-    // Line above header
-    $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-    
+
     // Header
-    $sheet->setCellValue('A'.$rowIndex, 'WEEKLY MONTHLY '.($_GET['transactionStatus'] == 'Sales' ? 'DISPATCH' : 'RECEIVING').' REPORT WEIGHING');
+    $sheet->setCellValue('A'.$rowIndex, 'WEEKLY MONTHLY '.$reportType.' REPORT WEIGHING');
     $sheet->getStyle('A'.$rowIndex)->getFont()->setBold(true);
     $rowIndex++;
-    
-    $sheet->setCellValue('A'.$rowIndex, ($_GET['transactionStatus'] == 'Sales' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier);
-    $sheet->setCellValue('B'.$rowIndex, 'From Date: '.$_GET['fromDate'].' - '.$_GET['toDate']);
-    $rowIndex += 2;
-    
-    // Line above table headers
-    $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-    
-    $sheet->fromArray($headers, NULL, 'A'.$rowIndex);
-    $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getFont()->setBold(true);
-    $rowIndex++;
-    
-    // Data rows
-    $count = 1;
-    $subtotal_in = 0;
-    $subtotal_out = 0;
-    $subtotal_reduce = 0;
-    $subtotal_nett = 0;
-    $subtotal_supply = 0;
-    $subtotal_variance = 0;
-    
-    foreach($rows as $row) {
-        $transaction_date = new DateTime($row['transaction_date']);
-        $formattedDate = $transaction_date->format('d/m/Y');
-        $formattedTime = $transaction_date->format('H:i:s');
+    foreach($customerSuppliers as $customerSupplier => $rows) {
+        $key = $status.'_'.$customerSupplier;
+        $fromDate = date('d/m/Y', strtotime($dateRanges[$key]['from']));
+        $toDate = date('d/m/Y', strtotime($dateRanges[$key]['to']));
         
-        $subtotal_in += $row['gross_weight1'];
-        $subtotal_out += $row['tare_weight1'];
-        $subtotal_reduce += $row['reduce_weight'];
-        $subtotal_nett += $row['final_weight'];
-        $subtotal_supply += ($row['transaction_status'] == 'Sales' ? $row['order_weight'] : $row['supplier_weight']);
-        $subtotal_variance += $row['weight_different'];
+        // Column headers
+        $headers = ['NO', 'DATE', 'TIME', 'WEIGHING SLIP NO', ($status == 'Sales' || $status == 'Misc' ? 'DELIVERY' : 'PURCHASE').' No.'];
         
-        $lineData = [
-            $count,
-            $formattedDate,
-            $formattedTime,
-            $row['transaction_id'],
-            ($row['transaction_status'] == 'Sales' ? $row['delivery_no'] : $row['purchase_order'])
-        ];
-        
-        if ($row['transaction_status'] == 'Purchase') {
-            $lineData[] = '';
+        if ($status == 'Purchase') {
+            $headers[] = 'SEC BILL NO';
         }
         
-        $lineData = array_merge($lineData, [
-            $row['product_name'],
-            $row['lorry_plate_no1'],
-            number_format($row['gross_weight1'], 2),
-            $row['gross_weight1_date'],
-            number_format($row['tare_weight1'], 2),
-            $row['tare_weight1_date'],
-            number_format($row['reduce_weight'], 2),
-            number_format($row['final_weight'], 2),
-            number_format(($row['transaction_status'] == 'Sales' ? $row['order_weight'] : $row['supplier_weight']), 2),
-            number_format($row['weight_different'], 2),
-            $row['weight_different_perc'],
-            $row['driver_name'],
-            searchDriverIcByDriverName($row['driver_name'], $company, $db),
-            searchUserNameById($row['created_by'], $db),
-            searchUserNameById($row['modified_by'], $db),
-            ''
+        $headers = array_merge($headers, [
+            'PRODUCT DESCRIPTION', 'VEHICLE NO', 'IN WEIGHT (KG)', 'IN DATE/TIME', 
+            'OUT WEIGHT (KG)', 'OUT DATE/TIME', 'REDUCE WEIGHT (KG)', 'NETT WEIGHT (KG)',
+            ($status == 'Sales' || $status == 'Misc' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)',
+            'VARIANCE (KG)', 'VARIANCE (%)', 'DRIVER NAME', 'DRIVER IC', 
+            'WEIGH BY', 'MODIFIED BY', 'CHECKED BY'
         ]);
         
-        $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
+        $lastCol = chr(64 + count($headers));
+        
+        // Line above header
+        $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $sheet->setCellValue('A'.$rowIndex, ($status == 'Sales' || $status == 'Misc' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier);
+        $sheet->setCellValue('B'.$rowIndex, 'From Date: '.$fromDate.' - '.$toDate);
+        $rowIndex += 2;
+        
+        // Line above table headers
+        $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        
+        $sheet->fromArray($headers, NULL, 'A'.$rowIndex);
+        $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getFont()->setBold(true);
         $rowIndex++;
-        $count++;
+        
+        // Data rows
+        $count = 1;
+        $subtotal_in = 0;
+        $subtotal_out = 0;
+        $subtotal_reduce = 0;
+        $subtotal_nett = 0;
+        $subtotal_supply = 0;
+        $subtotal_variance = 0;
+        
+        foreach($rows as $row) {
+            $transaction_date = new DateTime($row['transaction_date']);
+            $formattedDate = $transaction_date->format('d/m/Y');
+            $formattedTime = $transaction_date->format('H:i:s');
+            
+            $subtotal_in += $row['gross_weight1'];
+            $subtotal_out += $row['tare_weight1'];
+            $subtotal_reduce += $row['reduce_weight'];
+            $subtotal_nett += $row['final_weight'];
+            $subtotal_supply += ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']);
+            $subtotal_variance += $row['weight_different'];
+            
+            $lineData = [
+                $count,
+                $formattedDate,
+                $formattedTime,
+                $row['transaction_id'],
+                ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['delivery_no'] : $row['purchase_order'])
+            ];
+            
+            if ($row['transaction_status'] == 'Purchase') {
+                $lineData[] = '';
+            }
+            
+            $lineData = array_merge($lineData, [
+                $row['product_name'],
+                $row['lorry_plate_no1'],
+                number_format($row['gross_weight1'], 2),
+                $row['gross_weight1_date'],
+                number_format($row['tare_weight1'], 2),
+                $row['tare_weight1_date'],
+                number_format($row['reduce_weight'], 2),
+                number_format($row['final_weight'], 2),
+                number_format(($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']), 2),
+                number_format($row['weight_different'], 2),
+                $row['weight_different_perc'],
+                $row['driver_name'],
+                searchDriverIcByDriverName($row['driver_name'], $company, $db),
+                searchUserNameById($row['created_by'], $db),
+                searchUserNameById($row['modified_by'], $db),
+                ''
+            ]);
+            
+            $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
+            $rowIndex++;
+            $count++;
+        }
+        
+        // Subtotal row
+        $inWeightCol = $status == 'Purchase' ? 'I' : 'H';
+        $outWeightCol = $status == 'Purchase' ? 'K' : 'J';
+        $reduceWeightCol = $status == 'Purchase' ? 'M' : 'L';
+        $nettWeightCol = $status == 'Purchase' ? 'N' : 'M';
+        $supplyWeightCol = $status == 'Purchase' ? 'O' : 'N';
+        $varianceCol = $status == 'Purchase' ? 'P' : 'O';
+        
+        $sheet->setCellValue('A'.$rowIndex, 'SUBTOTAL');
+        $sheet->getStyle('A'.$rowIndex)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+        $sheet->setCellValue($inWeightCol.$rowIndex, number_format($subtotal_in, 2));
+        $sheet->setCellValue($outWeightCol.$rowIndex, number_format($subtotal_out, 2));
+        $sheet->setCellValue($reduceWeightCol.$rowIndex, number_format($subtotal_reduce, 2));
+        $sheet->setCellValue($nettWeightCol.$rowIndex, number_format($subtotal_nett, 2));
+        $sheet->setCellValue($supplyWeightCol.$rowIndex, number_format($subtotal_supply, 2));
+        $sheet->setCellValue($varianceCol.$rowIndex, number_format($subtotal_variance, 2));
+        $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getFont()->setBold(true);
+        $rowIndex++;
+        
+        $rowIndex += 2;
     }
-    
-    // Subtotal row
-    $inWeightCol = $_GET['transactionStatus'] == 'Purchase' ? 'I' : 'H';
-    $outWeightCol = $_GET['transactionStatus'] == 'Purchase' ? 'K' : 'J';
-    $reduceWeightCol = $_GET['transactionStatus'] == 'Purchase' ? 'M' : 'L';
-    $nettWeightCol = $_GET['transactionStatus'] == 'Purchase' ? 'N' : 'M';
-    $supplyWeightCol = $_GET['transactionStatus'] == 'Purchase' ? 'O' : 'N';
-    $varianceCol = $_GET['transactionStatus'] == 'Purchase' ? 'P' : 'O';
-    
-    $sheet->setCellValue('A'.$rowIndex, 'SUBTOTAL');
-    $sheet->setCellValue($inWeightCol.$rowIndex, number_format($subtotal_in, 2));
-    $sheet->setCellValue($outWeightCol.$rowIndex, number_format($subtotal_out, 2));
-    $sheet->setCellValue($reduceWeightCol.$rowIndex, number_format($subtotal_reduce, 2));
-    $sheet->setCellValue($nettWeightCol.$rowIndex, number_format($subtotal_nett, 2));
-    $sheet->setCellValue($supplyWeightCol.$rowIndex, number_format($subtotal_supply, 2));
-    $sheet->setCellValue($varianceCol.$rowIndex, number_format($subtotal_variance, 2));
-    $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getFont()->setBold(true);
-    $rowIndex++;
-    
-    $rowIndex += 2;
 }
 
 // Create a writer object
@@ -236,18 +255,36 @@ $writer->save('php://output');
 
 function arrangeByCustomerOrSupplier($data, $status) {
     $arranged = [];
+    $dateRanges = [];
     
     if(isset($data) && !empty($data)) {
         foreach($data as $row) {
-            $key = ($status == 'Sales') ? $row['customer_name'] : $row['supplier_name'];
-            if(!isset($arranged[$key])) {
-                $arranged[$key] = [];
+            $statusKey = $row['transaction_status'];
+            $customerSupplierKey = ($statusKey == 'Sales') ? $row['customer_name'] : $row['supplier_name'];
+            
+            if(!isset($arranged[$statusKey])) {
+                $arranged[$statusKey] = [];
             }
-            $arranged[$key][] = $row;
+            if(!isset($arranged[$statusKey][$customerSupplierKey])) {
+                $arranged[$statusKey][$customerSupplierKey] = [];
+            }
+            $arranged[$statusKey][$customerSupplierKey][] = $row;
+            
+            $key = $statusKey.'_'.$customerSupplierKey;
+            if(!isset($dateRanges[$key])) {
+                $dateRanges[$key] = ['from' => $row['transaction_date'], 'to' => $row['transaction_date']];
+            } else {
+                if($row['transaction_date'] < $dateRanges[$key]['from']) {
+                    $dateRanges[$key]['from'] = $row['transaction_date'];
+                }
+                if($row['transaction_date'] > $dateRanges[$key]['to']) {
+                    $dateRanges[$key]['to'] = $row['transaction_date'];
+                }
+            }
         }
     }
     
-    return $arranged;
+    return ['data' => $arranged, 'dateRanges' => $dateRanges];
 }
 exit;
 ?>
