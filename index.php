@@ -387,6 +387,12 @@ to get the desired effect
                   <p>Weighing Records</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="#weighings" data-file="weighings.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p>Weighings</p>
+                </a>
+              </li>
               <!-- <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
