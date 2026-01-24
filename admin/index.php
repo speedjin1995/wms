@@ -32,7 +32,7 @@ else{
 
   <title>WMS</title>
 
-  <link rel="icon" href="assets/logo.png" type="image">
+  <link rel="icon" href="assets/wms-logo-site-icon.png" type="image">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <!-- IonIcons -->
@@ -306,17 +306,17 @@ to get the desired effect
   </nav>
   <!-- Main Sidebar Container -->
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #3d44c1;">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background: #003392 !important;">
     <!-- Brand Logo -->
     <a href="#" class="brand-link logo-switch" style="line-height: 5;">
-      <img src="assets/logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs">
-      <img src="assets/logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content;">
+      <img src="assets/wms-logo-white-site-icon.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs" style="left: 15px; top: 15px; line-height: 5.5;">
+      <img src="assets/wms-logo-white-2.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content; left: 25px; top: 15px;">
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex" style="border-bottom-color: #fff;">
           <div class="image" style="align-self: center;">
             <img src="assets/user-avatar.png" class="img-circle elevation-2" alt="User Image">
           </div>
