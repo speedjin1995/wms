@@ -363,7 +363,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/reactivateSupplier.php', {userID: id}, function(data){
+    $.post('php/reactivateCompany.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
