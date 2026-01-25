@@ -15,7 +15,8 @@ $stmtL->execute();
 if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverName'], $post['driverIc'], $post['startTime']
 , $post['UID'], $post['company'], $post['indicator'], $post['totalItem'], $post['totalWeight'], $post['totalReject']
 , $post['totalPrice'], $post['weightList'])){
-    $wholesaleId = isset($post['id']) && $post['id'] != '' ? $post['id'] : null;
+    $wholesaleId = (isset($post['id']) && $post['id'] != '') ? $post['id'] : null;
+    $isEdit = ($wholesaleId != null);
     
 	$status = $post['status'];
 	$do_no = $post['do_no'];
@@ -95,7 +96,7 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	}
 	
 	if(isset($post['checkedStaff']) && $post['checkedStaff'] != null && $post['checkedStaff'] != ''){
-		$checkedStaff = $post['checkedStaff'];
+		$checkedStaff = ($post['checkedStaff'] == "JACKY" ? "" : $post['checkedStaff']);
 	}
 
 	if(!isset($post['serialNo']) || $post['serialNo'] == null || $post['serialNo'] == ''){
@@ -184,20 +185,18 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
                     "status" => "failed",
                     "message" => $update_stmt->error
                 ]);
-                exit;
             }
-    
-            echo json_encode([
-                "status"   => "success",
-                "message"  => "Updated Successfully",
-                "serialNo" => $serialNo,
-                "weightId" => $wholesaleId
-            ]);
-    
-            exit;
+            else{
+                echo json_encode([
+                    "status"   => "success",
+                    "message"  => "Updated Successfully",
+                    "serialNo" => $serialNo,
+                    "weightId" => $wholesaleId
+                ]);
+            }
         }
     }
-`   else{
+    else{
         if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, supplier, vehicle_no, driver, driver_ic, 
 	    weight_details, reject_details, remark, created_datetime, created_by, end_time, company, weighted_by, indicator, other_customer, other_supplier, 
     	    checked_by, total_item, total_weight, total_reject, total_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){

@@ -42,7 +42,7 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
         if ($_POST['isEmptyContainer'] == 'Y'){
             $sql = "SELECT * FROM Weight_Container WHERE id=?";
         }else{
-            $sql = "SELECT Weight.*, companies.name AS company_name, companies.reg_no AS company_reg_no, companies.address AS company_address1, companies.address2 AS company_address2, companies.address3 AS company_address3, companies.phone AS company_phone, companies.fax AS company_fax FROM Weight LEFT JOIN companies ON weight.company = companies.id WHERE weight.id=?";
+            $sql = "SELECT Weight.*, companies.name AS company_name, companies.reg_no AS company_reg_no, companies.address AS company_address1, companies.address2 AS company_address2, companies.address3 AS company_address3, companies.phone AS company_phone, companies.fax AS company_fax FROM Weight LEFT JOIN companies ON Weight.company = companies.id WHERE Weight.id=?";
         }
 
         if ($select_stmt = $db->prepare($sql)) {
