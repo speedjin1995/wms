@@ -80,7 +80,7 @@ else{
                 <div class="form-group">
                   <label>Transaction Status</label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option>-</option>
+                    <option selected>-</option>
                     <option value="Sales">Dispatch</option>
                     <option value="Purchase">Receiving</option>
                     <!-- <option value="Local">Internal Transfer</option>
@@ -128,7 +128,7 @@ else{
                 <div class="form-group">
                   <label>Status</label>
                   <select class="form-control select2" id="statusFilter" name="statusFilter" style="width: 100%;">
-                    <option value="N">Pending</option>
+                    <!-- <option value="N">Pending</option> -->
                     <option value="Y" selected>Complete</option>
                   </select>
                 </div>
@@ -170,13 +170,13 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-6">Weighbridge</div>
-              <!-- <div class="col-3">
+              <div class="col-6"></div>
+              <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
               </div>
               <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel">Export Excel</button>
-              </div> -->
+              </div>
             </div>
           </div>
 
@@ -199,7 +199,7 @@ else{
                   <th>Nett <br>Weight</th>
                   <th>Reduce <br>Weight</th>
                   <th>Total Nett <br>Weight</th>
-                  <th width="5%">Action</th>
+                  <!-- <th width="5%">Action</th> -->
                 </tr>
               </thead>
             </table>
@@ -298,12 +298,12 @@ $(function () {
       { data: 'nett_weight1' },
       { data: 'reduce_weight' },
       { data: 'final_weight' },
-      { 
-        data: 'id',
-        render: function ( data, type, row ) {
-          return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-        }
-      }
+      // { 
+      //   data: 'id',
+      //   render: function ( data, type, row ) {
+      //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+      //   }
+      // }
     ],
     // "footerCallback": function(row, data, start, end, display) {
     //   var api = this.api();
@@ -398,12 +398,12 @@ $(function () {
         { data: 'nett_weight1' },
         { data: 'reduce_weight' },
         { data: 'final_weight' },
-        { 
-          data: 'id',
-          render: function ( data, type, row ) {
-            return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-          }
-        }
+        // { 
+        //   data: 'id',
+        //   render: function ( data, type, row ) {
+        //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+        //   }
+        // }
       ],
       // "footerCallback": function(row, data, start, end, display) {
       //   var api = this.api();
@@ -439,15 +439,15 @@ $(function () {
   $('#exportExcel').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
-    var statusI = $('#statusFilter').val();
+    var transactionStatusI = $('#transactionStatusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-    var selectedIds = []; // An array to store the selected 'id' values
+    var statusI = $('#statusFilter').val() ? $('#statusFilter').val() : '';
+    var transactionIdI = $('#transactionIDFilter').val() ? $('#transactionIDFilter').val() : '';
 
+    var selectedIds = []; // An array to store the selected 'id' values
     $("#weightTable tbody input[type='checkbox']").each(function () {
       if (this.checked) {
           selectedIds.push($(this).val());
@@ -455,29 +455,28 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      window.open("php/exportWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&transactionId="+transactionIdI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
+      window.open("php/exportWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&transactionId="+transactionIdI+"&isMulti=N");
     }
   });
 
   $('#exportPdf').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
-    var statusI = $('#statusFilter').val();
+    var transactionStatusI = $('#transactionStatusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+    var statusI = $('#statusFilter').val() ? $('#statusFilter').val() : '';
+    var transactionIdI = $('#transactionIDFilter').val() ? $('#transactionIDFilter').val() : '';
 
     var selectedIds = []; // An array to store the selected 'id' values
-
     $("#weightTable tbody input[type='checkbox']").each(function () {
       if (this.checked) {
           selectedIds.push($(this).val());
@@ -485,13 +484,13 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      window.open("php/exportPdfWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&transactionId="+transactionIdI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
+      window.open("php/exportPdfWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+      "&transactionId="+transactionIdI+"&isMulti=N");
     }
   });
 

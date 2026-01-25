@@ -185,3 +185,21 @@ function searchGradesByCompanyId($value, $db) {
 
     return $id;
 }
+
+function searchDriverIcByDriverName($value, $company, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM drivers WHERE driver_name=? AND customer=? AND deleted = 0")) {
+            $select_stmt->bind_param('ss', $value, $company);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['driver_ic'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
