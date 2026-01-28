@@ -59,6 +59,18 @@ if(isset($_POST['userID'])){
                 $totalGrades = count($grades);
                 $rowsNeeded = ceil($totalGrades / 3);
                 
+                // Split items into chunks of 10 for each grade
+                $expandedGrades = [];
+                foreach($arrangedData['arranged'] as $key => $items) {
+                    $chunks = array_chunk($items, 10);
+                    foreach($chunks as $chunk) {
+                        $expandedGrades[] = ['key' => $key, 'items' => $chunk];
+                    }
+                }
+                
+                $totalExpandedGrades = count($expandedGrades);
+                $rowsNeeded = ceil($totalExpandedGrades / 3);
+                
                 $totalCages = 0;
                 $totalCagesWeight = 0;
                 for($row = 0; $row < $rowsNeeded; $row++) {
@@ -70,11 +82,12 @@ if(isset($_POST['userID'])){
                     
                     for($col = 0; $col < 3; $col++) {
                         $gradeIndex = $row * 3 + $col;
-                        if($gradeIndex < $totalGrades) {
-                            $key = $grades[$gradeIndex];
+                        if($gradeIndex < $totalExpandedGrades) {
+                            $gradeData = $expandedGrades[$gradeIndex];
+                            $key = $gradeData['key'];
+                            $items = $gradeData['items'];
                             $product = searchProductNameById(explode(' - ', $key)[0], $db);
                             $grade = explode(' - ', $key)[1];
-                            $items = $arrangedData['arranged'][$key]; 
                             
                             $weightDetails .= '<div class="col-4">';
                             $weightDetails .= '<table class="grade-table">';
@@ -142,7 +155,7 @@ if(isset($_POST['userID'])){
                 // Add reject table as the last table
                 if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) && $wholesale['reject_details'] != '[]') {
                     $rejectDetails = json_decode($wholesale['reject_details'], true);
-                    $lastRowCols = $totalGrades % 3;
+                    $lastRowCols = $totalExpandedGrades % 3;
                     if($lastRowCols == 0) $lastRowCols = 3;
                     $weightDetails .= '<div class="row">';
                     $weightDetails .= '<div class="col-4">';
