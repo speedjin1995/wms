@@ -151,6 +151,13 @@ else{
                 </div>
               </div>
 
+              <div class="col-3" id="otherVehicleFilterDiv" style="display: none;">
+                <div class="form-group">
+                  <label>Other Vehicle No</label>
+                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="Please Enter Vehicle No">
+                </div>
+              </div>
+
               <div class="col-3">
                 <div class="form-group">
                   <label>Checked By</label>
@@ -317,6 +324,12 @@ else{
                     <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
+              <div class="form-group">
+                <label>Other Vehicle No.</label>
+                <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="Please Enter Vehicle No">
               </div>
             </div>
             <div class="col-md-4">
@@ -487,6 +500,7 @@ $(function () {
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
   var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+  var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
@@ -509,6 +523,7 @@ $(function () {
         customer: customerNoI,
         supplier: supplierNoI,
         vehicle: vehicleNoI,
+        otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
         weightedBy: weightedByI
       } 
@@ -633,6 +648,7 @@ $(function () {
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
@@ -659,6 +675,7 @@ $(function () {
           customer: customerNoI,
           supplier: supplierNoI,
           vehicle: vehicleNoI,
+          otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
           weightedBy: weightedByI
         } 
@@ -993,6 +1010,26 @@ $(function () {
       $('#extendModal').find('#supplierOtherDiv').hide();
     }
   });
+
+  $('#extendModal').find('#vehicle').on('change', function () {
+    var vehicleNo = $(this).val();
+    if(vehicleNo == "UNKOWN NO"){
+      $('#extendModal').find('#vehicleNoOtherDiv').show();
+    }
+    else{
+      $('#extendModal').find('#vehicleNoOtherDiv').hide();
+    }
+  });
+
+  $('#vehicleNoFilter').on('change', function () {
+    var vehicleNo = $(this).val();
+    if(vehicleNo == "UNKOWN NO"){
+      $('#otherVehicleFilterDiv').show();
+    }
+    else{
+      $('#otherVehicleFilterDiv').hide();
+    }
+  });
 });
 
 function updatePrices(isFromCurrency, rat){
@@ -1316,7 +1353,14 @@ function edit(id) {
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
-      $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
+
+      if (obj.message.other_vehicle){
+        $('#extendModal').find('#vehicle').val('UNKOWN NO').trigger('change');
+        $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
+      } else {
+        $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
+        $('#extendModal').find('#otherVehicleNo').val('');
+      }
       $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
       $('#extendModal').find('#remark').val(obj.message.remark);
       

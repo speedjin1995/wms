@@ -10,6 +10,7 @@ if(isset($_POST['status'])){
     $supplier = null;
     $supplierOther = null;
     $vehicle = null;
+    $otherVehicleNo = null;
     $driver = null;
     $totalReject = 0.00;
     $weightDetails = [];
@@ -36,7 +37,15 @@ if(isset($_POST['status'])){
 	}
 
     if(isset($_POST['vehicle']) && $_POST['vehicle'] != null && $_POST['vehicle'] != ''){
-		$vehicle = $_POST['vehicle'];
+        if ($_POST['vehicle'] == 'UNKOWN NO'){
+            if(isset($_POST['otherVehicleNo']) && $_POST['otherVehicleNo'] != null && $_POST['otherVehicleNo'] != ''){
+                $vehicle = $_POST['otherVehicleNo'];
+            }else{
+                $vehicle = null;
+            }
+        }else{
+            $vehicle = $_POST['vehicle'];
+        }
 	}
 
     if(isset($_POST['driver']) && $_POST['driver'] != null && $_POST['driver'] != ''){
