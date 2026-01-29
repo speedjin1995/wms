@@ -464,6 +464,7 @@ $(function () {
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var selectedIds = []; // An array to store the selected 'id' values
@@ -477,11 +478,11 @@ $(function () {
     if (selectedIds.length > 0){
       window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
       window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
   });
 
@@ -493,6 +494,7 @@ $(function () {
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
@@ -507,11 +509,11 @@ $(function () {
     if (selectedIds.length > 0){
       window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
       window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
   });
 
