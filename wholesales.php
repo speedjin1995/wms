@@ -279,6 +279,12 @@ else{
                 </select>
               </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>DO/PO No *</label>
+                <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
+              </div>
+            </div>
             <div class="col-md-4" id="customerDiv">
               <div class="form-group">
                 <label>Customer</label>
@@ -1351,6 +1357,7 @@ function edit(id) {
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
+      $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
 
