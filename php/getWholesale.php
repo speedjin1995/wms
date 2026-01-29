@@ -34,6 +34,7 @@ if(isset($_POST['userID'])){
                 $message['product'] = $row['product'];
                 $message['package'] = $row['package'];
                 $message['vehicle_no'] = $row['vehicle_no'];
+                $message['other_vehicle'] = checkMasterDataVehicle($row['vehicle_no'], $row['company'], $db);
                 $message['driver'] = $row['driver'];
                 $message['other_customer'] = $row['other_customer'];
                 $message['other_supplier'] = $row['other_supplier'];
