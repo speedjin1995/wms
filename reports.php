@@ -122,6 +122,13 @@ else{
                 </div>
               </div>
 
+              <div class="col-3" id="otherVehicleFilterDiv" style="display: none;">
+                <div class="form-group">
+                  <label>Other Vehicle No</label>
+                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="Please Enter Vehicle No">
+                </div>
+              </div>
+
               <div class="col-3">
                 <div class="form-group">
                   <label>Checked By</label>
@@ -189,6 +196,7 @@ else{
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th>Serial <br>No.</th>
                   <th>DO/PO <br>No.</th>
+                  <th>Sec Bill<br>No.</th>
                   <th>Created <br> Datetime</th>
                   <th>Parent</th>
                   <th>Customer/<br>Supplier</th>
@@ -204,7 +212,7 @@ else{
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="8">Total</th>
+                    <th colspan="9">Total</th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -258,6 +266,7 @@ $(function () {
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
   var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+  var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
@@ -280,6 +289,7 @@ $(function () {
         customer: customerNoI,
         supplier: supplierNoI,
         vehicle: vehicleNoI,
+        otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
         weightedBy: weightedByI
       } 
@@ -296,6 +306,7 @@ $(function () {
       },
       { data: 'serial_no' },
       { data: 'po_no' },
+      { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
@@ -317,29 +328,29 @@ $(function () {
       var api = this.api();
 
       var totalItem = api
-        .column(8, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
-        }, 0);
-
-      var totalWeight = api
         .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(b || 0);
         }, 0);
 
-      var totalReject = api
+      var totalWeight = api
         .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(b || 0);
         }, 0);
 
-      $(api.column(8).footer()).html(totalItem);
-      $(api.column(9).footer()).html(totalWeight.toFixed(2));
-      $(api.column(10).footer()).html(totalReject.toFixed(2));
+      var totalReject = api
+        .column(11, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+          return a + parseFloat(b || 0);
+        }, 0);
+
+      $(api.column(9).footer()).html(totalItem);
+      $(api.column(10).footer()).html(totalWeight.toFixed(2));
+      $(api.column(11).footer()).html(totalReject.toFixed(2));
     }
   });
 
@@ -352,6 +363,7 @@ $(function () {
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
@@ -378,6 +390,7 @@ $(function () {
           customer: customerNoI,
           supplier: supplierNoI,
           vehicle: vehicleNoI,
+          otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
           weightedBy: weightedByI
         } 
@@ -394,6 +407,7 @@ $(function () {
         },
         { data: 'serial_no' },
         { data: 'po_no' },
+        { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
@@ -415,29 +429,29 @@ $(function () {
         var api = this.api();
 
         var totalItem = api
-          .column(8, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
-          }, 0);
-
-        var totalWeight = api
           .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(b || 0);
           }, 0);
 
-        var totalReject = api
+        var totalWeight = api
           .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(b || 0);
           }, 0);
 
-        $(api.column(8).footer()).html(totalItem);
-        $(api.column(9).footer()).html(totalWeight.toFixed(2));
-        $(api.column(10).footer()).html(totalReject.toFixed(2));
+        var totalReject = api
+          .column(11, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+            return a + parseFloat(b || 0);
+          }, 0);
+
+        $(api.column(9).footer()).html(totalItem);
+        $(api.column(10).footer()).html(totalWeight.toFixed(2));
+        $(api.column(11).footer()).html(totalReject.toFixed(2));
       }
     });
   });
@@ -511,6 +525,16 @@ $(function () {
     } else {
       $('#customerDiv').hide();
       $('#supplierDiv').show();
+    }
+  });
+
+  $('#vehicleNoFilter').on('change', function () {
+    var vehicleNo = $(this).val();
+    if(vehicleNo == "UNKOWN NO"){
+      $('#otherVehicleFilterDiv').show();
+    }
+    else{
+      $('#otherVehicleFilterDiv').hide();
     }
   });
 });

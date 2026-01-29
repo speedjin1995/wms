@@ -225,6 +225,7 @@ else{
                 <tr>
                   <th>Serial <br>No.</th>
                   <th>DO/PO <br>No.</th>
+                  <th>Sec Bill <br>No.</th>
                   <th>Created <br> Datetime</th>
                   <th>Parent</th>
                   <th>Customer/<br>Supplier</th>
@@ -537,6 +538,7 @@ $(function () {
     'columns': [
       { data: 'serial_no' },
       { data: 'po_no' },
+      { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
@@ -689,6 +691,7 @@ $(function () {
       'columns': [
         { data: 'serial_no' },
         { data: 'po_no' },
+        { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
