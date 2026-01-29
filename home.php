@@ -99,7 +99,7 @@
             <div class="modules-box-list">
                 <a href="php/setModule.php?module=weighing">
                     <div class="modules-box modules-box-1">
-                        <img src="assets/weighing-bridge-icon.png" alt="Weighing Brdige" class="modules-img">
+                        <img src="assets/weighing-bridge-icon-1.png" alt="Weighing Brdige" class="modules-img">
                         <div class="modules-txt">Weighing Bridge</div>
                     </div>
                 </a>
