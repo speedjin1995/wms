@@ -132,17 +132,17 @@ if(isset($_GET['userID'])){
                                 
                                 $weightDetails .= '<tr>';
                                 $weightDetails .= '<td>' . ($i + 1) . '</td>';
-                                $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 1) . ' kg' : '') . '</td>';
-                                $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 1) . ' kg' : '') . '</td>';
-                                $weightDetails .= '<td>' . ($net != '' ? number_format($net, 1) . ' kg' : '') . '</td>';
+                                $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 2) . ' kg' : '') . '</td>';
+                                $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 2) . ' kg' : '') . '</td>';
+                                $weightDetails .= '<td>' . ($net != '' ? number_format($net, 2) . ' kg' : '') . '</td>';
                                 $weightDetails .= '</tr>';
                             }
                             
                             $weightDetails .= '<tr style="font-weight: bold;">';
                             $weightDetails .= '<td style="border-right: none;">T</td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalGross, 1) . ' kg</td>';
-                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 1) . ' kg</td>';
-                            $weightDetails .= '<td style="border-left: none;">' . number_format($totalNet, 1) . ' kg</td>';
+                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalGross, 2) . ' kg</td>';
+                            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 2) . ' kg</td>';
+                            $weightDetails .= '<td style="border-left: none;">' . number_format($totalNet, 2) . ' kg</td>';
                             $weightDetails .= '</tr>';
                             $weightDetails .= '<tr>';
                             $weightDetails .= '<td colspan="2">Price /kg</td>';
@@ -195,17 +195,17 @@ if(isset($_GET['userID'])){
                         
                         $weightDetails .= '<tr>';
                         $weightDetails .= '<td>' . ($i + 1) . '</td>';
-                        $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 1) . ' kg' : '') . '</td>';
-                        $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 1) . ' kg' : '') . '</td>';
-                        $weightDetails .= '<td>' . ($net != '' ? number_format($net, 1) . ' kg' : '') . '</td>';
+                        $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 2) . ' kg' : '') . '</td>';
+                        $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 2) . ' kg' : '') . '</td>';
+                        $weightDetails .= '<td>' . ($net != '' ? number_format($net, 2) . ' kg' : '') . '</td>';
                         $weightDetails .= '</tr>';
                     }
                     
                     $weightDetails .= '<tr style="font-weight: bold;">';
                     $weightDetails .= '<td style="border-right: none;">T</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectGross, 1) . ' kg</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectTare, 1) . ' kg</td>';
-                    $weightDetails .= '<td style="border-left: none;">' . number_format($rejectNet, 1) . ' kg</td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectGross, 2) . ' kg</td>';
+                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectTare, 2) . ' kg</td>';
+                    $weightDetails .= '<td style="border-left: none;">' . number_format($rejectNet, 2) . ' kg</td>';
                     $weightDetails .= '</tr>';
                     $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2">RM ' . number_format($rejectPrice, 2) . '</td></tr>';
                     $weightDetails .= '</table>';

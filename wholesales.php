@@ -151,6 +151,13 @@ else{
                 </div>
               </div>
 
+              <div class="col-3" id="otherVehicleFilterDiv" style="display: none;">
+                <div class="form-group">
+                  <label>Other Vehicle No</label>
+                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="Please Enter Vehicle No">
+                </div>
+              </div>
+
               <div class="col-3">
                 <div class="form-group">
                   <label>Checked By</label>
@@ -218,6 +225,7 @@ else{
                 <tr>
                   <th>Serial <br>No.</th>
                   <th>DO/PO <br>No.</th>
+                  <th>Sec Bill <br>No.</th>
                   <th>Created <br> Datetime</th>
                   <th>Parent</th>
                   <th>Customer/<br>Supplier</th>
@@ -272,6 +280,12 @@ else{
                 </select>
               </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>DO/PO No *</label>
+                <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
+              </div>
+            </div>
             <div class="col-md-4" id="customerDiv">
               <div class="form-group">
                 <label>Customer</label>
@@ -317,6 +331,12 @@ else{
                     <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
+              <div class="form-group">
+                <label>Other Vehicle No.</label>
+                <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="Please Enter Vehicle No">
               </div>
             </div>
             <div class="col-md-4">
@@ -487,6 +507,7 @@ $(function () {
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
   var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+  var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
@@ -509,6 +530,7 @@ $(function () {
         customer: customerNoI,
         supplier: supplierNoI,
         vehicle: vehicleNoI,
+        otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
         weightedBy: weightedByI
       } 
@@ -516,6 +538,7 @@ $(function () {
     'columns': [
       { data: 'serial_no' },
       { data: 'po_no' },
+      { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
@@ -581,8 +604,12 @@ $(function () {
       var tr = $(this); // The row that was clicked
       var row = table.row(tr);
 
-      // Exclude specific td elements by checking the event target
-      if ($(e.target).closest('td').hasClass('select-checkbox') || $(e.target).closest('td').hasClass('action-button')) {
+      // Exclude clicks on buttons, checkboxes, and form elements
+      if ($(e.target).closest('td').hasClass('select-checkbox') || 
+          $(e.target).closest('td').hasClass('action-button') ||
+          $(e.target).is('select') || 
+          $(e.target).is('input') ||
+          $(e.target).is('button')) {
         return;
       }
 
@@ -596,6 +623,9 @@ $(function () {
             if (obj.status === 'success') {
               row.child(format(obj.message)).show();
               tr.addClass("shown");
+              if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
+                populateFilters(obj.message.id, obj.message.weightDetails);
+              }
             }
           });
       }
@@ -633,6 +663,7 @@ $(function () {
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
@@ -659,6 +690,7 @@ $(function () {
           customer: customerNoI,
           supplier: supplierNoI,
           vehicle: vehicleNoI,
+          otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
           weightedBy: weightedByI
         } 
@@ -666,6 +698,7 @@ $(function () {
       'columns': [
         { data: 'serial_no' },
         { data: 'po_no' },
+        { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
@@ -993,6 +1026,26 @@ $(function () {
       $('#extendModal').find('#supplierOtherDiv').hide();
     }
   });
+
+  $('#extendModal').find('#vehicle').on('change', function () {
+    var vehicleNo = $(this).val();
+    if(vehicleNo == "UNKOWN NO"){
+      $('#extendModal').find('#vehicleNoOtherDiv').show();
+    }
+    else{
+      $('#extendModal').find('#vehicleNoOtherDiv').hide();
+    }
+  });
+
+  $('#vehicleNoFilter').on('change', function () {
+    var vehicleNo = $(this).val();
+    if(vehicleNo == "UNKOWN NO"){
+      $('#otherVehicleFilterDiv').show();
+    }
+    else{
+      $('#otherVehicleFilterDiv').hide();
+    }
+  });
 });
 
 function updatePrices(isFromCurrency, rat){
@@ -1093,8 +1146,20 @@ function format (row) {
   </div>
   <hr>
   <h3>Weighing Details</h3>
+  <div class="row mb-2">
+    <div class="col-md-3">
+      <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
+        <option value="">All Products</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
+        <option value="">All Grades</option>
+      </select>
+    </div>
+  </div>
   <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
       <thead>
           <tr>
             <th>Product</th>
@@ -1314,9 +1379,17 @@ function edit(id) {
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
+      $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
-      $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
+
+      if (obj.message.other_vehicle){
+        $('#extendModal').find('#vehicle').val('UNKOWN NO').trigger('change');
+        $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
+      } else {
+        $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
+        $('#extendModal').find('#otherVehicleNo').val('');
+      }
       $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
       $('#extendModal').find('#remark').val(obj.message.remark);
       
@@ -1643,5 +1716,38 @@ function portrait(id) {
       toastr["error"]("Something wrong when activate", "Failed:");
     }
   });
+}
+
+function filterWeightTable(rowId) {
+  var productFilter = $('#productFilter_' + rowId).val().toUpperCase();
+  var gradeFilter = $('#gradeFilter_' + rowId).val().toUpperCase();
+  
+  $('#weightTable_' + rowId + ' tbody tr').each(function() {
+    var product = $(this).find('td:eq(0)').text().toUpperCase();
+    var grade = $(this).find('td:eq(1)').text().toUpperCase();
+    var showProduct = !productFilter || product.indexOf(productFilter) > -1;
+    var showGrade = !gradeFilter || grade.indexOf(gradeFilter) > -1;
+    $(this).toggle(showProduct && showGrade);
+  });
+}
+
+function populateFilters(rowId, weightDetails) {
+  var products = {};
+  var grades = {};
+  
+  weightDetails.forEach(function(detail) {
+    products[detail.product_name] = true;
+    grades[detail.grade] = true;
+  });
+  
+  var productSelect = $('#productFilter_' + rowId);
+  for(var product in products) {
+    productSelect.append('<option value="' + product + '">' + product + '</option>');
+  }
+  
+  var gradeSelect = $('#gradeFilter_' + rowId);
+  for(var grade in grades) {
+    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  }
 }
 </script>

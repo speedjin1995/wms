@@ -45,7 +45,13 @@ if($_POST['supplier'] != null && $_POST['supplier'] != '' && $_POST['supplier'] 
 }
 
 if($_POST['vehicle'] != null && $_POST['vehicle'] != '' && $_POST['vehicle'] != '-'){
-  $searchQuery .= " and wholesales.vehicle_no = '".$_POST['vehicle']."'";
+  if ($_POST['vehicle'] == 'UNKOWN NO'){
+    if($_POST['otherVehicle'] != null && $_POST['otherVehicle'] != '' && $_POST['otherVehicle'] != '-'){
+      $searchQuery .= " and wholesales.vehicle_no = '".$_POST['otherVehicle']."'";
+    }
+  } else {
+    $searchQuery .= " and wholesales.vehicle_no = '".$_POST['vehicle']."'";
+  }
 }
 
 if($_POST['checkedBy'] != null && $_POST['checkedBy'] != '' && $_POST['checkedBy'] != '-'){
@@ -100,6 +106,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
   $data[] = array( 
     "id"=>$row['id'],
     "serial_no"=>$row['serial_no'],
+    "security_bills"=>$row['security_bills'],
     "po_no"=>$row['po_no'] ?? '',
     "status"=>$row['status'],
     "parent"=>$parent,
