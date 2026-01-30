@@ -1729,6 +1729,26 @@ function filterWeightTable(rowId) {
     var showGrade = !gradeFilter || grade.indexOf(gradeFilter) > -1;
     $(this).toggle(showProduct && showGrade);
   });
+  
+  if(productFilter) {
+    var gradeSelect = $('#gradeFilter_' + rowId);
+    var currentGrade = gradeSelect.val();
+    gradeSelect.find('option:not(:first)').remove();
+    
+    var grades = {};
+    $('#weightTable_' + rowId + ' tbody tr').each(function() {
+      var product = $(this).find('td:eq(0)').text().toUpperCase();
+      if(product.indexOf(productFilter) > -1) {
+        var grade = $(this).find('td:eq(1)').text();
+        grades[grade] = true;
+      }
+    });
+    
+    for(var grade in grades) {
+      gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+    }
+    gradeSelect.val(currentGrade);
+  }
 }
 
 function populateFilters(rowId, weightDetails) {
@@ -1750,4 +1770,5 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   }
 }
+
 </script>
