@@ -6,10 +6,11 @@ session_start();
 $post = json_decode(file_get_contents('php://input'), true);
 $now = date("Y-m-d H:i:s");
 $userId = $post['uid'];
+$company = $post['userId'];
 
 $stmt = $db->prepare("SELECT wholesales.*, users.name from wholesales, users WHERE wholesales.created_by = users.id AND wholesales.deleted = '0' 
-AND wholesales.weighted_by =? ORDER BY wholesales.created_datetime DESC");
-$stmt->bind_param('s', $userId);
+AND wholesales.company =? ORDER BY wholesales.created_datetime DESC");
+$stmt->bind_param('s', $company);
 $stmt->execute();
 $result = $stmt->get_result();
 $message = array();
