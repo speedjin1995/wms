@@ -604,8 +604,12 @@ $(function () {
       var tr = $(this); // The row that was clicked
       var row = table.row(tr);
 
-      // Exclude specific td elements by checking the event target
-      if ($(e.target).closest('td').hasClass('select-checkbox') || $(e.target).closest('td').hasClass('action-button')) {
+      // Exclude clicks on buttons, checkboxes, and form elements
+      if ($(e.target).closest('td').hasClass('select-checkbox') || 
+          $(e.target).closest('td').hasClass('action-button') ||
+          $(e.target).is('select') || 
+          $(e.target).is('input') ||
+          $(e.target).is('button')) {
         return;
       }
 
@@ -619,6 +623,9 @@ $(function () {
             if (obj.status === 'success') {
               row.child(format(obj.message)).show();
               tr.addClass("shown");
+              if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
+                populateFilters(obj.message.id, obj.message.weightDetails);
+              }
             }
           });
       }
@@ -1139,8 +1146,20 @@ function format (row) {
   </div>
   <hr>
   <h3>Weighing Details</h3>
+  <div class="row mb-2">
+    <div class="col-md-3">
+      <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
+        <option value="">All Products</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
+        <option value="">All Grades</option>
+      </select>
+    </div>
+  </div>
   <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
       <thead>
           <tr>
             <th>Product</th>
@@ -1697,5 +1716,38 @@ function portrait(id) {
       toastr["error"]("Something wrong when activate", "Failed:");
     }
   });
+}
+
+function filterWeightTable(rowId) {
+  var productFilter = $('#productFilter_' + rowId).val().toUpperCase();
+  var gradeFilter = $('#gradeFilter_' + rowId).val().toUpperCase();
+  
+  $('#weightTable_' + rowId + ' tbody tr').each(function() {
+    var product = $(this).find('td:eq(0)').text().toUpperCase();
+    var grade = $(this).find('td:eq(1)').text().toUpperCase();
+    var showProduct = !productFilter || product.indexOf(productFilter) > -1;
+    var showGrade = !gradeFilter || grade.indexOf(gradeFilter) > -1;
+    $(this).toggle(showProduct && showGrade);
+  });
+}
+
+function populateFilters(rowId, weightDetails) {
+  var products = {};
+  var grades = {};
+  
+  weightDetails.forEach(function(detail) {
+    products[detail.product_name] = true;
+    grades[detail.grade] = true;
+  });
+  
+  var productSelect = $('#productFilter_' + rowId);
+  for(var product in products) {
+    productSelect.append('<option value="' + product + '">' + product + '</option>');
+  }
+  
+  var gradeSelect = $('#gradeFilter_' + rowId);
+  for(var grade in grades) {
+    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  }
 }
 </script>
