@@ -19,7 +19,7 @@ if(isset($_POST['status'])){
     $totalItem = 0;
     $totalNet = 0;
     $totalPrice = 0;
-
+    $userID = $_SESSION['userID'];
 
     if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
 		$doPoNo = $_POST['doPoNo'];
@@ -114,10 +114,10 @@ if(isset($_POST['status'])){
     }
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE wholesales SET status=?, po_no=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, total_reject=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_price=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE wholesales SET status=?, po_no=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, total_reject=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_price=?, modified_by=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $update_stmt->bind_param('sssssssssssssss', $status, $doPoNo, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $totalReject, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalPrice, $_POST['id']);
+            $update_stmt->bind_param('ssssssssssssssss', $status, $doPoNo, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $totalReject, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalPrice, $userID, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
