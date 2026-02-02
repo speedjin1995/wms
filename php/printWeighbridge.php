@@ -93,9 +93,9 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                     $grossWeightTime2 = $row['gross_weight2_date'] != null ? date("d/m/Y - H:i:s", strtotime($row['gross_weight2_date'])) : "";
                     $tareWeightTime2 = $row['tare_weight2_date'] != null ? date("d/m/Y - H:i:s", strtotime($row['tare_weight2_date'])) : "";
 
-                    if ($row['transaction_status'] == 'Sales'){
+                    if ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Dispatch'){
                         $transacationStatus = 'Dispatch';
-                    }elseif ($row['transaction_status'] == 'Purchase'){
+                    }elseif ($row['transaction_status'] == 'Purchase' || $row['transaction_status'] == 'Receiving'){
                         $transacationStatus = 'Receiving';
                     }elseif ($row['transaction_status'] == 'Local'){
                         $transacationStatus = 'Internal Transfer';
@@ -103,7 +103,7 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                         $transacationStatus = 'Miscellaneous';
                     }
 
-                    if($row['transaction_status'] == 'Purchase' || $row['transaction_status'] == 'Local'){
+                    if($row['transaction_status'] == 'Purchase' || $row['transaction_status'] == 'Receiving' || $row['transaction_status'] == 'Local'){
                         $cid = $row['supplier_code'];
                         $orderSuppWeight = floatval($row['supplier_weight']);
                         $customer = $row['supplier_name'];

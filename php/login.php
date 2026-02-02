@@ -1,4 +1,19 @@
 <?php
+$licenseCompanyId = null;
+$licenseIsProfessional = false;
+
+$licensePath = __DIR__ . '/../../license.php';
+
+if (file_exists($licensePath)) {
+    $licenseContent = file_get_contents($licensePath);
+    $licenseData = json_decode($licenseContent, true);
+
+    if (json_last_error() === JSON_ERROR_NONE && isset($licenseData['company'])) {
+        $licenseCompanyId = $licenseData['company'];
+        $licenseIsProfessional = true; // license file = PRO
+    }
+}
+
 require_once 'db_connect.php';
 
 session_start();
@@ -19,7 +34,7 @@ if(($row = $result->fetch_assoc()) !== null){
 		$password = hash('sha512', $password . $row['salt']);
 		if($password == $row['password']){
 			$_SESSION['userID']=$row['id'];
-			$_SESSION['customer']=$row['customer'];
+			$_SESSION['customer']= ($licenseIsProfessional ? $licenseCompanyId : $row['customer']);
 			$stmt->close();
 			$db->close();
 			
