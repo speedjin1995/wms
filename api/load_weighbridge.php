@@ -23,6 +23,7 @@ while($row = $result->fetch_assoc()){
         'transporter'=>$row['transporter'],
         'driver_name'=>$row['driver_name'],
         'destination'=>$row['destination'],
+        'invoice_no'=>$row['invoice_no'],
         'gross_weight1'=>$row['gross_weight1'],
         'gross_weight1_date'=>$row['gross_weight1_date'],
         'tare_weight1'=>$row['tare_weight1'],

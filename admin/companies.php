@@ -116,6 +116,7 @@ else{
                     <option value="weighbridge">Weighbridge</option>
                     <option value="wholesale">Wholesales</option>
                     <option value="validation">Validation</option>
+                    <option value="fruits">Fruits</option>
                   </select>
                 </div>
                 <div class="form-group">

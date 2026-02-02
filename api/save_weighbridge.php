@@ -5,9 +5,8 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 $post = json_decode(file_get_contents('php://input'), true);
 
-if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['incoming_datetime'], $post['indicator'], $post['company'], $post['staffName'], $post['createdDatetime'])){
+if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime'], $post['indicator'], $post['company'], $post['staffName'], $post['createdDatetime'])){
     $transaction_status = $post['transaction_status'];
-    $product = $post['product'];
     $gross= $post['gross'];
     $incoming_datetime = $post['incoming_datetime'];
     $company = $post['company'];
@@ -22,6 +21,7 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
     $customer = null;
     $supplier = null;
     $vehicle = null;
+    $invoice_no = null;
     $transporter = null;
     $driver = null;
     $destination = null;
@@ -41,7 +41,17 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
 	$unit_price = null;
     $total_price = null;
 	$remark = null;
+	$product = null;
 	$is_complete = 'N';
+	$record_type = 'weighbridge';
+	
+	if(isset($post['product']) && $post['product'] != null && $post['product'] != ''){
+		$product = $post['product'];
+	}
+	
+	if(isset($post['record_type']) && $post['record_type'] != null && $post['record_type'] != ''){
+		$record_type = $post['record_type'];
+	}
 	
 	if(isset($post['is_manual']) && $post['is_manual'] != null && $post['is_manual'] != ''){
 		$is_manual = $post['is_manual'];
@@ -99,6 +109,10 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
 		$do_no = $post['do_no'];
 	}
 	
+	if(isset($post['invoice_no']) && $post['invoice_no'] != null && $post['invoice_no'] != ''){
+		$invoice_no = $post['invoice_no'];
+	}
+	
 	if(isset($post['order_weight']) && $post['order_weight'] != null && $post['order_weight'] != ''){
 		$order_weight = $post['order_weight'];
 	}
@@ -148,10 +162,10 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
             if($update_stmt = $db->prepare("UPDATE Weight SET transaction_status=?, lorry_plate_no1=?, order_weight=?, customer_name=?, supplier_name=?, product_name=?, container_no=?, 
             seal_no=?, purchase_order=?, delivery_no=?, transporter=?, driver_name=?, destination=?, remarks=?, gross_weight1=?, gross_weight1_date=?, tare_weight1=?, tare_weight1_date=?,
             nett_weight1=?, reduce_weight=?, final_weight=?, weight_different=?, is_complete=?, modified_date=?, modified_by=?, indicator_id=?, manual_weight=?, sub_total=?, unit_price=?, 
-            total_price=? WHERE id = ?")){
-                $update_stmt->bind_param('sssssssssssssssssssssssssssssss', $transaction_status, $vehicle, $order_weight, $customer, $supplier, $product, $container_no, $seal_no, 
+            total_price=?, invoice_no=? WHERE id = ?")){
+                $update_stmt->bind_param('ssssssssssssssssssssssssssssssss', $transaction_status, $vehicle, $order_weight, $customer, $supplier, $product, $container_no, $seal_no, 
                 $po_no, $do_no, $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, $final_weight, $weight_difference, 
-                $is_complete, $createdDatetime, $staffName, $indicator, $is_manual, $price_type, $unit_price, $total_price, $post['id']);	
+                $is_complete, $createdDatetime, $staffName, $indicator, $is_manual, $price_type, $unit_price, $total_price, $invoice_no, $post['id']);	
                 
                 if (! $update_stmt->execute()){ // Execute the prepared query.
         			echo json_encode(
@@ -201,7 +215,7 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
             if(!isset($post['serialNo']) || $post['serialNo'] == null || $post['serialNo'] == ''){
                 $serialNo = 'S';
                 
-                if($transaction_status == 'Purchase'){
+                if($transaction_status == 'Purchase' || $transaction_status == 'Receiving'){
                     $serialNo = 'P';
                 }
                 else if($transaction_status == 'Misc'){
@@ -210,8 +224,8 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
                 
         	    $serialNo .= date("Ymd");
         
-        		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM Weight WHERE created_date >= ?")) {
-                    $select_stmt->bind_param('s', $today);
+        		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM Weight WHERE created_date >= ? AND company =?")) {
+                    $select_stmt->bind_param('ss', $today, $company);
                     
                     // Execute the prepared query.
                     if (! $select_stmt->execute()) {
@@ -247,12 +261,12 @@ if(isset($post['transaction_status'], $post['product'], $post['gross'], $post['i
         	if ($insert_stmt = $db->prepare("INSERT INTO Weight (transaction_id, transaction_status, weight_type, transaction_date, lorry_plate_no1, order_weight, customer_name, 
         	supplier_name, product_name, container_no, seal_no, purchase_order, delivery_no, transporter, driver_name, destination, remarks, gross_weight1, gross_weight1_date, 
         	tare_weight1, tare_weight1_date, nett_weight1, reduce_weight, final_weight, weight_different, is_complete, created_date, created_by, company, modified_date, modified_by, 
-        	indicator_id, manual_weight, sub_total, unit_price, total_price) 
-        	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
-        	    $insert_stmt->bind_param('ssssssssssssssssssssssssssssssssssss', $serialNo, $transaction_status, $weight_type, $transaction_date, $vehicle, $order_weight, $customer, $supplier, 
+        	indicator_id, manual_weight, sub_total, unit_price, total_price, records_type, invoice_no) 
+        	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
+        	    $insert_stmt->bind_param('ssssssssssssssssssssssssssssssssssssss', $serialNo, $transaction_status, $weight_type, $transaction_date, $vehicle, $order_weight, $customer, $supplier, 
         	    $product, $container_no, $seal_no, $po_no, $do_no, $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, 
         	    $final_weight, $weight_difference, $is_complete, $createdDatetime, $staffName, $company, $createdDatetime, $staffName, $indicator, $is_manual, $price_type, $unit_price, 
-        	    $total_price);	
+        	    $total_price, $record_type, $invoice_no);	
         		
         		if (! $insert_stmt->execute()){ // Execute the prepared query.
         			echo json_encode(
