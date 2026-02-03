@@ -49,7 +49,7 @@ if($_POST['vehicle'] != null && $_POST['vehicle'] != '' && $_POST['vehicle'] != 
 }
 
 if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
-  if($_POST['status'] == 'Pending'){
+  if($_POST['status'] == 'N'){
     $searchQuery .= " and Weight.is_complete = 'N' AND Weight.is_cancel <> 'Y'";
   }else{
     $searchQuery .= " and Weight.is_complete = 'Y' AND Weight.is_cancel <> 'Y'";
@@ -90,17 +90,17 @@ $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
-  if ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc'){
+  if ($row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Misc'){
     $customerSupplier = $row['customer_name'];
   }else{
     $customerSupplier = $row['supplier_name'];
   }
 
   $transactionStatus = '';
-  if($row['transaction_status'] == 'Sales'){
+  if($row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Sales'){
     $transactionStatus = 'Dispatch';
   }
-  else if($row['transaction_status'] == 'Purchase'){
+  else if($row['transaction_status'] == 'Receiving' || $row['transaction_status'] == 'Purchase'){
     $transactionStatus = 'Receiving';
   }
   else if($row['transaction_status'] == 'Misc'){
@@ -115,7 +115,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "transaction_id"=>$row['transaction_id'],
     "transaction_date"=>$row['transaction_date'],
     "transaction_status"=>$transactionStatus,
-    "do_po"=>($row['transaction_status'] == 'Purchase' || $row['transaction_status'] == 'Local') ? $row['purchase_order'] : $row['delivery_no'],
+    "do_po"=>($row['transaction_status'] == 'Receiving' || $row['transaction_status'] == 'Purchase' || $row['transaction_status'] == 'Local') ? $row['purchase_order'] : $row['delivery_no'],
     "lorry_plate_no1"=>$row['lorry_plate_no1'],
     "customer_supplier"=>$customerSupplier,
     "product_name"=>$row['product_name'],

@@ -81,8 +81,8 @@ else{
                   <label>Transaction Status</label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option>-</option>
-                    <option value="Sales">Dispatch</option>
-                    <option value="Purchase">Receiving</option>
+                    <option value="Dispatch">Dispatch</option>
+                    <option value="Receiving">Receiving</option>
                     <!-- <option value="Local">Internal Transfer</option>
                     <option value="Misc">Miscellaneous</option> -->
                   </select>
@@ -499,7 +499,7 @@ $(function () {
     var status = $(this).val();
     $('#customerNoFilter').val('').trigger('change');
     $('#supplierNoFilter').val('').trigger('change');
-    if (status == 'Sales' || status == 'Misc') {
+    if (status == 'Dispatch' || status == 'Sales' || status == 'Misc') {
       $('#supplierDiv').hide();
       $('#customerDiv').show();
     } else {

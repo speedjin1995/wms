@@ -153,9 +153,9 @@ try {
     }
     
     foreach($arrangedData as $status => $customerSuppliers) {
-        if ($status == 'Sales') {
+        if ($status == 'Sales' || $status == 'Dispatch') {
             $reportType = 'DISPATCH';
-        } elseif ($status == 'Purchase') {
+        } elseif ($status == 'Receiving' || $status == 'Purchase') {
             $reportType = 'RECEIVING';
         } elseif ($status == 'Local') {
             $reportType = 'INTERNAL TRANSFER';
@@ -187,7 +187,7 @@ try {
                     <table style="width: 100%; border: none;">
                         <tr>
                             <td style="border: none; text-align: left; font-size: 12px;">
-                                <div>'.($status == 'Sales' || $status == 'Misc' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier.'</div>
+                                <div>'.($status == 'Sales' || $status == 'Dispatch' || $status == 'Misc' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier.'</div>
                             </td>
                             <td style="border: none; text-align: left; font-size: 12px;">
                                 <div>From Date: '.$fromDate.' - '.$toDate.'</div>
@@ -204,9 +204,9 @@ try {
                                 <th>DATE</th>
                                 <th>TIME</th>
                                 <th>WEIGHING SLIP NO</th>
-                                <th>'.($status == 'Sales' || $status == 'Misc' ? 'DELIVERY' : 'PURCHASE').' No.</th>';
+                                <th>'.($status == 'Sales' || $status == 'Dispatch' || $status == 'Misc' ? 'DELIVERY' : 'PURCHASE').' No.</th>';
 
-                                if ($status == 'Purchase') {
+                                if ($status == 'Receiving' || $status == 'Purchase') {
                                     $html .= '
                                         <th>SEC BILL NO</th>
                                     ';
@@ -221,7 +221,7 @@ try {
                                 <th>OUT DATE/TIME</th>
                                 <th>REDUCE WEIGHT (KG)</th>
                                 <th>NETT WEIGHT (KG)</th>
-                                <th>'.($status == 'Sales' || $status == 'Misc' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)</th>
+                                <th>'.($status == 'Sales' || $status == 'Dispatch' || $status == 'Misc' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)</th>
                                 <th>VARIANCE (KG)</th>
                                 <th>VARIANCE (%)</th>
                                 <th>DRIVER NAME</th>
@@ -250,7 +250,7 @@ try {
                 $subtotal_out += $row['tare_weight1'];
                 $subtotal_reduce += $row['reduce_weight'];
                 $subtotal_nett += $row['final_weight'];
-                $subtotal_supply += ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']);
+                $subtotal_supply += ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']);
                 $subtotal_variance += $row['weight_different'];
 
                 $html .= '
@@ -259,9 +259,9 @@ try {
                         <td>'.$formattedDate.'</td>
                         <td>'.$formattedTime.'</td>
                         <td>'.$row['transaction_id'].'</td>
-                        <td>'.($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['delivery_no'] : $row['purchase_order']).'</td>';
+                        <td>'.($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Misc' ? $row['delivery_no'] : $row['purchase_order']).'</td>';
 
-                        if ($row['transaction_status'] == 'Purchase') {
+                        if ($row['transaction_status'] == 'Receiving' || $row['transaction_status'] == 'Purchase') {
                             $html .= '<td>'.$row['invoice_no'].'</td>';
                         }
 
@@ -274,7 +274,7 @@ try {
                         <td>'.$row['tare_weight1_date'].'</td>
                         <td>'.number_format($row['reduce_weight'], 2).'</td>
                         <td>'.number_format($row['final_weight'], 2).'</td>
-                        <td>'.number_format(($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']), 2).'</td>
+                        <td>'.number_format(($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']), 2).'</td>
                         <td>'.number_format($row['weight_different'], 2).'</td>
                         <td>'.$row['weight_different_perc'].'</td>
                         <td>'.$row['driver_name'].'</td>
@@ -290,7 +290,7 @@ try {
             // Subtotal row
             $html .= '
                 <tr style="font-weight: bold;">
-                    <td colspan="'.($status == 'Purchase' ? '8' : '7').'" style="text-align: right;">SUBTOTAL</td>
+                    <td colspan="'.($status == 'Receiving' || $status == 'Purchase' ? '8' : '7').'" style="text-align: right;">SUBTOTAL</td>
                     <td>'.number_format($subtotal_in, 2).'</td>
                     <td></td>
                     <td>'.number_format($subtotal_out, 2).'</td>
@@ -341,7 +341,7 @@ function arrangeByCustomerOrSupplier($data) {
     if(isset($data) && !empty($data)) {
         foreach($data as $row) {
             $statusKey = $row['transaction_status'];
-            $customerSupplierKey = ($statusKey == 'Sales' || $statusKey == 'Misc') ? $row['customer_name'] : $row['supplier_name'];
+            $customerSupplierKey = ($statusKey == 'Sales' || $statusKey == 'Dispatch' || $statusKey == 'Misc') ? $row['customer_name'] : $row['supplier_name'];
             
             if(!isset($arranged[$statusKey])) {
                 $arranged[$statusKey] = [];
