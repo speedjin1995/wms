@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db_connect.php';
+require_once 'lookup.php';
 
 // $language = isset($_POST['prePrint']) ? $_POST['prePrint'] : $_SESSION['language'];
 // $languageArray = $_SESSION['languageArray'];
@@ -234,7 +235,7 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                         <body>
                             <table style="width:100%;">
                                 <tr>
-                                    <td style="width: 70%;">
+                                    <td style="width: 60%;">
                                         <p style="font-size: 14px;">
                                             <span style="font-weight: bold;font-size: 16px; margin-bottom: 10px; display: inline-block;">'.$compname.'</span><br>
                                             <span> Reg No.: '.$compreg.'</span><br>
@@ -246,11 +247,13 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                                     </td>
                                     <td style="vertical-align: top;">
                                         <p style="vertical-align: top; font-size: 14px;">
-                                            <span style="font-size: 24px; font-weight: bold; margin-bottom: 10px; display: inline-block;">'. $transacationStatus . ' Slip</span><br>
-                                            <span>Ticket No. &nbsp;:&nbsp; <b>'.$row['transaction_id'].'</b></span><br>
-                                            <span>Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="margin-left: 1.5px;">:&nbsp;&nbsp;'.$transactionDate.'</span><br>
-                                            <span>Do No. &nbsp;&nbsp;&nbsp;&nbsp;</span><span>:&nbsp;&nbsp;'.$row['delivery_no'].'</span><br>
-                                            <span>PO No. &nbsp;&nbsp;&nbsp;&nbsp;</span><span style="margin-left:2.5px">:&nbsp;&nbsp;'.$row['purchase_order'].'</span><br>
+                                            <span style="font-size: 24px; font-weight: bold; margin-bottom: 10px; display: inline-block;">*** '. $transacationStatus . ' Slip ***</span><br>
+                                            <span>Transaction ID. </span><span style="margin-left: 10px;">:&nbsp;&nbsp;<b>'.$row['transaction_id'].'</b></span><br>
+                                            <span>Date </span><span style="margin-left: 70px;">:&nbsp;&nbsp;'.$transactionDate.'</span><br>
+                                            <!--span>Do No. </span><span style="margin-left: 20px;">:&nbsp;&nbsp;'.$row['delivery_no'].'</span><br -->
+                                            <span>PO No. </span><span style="margin-left:55px">:&nbsp;&nbsp;'.$row['purchase_order'].'</span><br>
+                                            <span>Security Bill No. </span><span style="margin-left: 2px;">:&nbsp;&nbsp;'.$row['invoice_no'].'</span><br>
+                                            <span>Checked By </span><span style="margin-left: 29px;">:&nbsp;&nbsp;'.searchUserNameById($row['approved_by'], $db).'</span><br>
                                         </p>
                                     </td>
                                 </tr>
@@ -714,27 +717,30 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                                 </table><br>';
                             }
                             
-                            $message .= '
-                            <table style="width: 100%; position: fixed; bottom: 0; left: 0;">
-                                <tr>
-                                    <td style="vertical-align: top; font-size: 14px; width: 25%;">
-                                        <hr width="100%" style="margin-left: 0; text-align: left;">
-                                        <span>First Weight By: '.$row['gross_weight_by1'].'<br> Second Weight By: '.$row['tare_weight_by1'].'</span>
-                                    </td>
-                                    <td style="width: 2%;"></td>
-                                    <td style="vertical-align: top; font-size: 14px; width: 25%;">
-                                        <hr width="100%" style="margin-left: 0; text-align: left;">
-                                        <span>Acknowledge By Admin</span>
-                                    </td>
-                                    <td style="width: 2%;"></td>
-                                    <td style="vertical-align: top; font-size: 14px; width: 25%;">
-                                        <hr width="100%" style="margin-left: 0; text-align: left;">
-                                        <span>Received By</span><br>
-                                        <span>Name: </span><br>
-                                        <span>I/C: </span>
-                                    </td>
-                                </tr>
-                            </table>
+                            // $message .= '
+                            //     <table style="width: 100%; position: fixed; bottom: 0; left: 0;">
+                            //         <tr>
+                            //             <td style="vertical-align: top; font-size: 14px; width: 25%;">
+                            //                 <hr width="100%" style="margin-left: 0; text-align: left;">
+                            //                 <span>First Weight By: '.$row['gross_weight_by1'].'<br> Second Weight By: '.$row['tare_weight_by1'].'</span>
+                            //             </td>
+                            //             <td style="width: 2%;"></td>
+                            //             <td style="vertical-align: top; font-size: 14px; width: 25%;">
+                            //                 <hr width="100%" style="margin-left: 0; text-align: left;">
+                            //                 <span>Acknowledge By Admin</span>
+                            //             </td>
+                            //             <td style="width: 2%;"></td>
+                            //             <td style="vertical-align: top; font-size: 14px; width: 25%;">
+                            //                 <hr width="100%" style="margin-left: 0; text-align: left;">
+                            //                 <span>Received By</span><br>
+                            //                 <span>Name: </span><br>
+                            //                 <span>I/C: </span>
+                            //             </td>
+                            //         </tr>
+                            //     </table>
+                            // ';
+
+                        $message .= '
                         </body>
                     </html>';
 
