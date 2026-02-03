@@ -30,9 +30,9 @@ else{
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer = '$company' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
-    $grades2 = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
-    $grades3 = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
+    $grades = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades2 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades3 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -44,9 +44,9 @@ else{
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
-    $grades2 = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
-    $grades3 = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
+    $grades = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades2 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades3 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
   }
 
