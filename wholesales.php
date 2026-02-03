@@ -32,6 +32,7 @@ else{
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer = '$company' ORDER BY driver_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
+    $grades3 = $db->query("SELECT * FROM grades WHERE deleted = '0' AND customer = '$company' ORDER BY units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -45,6 +46,7 @@ else{
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' ORDER BY driver_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
+    $grades3 = $db->query("SELECT * FROM grades WHERE deleted = '0' ORDER BY units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
   }
 
@@ -353,20 +355,26 @@ else{
           </div>
           
           <hr>
-          <h5>Weight Details</h5>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">Weight Details</h5>
+            <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
+              <i class="fas fa-plus"></i> Add Weight
+            </button>
+          </div>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
                 <tr>
+                  <th>No</th>
                   <th>Product</th>
-                  <th>Grade</th>
+                  <th width="10%">Grade</th>
                   <th>Gross</th>
                   <th>Tare</th>
                   <th>Net</th>
                   <th>Price</th>
                   <th>Total</th>
                   <th>Time</th>
-                  <th>Action</th>
+                  <th width="10%">Action</th>
                 </tr>
               </thead>
               <tbody id="weightDetailsTable">
@@ -374,7 +382,7 @@ else{
               </tbody>
               <tfoot id="weightDetailsFooter">
                 <tr>
-                  <th colspan="2">Total</th>
+                  <th colspan="3">Total</th>
                   <th id="totalWeightGross">0.00</th>
                   <th id="totalWeightTare">0.00</th>
                   <th id="totalWeightNet">0.00</th>
@@ -393,15 +401,16 @@ else{
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
                 <tr>
+                  <th>No</th>
                   <th>Product</th>
-                  <th>Grade</th>
+                  <th width="10%">Grade</th>
                   <th>Gross</th>
                   <th>Tare</th>
                   <th>Net</th>
                   <th>Price</th>
                   <th>Total</th>
                   <th>Time</th>
-                  <th>Action</th>
+                  <th width="10%">Action</th>
                 </tr>
               </thead>
               <tbody id="rejectDetailsTable">
@@ -409,7 +418,7 @@ else{
               </tbody>
               <tfoot id="rejectDetailsFooter">
                 <tr>
-                  <th colspan="2">Total</th>
+                  <th colspan="3">Total</th>
                   <th id="totalRejectGross">0.00</th>
                   <th id="totalRejectTare">0.00</th>
                   <th id="totalRejectNet">0.00</th>
@@ -801,7 +810,6 @@ $(function () {
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
         $('#spinnerLoading').show();
-           
         $.post('php/wholesales.php', $('#extendForm').serialize(), function(data){
           var obj = JSON.parse(data); 
           if(obj.status === 'success'){
@@ -1029,7 +1037,7 @@ $(function () {
 
   $('#extendModal').find('#vehicle').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO"){
+    if(vehicleNo == "UNKOWN"){
       $('#extendModal').find('#vehicleNoOtherDiv').show();
     }
     else{
@@ -1039,12 +1047,179 @@ $(function () {
 
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO"){
+    if(vehicleNo == "UNKOWN"){
       $('#otherVehicleFilterDiv').show();
     }
     else{
       $('#otherVehicleFilterDiv').hide();
     }
+  });
+
+  $('#addWeightBtn').on('click', function() {
+    var idx = weightCount++;
+    var rowNum = $('#weightDetailsTable tr').length + 1;
+    var now = new Date();
+    var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0') + ':' + 
+                      now.getSeconds().toString().padStart(2, '0');
+    var row = `
+      <tr class="details">
+        <td>${rowNum}</td>
+        <td style="display:none">
+          <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="">
+          <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="">
+          <input type="hidden" id="pretare${idx}" name="weightDetails[${idx}][pretare]" value="0.00">
+          <input type="hidden" id="unit${idx}" name="weightDetails[${idx}][unit]" value="Kg">
+          <input type="hidden" id="package${idx}" name="weightDetails[${idx}][package]" value="">
+          <input type="hidden" id="fixedfloat${idx}" name="weightDetails[${idx}][fixedfloat]" value="">
+          <input type="hidden" id="isedit${idx}" name="weightDetails[${idx}][isedit]" value="N">
+          <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="0.00">
+          <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="NO">
+        </td>
+        <td>
+          <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
+            <option value="" selected disabled>Select Product</option>
+            <?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?>
+              <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+            <?php } ?>
+          </select>
+        </td>
+        <td>
+          <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
+            <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
+              <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
+            <?php } ?>
+          </select>
+        </td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
+        <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
+        <td>
+          <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `;
+    $('#weightDetailsTable').append(row);
+    $('.select2').select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+  });
+
+  $('#weightDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
+    var row = $(this).closest('tr');
+    var productName = $(this).val();
+    var productId = $(this).find('option:selected').data('id');
+    row.find('input[name*="[product]"]').val(productId);
+    row.find('input[name*="[product_desc]"]').val(productName);
+  });
+
+  $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
+    // Retrieve the input's attributes
+    var gross = parseFloat($(this).val());
+    var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
+    var nettWeight = Math.abs(gross - tare);
+
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+  });
+
+  $("#weightDetailsTable").on('change', 'input[id^="tare"]', function(){
+    // Retrieve the input's attributes
+    var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
+    var tare = parseFloat($(this).val());
+    var nettWeight = Math.abs(gross - tare);
+
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+  });
+
+  $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
+    var totalGross = 0;
+    var totalTare = 0;
+    var totalNet = 0;
+    var totalPrice = 0;
+
+    $('#weightDetailsTable tr').each(function() {
+      totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+      totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
+      totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
+    });
+
+    $('#totalWeightGross').text(totalGross.toFixed(2));
+    $('#totalWeightTare').text(totalTare.toFixed(2));
+    $('#totalWeightNet').text(totalNet.toFixed(2));
+  });
+
+  $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
+    var row = $(this).closest('tr');
+    var price = parseFloat($(this).val());
+    var net = parseFloat(row.find('input[name*="[net]"]').val());
+    var total = price * net;
+
+    row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
+  });
+
+  $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
+    var totalPrice = 0;
+    $('#weightDetailsTable tr').each(function() {
+      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+    });
+    $('#totalWeightPrice').text('RM ' + totalPrice.toFixed(2));
+  });
+
+  $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
+    var row = $(this).closest('tr');
+    var productName = $(this).val();
+    var productId = $(this).find('option:selected').data('id');
+    row.find('input[name*="[product]"]').val(productId);
+    row.find('input[name*="[product_desc]"]').val(productName);
+  });
+
+  $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
+    var gross = parseFloat($(this).val());
+    var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
+    var nettWeight = Math.abs(gross - tare);
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+  });
+
+  $("#rejectDetailsTable").on('change', 'input[id^="tare"]', function(){
+    var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
+    var tare = parseFloat($(this).val());
+    var nettWeight = Math.abs(gross - tare);
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+  });
+
+  $("#rejectDetailsTable").on('change', 'input[id^="net"]', function(){
+    var totalGross = 0, totalTare = 0, totalNet = 0;
+    $('#rejectDetailsTable tr').each(function() {
+      totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+      totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
+      totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
+    });
+    $('#totalRejectGross').text(totalGross.toFixed(2));
+    $('#totalRejectTare').text(totalTare.toFixed(2));
+    $('#totalRejectNet').text(totalNet.toFixed(2));
+  });
+
+  $("#rejectDetailsTable").on('change', 'input[id^="price"]', function(){
+    var row = $(this).closest('tr');
+    var price = parseFloat($(this).val());
+    var net = parseFloat(row.find('input[name*="[net]"]').val());
+    var total = price * net;
+    row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
+  });
+
+  $('#rejectDetailsTable').on('change', 'input[name*="[total]"]', function() {
+    var totalPrice = 0;
+    $('#rejectDetailsTable tr').each(function() {
+      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+    });
+    $('#totalRejectPrice').text('RM ' + totalPrice.toFixed(2));
   });
 });
 
@@ -1384,7 +1559,7 @@ function edit(id) {
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
 
       if (obj.message.other_vehicle){
-        $('#extendModal').find('#vehicle').val('UNKOWN NO').trigger('change');
+        $('#extendModal').find('#vehicle').val('UNKOWN').trigger('change');
         $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
       } else {
         $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
@@ -1408,6 +1583,7 @@ function edit(id) {
           var idx = weightCount++;
           var row = `
             <tr class="details">
+              <td>${i + 1}</td>
               <td style="display:none">
                 <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="${detail.product}">
                 <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="${detail.product_desc}">
@@ -1471,6 +1647,7 @@ function edit(id) {
           var idx = rejectCount++;
           var row = `
             <tr class="details">
+              <td>${i + 1}</td>
               <td style="display:none">
                 <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="${detail.product}">
                 <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="${detail.product_desc}">
@@ -1558,11 +1735,15 @@ function rejectRow(button) {
   var row = $(button).closest('tr');
   var rejectIndex = $('#rejectDetailsTable tr').length;
   
-  row.find('input[type="hidden"], select').each(function() {
+  row.find('input[type="hidden"], input[type="number"], input[type="time"], select').each(function() {
     var name = $(this).attr('name');
+    var id = $(this).attr('id');
     if(name) {
       var newName = name.replace('weightDetails', 'rejectDetails').replace(/\[\d+\]/, '[' + rejectIndex + ']');
       $(this).attr('name', newName);
+    }
+    if(id) {
+      $(this).attr('id', id.replace(/\d+$/, rejectIndex));
     }
   });
   
@@ -1571,18 +1752,29 @@ function rejectRow(button) {
   
   $('#rejectDetailsTable').append(row);
   reindexWeightDetails();
+  reindexRejectDetails();
   updateTotals();
+  $('.select2').select2({
+    allowClear: true,
+    placeholder: "Please Select",
+    dropdownParent: $('#extendModal .modal-body'),
+    width: '100%'
+  });
 }
 
 function acceptRow(button) {
   var row = $(button).closest('tr');
   var weightIndex = $('#weightDetailsTable tr').length;
   
-  row.find('input[type="hidden"], select').each(function() {
+  row.find('input[type="hidden"], input[type="number"], input[type="time"], select').each(function() {
     var name = $(this).attr('name');
+    var id = $(this).attr('id');
     if(name) {
       var newName = name.replace('rejectDetails', 'weightDetails').replace(/\[\d+\]/, '[' + weightIndex + ']');
       $(this).attr('name', newName);
+    }
+    if(id) {
+      $(this).attr('id', id.replace(/\d+$/, weightIndex));
     }
   });
   
@@ -1590,12 +1782,20 @@ function acceptRow(button) {
   row.find('button[onclick*="removeRejectDetail"]').attr('onclick', 'removeWeightDetail(this)');
   
   $('#weightDetailsTable').append(row);
+  reindexWeightDetails();
   reindexRejectDetails();
   updateTotals();
+  $('.select2').select2({
+    allowClear: true,
+    placeholder: "Please Select",
+    dropdownParent: $('#extendModal .modal-body'),
+    width: '100%'
+  });
 }
 
 function reindexWeightDetails() {
   $('#weightDetailsTable tr').each(function(index) {
+    $(this).find('td:first').text(index + 1);
     $(this).find('input[type="hidden"], select').each(function() {
       var name = $(this).attr('name');
       if(name) {
@@ -1607,6 +1807,7 @@ function reindexWeightDetails() {
 
 function reindexRejectDetails() {
   $('#rejectDetailsTable tr').each(function(index) {
+    $(this).find('td:first').text(index + 1);
     $(this).find('input[type="hidden"], select').each(function() {
       var name = $(this).attr('name');
       if(name) {
