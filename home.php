@@ -97,13 +97,25 @@
     <body>
         <div class="wrapper">
             <div class="modules-box-list">
-                <a href="php/setModule.php?module=weighing">
+                <a href="php/setModule.php?module=weighing" 
+                    <?php 
+                        if (!in_array('fruits', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
                     <div class="modules-box modules-box-1">
                         <img src="assets/weighing-bridge-icon-1.png" alt="Weighing Brdige" class="modules-img">
                         <div class="modules-txt">Weighing Bridge</div>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=wholesale">
+                <a href="php/setModule.php?module=wholesale"
+                    <?php 
+                        if (!in_array('wholesale', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
                     <div class="modules-box modules-box-2">
                         <img src="assets/wholesales-icon.png" alt="Weighing Brdige" class="modules-img">
                         <div class="modules-txt">Wholesales</div>
