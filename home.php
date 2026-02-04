@@ -91,11 +91,26 @@
                 line-height: 30px;
                 font-weight: 700;
             }
+
+            .company-name {
+                position: absolute;
+                top: 15%;
+                width: 100%;
+                text-align: center;
+                font-size: 32px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                color: #1f2d3d;
+            }
         </style>
     </head>
 
     <body>
         <div class="wrapper">
+            <div class="company-name">
+                <h1><?php echo $_SESSION['company_name']; ?></h1>
+            </div>
+
             <div class="modules-box-list">
                 <a href="php/setModule.php?module=weighing" 
                     <?php 

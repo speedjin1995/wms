@@ -22,7 +22,7 @@ $username=$_POST['userEmail'];
 $password=$_POST['userPassword'];
 $now = date("Y-m-d H:i:s");
 
-$stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0");
+$stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products, c.name AS company_name FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0");
 $stmt->bind_param('s', $username);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -36,6 +36,7 @@ if(($row = $result->fetch_assoc()) !== null){
 		$password = hash('sha512', $password . $row['salt']);
 		if($password == $row['password']){
 			$_SESSION['userID']=$row['id'];
+			$_SESSION['company_name']=$row['company_name'];
 			$_SESSION['customer']= ($licenseIsProfessional ? $licenseCompanyId : $row['customer']);
 			$_SESSION['products']=$products;
 			$stmt->close();
