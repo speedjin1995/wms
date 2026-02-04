@@ -36,7 +36,7 @@ function searchCustomerParentById($value, $db) {
 }
 
 function searchCustomerIdByName($value, $company, $db) {
-    $id = '';
+    $id = null;
 
     if(isset($value)){
         if ($select_stmt = $db->prepare("SELECT * FROM customers WHERE customer_name=? AND customer=? AND deleted = 0")) {
@@ -93,12 +93,12 @@ function searchSupplierParentById($value, $db) {
     return $id;
 }
 
-function searchSupplierIdByName($value, $db) {
-    $id = '';
+function searchSupplierIdByName($value, $company, $db) {
+    $id = null;
 
     if(isset($value)){
-        if ($select_stmt = $db->prepare("SELECT * FROM supplies WHERE supplier_name=? AND deleted = 0")) {
-            $select_stmt->bind_param('s', $value);
+        if ($select_stmt = $db->prepare("SELECT * FROM supplies WHERE supplier_name=? AND customer=? AND deleted = 0")) {
+            $select_stmt->bind_param('ss', $value, $company);
             $select_stmt->execute();
             $result = $select_stmt->get_result();
             if ($row = $result->fetch_assoc()) {
