@@ -18,7 +18,7 @@ if (!empty($data)) {
 
         # Check if unit exist in DB
         $deleted = "0";
-        $unitQuery = "SELECT * FROM drivers WHERE driver_name = '$DriverName' AND customer = '$company' AND deleted = '$deleted'";
+        $unitQuery = "SELECT * FROM drivers WHERE driver_name = '".mysqli_real_escape_string($db, $DriverName)."' AND customer = '".mysqli_real_escape_string($db, $company)."' AND deleted = '".mysqli_real_escape_string($db, $deleted)."'";
         $unitDetail = mysqli_query($db, $unitQuery);
         $unitRow = mysqli_fetch_assoc($unitDetail);
 

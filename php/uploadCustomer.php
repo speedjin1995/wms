@@ -21,13 +21,13 @@ if (!empty($data)) {
         $Address2 = !empty($rows['Address2']) ? trim($rows['Address2']) : '';
         $Address3 = !empty($rows['Address3']) ? trim($rows['Address3']) : '';
         $Address4 = !empty($rows['Address4']) ? trim($rows['Address4']) : '';
-        $State = !empty($rows['State']) ? searchStateIdByName(trim($rows['State']), $db) : '';
+        $State = !empty($rows['State']) ? searchStateIdByName(trim($rows['State']), $db) : null;
         $Phone = !empty($rows['Phone']) ? trim($rows['Phone']) : '';
         $PIC = !empty($rows['PIC']) ? trim($rows['PIC']) : '';
 
         # Check if unit exist in DB
         $deleted = "0";
-        $unitQuery = "SELECT * FROM customers WHERE customer_name = '$CustomerName' AND customer = '$company' AND deleted = '$deleted'";
+        $unitQuery = "SELECT * FROM customers WHERE customer_name = '".mysqli_real_escape_string($db, $CustomerName)."' AND customer = '".mysqli_real_escape_string($db, $company)."' AND deleted = '".mysqli_real_escape_string($db, $deleted)."'";
         $unitDetail = mysqli_query($db, $unitQuery);
         $unitRow = mysqli_fetch_assoc($unitDetail);
 

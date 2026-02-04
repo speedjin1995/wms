@@ -14,11 +14,11 @@ $errorArray = array();
 if (!empty($data)) {
     foreach ($data as $rows) {
         $VehicleNumber = !empty($rows['VehicleNumber']) ? trim($rows['VehicleNumber']) : '';
-        $DriverId = !empty($rows['DriverName']) ? searchDriverIdByDriverName(trim($rows['DriverName']), $company, $db) : '';
+        $DriverId = !empty($rows['DriverName']) ? searchDriverIdByDriverName(trim($rows['DriverName']), $company, $db) : null;
 
         # Check if unit exist in DB
         $deleted = "0";
-        $unitQuery = "SELECT * FROM vehicles WHERE veh_number = '$VehicleNumber' AND customer = '$company' AND deleted = '$deleted'";
+        $unitQuery = "SELECT * FROM vehicles WHERE veh_number = '".mysqli_real_escape_string($db, $VehicleNumber)."' AND customer = '".mysqli_real_escape_string($db, $company)."' AND deleted = '".mysqli_real_escape_string($db, $deleted)."'";
         $unitDetail = mysqli_query($db, $unitQuery);
         $unitRow = mysqli_fetch_assoc($unitDetail);
 

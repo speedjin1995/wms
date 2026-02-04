@@ -17,7 +17,7 @@ if (!empty($data)) {
 
         # Check if unit exist in DB
         $deleted = "0";
-        $unitQuery = "SELECT * FROM grades WHERE units = '$Unit' AND deleted = '$deleted'";
+        $unitQuery = "SELECT * FROM grades WHERE units = '".mysqli_real_escape_string($db, $Unit)."' AND deleted = '".mysqli_real_escape_string($db, $deleted)."'";
         $unitDetail = mysqli_query($db, $unitQuery);
         $unitRow = mysqli_fetch_assoc($unitDetail);
 
