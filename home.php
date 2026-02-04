@@ -45,9 +45,9 @@ session_start();
                 justify-content: center;
                 align-items: center;
                 height: 100vh;
-                background: url('assets/modules-bg.jpeg');
-                /*background: url('assets/module-bg.jpeg');
-                background: url('assets/modules-bg.jpg');*/
+                /*background: url('assets/modules-bg.jpeg');*/
+                background: url('assets/module-bg.jpeg');
+                /*background: url('assets/modules-bg.jpg');*/
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
