@@ -8,13 +8,98 @@ $now = date("Y-m-d H:i:s");
 $userId = $post['uid'];
 $company = $post['userId'];
 
-$stmt = $db->prepare("SELECT wholesales.*, users.name from wholesales, users WHERE wholesales.created_by = users.id AND wholesales.deleted = '0' 
-AND wholesales.company =? ORDER BY wholesales.created_datetime DESC");
-$stmt->bind_param('s', $company);
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+
+if ($page < 1) $page = 1;
+if ($limit < 1) $limit = 20;
+
+$offset = ($page - 1) * $limit;
+
+// ==============================
+// Filters
+// ==============================
+$serial_no= $_GET['serial_no'] ?? '';
+$vehicle  = $_GET['vehicle'] ?? '';
+$status   = $_GET['status'] ?? '';
+$start    = $_GET['start'] ?? '';
+$end      = $_GET['end'] ?? '';
+
+// ==============================
+// Build WHERE conditions
+// ==============================
+$where = [];
+$params = [];
+$types = "";
+
+// Mandatory conditions
+$where[] = "wholesales.deleted = '0'";
+$where[] = "wholesales.company = '$company'";
+
+// Optional filters
+if ($serial_no != '') {
+    $where[] = "wholesales.po_no LIKE ?";
+    $params[] = "%$serial_no%";
+    $types .= "s";
+}
+
+if ($vehicle != '') {
+    $where[] = "wholesales.vehicle_no LIKE ?";
+    $params[] = "%$vehicle%";
+    $types .= "s";
+}
+
+if ($status != '') {
+    $where[] = "wholesales.status LIKE ?";
+    $params[] = "%$status%";
+    $types .= "s";
+}
+
+if ($start !== '' && $end !== '') {
+    // Convert millis → UTC DateTime
+    $startUTC = new DateTime("@".($start/1000));
+    $endUTC   = new DateTime("@".($end/1000));
+
+    // Convert UTC → KL timezone
+    $tz = new DateTimeZone("Asia/Kuala_Lumpur");
+    $startUTC->setTimezone($tz);
+    $endUTC->setTimezone($tz);
+
+    // Extract KL calendar dates
+    $startDay = $startUTC->format("Y-m-d");
+    $endDay   = $endUTC->format("Y-m-d");
+
+    // Build full-day KL range
+    $startDate = $startDay . " 00:00:00";
+    $endDate   = $endDay   . " 23:59:59";
+    
+    // booking_date stored as DATETIME
+    $where[] = "wholesales.created_datetime BETWEEN ? AND ?";
+    $params[] = $startDate;
+    $params[] = $endDate;
+    $types .= "ss";
+}
+
+$whereSql = "WHERE " . implode(" AND ", $where);
+
+$dataSql = "
+    SELECT wholesales.*, users.name
+    FROM wholesales
+    JOIN users ON wholesales.created_by = users.id
+    $whereSql
+    ORDER BY wholesales.created_datetime DESC
+    LIMIT ? OFFSET ?
+";
+
+$stmt = $db->prepare($dataSql);
+$params[] = $limit;
+$params[] = $offset;
+$types .= "ii";
+
+$stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 $message = array();
-$poList = array();
 
 while($row = $result->fetch_assoc()){
     $customerName = '';
@@ -96,7 +181,12 @@ $db->close();
 echo json_encode(
     array(
         "status"=> "success", 
-        "message"=> $message
+        "message"=> $message,
+        "page" => $page,
+        "limit" => $limit,
+        "count" => count($message),
+        "param" => $params,
+        "sql" => $dataSql
     )
 );
 ?>
