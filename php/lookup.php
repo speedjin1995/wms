@@ -35,12 +35,12 @@ function searchCustomerParentById($value, $db) {
     return $id;
 }
 
-function searchCustomerIdByName($value, $db) {
+function searchCustomerIdByName($value, $company, $db) {
     $id = '';
 
     if(isset($value)){
-        if ($select_stmt = $db->prepare("SELECT * FROM customers WHERE customer_name=? AND deleted = 0")) {
-            $select_stmt->bind_param('s', $value);
+        if ($select_stmt = $db->prepare("SELECT * FROM customers WHERE customer_name=? AND customer=? AND deleted = 0")) {
+            $select_stmt->bind_param('ss', $value, $company);
             $select_stmt->execute();
             $result = $select_stmt->get_result();
             if ($row = $result->fetch_assoc()) {
@@ -238,4 +238,22 @@ function checkMasterDataVehicle($value, $company, $db) {
     }
 
     return $exists;
+}
+
+function searchStateIdByName($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM states WHERE states=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['id'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
 }
