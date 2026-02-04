@@ -169,6 +169,21 @@ try {
 
     $gradeColumns = array_unique($gradeColumns);
     
+    // Calculate subtotals
+    $subtotals = ['gradeWeights' => [], 'totalWeight' => 0, 'totalBinWeight' => 0, 'total_reject' => 0, 'actualWeight' => 0, 'totalPrice' => 0, 'actualPrice' => 0];
+    foreach ($allRows as $rowData) {
+        foreach ($gradeColumns as $gradeCol) {
+            if (!isset($subtotals['gradeWeights'][$gradeCol])) $subtotals['gradeWeights'][$gradeCol] = 0;
+            $subtotals['gradeWeights'][$gradeCol] += ($rowData['gradeWeights'][$gradeCol] ?? 0);
+        }
+        $subtotals['totalWeight'] += $rowData['totalWeight'];
+        $subtotals['totalBinWeight'] += $rowData['totalBinWeight'];
+        $subtotals['total_reject'] += $rowData['total_reject'];
+        $subtotals['actualWeight'] += $rowData['actualWeight'];
+        $subtotals['totalPrice'] += $rowData['totalPrice'];
+        $subtotals['actualPrice'] += $rowData['actualPrice'];
+    }
+    
     // Second pass: generate content with consistent grade columns
     $content = '';
     if (!empty($allRows)) {
@@ -307,6 +322,24 @@ try {
                     <tbody>
                         '.$content.'
                     </tbody>
+                    <tfoot>
+                        <tr style="font-weight: bold; background-color: #f0f0f0;">
+                            <td colspan="'.($_GET['status'] == 'RECEIVING' ? '7' : '6').'">SUBTOTAL</td>';
+                            
+                            foreach ($gradeColumns as $gradeCol) {
+                                $html .= '<td>'.number_format($subtotals['gradeWeights'][$gradeCol], 2).'</td>';
+                            }
+                            
+                            $html .= '
+                            <td>'.number_format($subtotals['totalWeight'], 2).'</td>
+                            <td>'.number_format($subtotals['totalBinWeight'], 2).'</td>
+                            <td>'.number_format($subtotals['total_reject'], 2).'</td>
+                            <td>'.number_format($subtotals['actualWeight'], 2).'</td>
+                            <td>'.number_format($subtotals['totalPrice'], 2).'</td>
+                            <td>'.number_format($subtotals['actualPrice'], 2).'</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
     ';

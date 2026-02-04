@@ -177,6 +177,21 @@ if ($query->num_rows > 0) {
 
 $gradeColumns = array_unique($gradeColumns);
 
+// Calculate subtotals
+$subtotals = ['gradeWeights' => [], 'totalWeight' => 0, 'totalBinWeight' => 0, 'total_reject' => 0, 'actualWeight' => 0, 'totalPrice' => 0, 'actualPrice' => 0];
+foreach ($allRows as $rowData) {
+    foreach ($gradeColumns as $gradeCol) {
+        if (!isset($subtotals['gradeWeights'][$gradeCol])) $subtotals['gradeWeights'][$gradeCol] = 0;
+        $subtotals['gradeWeights'][$gradeCol] += ($rowData['gradeWeights'][$gradeCol] ?? 0);
+    }
+    $subtotals['totalWeight'] += $rowData['totalWeight'];
+    $subtotals['totalBinWeight'] += $rowData['totalBinWeight'];
+    $subtotals['total_reject'] += $rowData['total_reject'];
+    $subtotals['actualWeight'] += $rowData['actualWeight'];
+    $subtotals['totalPrice'] += $rowData['totalPrice'];
+    $subtotals['actualPrice'] += $rowData['actualPrice'];
+}
+
 // Create a new Spreadsheet
 $spreadsheet = new Spreadsheet();
 
@@ -241,6 +256,39 @@ if (!empty($allRows)) {
         $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
         $rowIndex++;
     }
+    
+    // Add subtotal row
+    $subtotalData = array('SUBTOTAL', '', '', '', '');
+    if($_GET['status'] == 'RECEIVING') {
+        $subtotalData[] = '';
+    }
+    $subtotalData[] = '';
+    
+    foreach ($gradeColumns as $gradeCol) {
+        $subtotalData[] = number_format($subtotals['gradeWeights'][$gradeCol], 2);
+    }
+    
+    $subtotalData = array_merge($subtotalData, array(
+        number_format($subtotals['totalWeight'], 2),
+        number_format($subtotals['totalBinWeight'], 2),
+        number_format($subtotals['total_reject'], 2),
+        number_format($subtotals['actualWeight'], 2),
+        number_format($subtotals['totalPrice'], 2),
+        number_format($subtotals['actualPrice'], 2),
+        '', '', ''
+    ));
+    
+    $sheet->fromArray($subtotalData, NULL, 'A'.$rowIndex);
+    
+    // Calculate last column letter
+    $lastCol = count($subtotalData);
+    $colLetter = '';
+    while ($lastCol > 0) {
+        $lastCol--;
+        $colLetter = chr(65 + ($lastCol % 26)) . $colLetter;
+        $lastCol = floor($lastCol / 26);
+    }
+    $sheet->getStyle('A'.$rowIndex.':'.$colLetter.$rowIndex)->getFont()->setBold(true);
 } else {
     $sheet->setCellValue('A'.$rowIndex, 'No records found...');
 }
