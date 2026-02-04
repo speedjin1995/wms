@@ -111,9 +111,9 @@ $rowIndex += 2;
 
 // Generate grouped sections
 foreach($arrangedData as $status => $customerSuppliers) {
-    if ($status == 'Sales') {
+    if ($status == 'Sales' || $status == 'Dispatch') {
         $reportType = 'DISPATCH';
-    } elseif ($status == 'Purchase') {
+    } elseif ($status == 'Purchase' || $status == 'Receiving') {
         $reportType = 'RECEIVING';
     } elseif ($status == 'Local') {
         $reportType = 'INTERNAL TRANSFER';
@@ -133,16 +133,16 @@ foreach($arrangedData as $status => $customerSuppliers) {
         $toDate = date('d/m/Y', strtotime($dateRanges[$key]['to']));
         
         // Column headers
-        $headers = ['NO', 'DATE', 'TIME', 'WEIGHING SLIP NO', ($status == 'Sales' || $status == 'Misc' ? 'DELIVERY' : 'PURCHASE').' No.'];
+        $headers = ['NO', 'DATE', 'TIME', 'WEIGHING SLIP NO', ($status == 'Sales' || $status == 'Dispatch' || $status == 'Misc' ? 'DELIVERY' : 'PURCHASE').' No.'];
         
-        if ($status == 'Purchase') {
+        if ($status == 'Receiving' || $status == 'Purchase') {
             $headers[] = 'SEC BILL NO';
         }
         
         $headers = array_merge($headers, [
             'PRODUCT DESCRIPTION', 'VEHICLE NO', 'IN WEIGHT (KG)', 'IN DATE/TIME', 
             'OUT WEIGHT (KG)', 'OUT DATE/TIME', 'REDUCE WEIGHT (KG)', 'NETT WEIGHT (KG)',
-            ($status == 'Sales' || $status == 'Misc' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)',
+            ($status == 'Sales' || $status == 'Dispatch' || $status == 'Misc' ? 'ORDER' : 'SUPPLY').' WEIGHT (KG)',
             'VARIANCE (KG)', 'VARIANCE (%)', 'DRIVER NAME', 'DRIVER IC', 
             'WEIGH BY', 'MODIFIED BY', 'CHECKED BY'
         ]);
@@ -151,7 +151,7 @@ foreach($arrangedData as $status => $customerSuppliers) {
         
         // Line above header
         $sheet->getStyle('A'.$rowIndex.':'.$lastCol.$rowIndex)->getBorders()->getTop()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-        $sheet->setCellValue('A'.$rowIndex, ($status == 'Sales' || $status == 'Misc' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier);
+        $sheet->setCellValue('A'.$rowIndex, ($status == 'Sales' || $status == 'Dispatch' || $status == 'Misc' ? 'TO CUSTOMER' : 'FROM SUPPLIER').': '.$customerSupplier);
         $sheet->setCellValue('B'.$rowIndex, 'From Date: '.$fromDate.' - '.$toDate);
         $rowIndex += 2;
         
@@ -180,7 +180,7 @@ foreach($arrangedData as $status => $customerSuppliers) {
             $subtotal_out += $row['tare_weight1'];
             $subtotal_reduce += $row['reduce_weight'];
             $subtotal_nett += $row['final_weight'];
-            $subtotal_supply += ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']);
+            $subtotal_supply += ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']);
             $subtotal_variance += $row['weight_different'];
             
             $lineData = [
@@ -188,10 +188,10 @@ foreach($arrangedData as $status => $customerSuppliers) {
                 $formattedDate,
                 $formattedTime,
                 $row['transaction_id'],
-                ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['delivery_no'] : $row['purchase_order'])
+                ($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Misc' ? $row['delivery_no'] : $row['purchase_order'])
             ];
             
-            if ($row['transaction_status'] == 'Purchase') {
+            if ($row['transaction_status'] == 'Purchase' || $row['transaction_status'] == 'Receiving') {
                 $lineData[] = $row['invoice_no'];
             }
             
@@ -204,7 +204,7 @@ foreach($arrangedData as $status => $customerSuppliers) {
                 $row['tare_weight1_date'],
                 number_format($row['reduce_weight'], 2),
                 number_format($row['final_weight'], 2),
-                number_format(($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']), 2),
+                number_format(($row['transaction_status'] == 'Sales' || $row['transaction_status'] == 'Dispatch' || $row['transaction_status'] == 'Misc' ? $row['order_weight'] : $row['supplier_weight']), 2),
                 number_format($row['weight_different'], 2),
                 $row['weight_different_perc'],
                 $row['driver_name'],
@@ -220,12 +220,12 @@ foreach($arrangedData as $status => $customerSuppliers) {
         }
         
         // Subtotal row
-        $inWeightCol = $status == 'Purchase' ? 'I' : 'H';
-        $outWeightCol = $status == 'Purchase' ? 'K' : 'J';
-        $reduceWeightCol = $status == 'Purchase' ? 'M' : 'L';
-        $nettWeightCol = $status == 'Purchase' ? 'N' : 'M';
-        $supplyWeightCol = $status == 'Purchase' ? 'O' : 'N';
-        $varianceCol = $status == 'Purchase' ? 'P' : 'O';
+        $inWeightCol = ($status == 'Purchase' || $status == 'Receiving') ? 'I' : 'H';
+        $outWeightCol = ($status == 'Purchase' || $status == 'Receiving') ? 'K' : 'J';
+        $reduceWeightCol = ($status == 'Purchase' || $status == 'Receiving') ? 'M' : 'L';
+        $nettWeightCol = ($status == 'Purchase' || $status == 'Receiving') ? 'N' : 'M';
+        $supplyWeightCol = ($status == 'Purchase' || $status == 'Receiving') ? 'O' : 'N';
+        $varianceCol = ($status == 'Purchase' || $status == 'Receiving') ? 'P' : 'O';
         
         $sheet->setCellValue('A'.$rowIndex, 'SUBTOTAL');
         $sheet->getStyle('A'.$rowIndex)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
@@ -260,7 +260,7 @@ function arrangeByCustomerOrSupplier($data, $status) {
     if(isset($data) && !empty($data)) {
         foreach($data as $row) {
             $statusKey = $row['transaction_status'];
-            $customerSupplierKey = ($statusKey == 'Sales') ? $row['customer_name'] : $row['supplier_name'];
+            $customerSupplierKey = ($statusKey == 'Sales' || $statusKey == 'Dispatch') ? $row['customer_name'] : $row['supplier_name'];
             
             if(!isset($arranged[$statusKey])) {
                 $arranged[$statusKey] = [];

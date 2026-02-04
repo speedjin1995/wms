@@ -33,14 +33,26 @@ else{
 				<div class="card">
 					<div class="card-header">
               <div class="row">
-                  <div class="col-9"></div>
+                  <div class="col-6"></div>
+                  <div class="col-2">
+                    <a href="template/Driver_Template.xlsx" download>
+                      <button type="button" class="btn btn-block bg-gradient-info btn-sm">
+                        Download Template
+                      </button>
+                    </a>
+                  </div>
+                  <div class="col-2">
+                    <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
+                      Upload Excel
+                    </button>
+                  </div>
                   <!-- <div class="col-2">
                       <input type="file" id="fileInput" accept=".xlsx, .xls" />
                   </div>
                   <div class="col-2">
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
                   </div>                             -->
-                  <div class="col-3">
+                  <div class="col-2">
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addDriver">Add Driver</button>
                   </div>
               </div>
@@ -61,6 +73,58 @@ else{
 		</div><!-- /.row -->
 	</div><!-- /.container-fluid -->
 </section><!-- /.content -->
+
+<div class="modal fade" id="uploadModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form role="form" id="uploadForm">
+          <div class="modal-header">
+            <h4 class="modal-title">Upload Excel</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="card-body">
+              <input type="file" id="fileInput">
+              <button type="button" id="previewButton">Preview Data</button>
+              <div id="previewTable" style="overflow: auto;"></div>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success" id="uploadDriver">Submit</button>
+          </div>
+      </form>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="errorModal" style="display:none">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form role="form" id="uploadForm">
+          <div class="modal-header">
+            <h4 class="modal-title">Error Log</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="form-group">
+                <ol id="errorList" class="text-danger mt-2" style="padding-left: 20px;"></ol>
+              </div>
+            </div>
+          </div>
+      </form>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
 
 <div class="modal fade" id="addModal">
     <div class="modal-dialog modal-xl">
@@ -165,7 +229,7 @@ $(function () {
       }
     ]     
   });
-  
+
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
@@ -211,56 +275,190 @@ $(function () {
     });
   });
 
-  document.getElementById('fileInput').addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
+  $('#uploadExcel').on('click', function(){
+    $('#uploadModal').modal('show');
 
-    reader.onload = function (e) {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-
-      const sheetName = workbook.SheetNames[1];
-      const sheet = workbook.Sheets[sheetName];
-      jsonData = XLSX.utils.sheet_to_json(sheet);
-      console.log(jsonData);
-    };
-    reader.readAsArrayBuffer(file);
+    $('#uploadForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
+    });
   });
 
-  $('#importExcelbtn').on('click', function(){
-        jsonData.forEach(function(row) {
-            $.ajax({
-                url: 'php/importExcelCustomer.php',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(row),
-                success: function(response) {
-                    debugger;
-                    var obj = JSON.parse(response); 
-                    
-                    if(obj.status === 'success'){
-                        $('#addModal').modal('hide');
-                        toastr["success"](obj.message, "Success:");
-                        $('#customerTable').DataTable().ajax.reload();
-                        $('#spinnerLoading').hide();
-                    }
-                    else if(obj.status === 'failed'){
-                        toastr["error"](obj.message, "Failed:");
-                        $('#spinnerLoading').hide();
-                    }
-                    else{
-                        toastr["error"]("Something wrong when import", "Failed:");
-                        $('#spinnerLoading').hide();
-                    }
-                },
-                error: function(error) {
-                    toastr["error"](obj.message, "Failed:");
-                    $('#spinnerLoading').hide();
-                }
-            })
-        })
+  $('#uploadModal').find('#previewButton').on('click', function(){
+    var fileInput = document.getElementById('fileInput');
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+        var data = e.target.result;
+        // Process data and display preview
+        displayPreview(data);
+    };
+
+    reader.readAsBinaryString(file);
+  });
+
+  $('#uploadDriver').on('click', function(){
+    $('#spinnerLoading').show();
+    var formData = $('#uploadForm').serializeArray();
+    var data = [];
+    var rowIndex = -1;
+    formData.forEach(function(field) {
+    var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
+    if (match) {
+      var fieldName = match[1];
+      var index = parseInt(match[2], 10);
+      if (index !== rowIndex) {
+      rowIndex = index;
+      data.push({});
+      }
+      data[index][fieldName] = field.value;
+    }
     });
+
+    // Send the JSON array to the server
+    $.ajax({
+        url: 'php/uploadDriver.php',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            var obj = JSON.parse(response);
+            if (obj.status === 'success') {
+              $('#spinnerLoading').hide();
+              $('#uploadModal').modal('hide');
+              $('#driverTable').DataTable().ajax.reload();
+            } 
+            else if (obj.status === 'failed') {
+              $('#spinnerLoading').hide();
+            } 
+            else if (obj.status === 'error') {
+              $('#spinnerLoading').hide();
+              $('#uploadModal').modal('hide');
+              $('#errorModal').find('#errorList').empty();
+              var errorMessage = obj.message;
+              for (var i = 0; i < errorMessage.length; i++) {
+                $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);                            
+              }
+              $('#errorModal').modal('show');
+            } 
+            else {
+              $('#spinnerLoading').hide();
+            }
+        }
+    });
+
+    // document.getElementById('fileInput').addEventListener('change', function (e) {
+    //   const file = e.target.files[0];
+    //   const reader = new FileReader();
+
+    //   reader.onload = function (e) {
+    //     const data = new Uint8Array(e.target.result);
+    //     const workbook = XLSX.read(data, { type: 'array' });
+
+    //     const sheetName = workbook.SheetNames[1];
+    //     const sheet = workbook.Sheets[sheetName];
+    //     jsonData = XLSX.utils.sheet_to_json(sheet);
+    //     console.log(jsonData);
+    //   };
+    //   reader.readAsArrayBuffer(file);
+    // });
+
+    // $('#importExcelbtn').on('click', function(){
+    //     jsonData.forEach(function(row) {
+    //         $.ajax({
+    //             url: 'php/importExcelCustomer.php',
+    //             type: 'POST',
+    //             contentType: 'application/json',
+    //             data: JSON.stringify(row),
+    //             success: function(response) {
+    //                 debugger;
+    //                 var obj = JSON.parse(response); 
+                    
+    //                 if(obj.status === 'success'){
+    //                     $('#addModal').modal('hide');
+    //                     toastr["success"](obj.message, "Success:");
+    //                     $('#customerTable').DataTable().ajax.reload();
+    //                     $('#spinnerLoading').hide();
+    //                 }
+    //                 else if(obj.status === 'failed'){
+    //                     toastr["error"](obj.message, "Failed:");
+    //                     $('#spinnerLoading').hide();
+    //                 }
+    //                 else{
+    //                     toastr["error"]("Something wrong when import", "Failed:");
+    //                     $('#spinnerLoading').hide();
+    //                 }
+    //             },
+    //             error: function(error) {
+    //                 toastr["error"](obj.message, "Failed:");
+    //                 $('#spinnerLoading').hide();
+    //             }
+    //         })
+    //     })
+    // });
+  });
 });
+
+function displayPreview(data) {
+  // Parse the Excel data
+  var workbook = XLSX.read(data, { type: 'binary' });
+
+  // Get the first sheet
+  var sheetName = workbook.SheetNames[0];
+  var sheet = workbook.Sheets[sheetName];
+
+  // Convert the sheet to an array of objects
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 2 });
+
+  // Get the headers
+  var headers = Object.keys(jsonData[0] || {});
+
+  // Ensure we handle cases where there may be less than 2 columns
+  while (headers.length < 2) {
+      headers.push(''); // Adding empty headers to reach 2 columns
+  }
+
+  // Create HTML table headers
+  var htmlTable = '<table style="width:20%;"><thead><tr>';
+  headers.forEach(function(header) {
+      htmlTable += '<th>' + header + '</th>';
+  });
+  htmlTable += '</tr></thead><tbody>';
+
+  // Iterate over the data and create table rows
+  for (var i = 0; i < jsonData.length; i++) {
+      htmlTable += '<tr>';
+      var rowData = jsonData[i];
+
+      for (var j = 0; j < 2 && j < headers.length; j++) {
+          var cellData = rowData[headers[j]];
+          var formattedData = cellData;
+
+          // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
+          if (typeof cellData === 'number' && cellData > 0) {
+              var excelDate = XLSX.SSF.parse_date_code(cellData);
+          }
+
+          htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
+      }
+      htmlTable += '</tr>';
+  }
+
+  htmlTable += '</tbody></table>';
+
+  var previewTable = document.getElementById('previewTable');
+  previewTable.innerHTML = htmlTable;
+}
 
 function edit(id){
   $('#spinnerLoading').show();

@@ -23,7 +23,7 @@ if ($user != 2){
 
 if($searchValue != ''){
   // Lookup parent customer IDs based on search value
-  $customerId = searchCustomerIdByName($searchValue, $db);
+  $customerId = searchCustomerIdByName($searchValue, $company, $db);
   $searchQuery .= " AND (customer_name like '%".$searchValue."%' or customer_code like '%".$searchValue."%' or parent = '".$customerId."')";
 }
 

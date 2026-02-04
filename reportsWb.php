@@ -81,8 +81,8 @@ else{
                   <label>Transaction Status</label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option selected>-</option>
-                    <option value="Sales">Dispatch</option>
-                    <option value="Purchase">Receiving</option>
+                    <option value="Dispatch">Dispatch</option>
+                    <option value="Receiving">Receiving</option>
                     <!-- <option value="Local">Internal Transfer</option>
                     <option value="Misc">Miscellaneous</option> -->
                   </select>
@@ -188,16 +188,13 @@ else{
                   <th>Transaction <br>Id</th>
                   <th>Transaction <br>Date</th>
                   <th>Transaction <br>Status</th>
-                  <th>DO/PO <br>No.</th>
+                  <th>PO <br>No.</th>
                   <th>Vehicle <br>No.</th>
                   <th>Customer/<br>Supplier</th>
-                  <th>Product</th>
                   <th>Incoming <br>Weight</th>
                   <th>Incoming <br>Date</th>
                   <th>Outgoing <br>Weight</th>
                   <th>Outgoing <br>Date</th>
-                  <th>Nett <br>Weight</th>
-                  <th>Reduce <br>Weight</th>
                   <th>Total Nett <br>Weight</th>
                   <!-- <th width="5%">Action</th> -->
                 </tr>
@@ -290,13 +287,10 @@ $(function () {
       { data: 'do_po' },
       { data: 'lorry_plate_no1' },
       { data: 'customer_supplier' },
-      { data: 'product_name' },
       { data: 'gross_weight1' },
       { data: 'gross_weight1_date' },
       { data: 'tare_weight1' },
       { data: 'tare_weight1_date' },
-      { data: 'nett_weight1' },
-      { data: 'reduce_weight' },
       { data: 'final_weight' },
       // { 
       //   data: 'id',
@@ -390,13 +384,10 @@ $(function () {
         { data: 'do_po' },
         { data: 'lorry_plate_no1' },
         { data: 'customer_supplier' },
-        { data: 'product_name' },
         { data: 'gross_weight1' },
         { data: 'gross_weight1_date' },
         { data: 'tare_weight1' },
         { data: 'tare_weight1_date' },
-        { data: 'nett_weight1' },
-        { data: 'reduce_weight' },
         { data: 'final_weight' },
         // { 
         //   data: 'id',
@@ -498,7 +489,7 @@ $(function () {
     var status = $(this).val();
     $('#customerNoFilter').val('').trigger('change');
     $('#supplierNoFilter').val('').trigger('change');
-    if (status == 'Sales' || status == 'Misc') {
+    if (status == 'Sales' || status == 'Dispatch' || status == 'Misc') {
       $('#supplierDiv').hide();
       $('#customerDiv').show();
     } else {

@@ -42,7 +42,7 @@ if(isset($_POST['status'])){
 	}
 
     if(isset($_POST['vehicle']) && $_POST['vehicle'] != null && $_POST['vehicle'] != ''){
-        if ($_POST['vehicle'] == 'UNKOWN NO'){
+        if ($_POST['vehicle'] == 'UNKOWN'){
             if(isset($_POST['otherVehicleNo']) && $_POST['otherVehicleNo'] != null && $_POST['otherVehicleNo'] != ''){
                 $vehicle = $_POST['otherVehicleNo'];
             }else{
