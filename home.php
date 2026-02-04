@@ -1,6 +1,6 @@
 <?php
 
-//onclick
+session_start();
 
 ?>
 
