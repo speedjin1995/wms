@@ -146,7 +146,22 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
 	}
 	
 	if($weight_type == 'Normal' && ($gross != null && $tare != null)){
-        $is_complete = 'Y';
+		if($record_type == 'weighbridge'){
+			$is_complete = 'Y';
+		}
+		else{
+			if($transaction_status == 'Receiving' && $invoice_no != null && $invoice_no != '' && $supplier != null && $vehicle != null){ 
+			    $is_complete = 'Y';
+			}
+			else if($transaction_status == 'Dispatch' && $customer != null && $vehicle != null){
+				$is_complete = 'Y';
+			}
+			else{
+				$is_complete = 'N';
+			}
+			
+		}
+        
     }
     /*else if($weight_type == 'Container' && ($gross != null && $tareOutgoing != null && $gross2 != null && $tareOutgoing2 != null)){
         $isComplete = 'Y';

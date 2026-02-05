@@ -7,11 +7,15 @@ $post = json_decode(file_get_contents('php://input'), true);
 
 if(isset($post['staffName'], $post['customer'])){
 	$staffName = $post['staffName'];
-	$customer = $post['customer'];
+	$customer = $post['customer'];$weight = null;
+	
+	if(isset($post['price']) && $post['price'] != null && $post['price'] != ''){
+	    $weight = $post['price'];
+	}
 
 	if(isset($post['userId']) && $post['userId'] != null && $post['userId'] != ''){
-	    if ($update_stmt = $db->prepare("UPDATE vehicles SET veh_number = ? WHERE id = ?")) {
-            $update_stmt->bind_param('ss', $staffName, $post['userId']);
+	    if ($update_stmt = $db->prepare("UPDATE vehicles SET veh_number = ?, vehicle_weight = ? WHERE id = ?")) {
+            $update_stmt->bind_param('sss', $staffName, $weight, $post['userId']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -33,8 +37,8 @@ if(isset($post['staffName'], $post['customer'])){
 		}
 	}
 	else{
-	    if ($insert_stmt = $db->prepare("INSERT INTO vehicles (veh_number, customer) VALUES (?, ?)")){	
-    	    $insert_stmt->bind_param('ss', $staffName, $customer);		
+	    if ($insert_stmt = $db->prepare("INSERT INTO vehicles (veh_number, vehicle_weight, customer) VALUES (?, ?, ?)")){	
+    	    $insert_stmt->bind_param('sss', $staffName, $weight, $customer);		
     		// Execute the prepared query.
     		if (! $insert_stmt->execute()){
     			echo json_encode(

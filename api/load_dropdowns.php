@@ -103,7 +103,8 @@ while($row3=mysqli_fetch_assoc($products)){
 while($row4=mysqli_fetch_assoc($vehicles)){
     $data4[] = array( 
         'id'=>$row4['id'],
-        'veh_number'=>$row4['veh_number']
+        'veh_number'=>$row4['veh_number'],
+        'weight'=>$row4['vehicle_weight']
     );
 }
 
