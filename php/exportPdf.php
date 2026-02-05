@@ -221,6 +221,14 @@ try {
         $content .= '<tr><td colspan="15">No records found...</td></tr>';
     }
 
+    if ($_GET['status'] == 'DISPATCH') {
+        $status = 'DISPATCH';
+    } else if ($_GET['status'] == 'RECEIVING') {
+        $status = 'RECEIVING';
+    } else {
+        $status = 'SALE BALANCE';
+    }
+
     // Set PDF header with logo and dynamic report title
     $html = '
         <html>
@@ -265,7 +273,7 @@ try {
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">WEEKLY MONTHLY '.($_GET['status'] == 'DISPATCH' ? 'DISPATCH' : 'RECEIVING').' REPORT WEIGHING</div>
+                            <div class="fw-bold">WEEKLY MONTHLY '.$status.' REPORT WEIGHING</div>
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">From Date: '.$fromDate.' - '.$toDate.'</div>
@@ -273,10 +281,10 @@ try {
                     </tr>
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <!--div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div-->
+                            <!--div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'Sale Balance' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div-->
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">Weight Status: '.($_GET['status'] == 'DISPATCH' ? 'Dispatch' : 'Receiving').'</div>
+                            <div class="fw-bold">Weight Status: '.$status.'</div>
                         </td>
                     </tr>
                 </table>
@@ -290,7 +298,7 @@ try {
                             <th>Date</th>
                             <th>Time</th>
                             <th>Weigh Slip No.</th>
-                            <!--th>'.($_GET['status'] == 'DISPATCH' ? 'Dispatch' : 'Receiving').' No.</th-->';
+                            <!--th>'.$status.' No.</th-->';
 
                             if ($_GET['status'] == 'RECEIVING') {
                                 $html .= '
@@ -299,7 +307,7 @@ try {
                             }
 
                             $html .= '
-                            <th>'.($_GET['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').' Name</th>';
+                            <th>'.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'Sale Balance' ? 'Customer' : 'Supplier').' Name</th>';
 
                             if (!empty($gradeColumns) && count($gradeColumns) > 0){
                                 foreach ($gradeColumns as $gradeCol){

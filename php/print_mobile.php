@@ -213,6 +213,16 @@ if(isset($_GET['userID'])){
                     $weightDetails .= '</div>';
                 }
 
+                if ($wholesale['status'] == 'DISPATCH') {
+                    $status = 'Dispatch';
+                } else if ($wholesale['status'] == 'RECEIVING') {
+                    $status = 'Receiving';
+                } else if ($wholesale['status'] == 'Sale Balance') {
+                    $status = 'Sale Balance';
+                } else {
+                    $status = 'Unknown';
+                }
+
                 $message = '
                 <html>
                 <head>
@@ -296,9 +306,9 @@ if(isset($_GET['userID'])){
                             </div>
                             <div class="col-4">
                                 <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>
-                                <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.($wholesale['status'] == 'DISPATCH' ? 'Dispatch' : 'Receiving').'</span></div>
+                                <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.$status.'</span></div>
                                 <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['created_datetime'])).'</span></div>
-                                <!--div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' ? 'Purchase' : 'Delivery').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div-->';
+                                <!--div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'Sale Balance' ? 'Purchase' : 'Delivery').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div-->';
 
                                 if ($wholesale['status'] == 'RECEIVING') {
                                     $message .= '
@@ -313,7 +323,7 @@ if(isset($_GET['userID'])){
                         
                         <div class="row mb-1">
                             <div class="col-8">
-                                <div class="info-row"><span class="info-label">To '.($wholesale['status'] == 'DISPATCH' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
+                                <div class="info-row"><span class="info-label">To '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'Sale Balance' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'Sale Balance' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
                                 <div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">: '.$wholesale['driver'].'</span></div>
                                 <div class="info-row"><span class="info-label">Driver IC</span><span class="info-value">: '.$wholesale['driver_ic'].'</span></div>
                                 <div class="info-row"><span class="info-label">Actual Weight</span><span class="info-value">: '.number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2).' kg</span></div>

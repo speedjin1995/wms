@@ -199,7 +199,7 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
-if($_GET['status'] == 'DISPATCH') {
+if($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'Sale Balance') {
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Customer');
 }else{
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Security Bill No.', 'Supplier');
@@ -231,7 +231,7 @@ if (!empty($allRows)) {
             $lineData[] = $rowData['security_bills'];
         }
         
-        $lineData[] = ($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
+        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'Sale Balance') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
 
         // Add grade weights in correct order
         foreach ($gradeColumns as $gradeCol) {

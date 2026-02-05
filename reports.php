@@ -82,6 +82,7 @@ else{
                   <select class="form-control" id="statusFilter" name="statusFilter">
                     <option value="DISPATCH" selected>Dispatch</option>
                     <option value="RECEIVING">Receiving</option>
+                    <option value="Sale Balance">Sale Balance</option>
                   </select>
                 </div>
               </div>
