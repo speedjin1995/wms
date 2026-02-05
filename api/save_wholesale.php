@@ -100,7 +100,7 @@ if(isset($post['status'], $post['do_no'], $post['vehicleNumber'], $post['driverN
 	}
 
 	if(!isset($post['serialNo']) || $post['serialNo'] == null || $post['serialNo'] == ''){
-	    $prefix = ($status == 'DISPATCH' ? 'S' : 'P');
+		$prefix = ($status === 'DISPATCH') ? 'S' : (($status === 'RECEIVING') ? 'P' : 'SB');
 		$serialNo = $prefix.$startDateTime2;
 
 		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE created_datetime >= ? AND status = ? AND deleted='0'")) {
