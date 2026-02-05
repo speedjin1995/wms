@@ -43,6 +43,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     $data[] = array( 
       "id"=>$row['id'],
       "veh_number"=>$row['veh_number'],
+      "vehicle_weight"=>$row['vehicle_weight'],
       "driver_name"=>$row['driver_name'],
       "attandence_1"=>$row['attandence_1'],
       "attandence_2"=>$row['attandence_2'],

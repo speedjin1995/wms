@@ -106,7 +106,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
   $data[] = array( 
     "id"=>$row['id'],
     "serial_no"=>$row['serial_no'],
-    "security_bills"=>$row['security_bills'],
+    "security_bills"=>$row['security_bills'] ?? '',
     "po_no"=>$row['po_no'] ?? '',
     "status"=>$row['status'],
     "parent"=>$parent,
@@ -124,7 +124,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "created_by"=>$row['created_by'],
     "company"=>$row['company'],
     "weighted_by"=>searchUserNameById($row['weighted_by'], $db),
-    "checked_by"=>$row['checked_by']
+    "checked_by"=>($row['checked_by'] == 'JACKY' ? '' : $row['checked_by'])
   );
 }
 

@@ -199,10 +199,10 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
-if($_GET['status'] == 'DISPATCH') {
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Customer');
+if($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL') {
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Customer');
 }else{
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Security Bill No.', 'Supplier');
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Security Bill No.', 'Supplier');
 }
 
 // Add grade columns
@@ -224,15 +224,14 @@ if (!empty($allRows)) {
             $rowData['count'],
             $rowData['formattedDate'],
             $rowData['formattedTime'],
-            $rowData['serial_no'],
-            $rowData['po_no']
+            $rowData['serial_no']
         );
         
         if($_GET['status'] == 'RECEIVING') {
             $lineData[] = $rowData['security_bills'];
         }
         
-        $lineData[] = ($rowData['status'] == 'DISPATCH') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
+        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'SALE-BAL') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
 
         // Add grade weights in correct order
         foreach ($gradeColumns as $gradeCol) {
@@ -258,7 +257,7 @@ if (!empty($allRows)) {
     }
     
     // Add subtotal row
-    $subtotalData = array('SUBTOTAL', '', '', '', '');
+    $subtotalData = array('SUBTOTAL', '', '', '');
     if($_GET['status'] == 'RECEIVING') {
         $subtotalData[] = '';
     }
