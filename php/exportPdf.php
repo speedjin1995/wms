@@ -281,7 +281,7 @@ try {
                     </tr>
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <!--div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'Sale Balance' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div-->
+                            <!--div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div-->
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">Weight Status: '.$status.'</div>
@@ -307,7 +307,7 @@ try {
                             }
 
                             $html .= '
-                            <th>'.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'Sale Balance' ? 'Customer' : 'Supplier').' Name</th>';
+                            <th>'.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL' ? 'Customer' : 'Supplier').' Name</th>';
 
                             if (!empty($gradeColumns) && count($gradeColumns) > 0){
                                 foreach ($gradeColumns as $gradeCol){
