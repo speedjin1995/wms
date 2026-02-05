@@ -200,9 +200,9 @@ $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
 if($_GET['status'] == 'DISPATCH') {
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Customer');
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Customer');
 }else{
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Security Bill No.', 'Supplier');
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Security Bill No.', 'Supplier');
 }
 
 // Add grade columns
@@ -224,8 +224,7 @@ if (!empty($allRows)) {
             $rowData['count'],
             $rowData['formattedDate'],
             $rowData['formattedTime'],
-            $rowData['serial_no'],
-            $rowData['po_no']
+            $rowData['serial_no']
         );
         
         if($_GET['status'] == 'RECEIVING') {
@@ -258,7 +257,7 @@ if (!empty($allRows)) {
     }
     
     // Add subtotal row
-    $subtotalData = array('SUBTOTAL', '', '', '', '');
+    $subtotalData = array('SUBTOTAL', '', '', '');
     if($_GET['status'] == 'RECEIVING') {
         $subtotalData[] = '';
     }

@@ -298,7 +298,7 @@ if(isset($_GET['userID'])){
                                 <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>
                                 <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.($wholesale['status'] == 'DISPATCH' ? 'Dispatch' : 'Receiving').'</span></div>
                                 <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['created_datetime'])).'</span></div>
-                                <div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' ? 'Purchase' : 'Delivery').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div>';
+                                <!--div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' ? 'Purchase' : 'Delivery').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div-->';
 
                                 if ($wholesale['status'] == 'RECEIVING') {
                                     $message .= '

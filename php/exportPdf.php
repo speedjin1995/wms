@@ -193,7 +193,7 @@ try {
             $content .= '<td>'.$rowData['formattedDate'].'</td>';
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
-            $content .= '<td>'.$rowData['po_no'].'</td>';
+            // $content .= '<td>'.$rowData['po_no'].'</td>';
 
             if ($_GET['status'] == 'RECEIVING') {
                 $content .= '<td>'.$rowData['security_bills'].'</td>';
@@ -265,7 +265,7 @@ try {
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">WEEKLY MONTHLY '.($_GET['status'] == 'DISPATCH' ? 'SALES' : 'PURCHASE').' REPORT WEIGHING</div>
+                            <div class="fw-bold">WEEKLY MONTHLY '.($_GET['status'] == 'DISPATCH' ? 'DISPATCH' : 'RECEIVING').' REPORT WEIGHING</div>
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">From Date: '.$fromDate.' - '.$toDate.'</div>
@@ -276,7 +276,7 @@ try {
                             <!--div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div-->
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">Weight Status: '.($_GET['status'] == 'DISPATCH' ? 'Sales' : 'Purchase').'</div>
+                            <div class="fw-bold">Weight Status: '.($_GET['status'] == 'DISPATCH' ? 'Dispatch' : 'Receiving').'</div>
                         </td>
                     </tr>
                 </table>
@@ -290,7 +290,7 @@ try {
                             <th>Date</th>
                             <th>Time</th>
                             <th>Weigh Slip No.</th>
-                            <th>'.($_GET['status'] == 'DISPATCH' ? 'Purchase' : 'Delivery').' No.</th>';
+                            <!--th>'.($_GET['status'] == 'DISPATCH' ? 'Dispatch' : 'Receiving').' No.</th-->';
 
                             if ($_GET['status'] == 'RECEIVING') {
                                 $html .= '
@@ -324,7 +324,7 @@ try {
                     </tbody>
                     <tfoot>
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
-                            <td colspan="'.($_GET['status'] == 'RECEIVING' ? '7' : '6').'">SUBTOTAL</td>';
+                            <td colspan="'.($_GET['status'] == 'RECEIVING' ? '6' : '5').'">SUBTOTAL</td>';
                             
                             foreach ($gradeColumns as $gradeCol) {
                                 $html .= '<td>'.number_format($subtotals['gradeWeights'][$gradeCol], 2).'</td>';
