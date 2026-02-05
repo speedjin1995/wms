@@ -14,6 +14,7 @@ $errorArray = array();
 if (!empty($data)) {
     foreach ($data as $rows) {
         $VehicleNumber = !empty($rows['VehicleNumber']) ? trim($rows['VehicleNumber']) : '';
+        $VehicleWeight = !empty($rows['VehicleWeight']) ? trim($rows['VehicleWeight']) : '';
         $DriverId = !empty($rows['DriverName']) ? searchDriverIdByDriverName(trim($rows['DriverName']), $company, $db) : null;
 
         # Check if unit exist in DB
@@ -23,8 +24,8 @@ if (!empty($data)) {
         $unitRow = mysqli_fetch_assoc($unitDetail);
 
         if(empty($unitRow)){
-            if ($insert_stmt = $db->prepare("INSERT INTO vehicles (veh_number, driver, customer) VALUES (?, ?, ?)")) {
-                $insert_stmt->bind_param('sss', $VehicleNumber, $DriverId, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO vehicles (veh_number, vehicle_weight, driver, customer) VALUES (?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('ssss', $VehicleNumber, $VehicleWeight, $DriverId, $company);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            

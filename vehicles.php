@@ -69,6 +69,7 @@ else{
 							<thead>
 								<tr>
                   <th>Vehicle Number</th>
+                  <th>Vehicle Weight (Kg)</th>
                   <th>Driver</th>
 									<!-- <th>Attendence 1</th>
 									<th>Attendence 2</th> -->
@@ -163,6 +164,10 @@ else{
                   <input type="text" class="form-control" name="vehicleNumber" id="vehicleNumber" placeholder="Enter Vehicle Number" required>
                 </div>
                 <div class="form-group">
+                  <label for="vehicleWeight">Vehicle Weight (Kg)</label>
+                  <input type="text" class="form-control" name="vehicleWeight" id="vehicleWeight" placeholder="Enter Vehicle Weight">
+                </div>
+                <div class="form-group">
                   <label for="name">Driver Name *</label>
                   <select class="form-control select2" style="width: 100%;" id="driver" name="driver" required>
                     <?php while($rowDriver=mysqli_fetch_assoc($drivers)){ ?>
@@ -236,6 +241,7 @@ $(function () {
     },
     'columns': [
       { data: 'veh_number' },
+      { data: 'vehicle_weight' },
       { data: 'driver_name' },
       // { data: 'attandence_1' },
       // { data: 'attandence_2' },
@@ -280,6 +286,7 @@ $(function () {
   $('#addVehicle').on('click', function(){
     $('#addModal').find('#id').val("");
     $('#addModal').find('#vehicleNumber').val("");
+    $('#addModal').find('#vehicleWeight').val("");
     $('#addModal').find('#driver').val("").trigger('change');
     $('#addModal').find('#attendance1').val("");
     $('#addModal').find('#attendance2').val("");
@@ -435,54 +442,54 @@ $(function () {
 });
 
 function displayPreview(data) {
-  // Parse the Excel data
-  var workbook = XLSX.read(data, { type: 'binary' });
+    // Parse the Excel data
+    var workbook = XLSX.read(data, { type: 'binary' });
 
-  // Get the first sheet
-  var sheetName = workbook.SheetNames[0];
-  var sheet = workbook.Sheets[sheetName];
+    // Get the first sheet
+    var sheetName = workbook.SheetNames[0];
+    var sheet = workbook.Sheets[sheetName];
 
-  // Convert the sheet to an array of objects
-  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 2 });
+    // Convert the sheet to an array of arrays
+    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-  // Get the headers
-  var headers = Object.keys(jsonData[0] || {});
+    // Get the headers from first row
+    var headers = jsonData[0] || [];
 
-  // Ensure we handle cases where there may be less than 2 columns
-  while (headers.length < 2) {
-      headers.push(''); // Adding empty headers to reach 2 columns
-  }
+    // Ensure we handle cases where there may be less than 3 columns
+    while (headers.length < 3) {
+        headers.push(''); // Adding empty headers to reach 3 columns
+    }
 
-  // Create HTML table headers
-  var htmlTable = '<table style="width:20%;"><thead><tr>';
-  headers.forEach(function(header) {
-      htmlTable += '<th>' + header + '</th>';
-  });
-  htmlTable += '</tr></thead><tbody>';
+    // Create HTML table headers
+    var htmlTable = '<table style="width:50%;"><thead><tr>';
+    for (var h = 0; h < 3; h++) {
+        htmlTable += '<th>' + (headers[h] || '') + '</th>';
+    }
+    htmlTable += '</tr></thead><tbody>';
 
-  // Iterate over the data and create table rows
-  for (var i = 0; i < jsonData.length; i++) {
-      htmlTable += '<tr>';
-      var rowData = jsonData[i];
+    // Iterate over the data and create table rows (skip header row)
+    for (var i = 1; i < jsonData.length; i++) {
+        htmlTable += '<tr>';
+        var rowData = jsonData[i] || [];
 
-      for (var j = 0; j < 2 && j < headers.length; j++) {
-          var cellData = rowData[headers[j]];
-          var formattedData = cellData;
+        for (var j = 0; j < 3; j++) {
+            var cellData = rowData[j];
+            var formattedData = cellData;
 
-          // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
-          if (typeof cellData === 'number' && cellData > 0) {
-              var excelDate = XLSX.SSF.parse_date_code(cellData);
-          }
+            // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
+            if (typeof cellData === 'number' && cellData > 0) {
+                var excelDate = XLSX.SSF.parse_date_code(cellData);
+            }
 
-          htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
-      }
-      htmlTable += '</tr>';
-  }
+            htmlTable += '<td><input type="text" id="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+(i-1)+'" name="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+'['+(i-1)+']" value="' + (formattedData == null || formattedData === undefined ? '' : formattedData) + '" /></td>';
+        }
+        htmlTable += '</tr>';
+    }
 
-  htmlTable += '</tbody></table>';
+    htmlTable += '</tbody></table>';
 
-  var previewTable = document.getElementById('previewTable');
-  previewTable.innerHTML = htmlTable;
+    var previewTable = document.getElementById('previewTable');
+    previewTable.innerHTML = htmlTable;
 }
 
 function edit(id){
@@ -493,6 +500,7 @@ function edit(id){
       if(obj.status === 'success'){
           $('#addModal').find('#id').val(obj.message.id);
           $('#addModal').find('#vehicleNumber').val(obj.message.veh_number);
+          $('#addModal').find('#vehicleWeight').val(obj.message.vehicle_weight);
           $('#addModal').find('#driver').val(obj.message.driver).trigger('change');
           $('#addModal').find('#attendance1').val(obj.message.attandence_1);
           $('#addModal').find('#attendance2').val(obj.message.attandence_2);

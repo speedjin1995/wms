@@ -24,6 +24,7 @@ if(isset($_POST['userID'])){
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
                 $message['veh_number'] = $row['veh_number'];
+                $message['vehicle_weight'] = $row['vehicle_weight'];
                 $message['driver'] = $row['driver'];
                 $message['attandence_1'] = $row['attandence_1'];
                 $message['attandence_2'] = $row['attandence_2'];
