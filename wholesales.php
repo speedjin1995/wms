@@ -290,6 +290,12 @@ else{
                 <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
               </div>
             </div>
+            <div class="col-md-4" id="securityBillDiv">
+              <div class="form-group">
+                <label>Security Bill No.</label>
+                <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
+              </div>
+            </div>
             <div class="col-md-4" id="customerDiv">
               <div class="form-group">
                 <label>Customer</label>
@@ -995,7 +1001,7 @@ $(function () {
 
   $('#statusFilter').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH"){
+    if(status == "DISPATCH" || status == 'SALE-BAL'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }
@@ -1007,13 +1013,15 @@ $(function () {
 
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH"){
+    if(status == "DISPATCH" || status == 'SALE-BAL'){
       $('#extendModal').find('#customerDiv').show();
       $('#extendModal').find('#supplierDiv').hide();
+      $('#extendModal').find('#securityBillDiv').hide();
     }
     else{
       $('#extendModal').find('#customerDiv').hide();
       $('#extendModal').find('#supplierDiv').show();
+      $('#extendModal').find('#securityBillDiv').show();
     }
   });
 
@@ -1557,6 +1565,7 @@ function edit(id) {
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
+      $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
 
