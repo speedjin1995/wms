@@ -200,9 +200,9 @@ $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
 if($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL') {
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Customer');
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer');
 }else{
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Security Bill No.', 'Supplier');
+    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier');
 }
 
 // Add grade columns
@@ -224,7 +224,8 @@ if (!empty($allRows)) {
             $rowData['count'],
             $rowData['formattedDate'],
             $rowData['formattedTime'],
-            $rowData['serial_no']
+            $rowData['serial_no'],
+            $rowData['po_no']
         );
         
         if($_GET['status'] == 'RECEIVING') {

@@ -227,7 +227,7 @@ else{
               <thead>
                 <tr>
                   <th>Serial <br>No.</th>
-                  <!-- <th>DO/PO <br>No.</th> -->
+                  <th>DO/PO <br>No.</th>
                   <th>Sec Bill <br>No.</th>
                   <th>Created <br> Datetime</th>
                   <th>Parent</th>
@@ -288,6 +288,12 @@ else{
               <div class="form-group">
                 <label>DO/PO No *</label>
                 <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
+              </div>
+            </div>
+            <div class="col-md-4" id="securityBillDiv">
+              <div class="form-group">
+                <label>Security Bill No.</label>
+                <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
               </div>
             </div>
             <div class="col-md-4" id="customerDiv">
@@ -548,7 +554,7 @@ $(function () {
     },
     'columns': [
       { data: 'serial_no' },
-      // { data: 'po_no' },
+      { data: 'po_no' },
       { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
@@ -708,7 +714,7 @@ $(function () {
       },
       'columns': [
         { data: 'serial_no' },
-        //{ data: 'po_no' },
+        { data: 'po_no' },
         { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
@@ -995,7 +1001,7 @@ $(function () {
 
   $('#statusFilter').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH"){
+    if(status == "DISPATCH" || status == 'SALE-BAL'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }
@@ -1007,13 +1013,15 @@ $(function () {
 
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH"){
+    if(status == "DISPATCH" || status == 'SALE-BAL'){
       $('#extendModal').find('#customerDiv').show();
       $('#extendModal').find('#supplierDiv').hide();
+      $('#extendModal').find('#securityBillDiv').hide();
     }
     else{
       $('#extendModal').find('#customerDiv').hide();
       $('#extendModal').find('#supplierDiv').show();
+      $('#extendModal').find('#securityBillDiv').show();
     }
   });
 
@@ -1303,7 +1311,7 @@ function format (row) {
       <p><strong>Parent:</strong> ${row.parent}</p>
       <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
       <p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p>
-      <!--p><strong>PO No:</strong> ${row.po_no}</p-->
+      <p><strong>PO No:</strong> ${row.po_no}</p>
       <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
       <p><strong>Driver:</strong> ${row.driver}</p>
     </div>
@@ -1557,6 +1565,7 @@ function edit(id) {
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
+      $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
 
