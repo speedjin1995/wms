@@ -227,7 +227,7 @@ else{
               <thead>
                 <tr>
                   <th>Serial <br>No.</th>
-                  <!-- <th>DO/PO <br>No.</th> -->
+                  <th>DO/PO <br>No.</th>
                   <th>Sec Bill <br>No.</th>
                   <th>Created <br> Datetime</th>
                   <th>Parent</th>
@@ -548,7 +548,7 @@ $(function () {
     },
     'columns': [
       { data: 'serial_no' },
-      // { data: 'po_no' },
+      { data: 'po_no' },
       { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
@@ -708,7 +708,7 @@ $(function () {
       },
       'columns': [
         { data: 'serial_no' },
-        //{ data: 'po_no' },
+        { data: 'po_no' },
         { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
@@ -1303,7 +1303,7 @@ function format (row) {
       <p><strong>Parent:</strong> ${row.parent}</p>
       <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
       <p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p>
-      <!--p><strong>PO No:</strong> ${row.po_no}</p-->
+      <p><strong>PO No:</strong> ${row.po_no}</p>
       <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
       <p><strong>Driver:</strong> ${row.driver}</p>
     </div>

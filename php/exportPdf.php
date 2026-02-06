@@ -193,7 +193,7 @@ try {
             $content .= '<td>'.$rowData['formattedDate'].'</td>';
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
-            // $content .= '<td>'.$rowData['po_no'].'</td>';
+            $content .= '<td>'.$rowData['po_no'].'</td>';
 
             if ($_GET['status'] == 'RECEIVING') {
                 $content .= '<td>'.$rowData['security_bills'].'</td>';
@@ -281,7 +281,7 @@ try {
                     </tr>
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <!--div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div-->
+                            <div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div>
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">Weight Status: '.$status.'</div>
@@ -298,7 +298,7 @@ try {
                             <th>Date</th>
                             <th>Time</th>
                             <th>Weigh Slip No.</th>
-                            <!--th>'.$status.' No.</th-->';
+                            <th>'.($status == 'DISPATCH' || $status == 'SALE-BAL' ? 'Delivery' : 'Purchase').' No.</th>';
 
                             if ($_GET['status'] == 'RECEIVING') {
                                 $html .= '
