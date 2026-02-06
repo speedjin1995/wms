@@ -158,10 +158,10 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
 			$is_complete = 'Y';
 		}
 		else{
-			if($transaction_status == 'Receiving' && $invoice_no != null && $invoice_no != '' && $supplier != null && $vehicle != null){ 
+			if($transaction_status == 'Receiving' && $invoice_no != null && $invoice_no != '' && $supplier != null && $vehicle != null && (float)$tare <= 0){ 
 			    $is_complete = 'Y';
 			}
-			else if($transaction_status == 'Dispatch' && $customer != null && $vehicle != null){
+			else if($transaction_status == 'Dispatch' && $customer != null && $vehicle != null && (float)$gross <= 0){
 				$is_complete = 'Y';
 			}
 			else{
