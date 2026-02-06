@@ -5,6 +5,14 @@ session_start();
 
 $post = json_decode(file_get_contents('php://input'), true);
 
+$services = 'Login';
+$requests = json_encode($post);
+
+$stmtL = $db->prepare("INSERT INTO api_requests (services, request) VALUES (?, ?)");
+$stmtL->bind_param('ss', $services, $requests);
+$stmtL->execute();
+$invid = $stmtL->insert_id;
+
 $username=$post['userEmail'];
 $password=$post['userPassword'];
 $now = date("Y-m-d H:i:s");
@@ -46,33 +54,57 @@ if(($row = $result->fetch_assoc()) !== null){
             "email" => $row['email'],
             "sst" => $row['sst']
         );
-        
-		$stmt->close();
-		$db->close();
-		
-		echo json_encode(
+
+        $response = json_encode(
             array(
                 "status"=> "success", 
                 "message"=> $message
             )
         );
+
+        $stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+        $stmtU->bind_param('ss', $response, $invid);
+        $stmtU->execute();
+
+        $stmt->close();
+        $stmtU->close();
+        $db->close();
+        echo $response;
 	} 
 	else{
-		echo json_encode(
+        $response = json_encode(
             array(
                 "status"=> "failed", 
-                "message"=> $stmt->error
+                "message"=> "Invalid username or password"
             )
         );
+
+        $stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+        $stmtU->bind_param('ss', $response, $invid);
+        $stmtU->execute();
+
+        $stmt->close();
+        $stmtU->close();
+        $db->close();
+        echo $response;
 	}
 	
 } 
 else{
-	 echo json_encode(
+    $response = json_encode(
         array(
             "status"=> "failed", 
-            "message"=> $stmt->error
+            "message"=> "User not found"
         )
     );
+
+    $stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+    $stmtU->bind_param('ss', $response, $invid);
+    $stmtU->execute();
+
+    $stmt->close();
+    $stmtU->close();
+    $db->close();
+    echo $response;
 }
 ?>
