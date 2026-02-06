@@ -1097,7 +1097,7 @@ $(function () {
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
             <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
-              <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
+              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
@@ -1128,6 +1128,41 @@ $(function () {
     var productId = $(this).find('option:selected').data('id');
     row.find('input[name*="[product]"]').val(productId);
     row.find('input[name*="[product_desc]"]').val(productName);
+    
+    // Filter grades by selected product
+    var gradeSelect = row.find('select[name*="[grade]"]');
+    var currentGrade = gradeSelect.val();
+    
+    // Destroy Select2 before modifying options
+    gradeSelect.select2('destroy');
+    
+    // Store all original options if not already stored
+    if (!gradeSelect.data('original-options')) {
+      gradeSelect.data('original-options', gradeSelect.html());
+    }
+    
+    // Reset to original options
+    gradeSelect.html(gradeSelect.data('original-options'));
+    
+    if(productName) {
+      // Remove options that don't match the selected product
+      gradeSelect.find('option').each(function() {
+        var gradeProduct = $(this).data('product');
+        if(gradeProduct && gradeProduct != productName) {
+          $(this).remove();
+        }
+      });
+    }
+    
+    // Recreate Select2
+    gradeSelect.select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+    
+    gradeSelect.val(currentGrade).trigger('change');
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
