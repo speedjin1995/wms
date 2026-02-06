@@ -30,9 +30,9 @@ else{
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer = '$company' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades2 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades3 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -44,9 +44,9 @@ else{
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades2 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades3 = $db->query("SELECT DISTINCT g.* FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
   }
 
@@ -374,7 +374,7 @@ else{
               <thead>
                 <tr>
                   <th>No</th>
-                  <th>Product</th>
+                  <th width="10%">Product</th>
                   <th width="10%">Grade</th>
                   <th>Gross</th>
                   <th>Tare</th>
@@ -410,7 +410,7 @@ else{
               <thead>
                 <tr>
                   <th>No</th>
-                  <th>Product</th>
+                  <th width="10%">Product</th>
                   <th width="10%">Grade</th>
                   <th>Gross</th>
                   <th>Tare</th>
@@ -1097,7 +1097,7 @@ $(function () {
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
             <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
-              <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
+              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
@@ -1128,6 +1128,41 @@ $(function () {
     var productId = $(this).find('option:selected').data('id');
     row.find('input[name*="[product]"]').val(productId);
     row.find('input[name*="[product_desc]"]').val(productName);
+    
+    // Filter grades by selected product
+    var gradeSelect = row.find('select[name*="[grade]"]');
+    var currentGrade = gradeSelect.val();
+    
+    // Destroy Select2 before modifying options
+    gradeSelect.select2('destroy');
+    
+    // Store all original options if not already stored
+    if (!gradeSelect.data('original-options')) {
+      gradeSelect.data('original-options', gradeSelect.html());
+    }
+    
+    // Reset to original options
+    gradeSelect.html(gradeSelect.data('original-options'));
+    
+    if(productName) {
+      // Remove options that don't match the selected product
+      gradeSelect.find('option').each(function() {
+        var gradeProduct = $(this).data('product');
+        if(gradeProduct && gradeProduct != productName) {
+          $(this).remove();
+        }
+      });
+    }
+    
+    // Recreate Select2
+    gradeSelect.select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+    
+    gradeSelect.val(currentGrade).trigger('change');
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
@@ -1188,6 +1223,41 @@ $(function () {
     var productId = $(this).find('option:selected').data('id');
     row.find('input[name*="[product]"]').val(productId);
     row.find('input[name*="[product_desc]"]').val(productName);
+    
+    // Filter grades by selected product
+    var gradeSelect = row.find('select[name*="[grade]"]');
+    var currentGrade = gradeSelect.val();
+    
+    // Destroy Select2 before modifying options
+    gradeSelect.select2('destroy');
+    
+    // Store all original options if not already stored
+    if (!gradeSelect.data('original-options')) {
+      gradeSelect.data('original-options', gradeSelect.html());
+    }
+    
+    // Reset to original options
+    gradeSelect.html(gradeSelect.data('original-options'));
+    
+    if(productName) {
+      // Remove options that don't match the selected product
+      gradeSelect.find('option').each(function() {
+        var gradeProduct = $(this).data('product');
+        if(gradeProduct && gradeProduct !== productName) {
+          $(this).remove();
+        }
+      });
+    }
+    
+    // Recreate Select2
+    gradeSelect.select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+    
+    gradeSelect.val(currentGrade).trigger('change');
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
@@ -1610,7 +1680,7 @@ function edit(id) {
               <td>
                 <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
                   <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-                    <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
+                    <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
                   <?php } ?>
                 </select>
               </td>
@@ -1628,8 +1698,17 @@ function edit(id) {
           `;
           tbody.append(row);
           
+          // Filter grades by product
+          var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade]"]`);
+          var productName = detail.product_name;
+          gradeSelect.find('option').each(function() {
+            if($(this).data('product') && $(this).data('product') !== productName) {
+              $(this).remove();
+            }
+          });
+          
           // Set the selected value for the grade dropdown
-          tbody.find(`select[name="weightDetails[${idx}][grade]"]`).val(detail.grade);
+          gradeSelect.val(detail.grade);
 
           totalGross += parseFloat(detail.gross);
           totalTare += parseFloat(detail.tare);
@@ -1967,29 +2046,52 @@ function filterWeightTable(rowId) {
     var currentGrade = gradeSelect.val();
     gradeSelect.find('option:not(:first)').remove();
     
-    var grades = {};
+    var grades = [];
     $('#weightTable_' + rowId + ' tbody tr').each(function() {
       var product = $(this).find('td:eq(0)').text();
       if(product === productFilter) {
         var grade = $(this).find('td:eq(1)').text();
-        grades[grade] = true;
+        if(grades.indexOf(grade) === -1) {
+          grades.push(grade);
+        }
       }
     });
     
-    for(var grade in grades) {
+    grades.sort();
+    grades.forEach(function(grade) {
       gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-    }
+    });
+    gradeSelect.val(currentGrade);
+  } else {
+    var gradeSelect = $('#gradeFilter_' + rowId);
+    var currentGrade = gradeSelect.val();
+    gradeSelect.find('option:not(:first)').remove();
+    
+    var grades = [];
+    $('#weightTable_' + rowId + ' tbody tr').each(function() {
+      var grade = $(this).find('td:eq(1)').text();
+      if(grades.indexOf(grade) === -1) {
+        grades.push(grade);
+      }
+    });
+    
+    grades.sort();
+    grades.forEach(function(grade) {
+      gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+    });
     gradeSelect.val(currentGrade);
   }
 }
 
 function populateFilters(rowId, weightDetails) {
   var products = {};
-  var grades = {};
+  var grades = [];
   
   weightDetails.forEach(function(detail) {
     products[detail.product_name] = true;
-    grades[detail.grade] = true;
+    if(grades.indexOf(detail.grade) === -1) {
+      grades.push(detail.grade);
+    }
   });
   
   var productSelect = $('#productFilter_' + rowId);
@@ -1997,10 +2099,11 @@ function populateFilters(rowId, weightDetails) {
     productSelect.append('<option value="' + product + '">' + product + '</option>');
   }
   
+  grades.sort();
   var gradeSelect = $('#gradeFilter_' + rowId);
-  for(var grade in grades) {
+  grades.forEach(function(grade) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-  }
+  });
 }
 
 </script>
