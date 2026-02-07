@@ -39,6 +39,8 @@
                 <tr>
                   <th>Name</th>
                   <th>Role</th>
+                  <th>Allow Edit</th>
+                  <th>Allow Delete</th>
                   <th>Created Date</th>
                   <th>Actions</th>
                 </tr>
@@ -83,6 +85,20 @@
             <?php } ?>
 						</select>
 					</div>
+          <div class="form-group">
+						<label>Allow Edit *</label>
+						<select class="form-control" id="allowEdit" name="allowEdit" required>
+              <option value="Y">YES</option>
+              <option value="N">NO</option>
+						</select>
+					</div>
+          <div class="form-group">
+						<label>Allow Delete *</label>
+						<select class="form-control" id="allowDelete" name="allowDelete" required>
+              <option value="Y">YES</option>
+              <option value="N">NO</option>
+						</select>
+					</div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
@@ -109,6 +125,8 @@ $(function () {
       'columns': [
         { data: 'name' },
         { data: 'role_name' },
+        { data: 'allow_edit' },
+        { data: 'allow_delete' },
         { data: 'created_date' },
         { 
           data: 'id',
@@ -179,6 +197,8 @@ function edit(id){
             $('#addModal').find('#username').val(obj.message.username);
             $('#addModal').find('#name').val(obj.message.name);
             $('#addModal').find('#userRole').val(obj.message.role_code);
+            $('#addModal').find('#allowEdit').val(obj.message.allow_edit);
+            $('#addModal').find('#allowDelete').val(obj.message.allow_delete);
             $('#addModal').modal('show');
             
             $('#memberForm').validate({
