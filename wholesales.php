@@ -15,9 +15,13 @@ else{
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
-	
+	$allowEdit = 'N';
+  $allowDelete = 'N';
+
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
+    $allowEdit = $row['allow_edit'];
+    $allowDelete = $row['allow_delete'];
   }
 
   if ($user != 2){
@@ -571,11 +575,11 @@ $(function () {
         class: 'action-button',
         render: function ( data, type, row ) {
           var buttons = '<div class="row">';
-          if(userRole == 'ADMIN') {
+          if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
           }
           buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
-          if(userRole == 'ADMIN') {
+          if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
           }
           buttons += '</div>';
@@ -731,12 +735,12 @@ $(function () {
           class: 'action-button',
           render: function ( data, type, row ) {
             var buttons = '<div class="row">';
-            if(userRole == 'ADMIN') {
+            if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
             }
             buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
 
-            if(userRole == 'ADMIN') {
+            if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
             }
             

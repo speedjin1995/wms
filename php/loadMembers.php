@@ -35,7 +35,7 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select users.id, users.username, users.name, users.created_date, users.created_by, roles.role_name, companies.name AS company from users, roles, companies WHERE 
+$empQuery = "select users.id, users.username, users.name, users.created_date, users.created_by, users.allow_edit, users.allow_delete, roles.role_name, companies.name AS company from users, roles, companies WHERE 
 users.role_code = roles.role_code AND users.customer = companies.id AND users.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
@@ -53,6 +53,8 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "name"=>$row['name'],
       "username"=>$row['username'],
       "role_name"=>$row['role_name'],
+      "allow_edit"=> ($row['allow_edit'] == 'Y') ? 'YES' : 'NO',
+      "allow_delete"=> ($row['allow_delete'] == 'Y') ? 'YES' : 'NO',
       "company"=>$row['company'],
       "created_date"=>$joined_date
     );
