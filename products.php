@@ -20,6 +20,10 @@ else{
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
   }
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -27,7 +31,7 @@ else{
   <div class="container-fluid">
       <div class="row mb-2">
     <div class="col-sm-6">
-      <h1 class="m-0 text-dark">Products</h1>
+      <h1 class="m-0 text-dark"><?=$languageArray['products_code'][$language]?></h1>
     </div><!-- /.col -->
       </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -45,13 +49,13 @@ else{
             <div class="col-2">
               <a href="template/Product_Template.xlsx" download>
                 <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                  Download Template
+                  <?=$languageArray['download_template_code'][$language]?>
                 </button>
               </a>
             </div>
             <div class="col-2">
               <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                Upload Excel
+                <?=$languageArray['upload_excel_code'][$language]?>
               </button>
             </div>
             <!-- <div class="col-2">
@@ -61,7 +65,7 @@ else{
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
             </div>                             -->
             <div class="col-2">
-              <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProducts">Add Products</button>
+              <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProducts"><?=$languageArray['add_products_code'][$language]?></button>
             </div>
           </div>
         </div>
@@ -69,12 +73,12 @@ else{
           <table id="productTable" class="table table-bordered table-striped">
             <thead>
               <tr>
-                <th>Product Code</th>
-                <th>Product Name</th>
+                <th><?=$languageArray['product_code_code'][$language]?></th>
+                <th><?=$languageArray['product_name_code'][$language]?></th>
                 <!--th>Price</th-->
-                <th>Weight</th>
-                <th>Remark</th>
-                <th>Actions</th>
+                <th><?=$languageArray['weight_code'][$language]?></th>
+                <th><?=$languageArray['remark_code'][$language]?></th>
+                <th><?=$languageArray['actions_code'][$language]?></th>
               </tr>
             </thead>
           </table>
@@ -90,7 +94,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Upload Excel</h4>
+            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -98,13 +102,13 @@ else{
           <div class="modal-body">
             <div class="card-body">
               <input type="file" id="fileInput">
-              <button type="button" id="previewButton">Preview Data</button>
+              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success" id="uploadProduct">Submit</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-success" id="uploadProduct"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -118,7 +122,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Error Log</h4>
+            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -142,7 +146,7 @@ else{
       <div class="modal-content">
         <form role="form" id="productForm">
             <div class="modal-header">
-              <h4 class="modal-title">Add Products</h4>
+              <h4 class="modal-title"><?=$languageArray['add_products_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -151,7 +155,7 @@ else{
               <div class="card-body p-3">
                 <input type="hidden" class="form-control" id="id" name="id">
                 <div class="form-group mb-2" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
-                  <label for="code">Company *</label>
+                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
@@ -161,14 +165,14 @@ else{
                 <div class="row">
                   <div class="col-6">
                     <div class="form-group mb-2">
-                      <label for="code">Product Code *</label>
-                      <input type="text" class="form-control" name="code" id="code" placeholder="Enter Product Code" required>
+                      <label for="code"><?=$languageArray['product_code_code'][$language]?> *</label>
+                      <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group mb-2">
-                      <label for="product">Product Name *</label>
-                      <input type="text" class="form-control" name="product" id="product" placeholder="Enter Product Name" required>
+                      <label for="product"><?=$languageArray['product_name_code'][$language]?> *</label>
+                      <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
                     </div>
                   </div>
                 </div>
@@ -198,16 +202,16 @@ else{
                 <div class="row">
                   <div class="col-6">
                     <div class="form-group mb-2">
-                      <label for="weight">Weight</label>
-                      <input type="number" class="form-control" name="weight" id="weight" placeholder="Weight">
+                      <label for="weight"><?=$languageArray['weight_code'][$language]?></label>
+                      <input type="number" class="form-control" name="weight" id="weight" placeholder="<?=$languageArray['weight_code'][$language]?>">
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group mb-2">
-                      <label for="pricingType">Pricing Type</label>
+                      <label for="pricingType"><?=$languageArray['pricing_type_code'][$language]?></label>
                       <select class="form-control" id="pricingType" name="pricingType"> 
-                        <option selected="selected">Fixed</option>
-                        <option>Float</option>
+                        <option selected="selected"><?=$languageArray['fixed_code'][$language]?></option>
+                        <option><?=$languageArray['float_code'][$language]?></option>
                       </select>
                     </div>
                   </div>
@@ -215,13 +219,13 @@ else{
                 <div class="row">
                   <div class="col-6">
                     <div class="form-group mb-2">
-                      <label for="price">Price</label>
-                      <input type="number" class="form-control" name="price" id="price" placeholder="Price">
+                      <label for="price"><?=$languageArray['price_code'][$language]?></label>
+                      <input type="number" class="form-control" name="price" id="price" placeholder="<?=$languageArray['price_code'][$language]?>">
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group mb-2">
-                      <label for="uom">Unit</label>
+                      <label for="uom"><?=$languageArray['unit_code'][$language]?></label>
                       <select class="form-control" id="uom" name="uom"> 
                         <option selected="selected">-</option>
                         <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
@@ -232,8 +236,8 @@ else{
                   </div> 
                 </div>
                 <div class="form-group mb-3"> 
-                  <label for="remark">Remark</label>
-                  <textarea class="form-control" id="remark" name="remark" placeholder="Enter remark" rows="2"></textarea>
+                  <label for="remark"><?=$languageArray['remark_code'][$language]?></label>
+                  <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
                 </div>
 
                 <div class="row">
@@ -242,11 +246,11 @@ else{
                       <div class="card-header">
                         <div class="row">
                           <div class="col-10">
-                            <h3>Customers</h3>
+                            <h3><?=$languageArray['customers_code'][$language]?></h3>
                           </div>
                           <div class="col-2">
                             <button type="button" class="btn btn-success add-customer">
-                              <i class="ri-add-circle-line align-middle me-1"></i>Add Customer
+                              <i class="ri-add-circle-line align-middle me-1"></i><?=$languageArray['add_customers_code'][$language]?>
                             </button>
                           </div>
                         </div>
@@ -257,11 +261,11 @@ else{
                             <table class="table table-primary">
                               <thead>
                                 <tr>
-                                  <th width="10%">No</th>
-                                  <th>Customer</th>
-                                  <th>Pricing Type</th>
-                                  <th>Price (RM)</th>
-                                  <th>Action</th>
+                                  <th width="10%"><?=$languageArray['number_short_code'][$language]?></th>
+                                  <th><?=$languageArray['customer_code'][$language]?></th>
+                                  <th><?=$languageArray['pricing_type_code'][$language]?></th>
+                                  <th><?=$languageArray['price_code'][$language]?> (RM)</th>
+                                  <th><?=$languageArray['actions_code'][$language]?></th>
                                 </tr>
                               </thead>
                               <tbody id="customerTable"></tbody>
@@ -279,11 +283,11 @@ else{
                       <div class="card-header">
                         <div class="row">
                           <div class="col-10">
-                            <h3>Grades</h3>
+                            <h3><?=$languageArray['grades_code'][$language]?></h3>
                           </div>
                           <div class="col-2">
                             <button type="button" class="btn btn-success add-grade">
-                              <i class="ri-add-circle-line align-middle me-1"></i>Add Grade
+                              <i class="ri-add-circle-line align-middle me-1"></i><?=$languageArray['add_grade_code'][$language]?>
                             </button>
                           </div>
                         </div>
@@ -294,9 +298,9 @@ else{
                             <table class="table table-primary">
                               <thead>
                                 <tr>
-                                  <th width="10%">No</th>
-                                  <th>Unit</th>
-                                  <th>Action</th>
+                                  <th width="10%"><?=$languageArray['number_short_code'][$language]?></th>
+                                  <th><?=$languageArray['unit_code'][$language]?></th>
+                                  <th><?=$languageArray['actions_code'][$language]?></th>
                                 </tr>
                               </thead>
                               <tbody id="gradeTable"></tbody>
@@ -311,8 +315,8 @@ else{
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember">Submit</button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>

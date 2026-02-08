@@ -6,13 +6,17 @@
   $stmt2 = $db->prepare("SELECT * FROM roles WHERE deleted = '0'");
   $stmt2->execute();
   $result2 = $stmt2->get_result();
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 ?>
 
 <div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Users</h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['users_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -29,7 +33,7 @@
             <div class="row">
               <div class="col-6"></div>
               <div class="col-6">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addMembers">Add Members</button>
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addMembers"><?=$languageArray['add_members_code'][$language]?></button>
               </div>
             </div>
           </div>
@@ -37,10 +41,12 @@
             <table id="memberTable" class="table table-bordered table-striped">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Role</th>
-                  <th>Created Date</th>
-                  <th>Actions</th>
+                  <th><?=$languageArray['full_name_code'][$language]?></th>
+                  <th><?=$languageArray['role_code'][$language]?></th>
+                  <th><?=$languageArray['allow_edit_code'][$language]?></th>
+                  <th><?=$languageArray['allow_delete_code'][$language]?></th>
+                  <th><?=$languageArray['created_date_code'][$language]?></th>
+                  <th><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
             </table>
@@ -56,7 +62,7 @@
     <div class="modal-content">
       <form role="form" id="memberForm">
         <div class="modal-header">
-          <h4 class="modal-title">Add Members</h4>
+          <h4 class="modal-title"><?=$languageArray['add_members_code'][$language]?></h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -65,17 +71,17 @@
           <input type="hidden" class="form-control" id="id" name="id">
           <input type="hidden" class="form-control" id="company" name="customer" value="<?=$company ?>">
           <div class="form-group">
-            <label for="username">Username *</label>
-            <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username" required>
+            <label for="username"><?=$languageArray['username_code'][$language]?> *</label>
+            <input type="text" class="form-control" name="username" id="username" placeholder="<?=$languageArray['enter_username_code'][$language]?>" required>
           </div>
           <div class="form-group">
-            <label for="name">Name *</label>
-            <input type="text" class="form-control" name="name" id="name" placeholder="Enter Full Name" required>
+            <label for="name"><?=$languageArray['full_name_code'][$language]?> *</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_full_name_code'][$language]?>" required>
           </div>
           <div class="form-group">
-						<label>Role *</label>
+						<label><?=$languageArray['role_code'][$language]?> *</label>
 						<select class="form-control" id="userRole" name="userRole" required>
-              <option select="selected" value="">Please Select</option>
+              <option select="selected" value=""><?=$languageArray['please_select_code'][$language]?></option>
               <?php while ($row2 = $result2->fetch_assoc()) { ?>
                 <?php if ($row2['role_code'] !== 'ADMIN') { ?>
                   <option value="<?= $row2['role_code'] ?>"><?= $row2['role_name'] ?></option>
@@ -83,10 +89,24 @@
             <?php } ?>
 						</select>
 					</div>
+          <div class="form-group">
+						<label><?=$languageArray['allow_edit_code'][$language]?> *</label>
+						<select class="form-control" id="allowEdit" name="allowEdit" required>
+              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+						</select>
+					</div>
+          <div class="form-group">
+						<label><?=$languageArray['allow_delete_code'][$language]?> *</label>
+						<select class="form-control" id="allowDelete" name="allowDelete" required>
+              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+						</select>
+					</div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" name="submit" id="submitMember">Submit</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -109,6 +129,8 @@ $(function () {
       'columns': [
         { data: 'name' },
         { data: 'role_name' },
+        { data: 'allow_edit' },
+        { data: 'allow_delete' },
         { data: 'created_date' },
         { 
           data: 'id',
@@ -179,6 +201,8 @@ function edit(id){
             $('#addModal').find('#username').val(obj.message.username);
             $('#addModal').find('#name').val(obj.message.name);
             $('#addModal').find('#userRole').val(obj.message.role_code);
+            $('#addModal').find('#allowEdit').val(obj.message.allow_edit);
+            $('#addModal').find('#allowDelete').val(obj.message.allow_delete);
             $('#addModal').modal('show');
             
             $('#memberForm').validate({

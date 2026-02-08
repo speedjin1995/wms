@@ -18,6 +18,10 @@ else{
   else{
     $drivers = $db->query("SELECT * FROM drivers WHERE deleted = 0 ORDER BY driver_name ASC");
   }
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -25,7 +29,7 @@ else{
     <div class="container-fluid">
         <div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark">Vehicles</h1>
+				<h1 class="m-0 text-dark"><?=$languageArray['vehicles_code'][$language]?></h1>
 			</div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -44,13 +48,13 @@ else{
                   <div class="col-2">
                     <a href="template/Vehicle_Template.xlsx" download>
                       <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                        Download Template
+                        <?=$languageArray['download_template_code'][$language]?>
                       </button>
                     </a>
                   </div>
                   <div class="col-2">
                     <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                      Upload Excel
+                      <?=$languageArray['upload_excel_code'][$language]?>
                     </button>
                   </div>
                   <!-- <div class="col-2">
@@ -60,7 +64,7 @@ else{
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
                   </div>                             -->
                   <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addVehicle">Add Vehicle</button>
+                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addVehicle"><?=$languageArray['add_vehicle_code'][$language]?></button>
                   </div>
               </div>
           </div>
@@ -68,12 +72,12 @@ else{
 						<table id="vehicleTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
-                  <th>Vehicle Number</th>
-                  <th>Vehicle Weight (Kg)</th>
-                  <th>Driver</th>
+                  <th><?=$languageArray['vehicle_number_code'][$language]?></th>
+                  <th><?=$languageArray['vehicle_weight_code'][$language]?> (Kg)</th>
+                  <th><?=$languageArray['driver_code'][$language]?></th>
 									<!-- <th>Attendence 1</th>
 									<th>Attendence 2</th> -->
-									<th>Actions</th>
+									<th><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
 						</table>
@@ -89,7 +93,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Upload Excel</h4>
+            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -97,13 +101,13 @@ else{
           <div class="modal-body">
             <div class="card-body">
               <input type="file" id="fileInput">
-              <button type="button" id="previewButton">Preview Data</button>
+              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success" id="uploadVehicle">Submit</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-success" id="uploadVehicle"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -117,7 +121,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Error Log</h4>
+            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -141,7 +145,7 @@ else{
       <div class="modal-content">
         <form role="form" id="vehicleForm">
             <div class="modal-header">
-              <h4 class="modal-title">Add Vehicle</h4>
+              <h4 class="modal-title"><?=$languageArray['add_vehicle_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -152,7 +156,7 @@ else{
                   <input type="hidden" class="form-control" id="id" name="id">
                 </div>
                 <div class="form-group" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
-                  <label for="code">Company *</label>
+                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
@@ -160,15 +164,15 @@ else{
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="vehicleNumber">Vehicle Number *</label>
-                  <input type="text" class="form-control" name="vehicleNumber" id="vehicleNumber" placeholder="Enter Vehicle Number" required>
+                  <label for="vehicleNumber"><?=$languageArray['vehicle_number_code'][$language]?> *</label>
+                  <input type="text" class="form-control" name="vehicleNumber" id="vehicleNumber" placeholder="<?=$languageArray['enter_vehicle_number_code'][$language]?>" required>
                 </div>
                 <div class="form-group">
-                  <label for="vehicleWeight">Vehicle Weight (Kg)</label>
-                  <input type="text" class="form-control" name="vehicleWeight" id="vehicleWeight" placeholder="Enter Vehicle Weight">
+                  <label for="vehicleWeight"><?=$languageArray['vehicle_weight_code'][$language]?> (Kg)</label>
+                  <input type="text" class="form-control" name="vehicleWeight" id="vehicleWeight" placeholder="<?=$languageArray['enter_vehicle_weight_code'][$language]?>">
                 </div>
                 <div class="form-group">
-                  <label for="name">Driver Name *</label>
+                  <label for="name"><?=$languageArray['driver_code'][$language]?> *</label>
                   <select class="form-control select2" style="width: 100%;" id="driver" name="driver" required>
                     <?php while($rowDriver=mysqli_fetch_assoc($drivers)){ ?>
                       <option value="<?=$rowDriver['id'] ?>"><?=$rowDriver['driver_name'] ?></option>
@@ -186,8 +190,8 @@ else{
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember">Submit</button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>

@@ -257,3 +257,10 @@ DELIMITER ;
 
 -- 05/02/2026 --
 ALTER TABLE `vehicles` ADD `vehicle_weight` VARCHAR(50) NULL AFTER `veh_number`;
+
+-- 07/02/2026 --
+ALTER TABLE `users` ADD `allow_edit` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `stopbits`, ADD `allow_delete` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `allow_edit`;
+
+ALTER TABLE `users` ADD `languages` VARCHAR(5) NOT NULL DEFAULT 'en' AFTER `allow_delete`;
+
+ALTER TABLE `message_resource` ADD `ja` TEXT NULL AFTER `ne`, ADD `company` INT(11) NOT NULL AFTER `ja`;

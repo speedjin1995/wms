@@ -175,7 +175,7 @@ $(function () {
             data: 'deleted',
             render: function (data, type, row) {
               if (data == 0) {
-                return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+                return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" id="translate' + row.id + '" onclick="insertTranslations(' + row.id + ')" class="btn btn-info btn-sm"><i class="fas fa-language"></i></button></div></div>';
               } 
               else{
                 return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
@@ -378,6 +378,28 @@ function reactivate(id){
         }
         else{
             toastr["error"]("Something wrong when activate", "Failed:");
+            $('#spinnerLoading').hide();
+        }
+    });
+  }
+}
+
+function insertTranslations(id){
+  if (confirm('Insert default translations for this company?')) {
+    $('#spinnerLoading').show();
+    $.post('php/insertTranslations.php', {companyId: id}, function(data){
+        var obj = JSON.parse(data);
+        
+        if(obj.status === 'success'){
+            toastr["success"](obj.message, "Success:");
+            $('#spinnerLoading').hide();
+        }
+        else if(obj.status === 'failed'){
+            toastr["error"](obj.message, "Failed:");
+            $('#spinnerLoading').hide();
+        }
+        else{
+            toastr["error"]("Something went wrong", "Failed:");
             $('#spinnerLoading').hide();
         }
     });

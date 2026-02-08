@@ -15,9 +15,13 @@ else{
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
-	
+	$allowEdit = 'N';
+  $allowDelete = 'N';
+
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
+    $allowEdit = $row['allow_edit'];
+    $allowDelete = $row['allow_delete'];
   }
 
   if ($user != 2){
@@ -52,6 +56,10 @@ else{
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
+  
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 }
 ?>
 <!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
@@ -73,7 +81,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Weighing Record</h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['weighing_record_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -89,7 +97,7 @@ else{
           <div class="card-body">
             <div class="row">
               <div class="form-group col-3">
-                <label>From Date:</label>
+                <label><?=$languageArray['from_date_code'][$language]?>:</label>
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
                   <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
@@ -98,7 +106,7 @@ else{
               </div>
 
               <div class="form-group col-3">
-                <label>To Date:</label>
+                <label><?=$languageArray['to_date_code'][$language]?>:</label>
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
                   <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
@@ -109,20 +117,20 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Status</label>
+                  <label><?=$languageArray['status_code'][$language]?></label>
                   <select class="form-control" id="statusFilter" name="statusFilter">
-                    <option value="DISPATCH" selected>Dispatch</option>
-                    <option value="RECEIVING">Receiving</option>
-                    <option value="SALE-BAL">Sale Balance</option>
+                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                    <option value="SALE-BAL"><?=$languageArray['sale_balance_code'][$language]?></option>
                   </select>
                 </div>
               </div>
 
               <div class="col-3" id="customerStatusDiv">
                 <div class="form-group">
-                  <label>Customer</label>
+                  <label><?=$languageArray['customer_code'][$language]?></label>
                   <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
                       <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
                     <?php } ?>
@@ -132,9 +140,9 @@ else{
 
               <div class="col-3" id="supplierStatusDiv" style="display: none;">
                 <div class="form-group">
-                  <label>Supplier</label>
+                  <label><?=$languageArray['supplier_code'][$language]?></label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
                       <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
                     <?php } ?>
@@ -144,9 +152,9 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Vehicle No</label>
+                  <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
                       <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
                     <?php } ?>
@@ -156,23 +164,23 @@ else{
 
               <div class="col-3" id="otherVehicleFilterDiv" style="display: none;">
                 <div class="form-group">
-                  <label>Other Vehicle No</label>
-                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="Please Enter Vehicle No">
+                  <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
+                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
                 </div>
               </div>
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Checked By</label>
-                  <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="Please Enter Name">
+                  <label><?=$languageArray['checked_by_code'][$language]?></label>
+                  <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
                 </div>
               </div>
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Weighted By</label>
+                  <label><?=$languageArray['weighed_by_code'][$language]?></label>
                   <select class="form-control select2" id="weightByFilter" name="weightByFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
                       <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
                     <?php } ?>
@@ -182,7 +190,7 @@ else{
 
               <!--div class="col-3">
                 <div class="form-group">
-                  <label>Product</label>
+                  <label><?=$languageArray['product_code'][$language]?></label>
                   <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
                     <option selected="selected">-</option>
                     <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
@@ -198,7 +206,7 @@ else{
               <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
-                  Search
+                  <?=$languageArray['search_code'][$language]?>
                 </button>
               </div>
             </div>
@@ -217,7 +225,7 @@ else{
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
               <div class="col-2" style="visibility: hidden;">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> Add New</button>
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
             </div>
           </div>
@@ -226,20 +234,20 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
-                  <th>Serial <br>No.</th>
-                  <th>DO/PO <br>No.</th>
-                  <th>Sec Bill <br>No.</th>
-                  <th>Created <br> Datetime</th>
-                  <th>Parent</th>
-                  <th>Customer/<br>Supplier</th>
-                  <th>Vehicle <br>No.</th>
-                  <th>Driver</th>
-                  <th>Total <br>Item</th>
-                  <th>Total <br>Weight</th>
-                  <th>Total <br>Reject</th>
-                  <th>Weighed <br>By</th>
-                  <th>Checked <br>By</th>
-                  <th width="10%">Action</th>
+                  <th><?=$languageArray['serial_no_code'][$language]?></th>
+                  <th><?=$languageArray['do_po_no_code'][$language]?></th>
+                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
+                  <th><?=$languageArray['created_datetime_code'][$language]?></th>
+                  <th><?=$languageArray['parent_code'][$language]?></th>
+                  <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+                  <th><?=$languageArray['vehicle_no_code'][$language]?></th>
+                  <th><?=$languageArray['driver_code'][$language]?></th>
+                  <th><?=$languageArray['total_item_code'][$language]?></th>
+                  <th><?=$languageArray['total_weight_code'][$language]?></th>
+                  <th><?=$languageArray['total_reject_code'][$language]?></th>
+                  <th><?=$languageArray['weighed_by_code'][$language]?></th>
+                  <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <!-- <tfoot>
@@ -264,7 +272,7 @@ else{
     <div class="modal-content">
       <form role="form" id="extendForm">
         <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title">Add New Entry</h4>
+          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
           <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -276,32 +284,32 @@ else{
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
-                <label>Status *</label>
+                <label><?=$languageArray['status_code'][$language]?> *</label>
                 <select class="form-control" id="status" name="status" required>
-                  <option value="DISPATCH">Dispatch</option>
-                  <option value="RECEIVING">Receiving</option>
-                  <option value="SALE-BAL">Sale Balance</option>
+                  <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
+                  <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                  <option value="SALE-BAL"><?=$languageArray['sale_balance_code'][$language]?></option>
                 </select>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label>DO/PO No *</label>
+                <label><?=$languageArray['do_po_no_code'][$language]?> *</label>
                 <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
               </div>
             </div>
             <div class="col-md-4" id="securityBillDiv">
               <div class="form-group">
-                <label>Security Bill No.</label>
+                <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
               </div>
             </div>
             <div class="col-md-4" id="customerDiv">
               <div class="form-group">
-                <label>Customer</label>
+                <label><?=$languageArray['customer_code'][$language]?></label>
                 <select class="form-control select2" id="customer" name="customer">
                   <option value="" selected disabled hidden>Please Select</option>
-                  <option value="OTHERS">Others</option>
+                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
                     <option value="<?=$rowCustomer3['id'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
                   <?php } ?>
@@ -310,16 +318,16 @@ else{
             </div>
             <div class="col-md-4" id="customerOtherDiv">
               <div class="form-group">
-                <label>Customer Other</label>
+                <label><?=$languageArray['customer_other_code'][$language]?></label>
                 <input type="text" class="form-control" id="customerOther" name="customerOther">
               </div>
             </div>
             <div class="col-md-4" id="supplierDiv">
               <div class="form-group">
-                <label>Supplier</label>
+                <label><?=$languageArray['supplier_code'][$language]?></label>
                 <select class="form-control select2" id="supplier" name="supplier">
                   <option value="" selected disabled hidden>Please Select</option>
-                  <option value="OTHERS">Others</option>
+                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
                     <option value="<?=$rowSupplier3['id'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
                   <?php } ?>
@@ -328,13 +336,13 @@ else{
             </div>
             <div class="col-md-4" id="supplierOtherDiv">
               <div class="form-group">
-                <label>Supplier Other</label>
+                <label><?=$languageArray['supplier_other_code'][$language]?></label>
                 <input type="text" class="form-control" id="supplierOther" name="supplierOther">
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label>Vehicle No.</label>
+                <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                 <select class="form-control select2" id="vehicle" name="vehicle">
                   <option value="" selected disabled hidden>Please Select</option>
                   <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
@@ -345,13 +353,13 @@ else{
             </div>
             <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
               <div class="form-group">
-                <label>Other Vehicle No.</label>
-                <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="Please Enter Vehicle No">
+                <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
+                <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label>Driver</label>
+                <label><?=$languageArray['driver_code'][$language]?></label>
                 <select class="form-control select2" id="driver" name="driver">
                   <option value="" selected disabled hidden>Please Select</option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
@@ -364,25 +372,25 @@ else{
           
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0">Weight Details</h5>
+            <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
             <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
-              <i class="fas fa-plus"></i> Add Weight
+              <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
             </button>
           </div>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
                 <tr>
-                  <th>No</th>
-                  <th width="10%">Product</th>
-                  <th width="10%">Grade</th>
-                  <th>Gross</th>
-                  <th>Tare</th>
-                  <th>Net</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                  <th>Time</th>
-                  <th width="10%">Action</th>
+                  <th><?=$languageArray['number_short_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['product_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
+                  <th><?=$languageArray['gross_code'][$language]?></th>
+                  <th><?=$languageArray['tare_code'][$language]?></th>
+                  <th><?=$languageArray['net_code'][$language]?></th>
+                  <th><?=$languageArray['price_code'][$language]?></th>
+                  <th><?=$languageArray['total_code'][$language]?></th>
+                  <th><?=$languageArray['time_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="weightDetailsTable">
@@ -390,7 +398,7 @@ else{
               </tbody>
               <tfoot id="weightDetailsFooter">
                 <tr>
-                  <th colspan="3">Total</th>
+                  <th colspan="3"><?=$languageArray['total_code'][$language]?></th>
                   <th id="totalWeightGross">0.00</th>
                   <th id="totalWeightTare">0.00</th>
                   <th id="totalWeightNet">0.00</th>
@@ -404,21 +412,21 @@ else{
           </div>
 
           <hr>
-          <h5>Reject Details</h5>
+          <h5><?=$languageArray['reject_details_code'][$language]?></h5>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
                 <tr>
-                  <th>No</th>
-                  <th width="10%">Product</th>
-                  <th width="10%">Grade</th>
-                  <th>Gross</th>
-                  <th>Tare</th>
-                  <th>Net</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                  <th>Time</th>
-                  <th width="10%">Action</th>
+                  <th><?=$languageArray['number_short_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['product_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
+                  <th><?=$languageArray['gross_code'][$language]?></th>
+                  <th><?=$languageArray['tare_code'][$language]?></th>
+                  <th><?=$languageArray['net_code'][$language]?></th>
+                  <th><?=$languageArray['price_code'][$language]?></th>
+                  <th><?=$languageArray['total_code'][$language]?></th>
+                  <th><?=$languageArray['time_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="rejectDetailsTable">
@@ -426,7 +434,7 @@ else{
               </tbody>
               <tfoot id="rejectDetailsFooter">
                 <tr>
-                  <th colspan="3">Total</th>
+                  <th colspan="3"><?=$languageArray['total_code'][$language]?></th>
                   <th id="totalRejectGross">0.00</th>
                   <th id="totalRejectTare">0.00</th>
                   <th id="totalRejectNet">0.00</th>
@@ -441,8 +449,8 @@ else{
         </div>
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="saveButton">Save changes</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -571,11 +579,11 @@ $(function () {
         class: 'action-button',
         render: function ( data, type, row ) {
           var buttons = '<div class="row">';
-          if(userRole == 'ADMIN') {
+          if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
           }
           buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
-          if(userRole == 'ADMIN') {
+          if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
           }
           buttons += '</div>';
@@ -731,12 +739,12 @@ $(function () {
           class: 'action-button',
           render: function ( data, type, row ) {
             var buttons = '<div class="row">';
-            if(userRole == 'ADMIN') {
+            if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
             }
             buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
 
-            if(userRole == 'ADMIN') {
+            if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
             }
             

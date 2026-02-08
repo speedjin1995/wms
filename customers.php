@@ -18,6 +18,10 @@ else{
   }else{
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
   }
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -25,7 +29,7 @@ else{
     <div class="container-fluid">
         <div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark">Customers</h1>
+				<h1 class="m-0 text-dark"><?=$languageArray['customers_code'][$language]?></h1>
 			</div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -44,13 +48,13 @@ else{
                   <div class="col-2">
                     <a href="template/Customer_Template.xlsx" download>
                       <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                        Download Template
+                        <?=$languageArray['download_template_code'][$language]?>
                       </button>
                     </a>
                   </div>
                   <div class="col-2">
                     <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                      Upload Excel
+                      <?=$languageArray['upload_excel_code'][$language]?>
                     </button>
                   </div>
                   <!-- <div class="col-2">
@@ -60,7 +64,7 @@ else{
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
                   </div>                             -->
                   <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers">Add Customers</button>
+                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
                   </div>
               </div>
           </div>
@@ -68,14 +72,14 @@ else{
 						<table id="customerTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
-                  <th>Code</th>
-                  <th>Reg No.</th>
-                  <th>Parent</th>
-									<th>Name</th>
-									<th>Address</th>
-									<th>Phone</th>
-									<th>PIC</th>
-									<th width="10%">Actions</th>
+                  <th><?=$languageArray['customer_code_code'][$language]?></th>
+                  <th><?=$languageArray['reg_no_code'][$language]?></th>
+                  <th><?=$languageArray['parent_code'][$language]?></th>
+									<th><?=$languageArray['customer_name_code'][$language]?></th>
+									<th><?=$languageArray['address_code'][$language]?></th>
+									<th><?=$languageArray['phone_code'][$language]?></th>
+									<th><?=$languageArray['pic_code'][$language]?></th>
+									<th width="10%"><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
 						</table>
@@ -91,7 +95,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Upload Excel</h4>
+            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -99,13 +103,13 @@ else{
           <div class="modal-body">
             <div class="card-body">
               <input type="file" id="fileInput">
-              <button type="button" id="previewButton">Preview Data</button>
+              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success" id="uploadCustomer">Submit</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-success" id="uploadCustomer"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -119,7 +123,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Error Log</h4>
+            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -143,7 +147,7 @@ else{
       <div class="modal-content">
         <form role="form" id="customerForm">
             <div class="modal-header">
-              <h4 class="modal-title">Add Customers</h4>
+              <h4 class="modal-title"><?=$languageArray['add_customers_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -154,7 +158,7 @@ else{
                   <input type="hidden" class="form-control" id="id" name="id">
                 </div>
                 <div class="form-group" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
-                  <label for="code">Company *</label>
+                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
@@ -162,7 +166,7 @@ else{
                   </select>
                 </div>
                 <div class="form-group"> 
-                  <label for="parent">Parent </label>
+                  <label for="parent"><?=$languageArray['parent_code'][$language]?> </label>
                   <select class="form-control select2" style="width: 100%;" id="parent" name="parent">
                     <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
                       <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name'] ?></option>
@@ -170,35 +174,35 @@ else{
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="code">Customer Code *</label>
-                  <input type="text" class="form-control" name="code" id="code" placeholder="Enter Customer Code" maxlength="10" required>
+                  <label for="code"><?=$languageArray['customer_code_code'][$language]?> *</label>
+                  <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_customer_code_code'][$language]?>" maxlength="10" required>
                 </div>
                 <div class="form-group">
-                  <label for="name">Reg No. </label>
-                  <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="Enter Registration No">
+                  <label for="name"><?=$languageArray['reg_no_code'][$language]?> </label>
+                  <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="<?=$languageArray['enter_reg_no_code'][$language]?>">
                 </div>
                 <div class="form-group">
-                  <label for="name">Customer Name *</label>
-                  <input type="text" class="form-control" name="name" id="name" placeholder="Enter Customer Name" required>
+                  <label for="name"><?=$languageArray['customer_name_code'][$language]?> *</label>
+                  <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_customer_name_code'][$language]?>" required>
                 </div>
                 <div class="form-group"> 
-                  <label for="address">Address </label>
-                  <input type="text" class="form-control" name="address" id="address" placeholder="Enter  Address">
+                  <label for="address"><?=$languageArray['address_code'][$language]?> </label>
+                  <input type="text" class="form-control" name="address" id="address" placeholder="<?=$languageArray['enter_address_code'][$language]?>">
                 </div>
                 <div class="form-group"> 
-                  <label for="address">Address 2</label>
-                  <input type="text" class="form-control" name="address2" id="address2" placeholder="Enter  Address">
+                  <label for="address"><?=$languageArray['address_code'][$language]?> 2</label>
+                  <input type="text" class="form-control" name="address2" id="address2" placeholder="<?=$languageArray['enter_address_code'][$language]?> 2">
                 </div>
                 <div class="form-group"> 
-                  <label for="address">Address 3</label>
-                  <input type="text" class="form-control" name="address3" id="address3" placeholder="Enter  Address">
+                  <label for="address"><?=$languageArray['address_code'][$language]?> 3</label>
+                  <input type="text" class="form-control" name="address3" id="address3" placeholder="<?=$languageArray['enter_address_code'][$language]?> 3">
                 </div>
                 <div class="form-group"> 
-                  <label for="address">Address 4</label>
-                  <input type="text" class="form-control" name="address4" id="address4" placeholder="Enter  Address">
+                  <label for="address"><?=$languageArray['address_code'][$language]?> 4</label>
+                  <input type="text" class="form-control" name="address4" id="address4" placeholder="<?=$languageArray['enter_address_code'][$language]?> 4">
                 </div>
                 <div class="form-group">
-                  <label>States</label>
+                  <label><?=$languageArray['states_code'][$language]?></label>
                   <select class="form-control select2" style="width: 100%;" id="states" name="states">
                     <option selected="selected">-</option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
@@ -207,18 +211,18 @@ else{
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="phone">Phone </label>
+                  <label for="phone"><?=$languageArray['phone_code'][$language]?> </label>
                   <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
                 </div>
                 <div class="form-group"> 
-                  <label for="email">PIC </label>
+                  <label for="email"><?=$languageArray['pic_code'][$language]?> </label>
                   <input type="text" class="form-control" id="email" name="email" placeholder="Enter your PIC">
                 </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember">Submit</button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>

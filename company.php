@@ -29,6 +29,10 @@ else{
         $email = $row['email'];
         $fax = $row['fax'];
     }
+
+    // Language
+    $language = $_SESSION['language'];
+    $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -36,7 +40,7 @@ else{
 	<div class="container-fluid">
 		<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark">Company Profile</h1>
+				<h1 class="m-0 text-dark"><?=$languageArray['company_profile_code'][$language]?></h1>
 			</div>
 		</div>
 	</div>
@@ -47,50 +51,50 @@ else{
 		<form role="form" id="profileForm" novalidate="novalidate">
 			<div class="card-body">
 				<div class="form-group">
-					<label for="regNo">Company Reg No. *</label>
-					<input type="text" class="form-control" id="regNo" name="regNo" value="<?=$regNo ?>" placeholder="Enter Company Reg No." required>
+					<label for="regNo"><?=$languageArray['company_reg_no_code'][$language]?> *</label>
+					<input type="text" class="form-control" id="regNo" name="regNo" value="<?=$regNo ?>" placeholder="<?=$languageArray['enter_company_reg_no_code'][$language]?>" required>
 				</div>
 
 				<div class="form-group">
-					<label for="name">Company Name *</label>
-					<input type="text" class="form-control" id="name" name="name" value="<?=$name ?>" placeholder="Enter Company Name" required>
+					<label for="name"><?=$languageArray['company_name_code'][$language]?> *</label>
+					<input type="text" class="form-control" id="name" name="name" value="<?=$name ?>" placeholder="<?=$languageArray['enter_company_name_code'][$language]?>" required>
 				</div>
 				
 				<div class="form-group">
-					<label for="address">Company Address Line 1 *</label>
-                    <input type="text" class="form-control" id="address1" name="address1" value="<?=$address ?>" placeholder="Enter Company Address Line 1" required>
+					<label for="address"><?=$languageArray['company_address_line_1_code'][$language]?> *</label>
+                    <input type="text" class="form-control" id="address1" name="address1" value="<?=$address ?>" placeholder="<?=$languageArray['enter_company_address_line_1_code'][$language]?>" required>
 				</div>
 				<div class="form-group">
-					<label for="address2">Company Address Line 2</label>
-                    <input type="text" class="form-control" id="address2" name="address2" value="<?=$address2 ?>" placeholder="Enter Company Address Line 2">
+					<label for="address2"><?=$languageArray['company_address_line_2_code'][$language]?></label>
+                    <input type="text" class="form-control" id="address2" name="address2" value="<?=$address2 ?>" placeholder="<?=$languageArray['enter_company_address_line_2_code'][$language]?>">
 				</div>
 				<div class="form-group">
-					<label for="address3">Company Address Line 3</label>
-                    <input type="text" class="form-control" id="address3" name="address3" value="<?=$address3 ?>" placeholder="Enter Company Address Line 3">
+					<label for="address3"><?=$languageArray['company_address_line_3_code'][$language]?></label>
+                    <input type="text" class="form-control" id="address3" name="address3" value="<?=$address3 ?>" placeholder="<?=$languageArray['enter_company_address_line_3_code'][$language]?>">
 				</div>
 				<div class="form-group">
-					<label for="address4">Company Address Line 4</label>
-                    <input type="text" class="form-control" id="address4" name="address4" value="<?=$address4 ?>" placeholder="Enter Company Address Line 4">
+					<label for="address4"><?=$languageArray['company_address_line_4_code'][$language]?></label>
+                    <input type="text" class="form-control" id="address4" name="address4" value="<?=$address4 ?>" placeholder="<?=$languageArray['enter_company_address_line_4_code'][$language]?>">
 				</div>
 
                 <div class="form-group">
-					<label for="phone">Company Phone </label>
-					<input type="text" class="form-control" id="phone" name="phone" value="<?=$phone ?>" placeholder="Enter Phone">
+					<label for="phone"><?=$languageArray['company_phone_code'][$language]?></label>
+					<input type="text" class="form-control" id="phone" name="phone" value="<?=$phone ?>" placeholder="<?=$languageArray['enter_phone_code'][$language]?>">
 				</div>
 
                 <div class="form-group">
-					<label for="name">Company Email </label>
-					<input type="email" class="form-control" id="email" name="email" value="<?=$email ?>" placeholder="Enter Email">
+					<label for="email"><?=$languageArray['company_email_code'][$language]?></label>
+					<input type="email" class="form-control" id="email" name="email" value="<?=$email ?>" placeholder="<?=$languageArray['enter_email_code'][$language]?>">
 				</div>
 
                 <div class="form-group">
-					<label for="name">Company Fax </label>
-					<input type="text" class="form-control" id="fax" name="fax" value="<?=$fax ?>" placeholder="Enter Fax">
+					<label for="fax"><?=$languageArray['company_fax_code'][$language]?></label>
+					<input type="text" class="form-control" id="fax" name="fax" value="<?=$fax ?>" placeholder="<?=$languageArray['enter_fax_code'][$language]?>">
 				</div>
 			</div>
 			
 			<div class="card-footer">
-				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> Save</button>
+				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</form>
 	</div>

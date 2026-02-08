@@ -3,10 +3,10 @@ require_once "db_connect.php";
 
 session_start();
 
-if(isset($_POST['userID'])){
-	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
+if(isset($_POST['messageId'])){
+	$id = filter_input(INPUT_POST, 'messageId', FILTER_SANITIZE_STRING);
 
-    if ($update_stmt = $db->prepare("SELECT * FROM users WHERE id=?")) {
+    if ($update_stmt = $db->prepare("SELECT * FROM message_resource WHERE id=?")) {
         $update_stmt->bind_param('s', $id);
         
         // Execute the prepared query.
@@ -23,12 +23,13 @@ if(isset($_POST['userID'])){
             
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
-                $message['username'] = $row['username'];
-                $message['name'] = $row['name'];
-                $message['role_code'] = $row['role_code'];
-                $message['allow_edit'] = $row['allow_edit'];
-                $message['allow_delete'] = $row['allow_delete'];
-                $message['customer'] = $row['customer'];
+                $message['message_key_code'] = $row['message_key_code'];
+                $message['en'] = $row['en'];
+                $message['zh'] = $row['zh'];
+                $message['my'] = $row['my'];
+                $message['ne'] = $row['ne'];
+                $message['ja'] = $row['ja'];
+                $message['company'] = $row['company'];
             }
             
             echo json_encode(

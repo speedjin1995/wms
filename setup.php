@@ -26,6 +26,10 @@ else{
         $parity = $row['parity'];
         $stopbits = $row['stopbits'];
     }
+
+    // Language
+    $language = $_SESSION['language'];
+    $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -33,7 +37,7 @@ else{
 	<div class="container-fluid">
 		<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark">Setup</h1>
+				<h1 class="m-0 text-dark"><?=$languageArray['setup_code'][$language]?></h1>
 			</div>
 		</div>
 	</div>
@@ -46,13 +50,13 @@ else{
                 <div class="row">
                     <div class="col-4">
                         <div class="form-group">
-                            <label>Serial Port</label>
+                            <label><?=$languageArray['serial_port_code'][$language]?></label>
                             <select class="form-control" style="width: 100%;" id="serialPort" name="serialPort" required></select>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label>Baud Rate</label>
+                            <label><?=$languageArray['baud_rate_code'][$language]?></label>
                             <select class="form-control" style="width: 100%;" id="serialPortBaudRate" name="serialPortBaudRate" required>
                                 <option value="110" <?=$baudrate == '110' ? 'selected="selected"' : '';?>>110</option>
                                 <option value="300" <?=$baudrate == '300' ? ' selected="selected"' : '';?>>300</option>
@@ -73,7 +77,7 @@ else{
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label>Data Bits</label>
+                            <label><?=$languageArray['data_bits_code'][$language]?></label>
                             <select class="form-control" style="width: 100%;" id="serialPortDataBits" name="serialPortDataBits" required>
                                 <option value="8" <?=$databits == '8' ? 'selected="selected"' : '';?>>8</option>
                                 <option value="7" <?=$databits == '7' ? 'selected="selected"' : '';?>>7</option>
@@ -86,19 +90,19 @@ else{
                 <div class="row">
                     <div class="col-4">
                         <div class="form-group">
-                            <label>Parity</label>
+                            <label><?=$languageArray['parity_code'][$language]?></label>
                             <select class="form-control" style="width: 100%;" id="serialPortParity" name="serialPortParity" required>
-                                <option value="N" <?=$parity == 'N' ? 'selected="selected"' : '';?>>None</option>
-                                <option value="O" <?=$parity == 'O' ? 'selected="selected"' : '';?>>Odd</option>
-                                <option value="E" <?=$parity == 'E' ? 'selected="selected"' : '';?>>Even</option>
-                                <option value="M" <?=$parity == 'M' ? 'selected="selected"' : '';?>>Mark</option>
-                                <option value="S" <?=$parity == 'S' ? 'selected="selected"' : '';?>>Space</option>
+                                <option value="N" <?=$parity == 'N' ? 'selected="selected"' : '';?>><?=$languageArray['parity_none_code'][$language]?></option>
+                                <option value="O" <?=$parity == 'O' ? 'selected="selected"' : '';?>><?=$languageArray['parity_odd_code'][$language]?></option>
+                                <option value="E" <?=$parity == 'E' ? 'selected="selected"' : '';?>><?=$languageArray['parity_even_code'][$language]?></option>
+                                <option value="M" <?=$parity == 'M' ? 'selected="selected"' : '';?>><?=$languageArray['parity_mark_code'][$language]?></option>
+                                <option value="S" <?=$parity == 'S' ? 'selected="selected"' : '';?>><?=$languageArray['parity_space_code'][$language]?></option>
                             </select>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label>Stop bits</label>
+                            <label><?=$languageArray['stop_bits_code'][$language]?></label>
                             <select class="form-control" style="width: 100%;" id="serialPortStopBits" name="serialPortStopBits" required>
                                 <option value="1" <?=$stopbits == '1' ? 'selected="selected"' : '';?>>1</option>
                                 <option value="1.5" <?=$stopbits == '1.5' ? 'selected="selected"' : '';?>>1.5</option>
@@ -110,7 +114,7 @@ else{
 			</div>
 			
 			<div class="card-footer">
-				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> Save</button>
+				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</form>
 	</div>
