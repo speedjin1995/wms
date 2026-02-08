@@ -49,10 +49,12 @@ if($_POST['vehicle'] != null && $_POST['vehicle'] != '' && $_POST['vehicle'] != 
 }
 
 if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
-  if($_POST['status'] == 'N'){
+  if($_POST['status'] == 'Pending'){
     $searchQuery .= " and Weight.is_complete = 'N' AND Weight.is_cancel <> 'Y'";
-  }else{
-    $searchQuery .= " and Weight.is_complete = 'Y' AND Weight.is_cancel <> 'Y'";
+  }else if ($_POST['status'] == 'Complete') {
+    $searchQuery .= " and Weight.is_complete = 'Y' AND Weight.is_cancel <> 'Y'"; 
+  }else if ($_POST['status'] == 'Cancelled'){
+    $searchQuery .= " and Weight.is_cancel = 'Y'";
   }
 }
 

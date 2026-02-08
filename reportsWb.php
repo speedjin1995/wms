@@ -132,8 +132,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['status_code'][$language]?></label>
                   <select class="form-control select2" id="statusFilter" name="statusFilter" style="width: 100%;">
-                    <!-- <option value="N">Pending</option> -->
-                    <option value="Y" selected><?=$languageArray['complete_code'][$language]?></option>
+                    <option value="Complete" selected><?=$languageArray['complete_code'][$language]?></option>
+                    <option value="Cancelled"><?=$languageArray['cancelled_code'][$language]?></option>
                   </select>
                 </div>
               </div>
