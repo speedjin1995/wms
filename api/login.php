@@ -41,6 +41,7 @@ if(($row = $result->fetch_assoc()) !== null){
         $message['wholesales'] = in_array('wholesale', $modules) ? 'Y' : 'N';
         $message['validations'] = in_array('validation', $modules) ? 'Y' : 'N';
         $message['fruits'] = in_array('fruits', $modules) ? 'Y' : 'N';
+        $message['second_remarks'] = in_array('second_remarks', $modules) ? 'Y' : 'N';
         $message['customer_det'] = array(
             "id" => $row['customer'],
             "reg_no" => $row['reg_no'],
