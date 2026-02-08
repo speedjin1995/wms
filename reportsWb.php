@@ -34,6 +34,10 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
   }
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -42,7 +46,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Weighbridge</h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['weighbridge_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -58,7 +62,7 @@ else{
           <div class="card-body">
             <div class="row">
               <div class="form-group col-3">
-                <label>From Date:</label>
+                <label><?=$languageArray['from_date_code'][$language]?>:</label>
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
                   <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
@@ -67,7 +71,7 @@ else{
               </div>
 
               <div class="form-group col-3">
-                <label>To Date:</label>
+                <label><?=$languageArray['to_date_code'][$language]?>:</label>
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
                   <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
@@ -78,11 +82,11 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Transaction Status</label>
+                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option selected>-</option>
-                    <option value="Dispatch">Dispatch</option>
-                    <option value="Receiving">Receiving</option>
+                    <option value="Dispatch"><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
                     <!-- <option value="Local">Internal Transfer</option>
                     <option value="Misc">Miscellaneous</option> -->
                   </select>
@@ -91,7 +95,7 @@ else{
 
               <div class="col-3" id="customerDiv" style="display: none;">
                 <div class="form-group">
-                  <label>Customer</label>
+                  <label><?=$languageArray['customer_code'][$language]?></label>
                   <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
                     <option value="" selected disabled hidden>Please Select</option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
@@ -103,7 +107,7 @@ else{
 
               <div class="col-3" id="supplierDiv">
                 <div class="form-group">
-                  <label>Supplier</label>
+                  <label><?=$languageArray['supplier_code'][$language]?></label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
                     <option value="" selected disabled hidden>Please Select</option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
@@ -115,7 +119,7 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Vehicle No</label>
+                  <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
                     <option value="" selected disabled hidden>Please Select</option>
                     <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
@@ -126,16 +130,16 @@ else{
               </div>
               <div class="col-3">
                 <div class="form-group">
-                  <label>Status</label>
+                  <label><?=$languageArray['status_code'][$language]?></label>
                   <select class="form-control select2" id="statusFilter" name="statusFilter" style="width: 100%;">
                     <!-- <option value="N">Pending</option> -->
-                    <option value="Y" selected>Complete</option>
+                    <option value="Y" selected><?=$languageArray['complete_code'][$language]?></option>
                   </select>
                 </div>
               </div>
               <div class="col-3">
                 <div class="form-group">
-                  <label>Product</label>
+                  <label><?=$languageArray['product_code'][$language]?></label>
                   <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
                     <option selected="selected">-</option>
                     <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
@@ -146,8 +150,8 @@ else{
               </div>
               <div class="col-3">
                 <div class="form-group">
-                  <label>Transaction ID</label>
-                  <input type="text" id="transactionIDFilter" name="transactionIDFilter" class="form-control" placeholder="Transaction ID">
+                  <label><?=$languageArray['transaction_id_code'][$language]?></label>
+                  <input type="text" id="transactionIDFilter" name="transactionIDFilter" class="form-control" placeholder="<?=$languageArray['transaction_id_code'][$language]?>">
                 </div>
               </div>
             </div>
@@ -157,7 +161,7 @@ else{
               <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
-                  Search
+                  <?=$languageArray['search_code'][$language]?>
                 </button>
               </div>
             </div>
@@ -172,10 +176,10 @@ else{
             <div class="row">
               <div class="col-6"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel">Export Excel</button>
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>
           </div>
@@ -185,17 +189,17 @@ else{
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th>Transaction <br>Id</th>
-                  <th>Transaction <br>Date</th>
-                  <th>Transaction <br>Status</th>
-                  <th>PO <br>No.</th>
-                  <th>Vehicle <br>No.</th>
-                  <th>Customer/<br>Supplier</th>
-                  <th>Incoming <br>Weight</th>
-                  <th>Incoming <br>Date</th>
-                  <th>Outgoing <br>Weight</th>
-                  <th>Outgoing <br>Date</th>
-                  <th>Total Nett <br>Weight</th>
+                  <th><?=$languageArray['transaction_id_code'][$language]?></th>
+                  <th><?=$languageArray['transaction_date_code'][$language]?></th>
+                  <th><?=$languageArray['transaction_status_code'][$language]?></th>
+                  <th><?=$languageArray['po_no_code'][$language]?></th>
+                  <th><?=$languageArray['vehicle_no_code'][$language]?></th>
+                  <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+                  <th><?=$languageArray['incoming_weight_code'][$language]?></th>
+                  <th><?=$languageArray['incoming_date_code'][$language]?></th>
+                  <th><?=$languageArray['outgoing_weight_code'][$language]?></th>
+                  <th><?=$languageArray['outgoing_date_code'][$language]?></th>
+                  <th><?=$languageArray['total_nett_weight_code'][$language]?></th>
                   <!-- <th width="5%">Action</th> -->
                 </tr>
               </thead>

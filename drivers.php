@@ -11,6 +11,10 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -18,7 +22,7 @@ else{
     <div class="container-fluid">
         <div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark">Drivers</h1>
+				<h1 class="m-0 text-dark"><?=$languageArray['drivers_code'][$language]?></h1>
 			</div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -37,13 +41,13 @@ else{
                   <div class="col-2">
                     <a href="template/Driver_Template.xlsx" download>
                       <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                        Download Template
+                        <?=$languageArray['download_template_code'][$language]?>
                       </button>
                     </a>
                   </div>
                   <div class="col-2">
                     <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                      Upload Excel
+                      <?=$languageArray['upload_excel_code'][$language]?>
                     </button>
                   </div>
                   <!-- <div class="col-2">
@@ -53,7 +57,7 @@ else{
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
                   </div>                             -->
                   <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addDriver">Add Driver</button>
+                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addDriver"><?=$languageArray['add_driver_code'][$language]?></button>
                   </div>
               </div>
           </div>
@@ -61,9 +65,9 @@ else{
 						<table id="driverTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
-                  <th>Driver Name</th>
-                  <th>Driver IC</th>
-									<th>Actions</th>
+                  <th><?=$languageArray['driver_name_code'][$language]?></th>
+                  <th><?=$languageArray['driver_ic_code'][$language]?></th>
+									<th><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
 						</table>
@@ -79,7 +83,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Upload Excel</h4>
+            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -87,13 +91,13 @@ else{
           <div class="modal-body">
             <div class="card-body">
               <input type="file" id="fileInput">
-              <button type="button" id="previewButton">Preview Data</button>
+              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success" id="uploadDriver">Submit</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-success" id="uploadDriver"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -107,7 +111,7 @@ else{
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
-            <h4 class="modal-title">Error Log</h4>
+            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -131,7 +135,7 @@ else{
       <div class="modal-content">
         <form role="form" id="driverForm">
             <div class="modal-header">
-              <h4 class="modal-title">Add Driver</h4>
+              <h4 class="modal-title"><?=$languageArray['add_driver_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -142,7 +146,7 @@ else{
                   <input type="hidden" class="form-control" id="id" name="id">
                 </div>
                 <div class="form-group" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
-                  <label for="code">Company *</label>
+                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
@@ -150,18 +154,18 @@ else{
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="driverName">Driver Name *</label>
-                  <input type="text" class="form-control" name="driverName" id="driverName" placeholder="Enter Driver Name" required>
+                  <label for="driverName"><?=$languageArray['driver_name_code'][$language]?> *</label>
+                  <input type="text" class="form-control" name="driverName" id="driverName" placeholder="<?=$languageArray['enter_driver_name_code'][$language]?>" required>
                 </div>
                 <div class="form-group">
-                  <label for="driverIC">Driver IC *</label>
-                  <input type="text" class="form-control" name="driverIC" id="driverIC" placeholder="Enter Driver IC" required>
+                  <label for="driverIC"><?=$languageArray['driver_ic_code'][$language]?> *</label>
+                  <input type="text" class="form-control" name="driverIC" id="driverIC" placeholder="<?=$languageArray['enter_driver_ic_code'][$language]?>" required>
                 </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember">Submit</button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>

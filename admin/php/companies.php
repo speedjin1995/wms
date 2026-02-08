@@ -1,5 +1,6 @@
 <?php
 require_once "db_connect.php";
+require_once 'insertDefaultTranslations.php';
 
 session_start();
 
@@ -82,7 +83,11 @@ if(isset($_POST['reg_no'], $_POST['name'], $_POST['address'], $_POST['phone'], $
                 );
             }
             else{
+                $companyId = $insert_stmt->insert_id;
                 $insert_stmt->close();
+
+                insertDefaultTranslations($db, $companyId);
+
                 $db->close();
                 
                 echo json_encode(
