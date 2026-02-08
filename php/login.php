@@ -39,6 +39,7 @@ if(($row = $result->fetch_assoc()) !== null){
 			$_SESSION['company_name']=$row['company_name'];
 			$_SESSION['customer']= ($licenseIsProfessional ? $licenseCompanyId : $row['customer']);
 			$_SESSION['products']=$products;
+			$_SESSION['language']=$row['languages'];
 			$stmt->close();
 			$db->close();
 			

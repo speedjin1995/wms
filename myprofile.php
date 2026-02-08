@@ -15,10 +15,12 @@ else{
 	$result = $stmt->get_result();
     $fullName = '';
     $userName = '';
+    $language = 'en';
 	
 	if(($row = $result->fetch_assoc()) !== null){
         $fullName = $row['name'];
         $userName = $row['username'];
+        $language = $row['languages'];
     }
 }
 ?>
@@ -46,6 +48,17 @@ else{
 					<label for="name">Username *</label>
 					<input type="text" class="form-control" id="userEmail" name="userEmail" value="<?=$userName ?>" placeholder="Enter Username" readonly="">
 				</div>
+				
+				<div class="form-group">
+					<label for="language">Language *</label>
+                    <select class="form-control" style="width: 100%;" id="language" name="language" required>
+                        <option value="en" <?= ($language == 'en') ? 'selected' : '' ?>>English</option>
+                        <option value="zh" <?= ($language == 'zh') ? 'selected' : '' ?>>Chinese</option>
+                        <option value="my" <?= ($language == 'my') ? 'selected' : '' ?>>Bahasa Malaysia</option>
+                        <option value="ne" <?= ($language == 'ne') ? 'selected' : '' ?>>नेपाली</option>
+                        <option value="ja" <?= ($language == 'ja') ? 'selected' : '' ?>>日本語</option>
+                    </select>
+				</div>
 			</div>
 			
 			<div class="card-footer">
@@ -65,11 +78,8 @@ $(function () {
                 
                 if(obj.status === 'success'){
                     toastr["success"](obj.message, "Success:");
-                    
-                    $.get('myprofile.php', function(data) {
-                        $('#mainContents').html(data);
-                        $('#spinnerLoading').hide();
-                    });
+                    window.location.href = 'index.php#myprofile';
+                    location.reload();
         		}
         		else if(obj.status === 'failed'){
         		    toastr["error"](obj.message, "Failed:");

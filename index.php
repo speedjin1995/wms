@@ -8,6 +8,7 @@ if(!isset($_SESSION['userID'])){
   echo 'window.location.href = "login.html";</script>';
 }
 else{
+  $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $module = $_SESSION['module'] ?? '';
   $stmt = $db->prepare("SELECT * from users where id = ?");
@@ -23,6 +24,19 @@ else{
     $name = $row['name'];
     $username = $row['username'];
   }
+
+  // Language
+  $language = $_SESSION['language'];
+
+  // Load message resource
+  $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+  $languageArray = Array();
+
+  while($row=mysqli_fetch_assoc($message_resource)){
+    $languageArray[$row['message_key_code']] = array("en"=>$row['en'],"zh"=>$row['zh'],"my"=>$row['my'],"ne"=>$row['ne'], "ja"=>$row['ja']);
+  }
+
+  $_SESSION['languageArray'] = $languageArray;
 }
 ?>
 
@@ -373,7 +387,7 @@ to get the desired effect
           <li class="nav-item">
             <a href="home.php" class="nav-link link">
               <i class="nav-icon fas fa-home"></i>
-              <p>Home</p>
+              <p><?=$languageArray['home_code'][$language]?></p>
             </a>
           </li>
           <li class="nav-item has-treeview menu-open">
@@ -448,7 +462,13 @@ to get the desired effect
                   <p>Master Data<i class="fas fa-angle-left right"></i></p>
                 </a>
                 <ul class="nav nav-treeview" style="display: none;">
-                   <li class="nav-item">
+                  <li class="nav-item">
+                    <a href="#translations" data-file="translations.php" class="nav-link link">
+                      <i class="nav-icon fas fa-language"></i>
+                      <p>Translations</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#units" data-file="units.php" class="nav-link link">
                       <i class="nav-icon fas fa-balance-scale"></i>
                       <p>Units</p>
@@ -671,16 +691,18 @@ $(function () {
       });
   });
   
-  <?php if ($module == 'wholesale') { ?>
-  $("a[href='#wholesales']").click();
-  <?php } else if ($module == 'weighing') { ?>
-  $("a[href='#weighbridges']").click();
-  <?php } else { ?>
-  window.location.href = 'home.php';
-  <?php } ?>
+  if(window.location.hash) {
+    $("a[href='" + window.location.hash + "']").click();
+  } else {
+    <?php if ($module == 'wholesale') { ?>
+    $("a[href='#wholesales']").click();
+    <?php } else if ($module == 'weighing') { ?>
+    $("a[href='#weighbridges']").click();
+    <?php } else { ?>
+    window.location.href = 'home.php';
+    <?php } ?>
+  }
 });
-
-
 
 // Function to convert between units
 function convertUnits(value, fromUnit, toUnit) {
