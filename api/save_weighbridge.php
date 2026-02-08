@@ -5,6 +5,14 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 $post = json_decode(file_get_contents('php://input'), true);
 
+$services = 'Save_Weighbridge';
+$requests = json_encode($post);
+
+$stmtL = $db->prepare("INSERT INTO api_requests (services, request) VALUES (?, ?)");
+$stmtL->bind_param('ss', $services, $requests);
+$stmtL->execute();
+$invid = $stmtL->insert_id;
+
 if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime'], $post['indicator'], $post['company'], $post['staffName'], $post['createdDatetime'])){
     $transaction_status = $post['transaction_status'];
     $gross= $post['gross'];
@@ -150,10 +158,10 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
 			$is_complete = 'Y';
 		}
 		else{
-			if($transaction_status == 'Receiving' && $invoice_no != null && $invoice_no != '' && $supplier != null && $vehicle != null){ 
+			if($transaction_status == 'Receiving' && $invoice_no != null && $invoice_no != '' && $supplier != null && $vehicle != null && (float)$tare <= 0){ 
 			    $is_complete = 'Y';
 			}
-			else if($transaction_status == 'Dispatch' && $customer != null && $vehicle != null){
+			else if($transaction_status == 'Dispatch' && $customer != null && $vehicle != null && (float)$gross <= 0){
 				$is_complete = 'Y';
 			}
 			else{
@@ -183,12 +191,20 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
                 $is_complete, $createdDatetime, $staffName, $indicator, $is_manual, $price_type, $unit_price, $total_price, $invoice_no, $post['id']);	
                 
                 if (! $update_stmt->execute()){ // Execute the prepared query.
-        			echo json_encode(
+					$response = json_encode(
         				array(
         					"status"=> "failed", 
         					"message"=> $update_stmt->error
         				)
         			);
+
+					$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+					$stmtU->bind_param('ss', $response, $invid);
+					$stmtU->execute();
+
+					$update_stmt->close();
+					$stmtU->close();
+					echo $response;
         		} 
         		else{
         		    $weightId = $post['id'];
@@ -201,9 +217,7 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
         		        $serialNo = $select_row['transaction_id'];
                     }
         		    
-        			$update_stmt->close();
-        			
-        			echo json_encode(
+					$response = json_encode(
         				array(
         					"status"=> "success", 
         					"message"=> "Updated Successfully!!",
@@ -211,17 +225,34 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
         					"id"=> $weightId
         				)
         			);
+
+					$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+					$stmtU->bind_param('ss', $response, $invid);
+					$stmtU->execute();
+
+					$select_stmt->close();
+					$update_stmt->close();
+					$stmtU->close();
+					echo $response;
         		}
         
         		$db->close();
             }
             else{
-        		echo json_encode(
+				$response = json_encode(
         			array(
         				"status"=> "failed", 
         				"message"=> "cannot prepare update statement"
         			)
-        		);  
+        		);
+
+				$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+				$stmtU->bind_param('ss', $response, $invid);
+				$stmtU->execute();
+
+				$update_stmt->close();
+				$stmtU->close();
+				echo $response;
         	}
         }
         else{
@@ -284,18 +315,25 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
         	    $total_price, $record_type, $invoice_no);	
         		
         		if (! $insert_stmt->execute()){ // Execute the prepared query.
-        			echo json_encode(
+					$response = json_encode(
         				array(
         					"status"=> "failed", 
         					"message"=> $insert_stmt->error
         				)
         			);
+
+					$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+					$stmtU->bind_param('ss', $response, $invid);
+					$stmtU->execute();
+
+					$insert_stmt->close();
+					$stmtU->close();
+					echo $response;
         		} 
         		else{
         		    $weightId = $insert_stmt->insert_id;
-        			$insert_stmt->close();
-        			
-        			echo json_encode(
+
+					$response = json_encode(
         				array(
         					"status"=> "success", 
         					"message"=> "Added Successfully!!",
@@ -303,35 +341,65 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
         					"id"=> $weightId
         				)
         			);
+
+					$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+					$stmtU->bind_param('ss', $response, $invid);
+					$stmtU->execute();
+
+					$insert_stmt->close();
+					$stmtU->close();
+					echo $response;
         		}
         
         		$db->close();
         	}
         	else{
-        		echo json_encode(
+				$response = json_encode(
         			array(
         				"status"=> "failed", 
         				"message"=> "cannot prepare insert statement"
         			)
-        		);  
+        		); 
+
+				$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+				$stmtU->bind_param('ss', $response, $invid);
+				$stmtU->execute();
+
+				$insert_stmt->close();
+				$stmtU->close();
+				echo $response;
         	}
         }
     }
     catch(Exception $e){
-        echo json_encode(
+		$response = json_encode(
             array(
                 "status"=> "failed", 
                 "message"=> $e->getMessage()
             )
         ); 
+
+		$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+		$stmtU->bind_param('ss', $response, $invid);
+		$stmtU->execute();
+
+		$stmtU->close();
+		echo $response;
     }
 } 
 else{
-    echo json_encode(
+	$response = json_encode(
         array(
             "status"=> "failed", 
             "message"=> "Please fill in all the fields"
         )
-    );     
+    ); 
+
+	$stmtU = $db->prepare("UPDATE api_requests SET response = ? WHERE id = ?");
+	$stmtU->bind_param('ss', $response, $invid);
+	$stmtU->execute();
+
+	$stmtU->close();
+	echo $response;    
 }
 ?>
