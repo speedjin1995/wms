@@ -34,6 +34,10 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
   }
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -42,7 +46,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Reports</h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['reports_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -58,7 +62,7 @@ else{
           <div class="card-body">
             <div class="row">
               <div class="form-group col-3">
-                <label>From Date:</label>
+                <label><?=$languageArray['from_date_code'][$language]?>:</label>
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
                   <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
@@ -67,7 +71,7 @@ else{
               </div>
 
               <div class="form-group col-3">
-                <label>To Date:</label>
+                <label><?=$languageArray['to_date_code'][$language]?>:</label>
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
                   <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
@@ -78,20 +82,20 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Status</label>
+                  <label><?=$languageArray['status_code'][$language]?></label>
                   <select class="form-control" id="statusFilter" name="statusFilter">
-                    <option value="DISPATCH" selected>Dispatch</option>
-                    <option value="RECEIVING">Receiving</option>
-                    <option value="SALE-BAL">Sale Balance</option>
+                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                    <option value="SALE-BAL"><?=$languageArray['sale_balance_code'][$language]?></option>
                   </select>
                 </div>
               </div>
 
-              <div class="col-3" id="customerDiv">
+              <div class="col-3" id="customerStatusDiv">
                 <div class="form-group">
-                  <label>Customer</label>
+                  <label><?=$languageArray['customer_code'][$language]?></label>
                   <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
                       <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
                     <?php } ?>
@@ -99,11 +103,11 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" id="supplierDiv" style="display: none;">
+              <div class="col-3" id="supplierStatusDiv" style="display: none;">
                 <div class="form-group">
-                  <label>Supplier</label>
+                  <label><?=$languageArray['supplier_code'][$language]?></label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
                       <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
                     <?php } ?>
@@ -113,9 +117,9 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Vehicle No</label>
+                  <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
                       <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
                     <?php } ?>
@@ -125,23 +129,23 @@ else{
 
               <div class="col-3" id="otherVehicleFilterDiv" style="display: none;">
                 <div class="form-group">
-                  <label>Other Vehicle No</label>
-                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="Please Enter Vehicle No">
+                  <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
+                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
                 </div>
               </div>
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Checked By</label>
-                  <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="Please Enter Name">
+                  <label><?=$languageArray['checked_by_code'][$language]?></label>
+                  <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
                 </div>
               </div>
 
               <div class="col-3">
                 <div class="form-group">
-                  <label>Weighted By</label>
+                  <label><?=$languageArray['weighed_by_code'][$language]?></label>
                   <select class="form-control select2" id="weightByFilter" name="weightByFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
                       <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
                     <?php } ?>
@@ -151,7 +155,7 @@ else{
 
               <!--div class="col-3">
                 <div class="form-group">
-                  <label>Product</label>
+                  <label><?=$languageArray['product_code'][$language]?></label>
                   <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
                     <option selected="selected">-</option>
                     <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
@@ -167,7 +171,7 @@ else{
               <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
-                  Search
+                  <?=$languageArray['search_code'][$language]?>
                 </button>
               </div>
             </div>
@@ -182,10 +186,10 @@ else{
             <div class="row">
               <div class="col-6"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel">Export Excel</button>
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>
           </div>
@@ -195,25 +199,25 @@ else{
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th>Serial <br>No.</th>
-                  <th>DO/PO <br>No.</th>
-                  <th>Sec Bill<br>No.</th>
-                  <th>Created <br> Datetime</th>
-                  <th>Parent</th>
-                  <th>Customer/<br>Supplier</th>
-                  <th>Vehicle <br>No.</th>
-                  <th>Driver</th>
-                  <th>Total <br>Item</th>
-                  <th>Total <br>Weight</th>
-                  <th>Total <br>Reject</th>
-                  <th>Weighed <br>By</th>
-                  <th>Checked <br>By</th>
+                  <th><?=$languageArray['serial_no_code'][$language]?></th>
+                  <th><?=$languageArray['do_po_no_code'][$language]?></th>
+                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
+                  <th><?=$languageArray['created_datetime_code'][$language]?></th>
+                  <th><?=$languageArray['parent_code'][$language]?></th>
+                  <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+                  <th><?=$languageArray['vehicle_no_code'][$language]?></th>
+                  <th><?=$languageArray['driver_code'][$language]?></th>
+                  <th><?=$languageArray['total_item_code'][$language]?></th>
+                  <th><?=$languageArray['total_weight_code'][$language]?></th>
+                  <th><?=$languageArray['total_reject_code'][$language]?></th>
+                  <th><?=$languageArray['weighed_by_code'][$language]?></th>
+                  <th><?=$languageArray['checked_by_code'][$language]?></th>
                   <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="9">Total</th>
+                    <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
                     <th></th>
                     <th></th>
                     <th></th>
