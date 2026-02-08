@@ -117,8 +117,8 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label><?=$languageArray['status_code'][$language]?></label>
-                  <select class="form-control" id="statusFilter" name="statusFilter">
+                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
+                  <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
                     <option value="SALE-BAL"><?=$languageArray['sale_balance_code'][$language]?></option>
@@ -199,6 +199,16 @@ else{
                   </select>
                 </div>
               </div-->
+
+              <div class="col-3" style="display:none;">
+                <div class="form-group">
+                  <label><?=$languageArray['status_code'][$language]?></label>
+                  <select class="form-control" id="statusFilter" name="statusFilter">
+                    <option value="active" selected><?=$languageArray['active_code'][$language]?></option>
+                    <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             <div class="row">
@@ -462,14 +472,16 @@ else{
     <div class="modal-content">
       <form role="form" id="cancelForm">
         <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title">Delete Reason</h4>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
         <div class="modal-body">
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label>Delete Reason *</label>
+                <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
                 <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
               </div>
             </div>
@@ -477,8 +489,8 @@ else{
           </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-success" id="submitCancel">Submit</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -527,6 +539,7 @@ $(function () {
 
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
+  var transactionStatusI = $('#transactionStatusFilter').val();
   var statusI = $('#statusFilter').val();
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
@@ -550,6 +563,7 @@ $(function () {
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
+        transactionStatus: transactionStatusI,
         status: statusI,
         product: productI,
         customer: customerNoI,
@@ -683,6 +697,7 @@ $(function () {
     //$('#spinnerLoading').show();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var transactionStatusI = $('#transactionStatusFilter').val();
     var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
@@ -710,6 +725,7 @@ $(function () {
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
+          transactionStatus: transactionStatusI,
           status: statusI,
           product: productI,
           customer: customerNoI,

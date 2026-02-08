@@ -28,8 +28,8 @@ if($_POST['toDate'] != null && $_POST['toDate'] != ''){
 	$searchQuery .= " and wholesales.created_datetime <= '".$toDateTime."'";
 }
 
-if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
-  $searchQuery .= " and wholesales.status = '".$_POST['status']."'";
+if($_POST['transactionStatus'] != null && $_POST['transactionStatus'] != '' && $_POST['transactionStatus'] != '-'){
+  $searchQuery .= " and wholesales.status = '".$_POST['transactionStatus']."'";
 }
 
 if($_POST['product'] != null && $_POST['product'] != '' && $_POST['product'] != '-'){
@@ -62,6 +62,14 @@ if($_POST['weightedBy'] != null && $_POST['weightedBy'] != '' && $_POST['weighte
   $searchQuery .= " and wholesales.weighted_by = '".$_POST['weightedBy']."'";
 }
 
+if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
+  if ($_POST['status'] == 'active'){
+    $searchQuery .= " and wholesales.deleted = '0'";
+  } else if ($_POST['status'] == 'deleted'){
+    $searchQuery .= " and wholesales.deleted = '1'";
+  }
+}
+
 ## Search 
 if($searchValue != ''){
    $searchQuery = " and (wholesales.serial_no like '%".$searchValue."%' or 
@@ -77,17 +85,17 @@ if ($user != 2){
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from wholesales where wholesales.deleted = '0'");
+$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1");
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from wholesales where wholesales.deleted = '0'".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1".$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select wholesales.* from wholesales where wholesales.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select wholesales.* from wholesales where 1=1".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 

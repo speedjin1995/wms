@@ -169,6 +169,7 @@ function insertDefaultTranslations($db, $companyId) {
         ['transaction_status_code', 'Transaction Status', '交易状态', 'Transaction Status', 'பரிவர்த்தனை நிலை', '取引状況'],
         ['pending_code', 'Pending', '待处理', 'Pending', 'மறுபரிசீலனை', '保留中'],
         ['complete_code', 'Complete', '完成', 'Complete', 'முடிந்தது', '完了'],
+        ['cancelled_code', 'Cancelled', '取消', 'Cancelled', 'ரத்து செய்யப்பட்டது', 'キャンセル'],
         ['transaction_id_code', 'Transaction ID', '交易编号', 'Transaction ID', 'பரிவர்த்தனை ID', '取引ID'],
         ['transaction_date_code', 'Transaction Date', '交易日期', 'Transaction Date', 'பரிவர்த்தனை தேதி', '取引日'],
         ['po_no_code', 'PO No', '采购单号', 'PO No', 'PO எண்', 'PO番号'],
@@ -182,7 +183,10 @@ function insertDefaultTranslations($db, $companyId) {
         ['sale_balance_code', 'Sale Balance', '销售结余', 'Baki Jualan', 'விற்பனை மீதம்', '販売残高'],
         ['export_excel_code', 'Export Excel', '导出 Excel', 'Eksport Excel', 'Excel ஏற்றுமதி', 'Excelエクスポート'],
         ['export_pdf_code', 'Export PDF', '导出 PDF', 'Eksport PDF', 'PDF ஏற்றுமதி', 'PDFエクスポート'],
-        ['enter_remark_code', 'Enter Remark', '输入备注', 'Enter Remark', 'குறிப்பு உள்ளிடுக', '備考を入力']
+        ['enter_remark_code', 'Enter Remark', '输入备注', 'Enter Remark', 'குறிப்பு உள்ளிடுக', '備考を入力'],
+        ['delete_reason_code', 'Delete Reason', '删除原因', 'Sebab Padam', 'நீக்க காரணம்', '削除理由'],
+        ['active_code', 'Active', '激活', 'Aktif', 'செயலில்', 'アクティブ'],
+        ['deleted_code', 'Deleted', '已删除', 'Dihapus', 'நீக்கப்பட்டது', '削除済み']
     ];
 
     $keyCodes = array_column($translations, 0);
