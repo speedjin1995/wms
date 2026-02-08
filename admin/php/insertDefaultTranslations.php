@@ -182,7 +182,8 @@ function insertDefaultTranslations($db, $companyId) {
         ['sale_balance_code', 'Sale Balance', '销售结余', 'Baki Jualan', 'விற்பனை மீதம்', '販売残高'],
         ['export_excel_code', 'Export Excel', '导出 Excel', 'Eksport Excel', 'Excel ஏற்றுமதி', 'Excelエクスポート'],
         ['export_pdf_code', 'Export PDF', '导出 PDF', 'Eksport PDF', 'PDF ஏற்றுமதி', 'PDFエクスポート'],
-        ['enter_remark_code', 'Enter Remark', '输入备注', 'Enter Remark', 'குறிப்பு உள்ளிடுக', '備考を入力']
+        ['enter_remark_code', 'Enter Remark', '输入备注', 'Enter Remark', 'குறிப்பு உள்ளிடுக', '備考を入力'],
+        ['delete_reason_code', 'Delete Reason', '删除原因', 'Sebab Padam', 'நீக்க காரணம்', '削除理由']
     ];
 
     $keyCodes = array_column($translations, 0);

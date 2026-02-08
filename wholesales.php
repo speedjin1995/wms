@@ -462,14 +462,16 @@ else{
     <div class="modal-content">
       <form role="form" id="cancelForm">
         <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title">Delete Reason</h4>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
         <div class="modal-body">
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label>Delete Reason *</label>
+                <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
                 <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
               </div>
             </div>
@@ -477,8 +479,8 @@ else{
           </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-success" id="submitCancel">Submit</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
