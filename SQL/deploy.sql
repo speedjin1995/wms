@@ -314,4 +314,21 @@ INSERT INTO `message_resource` (`message_key_code`, `en`, `zh`, `my`, `ne`, `ja`
 ('company_email_code', 'Company Email', '公司电子邮件', 'Emel Syarikat', 'நிறுவன மின்னஞ்சல்', '会社メール', 10),
 ('enter_email_code', 'Enter Email', '请输入电子邮件', 'Masukkan Emel', 'மின்னஞ்சலை உள்ளிடவும்', 'メールを入力', 10),
 ('company_fax_code', 'Company Fax', '公司传真', 'Faks Syarikat', 'நிறுவன ஃபாக்ஸ்', '会社FAX', 10),
-('enter_fax_code', 'Enter Fax', '请输入传真', 'Masukkan Faks', 'ஃபாக்ஸ் எண்ணை உள்ளிடவும்', 'FAXを入力', 10);
+('enter_fax_code', 'Enter Fax', '请输入传真', 'Masukkan Faks', 'ஃபாக்ஸ் எண்ணை உள்ளிடவும்', 'FAXを入力', 10),
+('change_password_code', 'Change Password', '更改密码', 'Tukar Kata Laluan', 'கடவுச்சொல்லை மாற்று', 'パスワード変更', 10),
+('old_password_code', 'Old Password', '旧密码', 'Kata Laluan Lama', 'பழைய கடவுச்சொல்', '現在のパスワード', 10),
+('new_password_code', 'New Password', '新密码', 'Kata Laluan Baharu', 'புதிய கடவுச்சொல்', '新しいパスワード', 10),
+('confirm_password_code', 'Confirm Password', '确认密码', 'Sahkan Kata Laluan', 'கடவுச்சொல்லை உறுதிப்படுத்து', 'パスワード確認', 10),
+('setup_code', 'Setup', '设置', 'Tetapan', 'அமைப்பு', '設定', 10),
+('serial_port_code', 'Serial Port', '串口', 'Port Bersiri', 'சீரியல் போர்ட்', 'シリアルポート', 10),
+('baud_rate_code', 'Baud Rate', '波特率', 'Kadar Baud', 'பாட் வீதம்', 'ボーレート', 10),
+('data_bits_code', 'Data Bits', '数据位', 'Bit Data', 'தரவு பிட்கள்', 'データビット', 10),
+('parity_code', 'Parity', '奇偶校验', 'Pariti', 'பாரிட்டி', 'パリティ', 10),
+('stop_bits_code', 'Stop Bits', '停止位', 'Bit Henti', 'நிறுத்த பிட்கள்', 'ストップビット', 10),
+('parity_none_code', 'None', '无', 'Tiada', 'இல்லை', 'なし', 10),
+('parity_odd_code', 'Odd', '奇校验', 'Ganjil', 'ஒற்றை', '奇数', 10),
+('parity_even_code', 'Even', '偶校验', 'Genap', 'இரட்டை', '偶数', 10),
+('parity_mark_code', 'Mark', '标记', 'Tanda', 'குறி', 'マーク', 10),
+('parity_space_code', 'Space', '空格', 'Ruang', 'வெற்று', 'スペース', 10);
+
+

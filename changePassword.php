@@ -8,7 +8,11 @@ if(!isset($_SESSION['userID'])){
   echo 'window.location.href = "login.html";</script>';
 }
 else{
-  $user = $_SESSION['userID'];
+    $user = $_SESSION['userID'];
+
+    // Language
+    $language = $_SESSION['language'];
+    $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
@@ -16,7 +20,7 @@ else{
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark">Change Password</h1>
+                <h1 class="m-0 text-dark"><?=$languageArray['change_password_code'][$language]?></h1>
             </div>
         </div>
     </div>
@@ -27,23 +31,23 @@ else{
         <form role="form" id="passwordForm">
             <div class="card-body">
                 <div class="form-group">
-                    <label for="oldPassword">Old Password *</label>
-                    <input type="password" class="form-control" name="oldPassword" placeholder="Old Password" required="">
+                    <label for="oldPassword"><?=$languageArray['old_password_code'][$language]?> *</label>
+                    <input type="password" class="form-control" name="oldPassword" placeholder="<?=$languageArray['old_password_code'][$language]?>" required="">
                 </div>
                 
                 <div class="form-group">
-                    <label for="newPassword">New Password</label>
-                    <input type="password" class="form-control" name="newPassword" id="newPassword" placeholder="New Password" required="">
+                    <label for="newPassword"><?=$languageArray['new_password_code'][$language]?></label>
+                    <input type="password" class="form-control" name="newPassword" id="newPassword" placeholder="<?=$languageArray['new_password_code'][$language]?>" required="">
                 </div>
                 
                 <div class="form-group">
-                    <label for="confirmPassword">Confirm Password *</label>
-                    <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Re-type Password" required="">
+                    <label for="confirmPassword"><?=$languageArray['confirm_password_code'][$language]?> *</label>
+                    <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="<?=$languageArray['confirm_password_code'][$language]?>" required="">
                 </div>
             </div>
             
             <div class="card-footer">
-                <button type="submit" class="btn btn-success" name="submit"><i class="fas fa-save"></i> Save</button>
+                <button type="submit" class="btn btn-success" name="submit"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
             </div>
         </form>
     </div>
