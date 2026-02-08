@@ -432,6 +432,18 @@ INSERT INTO `message_resource` (`message_key_code`, `en`, `zh`, `my`, `ne`, `ja`
 ('pricing_type_code', 'Pricing Type', '定价类型', 'Pricing Type', 'விலை வகை', '価格タイプ', 10),
 ('fixed_code', 'Fixed', '固定', 'Fixed', 'நிலையான', '固定', 10),
 ('float_code', 'Float', '浮动', 'Float', 'மாறும்', 'フロート', 10),
-('price_code', 'Price', '价格', 'Price', 'விலை', '価格', 10);
+('price_code', 'Price', '价格', 'Price', 'விலை', '価格', 10),
+('transaction_status_code', 'Transaction Status', '交易状态', 'Transaction Status', 'பரிவர்த்தனை நிலை', '取引状況', 10),
+('pending_code', 'Pending', '待处理', 'Pending', 'மறுபரிசீலனை', '保留中', 10),
+('complete_code', 'Complete', '完成', 'Complete', 'முடிந்தது', '完了', 10),
+('transaction_id_code', 'Transaction ID', '交易编号', 'Transaction ID', 'பரிவர்த்தனை ID', '取引ID', 10),
+('transaction_date_code', 'Transaction Date', '交易日期', 'Transaction Date', 'பரிவர்த்தனை தேதி', '取引日', 10),
+('po_no_code', 'PO No', '采购单号', 'PO No', 'PO எண்', 'PO番号', 10),
+('incoming_weight_code', 'Incoming Weight', '入库重量', 'Incoming Weight', 'உள்ளும் எடை', '入荷重量', 10),
+('incoming_date_code', 'Incoming Date', '入库日期', 'Incoming Date', 'உள்ளும் தேதி', '入荷日', 10),
+('outgoing_weight_code', 'Outgoing Weight', '出库重量', 'Outgoing Weight', 'வெளியேறும் எடை', '出荷重量', 10),
+('outgoing_date_code', 'Outgoing Date', '出库日期', 'Outgoing Date', 'வெளியேறும் தேதி', '出荷日', 10),
+('total_nett_weight_code', 'Total Nett Weight', '净重合计', 'Total Nett Weight', 'மொத்த நிகர எடை', '正味合計重量', 10);
+
 
 
