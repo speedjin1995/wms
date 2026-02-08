@@ -183,7 +183,9 @@ function insertDefaultTranslations($db, $companyId) {
         ['export_excel_code', 'Export Excel', '导出 Excel', 'Eksport Excel', 'Excel ஏற்றுமதி', 'Excelエクスポート'],
         ['export_pdf_code', 'Export PDF', '导出 PDF', 'Eksport PDF', 'PDF ஏற்றுமதி', 'PDFエクスポート'],
         ['enter_remark_code', 'Enter Remark', '输入备注', 'Enter Remark', 'குறிப்பு உள்ளிடுக', '備考を入力'],
-        ['delete_reason_code', 'Delete Reason', '删除原因', 'Sebab Padam', 'நீக்க காரணம்', '削除理由']
+        ['delete_reason_code', 'Delete Reason', '删除原因', 'Sebab Padam', 'நீக்க காரணம்', '削除理由'],
+        ['active_code', 'Active', '激活', 'Aktif', 'செயலில்', 'アクティブ'],
+        ['deleted_code', 'Deleted', '已删除', 'Dihapus', 'நீக்கப்பட்டது', '削除済み']
     ];
 
     $keyCodes = array_column($translations, 0);

@@ -82,8 +82,8 @@ else{
 
               <div class="col-3">
                 <div class="form-group">
-                  <label><?=$languageArray['status_code'][$language]?></label>
-                  <select class="form-control" id="statusFilter" name="statusFilter">
+                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
+                  <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
                     <option value="SALE-BAL"><?=$languageArray['sale_balance_code'][$language]?></option>
@@ -149,6 +149,16 @@ else{
                     <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
                       <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
                     <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label><?=$languageArray['status_code'][$language]?></label>
+                  <select class="form-control" id="statusFilter" name="statusFilter">
+                    <option value="active" selected><?=$languageArray['active_code'][$language]?></option>
+                    <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -263,9 +273,10 @@ $(function () {
     var checkboxes = $('#weightTable tbody input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
-
+  
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
+  var transactionStatusI = $('#transactionStatusFilter').val();
   var statusI = $('#statusFilter').val();
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
@@ -289,6 +300,7 @@ $(function () {
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
+        transactionStatus: transactionStatusI,
         status: statusI,
         product: productI,
         customer: customerNoI,
@@ -363,6 +375,7 @@ $(function () {
     //$('#spinnerLoading').show();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var transactionStatusI = $('#transactionStatusFilter').val();
     var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
@@ -390,6 +403,7 @@ $(function () {
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
+          transactionStatus: transactionStatusI,
           status: statusI,
           product: productI,
           customer: customerNoI,
