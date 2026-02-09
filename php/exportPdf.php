@@ -27,8 +27,8 @@ if(isset($_GET['toDate']) && $_GET['toDate'] != null && $_GET['toDate'] != ''){
     $searchQuery .= " AND wholesales.created_datetime <= '".$toDateTime."'";
 }
 
-if(isset($_GET['status']) && $_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
-    $searchQuery .= " AND wholesales.status = '".mysqli_real_escape_string($db, $_GET['status'])."'";
+if($_GET['transactionStatus'] != null && $_GET['transactionStatus'] != '' && $_GET['transactionStatus'] != '-'){
+  $searchQuery .= " and wholesales.status = '".$_GET['transactionStatus']."'";
 }
 
 if(isset($_GET['product']) && $_GET['product'] != null && $_GET['product'] != '' && $_GET['product'] != '-'){
@@ -59,6 +59,14 @@ if(isset($_GET['checkedBy']) && $_GET['checkedBy'] != null && $_GET['checkedBy']
 
 if(isset($_GET['weightedBy']) && $_GET['weightedBy'] != null && $_GET['weightedBy'] != '' && $_GET['weightedBy'] != '-'){
   $searchQuery .= " and wholesales.weighted_by = '".mysqli_real_escape_string($db, $_GET['weightedBy'])."'";
+}
+
+if($_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
+  if ($_GET['status'] == 'active'){
+    $searchQuery .= " and wholesales.deleted = '0'";
+  } else if ($_GET['status'] == 'deleted'){
+    $searchQuery .= " and wholesales.deleted = '1'";
+  }
 }
 
 $isMulti = '';
@@ -195,7 +203,7 @@ try {
             $content .= '<td>'.$rowData['serial_no'].'</td>';
             $content .= '<td>'.$rowData['po_no'].'</td>';
 
-            if ($_GET['status'] == 'RECEIVING') {
+            if ($_GET['transactionStatus'] == 'RECEIVING') {
                 $content .= '<td>'.$rowData['security_bills'].'</td>';
             }
 
@@ -221,9 +229,9 @@ try {
         $content .= '<tr><td colspan="15">No records found...</td></tr>';
     }
 
-    if ($_GET['status'] == 'DISPATCH') {
+    if ($_GET['transactionStatus'] == 'DISPATCH') {
         $status = 'DISPATCH';
-    } else if ($_GET['status'] == 'RECEIVING') {
+    } else if ($_GET['transactionStatus'] == 'RECEIVING') {
         $status = 'RECEIVING';
     } else {
         $status = 'SALE BALANCE';
@@ -281,7 +289,7 @@ try {
                     </tr>
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">From Customer: '.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div>
+                            <div class="fw-bold">From Customer: '.($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'SALE-BAL' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div>
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">Weight Status: '.$status.'</div>
@@ -300,14 +308,14 @@ try {
                             <th>Weigh Slip No.</th>
                             <th>'.($status == 'DISPATCH' || $status == 'SALE-BAL' ? 'Delivery' : 'Purchase').' No.</th>';
 
-                            if ($_GET['status'] == 'RECEIVING') {
+                            if ($_GET['transactionStatus'] == 'RECEIVING') {
                                 $html .= '
                                     <th>Security Bill</th>
                                 ';
                             }
 
                             $html .= '
-                            <th>'.($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL' ? 'Customer' : 'Supplier').' Name</th>';
+                            <th>'.($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'SALE-BAL' ? 'Customer' : 'Supplier').' Name</th>';
 
                             if (!empty($gradeColumns) && count($gradeColumns) > 0){
                                 foreach ($gradeColumns as $gradeCol){
@@ -332,7 +340,7 @@ try {
                     </tbody>
                     <tfoot>
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
-                            <td colspan="'.($_GET['status'] == 'RECEIVING' ? '6' : '5').'">SUBTOTAL</td>';
+                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' ? '6' : '5').'">SUBTOTAL</td>';
                             
                             foreach ($gradeColumns as $gradeCol) {
                                 $html .= '<td>'.number_format($subtotals['gradeWeights'][$gradeCol], 2).'</td>';

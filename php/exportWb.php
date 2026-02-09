@@ -45,12 +45,13 @@ if($_GET['supplier'] != null && $_GET['supplier'] != '' && $_GET['supplier'] != 
 if($_GET['vehicle'] != null && $_GET['vehicle'] != '' && $_GET['vehicle'] != '-'){
   $searchQuery .= " and Weight.lorry_plate_no1 = '".$_GET['vehicle']."'";
 }
-
 if($_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
   if($_GET['status'] == 'Pending'){
     $searchQuery .= " and Weight.is_complete = 'N' AND Weight.is_cancel <> 'Y'";
-  }else{
-    $searchQuery .= " and Weight.is_complete = 'Y' AND Weight.is_cancel <> 'Y'";
+  }else if ($_GET['status'] == 'Complete') {
+    $searchQuery .= " and Weight.is_complete = 'Y' AND Weight.is_cancel <> 'Y'"; 
+  }else if ($_GET['status'] == 'Cancelled'){
+    $searchQuery .= " and Weight.is_cancel = 'Y'";
   }
 }
 
