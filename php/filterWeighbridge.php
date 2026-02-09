@@ -64,7 +64,7 @@ if($_POST['transactionId'] != null && $_POST['transactionId'] != '' && $_POST['t
 
 ## Search 
 if($searchValue != ''){
-   $searchQuery = " and (Weight.serial_no like '%".$searchValue."%' or 
+   $searchQuery .= " and (Weight.serial_no like '%".$searchValue."%' or 
         Weight.po_no like '%".$searchValue."%' or
         Weight.lorry_plate_no1 like '%".$searchValue."%') ";
 }

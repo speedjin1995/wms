@@ -72,7 +72,7 @@ if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'
 
 ## Search 
 if($searchValue != ''){
-   $searchQuery = " and (wholesales.serial_no like '%".$searchValue."%' or 
+   $searchQuery .= " and (wholesales.serial_no like '%".$searchValue."%' or 
         wholesales.po_no like '%".$searchValue."%' or
         wholesales.vehicle_no like '%".$searchValue."%') ";
 }
