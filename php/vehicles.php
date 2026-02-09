@@ -3,13 +3,13 @@ require_once "db_connect.php";
 
 session_start();
 
-if(isset($_POST['vehicleNumber'], $_POST['driver'], $_POST['company'])){
+if(isset($_POST['vehicleNumber'],$_POST['company'])){
     $vehicleNumber = filter_input(INPUT_POST, 'vehicleNumber', FILTER_SANITIZE_STRING);
-    $driver = filter_input(INPUT_POST, 'driver', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
     $attendence1 = null;
 	$attendence2 = null;
 	$vehicleWeight = null;
+    $driver = null;
 
     if(isset($_POST['attendence1']) && $_POST['attendence1'] != null && $_POST['attendence1'] != ''){
         $attendence1 = filter_input(INPUT_POST, 'attendence1', FILTER_SANITIZE_STRING);
@@ -17,6 +17,10 @@ if(isset($_POST['vehicleNumber'], $_POST['driver'], $_POST['company'])){
 
     if(isset($_POST['attendence2']) && $_POST['attendence2'] != null && $_POST['attendence2'] != ''){
         $attendence2 = filter_input(INPUT_POST, 'attendence2', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['driver']) && $_POST['driver'] != null && $_POST['driver'] != ''){
+        $driver = filter_input(INPUT_POST, 'driver', FILTER_SANITIZE_STRING);
     }
 
     if(isset($_POST['vehicleWeight']) && $_POST['vehicleWeight'] != null && $_POST['vehicleWeight'] != ''){
