@@ -478,6 +478,7 @@ $(function () {
   $('#exportExcel').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var transactionStatusI = $('#transactionStatusFilter').val();
     var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
@@ -495,11 +496,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
@@ -508,6 +509,7 @@ $(function () {
   $('#exportPdf').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
+    var transactionStatusI = $('#transactionStatusFilter').val();
     var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
@@ -526,11 +528,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
+      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }

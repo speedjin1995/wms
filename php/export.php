@@ -51,8 +51,8 @@ if(isset($_GET['toDate']) && $_GET['toDate'] != null && $_GET['toDate'] != ''){
     $searchQuery .= " AND wholesales.created_datetime <= '".$toDateTime."'";
 }
 
-if(isset($_GET['status']) && $_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
-    $searchQuery .= " AND wholesales.status = '".mysqli_real_escape_string($db, $_GET['status'])."'";
+if(isset($_GET['transactionStatus']) && $_GET['transactionStatus'] != null && $_GET['transactionStatus'] != '' && $_GET['transactionStatus'] != '-'){
+    $searchQuery .= " AND wholesales.status = '".mysqli_real_escape_string($db, $_GET['transactionStatus'])."'";
 }
 
 if(isset($_GET['product']) && $_GET['product'] != null && $_GET['product'] != '' && $_GET['product'] != '-'){
@@ -83,6 +83,14 @@ if(isset($_GET['checkedBy']) && $_GET['checkedBy'] != null && $_GET['checkedBy']
 
 if(isset($_GET['weightedBy']) && $_GET['weightedBy'] != null && $_GET['weightedBy'] != '' && $_GET['weightedBy'] != '-'){
   $searchQuery .= " and wholesales.weighted_by = '".mysqli_real_escape_string($db, $_GET['weightedBy'])."'";
+}
+
+if($_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
+  if ($_GET['status'] == 'active'){
+    $searchQuery .= " and wholesales.deleted = '0'";
+  } else if ($_GET['status'] == 'deleted'){
+    $searchQuery .= " and wholesales.deleted = '1'";
+  }
 }
 
 $isMulti = '';
@@ -199,7 +207,7 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
-if($_GET['status'] == 'DISPATCH' || $_GET['status'] == 'SALE-BAL') {
+if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'SALE-BAL') {
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer');
 }else{
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier');
@@ -228,7 +236,7 @@ if (!empty($allRows)) {
             $rowData['po_no']
         );
         
-        if($_GET['status'] == 'RECEIVING') {
+        if($_GET['transactionStatus'] == 'RECEIVING') {
             $lineData[] = $rowData['security_bills'];
         }
         
@@ -259,7 +267,7 @@ if (!empty($allRows)) {
     
     // Add subtotal row
     $subtotalData = array('SUBTOTAL', '', '', '');
-    if($_GET['status'] == 'RECEIVING') {
+    if($_GET['transactionStatus'] == 'RECEIVING') {
         $subtotalData[] = '';
     }
     $subtotalData[] = '';
