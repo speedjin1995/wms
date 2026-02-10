@@ -1,5 +1,6 @@
 <?php
 require_once 'php/db_connect.php';
+require_once 'php/lookup.php';
 
 session_start();
 
@@ -60,6 +61,14 @@ else{
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
+
+  // Company Detail 
+  $companyDetail = searchCompanyById($company, $db);
+  $companyProducts = json_decode($companyDetail['products'], true);
+  $secRemarksExists = false;
+  if (is_array($companyProducts) && in_array('second_remarks', $companyProducts)) { 
+    $secRemarksExists = true;
+  }
 }
 ?>
 <!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
@@ -257,6 +266,9 @@ else{
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <?php if ($secRemarksExists) { ?>
+                    <th><?=$languageArray['second_remarks_code'][$language]?></th>
+                  <?php }?>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -379,6 +391,17 @@ else{
               </div>
             </div>
           </div>
+
+          <?php if ($secRemarksExists) { ?>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label><?=$languageArray['second_remarks_code'][$language]?></label>
+                  <textarea colspan="3" class="form-control" id="remarks2" name="remarks2" placeholder="<?=$languageArray['enter_remark_code'][$language]?> 2"></textarea>
+                </div>
+              </div>
+            </div>
+          <?php } ?>
           
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-2">
@@ -588,6 +611,9 @@ $(function () {
       { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
+      <?php if ($secRemarksExists) { ?>
+        { data: 'remarks2' },
+      <?php }?>
       { 
         data: 'id',
         class: 'action-button',
@@ -750,6 +776,9 @@ $(function () {
         { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
+        <?php if ($secRemarksExists) { ?>
+        { data: 'remarks2' },
+        <?php }?>
         { 
           data: 'id',
           class: 'action-button',
@@ -1071,7 +1100,7 @@ $(function () {
 
   $('#extendModal').find('#vehicle').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN"){
+    if(vehicleNo == "UNKNOWN"){
       $('#extendModal').find('#vehicleNoOtherDiv').show();
     }
     else{
@@ -1081,7 +1110,7 @@ $(function () {
 
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN"){
+    if(vehicleNo == "UNKNOWN"){
       $('#otherVehicleFilterDiv').show();
     }
     else{
@@ -1662,9 +1691,10 @@ function edit(id) {
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
+      $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
 
       if (obj.message.other_vehicle){
-        $('#extendModal').find('#vehicle').val('UNKOWN').trigger('change');
+        $('#extendModal').find('#vehicle').val('UNKNOWN').trigger('change');
         $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
       } else {
         $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');

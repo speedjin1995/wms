@@ -47,7 +47,7 @@ if(isset($_POST['status'])){
 	}
 
     if(isset($_POST['vehicle']) && $_POST['vehicle'] != null && $_POST['vehicle'] != ''){
-        if ($_POST['vehicle'] == 'UNKOWN'){
+        if ($_POST['vehicle'] == 'UNKNOWN'){
             if(isset($_POST['otherVehicleNo']) && $_POST['otherVehicleNo'] != null && $_POST['otherVehicleNo'] != ''){
                 $vehicle = $_POST['otherVehicleNo'];
             }else{
@@ -60,6 +60,10 @@ if(isset($_POST['status'])){
 
     if(isset($_POST['driver']) && $_POST['driver'] != null && $_POST['driver'] != ''){
 		$driver = $_POST['driver'];
+	}
+
+    if(isset($_POST['remarks2']) && $_POST['remarks2'] != null && $_POST['remarks2'] != ''){
+		$remarks2 = $_POST['remarks2'];
 	}
 
     if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
@@ -119,10 +123,10 @@ if(isset($_POST['status'])){
     }
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE wholesales SET status=?, po_no=?, security_bills=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, total_reject=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_price=?, modified_by=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE wholesales SET status=?, po_no=?, security_bills=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, total_reject=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_price=?, remarks2=?, modified_by=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $update_stmt->bind_param('sssssssssssssssss', $status, $doPoNo, $securityBillNo, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $totalReject, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalPrice, $userID, $_POST['id']);
+            $update_stmt->bind_param('ssssssssssssssssss', $status, $doPoNo, $securityBillNo, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $totalReject, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalPrice, $remarks2, $userID, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
