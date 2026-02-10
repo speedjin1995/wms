@@ -1023,7 +1023,7 @@ $(function () {
     
   });
 
-  $('#statusFilter').on('change', function () {
+  $('#transactionStatusFilter').on('change', function () {
     var status = $(this).val();
     if(status == "DISPATCH" || status == 'SALE-BAL'){
       $('#customerStatusDiv').show();

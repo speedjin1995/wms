@@ -538,16 +538,17 @@ $(function () {
     }
   });
 
-  $('#statusFilter').on('change', function(){
+  $('#transactionStatusFilter').on('change', function () {
     var status = $(this).val();
     $('#customerNoFilter').val('').trigger('change');
     $('#supplierNoFilter').val('').trigger('change');
-    if (status == 'DISPATCH'){
-      $('#supplierDiv').hide();
-      $('#customerDiv').show();
-    } else {
-      $('#customerDiv').hide();
-      $('#supplierDiv').show();
+    if(status == "DISPATCH" || status == 'SALE-BAL'){
+      $('#customerStatusDiv').show();
+      $('#supplierStatusDiv').hide();
+    }
+    else{
+      $('#customerStatusDiv').hide();
+      $('#supplierStatusDiv').show();
     }
   });
 
