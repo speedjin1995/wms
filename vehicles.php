@@ -172,8 +172,8 @@ else{
                   <input type="text" class="form-control" name="vehicleWeight" id="vehicleWeight" placeholder="<?=$languageArray['enter_vehicle_weight_code'][$language]?>">
                 </div>
                 <div class="form-group">
-                  <label for="name"><?=$languageArray['driver_code'][$language]?> *</label>
-                  <select class="form-control select2" style="width: 100%;" id="driver" name="driver" required>
+                  <label for="name"><?=$languageArray['driver_code'][$language]?></label>
+                  <select class="form-control select2" style="width: 100%;" id="driver" name="driver">
                     <?php while($rowDriver=mysqli_fetch_assoc($drivers)){ ?>
                       <option value="<?=$rowDriver['id'] ?>"><?=$rowDriver['driver_name'] ?></option>
                     <?php } ?>

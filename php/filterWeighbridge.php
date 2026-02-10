@@ -64,7 +64,7 @@ if($_POST['transactionId'] != null && $_POST['transactionId'] != '' && $_POST['t
 
 ## Search 
 if($searchValue != ''){
-   $searchQuery = " and (Weight.serial_no like '%".$searchValue."%' or 
+   $searchQuery .= " and (Weight.serial_no like '%".$searchValue."%' or 
         Weight.po_no like '%".$searchValue."%' or
         Weight.lorry_plate_no1 like '%".$searchValue."%') ";
 }
@@ -73,21 +73,24 @@ $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 
 if ($user != 2){
-  $searchQuery .= " AND Weight.company = '".$company."'";
+  $companyFilter = " AND company = '".$company."'";
+  // $searchQuery .= " AND company = '".$company."'";
+}else{
+  $companyFilter = '';
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from Weight where Weight.status = '0'");
+$sel = mysqli_query($db,"select count(*) as allcount from Weight where Weight.status = '0'".$companyFilter);
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from Weight where Weight.status = '0'".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from Weight where Weight.status = '0'".$companyFilter.$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select Weight.* from Weight where Weight.status = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select Weight.* from Weight where Weight.status = '0'".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 

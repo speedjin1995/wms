@@ -72,7 +72,7 @@ if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'
 
 ## Search 
 if($searchValue != ''){
-   $searchQuery = " and (wholesales.serial_no like '%".$searchValue."%' or 
+   $searchQuery .= " and (wholesales.serial_no like '%".$searchValue."%' or 
         wholesales.po_no like '%".$searchValue."%' or
         wholesales.vehicle_no like '%".$searchValue."%') ";
 }
@@ -81,21 +81,24 @@ $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 
 if ($user != 2){
-  $searchQuery .= " AND company = '".$company."'";
+  $companyFilter = " AND company = '".$company."'";
+  // $searchQuery .= " AND company = '".$company."'";
+}else{
+  $companyFilter = '';
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1");
+$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1".$companyFilter);
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1".$companyFilter.$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select wholesales.* from wholesales where 1=1".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select wholesales.* from wholesales where 1=1".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
