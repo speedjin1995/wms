@@ -1,7 +1,9 @@
 <?php
-
 session_start();
-
+if(!isset($_SESSION['userID'])){
+  echo '<script type="text/javascript">';
+  echo 'window.location.href = "login.html";</script>';
+}
 ?>
 
 <!DOCTYPE html>
