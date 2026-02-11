@@ -46,6 +46,7 @@ if(isset($_POST['userID'])){
                 $message['weighted_by'] = searchUserNameById($row['weighted_by'], $db);
                 $message['checked_by'] = $row['checked_by'];
                 $message['remark'] = $row['remark'];
+                $message['remarks2'] = $row['remarks2'];
 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
