@@ -33,6 +33,8 @@ if(($row = $result->fetch_assoc()) !== null){
         $message['name'] = $row['name'];
         $message['role_code'] = $row['role_code'];
         $message['customer'] = $row['customer'];
+        $message['allow_edit'] = $row['allow_edit'];
+        $message['allow_delete'] = $row['allow_delete'];
         $message['weighing'] = in_array('weighing', $modules) ? 'Y' : 'N';
         $message['pricings'] = in_array('pricing', $modules) ? 'Y' : 'N';
         $message['wastings'] = in_array('waste', $modules) ? 'Y' : 'N';

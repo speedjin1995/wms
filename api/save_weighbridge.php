@@ -49,6 +49,7 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
 	$unit_price = null;
     $total_price = null;
 	$remark = null;
+	$remark2 = null;
 	$product = null;
 	$is_complete = 'N';
 	$record_type = 'weighbridge';
@@ -153,15 +154,19 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
 		$remark = $post['remarks'];
 	}
 	
+	if(isset($post['second_remark']) && $post['second_remark'] != null && $post['second_remark'] != ''){
+		$remark2 = $post['second_remark'];
+	}
+	
 	if($weight_type == 'Normal' && ($gross != null && $tare != null)){
 		if($record_type == 'weighbridge'){
 			$is_complete = 'Y';
 		}
 		else{
-			if($transaction_status == 'Receiving' && $invoice_no != null && $invoice_no != '' && $supplier != null && $vehicle != null && (float)$tare <= 0){ 
+			if($transaction_status == 'Receiving' && $invoice_no != null && $invoice_no != '' && $supplier != null && $vehicle != null && (float)$tare > 0){ 
 			    $is_complete = 'Y';
 			}
-			else if($transaction_status == 'Dispatch' && $customer != null && $vehicle != null && (float)$gross <= 0){
+			else if($transaction_status == 'Dispatch' && $customer != null && $vehicle != null && (float)$gross > 0){
 				$is_complete = 'Y';
 			}
 			else{
@@ -309,8 +314,8 @@ if(isset($post['transaction_status'], $post['gross'], $post['incoming_datetime']
         	tare_weight1, tare_weight1_date, nett_weight1, reduce_weight, final_weight, weight_different, is_complete, created_date, created_by, company, modified_date, modified_by, 
         	indicator_id, manual_weight, sub_total, unit_price, total_price, records_type, invoice_no) 
         	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){	
-        	    $insert_stmt->bind_param('ssssssssssssssssssssssssssssssssssssss', $serialNo, $transaction_status, $weight_type, $transaction_date, $vehicle, $order_weight, $customer, $supplier, 
-        	    $product, $container_no, $seal_no, $po_no, $do_no, $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, 
+        	    $insert_stmt->bind_param('ssssssssssssssssssssssssssssssssssssss', $serialNo, $transaction_status, $weight_type, $transaction_date, $vehicle, $order_weight, $customer, 
+        	    $supplier, $product, $container_no, $seal_no, $po_no, $do_no, $transporter, $driver, $destination, $remark, $gross, $incoming_datetime, $tare, $outgoing_datetime, $net, $reduce, 
         	    $final_weight, $weight_difference, $is_complete, $createdDatetime, $staffName, $company, $createdDatetime, $staffName, $indicator, $is_manual, $price_type, $unit_price, 
         	    $total_price, $record_type, $invoice_no);	
         		

@@ -22,6 +22,8 @@ $offset = ($page - 1) * $limit;
 $serial_no= $_GET['serial_no'] ?? '';
 $vehicle  = $_GET['vehicle'] ?? '';
 $status   = $_GET['status'] ?? '';
+$customer = $_GET['customer'] ?? '';
+$supplier = $_GET['supplier'] ?? '';
 $start    = $_GET['start'] ?? '';
 $end      = $_GET['end'] ?? '';
 
@@ -52,6 +54,18 @@ if ($vehicle != '') {
 if ($status != '') {
     $where[] = "wholesales.status LIKE ?";
     $params[] = "%$status%";
+    $types .= "s";
+}
+
+if ($customer != '') {
+    $where[] = "wholesales.customer LIKE ?";
+    $params[] = "%$customer%";
+    $types .= "s";
+}
+
+if ($supplier != '') {
+    $where[] = "wholesales.supplier LIKE ?";
+    $params[] = "%$supplier%";
     $types .= "s";
 }
 
@@ -160,6 +174,7 @@ while($row = $result->fetch_assoc()){
         'driver'=> $row['driver'],
         'driver_ic'=> $row['driver_ic'],
         'remark'=> $row['remark'],
+        'remark2'=> $row['remarks2'],
         'created_datetime'=> $row['created_datetime'],
         'end_time'=> $row['end_time'],
         'checked_by'=> $row['checked_by'],
@@ -185,8 +200,7 @@ echo json_encode(
         "page" => $page,
         "limit" => $limit,
         "count" => count($message),
-        "param" => $params,
-        "sql" => $dataSql
+        "param" => $params
     )
 );
 ?>
