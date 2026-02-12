@@ -190,6 +190,7 @@ function insertDefaultTranslations($db, $companyId) {
         ['second_remarks_code', '2nd Remark', '第二备注', '2nd Remark', 'இரண்டாவது குறிப்பு', '2番目の備考'],
         ['please_enter_vehicle_no_code', 'Please Enter Vehicle No', '请输入车辆编号', 'Sila Masukkan No Kenderaan', 'வாகன எண்ணை உள்ளிடவும்', '車両番号を入力してください'],
         ['delete_customer_code', 'Delete Customer', '删除客户', 'Delete Customer', 'வாடிக்கையாளர் நீக்கு', '顧客を削除'],
+        ['delete_supplier_code', 'Delete Supplier', '删除供应商', 'Delete Supplier', 'சப்ளையர் நீக்கு', 'サプライヤーを削除'],
     ];
 
     $keyCodes = array_column($translations, 0);
