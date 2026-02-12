@@ -44,8 +44,12 @@ else{
 				<div class="card">
 					<div class="card-header">
               <div class="row">
-                  <div class="col-6"></div>
+                  <div class="col-4"></div>
                   <div class="col-2">
+                    <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
+                      <?=$languageArray['delete_vehicle_code'][$language]?>
+                    </button>
+                  </div>                  <div class="col-2">
                     <a href="template/Vehicle_Template.xlsx" download>
                       <button type="button" class="btn btn-block bg-gradient-info btn-sm">
                         <?=$languageArray['download_template_code'][$language]?>
@@ -72,6 +76,7 @@ else{
 						<table id="vehicleTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
+                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['vehicle_number_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_weight_code'][$language]?> (Kg)</th>
                   <th><?=$languageArray['driver_code'][$language]?></th>
@@ -225,6 +230,11 @@ else{
 <script>
 
 $(function () {
+  $('#selectAllCheckbox').on('change', function() {
+    var checkboxes = $('#vehicleTable tbody input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+  });
+
   $('.select2').each(function() {
     $(this).select2({
         allowClear: true,
@@ -244,6 +254,15 @@ $(function () {
       'url':'php/loadVehicles.php',
     },
     'columns': [
+      {
+        // Add a checkbox with a unique ID for each row
+        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        className: 'select-checkbox',
+        orderable: false,
+        render: function (data, type, row) {
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+        }
+      },
       { data: 'veh_number' },
       { data: 'vehicle_weight' },
       { data: 'driver_name' },
@@ -392,6 +411,43 @@ $(function () {
             }
         }
     });
+  });
+
+  $('#multiDeactivate').on('click', function () {
+    $('#spinnerLoading').show();
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#vehicleTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0) {
+      if (confirm('Are you sure you want to cancel these items?')) {
+          $.post('php/deleteVehicle.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+              var obj = JSON.parse(data);
+              
+              if(obj.status === 'success'){
+                $('#vehicleTable').DataTable().ajax.reload();
+                $('#spinnerLoading').hide();
+              }
+              else if(obj.status === 'failed'){
+                $('#spinnerLoading').hide();
+              }
+              else{
+                $('#spinnerLoading').hide();
+              }
+          });
+      }
+
+      $('#spinnerLoading').hide();
+    } 
+    else {
+        // Optionally, you can display a message or take another action if no IDs are selected
+        alert("Please select at least one vehicle to delete.");
+        $('#spinnerLoading').hide();
+    }     
   });
 
   // document.getElementById('fileInput').addEventListener('change', function (e) {

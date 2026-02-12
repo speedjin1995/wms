@@ -188,7 +188,13 @@ function insertDefaultTranslations($db, $companyId) {
         ['active_code', 'Active', '激活', 'Aktif', 'செயலில்', 'アクティブ'],
         ['deleted_code', 'Deleted', '已删除', 'Dihapus', 'நீக்கப்பட்டது', '削除済み'],
         ['second_remarks_code', '2nd Remark', '第二备注', '2nd Remark', 'இரண்டாவது குறிப்பு', '2番目の備考'],
-        ['please_enter_vehicle_no_code', 'Please Enter Vehicle No', '请输入车辆编号', 'Please Enter Vehicle No', 'வாகன எண் உள்ளிடுக', '車両番号を入力してください'],
+        ['please_enter_vehicle_no_code', 'Please Enter Vehicle No', '请输入车辆编号', 'Sila Masukkan No Kenderaan', 'வாகன எண்ணை உள்ளிடவும்', '車両番号を入力してください'],
+        ['delete_customer_code', 'Delete Customer', '删除客户', 'Padam Pelanggan', 'வாடிக்கையாளர் நீக்கு', '顧客を削除'],
+        ['delete_supplier_code', 'Delete Supplier', '删除供应商', 'Padam Pembekal', 'சப்ளையர் நீக்கு', 'サプライヤーを削除'],
+        ['delete_product_code', 'Delete Product', '删除产品', 'Padam Produk', 'தயாரிப்பு நீக்கு', '製品を削除'],
+        ['delete_driver_code', 'Delete Driver', '删除司机', 'Padam Pemandu', 'ஓட்டுநர் நீக்கு', 'ドライバーを削除'],
+        ['delete_vehicle_code', 'Delete Vehicle', '删除车辆', 'Padam Kenderaan', 'வாகனம் நீக்கு', '車両を削除'],
+        ['delete_grade_code', 'Delete Grade', '删除等级', 'Padam Gred', 'தரத்தை நீக்கு', 'グレードを削除'],
     ];
 
     $keyCodes = array_column($translations, 0);
