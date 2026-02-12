@@ -194,6 +194,7 @@ function insertDefaultTranslations($db, $companyId) {
         ['delete_product_code', 'Delete Product', '删除产品', 'Padam Produk', 'தயாரிப்பு நீக்கு', '製品を削除'],
         ['delete_driver_code', 'Delete Driver', '删除司机', 'Padam Pemandu', 'ஓட்டுநர் நீக்கு', 'ドライバーを削除'],
         ['delete_vehicle_code', 'Delete Vehicle', '删除车辆', 'Padam Kenderaan', 'வாகனம் நீக்கு', '車両を削除'],
+        ['delete_grade_code', 'Delete Grade', '删除等级', 'Padam Gred', 'தரத்தை நீக்கு', 'グレードを削除'],
     ];
 
     $keyCodes = array_column($translations, 0);
