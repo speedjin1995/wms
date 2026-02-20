@@ -5,8 +5,7 @@ $licenseIsProfessional = false;
 $licensePath = __DIR__ . '/../../license.php';
 
 if (file_exists($licensePath)) {
-    $licenseContent = file_get_contents($licensePath);
-    $licenseData = json_decode($licenseContent, true);
+    $licenseData = require $licensePath;
 
     if (json_last_error() === JSON_ERROR_NONE && isset($licenseData['company'])) {
         $licenseCompanyId = $licenseData['company'];
@@ -23,6 +22,11 @@ $password=$_POST['userPassword'];
 $now = date("Y-m-d H:i:s");
 
 $stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products, c.name AS company_name FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0");
+
+if($licenseIsProfessional){
+    $stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products, c.name AS company_name FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0 AND c.id = '".$licenseCompanyId."'");
+}
+
 $stmt->bind_param('s', $username);
 $stmt->execute();
 $result = $stmt->get_result();
