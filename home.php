@@ -125,7 +125,7 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-1">
-                        <img src="assets/pieces-n-puree.png" alt="Pulp & Paste" class="modules-img">
+                        <img src="assets/pieces-n-puree-1.png" alt="Pulp & Paste" class="modules-img">
                         <div class="modules-txt">Pulp & Paste</div>
                     </div>
                 </a>
