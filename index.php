@@ -707,7 +707,7 @@ $(function () {
     <?php } else if ($module == 'weighing') { ?>
     $("a[href='#weighbridges']").click();
     <?php } else if ($module == 'industrial') { ?>
-    $("a[href='#industrials']").click();
+    $("a[href='#industrial']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>
