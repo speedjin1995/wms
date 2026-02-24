@@ -418,6 +418,14 @@ to get the desired effect
                 </a>
               </li>
               <?php } ?>
+              <?php if ($module == 'industrial') { ?>
+              <li class="nav-item">
+                <a href="#industrial" data-file="industrial.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['industrial_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
               <!-- <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
@@ -698,6 +706,8 @@ $(function () {
     $("a[href='#wholesales']").click();
     <?php } else if ($module == 'weighing') { ?>
     $("a[href='#weighbridges']").click();
+    <?php } else if ($module == 'industrial') { ?>
+    $("a[href='#industrials']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>
