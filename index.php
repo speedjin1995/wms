@@ -462,6 +462,14 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
+          <?php if ($module == 'industrial') { ?>
+          <li class="nav-item">
+            <a href="#reportsIndustry" data-file="reportsIndustry.php" class="nav-link link">
+              <i class="nav-icon fas fa-th"></i>
+              <p><?=$languageArray['reports_code'][$language]?></p>
+            </a>
+          </li>
+          <?php } ?>
           <?php 
               if($role == "ADMIN"){
                 echo '<li class="nav-item has-treeview">
