@@ -14,7 +14,11 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = " ";
+$searchQuery = " and wholesales.records_type = 'wholesales'";
+
+if(isset($_POST['recordType']) && $_POST['recordType'] != null && $_POST['recordType'] != ''){
+  $searchQuery = " and wholesales.records_type = '".$_POST['recordType']."'";
+}
 
 if($_POST['fromDate'] != null && $_POST['fromDate'] != ''){
   $dateTime = DateTime::createFromFormat('d/m/Y', $_POST['fromDate']);
