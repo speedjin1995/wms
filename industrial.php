@@ -309,7 +309,7 @@ else{
                 <select class="form-control" id="status" name="status" required>
                   <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
                   <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                  <option value="SALE-BAL"><?=$languageArray['sale_balance_code'][$language]?></option>
+                  <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
                 </select>
               </div>
             </div>
@@ -1056,7 +1056,7 @@ $(function () {
 
   $('#transactionStatusFilter').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH" || status == 'SALE-BAL'){
+    if(status == "DISPATCH" || status == 'STOCK-BAL'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }
@@ -1068,7 +1068,7 @@ $(function () {
 
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH" || status == 'SALE-BAL'){
+    if(status == "DISPATCH" || status == 'STOCK-BAL'){
       $('#extendModal').find('#customerDiv').show();
       $('#extendModal').find('#supplierDiv').hide();
       $('#extendModal').find('#securityBillDiv').hide();

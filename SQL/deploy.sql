@@ -264,3 +264,6 @@ ALTER TABLE `users` ADD `allow_edit` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `stop
 ALTER TABLE `users` ADD `languages` VARCHAR(5) NOT NULL DEFAULT 'en' AFTER `allow_delete`;
 
 ALTER TABLE `message_resource` ADD `ja` TEXT NULL AFTER `ne`, ADD `company` INT(11) NOT NULL AFTER `ja`;
+
+-- 27/02/2026 --
+ALTER TABLE `grades` CHANGE `units` `units` VARCHAR(15) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;

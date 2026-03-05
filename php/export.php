@@ -176,6 +176,7 @@ if ($query->num_rows > 0) {
             'actualPrice' => $actualPrice,
             'vehicle_no' => $row['vehicle_no'],
             'driver' => $row['driver'],
+            'checked_by' => $row['checked_by'],
             'weighted_by' => searchUserNameById($row['weighted_by'], $db)
         ];
 
@@ -207,7 +208,7 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
-if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'SALE-BAL') {
+if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') {
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer');
 }else{
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier');
@@ -218,7 +219,7 @@ foreach ($gradeColumns as $gradeCol) {
     $fields[] = $gradeCol;
 }
 
-$fields = array_merge($fields, array('Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight', 'Total Price (RM)', 'Actual Price (RM)', 'Vehicle No.', 'Driver Name', 'Weigh By'));
+$fields = array_merge($fields, array('Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight', 'Total Price (RM)', 'Actual Price (RM)', 'Vehicle No.', 'Driver Name', 'Weigh By', 'Checked By'));
 
 // Display column names as first row 
 $sheet->fromArray($fields, NULL, 'A1');
@@ -235,12 +236,12 @@ if (!empty($allRows)) {
             $rowData['serial_no'],
             $rowData['po_no']
         );
-        
-        if($_GET['transactionStatus'] == 'RECEIVING') {
+
+        if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING'){
             $lineData[] = $rowData['security_bills'];
         }
         
-        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'SALE-BAL') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
+        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
 
         // Add grade weights in correct order
         foreach ($gradeColumns as $gradeCol) {
@@ -257,7 +258,8 @@ if (!empty($allRows)) {
             number_format($rowData['actualPrice'], 2),
             $rowData['vehicle_no'],
             $rowData['driver'],
-            $rowData['weighted_by']
+            $rowData['weighted_by'],
+            $rowData['checked_by']
         ));
 
         array_walk($lineData, 'filterData'); 
@@ -267,9 +269,10 @@ if (!empty($allRows)) {
     
     // Add subtotal row
     $subtotalData = array('SUBTOTAL', '', '', '');
-    if($_GET['transactionStatus'] == 'RECEIVING') {
+    if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
         $subtotalData[] = '';
     }
+    $subtotalData[] = '';
     $subtotalData[] = '';
     
     foreach ($gradeColumns as $gradeCol) {
