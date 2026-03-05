@@ -86,7 +86,7 @@ else{
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                    <option value="SALE-BAL"><?=$languageArray['sale_balance_code'][$language]?></option>
+                    <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -542,7 +542,7 @@ $(function () {
     var status = $(this).val();
     $('#customerNoFilter').val('').trigger('change');
     $('#supplierNoFilter').val('').trigger('change');
-    if(status == "DISPATCH" || status == 'SALE-BAL'){
+    if(status == "DISPATCH" || status == 'STOCK-BAL'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }

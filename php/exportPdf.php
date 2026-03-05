@@ -208,7 +208,7 @@ try {
                 $content .= '<td>'.$rowData['security_bills'].'</td>';
             }
 
-            $content .= '<td>'.(($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'OUTGOING' || $rowData['status'] == 'SALE-BAL') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db)) .'</td>';
+            $content .= '<td>'.(($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'OUTGOING' || $rowData['status'] == 'STOCK-BAL') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db)) .'</td>';
 
             // Output grade columns in correct order
             foreach ($gradeColumns as $gradeCol) {
@@ -240,7 +240,7 @@ try {
     } else if ($_GET['transactionStatus'] == 'INCOMING') {
         $status = 'INCOMING';
     } else {
-        $status = 'SALE BALANCE';
+        $status = 'STOCK BALANCE';
     }
 
     // Set PDF header with logo and dynamic report title
@@ -295,7 +295,7 @@ try {
                     </tr>
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">From Customer: '.($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'SALE-BAL' || $_GET['transactionStatus'] == 'OUTGOING' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div>
+                            <div class="fw-bold">From Customer: '.($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING' ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div>
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">Weight Status: '.$status.'</div>
@@ -312,7 +312,7 @@ try {
                             <th>Date</th>
                             <th>Time</th>
                             <th>Weigh Slip No.</th>
-                            <th>'.($status == 'DISPATCH' || $status == 'SALE-BAL' || $status == 'OUTGOING' ? 'Delivery' : 'Purchase').' No.</th>';
+                            <th>'.($status == 'DISPATCH' || $status == 'STOCK-BAL' || $status == 'OUTGOING' ? 'Delivery' : 'Purchase').' No.</th>';
 
                             if ($_GET['transactionStatus'] == 'RECEIVING') {
                                 $html .= '
@@ -321,7 +321,7 @@ try {
                             }
 
                             $html .= '
-                            <th>'.($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'SALE-BAL' || $_GET['transactionStatus'] == 'OUTGOING' ? 'Customer' : 'Supplier').' Name</th>';
+                            <th>'.($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING' ? 'Customer' : 'Supplier').' Name</th>';
 
                             if (!empty($gradeColumns) && count($gradeColumns) > 0){
                                 foreach ($gradeColumns as $gradeCol){

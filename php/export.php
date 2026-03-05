@@ -208,7 +208,7 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Column names 
-if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'SALE-BAL' || $_GET['transactionStatus'] == 'OUTGOING') {
+if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') {
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer');
 }else{
     $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier');
@@ -241,7 +241,7 @@ if (!empty($allRows)) {
             $lineData[] = $rowData['security_bills'];
         }
         
-        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'SALE-BAL' || $_GET['transactionStatus'] == 'OUTGOING') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
+        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
 
         // Add grade weights in correct order
         foreach ($gradeColumns as $gradeCol) {

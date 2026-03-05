@@ -543,7 +543,7 @@ $(function () {
     var status = $(this).val();
     $('#customerNoFilter').val('').trigger('change');
     $('#supplierNoFilter').val('').trigger('change');
-    if(status == "DISPATCH" || status == 'SALE-BAL'){
+    if(status == "DISPATCH" || status == 'STOCK-BAL'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }
