@@ -267,3 +267,23 @@ ALTER TABLE `message_resource` ADD `ja` TEXT NULL AFTER `ne`, ADD `company` INT(
 
 -- 27/02/2026 --
 ALTER TABLE `grades` CHANGE `units` `units` VARCHAR(15) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+-- 05/04/2026 --
+ALTER TABLE `companies` ADD `company_logo` INT(11) NULL AFTER `sst`;
+
+CREATE TABLE `files` (
+  `id` int(11) NOT NULL,
+  `filename` text NOT NULL,
+  `filepath` text NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+ALTER TABLE `files` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `files` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `roles` (`id`, `role_code`, `role_name`, `deleted`) VALUES ('4', 'SADMIN', 'Super Admin', '0')
+
+UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 2;
+
+UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 40;

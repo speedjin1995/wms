@@ -19,6 +19,7 @@ else{
 	$phone = '';
 	$email = '';
 	
+	$logoPath = '';
 	if(($row = $result->fetch_assoc()) !== null){
         $name = $row['name'];
         $regNo = $row['reg_no'];
@@ -29,6 +30,17 @@ else{
         $phone = $row['phone'];
         $email = $row['email'];
         $fax = $row['fax'];
+
+        if(!empty($row['company_logo'])){
+            $stmtLogo = $db->prepare("SELECT filepath FROM files WHERE id = ? AND deleted = 0");
+            $stmtLogo->bind_param('i', $row['company_logo']);
+            $stmtLogo->execute();
+            $logoResult = $stmtLogo->get_result();
+            if($logoRow = $logoResult->fetch_assoc()){
+                $logoPath = $logoRow['filepath'];
+            }
+            $stmtLogo->close();
+        }
     }
 
     // Language
@@ -93,12 +105,54 @@ else{
 					<input type="text" class="form-control" id="fax" name="fax" value="<?=$fax ?>" placeholder="<?=$languageArray['enter_fax_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
 				</div>
 			</div>
-			
 			<div class="card-footer" style="<?=($role != 'SADMIN') ? 'display:none' : 'display:block'?>">
 				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</form>
 	</div>
+
+	<!-- Logo Upload Section -->
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Company Logo</h3>
+		</div>
+		<div class="card-body">
+			<div class="form-group">
+				<?php if(!empty($logoPath)): ?>
+					<div class="mb-3">
+						<button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#logoPreviewModal"><i class="fas fa-eye"></i> Preview Current Logo</button>
+					</div>
+				<?php endif; ?>
+				<label for="logoFile">Upload Logo</label>
+				<div class="input-group">
+					<div class="custom-file">
+						<input type="file" class="custom-file-input" id="logoFile" accept=".png,.jpg,.jpeg">
+						<label class="custom-file-label" for="logoFile">Choose file</label>
+					</div>
+				</div>
+				<small class="form-text text-muted">Recommended size: 300px x 100px. Max file size: 25MB. Accepted formats: PNG, JPG, JPEG.</small>
+			</div>
+		</div>
+		<div class="card-footer">
+			<button class="btn btn-success" id="uploadLogo"><i class="fas fa-upload"></i> Upload Logo</button>
+		</div>
+	</div>
+	<?php if(!empty($logoPath)): ?>
+	<!-- Logo Preview Modal -->
+	<div class="modal fade" id="logoPreviewModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Company Logo</h5>
+					<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+				</div>
+				<div class="modal-body text-center">
+					<img src="<?=$logoPath?>" alt="Company Logo" style="max-width:100%;">
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php endif; ?>
 </section>
 
 <script>
@@ -129,6 +183,62 @@ $(function () {
         }
     });
     
+    // Logo upload
+    $('#logoFile').on('change', function(){
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName);
+    });
+
+    $('#uploadLogo').on('click', function(e){
+        e.preventDefault();
+        var fileInput = $('#logoFile')[0];
+        if(!fileInput.files.length){
+            toastr["error"]("Please select a file", "Failed:");
+            return;
+        }
+        var file = fileInput.files[0];
+        var maxSize = 25 * 1024 * 1024;
+        var allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
+        if(file.size > maxSize){
+            toastr["error"]("File size exceeds 25MB limit", "Failed:");
+            return;
+        }
+        if(allowedTypes.indexOf(file.type) === -1){
+            toastr["error"]("Only PNG, JPG, and JPEG files are allowed", "Failed:");
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('logo', file);
+
+        $('#spinnerLoading').show();
+        $.ajax({
+            url: 'php/uploadLogo.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data){
+                var obj = JSON.parse(data);
+                if(obj.status === 'success'){
+                    toastr["success"](obj.message, "Success:");
+                    $.get('company.php', function(data){
+                        $('#mainContents').html(data);
+                        $('#spinnerLoading').hide();
+                    });
+                } else {
+                    toastr["error"](obj.message, "Failed:");
+                    $('#spinnerLoading').hide();
+                }
+            },
+            error: function(){
+                toastr["error"]("Failed to upload logo", "Failed:");
+                $('#spinnerLoading').hide();
+            }
+        });
+    });
+
     $('#profileForm').validate({
         rules: {
             text: {
