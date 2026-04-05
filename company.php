@@ -59,83 +59,77 @@ else{
 	</div>
 </section>
 
-<section class="content" style="min-height:700px;">
+<section class="content">
 	<div class="card">
 		<form role="form" id="profileForm" novalidate="novalidate">
 			<div class="card-body">
-				<div class="form-group">
-					<label for="regNo"><?=$languageArray['company_reg_no_code'][$language]?> *</label>
-					<input type="text" class="form-control" id="regNo" name="regNo" value="<?=$regNo ?>" placeholder="<?=$languageArray['enter_company_reg_no_code'][$language]?>" required <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-
-				<div class="form-group">
-					<label for="name"><?=$languageArray['company_name_code'][$language]?> *</label>
-					<input type="text" class="form-control" id="name" name="name" value="<?=$name ?>" placeholder="<?=$languageArray['enter_company_name_code'][$language]?>" required <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-				
-				<div class="form-group">
-					<label for="address"><?=$languageArray['company_address_line_1_code'][$language]?> *</label>
-                    <input type="text" class="form-control" id="address1" name="address1" value="<?=$address ?>" placeholder="<?=$languageArray['enter_company_address_line_1_code'][$language]?>" required <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-				<div class="form-group">
-					<label for="address2"><?=$languageArray['company_address_line_2_code'][$language]?></label>
-                    <input type="text" class="form-control" id="address2" name="address2" value="<?=$address2 ?>" placeholder="<?=$languageArray['enter_company_address_line_2_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-				<div class="form-group">
-					<label for="address3"><?=$languageArray['company_address_line_3_code'][$language]?></label>
-                    <input type="text" class="form-control" id="address3" name="address3" value="<?=$address3 ?>" placeholder="<?=$languageArray['enter_company_address_line_3_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-				<div class="form-group">
-					<label for="address4"><?=$languageArray['company_address_line_4_code'][$language]?></label>
-                    <input type="text" class="form-control" id="address4" name="address4" value="<?=$address4 ?>" placeholder="<?=$languageArray['enter_company_address_line_4_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-
-                <div class="form-group">
-					<label for="phone"><?=$languageArray['company_phone_code'][$language]?></label>
-					<input type="text" class="form-control" id="phone" name="phone" value="<?=$phone ?>" placeholder="<?=$languageArray['enter_phone_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-
-                <div class="form-group">
-					<label for="email"><?=$languageArray['company_email_code'][$language]?></label>
-					<input type="email" class="form-control" id="email" name="email" value="<?=$email ?>" placeholder="<?=$languageArray['enter_email_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
-				</div>
-
-                <div class="form-group">
-					<label for="fax"><?=$languageArray['company_fax_code'][$language]?></label>
-					<input type="text" class="form-control" id="fax" name="fax" value="<?=$fax ?>" placeholder="<?=$languageArray['enter_fax_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+				<div class="row">
+					<!-- Left Column -->
+					<div class="col-md-6">
+						<div class="form-group">
+							<label for="regNo"><?=$languageArray['company_reg_no_code'][$language]?> *</label>
+							<input type="text" class="form-control" id="regNo" name="regNo" value="<?=$regNo ?>" placeholder="<?=$languageArray['enter_company_reg_no_code'][$language]?>" required <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<div class="form-group">
+							<label for="name"><?=$languageArray['company_name_code'][$language]?> *</label>
+							<input type="text" class="form-control" id="name" name="name" value="<?=$name ?>" placeholder="<?=$languageArray['enter_company_name_code'][$language]?>" required <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<div class="form-group">
+							<label for="address"><?=$languageArray['company_address_line_1_code'][$language]?> *</label>
+							<input type="text" class="form-control" id="address1" name="address1" value="<?=$address ?>" placeholder="<?=$languageArray['enter_company_address_line_1_code'][$language]?>" required <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<div class="form-group">
+							<label for="address2"><?=$languageArray['company_address_line_2_code'][$language]?></label>
+							<input type="text" class="form-control" id="address2" name="address2" value="<?=$address2 ?>" placeholder="<?=$languageArray['enter_company_address_line_2_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<div class="form-group">
+							<label for="address3"><?=$languageArray['company_address_line_3_code'][$language]?></label>
+							<input type="text" class="form-control" id="address3" name="address3" value="<?=$address3 ?>" placeholder="<?=$languageArray['enter_company_address_line_3_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<div class="form-group">
+							<label for="address4"><?=$languageArray['company_address_line_4_code'][$language]?></label>
+							<input type="text" class="form-control" id="address4" name="address4" value="<?=$address4 ?>" placeholder="<?=$languageArray['enter_company_address_line_4_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+					</div>
+					<!-- Right Column -->
+					<div class="col-md-6">
+						<div class="form-group">
+							<label for="phone"><?=$languageArray['company_phone_code'][$language]?></label>
+							<input type="text" class="form-control" id="phone" name="phone" value="<?=$phone ?>" placeholder="<?=$languageArray['enter_phone_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<div class="form-group">
+							<label for="email"><?=$languageArray['company_email_code'][$language]?></label>
+							<input type="email" class="form-control" id="email" name="email" value="<?=$email ?>" placeholder="<?=$languageArray['enter_email_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<div class="form-group">
+							<label for="fax"><?=$languageArray['company_fax_code'][$language]?></label>
+							<input type="text" class="form-control" id="fax" name="fax" value="<?=$fax ?>" placeholder="<?=$languageArray['enter_fax_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+						<!-- Logo Upload -->
+						<div>
+							<hr>
+							<label>Company Logo</label>
+							<?php if(!empty($logoPath)): ?>
+								<button type="button" class="btn btn-outline-primary btn-sm ml-2" data-toggle="modal" data-target="#logoPreviewModal"><i class="fas fa-eye"></i> Preview</button>
+							<?php endif; ?>
+							<div class="input-group mt-2">
+								<div class="custom-file">
+									<input type="file" class="custom-file-input" id="logoFile" accept=".png,.jpg,.jpeg">
+									<label class="custom-file-label" for="logoFile">Choose file</label>
+								</div>
+								<div class="input-group-append">
+									<button class="btn btn-success" type="button" id="uploadLogo"><i class="fas fa-upload"></i> Upload</button>
+								</div>
+							</div>
+							<small class="form-text text-muted">Recommended: 300 x 100 px. Max: 25MB. Format: PNG, JPG, JPEG.</small>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="card-footer" style="<?=($role != 'SADMIN') ? 'display:none' : 'display:block'?>">
 				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</form>
-	</div>
-
-	<!-- Logo Upload Section -->
-	<div class="card">
-		<div class="card-header">
-			<h3 class="card-title">Company Logo</h3>
-		</div>
-		<div class="card-body">
-			<div class="form-group">
-				<?php if(!empty($logoPath)): ?>
-					<div class="mb-3">
-						<button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#logoPreviewModal"><i class="fas fa-eye"></i> Preview Current Logo</button>
-					</div>
-				<?php endif; ?>
-				<label for="logoFile">Upload Logo</label>
-				<div class="input-group">
-					<div class="custom-file">
-						<input type="file" class="custom-file-input" id="logoFile" accept=".png,.jpg,.jpeg">
-						<label class="custom-file-label" for="logoFile">Choose file</label>
-					</div>
-				</div>
-				<small class="form-text text-muted">Recommended size: 300px x 100px. Max file size: 25MB. Accepted formats: PNG, JPG, JPEG.</small>
-			</div>
-		</div>
-		<div class="card-footer">
-			<button class="btn btn-success" id="uploadLogo"><i class="fas fa-upload"></i> Upload Logo</button>
-		</div>
 	</div>
 	<?php if(!empty($logoPath)): ?>
 	<!-- Logo Preview Modal -->
