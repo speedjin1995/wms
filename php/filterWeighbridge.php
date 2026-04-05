@@ -71,8 +71,9 @@ if($searchValue != ''){
 
 $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
+$role = $_SESSION['role'];
 
-if ($user != 2){
+  if ($role != 'SADMIN'){
   $companyFilter = " AND company = '".$company."'";
   // $searchQuery .= " AND company = '".$company."'";
 }else{

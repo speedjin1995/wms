@@ -471,7 +471,7 @@ to get the desired effect
           </li>
           <?php } ?>
           <?php 
-              if($role == "ADMIN"){
+              if($role == "ADMIN" || $role == "SADMIN"){
                 echo '<li class="nav-item has-treeview">
                 <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-database"></i>
@@ -550,7 +550,7 @@ to get the desired effect
         
             <ul class="nav nav-treeview" style="display: none;">
               <?php 
-                if($role == "ADMIN"){
+                if($role == "ADMIN" || $role == "SADMIN"){
                   echo '<li class="nav-item">
                           <a href="#company" data-file="company.php" class="nav-link link">
                             <i class="nav-icon fas fa-building"></i>

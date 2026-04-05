@@ -10,6 +10,7 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
+  $role = $_SESSION['role'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
 
   // Language
@@ -150,7 +151,7 @@ else{
                 <div class="form-group">
                   <input type="hidden" class="form-control" id="id" name="id">
                 </div>
-                <div class="form-group" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
+                <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
                   <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>

@@ -36,7 +36,7 @@ if(($row = $result->fetch_assoc()) !== null){
 	$packages = json_decode($row['packages'], true);
 	$products = json_decode($row['products'], true);
 
-	if ($row['id'] == 2 || in_array('M', $packages, true) || in_array('P', $packages, true)) {
+	if ($row['role_code'] == 'SADMIN' || in_array('M', $packages, true) || in_array('P', $packages, true)) {
 		$password = hash('sha512', $password . $row['salt']);
 		if($password == $row['password']){
 			$_SESSION['userID']=$row['id'];
