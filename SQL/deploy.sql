@@ -287,3 +287,6 @@ INSERT INTO `roles` (`id`, `role_code`, `role_name`, `deleted`) VALUES ('4', 'SA
 UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 2;
 
 UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 40;
+
+ALTER TABLE `companies` ADD `include_price` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `company_logo`, ADD `include_photo` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_price`, ADD `include_barcode` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_photo`;
+
