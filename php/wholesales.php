@@ -115,7 +115,7 @@ if(isset($_POST['status'])){
 
     if(isset($_POST['rejectDetails']) && $_POST['rejectDetails'] != null && $_POST['rejectDetails'] != ''){
 		$data = $_POST['rejectDetails'];
-        foreach($data as $rejectDetail){
+        foreach($data as $key => $rejectDetail){
             $rejectDetails[] = [
                 'gross' => $rejectDetail['gross'] ?? '',
                 'tare' => $rejectDetail['tare'] ?? '',
@@ -134,7 +134,22 @@ if(isset($_POST['status'])){
                 'time' => $rejectDetail['time'] ?? '',
                 'grade' => $rejectDetail['grade'] ?? '',
                 'isedit' => $rejectDetail['isedit'] ?? 'N',
-                'photo' => $rejectDetail['photo'] ?? '',
+                'photo' => (function() use ($key, $db, $company) {
+                    if (isset($_FILES['rejectPhotoFiles']['name'][$key]) && $_FILES['rejectPhotoFiles']['error'][$key] === UPLOAD_ERR_OK) {
+                        $f = [
+                            'name' => $_FILES['rejectPhotoFiles']['name'][$key],
+                            'tmp_name' => $_FILES['rejectPhotoFiles']['tmp_name'][$key],
+                            'size' => $_FILES['rejectPhotoFiles']['size'][$key],
+                            'type' => $_FILES['rejectPhotoFiles']['type'][$key],
+                            'error' => $_FILES['rejectPhotoFiles']['error'][$key],
+                        ];
+                        $result = uploadFile($f, 'wholesales', $company, $db);
+                        if ($result['status'] === 'success' && $result['fid']) {
+                            return (string)$result['fid'];
+                        }
+                    }
+                    return $_POST['rejectDetails'][$key]['photo'] ?? '';
+                })(),
             ];
 
             $totalReject += floatval($rejectDetail['net'] ?? 0.0);

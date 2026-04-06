@@ -461,6 +461,7 @@ else{
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
+                  <th><?=$languageArray['photo_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -1177,6 +1178,7 @@ $(function () {
           <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
           <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <span id="photoStatus${idx}"></span>
         </td>
         <td>
           <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
@@ -1767,6 +1769,7 @@ function edit(id) {
                 <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
                 ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
                 <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                <span id="photoStatus${idx}"></span>
               </td>
               <td>
                 <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
@@ -1841,6 +1844,13 @@ function edit(id) {
               <td><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
+              <td>
+                <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
+                <span id="rejectPhotoStatus${idx}"></span>
+              </td>
               <td>
                 <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
@@ -2184,5 +2194,15 @@ function populateFilters(rowId, weightDetails) {
   });
 }
 
+
+  // Show tick when file is selected
+  $('#extendForm').on('change', 'input[type="file"]', function() {
+    var statusSpan = $(this).siblings('span[id$="Status"], span[id*="photoStatus"], span[id*="PhotoStatus"]');
+    if (this.files && this.files[0]) {
+      statusSpan.html('<i class="fas fa-check-circle text-success"></i>');
+    } else {
+      statusSpan.html('');
+    }
+  });
 
 </script>
