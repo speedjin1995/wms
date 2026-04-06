@@ -1,5 +1,6 @@
 <?php
 require_once 'db_connect.php';
+require_once 'uploadFileHelper.php';
 session_start();
 
 if (!isset($_SESSION['userID'])) {
@@ -15,87 +16,33 @@ if (!isset($_SESSION['userID'])) {
 if(isset($_POST['type'], $_POST['company'])){
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
     $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING);
-    $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-    $method = 'local';
 
-    if ($type == 'logo') {
-        $maxSize = 25 * 1024 * 1024;
-    } else {
-        $maxSize = 10 * 1024 * 1024;
-    }
-
-    if ($_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
         echo json_encode(
             array(
-                "status" => "failed",
+                "status" => "failed", 
                 "message" => "No file uploaded or upload error"
             )
         );
         exit;
     }
 
-    $file = $_FILES['file'];
-    if ($file['size'] > $maxSize) {
+    $result = uploadFile($_FILES['file'], $type, $company, $db);
+
+    if ($result['status'] === 'failed') {
         echo json_encode(
             array(
-                "status" => "failed",
-                "message" => "File size exceeds " . ($maxSize / 1024 / 1024) . "MB limit"
-            )
-        );
-        exit;
-    }
-
-    if (!in_array($file['type'], $allowedTypes)) {
-        echo json_encode(
-            array(
-                "status" => "failed",
-                "message" => "Only PNG, JPG, and JPEG files are allowed"
-            )
-        );
-        exit;
-    }
-
-    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $fileDir = 'uploads/';
-    $uploadPath = str_replace('\\', '/', dirname(__DIR__, 2)) . '/' . $fileDir;
-
-    // create uploads directory if it doesn't exist
-    if (!is_dir($uploadPath)) {
-        mkdir($uploadPath, 0755, true);
-    }
-
-    $uploadDir = $uploadPath . $type . '/';
-
-    // create type-specific directory if it doesn't exist
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    $filename = time() . '_' . $company . '_' . basename($file['name']);
-    $filePath = $uploadDir . $filename;
-    $dbPath = $fileDir . $type . '/' . $filename;
-
-    // Move the uploaded file to the target directory
-    if (move_uploaded_file($file['tmp_name'], $filePath)) {
-        // Update certificate data in the database
-        if ($stmt = $db->prepare("INSERT INTO files (filename, filepath, method, company) VALUES (?, ?, ?, ?)")) {
-            $stmt->bind_param('ssss', $filename, $dbPath, $method, $company);
-            $stmt->execute();
-            $fid = $stmt->insert_id;
-            $stmt->close();
-        } 
-    } else{
-        echo json_encode(
-            array (
                 "status" => "failed", 
-                "message" => "Failed to save file"
-            )   
-        ); 
+                "message" => $result['message']
+            )
+        );
         exit;
     }
+
+    $fid = $result['fid'];
 
     if ($type == 'logo') {
-        // Soft-delete old logo file if exists
+        // Soft-delete old logo file and remove from disk
         $stmt = $db->prepare("SELECT company_logo FROM companies WHERE id = ?");
         $stmt->bind_param('s', $company);
         $stmt->execute();
@@ -103,6 +50,18 @@ if(isset($_POST['type'], $_POST['company'])){
         if ($row = $res->fetch_assoc()) {
             $oldLogoId = $row['company_logo'];
             if ($oldLogoId) {
+                $stmtFile = $db->prepare("SELECT filepath FROM files WHERE id = ?");
+                $stmtFile->bind_param('s', $oldLogoId);
+                $stmtFile->execute();
+                $resFile = $stmtFile->get_result();
+                if ($rowFile = $resFile->fetch_assoc()) {
+                    $oldFilePath = str_replace('\\', '/', dirname(__DIR__, 3)) . '/' . $rowFile['filepath'];
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+                $stmtFile->close();
+
                 $stmtDel = $db->prepare("UPDATE files SET deleted = 1 WHERE id = ?");
                 $stmtDel->bind_param('s', $oldLogoId);
                 $stmtDel->execute();
@@ -116,23 +75,21 @@ if(isset($_POST['type'], $_POST['company'])){
         $stmt->bind_param('is', $fid, $company);
         $stmt->execute();
         $stmt->close();
-    } else {
-
     }
 
     $db->close();
 
     echo json_encode(
         array(
-            "status" => "success",
-            "message" => "File uploaded successfully!",
+            "status" => "success", 
+            "message" => "File uploaded successfully!"
         )
     );
 }else{
     echo json_encode(
         array(
-            "status"=> "failed", 
-            "message"=> "Please fill in all the fields"
+            "status" => "failed", 
+            "message" => "Please fill in all the fields"
         )
     );
 }

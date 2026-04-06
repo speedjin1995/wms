@@ -423,7 +423,8 @@ else{
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+                  <th><?=$languageArray['photo_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="weightDetailsTable">
@@ -437,6 +438,7 @@ else{
                   <th id="totalWeightNet">0.00</th>
                   <th></th>
                   <th id="totalWeightPrice">0.00</th>
+                  <th></th>
                   <th></th>
                   <th></th>
                 </tr>
@@ -871,21 +873,32 @@ $(function () {
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
         $('#spinnerLoading').show();
-        $.post('php/wholesales.php', $('#extendForm').serialize(), function(data){
-          var obj = JSON.parse(data); 
-          if(obj.status === 'success'){
-            $('#extendModal').modal('hide');
-            toastr["success"](obj.message, "Success:");
-            $('#weightTable').DataTable().ajax.reload();
+        var formData = new FormData($('#extendForm')[0]);
+        $.ajax({
+          url: 'php/wholesales.php',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(data){
+            var obj = JSON.parse(data); 
+            if(obj.status === 'success'){
+              $('#extendModal').modal('hide');
+              toastr["success"](obj.message, "Success:");
+              $('#weightTable').DataTable().ajax.reload();
+            }
+            else if(obj.status === 'failed'){
+              toastr["error"](obj.message, "Failed:");
+            }
+            else{
+              toastr["error"]("Something wrong when edit", "Failed:");
+            }
+            $('#spinnerLoading').hide();
+          },
+          error: function(){
+            toastr["error"]("Something wrong when saving", "Failed:");
+            $('#spinnerLoading').hide();
           }
-          else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-          }
-          else{
-            toastr["error"]("Something wrong when edit", "Failed:");
-          }
-
-          $('#spinnerLoading').hide();
         });
       }else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
@@ -1160,6 +1173,11 @@ $(function () {
         <td><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
         <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
+        <td>
+          <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="">
+          <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+        </td>
         <td>
           <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
           <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
@@ -1745,6 +1763,12 @@ function edit(id) {
               <td><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td>
+                <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+              </td>
+              <td>
                 <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
@@ -2159,5 +2183,6 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   });
 }
+
 
 </script>
