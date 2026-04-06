@@ -1924,6 +1924,14 @@ function rejectRow(button) {
       $(this).attr('id', id.replace(/\d+$/, rejectIndex));
     }
   });
+
+  // Rename file input from photoFiles to rejectPhotoFiles
+  row.find('input[type="file"]').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      $(this).attr('name', name.replace('photoFiles', 'rejectPhotoFiles').replace(/\[\d+\]/, '[' + rejectIndex + ']'));
+    }
+  });
   
   row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
@@ -1953,6 +1961,14 @@ function acceptRow(button) {
     }
     if(id) {
       $(this).attr('id', id.replace(/\d+$/, weightIndex));
+    }
+  });
+
+  // Rename file input from rejectPhotoFiles to photoFiles
+  row.find('input[type="file"]').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      $(this).attr('name', name.replace('rejectPhotoFiles', 'photoFiles').replace(/\[\d+\]/, '[' + weightIndex + ']'));
     }
   });
   
