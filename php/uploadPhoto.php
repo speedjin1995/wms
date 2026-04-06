@@ -42,7 +42,7 @@ if(isset($_POST['type'], $_POST['company'])){
     $fid = $result['fid'];
 
     if ($type == 'logo') {
-        // Soft-delete old logo file and remove from disk
+        // Delete old logo file from disk and soft-delete from DB
         $stmt = $db->prepare("SELECT company_logo FROM companies WHERE id = ?");
         $stmt->bind_param('s', $company);
         $stmt->execute();
@@ -50,22 +50,7 @@ if(isset($_POST['type'], $_POST['company'])){
         if ($row = $res->fetch_assoc()) {
             $oldLogoId = $row['company_logo'];
             if ($oldLogoId) {
-                $stmtFile = $db->prepare("SELECT filepath FROM files WHERE id = ?");
-                $stmtFile->bind_param('s', $oldLogoId);
-                $stmtFile->execute();
-                $resFile = $stmtFile->get_result();
-                if ($rowFile = $resFile->fetch_assoc()) {
-                    $oldFilePath = str_replace('\\', '/', dirname(__DIR__, 3)) . '/' . $rowFile['filepath'];
-                    if (file_exists($oldFilePath)) {
-                        unlink($oldFilePath);
-                    }
-                }
-                $stmtFile->close();
-
-                $stmtDel = $db->prepare("UPDATE files SET deleted = 1 WHERE id = ?");
-                $stmtDel->bind_param('s', $oldLogoId);
-                $stmtDel->execute();
-                $stmtDel->close();
+                deleteOldFile($oldLogoId, $db);
             }
         }
         $stmt->close();

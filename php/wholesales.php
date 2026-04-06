@@ -91,6 +91,10 @@ if(isset($_POST['status'])){
                 'isedit' => $weightDetail['isedit'] ?? 'N',
                 'photo' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
+                        $oldPhotoId = $_POST['weightDetails'][$key]['photo'] ?? '';
+                        if ($oldPhotoId) {
+                            deleteOldFile($oldPhotoId, $db);
+                        }
                         $f = [
                             'name' => $_FILES['photoFiles']['name'][$key],
                             'tmp_name' => $_FILES['photoFiles']['tmp_name'][$key],
@@ -136,6 +140,10 @@ if(isset($_POST['status'])){
                 'isedit' => $rejectDetail['isedit'] ?? 'N',
                 'photo' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['rejectPhotoFiles']['name'][$key]) && $_FILES['rejectPhotoFiles']['error'][$key] === UPLOAD_ERR_OK) {
+                        $oldPhotoId = $_POST['rejectDetails'][$key]['photo'] ?? '';
+                        if ($oldPhotoId) {
+                            deleteOldFile($oldPhotoId, $db);
+                        }
                         $f = [
                             'name' => $_FILES['rejectPhotoFiles']['name'][$key],
                             'tmp_name' => $_FILES['rejectPhotoFiles']['tmp_name'][$key],

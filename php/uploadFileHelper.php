@@ -48,4 +48,30 @@ function uploadFile($file, $type, $company, $db) {
 
     return ['status' => 'success', 'message' => 'File uploaded successfully!', 'fid' => $fid];
 }
+
+/**
+ * Delete a file from disk and soft-delete from the files table.
+ *
+ * @param string $fileId  The file ID in the files table
+ * @param mysqli $db      Database connection
+ */
+function deleteOldFile($fileId, $db) {
+    if (!$fileId) return;
+    $stmt = $db->prepare("SELECT filepath FROM files WHERE id = ? AND deleted = 0");
+    $stmt->bind_param('s', $fileId);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($row = $res->fetch_assoc()) {
+        $oldPath = str_replace('\\', '/', dirname(__DIR__, 3)) . '/' . $row['filepath'];
+        if (file_exists($oldPath)) {
+            unlink($oldPath);
+        }
+    }
+    $stmt->close();
+
+    $stmtDel = $db->prepare("UPDATE files SET deleted = 1 WHERE id = ?");
+    $stmtDel->bind_param('s', $fileId);
+    $stmtDel->execute();
+    $stmtDel->close();
+}
 ?>
