@@ -1497,7 +1497,8 @@ function format (row) {
             <th>Net</th>
             <th>Price</th>
             <th>Total</th>
-            <th>Time</th>`;
+            <th>Time</th>
+            <th>Photo</th>`;
           returnString += `
           </tr>
       </thead>
@@ -1519,7 +1520,8 @@ function format (row) {
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
               <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td>${detail.time}</td>`;
+              <td>${detail.time}</td>
+              <td>${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : ''}</td>`;
             returnString += `
             </tr>`;
 
@@ -1540,6 +1542,7 @@ function format (row) {
           <th></th>
           <th>RM ${totalWeightPrice.toFixed(2)}</th>
           <th></th>
+          <th></th>
         </tr>
     </table>
   </div>
@@ -1557,7 +1560,8 @@ function format (row) {
             <th>Net</th>
             <th>Price</th>
             <th>Total</th>
-            <th>Time</th>`;
+            <th>Time</th>
+            <th>Photo</th>`;
           returnString += `
           </tr>
       </thead>
@@ -1579,7 +1583,8 @@ function format (row) {
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
               <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td>${detail.time}</td>`;
+              <td>${detail.time}</td>
+              <td>${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : ''}</td>`;
             returnString += `
             </tr>`;
 
@@ -1599,6 +1604,7 @@ function format (row) {
           <th>${totalRejectNet.toFixed(2)}</th>
           <th></th>
           <th>RM ${totalRejectPrice.toFixed(2)}</th>
+          <th></th>
           <th></th>
         </tr>
     </table>
