@@ -38,14 +38,7 @@ else{
         $includeBarcode = $row['include_barcode'];
 
         if(!empty($row['company_logo'])){
-            $stmtLogo = $db->prepare("SELECT filepath FROM files WHERE id = ? AND deleted = 0");
-            $stmtLogo->bind_param('i', $row['company_logo']);
-            $stmtLogo->execute();
-            $logoResult = $stmtLogo->get_result();
-            if($logoRow = $logoResult->fetch_assoc()){
-                $logoPath = $logoRow['filepath'];
-            }
-            $stmtLogo->close();
+            $logoPath = 'php/viewPhoto.php?file=' . $row['company_logo'];
         }
     }
 
@@ -225,52 +218,56 @@ else{
 	</form>
 
 	<!-- Company Logo -->
-	<div class="card card-primary card-outline">
-		<div class="card-header">
-			<h3 class="card-title"><i class="fas fa-image mr-2"></i><?=$languageArray['company_logo_code'][$language]?></h3>
-			<?php if(!empty($logoPath)): ?>
-				<div class="card-tools">
-					<button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#logoPreviewModal"><i class="fas fa-eye mr-1"></i> <?=$languageArray['preview_code'][$language]?></button>
-				</div>
-			<?php endif; ?>
-		</div>
-		<div class="card-body">
-			<div class="row align-items-center">
-				<div class="col-auto">
-					<?php if(!empty($logoPath)): ?>
-						<img src="<?=$logoPath?>" alt="Logo" class="img-thumbnail" style="max-height:80px;">
-					<?php else: ?>
-						<div class="bg-light border rounded d-flex align-items-center justify-content-center" style="width:80px;height:80px;">
-							<i class="fas fa-image fa-2x text-muted"></i>
-						</div>
-					<?php endif; ?>
-				</div>
-				<div class="col">
-					<div class="input-group">
-						<div class="custom-file">
-							<input type="file" class="custom-file-input" id="logoFile" accept=".png,.jpg,.jpeg">
-							<label class="custom-file-label" for="logoFile"><?=$languageArray['choose_file_code'][$language]?></label>
-						</div>
-						<div class="input-group-append">
-							<button class="btn btn-primary" type="button" id="uploadLogo"><i class="fas fa-upload mr-1"></i> <?=$languageArray['upload_code'][$language]?></button>
-						</div>
+	<form id="logoForm" enctype="multipart/form-data">
+		<div class="card card-primary card-outline">
+			<div class="card-header">
+				<h3 class="card-title"><i class="fas fa-image mr-2"></i><?=$languageArray['company_logo_code'][$language]?></h3>
+				<?php if(!empty($logoPath)): ?>
+					<div class="card-tools">
+						<button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#logoPreviewModal"><i class="fas fa-eye mr-1"></i> <?=$languageArray['preview_code'][$language]?></button>
 					</div>
-					<small class="form-text text-muted mt-1"><?=$languageArray['recommended_file_size_code'][$language]?></small>
+				<?php endif; ?>
+			</div>
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<?php if(!empty($logoPath)): ?>
+							<img src="<?=$logoPath?>" alt="Logo" class="img-thumbnail" style="max-height:80px;">
+						<?php else: ?>
+							<div class="bg-light border rounded d-flex align-items-center justify-content-center" style="width:80px;height:80px;">
+								<i class="fas fa-image fa-2x text-muted"></i>
+							</div>
+						<?php endif; ?>
+					</div>
+					<div class="col">
+						<div class="input-group">
+							<div class="custom-file">
+								<input type="file" class="custom-file-input" id="logoFile" name="file" accept=".png,.jpg,.jpeg">
+								<input type="hidden" id="type" name="type" value="logo">
+								<input type="hidden" id="company" name="company" value="<?=$company?>">
+								<label class="custom-file-label" for="logoFile"><?=$languageArray['choose_file_code'][$language]?></label>
+							</div>
+							<div class="input-group-append">
+								<button class="btn btn-primary" type="submit" id="uploadLogo"><i class="fas fa-upload mr-1"></i> <?=$languageArray['upload_code'][$language]?></button>
+							</div>
+						</div>
+						<small class="form-text text-muted mt-1"><?=$languageArray['recommended_file_size_code'][$language]?></small>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	</form>
 
 	<?php if(!empty($logoPath)): ?>
 	<div class="modal fade" id="logoPreviewModal" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">Company Logo</h5>
+					<h5 class="modal-title"><?=$languageArray['company_logo_code'][$language]?></h5>
 					<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
 				</div>
 				<div class="modal-body text-center">
-					<img src="<?=$logoPath?>" alt="Company Logo" class="img-fluid">
+					<img src="<?=$logoPath?>" alt="<?=$languageArray['company_logo_code'][$language]?>" class="img-fluid">
 				</div>
 			</div>
 		</div>
@@ -314,7 +311,7 @@ $(function () {
         $(this).next('.custom-file-label').html(fileName);
     });
 
-    $('#uploadLogo').on('click', function(e){
+    $('#logoForm').on('submit', function(e){
         e.preventDefault();
         var fileInput = $('#logoFile')[0];
         if(!fileInput.files.length){
@@ -330,13 +327,11 @@ $(function () {
             toastr["error"]("Only PNG, JPG, and JPEG files are allowed", "Failed:");
             return;
         }
-        var formData = new FormData();
-        formData.append('logo', file);
         $('#spinnerLoading').show();
         $.ajax({
-            url: 'php/uploadLogo.php',
+            url: 'php/uploadPhoto.php',
             type: 'POST',
-            data: formData,
+            data: new FormData(this),
             processData: false,
             contentType: false,
             success: function(data){

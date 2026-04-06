@@ -275,6 +275,8 @@ CREATE TABLE `files` (
   `id` int(11) NOT NULL,
   `filename` text NOT NULL,
   `filepath` text NOT NULL,
+  `method` varchar(50) NOT NULL,
+  `company` int(11) NOT NULL,
   `deleted` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -289,4 +291,3 @@ UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 2;
 UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 40;
 
 ALTER TABLE `companies` ADD `include_price` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `company_logo`, ADD `include_photo` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_price`, ADD `include_barcode` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_photo`;
-
