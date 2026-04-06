@@ -21,6 +21,7 @@ else{
 	$includePrice = 'N';
 	$includePhoto = 'N';
 	$includeBarcode = 'N';
+	$photoUploadMode = 'local';
 
 	$logoPath = '';
 	if(($row = $result->fetch_assoc()) !== null){
@@ -36,6 +37,7 @@ else{
         $includePrice = $row['include_price'];
         $includePhoto = $row['include_photo'];
         $includeBarcode = $row['include_barcode'];
+        $photoUploadMode = $row['photo_upload_mode'] ?? 'local';
 
         if(!empty($row['company_logo'])){
             $logoPath = 'php/viewPhoto.php?file=' . $row['company_logo'];
@@ -164,13 +166,13 @@ else{
 		</div>
 
 		<!-- Preferences (SADMIN only) -->
-		<div class="card card-primary card-outline" style="<?=($role != 'SADMIN') ? 'display:none' : ''?>">
+		<div class="card card-primary card-outline">
 			<div class="card-header">
 				<h3 class="card-title"><i class="fas fa-sliders-h mr-2"></i><?=$languageArray['preferences_code'][$language]?></h3>
 			</div>
 			<div class="card-body">
 				<div class="row">
-					<div class="col-md-4">
+					<div class="col-md-4" style="<?=($role != 'SADMIN') ? 'display:none' : ''?>">
 						<div class="card bg-light mb-0">
 							<div class="card-body p-3 d-flex align-items-center justify-content-between">
 								<span class="font-weight-bold text-sm"><?=$languageArray['include_price_code'][$language]?></span>
@@ -182,7 +184,7 @@ else{
 							</div>
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-4" style="<?=($role != 'SADMIN') ? 'display:none' : ''?>">
 						<div class="card bg-light mb-0">
 							<div class="card-body p-3 d-flex align-items-center justify-content-between">
 								<span class="font-weight-bold text-sm"><?=$languageArray['include_photo_code'][$language]?></span>
@@ -194,7 +196,7 @@ else{
 							</div>
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-4" style="<?=($role != 'SADMIN') ? 'display:none' : ''?>">
 						<div class="card bg-light mb-0">
 							<div class="card-body p-3 d-flex align-items-center justify-content-between">
 								<span class="font-weight-bold text-sm"><?=$languageArray['include_barcode_code'][$language]?></span>
@@ -204,6 +206,18 @@ else{
 									<input type="hidden" name="includeBarcode" id="includeBarcodeVal" value="<?=$includeBarcode?>">
 								</div>
 							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col-md-4">
+						<div class="form-group mb-0">
+							<label for="photoUploadMode"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['photo_upload_mode_code'][$language]?></small></label>
+							<select class="form-control" id="photoUploadMode" name="photoUploadMode">
+								<option value="local" <?= $photoUploadMode == 'local' ? 'selected' : '' ?>><?=$languageArray['local_code'][$language]?></option>
+								<option value="google_drive" <?= $photoUploadMode == 'google_drive' ? 'selected' : '' ?>><?=$languageArray['google_drive_code'][$language]?></option>
+								<option value="one_drive" <?= $photoUploadMode == 'one_drive' ? 'selected' : '' ?>><?=$languageArray['one_drive_code'][$language]?></option>
+							</select>
 						</div>
 					</div>
 				</div>

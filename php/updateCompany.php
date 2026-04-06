@@ -11,6 +11,7 @@ if(isset($_POST['id'], $_POST['regNo'], $_POST['name'], $_POST['address1'])){
 	$phone = null;
 	$email = null;
 	$fax = null;
+	$photoUploadMode = 'local';
 	$id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
 
 	if($_POST['address2'] != null && $_POST['address2'] != ""){
@@ -48,9 +49,13 @@ if(isset($_POST['id'], $_POST['regNo'], $_POST['name'], $_POST['address1'])){
 	if($_POST['includeBarcode'] != null && $_POST['includeBarcode'] != ""){
 		$includeBarcode = filter_input(INPUT_POST, 'includeBarcode', FILTER_SANITIZE_STRING);
 	} 
+
+	if(isset($_POST['photoUploadMode']) && $_POST['photoUploadMode'] != ""){
+		$photoUploadMode = filter_input(INPUT_POST, 'photoUploadMode', FILTER_SANITIZE_STRING);
+	}
 	
-	if ($stmt2 = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, fax=?, include_price=?, include_photo=?, include_barcode=? WHERE id=?")) {
-		$stmt2->bind_param('sssssssssssss', $regNo, $name, $address, $address2, $address3, $address4, $phone, $email, $fax, $includePrice, $includePhoto, $includeBarcode, $id);
+	if ($stmt2 = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, fax=?, include_price=?, include_photo=?, include_barcode=?, photo_upload_mode=? WHERE id=?")) {
+		$stmt2->bind_param('ssssssssssssss', $regNo, $name, $address, $address2, $address3, $address4, $phone, $email, $fax, $includePrice, $includePhoto, $includeBarcode, $photoUploadMode, $id);
 		
 		if($stmt2->execute()){
 			$stmt2->close();
