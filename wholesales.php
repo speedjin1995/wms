@@ -18,6 +18,8 @@ else{
   $role = 'NORMAL';
 	$allowEdit = 'N';
   $allowDelete = 'N';
+  $allowPhoto = 'N';
+  $allowPrice = 'N';
 
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
@@ -39,6 +41,16 @@ else{
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
+    
+    // Query companies table
+    $compstmt = $db->prepare("SELECT * from companies where id = ?");
+    $compstmt->bind_param('s', $company);
+    $compstmt->execute();
+    $result = $compstmt->get_result();
+    if(($row = $result->fetch_assoc()) !== null){
+      $allowPhoto = $row['include_photo'];
+      $allowPrice = $row['include_price'];
+    }
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -53,6 +65,9 @@ else{
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
+
+    $allowPhoto = 'Y';
+    $allowPrice = 'Y';
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -423,7 +438,9 @@ else{
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
+                  <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
+                  <?php } ?>
                   <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -440,7 +457,9 @@ else{
                   <th id="totalWeightPrice">0.00</th>
                   <th></th>
                   <th></th>
+                  <?php if($allowPhoto == 'Y') { ?>
                   <th></th>
+                  <?php } ?>
                 </tr>
               </tfoot>
             </table>
@@ -461,7 +480,9 @@ else{
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
+                  <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
+                  <?php } ?>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -477,7 +498,9 @@ else{
                   <th></th>
                   <th id="totalRejectPrice">0.00</th>
                   <th></th>
+                  <?php if($allowPhoto == 'Y') { ?>
                   <th></th>
+                  <?php } ?>
                 </tr>
               </tfoot>
             </table>
@@ -532,6 +555,8 @@ var rate = 1;
 var currency = "1";
 var weightCount = 0;
 var rejectCount = 0;
+var allowPhoto = '<?=$allowPhoto?>';
+var allowPrice = '<?=$allowPrice?>';
 
 $(function () {
   $('#uomhidden').hide();
@@ -1174,7 +1199,7 @@ $(function () {
         <td><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
         <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
-        <td>
+        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
           <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
@@ -1770,7 +1795,7 @@ function edit(id) {
               <td><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
-              <td>
+              <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="${detail.photo || ''}">
                 <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
                 ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
@@ -1850,7 +1875,7 @@ function edit(id) {
               <td><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
-              <td>
+              <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photo]" value="${detail.photo || ''}">
                 <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
                 ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
