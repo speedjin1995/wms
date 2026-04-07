@@ -25,7 +25,7 @@ else{
     $allowDelete = $row['allow_delete'];
   }
 
-  if ($user != 2){
+  if ($role != 'SADMIN'){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
@@ -990,7 +990,7 @@ $(function () {
   });
   
   <?php 
-    if($role == "ADMIN"){
+    if($role == "ADMIN" || $role == "SADMIN"){
       echo "$('#manual').on('click', function(){
         if($(this).is(':checked')){
           $(this).val(1);

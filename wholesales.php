@@ -25,7 +25,7 @@ else{
     $allowDelete = $row['allow_delete'];
   }
 
-  if ($user != 2){
+  if ($role != 'SADMIN'){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
@@ -423,7 +423,8 @@ else{
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+                  <th><?=$languageArray['photo_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="weightDetailsTable">
@@ -437,6 +438,7 @@ else{
                   <th id="totalWeightNet">0.00</th>
                   <th></th>
                   <th id="totalWeightPrice">0.00</th>
+                  <th></th>
                   <th></th>
                   <th></th>
                 </tr>
@@ -459,6 +461,7 @@ else{
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
+                  <th><?=$languageArray['photo_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -871,21 +874,32 @@ $(function () {
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
         $('#spinnerLoading').show();
-        $.post('php/wholesales.php', $('#extendForm').serialize(), function(data){
-          var obj = JSON.parse(data); 
-          if(obj.status === 'success'){
-            $('#extendModal').modal('hide');
-            toastr["success"](obj.message, "Success:");
-            $('#weightTable').DataTable().ajax.reload();
+        var formData = new FormData($('#extendForm')[0]);
+        $.ajax({
+          url: 'php/wholesales.php',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(data){
+            var obj = JSON.parse(data); 
+            if(obj.status === 'success'){
+              $('#extendModal').modal('hide');
+              toastr["success"](obj.message, "Success:");
+              $('#weightTable').DataTable().ajax.reload();
+            }
+            else if(obj.status === 'failed'){
+              toastr["error"](obj.message, "Failed:");
+            }
+            else{
+              toastr["error"]("Something wrong when edit", "Failed:");
+            }
+            $('#spinnerLoading').hide();
+          },
+          error: function(){
+            toastr["error"]("Something wrong when saving", "Failed:");
+            $('#spinnerLoading').hide();
           }
-          else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-          }
-          else{
-            toastr["error"]("Something wrong when edit", "Failed:");
-          }
-
-          $('#spinnerLoading').hide();
         });
       }else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
@@ -988,7 +1002,7 @@ $(function () {
   });
   
   <?php 
-    if($role == "ADMIN"){
+    if($role == "ADMIN" || $role == "SADMIN"){
       echo "$('#manual').on('click', function(){
         if($(this).is(':checked')){
           $(this).val(1);
@@ -1160,6 +1174,12 @@ $(function () {
         <td><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
         <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
+        <td>
+          <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="">
+          <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <span id="photoStatus${idx}"></span>
+        </td>
         <td>
           <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
           <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
@@ -1477,7 +1497,8 @@ function format (row) {
             <th>Net</th>
             <th>Price</th>
             <th>Total</th>
-            <th>Time</th>`;
+            <th>Time</th>
+            <th>Photo</th>`;
           returnString += `
           </tr>
       </thead>
@@ -1499,7 +1520,8 @@ function format (row) {
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
               <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td>${detail.time}</td>`;
+              <td>${detail.time}</td>
+              <td>${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : ''}</td>`;
             returnString += `
             </tr>`;
 
@@ -1520,6 +1542,7 @@ function format (row) {
           <th></th>
           <th>RM ${totalWeightPrice.toFixed(2)}</th>
           <th></th>
+          <th></th>
         </tr>
     </table>
   </div>
@@ -1537,7 +1560,8 @@ function format (row) {
             <th>Net</th>
             <th>Price</th>
             <th>Total</th>
-            <th>Time</th>`;
+            <th>Time</th>
+            <th>Photo</th>`;
           returnString += `
           </tr>
       </thead>
@@ -1559,7 +1583,8 @@ function format (row) {
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
               <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td>${detail.time}</td>`;
+              <td>${detail.time}</td>
+              <td>${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : ''}</td>`;
             returnString += `
             </tr>`;
 
@@ -1579,6 +1604,7 @@ function format (row) {
           <th>${totalRejectNet.toFixed(2)}</th>
           <th></th>
           <th>RM ${totalRejectPrice.toFixed(2)}</th>
+          <th></th>
           <th></th>
         </tr>
     </table>
@@ -1745,6 +1771,13 @@ function edit(id) {
               <td><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td>
+                <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                <span id="photoStatus${idx}"></span>
+              </td>
+              <td>
                 <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
@@ -1818,6 +1851,13 @@ function edit(id) {
               <td><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td>
+                <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
+                <span id="rejectPhotoStatus${idx}"></span>
+              </td>
+              <td>
                 <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
@@ -1890,6 +1930,14 @@ function rejectRow(button) {
       $(this).attr('id', id.replace(/\d+$/, rejectIndex));
     }
   });
+
+  // Rename file input from photoFiles to rejectPhotoFiles
+  row.find('input[type="file"]').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      $(this).attr('name', name.replace('photoFiles', 'rejectPhotoFiles').replace(/\[\d+\]/, '[' + rejectIndex + ']'));
+    }
+  });
   
   row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
@@ -1919,6 +1967,14 @@ function acceptRow(button) {
     }
     if(id) {
       $(this).attr('id', id.replace(/\d+$/, weightIndex));
+    }
+  });
+
+  // Rename file input from rejectPhotoFiles to photoFiles
+  row.find('input[type="file"]').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      $(this).attr('name', name.replace('rejectPhotoFiles', 'photoFiles').replace(/\[\d+\]/, '[' + weightIndex + ']'));
     }
   });
   
@@ -2159,5 +2215,16 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   });
 }
+
+
+  // Show tick when file is selected
+  $('#extendForm').on('change', 'input[type="file"]', function() {
+    var statusSpan = $(this).siblings('span[id$="Status"], span[id*="photoStatus"], span[id*="PhotoStatus"]');
+    if (this.files && this.files[0]) {
+      statusSpan.html('<i class="fas fa-check-circle text-success"></i>');
+    } else {
+      statusSpan.html('');
+    }
+  });
 
 </script>
