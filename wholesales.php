@@ -435,8 +435,10 @@ else{
                   <th><?=$languageArray['gross_code'][$language]?></th>
                   <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['net_code'][$language]?></th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
+                  <?php } ?>
                   <th><?=$languageArray['time_code'][$language]?></th>
                   <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
@@ -453,8 +455,10 @@ else{
                   <th id="totalWeightGross">0.00</th>
                   <th id="totalWeightTare">0.00</th>
                   <th id="totalWeightNet">0.00</th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th></th>
                   <th id="totalWeightPrice">0.00</th>
+                  <?php } ?>
                   <th></th>
                   <th></th>
                   <?php if($allowPhoto == 'Y') { ?>
@@ -477,8 +481,10 @@ else{
                   <th><?=$languageArray['gross_code'][$language]?></th>
                   <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['net_code'][$language]?></th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
+                  <?php } ?>
                   <th><?=$languageArray['time_code'][$language]?></th>
                   <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
@@ -495,8 +501,10 @@ else{
                   <th id="totalRejectGross">0.00</th>
                   <th id="totalRejectTare">0.00</th>
                   <th id="totalRejectNet">0.00</th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th></th>
                   <th id="totalRejectPrice">0.00</th>
+                  <?php } ?>
                   <th></th>
                   <?php if($allowPhoto == 'Y') { ?>
                   <th></th>
@@ -1484,12 +1492,12 @@ function format (row) {
       <p><strong>Driver:</strong> ${row.driver}</p>
     </div>
     <div class="col-6">
+      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
+      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
       <p><strong>Total Item:</strong> ${row.total_item}</p>
       <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
       <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
-      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
-      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
+      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
     </div>
   </div>
   <div class="row">
@@ -1520,8 +1528,7 @@ function format (row) {
             <th>Gross</th>
             <th>Tare</th>
             <th>Net</th>
-            <th>Price</th>
-            <th>Total</th>
+            ${allowPrice == 'Y' ? '<th>Price</th><th>Total</th>' : ''}            
             <th>Time</th>
             ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
@@ -1542,8 +1549,7 @@ function format (row) {
               <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+              ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
               <td>${detail.time}</td>
               ${allowPhoto == 'Y' ? '<td>' + (detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
@@ -1563,8 +1569,7 @@ function format (row) {
           <th>${totalWeightGross.toFixed(2)}</th>
           <th>${totalWeightTare.toFixed(2)}</th>
           <th>${totalWeightNet.toFixed(2)}</th>
-          <th></th>
-          <th>RM ${totalWeightPrice.toFixed(2)}</th>
+          ${allowPrice == 'Y' ? '<th></th><th>RM ' + totalWeightPrice.toFixed(2) + '</th>' : ''}
           <th></th>
           ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
@@ -1582,8 +1587,7 @@ function format (row) {
             <th>Gross</th>
             <th>Tare</th>
             <th>Net</th>
-            <th>Price</th>
-            <th>Total</th>
+            ${allowPrice == 'Y' ? '<th>Price</th><th>Total</th>' : ''}
             <th>Time</th>
             ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
@@ -1604,8 +1608,7 @@ function format (row) {
               <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
+              ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
               <td>${detail.time}</td>
               ${allowPhoto == 'Y' ? '<td>' + (detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
@@ -1625,8 +1628,7 @@ function format (row) {
           <th>${totalRejectGross.toFixed(2)}</th>
           <th>${totalRejectTare.toFixed(2)}</th>
           <th>${totalRejectNet.toFixed(2)}</th>
-          <th></th>
-          <th>RM ${totalRejectPrice.toFixed(2)}</th>
+          ${allowPrice == 'Y' ? '<th></th><th>RM ' + totalRejectPrice.toFixed(2) + '</th>' : ''}
           <th></th>
           ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
@@ -1790,8 +1792,8 @@ function edit(id) {
               <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="${detail.photo || ''}">
@@ -1870,8 +1872,8 @@ function edit(id) {
               <td><input type="hidden" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photo]" value="${detail.photo || ''}">
