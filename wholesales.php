@@ -1523,8 +1523,7 @@ function format (row) {
             <th>Price</th>
             <th>Total</th>
             <th>Time</th>
-            <th>Photo</th>`;
-          returnString += `
+            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
       </thead>
       <tbody>`;
@@ -1546,7 +1545,7 @@ function format (row) {
               <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td>${detail.time}</td>
-              <td>${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : ''}</td>`;
+              ${allowPhoto == 'Y' ? '<td>' + (detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
 
@@ -1567,7 +1566,7 @@ function format (row) {
           <th></th>
           <th>RM ${totalWeightPrice.toFixed(2)}</th>
           <th></th>
-          <th></th>
+          ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
     </table>
   </div>
@@ -1586,8 +1585,7 @@ function format (row) {
             <th>Price</th>
             <th>Total</th>
             <th>Time</th>
-            <th>Photo</th>`;
-          returnString += `
+            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
       </thead>
       <tbody>`;
@@ -1609,7 +1607,7 @@ function format (row) {
               <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td>${detail.time}</td>
-              <td>${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : ''}</td>`;
+              ${allowPhoto == 'Y' ? '<td>' + (detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
 
@@ -1630,7 +1628,7 @@ function format (row) {
           <th></th>
           <th>RM ${totalRejectPrice.toFixed(2)}</th>
           <th></th>
-          <th></th>
+          ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
     </table>
   </div>
