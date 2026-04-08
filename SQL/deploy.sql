@@ -293,3 +293,9 @@ UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 40;
 ALTER TABLE `companies` ADD `include_price` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `company_logo`, ADD `include_photo` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_price`, ADD `include_barcode` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_photo`;
 
 ALTER TABLE `companies` ADD `photo_upload_mode` VARCHAR(50) NOT NULL DEFAULT 'local' AFTER `include_barcode`;
+
+-- 08/04/2026 --
+INSERT INTO `companies` (`id`, `reg_no`, `name`, `address`, `address2`, `address3`, `address4`, `phone`, `fax`, `email`, `products`, `packages`, `parent`, `sst`, `company_logo`, `include_price`, `include_photo`, `include_barcode`, `photo_upload_mode`, `deleted`) VALUES
+(0, 'test', 'Synctronix WMS', 'test', NULL, NULL, NULL, '018-7894562', NULL, 'test@test.com', '[\"wholesale\",\"fruits\",\"industrial\",\"second_remarks\"]', '[\"M\",\"P\"]', NULL, 'N', NULL, 'Y', 'Y', 'Y', 'local', '0');
+
+UPDATE `companies` SET `id` = 0 WHERE `name` = 'Synctronix WMS';
