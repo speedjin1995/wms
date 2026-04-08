@@ -45,6 +45,7 @@ if(($row = $result->fetch_assoc()) !== null){
 			$_SESSION['products']=$products;
 			$_SESSION['language']=$row['languages'];
 			$_SESSION['role']=$row['role_code'];
+			$_SESSION['packages']=$packages;
 			$stmt->close();
 			$db->close();
 			
