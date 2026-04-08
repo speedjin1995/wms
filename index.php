@@ -11,6 +11,7 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $module = $_SESSION['module'] ?? '';
+  $packages = $_SESSION['packages'] ?? [];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -29,7 +30,12 @@ else{
   $language = $_SESSION['language'];
 
   // Load message resource
-  $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+  if (in_array('P', $packages, true)) {
+    $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+  }else{
+    $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
+  }
+  
   $languageArray = Array();
 
   while($row=mysqli_fetch_assoc($message_resource)){

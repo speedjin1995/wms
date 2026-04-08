@@ -50,12 +50,16 @@ if(isset($_POST['id'], $_POST['regNo'], $_POST['name'], $_POST['address1'])){
 		$includeBarcode = filter_input(INPUT_POST, 'includeBarcode', FILTER_SANITIZE_STRING);
 	} 
 
+	if($_POST['includeSecRemark'] != null && $_POST['includeSecRemark'] != ""){
+		$includeSecRemark = filter_input(INPUT_POST, 'includeSecRemark', FILTER_SANITIZE_STRING);
+	}
+
 	if(isset($_POST['photoUploadMode']) && $_POST['photoUploadMode'] != ""){
 		$photoUploadMode = filter_input(INPUT_POST, 'photoUploadMode', FILTER_SANITIZE_STRING);
 	}
 	
-	if ($stmt2 = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, fax=?, include_price=?, include_photo=?, include_barcode=?, photo_upload_mode=? WHERE id=?")) {
-		$stmt2->bind_param('ssssssssssssss', $regNo, $name, $address, $address2, $address3, $address4, $phone, $email, $fax, $includePrice, $includePhoto, $includeBarcode, $photoUploadMode, $id);
+	if ($stmt2 = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, fax=?, include_price=?, include_photo=?, include_barcode=?, include_sec_remark=?, photo_upload_mode=? WHERE id=?")) {
+		$stmt2->bind_param('sssssssssssssss', $regNo, $name, $address, $address2, $address3, $address4, $phone, $email, $fax, $includePrice, $includePhoto, $includeBarcode, $includeSecRemark, $photoUploadMode, $id);
 		
 		if($stmt2->execute()){
 			$stmt2->close();
