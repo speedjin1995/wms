@@ -21,6 +21,7 @@ else{
 	$includePrice = 'N';
 	$includePhoto = 'N';
 	$includeBarcode = 'N';
+	$includeSecRemark = 'N';
 	$photoUploadMode = 'local';
 
 	$logoPath = '';
@@ -37,6 +38,7 @@ else{
         $includePrice = $row['include_price'];
         $includePhoto = $row['include_photo'];
         $includeBarcode = $row['include_barcode'];
+        $includeSecRemark = $row['include_sec_remark'];
         $photoUploadMode = $row['photo_upload_mode'] ?? 'local';
 
         if(!empty($row['company_logo'])){
@@ -210,6 +212,18 @@ else{
 					</div>
 				</div>
 				<div class="row mt-3">
+					<div class="col-md-4" style="<?=($role != 'SADMIN') ? 'display:none' : ''?>">
+						<div class="card bg-light mb-0">
+							<div class="card-body p-3 d-flex align-items-center justify-content-between">
+								<span class="font-weight-bold text-sm"><?=$languageArray['include_second_remark_code'][$language]?></span>
+								<div class="custom-control custom-switch">
+									<input type="checkbox" class="custom-control-input" id="includeSecRemarkToggle" <?= $includeSecRemark == 'Y' ? 'checked' : '' ?>>
+									<label class="custom-control-label" for="includeSecRemarkToggle"></label>
+									<input type="hidden" name="includeSecRemark" id="includeSecRemarkVal" value="<?=$includeSecRemark?>">
+								</div>
+							</div>
+						</div>
+					</div>
 					<div class="col-md-4">
 						<div class="form-group mb-0">
 							<label for="photoUploadMode"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['photo_upload_mode_code'][$language]?></small></label>
@@ -295,6 +309,7 @@ $(function () {
     $('#includePriceToggle').on('change', function(){ $('#includePriceVal').val(this.checked ? 'Y' : 'N'); });
     $('#includePhotoToggle').on('change', function(){ $('#includePhotoVal').val(this.checked ? 'Y' : 'N'); });
     $('#includeBarcodeToggle').on('change', function(){ $('#includeBarcodeVal').val(this.checked ? 'Y' : 'N'); });
+    $('#includeSecRemarkToggle').on('change', function(){ $('#includeSecRemarkVal').val(this.checked ? 'Y' : 'N'); });
 
     $.validator.setDefaults({
         submitHandler: function () {
