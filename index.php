@@ -30,12 +30,12 @@ else{
   $language = $_SESSION['language'];
 
   // Load message resource
-	if (in_array('P', $packages, true)) {
+  if (in_array('P', $packages, true)) {
     $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
   }else{
     $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
   }
-
+  
   $languageArray = Array();
 
   while($row=mysqli_fetch_assoc($message_resource)){

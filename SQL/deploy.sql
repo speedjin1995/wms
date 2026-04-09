@@ -299,3 +299,5 @@ INSERT INTO `companies` (`id`, `reg_no`, `name`, `address`, `address2`, `address
 (0, 'test', 'Synctronix WMS', 'test', NULL, NULL, NULL, '018-7894562', NULL, 'test@test.com', '[\"wholesale\",\"fruits\",\"industrial\",\"second_remarks\"]', '[\"M\",\"P\"]', NULL, 'N', NULL, 'Y', 'Y', 'Y', 'local', '0');
 
 UPDATE `companies` SET `id` = 0 WHERE `name` = 'Synctronix WMS';
+
+ALTER TABLE `companies` ADD `include_sec_remark` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_barcode`;
