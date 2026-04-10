@@ -79,9 +79,9 @@ else{
 
   // Company Detail 
   $companyDetail = searchCompanyById($company, $db);
-  $companyProducts = json_decode($companyDetail['products'], true);
+  // $companyProducts = json_decode($companyDetail['products'], true);
   $secRemarksExists = false;
-  if (is_array($companyProducts) && in_array('second_remarks', $companyProducts)) { 
+  if ($companyDetail['include_sec_remark'] == 'Y') { 
     $secRemarksExists = true;
   }
 }
