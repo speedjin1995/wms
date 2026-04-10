@@ -307,6 +307,8 @@ else{
                                 <tr>
                                   <th width="10%"><?=$languageArray['number_short_code'][$language]?></th>
                                   <th><?=$languageArray['unit_code'][$language]?></th>
+                                  <th><?=$languageArray['pricing_type_code'][$language]?></th>
+                                  <th><?=$languageArray['price_code'][$language]?> (RM)</th>
                                   <th><?=$languageArray['actions_code'][$language]?></th>
                                 </tr>
                               </thead>
@@ -372,6 +374,7 @@ else{
       <select class="form-control" style="width: 100%; background-color:white;" id="customerPricingType" name="customerPricingType">
         <option selected>Fixed</option>
         <option>Float</option>
+        <option>Standard</option>
       </select>
     </td>
     <td>
@@ -397,6 +400,16 @@ else{
           <option value="<?=$rowGrade['id'] ?>"><?=$rowGrade['units']?></option>
         <?php } ?>
       </select>
+    </td>
+    <td>
+      <select class="form-control" style="width: 100%; background-color:white;" id="gradePricingType" name="gradePricingType">
+        <option selected>Fixed</option>
+        <option>Float</option>
+        <option>Standard</option>
+      </select>
+    </td>
+    <td>
+      <input type="number" class="form-control" id="gradePrice" name="gradePrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
       <button class="btn btn-success" id="remove" style="background-color: #f06548;">
@@ -710,6 +723,8 @@ $(function () {
       placeholder: "Please Select",
       dropdownParent: $('#addModal')
     });
+    $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount);
+    $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount);
 
     // Apply custom styling to Select2 elements in addModal
     $('#gradeTable .select2-container .select2-selection--single').css({
@@ -855,6 +870,8 @@ function edit(id){
             placeholder: "Please Select",
             dropdownParent: $('#addModal')
           });
+          $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val(item.pricing_type);
+          $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price);
 
           // Apply custom styling to Select2 elements in addModal
           $('#gradeTable .select2-container .select2-selection--single').css({

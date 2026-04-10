@@ -301,3 +301,6 @@ INSERT INTO `companies` (`id`, `reg_no`, `name`, `address`, `address2`, `address
 UPDATE `companies` SET `id` = 0 WHERE `name` = 'Synctronix WMS';
 
 ALTER TABLE `companies` ADD `include_sec_remark` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_barcode`;
+
+-- 10/04/2026 --
+ALTER TABLE `product_grades` ADD `pricing_type` VARCHAR(10) NULL AFTER `grade_id`, ADD `price` VARCHAR(100) NULL AFTER `pricing_type`;
