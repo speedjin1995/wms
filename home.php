@@ -16,7 +16,7 @@ if(!isset($_SESSION['userID'])){
         
         <title>WMS</title>
         
-        <link rel="icon" href="assets/wms-logo-white-site-icon.png" type="image">
+        <link rel="icon" href="assets/phg-site-logo.png" type="image">
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
         <!-- IonIcons -->

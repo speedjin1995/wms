@@ -65,9 +65,12 @@ body {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #212529;
+  color: #000;
   text-align: left;
-  background-color: #fff;
+  background: url(http://localhost/rena-wms/assets/main-background-1.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 [tabindex="-1"]:focus:not(:focus-visible) {
@@ -3425,7 +3428,7 @@ input[type="button"].btn-block {
   padding: 0.25rem 1rem;
   clear: both;
   font-weight: 400;
-  color: #212529;
+  color: #000;
   text-align: inherit;
   white-space: nowrap;
   background-color: transparent;
@@ -3433,15 +3436,15 @@ input[type="button"].btn-block {
 }
 
 .dropdown-item:hover, .dropdown-item:focus {
-  color: #16181b;
+  color: #fff;
   text-decoration: none;
-  background-color: #f8f9fa;
+  background-color: #f01c27;
 }
 
 .dropdown-item.active, .dropdown-item:active {
   color: #fff;
   text-decoration: none;
-  background-color: #007bff;
+  background-color: #f01c27;
 }
 
 .dropdown-item.disabled, .dropdown-item:disabled {
@@ -3459,7 +3462,7 @@ input[type="button"].btn-block {
   padding: 0.5rem 1rem;
   margin-bottom: 0;
   font-size: 0.875rem;
-  color: #6c757d;
+  color: #0b5208;
   white-space: nowrap;
 }
 
@@ -10240,7 +10243,7 @@ a.text-light:hover, a.text-light:focus {
 }
 
 .text-dark {
-  color: #343a40 !important;
+  color: #fff !important;
 }
 
 a.text-dark:hover, a.text-dark:focus {
@@ -24056,7 +24059,8 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-success {
-  background: #28a745 linear-gradient(180deg, #48b461, #28a745) repeat-x !important;
+  background: #0b5208 !important;
+  border-color: #0b5208;
   color: #fff;
 }
 
@@ -24066,9 +24070,9 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-success.btn:hover {
-  background: #28a745 linear-gradient(180deg, #429a56, #218838) repeat-x !important;
-  border-color: #1e7e34;
-  color: #ececec;
+  background: #2f2800 !important;
+  border-color: #2f2800;
+  color: #fff;
 }
 
 .bg-gradient-success.btn:not(:disabled):not(.disabled):active, .bg-gradient-success.btn:not(:disabled):not(.disabled).active, .bg-gradient-success.btn:active, .bg-gradient-success.btn.active {
