@@ -301,3 +301,18 @@ INSERT INTO `companies` (`id`, `reg_no`, `name`, `address`, `address2`, `address
 UPDATE `companies` SET `id` = 0 WHERE `name` = 'Synctronix WMS';
 
 ALTER TABLE `companies` ADD `include_sec_remark` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_barcode`;
+
+-- 10/04/2026 --
+ALTER TABLE `product_grades` ADD `pricing_type` VARCHAR(10) NULL AFTER `grade_id`, ADD `price` VARCHAR(100) NULL AFTER `pricing_type`;
+
+ALTER TABLE `customers` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `supplies` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `products` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `drivers` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `vehicles` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `grades` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;

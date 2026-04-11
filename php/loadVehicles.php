@@ -49,6 +49,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "driver_name"=>$row['driver_name'],
       "attandence_1"=>$row['attandence_1'],
       "attandence_2"=>$row['attandence_2'],
+      'is_manual'=>$row['is_manual'],
       "deleted"=>$row['deleted']
     );
 }

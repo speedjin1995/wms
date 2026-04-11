@@ -54,6 +54,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "customer_address"=>$row['customer_address'].'<br>'.$row['customer_address2'].'<br>'.$row['customer_address3'].'<br>'.$row['customer_address4'],
       "customer_phone"=>$row['customer_phone'],
       "pic"=>$row['pic'],
+      "is_manual"=>$row['is_manual'],
       "deleted"=>$row['deleted']
     );
 }

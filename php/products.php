@@ -29,7 +29,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         $part = filter_input(INPUT_POST, 'part', FILTER_SANITIZE_STRING);
     }
 
-    if(isset($_POST['uom']) && $_POST['uom'] != null && $_POST['uom'] != ''){
+    if(isset($_POST['uom']) && $_POST['uom'] != null && $_POST['uom'] != '' && $_POST['uom'] != '-'){
         $uom = filter_input(INPUT_POST, 'uom', FILTER_SANITIZE_STRING);
     }
 
@@ -101,6 +101,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 if (isset($_POST['gradeNo'])){
                     $no = $_POST['gradeNo'];
                     $grades =  $_POST['grades'];
+                    $gradePricingType = $_POST['gradePricingType'];
+                    $gradePrice = $_POST['gradePrice'];
                     $deleteStatus = 1;
                     if(isset($no) && $no != null && count($no) > 0){
                         # Delete all existing product rawmat records tied to the product id then reinsert
@@ -118,8 +120,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                             }
                             else{
                                 foreach ($no as $key => $number) {
-                                    if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id) VALUES (?, ?)")){
-                                        $product_stmt->bind_param('ss', $_POST['id'], $grades[$key]);
+                                    if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
+                                        $product_stmt->bind_param('ssss', $_POST['id'], $grades[$key], $gradePricingType[$key], $gradePrice[$key]);
                                         $product_stmt->execute();
                                         $product_stmt->close();
                                     }
@@ -179,11 +181,13 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 if(isset($_POST['gradeNo'])){
                     $no = $_POST['gradeNo'];
                     $grades = $_POST['grades'];
+                    $gradePricingType = $_POST['gradePricingType'];
+                    $gradePrice = $_POST['gradePrice'];
 
                     if(isset($no) && $no != null && count($no) > 0){
                         foreach ($no as $key => $number) {
-                            if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id) VALUES (?, ?)")){
-                                $product_stmt->bind_param('ss', $productId, $grades[$key]);
+                            if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, price) VALUES (?, ?, ?, ?)")){
+                                $product_stmt->bind_param('ssss', $productId, $grades[$key], $gradePricingType[$key], $gradePrice[$key]);
                                 $product_stmt->execute();
                                 $product_stmt->close();
                             }

@@ -71,6 +71,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "uom"=>$row['uom'],
     "unit"=>$uom,
     "remark"=>$row['remark'],
+    'is_manual'=>$row['is_manual'],
     "deleted"=>$row['deleted']
   );
 }
