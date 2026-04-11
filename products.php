@@ -372,9 +372,9 @@ else{
     </td>
     <td>
       <select class="form-control" style="width: 100%; background-color:white;" id="customerPricingType" name="customerPricingType">
-        <option selected>Fixed</option>
+        <option selected>Standard</option>
+        <option>Fixed</option>
         <option>Float</option>
-        <option>Standard</option>
       </select>
     </td>
     <td>
@@ -403,9 +403,9 @@ else{
     </td>
     <td>
       <select class="form-control" style="width: 100%; background-color:white;" id="gradePricingType" name="gradePricingType">
-        <option selected>Fixed</option>
+        <option selected>Standard</option>
+        <option>Fixed</option>
         <option>Float</option>
-        <option>Standard</option>
       </select>
     </td>
     <td>
