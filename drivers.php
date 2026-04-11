@@ -252,7 +252,12 @@ $(function () {
           }
         }
       }
-    ]     
+    ],
+    "rowCallback": function( row, data, index ) {
+      if (data.is_manual == 'Y') {
+        $(row).css('background-color', '#f8d7da');
+      }
+    },    
   });
 
   $.validator.setDefaults({

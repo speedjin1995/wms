@@ -45,6 +45,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
   $data[] = array( 
     "id"=>$row['id'],
     "units"=>$row['units'],
+    'is_manual'=>$row['is_manual'],
     "deleted"=>$row['deleted']
   );
 }
