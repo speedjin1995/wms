@@ -24,7 +24,7 @@ function uploadFile($file, $type, $company, $db) {
 
     $method = 'local';
     $fileDir = 'uploads/';
-    $uploadPath = str_replace('\\', '/', dirname(__DIR__, 3)) . '/' . $fileDir;
+    $uploadPath = str_replace('\\', '/', dirname(__DIR__, 2)) . '/' . $fileDir;
     if (!is_dir($uploadPath)) mkdir($uploadPath, 0755, true);
 
     $uploadDir = $uploadPath . $type . '/';
@@ -62,7 +62,7 @@ function deleteOldFile($fileId, $db) {
     $stmt->execute();
     $res = $stmt->get_result();
     if ($row = $res->fetch_assoc()) {
-        $oldPath = str_replace('\\', '/', dirname(__DIR__, 3)) . '/' . $row['filepath'];
+        $oldPath = str_replace('\\', '/', dirname(__DIR__, 2)) . '/' . $row['filepath'];
         if (file_exists($oldPath)) {
             unlink($oldPath);
         }

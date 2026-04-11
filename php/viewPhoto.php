@@ -19,7 +19,7 @@ else{
         if ($row = $result->fetch_assoc()) {
             if ($row['method'] == 'local') {
                 $filepath = str_replace('../', '', $row['filepath']);
-                $filePath = str_replace('\\', '/', dirname(__DIR__, 3)) . '/' . $filepath;
+                $filePath = str_replace('\\', '/', dirname(__DIR__, 2)) . '/' . $filepath;
         
                 if (file_exists($filePath)) {
                     header('Content-Type: ' . mime_content_type($filePath));
