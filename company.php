@@ -56,7 +56,7 @@ else{
 	<div class="container-fluid px-5">
 		<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><i class="fas fa-building mr-2 text-primary"></i><?=$languageArray['company_profile_code'][$language]?></h1>
+				<h1 class="m-0 text-dark"><i class="fas fa-building mr-2 text-primary" style="color: #f01c27 !important;"></i><?=$languageArray['company_profile_code'][$language]?></h1>
 			</div>
 		</div>
 	</div>
