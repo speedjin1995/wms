@@ -835,7 +835,7 @@ function edit(id){
             dropdownParent: $('#addModal')
           });
           $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount).val(item.pricing_type || 'Standard');
-          $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount).val(item.price);
+          $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount).val(item.price || 0);
 
           // Apply custom styling to Select2 elements in addModal
           $('#customerTable .select2-container .select2-selection--single').css({
