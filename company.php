@@ -239,7 +239,7 @@ else{
 
             <input type="hidden" name="id" value="<?=$company?>">
 			<div class="card-footer">
-				<button class="btn btn-primary" id="saveProfile"><i class="fas fa-save mr-1"></i> <?=$languageArray['save_code'][$language]?></button>
+				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save mr-1"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</div>
 
