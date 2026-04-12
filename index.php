@@ -367,7 +367,7 @@ to get the desired effect
     <!-- Brand Logo -->
     <a href="#" class="brand-link logo-switch" style="line-height: 3.25; border-bottom-color: #ffffff;">
       <img src="assets/phg-site-logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs" style="left: 15px; top: 15px; line-height: 5.5;">
-      <img src="assets/phg-logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 75%;max-height: max-content; left: 0px; position: relative; top: 0px; margin-left: auto; margin-right: auto;">
+      <img src="assets/phg-logo-1.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 75%;max-height: max-content; left: 0px; position: relative; top: 0px; margin-left: auto; margin-right: auto;">
     </a>
 
     <!-- Sidebar -->

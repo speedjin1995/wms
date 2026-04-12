@@ -47098,14 +47098,14 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-success.btn:not(:disabled):not(.disabled):active, .bg-gradient-success.btn:not(:disabled):not(.disabled).active, .bg-gradient-success.btn:active, .bg-gradient-success.btn.active {
-  background: #28a745 linear-gradient(180deg, #409152, #1e7e34) repeat-x !important;
-  border-color: #1c7430;
+  background: #0b5208 !important;
+  border-color: #0b5208;
   color: #fff;
 }
 
 .bg-gradient-success.btn:disabled, .bg-gradient-success.btn.disabled {
   background-image: none !important;
-  border-color: #28a745;
+  border-color: #0b5208;
   color: #fff;
 }
 
@@ -47127,20 +47127,20 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-info.btn:not(:disabled):not(.disabled):active, .bg-gradient-info.btn:not(:disabled):not(.disabled).active, .bg-gradient-info.btn:active, .bg-gradient-info.btn.active {
-  background: #17a2b8 linear-gradient(180deg, #358e9c, #117a8b) repeat-x !important;
-  border-color: #10707f;
+  background: #2f2800 !important;
+  border-color: #2f2800;
   color: #fff;
 }
 
 .bg-gradient-info.btn:disabled, .bg-gradient-info.btn.disabled {
   background-image: none !important;
-  border-color: #17a2b8;
+  border-color: #2f2800;
   color: #fff;
 }
 
 .bg-gradient-warning {
-  background: #ffc107 linear-gradient(180deg, #ffca2c, #ffc107) repeat-x !important;
-  color: #1f2d3d;
+  background: #FFD03F !important;
+  color: #000;
 }
 
 .bg-gradient-warning.btn:not(:disabled):not(.disabled):active, .bg-gradient-warning.btn:not(:disabled):not(.disabled).active,
@@ -47149,21 +47149,21 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-warning.btn:hover {
-  background: #ffc107 linear-gradient(180deg, #e4b526, #e0a800) repeat-x !important;
-  border-color: #d39e00;
-  color: #121a24;
+  background: #fff7a8 !important;
+  border-color: #fff7a8;
+  color: #000;
 }
 
 .bg-gradient-warning.btn:not(:disabled):not(.disabled):active, .bg-gradient-warning.btn:not(:disabled):not(.disabled).active, .bg-gradient-warning.btn:active, .bg-gradient-warning.btn.active {
-  background: #ffc107 linear-gradient(180deg, #daad26, #d39e00) repeat-x !important;
-  border-color: #c69500;
-  color: #1f2d3d;
+  background: #FFD03F !important;
+  border-color: #FFD03F;
+  color: #000;
 }
 
 .bg-gradient-warning.btn:disabled, .bg-gradient-warning.btn.disabled {
   background-image: none !important;
-  border-color: #ffc107;
-  color: #1f2d3d;
+  border-color: #FFD03F;
+  color: #000;
 }
 
 .bg-gradient-danger {
@@ -47184,14 +47184,14 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-danger.btn:not(:disabled):not(.disabled):active, .bg-gradient-danger.btn:not(:disabled):not(.disabled).active, .bg-gradient-danger.btn:active, .bg-gradient-danger.btn.active {
-  background: #dc3545 linear-gradient(180deg, #c7424f, #bd2130) repeat-x !important;
-  border-color: #b21f2d;
+  background: #f01c27 !important;
+  border-color: #f01c27;
   color: #fff;
 }
 
 .bg-gradient-danger.btn:disabled, .bg-gradient-danger.btn.disabled {
   background-image: none !important;
-  border-color: #dc3545;
+  border-color: #f01c27;
   color: #fff;
 }
 

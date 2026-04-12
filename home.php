@@ -48,12 +48,14 @@ if(!isset($_SESSION['userID'])){
                 justify-content: center;
                 align-items: center;
                 height: 100vh;
-                /*background: url('assets/modules-bg.jpeg');*/
-                background: url('assets/module-bg.jpeg');
-                /*background: url('assets/modules-bg.jpg');*/
+                background: url('assets/main-background.jpg');
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
+            }
+
+            .company-name h1 {
+                color: #fff;
             }
 
             .modules-box-list {
@@ -83,7 +85,7 @@ if(!isset($_SESSION['userID'])){
             .modules-box-list .modules-box:hover {
                 cursor: pointer;
                 transform: translateY(-10px);
-                box-shadow: 5px -5px 0px 2.5px rgba(0, 51, 146, 1);
+                box-shadow: 5px -5px 0px 2.5px #fff7a8;
             }
 
             .modules-box-list .modules-box .modules-img {
