@@ -34361,8 +34361,8 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-warning {
-  background: #ffc107 linear-gradient(180deg, #ffca2c, #ffc107) repeat-x !important;
-  color: #1f2d3d;
+  background: #FFD03F !important;
+  color: #000;
 }
 
 .bg-gradient-warning.btn:not(:disabled):not(.disabled):active, .bg-gradient-warning.btn:not(:disabled):not(.disabled).active,
@@ -34371,21 +34371,21 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-warning.btn:hover {
-  background: #ffc107 linear-gradient(180deg, #e4b526, #e0a800) repeat-x !important;
-  border-color: #d39e00;
-  color: #121a24;
+  background: #fff7a8 !important;
+  border-color: #fff7a8;
+  color: #000;
 }
 
 .bg-gradient-warning.btn:not(:disabled):not(.disabled):active, .bg-gradient-warning.btn:not(:disabled):not(.disabled).active, .bg-gradient-warning.btn:active, .bg-gradient-warning.btn.active {
-  background: #ffc107 linear-gradient(180deg, #daad26, #d39e00) repeat-x !important;
-  border-color: #c69500;
-  color: #1f2d3d;
+  background: #FFD03F !important;
+  border-color: #FFD03F;
+  color: #000;
 }
 
 .bg-gradient-warning.btn:disabled, .bg-gradient-warning.btn.disabled {
   background-image: none !important;
-  border-color: #ffc107;
-  color: #1f2d3d;
+  border-color: #FFD03F;
+  color: #000;
 }
 
 .bg-gradient-danger {
