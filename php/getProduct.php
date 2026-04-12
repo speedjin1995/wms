@@ -67,6 +67,8 @@ if(isset($_POST['userID'])){
                         "id" => $row2['id'],
                         "product_id" => $row2['product_id'],
                         "grade_id" => $row2['grade_id'],
+                        "pricing_type" => $row2['pricing_type'],
+                        "price" => $row2['price']
                     );
                     $productGradeCount++;
                 }

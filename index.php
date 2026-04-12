@@ -11,6 +11,7 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $module = $_SESSION['module'] ?? '';
+  $packages = $_SESSION['packages'] ?? [];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -29,7 +30,12 @@ else{
   $language = $_SESSION['language'];
 
   // Load message resource
-  $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+  if (in_array('P', $packages, true)) {
+    $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+  }else{
+    $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
+  }
+  
   $languageArray = Array();
 
   while($row=mysqli_fetch_assoc($message_resource)){
@@ -475,7 +481,7 @@ to get the desired effect
           </li>
           <?php } ?>
           <?php 
-              if($role == "ADMIN"){
+              if($role == "ADMIN" || $role == "SADMIN"){
                 echo '<li class="nav-item has-treeview">
                 <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-database"></i>
@@ -554,7 +560,7 @@ to get the desired effect
         
             <ul class="nav nav-treeview" style="display: none;">
               <?php 
-                if($role == "ADMIN"){
+                if($role == "ADMIN" || $role == "SADMIN"){
                   echo '<li class="nav-item">
                           <a href="#company" data-file="company.php" class="nav-link link">
                             <i class="nav-icon fas fa-building"></i>

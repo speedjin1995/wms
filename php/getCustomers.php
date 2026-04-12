@@ -10,8 +10,9 @@ if(!isset($_SESSION['userID'])){
 
 $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
+$role = $_SESSION['role'];
 
-if ($user != 2){
+  if ($role != 'SADMIN'){
     $customers = $db->query("SELECT id, customer_name FROM customers WHERE deleted = 0 AND customer = '$company' ORDER BY customer_name ASC");
 } else {
     $customers = $db->query("SELECT id, customer_name FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");

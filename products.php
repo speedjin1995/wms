@@ -9,10 +9,11 @@ if(!isset($_SESSION['userID'])){
 else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
+  $role = $_SESSION['role'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
   $units = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
 
-  if ($user != 2){
+  if ($role != 'SADMIN'){
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
   }
@@ -160,7 +161,7 @@ else{
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
               <div class="card-body p-3">
                 <input type="hidden" class="form-control" id="id" name="id">
-                <div class="form-group mb-2" <?php if($user != 2){ echo 'style="display:none;"'; } ?>>
+                <div class="form-group mb-2" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
                   <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
@@ -306,6 +307,8 @@ else{
                                 <tr>
                                   <th width="10%"><?=$languageArray['number_short_code'][$language]?></th>
                                   <th><?=$languageArray['unit_code'][$language]?></th>
+                                  <th><?=$languageArray['pricing_type_code'][$language]?></th>
+                                  <th><?=$languageArray['price_code'][$language]?> (RM)</th>
                                   <th><?=$languageArray['actions_code'][$language]?></th>
                                 </tr>
                               </thead>
@@ -369,7 +372,8 @@ else{
     </td>
     <td>
       <select class="form-control" style="width: 100%; background-color:white;" id="customerPricingType" name="customerPricingType">
-        <option selected>Fixed</option>
+        <option selected>Standard</option>
+        <option>Fixed</option>
         <option>Float</option>
       </select>
     </td>
@@ -396,6 +400,16 @@ else{
           <option value="<?=$rowGrade['id'] ?>"><?=$rowGrade['units']?></option>
         <?php } ?>
       </select>
+    </td>
+    <td>
+      <select class="form-control" style="width: 100%; background-color:white;" id="gradePricingType" name="gradePricingType">
+        <option selected>Standard</option>
+        <option>Fixed</option>
+        <option>Float</option>
+      </select>
+    </td>
+    <td>
+      <input type="number" class="form-control" id="gradePrice" name="gradePrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
       <button class="btn btn-success" id="remove" style="background-color: #f06548;">
@@ -459,7 +473,9 @@ $(function () {
       }
     ],
     "rowCallback": function( row, data, index ) {
-      //$('td', row).css('background-color', '#E6E6FA');
+      if (data.is_manual == 'Y') {
+        $(row).css('background-color', '#f8d7da');
+      }
     },        
   });
     
@@ -709,6 +725,8 @@ $(function () {
       placeholder: "Please Select",
       dropdownParent: $('#addModal')
     });
+    $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount);
+    $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount);
 
     // Apply custom styling to Select2 elements in addModal
     $('#gradeTable .select2-container .select2-selection--single').css({
@@ -854,6 +872,8 @@ function edit(id){
             placeholder: "Please Select",
             dropdownParent: $('#addModal')
           });
+          $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val(item.pricing_type);
+          $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price);
 
           // Apply custom styling to Select2 elements in addModal
           $('#gradeTable .select2-container .select2-selection--single').css({

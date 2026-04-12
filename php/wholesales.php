@@ -1,5 +1,6 @@
 <?php
 require_once 'db_connect.php';
+require_once 'uploadFileHelper.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 
@@ -21,6 +22,7 @@ if(isset($_POST['status'])){
     $totalNet = 0;
     $totalPrice = 0;
     $userID = $_SESSION['userID'];
+    $company = $_SESSION['customer'];
 
     if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
 		$doPoNo = $_POST['doPoNo'];
@@ -68,7 +70,7 @@ if(isset($_POST['status'])){
 
     if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
 		$data = $_POST['weightDetails'];
-        foreach($data as $weightDetail){
+        foreach($data as $key => $weightDetail){
             $weightDetails[] = [
                 'gross' => $weightDetail['gross'] ?? '',
                 'tare' => $weightDetail['tare'] ?? '',
@@ -87,6 +89,26 @@ if(isset($_POST['status'])){
                 'time' => $weightDetail['time'] ?? '',
                 'grade' => $weightDetail['grade'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
+                'photo' => (function() use ($key, $db, $company) {
+                    if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
+                        $oldPhotoId = $_POST['weightDetails'][$key]['photo'] ?? '';
+                        if ($oldPhotoId) {
+                            deleteOldFile($oldPhotoId, $db);
+                        }
+                        $f = [
+                            'name' => $_FILES['photoFiles']['name'][$key],
+                            'tmp_name' => $_FILES['photoFiles']['tmp_name'][$key],
+                            'size' => $_FILES['photoFiles']['size'][$key],
+                            'type' => $_FILES['photoFiles']['type'][$key],
+                            'error' => $_FILES['photoFiles']['error'][$key],
+                        ];
+                        $result = uploadFile($f, 'wholesales', $company, $db);
+                        if ($result['status'] === 'success' && $result['fid']) {
+                            return (string)$result['fid'];
+                        }
+                    }
+                    return $_POST['weightDetails'][$key]['photo'] ?? '';
+                })(),
             ];
 
             $totalItem++;
@@ -97,7 +119,7 @@ if(isset($_POST['status'])){
 
     if(isset($_POST['rejectDetails']) && $_POST['rejectDetails'] != null && $_POST['rejectDetails'] != ''){
 		$data = $_POST['rejectDetails'];
-        foreach($data as $rejectDetail){
+        foreach($data as $key => $rejectDetail){
             $rejectDetails[] = [
                 'gross' => $rejectDetail['gross'] ?? '',
                 'tare' => $rejectDetail['tare'] ?? '',
@@ -116,6 +138,26 @@ if(isset($_POST['status'])){
                 'time' => $rejectDetail['time'] ?? '',
                 'grade' => $rejectDetail['grade'] ?? '',
                 'isedit' => $rejectDetail['isedit'] ?? 'N',
+                'photo' => (function() use ($key, $db, $company) {
+                    if (isset($_FILES['rejectPhotoFiles']['name'][$key]) && $_FILES['rejectPhotoFiles']['error'][$key] === UPLOAD_ERR_OK) {
+                        $oldPhotoId = $_POST['rejectDetails'][$key]['photo'] ?? '';
+                        if ($oldPhotoId) {
+                            deleteOldFile($oldPhotoId, $db);
+                        }
+                        $f = [
+                            'name' => $_FILES['rejectPhotoFiles']['name'][$key],
+                            'tmp_name' => $_FILES['rejectPhotoFiles']['tmp_name'][$key],
+                            'size' => $_FILES['rejectPhotoFiles']['size'][$key],
+                            'type' => $_FILES['rejectPhotoFiles']['type'][$key],
+                            'error' => $_FILES['rejectPhotoFiles']['error'][$key],
+                        ];
+                        $result = uploadFile($f, 'wholesales', $company, $db);
+                        if ($result['status'] === 'success' && $result['fid']) {
+                            return (string)$result['fid'];
+                        }
+                    }
+                    return $_POST['rejectDetails'][$key]['photo'] ?? '';
+                })(),
             ];
 
             $totalReject += floatval($rejectDetail['net'] ?? 0.0);

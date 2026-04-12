@@ -17,7 +17,9 @@ $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Sear
 $searchQuery = "WHERE 1=1 AND deleted = 0 ";
 $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
-if ($user != 2){
+$role = $_SESSION['role'];
+
+  if ($role != 'SADMIN'){
   $searchQuery .= " AND customer = '".$company."'";
 }
 
@@ -52,6 +54,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "customer_address"=>$row['customer_address'].'<br>'.$row['customer_address2'].'<br>'.$row['customer_address3'].'<br>'.$row['customer_address4'],
       "customer_phone"=>$row['customer_phone'],
       "pic"=>$row['pic'],
+      "is_manual"=>$row['is_manual'],
       "deleted"=>$row['deleted']
     );
 }

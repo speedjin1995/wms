@@ -267,3 +267,52 @@ ALTER TABLE `message_resource` ADD `ja` TEXT NULL AFTER `ne`, ADD `company` INT(
 
 -- 27/02/2026 --
 ALTER TABLE `grades` CHANGE `units` `units` VARCHAR(15) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+-- 05/04/2026 --
+ALTER TABLE `companies` ADD `company_logo` INT(11) NULL AFTER `sst`;
+
+CREATE TABLE `files` (
+  `id` int(11) NOT NULL,
+  `filename` text NOT NULL,
+  `filepath` text NOT NULL,
+  `method` varchar(50) NOT NULL,
+  `company` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+ALTER TABLE `files` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `files` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `roles` (`id`, `role_code`, `role_name`, `deleted`) VALUES ('4', 'SADMIN', 'Super Admin', '0')
+
+UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 2;
+
+UPDATE `users` SET `role_code` = 'SADMIN' WHERE `users`.`id` = 40;
+
+ALTER TABLE `companies` ADD `include_price` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `company_logo`, ADD `include_photo` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_price`, ADD `include_barcode` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_photo`;
+
+ALTER TABLE `companies` ADD `photo_upload_mode` VARCHAR(50) NOT NULL DEFAULT 'local' AFTER `include_barcode`;
+
+-- 08/04/2026 --
+INSERT INTO `companies` (`id`, `reg_no`, `name`, `address`, `address2`, `address3`, `address4`, `phone`, `fax`, `email`, `products`, `packages`, `parent`, `sst`, `company_logo`, `include_price`, `include_photo`, `include_barcode`, `photo_upload_mode`, `deleted`) VALUES
+(0, 'test', 'Synctronix WMS', 'test', NULL, NULL, NULL, '018-7894562', NULL, 'test@test.com', '[\"wholesale\",\"fruits\",\"industrial\",\"second_remarks\"]', '[\"M\",\"P\"]', NULL, 'N', NULL, 'Y', 'Y', 'Y', 'local', '0');
+
+UPDATE `companies` SET `id` = 0 WHERE `name` = 'Synctronix WMS';
+
+ALTER TABLE `companies` ADD `include_sec_remark` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_barcode`;
+
+-- 10/04/2026 --
+ALTER TABLE `product_grades` ADD `pricing_type` VARCHAR(10) NULL AFTER `grade_id`, ADD `price` VARCHAR(100) NULL AFTER `pricing_type`;
+
+ALTER TABLE `customers` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `supplies` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `products` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `drivers` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `vehicles` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+ALTER TABLE `grades` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;

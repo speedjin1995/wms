@@ -17,7 +17,9 @@ $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Sear
 $searchQuery = " WHERE 1=1";
 $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
-if ($user != 2){
+$role = $_SESSION['role'];
+
+if ($role != 'SADMIN'){
   $searchQuery .= " AND company = '".$company."'";
 }
 

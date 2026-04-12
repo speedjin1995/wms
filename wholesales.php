@@ -18,6 +18,8 @@ else{
   $role = 'NORMAL';
 	$allowEdit = 'N';
   $allowDelete = 'N';
+  $allowPhoto = 'N';
+  $allowPrice = 'N';
 
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
@@ -25,7 +27,7 @@ else{
     $allowDelete = $row['allow_delete'];
   }
 
-  if ($user != 2){
+  if ($role != 'SADMIN'){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
@@ -39,6 +41,16 @@ else{
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
+    
+    // Query companies table
+    $compstmt = $db->prepare("SELECT * from companies where id = ?");
+    $compstmt->bind_param('s', $company);
+    $compstmt->execute();
+    $result = $compstmt->get_result();
+    if(($row = $result->fetch_assoc()) !== null){
+      $allowPhoto = $row['include_photo'];
+      $allowPrice = $row['include_price'];
+    }
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -53,6 +65,9 @@ else{
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
+
+    $allowPhoto = 'Y';
+    $allowPrice = 'Y';
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -64,9 +79,9 @@ else{
 
   // Company Detail 
   $companyDetail = searchCompanyById($company, $db);
-  $companyProducts = json_decode($companyDetail['products'], true);
+  // $companyProducts = json_decode($companyDetail['products'], true);
   $secRemarksExists = false;
-  if (is_array($companyProducts) && in_array('second_remarks', $companyProducts)) { 
+  if ($companyDetail['include_sec_remark'] == 'Y') { 
     $secRemarksExists = true;
   }
 }
@@ -420,10 +435,15 @@ else{
                   <th><?=$languageArray['gross_code'][$language]?></th>
                   <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['net_code'][$language]?></th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
+                  <?php } ?>
                   <th><?=$languageArray['time_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+                  <?php if($allowPhoto == 'Y') { ?>
+                  <th><?=$languageArray['photo_code'][$language]?></th>
+                  <?php } ?>
+                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="weightDetailsTable">
@@ -435,10 +455,15 @@ else{
                   <th id="totalWeightGross">0.00</th>
                   <th id="totalWeightTare">0.00</th>
                   <th id="totalWeightNet">0.00</th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th></th>
                   <th id="totalWeightPrice">0.00</th>
+                  <?php } ?>
                   <th></th>
                   <th></th>
+                  <?php if($allowPhoto == 'Y') { ?>
+                  <th></th>
+                  <?php } ?>
                 </tr>
               </tfoot>
             </table>
@@ -456,9 +481,14 @@ else{
                   <th><?=$languageArray['gross_code'][$language]?></th>
                   <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['net_code'][$language]?></th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
+                  <?php } ?>
                   <th><?=$languageArray['time_code'][$language]?></th>
+                  <?php if($allowPhoto == 'Y') { ?>
+                  <th><?=$languageArray['photo_code'][$language]?></th>
+                  <?php } ?>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -471,10 +501,14 @@ else{
                   <th id="totalRejectGross">0.00</th>
                   <th id="totalRejectTare">0.00</th>
                   <th id="totalRejectNet">0.00</th>
+                  <?php if($allowPrice == 'Y') { ?>
                   <th></th>
                   <th id="totalRejectPrice">0.00</th>
+                  <?php } ?>
                   <th></th>
+                  <?php if($allowPhoto == 'Y') { ?>
                   <th></th>
+                  <?php } ?>
                 </tr>
               </tfoot>
             </table>
@@ -529,6 +563,8 @@ var rate = 1;
 var currency = "1";
 var weightCount = 0;
 var rejectCount = 0;
+var allowPhoto = '<?=$allowPhoto?>';
+var allowPrice = '<?=$allowPrice?>';
 
 $(function () {
   $('#uomhidden').hide();
@@ -871,21 +907,32 @@ $(function () {
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
         $('#spinnerLoading').show();
-        $.post('php/wholesales.php', $('#extendForm').serialize(), function(data){
-          var obj = JSON.parse(data); 
-          if(obj.status === 'success'){
-            $('#extendModal').modal('hide');
-            toastr["success"](obj.message, "Success:");
-            $('#weightTable').DataTable().ajax.reload();
+        var formData = new FormData($('#extendForm')[0]);
+        $.ajax({
+          url: 'php/wholesales.php',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(data){
+            var obj = JSON.parse(data); 
+            if(obj.status === 'success'){
+              $('#extendModal').modal('hide');
+              toastr["success"](obj.message, "Success:");
+              $('#weightTable').DataTable().ajax.reload();
+            }
+            else if(obj.status === 'failed'){
+              toastr["error"](obj.message, "Failed:");
+            }
+            else{
+              toastr["error"]("Something wrong when edit", "Failed:");
+            }
+            $('#spinnerLoading').hide();
+          },
+          error: function(){
+            toastr["error"]("Something wrong when saving", "Failed:");
+            $('#spinnerLoading').hide();
           }
-          else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-          }
-          else{
-            toastr["error"]("Something wrong when edit", "Failed:");
-          }
-
-          $('#spinnerLoading').hide();
         });
       }else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
@@ -988,7 +1035,7 @@ $(function () {
   });
   
   <?php 
-    if($role == "ADMIN"){
+    if($role == "ADMIN" || $role == "SADMIN"){
       echo "$('#manual').on('click', function(){
         if($(this).is(':checked')){
           $(this).val(1);
@@ -1160,6 +1207,12 @@ $(function () {
         <td><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
         <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
+        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
+          <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="">
+          <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <span id="photoStatus${idx}"></span>
+        </td>
         <td>
           <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
           <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
@@ -1439,12 +1492,12 @@ function format (row) {
       <p><strong>Driver:</strong> ${row.driver}</p>
     </div>
     <div class="col-6">
+      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
+      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
       <p><strong>Total Item:</strong> ${row.total_item}</p>
       <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
       <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Price:</strong> RM ${parseFloat(row.total_price).toFixed(2)}</p>
-      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
-      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
+      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
     </div>
   </div>
   <div class="row">
@@ -1475,10 +1528,9 @@ function format (row) {
             <th>Gross</th>
             <th>Tare</th>
             <th>Net</th>
-            <th>Price</th>
-            <th>Total</th>
-            <th>Time</th>`;
-          returnString += `
+            ${allowPrice == 'Y' ? '<th>Price</th><th>Total</th>' : ''}            
+            <th>Time</th>
+            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
       </thead>
       <tbody>`;
@@ -1497,9 +1549,9 @@ function format (row) {
               <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td>${detail.time}</td>`;
+              ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+              <td>${detail.time}</td>
+              ${allowPhoto == 'Y' ? '<td>' + (detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
 
@@ -1517,9 +1569,9 @@ function format (row) {
           <th>${totalWeightGross.toFixed(2)}</th>
           <th>${totalWeightTare.toFixed(2)}</th>
           <th>${totalWeightNet.toFixed(2)}</th>
+          ${allowPrice == 'Y' ? '<th></th><th>RM ' + totalWeightPrice.toFixed(2) + '</th>' : ''}
           <th></th>
-          <th>RM ${totalWeightPrice.toFixed(2)}</th>
-          <th></th>
+          ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
     </table>
   </div>
@@ -1535,10 +1587,9 @@ function format (row) {
             <th>Gross</th>
             <th>Tare</th>
             <th>Net</th>
-            <th>Price</th>
-            <th>Total</th>
-            <th>Time</th>`;
-          returnString += `
+            ${allowPrice == 'Y' ? '<th>Price</th><th>Total</th>' : ''}
+            <th>Time</th>
+            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
       </thead>
       <tbody>`;
@@ -1557,9 +1608,9 @@ function format (row) {
               <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td>RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td>RM ${parseFloat(detail.total).toFixed(2)}</td>
-              <td>${detail.time}</td>`;
+              ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+              <td>${detail.time}</td>
+              ${allowPhoto == 'Y' ? '<td>' + (detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
 
@@ -1577,9 +1628,9 @@ function format (row) {
           <th>${totalRejectGross.toFixed(2)}</th>
           <th>${totalRejectTare.toFixed(2)}</th>
           <th>${totalRejectNet.toFixed(2)}</th>
+          ${allowPrice == 'Y' ? '<th></th><th>RM ' + totalRejectPrice.toFixed(2) + '</th>' : ''}
           <th></th>
-          <th>RM ${totalRejectPrice.toFixed(2)}</th>
-          <th></th>
+          ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
     </table>
   </div>
@@ -1741,9 +1792,16 @@ function edit(id) {
               <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
+              <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
+                <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                <span id="photoStatus${idx}"></span>
+              </td>
               <td>
                 <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
@@ -1814,9 +1872,16 @@ function edit(id) {
               <td><input type="hidden" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
+              <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
+                <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
+                <span id="rejectPhotoStatus${idx}"></span>
+              </td>
               <td>
                 <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
@@ -1890,6 +1955,14 @@ function rejectRow(button) {
       $(this).attr('id', id.replace(/\d+$/, rejectIndex));
     }
   });
+
+  // Rename file input from photoFiles to rejectPhotoFiles
+  row.find('input[type="file"]').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      $(this).attr('name', name.replace('photoFiles', 'rejectPhotoFiles').replace(/\[\d+\]/, '[' + rejectIndex + ']'));
+    }
+  });
   
   row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
@@ -1919,6 +1992,14 @@ function acceptRow(button) {
     }
     if(id) {
       $(this).attr('id', id.replace(/\d+$/, weightIndex));
+    }
+  });
+
+  // Rename file input from rejectPhotoFiles to photoFiles
+  row.find('input[type="file"]').each(function() {
+    var name = $(this).attr('name');
+    if(name) {
+      $(this).attr('name', name.replace('rejectPhotoFiles', 'photoFiles').replace(/\[\d+\]/, '[' + weightIndex + ']'));
     }
   });
   
@@ -2159,5 +2240,16 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   });
 }
+
+
+  // Show tick when file is selected
+  $('#extendForm').on('change', 'input[type="file"]', function() {
+    var statusSpan = $(this).siblings('span[id$="Status"], span[id*="photoStatus"], span[id*="PhotoStatus"]');
+    if (this.files && this.files[0]) {
+      statusSpan.html('<i class="fas fa-check-circle text-success"></i>');
+    } else {
+      statusSpan.html('');
+    }
+  });
 
 </script>
