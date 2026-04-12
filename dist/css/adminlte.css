@@ -47188,14 +47188,14 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-gradient-danger.btn:not(:disabled):not(.disabled):active, .bg-gradient-danger.btn:not(:disabled):not(.disabled).active, .bg-gradient-danger.btn:active, .bg-gradient-danger.btn.active {
-  background: #dc3545 linear-gradient(180deg, #c7424f, #bd2130) repeat-x !important;
-  border-color: #b21f2d;
+  background: #f01c27 !important;
+  border-color: #f01c27;
   color: #fff;
 }
 
 .bg-gradient-danger.btn:disabled, .bg-gradient-danger.btn.disabled {
   background-image: none !important;
-  border-color: #dc3545;
+  border-color: #f01c27;
   color: #fff;
 }
 
