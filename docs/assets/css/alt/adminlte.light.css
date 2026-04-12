@@ -73,7 +73,7 @@ body {
   line-height: 1.5;
   color: #000;
   text-align: left;
-  background: url(http://localhost/rena-wms/assets/main-background-1.jpg);
+  background: url(../../assets/main-background-1.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
