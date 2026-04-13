@@ -1208,7 +1208,7 @@ $(function () {
         <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
         <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-          <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="">
+          <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
           <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
           <span id="photoStatus${idx}"></span>
@@ -1796,9 +1796,9 @@ function edit(id) {
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-                <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
                 <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
                 <span id="photoStatus${idx}"></span>
               </td>
@@ -1876,9 +1876,9 @@ function edit(id) {
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-                <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photo]" value="${detail.photo || ''}">
+                <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photo ? '<a href="php/viewPhoto.php?file=' + detail.photo + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
                 <button type="button" class="btn btn-info btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
                 <span id="rejectPhotoStatus${idx}"></span>
               </td>
