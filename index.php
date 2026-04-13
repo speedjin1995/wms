@@ -625,7 +625,7 @@ to get the desired effect
 
   <!-- Main Footer -->
   <footer class="main-footer">
-    <strong>Copyright &copy; 2020 <a href="#">SyncWeight</a> · </strong>All Rights Reserved<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.0.0 </div>
+    <strong>Copyright &copy; 2020 <a href="#">Idea of SyncWeight</a> · </strong>All Rights Reserved<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.10 </div>
   </footer>
 </div>
 <!-- ./wrapper -->
