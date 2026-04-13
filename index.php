@@ -323,7 +323,7 @@ to get the desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition sidebar-mini" style="background: url(../../assets/main-background-1.jpg); background-size: cover;">
+<body class="hold-transition sidebar-mini" style="background: url(../../assets/main-background-1.jpg); background-repeat: no-repeat; background-size: cover; background-position: center;">
 <div class="loading" id="spinnerLoading">
   <div class='uil-ring-css' style='transform:scale(0.79);'>
     <div></div>
@@ -625,7 +625,7 @@ to get the desired effect
 
   <!-- Main Footer -->
   <footer class="main-footer">
-    <strong>Copyright &copy; 2020 <a href="#">Idea of SyncWeight</a> · </strong>All Rights Reserved<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.10 </div>
+    <strong>Copyright &copy; 2020 <a href="#">Idea of Synctronix</a> · </strong>All Rights Reserved<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.10 </div>
   </footer>
 </div>
 <!-- ./wrapper -->
