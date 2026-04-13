@@ -323,7 +323,7 @@ to get the desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini" style="background: url(../../assets/main-background-1.jpg); background-size: cover;">
 <div class="loading" id="spinnerLoading">
   <div class='uil-ring-css' style='transform:scale(0.79);'>
     <div></div>
