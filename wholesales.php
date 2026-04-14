@@ -41,16 +41,17 @@ else{
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
-    
-    // Query companies table
-    $compstmt = $db->prepare("SELECT * from companies where id = ?");
-    $compstmt->bind_param('s', $company);
-    $compstmt->execute();
-    $result = $compstmt->get_result();
-    if(($row = $result->fetch_assoc()) !== null){
-      $allowPhoto = $row['include_photo'];
-      $allowPrice = $row['include_price'];
+
+    // Company Detail 
+    $companyDetail = searchCompanyById($company, $db);
+    // $companyProducts = json_decode($companyDetail['products'], true);
+    $secRemarksExists = false;
+    if ($companyDetail['include_sec_remark'] == 'Y') { 
+      $secRemarksExists = true;
     }
+
+    $allowPhoto = $companyDetail['include_photo'];
+    $allowPrice = $companyDetail['include_price'];
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -68,6 +69,7 @@ else{
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
+    $secRemarksExists = true;
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -76,14 +78,6 @@ else{
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
-
-  // Company Detail 
-  $companyDetail = searchCompanyById($company, $db);
-  // $companyProducts = json_decode($companyDetail['products'], true);
-  $secRemarksExists = false;
-  if ($companyDetail['include_sec_remark'] == 'Y') { 
-    $secRemarksExists = true;
-  }
 }
 ?>
 <!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
@@ -1197,16 +1191,22 @@ $(function () {
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
             <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
-              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
+              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
-        <td><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
-        <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00">
+        </td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00" readonly>
+        </td>
+        <td>
+          <input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/>
+        </td>
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
@@ -1232,13 +1232,15 @@ $(function () {
     var row = $(this).closest('tr');
     var productName = $(this).val();
     var productId = $(this).find('option:selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
     row.find('input[name*="[product]"]').val(productId);
     row.find('input[name*="[product_desc]"]').val(productName);
     
     // Filter grades by selected product
     var gradeSelect = row.find('select[name*="[grade]"]');
     var currentGrade = gradeSelect.val();
-    
+    var currentGradeId = gradeSelect.find(':selected').data('id');
+
     // Destroy Select2 before modifying options
     gradeSelect.select2('destroy');
     
@@ -1269,6 +1271,16 @@ $(function () {
     });
     
     gradeSelect.val(currentGrade).trigger('change');
+  });
+
+  $('#weightDetailsTable').on('change', 'select[id^="grade"]', function() {
+    var grade = $(this).find(':selected').data('id');
+    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
+
+    if (allowPrice == 'Y' && productId){
+      calculatePrice(productId, customerId, grade, $(this));
+    }
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
@@ -1304,13 +1316,22 @@ $(function () {
     $('#totalWeightGross').text(totalGross.toFixed(2));
     $('#totalWeightTare').text(totalTare.toFixed(2));
     $('#totalWeightNet').text(totalNet.toFixed(2));
+
+    $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var net = parseFloat(row.find('input[name*="[net]"]').val());
-    var total = price * net;
+    var pricingType = row.find('input[id^="fixedfloat"]').val();
+    var net = parseFloat(row.find('input[id^="net"]').val());
+    var total = 0;
+
+    if (pricingType == 'Float'){
+      total = price * net;
+    }else{
+      total = price;
+    }
 
     row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
@@ -1333,7 +1354,8 @@ $(function () {
     // Filter grades by selected product
     var gradeSelect = row.find('select[name*="[grade]"]');
     var currentGrade = gradeSelect.val();
-    
+    var currentGradeId = gradeSelect.find(':selected').data('id');
+
     // Destroy Select2 before modifying options
     gradeSelect.select2('destroy');
     
@@ -1366,6 +1388,16 @@ $(function () {
     gradeSelect.val(currentGrade).trigger('change');
   });
 
+  $('#rejectDetailsTable').on('change', 'select[id^="grade"]', function() {
+    var grade = $(this).find(':selected').data('id');
+    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
+
+    if (allowPrice == 'Y' && productId){
+      calculatePrice(productId, customerId, grade, $(this));
+    }
+  });
+
   $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
@@ -1390,13 +1422,23 @@ $(function () {
     $('#totalRejectGross').text(totalGross.toFixed(2));
     $('#totalRejectTare').text(totalTare.toFixed(2));
     $('#totalRejectNet').text(totalNet.toFixed(2));
+
+    $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var net = parseFloat(row.find('input[name*="[net]"]').val());
-    var total = price * net;
+    var pricingType = row.find('input[id^="fixedfloat"]').val();
+    var net = parseFloat(row.find('input[id^="net"]').val());
+    var total = 0;
+
+    if (pricingType == 'Float'){
+      total = price * net;
+    }else{
+      total = price;
+    }
+
     row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
 
@@ -1726,8 +1768,33 @@ function newEntry(){
   });
 }
 
+function calculatePrice(productId, customerId, currentGrade, element) {
+  if (productId){
+    $.post('php/getProduct.php', {userID: productId, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+      var obj = JSON.parse(data);
+
+      if(obj.status === 'success'){
+        var pricingType = obj.message.pricingType;
+        var price = obj.message.price;
+
+        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
+        element.closest('tr').find('input[id^="price"]').val(price).trigger('change');
+      }
+      else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+      }
+      else{
+        toastr["error"]("Something wrong when delete", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    });
+  }else{
+
+  }
+}
+
 function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function edit(id) {
