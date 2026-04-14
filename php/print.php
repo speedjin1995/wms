@@ -50,6 +50,8 @@ if(isset($_POST['userID'])){
             $result = $select_stmt->get_result();
 
             if ($wholesale = $result->fetch_assoc()) {
+                // Company Detail 
+                $companyDetail = searchCompanyById($wholesale['company'], $db);
                 $weighingDetails = json_decode($wholesale['weight_details'], true);
                 $arrangedData = arrangeByGrade($weighingDetails);
 
@@ -98,6 +100,8 @@ if(isset($_POST['userID'])){
                             $totalTare = 0;
                             $totalNet = 0;
                             $totalPrice = 0;
+                            $unitPrice = 0;
+                            $pricingType = null;
                             
                             for($i = 0; $i < 10; $i++) {
                                 if($i < count($items)) {
@@ -107,6 +111,7 @@ if(isset($_POST['userID'])){
                                     $tare = floatval($item['tare'] ?? 0);
                                     $net = floatval($item['net'] ?? 0);
                                     $price = floatval($item['price'] ?? 0);
+                                    $unitPrice = floatval($item['price'] ?? 0);
                                     $pricingType = $item['fixedfloat'];
 
                                     if ($pricingType == 'fixed') {
@@ -140,10 +145,26 @@ if(isset($_POST['userID'])){
                             $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 2) . ' kg</td>';
                             $weightDetails .= '<td style="border-left: none;">' . number_format($totalNet, 2) . ' kg</td>';
                             $weightDetails .= '</tr>';
-                            $weightDetails .= '<tr>';
-                            $weightDetails .= '<td colspan="2">Price /kg</td>';
-                            $weightDetails .= '<td colspan="2">RM ' . number_format($totalPrice, 2) . '</td>';
-                            $weightDetails .= '</tr>';
+
+                            if ($companyDetail['include_price'] == 'Y'){
+                                $weightDetails .= '<tr>';
+                                $weightDetails .= '<td colspan="2">Unit Price</td>';
+                                $weightDetails .= '<td colspan="2">RM ' . number_format($unitPrice, 2) . '</td>';
+                                $weightDetails .= '</tr><tr>';
+                                $weightDetails .= '<td colspan="2">Total Price</td>';
+                                $weightDetails .= '<td colspan="2">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td>';
+                                $weightDetails .= '</tr>';
+                            }else{
+                                // Hidden rows to ensure formatting is fine
+                                $weightDetails .= '<tr style="visibility: hidden; border: none;">';
+                                $weightDetails .= '<td colspan="2" style="border: none;">Unit Price</td>';
+                                $weightDetails .= '<td colspan="2" style="border: none;">RM ' . number_format($unitPrice, 2) . '</td>';
+                                $weightDetails .= '</tr><tr style="visibility: hidden; border: none;">';
+                                $weightDetails .= '<td colspan="2" style="border: none;">Total Price</td>';
+                                $weightDetails .= '<td colspan="2" style="border: none;">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td>';
+                                $weightDetails .= '</tr>';
+                            }
+                            
                             $weightDetails .= '</table>';
                             $weightDetails .= '</div>';
                         }
@@ -167,7 +188,9 @@ if(isset($_POST['userID'])){
                     $rejectTare = 0;
                     $rejectNet = 0;
                     $rejectPrice = 0;
-                    
+                    $rejectUnitPrice = 0;
+                    $rejectPricingType = null;
+
                     for($i = 0; $i < 10; $i++) {
                         if($i < count($rejectDetails)) {
                             $item = $rejectDetails[$i];
@@ -175,9 +198,10 @@ if(isset($_POST['userID'])){
                             $tare = floatval($item['tare'] ?? 0);
                             $net = floatval($item['net'] ?? 0);
                             $price = floatval($item['price'] ?? 0);
-                            $pricingType = $item['fixedfloat'];
+                            $rejectUnitPrice = floatval($item['price'] ?? 0);
+                            $rejectPricingType = $item['fixedfloat'];
                             
-                            if ($pricingType == 'fixed') {
+                            if ($rejectPricingType == 'fixed') {
                                 $rejectPrice += $price ?? 0;
                             } else {
                                 $rejectPrice += $net * ($price ?? 0);
@@ -204,7 +228,26 @@ if(isset($_POST['userID'])){
                     $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectTare, 2) . ' kg</td>';
                     $weightDetails .= '<td style="border-left: none;">' . number_format($rejectNet, 2) . ' kg</td>';
                     $weightDetails .= '</tr>';
-                    $weightDetails .= '<tr><td colspan="2">Price /kg</td><td colspan="2">RM ' . number_format($rejectPrice, 2) . '</td></tr>';
+
+                    if ($companyDetail['include_price'] == 'Y'){
+                        $weightDetails .= '<tr>';
+                        $weightDetails .= '<td colspan="2">Unit Price</td>';
+                        $weightDetails .= '<td colspan="2">RM ' . number_format($rejectUnitPrice, 2) . '</td>';
+                        $weightDetails .= '</tr><tr>';
+                        $weightDetails .= '<td colspan="2">Total Price</td>';
+                        $weightDetails .= '<td colspan="2">RM ' . number_format($rejectPrice, 2) . (!empty($rejectPricingType) && $rejectPricingType !== 'null' ? ' (' . $rejectPricingType . ')' : '') . '</td>';
+                        $weightDetails .= '</tr>';
+                    }else{
+                        // Hidden rows to ensure formatting is fine
+                        $weightDetails .= '<tr style="visibility: hidden; border: none;">';
+                        $weightDetails .= '<td colspan="2" style="border: none;">Unit Price</td>';
+                        $weightDetails .= '<td colspan="2" style="border: none;">RM ' . number_format($unitPrice, 2) . '</td>';
+                        $weightDetails .= '</tr><tr style="visibility: hidden; border: none;">';
+                        $weightDetails .= '<td colspan="2" style="border: none;">Total Price</td>';
+                        $weightDetails .= '<td colspan="2" style="border: none;">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td>';
+                        $weightDetails .= '</tr>';
+                    }
+                    
                     $weightDetails .= '</table>';
                     $weightDetails .= '</div>';
                     $weightDetails .= '</div>';
