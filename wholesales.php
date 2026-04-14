@@ -41,16 +41,17 @@ else{
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
-    
-    // Query companies table
-    $compstmt = $db->prepare("SELECT * from companies where id = ?");
-    $compstmt->bind_param('s', $company);
-    $compstmt->execute();
-    $result = $compstmt->get_result();
-    if(($row = $result->fetch_assoc()) !== null){
-      $allowPhoto = $row['include_photo'];
-      $allowPrice = $row['include_price'];
+
+    // Company Detail 
+    $companyDetail = searchCompanyById($company, $db);
+    // $companyProducts = json_decode($companyDetail['products'], true);
+    $secRemarksExists = false;
+    if ($companyDetail['include_sec_remark'] == 'Y') { 
+      $secRemarksExists = true;
     }
+
+    $allowPhoto = $companyDetail['include_photo'];
+    $allowPrice = $companyDetail['include_price'];
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -68,6 +69,7 @@ else{
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
+    $secRemarksExists = true;
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -76,14 +78,6 @@ else{
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
-
-  // Company Detail 
-  $companyDetail = searchCompanyById($company, $db);
-  // $companyProducts = json_decode($companyDetail['products'], true);
-  $secRemarksExists = false;
-  if ($companyDetail['include_sec_remark'] == 'Y') { 
-    $secRemarksExists = true;
-  }
 }
 ?>
 <!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
