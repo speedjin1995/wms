@@ -45,13 +45,28 @@ $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
+    // 1. Put all address fields into an array and trim whitespace
+    $address_parts = array(
+      trim($row['customer_address']),
+      trim($row['customer_address2']),
+      trim($row['customer_address3']),
+      trim($row['customer_address4'])
+    );
+
+    // 2. Filter out empty values
+    $filtered_address = array_filter($address_parts);
+
+    // 3. Join non-empty parts with <br>
+    $display_address = implode('<br>', $filtered_address);
+
     $data[] = array( 
       "id"=>$row['id'],
       "parent"=>searchCustomerNameById($row['parent'], '', $db),
       "customer_code"=>$row['customer_code'],
       "reg_no"=>$row['reg_no'],
       "customer_name"=>$row['customer_name'],
-      "customer_address"=>$row['customer_address'].'<br>'.$row['customer_address2'].'<br>'.$row['customer_address3'].'<br>'.$row['customer_address4'],
+      "customer_address"=>$display_address, // Use the processed address
+      //"customer_address"=>$row['customer_address'].'<br>'.$row['customer_address2'].'<br>'.$row['customer_address3'].'<br>'.$row['customer_address4'],
       "customer_phone"=>$row['customer_phone'],
       "pic"=>$row['pic'],
       "is_manual"=>$row['is_manual'],
