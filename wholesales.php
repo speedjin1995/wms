@@ -1232,6 +1232,7 @@ $(function () {
     var row = $(this).closest('tr');
     var productName = $(this).val();
     var productId = $(this).find('option:selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
     row.find('input[name*="[product]"]').val(productId);
     row.find('input[name*="[product_desc]"]').val(productName);
     
@@ -1269,6 +1270,10 @@ $(function () {
     });
     
     gradeSelect.val(currentGrade).trigger('change');
+
+    if (allowPrice == 'Y' && productId){
+      var pricingDetail = calculatePrice(productId, customerId, currentGrade);
+    }
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
@@ -1726,8 +1731,32 @@ function newEntry(){
   });
 }
 
+function calculatePrice(productId, customerId, currentGrade) {
+  if (productId){
+    $.post('php/getProduct.php', {userID: productId, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+      var obj = JSON.parse(data);
+
+      if(obj.status === 'success'){
+        $('#cancelModal').modal('hide');
+        toastr["success"](obj.message, "Success:");
+        $('#weightTable').DataTable().ajax.reload();
+        
+      }
+      else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+      }
+      else{
+        toastr["error"]("Something wrong when delete", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    });
+  }else{
+
+  }
+}
+
 function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function edit(id) {
