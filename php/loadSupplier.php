@@ -46,13 +46,28 @@ $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
 while($row = mysqli_fetch_assoc($empRecords)) {
+  // 1. Put all address fields into an array and trim whitespace
+  $address_parts = array(
+    trim($row['supplier_address']),
+    trim($row['supplier_address2']),
+    trim($row['supplier_address3']),
+    trim($row['supplier_address4'])
+  );
+
+  // 2. Filter out empty values
+  $filtered_address = array_filter($address_parts);
+
+  // 3. Join non-empty parts with <br>
+  $display_address = implode('<br>', $filtered_address);
+
   $data[] = array( 
     'id'=>$row['id'],
     "parent"=>searchSupplierNameById($row['parent'], '', $db),
     'supplier_code'=>$row['supplier_code'],
     "reg_no"=>$row['reg_no'],
     'supplier_name'=>$row['supplier_name'],
-    'supplier_address'=>$row['supplier_address'].$row['supplier_address2'].$row['supplier_address3'].$row['supplier_address4'],
+    'supplier_address'=>$display_address,
+    // 'supplier_address'=>$row['supplier_address'].$row['supplier_address2'].$row['supplier_address3'].$row['supplier_address4'],
     'supplier_phone'=>$row['supplier_phone'],
     'pic'=>$row['pic'],
     'is_manual'=>$row['is_manual'],
