@@ -8,7 +8,7 @@
  * @param mysqli $db      Database connection
  * @return array ['status' => 'success'|'failed', 'message' => string, 'fid' => int|null]
  */
-function uploadFile($file, $type, $company, $db) {
+function uploadFile($file, $type, $company, $db, $uploadMethod = 'file_table') {
     $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
     $maxSize = ($type == 'logo') ? 25 * 1024 * 1024 : 10 * 1024 * 1024;
 
@@ -39,11 +39,16 @@ function uploadFile($file, $type, $company, $db) {
     }
 
     $fid = null;
-    if ($stmt = $db->prepare("INSERT INTO files (filename, filepath, method, company) VALUES (?, ?, ?, ?)")) {
-        $stmt->bind_param('ssss', $filename, $dbPath, $method, $company);
-        $stmt->execute();
-        $fid = $stmt->insert_id;
-        $stmt->close();
+
+    if ($uploadMethod == 'file_table') {
+        if ($stmt = $db->prepare("INSERT INTO files (filename, filepath, method, company) VALUES (?, ?, ?, ?)")) {
+            $stmt->bind_param('ssss', $filename, $dbPath, $method, $company);
+            $stmt->execute();
+            $fid = $stmt->insert_id;
+            $stmt->close();
+        }
+    } else {
+        $fid = $dbPath; // Return file path if not using file table
     }
 
     return ['status' => 'success', 'message' => 'File uploaded successfully!', 'fid' => $fid];
@@ -55,23 +60,32 @@ function uploadFile($file, $type, $company, $db) {
  * @param string $fileId  The file ID in the files table
  * @param mysqli $db      Database connection
  */
-function deleteOldFile($fileId, $db) {
-    if (!$fileId) return;
-    $stmt = $db->prepare("SELECT filepath FROM files WHERE id = ? AND deleted = 0");
-    $stmt->bind_param('s', $fileId);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    if ($row = $res->fetch_assoc()) {
-        $oldPath = str_replace('\\', '/', dirname(__DIR__, 2)) . '/' . $row['filepath'];
+function deleteOldFile($file, $db, $uploadMethod = 'file_table') {
+    if (!$file) return;
+
+    if ($uploadMethod == 'file_table'){
+        $stmt = $db->prepare("SELECT filepath FROM files WHERE id = ? AND deleted = 0");
+        $stmt->bind_param('s', $file);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $oldPath = str_replace('\\', '/', dirname(__DIR__, 2)) . '/' . $row['filepath'];
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+        $stmt->close();
+
+        $stmtDel = $db->prepare("UPDATE files SET deleted = 1 WHERE id = ?");
+        $stmtDel->bind_param('s', $file);
+        $stmtDel->execute();
+        $stmtDel->close();
+    }else{
+        $oldPath = str_replace('\\', '/', dirname(__DIR__, 2)) . '/' . $file;
         if (file_exists($oldPath)) {
             unlink($oldPath);
         }
     }
-    $stmt->close();
-
-    $stmtDel = $db->prepare("UPDATE files SET deleted = 1 WHERE id = ?");
-    $stmtDel->bind_param('s', $fileId);
-    $stmtDel->execute();
-    $stmtDel->close();
+    
 }
 ?>

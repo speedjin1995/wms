@@ -42,7 +42,7 @@ else{
         $photoUploadMode = $row['photo_upload_mode'] ?? 'local';
 
         if(!empty($row['company_logo'])){
-            $logoPath = 'php/viewPhoto.php?file=' . $row['company_logo'];
+            $logoPath = 'php/viewPhoto.php?file=' . $row['company_logo'].'&type=file_table';
         }
     }
 
