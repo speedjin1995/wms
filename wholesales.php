@@ -1197,16 +1197,23 @@ $(function () {
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
             <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
-              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
+              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
-        <td><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00"></td>
-        <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/></td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="hidden" id="pricingType${idx}">
+          <input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00">
+        </td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00" readonly>
+        </td>
+        <td>
+          <input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/>
+        </td>
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
@@ -1239,7 +1246,8 @@ $(function () {
     // Filter grades by selected product
     var gradeSelect = row.find('select[name*="[grade]"]');
     var currentGrade = gradeSelect.val();
-    
+    var currentGradeId = gradeSelect.find(':selected').data('id');
+
     // Destroy Select2 before modifying options
     gradeSelect.select2('destroy');
     
@@ -1270,9 +1278,15 @@ $(function () {
     });
     
     gradeSelect.val(currentGrade).trigger('change');
+  });
+
+  $('#weightDetailsTable').on('change', 'select[id^="grade"]', function() {
+    var grade = $(this).find(':selected').data('id');
+    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
 
     if (allowPrice == 'Y' && productId){
-      var pricingDetail = calculatePrice(productId, customerId, currentGrade);
+      calculatePrice(productId, customerId, grade, $(this));
     }
   });
 
@@ -1309,13 +1323,22 @@ $(function () {
     $('#totalWeightGross').text(totalGross.toFixed(2));
     $('#totalWeightTare').text(totalTare.toFixed(2));
     $('#totalWeightNet').text(totalNet.toFixed(2));
+
+    $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var net = parseFloat(row.find('input[name*="[net]"]').val());
-    var total = price * net;
+    var pricingType = row.find('input[id^="pricingType"]').val();
+    var net = parseFloat(row.find('input[id^="net"]').val());
+    var total = 0;
+
+    if (pricingType == 'Float'){
+      total = price * net;
+    }else{
+      total = price;
+    }
 
     row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
@@ -1338,7 +1361,8 @@ $(function () {
     // Filter grades by selected product
     var gradeSelect = row.find('select[name*="[grade]"]');
     var currentGrade = gradeSelect.val();
-    
+    var currentGradeId = gradeSelect.find(':selected').data('id');
+
     // Destroy Select2 before modifying options
     gradeSelect.select2('destroy');
     
@@ -1371,6 +1395,16 @@ $(function () {
     gradeSelect.val(currentGrade).trigger('change');
   });
 
+  $('#rejectDetailsTable').on('change', 'select[id^="grade"]', function() {
+    var grade = $(this).find(':selected').data('id');
+    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
+
+    if (allowPrice == 'Y' && productId){
+      calculatePrice(productId, customerId, grade, $(this));
+    }
+  });
+
   $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
@@ -1395,13 +1429,23 @@ $(function () {
     $('#totalRejectGross').text(totalGross.toFixed(2));
     $('#totalRejectTare').text(totalTare.toFixed(2));
     $('#totalRejectNet').text(totalNet.toFixed(2));
+
+    $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var net = parseFloat(row.find('input[name*="[net]"]').val());
-    var total = price * net;
+    var pricingType = row.find('input[id^="pricingType"]').val();
+    var net = parseFloat(row.find('input[id^="net"]').val());
+    var total = 0;
+
+    if (pricingType == 'Float'){
+      total = price * net;
+    }else{
+      total = price;
+    }
+
     row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
 
@@ -1731,16 +1775,17 @@ function newEntry(){
   });
 }
 
-function calculatePrice(productId, customerId, currentGrade) {
+function calculatePrice(productId, customerId, currentGrade, element) {
   if (productId){
     $.post('php/getProduct.php', {userID: productId, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
-        $('#cancelModal').modal('hide');
-        toastr["success"](obj.message, "Success:");
-        $('#weightTable').DataTable().ajax.reload();
-        
+        var pricingType = obj.message.pricingType;
+        var price = obj.message.price;
+
+        element.closest('tr').find('input[id^="pricingType"]').val(pricingType);
+        element.closest('tr').find('input[id^="price"]').val(price).trigger('change');
       }
       else if(obj.status === 'failed'){
         toastr["error"](obj.message, "Failed:");
