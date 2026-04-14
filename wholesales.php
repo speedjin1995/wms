@@ -1205,7 +1205,6 @@ $(function () {
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="hidden" id="pricingType${idx}">
           <input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00">
         </td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
@@ -1330,7 +1329,7 @@ $(function () {
   $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var pricingType = row.find('input[id^="pricingType"]').val();
+    var pricingType = row.find('input[id^="fixedfloat"]').val();
     var net = parseFloat(row.find('input[id^="net"]').val());
     var total = 0;
 
@@ -1436,7 +1435,7 @@ $(function () {
   $("#rejectDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var pricingType = row.find('input[id^="pricingType"]').val();
+    var pricingType = row.find('input[id^="fixedfloat"]').val();
     var net = parseFloat(row.find('input[id^="net"]').val());
     var total = 0;
 
@@ -1784,7 +1783,7 @@ function calculatePrice(productId, customerId, currentGrade, element) {
         var pricingType = obj.message.pricingType;
         var price = obj.message.price;
 
-        element.closest('tr').find('input[id^="pricingType"]').val(pricingType);
+        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
         element.closest('tr').find('input[id^="price"]').val(price).trigger('change');
       }
       else if(obj.status === 'failed'){
