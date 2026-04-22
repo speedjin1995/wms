@@ -78,7 +78,10 @@ if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'
 if($searchValue != ''){
    $searchQuery .= " and (wholesales.serial_no like '%".$searchValue."%' or 
         wholesales.po_no like '%".$searchValue."%' or
-        wholesales.vehicle_no like '%".$searchValue."%') ";
+        wholesales.vehicle_no like '%".$searchValue."%' or
+        wholesales.driver like '%".$searchValue."%' or
+        c.customer_name like '%".$searchValue."%' or
+        s.supplier_name like '%".$searchValue."%') ";
 }
 
 $company = $_SESSION['customer'];
@@ -98,12 +101,12 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1".$companyFilter.$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select wholesales.* from wholesales where 1=1".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select wholesales.* from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
@@ -117,7 +120,6 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     $parentId = searchSupplierParentById($row['supplier'], $db);
     $parent = searchSupplierNameById($parentId, '', $db);
   }
-
 
   $data[] = array( 
     "id"=>$row['id'],
