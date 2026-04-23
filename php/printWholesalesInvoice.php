@@ -120,13 +120,14 @@ if(isset($_GET['id'])){
                     $qty = number_format($item['qty'], 2);
                     $unitPrice = number_format($item['unit_price'], 2);
                     $totalPrice = number_format($item['total_price'], 2);
+                    $tareWeight = number_format($item['bin'] * 0.60, 2);
                     $itemRowsHtml .= '
                                     <tr style="break-inside:avoid; page-break-inside:avoid;">
                                         <td style="width:30px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $no . '</td>
-                                        <td style="width:268px; text-align:left; border:0; vertical-align:top; padding-top:8px;">
-                                            <span style="display:inline-block; width:220px; font-weight:bold;">' . $item['product'] . '</span><span style="display:inline-block; width:80px;">UNIT : ' . $item['unit'] . '</span><br>
-                                            <span style="display:inline-block; width:220px;">GRADE : ' . $item['grade'] . '</span><span style="display:inline-block; width:80px;">BIN : ' . $item['bin'] . '</span><br>
-                                            <span style="font-size:10px;">' . $weightLines . '</span>
+                                        <td style="width:400px; text-align:left; border:0; vertical-align:top; padding-top:8px;">
+                                            <span style="vertical-align:top; display:inline-block; width:170px; font-weight:bold;">' . $item['product'] . '</span><span style="display:inline-block; width:150px;">GRADE : ' . $item['grade'] . '</span><br>
+                                            <span style="display:inline-block; width:170px;">TARE / BIN : ' . $tareWeight . ' kg / ' . $qty . 'kg</span><span style="display:inline-block; width:150px;">BIN : ' . $item['bin'] . '</span><br>
+                                            <span>' . $weightLines . '</span>
                                         </td>
                                         <td style="width:72px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $qty . '</td>
                                         <td style="width:58px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $item['uom'] . '</td>
@@ -147,7 +148,7 @@ if(isset($_GET['id'])){
                     <head>
                         <meta charset="UTF-8">
                         <title>Sales Order - ' . $soNo . '</title>
-                        <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"><\/script>
+                        <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
                         <style>
                             * { margin: 0; padding: 0; box-sizing: border-box; }
                             body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #000; }
@@ -279,7 +280,7 @@ if(isset($_GET['id'])){
                             <table class="items" style="margin-top:8px;">
                                 <tr>
                                     <th style="width:30px;" class="border-top-bottom-dashed">NO</th>
-                                    <th style="width:268px; text-align:left;" class="border-top-bottom-dashed">DESCRIPTION ITEM / GRADE</th>
+                                    <th style="width:400px; text-align:left;" class="border-top-bottom-dashed">DESCRIPTION ITEM / GRADE</th>
                                     <th style="width:72px;" class="border-top-bottom-dashed">QTY/kg</th>
                                     <th style="width:58px;" class="border-top-bottom-dashed">UOM</th>
                                     <th style="width:145px;" class="border-top-bottom-dashed">UNIT PRICE (RM)</th>
@@ -297,7 +298,7 @@ if(isset($_GET['id'])){
                                     <div class="footer-total-amount">RM' . $totalAmount . '</div>
                                 </div>
                                 <div class="footer-note">* We confirm acceptance of the above item description billing with goods sold are not returnable.</div>
-                                <div class="footer-note">* All payment cheque &amp; cash should be crossed and made payable to \'<b>' . $companyName . '</b>\'</div>
+                                <div class="footer-note">* All payment cheque &amp; cash should be crossed and made payable to &#39;<b>' . $companyName . '</b>&#39;</div>
                                 <div class="footer-note">* Banker Name&nbsp;&nbsp;&nbsp;&nbsp;: ' . $bankerName . '</div>
                                 <div class="footer-note">* Bank Account No: ' . $bankAccount . '</div>
                                 <div class="footer-note">* Bank Swift Code: ' . $bankSwift . '</div>
@@ -338,12 +339,12 @@ if(isset($_GET['id'])){
 
                         <!-- Print Button -->
                         <div id="printBtnWrapper" data-pagedjs-ignore style="position:fixed; bottom:20px; left:0; right:0; text-align:center; z-index:9999;">
-                            <button onclick="document.getElementById(\'printBtnWrapper\').style.display=\'none\'; document.title=\'' . $soNo . '\'; setTimeout(function(){ window.print(); document.getElementById(\'printBtnWrapper\').style.display=\'\'; }, 200);" style="background:#007bff; color:#fff; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-size:14px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">🖨️ Print</button>
+                            <button onclick="document.getElementById(&#39;printBtnWrapper&#39;).style.display=&#39;none&#39;; document.title=&#39;' . $soNo . '&#39;; setTimeout(function(){ window.print(); document.getElementById(&#39;printBtnWrapper&#39;).style.display=&#39;&#39;; }, 200);" style="background:#007bff; color:#fff; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-size:14px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">🖨️ Print</button>
                         </div>
 
                         <script>
                             window.PagedConfig = { auto: true };
-                        <\/script>
+                        </script>
 
                     </body>
                     </html>
@@ -353,7 +354,8 @@ if(isset($_GET['id'])){
                     array(
                         "status" => "success",
                         "message" => $message
-                    )
+                    ),
+                    JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
                 );
             } else {
                 echo json_encode(
