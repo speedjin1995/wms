@@ -51,6 +51,10 @@ $bankerName = $_GET['banker_name'] ?? '';
 $bankAccount = $_GET['bank_account'] ?? '';
 $bankSwift = $_GET['bank_swift'] ?? '';
 
+// Summary data
+$startWeightTime = $_GET['start_weight_time'] ?? '1:30:59 PM';
+$endWeightTime = $_GET['end_weight_time'] ?? '2:30:59 PM';
+
 // Sample items
 $items = [
     [
@@ -195,7 +199,7 @@ $items = [
     <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', Courier, monospace; font-size: 14px; color: #000; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #000; }
 
         /* Paged.js */
         @page {
@@ -224,7 +228,7 @@ $items = [
         .section-title { font-weight: bold; margin-bottom: 3px; font-size: 12px; }
         .so-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 3px; }
         .so-detail { display: flex; font-size: 11px; line-height: 1.5; }
-        .so-label { width: 80px; flex-shrink: 0; }
+        .so-label { width: 100px; flex-shrink: 0; }
         .so-colon { width: 10px; flex-shrink: 0; }
         .so-value { flex: 1; }
         .addr-name { font-weight: bold; font-size: 11px; }
@@ -237,7 +241,7 @@ $items = [
         .contact-value { flex: 1; }
 
         /* Body table */
-        .body-section { padding: 0; margin-top: 20px;}
+        .body-section { padding: 0; }
         table.items { width: 100%; border-collapse: collapse; font-size: 12px; }
         table.items th, table.items td { border: 1px solid #000; padding: 4px 6px; }
         table.items th { text-align: center; }
@@ -253,6 +257,9 @@ $items = [
         .footer-note { margin-bottom: 1px; }
         .footer-section-title { font-weight: bold; margin-top: 5px; margin-bottom: 1px; }
 
+        .page-current::after { content: counter(page); }
+        .page-total::after { content: counter(pages); }
+
         /* Print button */
         .print-btn-wrapper { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
         .print-btn { background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
@@ -261,7 +268,7 @@ $items = [
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
-<body>
+ <body>
 
     <!-- RUNNING HEADER -->
     <div class="running-header">
@@ -288,6 +295,8 @@ $items = [
                 <div class="addr-line"><?= htmlspecialchars($billToAddr2) ?></div>
                 <div class="addr-line"><?= htmlspecialchars($billToAddr3) ?></div>
                 <br>
+                <br>
+                <br>
                 <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value"><?= htmlspecialchars($billToAttn) ?></span></div>
                 <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value"><?= htmlspecialchars($billToTel) ?></span></div>
                 <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value"><?= htmlspecialchars($billToFax) ?></span></div>
@@ -299,6 +308,8 @@ $items = [
                 <div class="addr-line"><?= htmlspecialchars($deliverToAddr2) ?></div>
                 <div class="addr-line"><?= htmlspecialchars($deliverToAddr3) ?></div>
                 <br>
+                <br>
+                <br>
                 <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value"><?= htmlspecialchars($deliverToAttn) ?></span></div>
                 <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value"><?= htmlspecialchars($deliverToTel) ?></span></div>
                 <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value"><?= htmlspecialchars($deliverToFax) ?></span></div>
@@ -307,22 +318,22 @@ $items = [
                 <div class="so-title"><span style="border-bottom: 1px solid black;">SALES ORDER</span></div>
                 <div class="so-detail"><span class="so-label">SO No.</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($soNo) ?></span></div>
                 <div class="so-detail"><span class="so-label">Date</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($date) ?></span></div>
-                <div class="so-detail"><span class="so-label">Time</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($time) ?></span></div>
-                <div class="so-detail"><span class="so-label">Slip No</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($slipNo) ?></span></div>
+                <div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($time) ?></span></div>
+                <div class="so-detail"><span class="so-label">Weight Slip No</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($slipNo) ?></span></div>
                 <div class="so-detail"><span class="so-label">Vehicle No</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($vehicleNo) ?></span></div>
-                <div class="so-detail"><span class="so-label">Price Sta</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($priceStatus) ?></span></div>
+                <div class="so-detail"><span class="so-label">Price Status</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($priceStatus) ?></span></div>
                 <div class="so-detail"><span class="so-label">Weight by</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($weightBy) ?></span></div>
-                <div class="so-detail"><span class="so-label">Pages</span><span class="so-colon">:</span><span class="so-value"><?= htmlspecialchars($pages) ?></span></div>
+                <div class="so-detail"><span class="so-label">Pages</span><span class="so-colon">:</span><span class="so-value"><span class="page-current"></span> - <span class="page-total"></span></span></div>
             </div>
         </div>
         <table class="items" style="margin-top:8px;">
             <tr>
-                <th style="width:4%;" class="border-top-bottom-dashed">NO</th>
-                <th style="width:36%; text-align:left;" class="border-top-bottom-dashed">DESCRIPTION ITEM / GRADE</th>
-                <th style="width:10%;" class="border-top-bottom-dashed">QTY/kg</th>
-                <th style="width:8%;" class="border-top-bottom-dashed">UOM</th>
-                <th style="width:18%;" class="border-top-bottom-dashed">UNIT PRICE (RM)</th>
-                <th style="width:18%;" class="border-top-bottom-dashed">TOTAL PRICE (RM)</th>
+                <th style="width:30px;" class="border-top-bottom-dashed">NO</th>
+                <th style="width:268px; text-align:left;" class="border-top-bottom-dashed">DESCRIPTION ITEM / GRADE</th>
+                <th style="width:72px;" class="border-top-bottom-dashed">QTY/kg</th>
+                <th style="width:58px;" class="border-top-bottom-dashed">UOM</th>
+                <th style="width:145px;" class="border-top-bottom-dashed">UNIT PRICE (RM)</th>
+                <th style="width:145px;" class="border-top-bottom-dashed">TOTAL PRICE (RM)</th>
             </tr>
         </table>
     </div>
@@ -362,18 +373,42 @@ $items = [
                     }
                 ?>
                 <tr style="break-inside:avoid; page-break-inside:avoid;">
-                    <td style="text-align:center; border:0; vertical-align:top; padding-top:8px;"><?= $index + 1 ?></td>
-                    <td style="text-align:left; border:0; vertical-align:top; padding-top:8px; ">
+                    <td style="width:30px; text-align:center; border:0; vertical-align:top; padding-top:8px;"><?= $index + 1 ?></td>
+                    <td style="width:268px; text-align:left; border:0; vertical-align:top; padding-top:8px; ">
                         <span style="display:inline-block; width:220px; font-weight:bold;"><?= $item['product'] ?></span><span style="display:inline-block; width:80px;">UNIT : <?= $item['unit'] ?></span><br>
                         <span style="display:inline-block; width:220px;">GRADE : <?= $item['grade'] ?></span><span style="display:inline-block; width:80px;">BIN : <?= $item['bin'] ?></span><br>
                         <span style="font-size:10px;"><?= $weightLines ?></span>
                     </td>
-                    <td style="text-align:center; border:0; vertical-align:top; padding-top:8px;"><?= number_format($item['qty'], 2) ?></td>
-                    <td style="text-align:center; border:0; vertical-align:top; padding-top:8px;"><?= $item['uom'] ?></td>
-                    <td style="text-align:center; border:0; vertical-align:top; padding-top:8px;">RM&nbsp;&nbsp;<?= number_format($item['unit_price'], 2) ?></td>
-                    <td style="text-align:center; border:0; vertical-align:top; padding-top:8px;">RM<?= number_format($item['total_price'], 2) ?></td>
+                    <td style="width:72px; text-align:center; border:0; vertical-align:top; padding-top:8px;"><?= number_format($item['qty'], 2) ?></td>
+                    <td style="width:58px; text-align:center; border:0; vertical-align:top; padding-top:8px;"><?= $item['uom'] ?></td>
+                    <td style="width:145px; text-align:center; border:0; vertical-align:top; padding-top:8px;">RM&nbsp;&nbsp;<?= number_format($item['unit_price'], 2) ?></td>
+                    <td style="width:145px; text-align:center; border:0; vertical-align:top; padding-top:8px;">RM<?= number_format($item['total_price'], 2) ?></td>
                 </tr>
                 <?php endforeach; ?>
+
+                <?php
+                $totalBinCount = array_sum(array_column($items, 'bin'));
+                $totalActualWeight = array_sum(array_column($items, 'qty'));
+                $totalTareWeight = 0;
+                foreach ($items as $it) { $totalTareWeight += count($it['weights']) * 0.60; }
+                ?>
+                <tr style="break-inside:avoid; page-break-inside:avoid;">
+                    <td style="width:30px; border:0;"></td>
+                    <td style="width:268px; border:0; padding-top:8px;">
+                        <div style="font-weight:bold; text-decoration:underline; font-size:12px;">SUMMERY DETAILS</div>
+                        <div style="font-size:11px; line-height:1.6;">
+                            <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Bin Count</span><span style="width:10px;">:</span><span><?= $totalBinCount ?></span></div>
+                            <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Actual Weight</span><span style="width:10px;">:</span><span><?= number_format($totalActualWeight, 2) ?> kg</span></div>
+                            <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Tare Weight</span><span style="width:10px;">:</span><span><?= number_format($totalTareWeight, 2) ?> t</span></div>
+                            <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Start Weight Time</span><span style="width:10px;">:</span><span><?= htmlspecialchars($startWeightTime) ?></span></div>
+                            <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">End Weight Time</span><span style="width:10px;">:</span><span><?= htmlspecialchars($endWeightTime) ?></span></div>
+                        </div>
+                    </td>
+                    <td style="width:72px; border:0;"></td>
+                    <td style="width:58px; border:0;"></td>
+                    <td style="width:145px; border:0;"></td>
+                    <td style="width:145px; border:0;"></td>
+                </tr>
             </tbody>
         </table>
     </div>
