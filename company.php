@@ -15,9 +15,16 @@ else{
 	$stmt->execute();
 	$result = $stmt->get_result();
     $name = '';
+    $chineseName = '';
+    $regNo = '';
+    $tinNo = '';
 	$address = '';
+	$address2 = '';
+	$address3 = '';
+	$address4 = '';
 	$phone = '';
 	$email = '';
+	$fax = '';
 	$includePrice = 'N';
 	$includePhoto = 'N';
 	$includeBarcode = 'N';
@@ -27,7 +34,9 @@ else{
 	$logoPath = '';
 	if(($row = $result->fetch_assoc()) !== null){
         $name = $row['name'];
+        $chineseName = $row['chinese_name'];
         $regNo = $row['reg_no'];
+        $tinNo = $row['tin_no'];
         $address = $row['address'];
         $address2 = $row['address2'];
         $address3 = $row['address3'];
@@ -82,6 +91,18 @@ else{
 						<div class="form-group">
 							<label for="name"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['company_name_code'][$language]?> <span class="text-danger">*</span></small></label>
 							<input type="text" class="form-control" id="name" name="name" value="<?=$name ?>" placeholder="<?=$languageArray['enter_company_name_code'][$language]?>" required <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+							<label for="chineseName"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['company_chinese_name_code'][$language]?></small></label>
+							<input type="text" class="form-control" id="chineseName" name="chineseName" value="<?=$chineseName ?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+							<label for="tinNo"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['tin_no_code'][$language]?></small></label>
+							<input type="text" class="form-control" id="tinNo" name="tinNo" value="<?=$tinNo ?>"<?=($role != 'SADMIN') ? 'readonly' : ''?>>
 						</div>
 					</div>
 				</div>
