@@ -20,6 +20,7 @@ else{
   $allowDelete = 'N';
   $allowPhoto = 'N';
   $allowPrice = 'N';
+  $allowInvoice = 'N';
 
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
@@ -52,6 +53,7 @@ else{
 
     $allowPhoto = $companyDetail['include_photo'];
     $allowPrice = $companyDetail['include_price'];
+    $allowInvoice = $companyDetail['include_invoice'];
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -69,6 +71,7 @@ else{
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
+    $allowInvoice = 'Y';
     $secRemarksExists = true;
   }
 
@@ -559,6 +562,7 @@ var weightCount = 0;
 var rejectCount = 0;
 var allowPhoto = '<?=$allowPhoto?>';
 var allowPrice = '<?=$allowPrice?>';
+var allowInvoice = '<?=$allowInvoice?>';
 
 $(function () {
   $('#uomhidden').hide();
@@ -648,13 +652,16 @@ $(function () {
         data: 'id',
         class: 'action-button',
         render: function ( data, type, row ) {
-          var buttons = '<div class="row">';
+          var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
+          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+            buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
+          }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
@@ -813,16 +820,17 @@ $(function () {
           data: 'id',
           class: 'action-button',
           render: function ( data, type, row ) {
-            var buttons = '<div class="row">';
+            var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
-            buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
-
+            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+              buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
+            }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
             }
-            
             buttons += '</div>';
             return buttons;
           }
@@ -990,7 +998,7 @@ $(function () {
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+            return '<div class="d-flex flex-nowrap" style="gap:4px;"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
           }
         }
       ],
@@ -2185,6 +2193,23 @@ function print(id) {
     }
     else{
       alert("Something wrong when activate");
+    }
+  });
+}
+
+function printInvoice(id) {
+  $.get('php/printWholesalesInvoice.php?id=' + id, function(data){
+    var obj = JSON.parse(data);
+    if(obj.status === 'success') {
+      var printWindow = window.open('', '_blank');
+      printWindow.document.write(obj.message);
+      printWindow.document.close();
+    }
+    else if(obj.status === 'failed'){
+      toastr["error"](obj.message, "Failed:");
+    }
+    else{
+      toastr["error"]("Something wrong when printing invoice", "Failed:");
     }
   });
 }
