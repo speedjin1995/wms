@@ -432,6 +432,14 @@ to get the desired effect
                 </a>
               </li>
               <?php } ?>
+              <?php if ($module == 'packing') { ?>
+              <li class="nav-item">
+                <a href="#packing" data-file="packing.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['packing_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
               <!-- <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
@@ -472,6 +480,14 @@ to get the desired effect
           <li class="nav-item">
             <a href="#reportsIndustry" data-file="reportsIndustry.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
+              <p><?=$languageArray['reports_code'][$language]?></p>
+            </a>
+          </li>
+          <?php } ?>
+          <?php if ($module == 'packing') { ?>
+          <li class="nav-item">
+            <a href="#reportsPacking" data-file="reportsPacking.php" class="nav-link link">
+              <i class="nav-icon fas fa-cubes"></i>
               <p><?=$languageArray['reports_code'][$language]?></p>
             </a>
           </li>
