@@ -31,8 +31,15 @@ if(isset($_POST['userID'])){
                 $message['customer_address3'] = $row['customer_address3'];
                 $message['customer_address4'] = $row['customer_address4'];
                 $message['states'] = $row['states'];
+                $message['billing_name'] = $row['billing_name'];
+                $message['billing_address'] = $row['billing_address'];
+                $message['billing_address2'] = $row['billing_address2'];
+                $message['billing_address3'] = $row['billing_address3'];
+                $message['billing_address4'] = $row['billing_address4'];
+                $message['billing_state'] = $row['billing_state'];
                 $message['customer_phone'] = $row['customer_phone'];
                 $message['pic'] = $row['pic'];
+                $message['fax'] = $row['fax'];
                 $message['customer'] = $row['customer'];
                 $message['parent'] = $row['parent'];
             }
