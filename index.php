@@ -440,6 +440,14 @@ to get the desired effect
                 </a>
               </li>
               <?php } ?>
+              <?php if ($module == 'pricing') { ?>
+              <li class="nav-item">
+                <a href="#pricing" data-file="pricing.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['pricing_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
               <!-- <li class="nav-item">
                 <a href="#counting" data-file="countPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
