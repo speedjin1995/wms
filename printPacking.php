@@ -505,7 +505,7 @@ if(isset($_GET['id'])){
                                                             }
                                                         }
                                                         foreach ($gradeSummary as $grade => $data) {
-                                                            $avg = $data['itemsPerPack'] > 0 ? number_format($data['net'] / $data['itemsPerPack'], 3, '.', '') : '-';
+                                                            $avg = $data['itemsPerPack'] > 0 ? number_format($data['net'] / $data['itemsPerPack'], 3, '.', '') : 0;
                                                             $message .= '<tr>';
                                                             $message .= '<td style="border-top:0px;padding:0 0.7rem;border:1px solid #000000;font-size:12px;font-family:sans-serif;">'.$grade.'</td>';
                                                             $message .= '<td style="border-top:0px;padding:0 0.7rem;border:1px solid #000000;font-size:12px;font-family:sans-serif;text-align:center;">'.$data['bags'].'</td>';
@@ -543,12 +543,12 @@ if(isset($_GET['id'])){
                                                 foreach ($items as $element) {
                                                     $cellVal = $element['gross'] . '/' . ($element['itemPerPack'] ?? '-');
                                                     if ($count < 10) {
-                                                        $indexString .= '<td style="border-top:0;padding:0 0.7rem;width:10%;"><p><span style="font-size:12px;font-family:sans-serif;">' . $cellVal . '</span></p></td>';
+                                                        $indexString .= '<td style="border-top:0;padding:0 0.7rem;width:10%;"><p><span style="font-size:12px;font-family:sans-serif;white-space:nowrap;">' . $cellVal . '</span></p></td>';
                                                         $count++;
                                                     } else {
                                                         $indexString .= '</tr><tr><td style="border-top:0;padding:0 0.7rem;width:20%;"><p><span style="font-size:12px;font-family:sans-serif;font-weight:bold;">' . $indexCount2 . '</span></p></td>';
                                                         $indexCount2 += 10;
-                                                        $indexString .= '<td style="border-top:0;padding:0 0.7rem;width:10%;"><p><span style="font-size:12px;font-family:sans-serif;">' . $cellVal . '</span></p></td>';
+                                                        $indexString .= '<td style="border-top:0;padding:0 0.7rem;width:10%;"><p><span style="font-size:12px;font-family:sans-serif;white-space:nowrap;">' . $cellVal . '</span></p></td>';
                                                         $count = 1;
                                                     }
                                                 }
