@@ -32,9 +32,16 @@ if(isset($_POST['userID'])){
                 $message['supplier_address4'] = $row['supplier_address4'];
                 $message['states'] = $row['states'];
                 $message['supplier_phone'] = $row['supplier_phone'];
+                $message['fax'] = $row['fax'];
                 $message['pic'] = $row['pic'];
                 $message['customer'] = $row['customer'];
                 $message['parent'] = $row['parent'];
+                $message['billing_name'] = $row['billing_name'];
+                $message['billing_address'] = $row['billing_address'];
+                $message['billing_address2'] = $row['billing_address2'];
+                $message['billing_address3'] = $row['billing_address3'];
+                $message['billing_address4'] = $row['billing_address4'];
+                $message['billing_state'] = $row['billing_state'];
             }
             
             echo json_encode(
