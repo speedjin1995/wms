@@ -13,8 +13,6 @@ $data = json_decode(file_get_contents('php://input'), true);
 $errorArray = array();
 if (!empty($data)) {
     foreach ($data as $rows) {
-        // array(17) { ["CustomerCode"]=> string(5) "C-002" ["RegistrationNo"]=> string(4) "dwed" ["CustomerName"]=> string(6) "dewdwe" ["Address"]=> string(6) "dwedwe" ["Address2"]=> string(6) "ewdwed" ["Address3"]=> string(6) "wedwed" ["Address4"]=> string(4) "wedw" ["State"]=> string(5) "Johor" ["BillingName"]=> string(6) "dewdwe" ["BillingAddress"]=> string(6) "dwedwe" ["BillingAddress2"]=> string(6) "ewdwed" ["BillingAddress3"]=> string(6) "wedwed" ["BillingAddress4"]=> string(4) "wedw" ["BillingState"]=> string(5) "Johor" ["Phone"]=> string(9) "015678954" ["PIC"]=> string(10) "NG JIH BIN" ["Fax"]=> string(9) "604565676" }
-
         $Parent = !empty($rows['Parent']) ? searchCustomerIdByName(trim($rows['Parent']), $company, $db) : null;
         $CustomerCode = !empty($rows['CustomerCode']) ? trim($rows['CustomerCode']) : '';
         $RegistrationNo = !empty($rows['RegistrationNo']) ? trim($rows['RegistrationNo']) : '';
