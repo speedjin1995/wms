@@ -37,6 +37,9 @@ if(isset($_POST['userID'])){
                 $message['billing_address3'] = $row['billing_address3'];
                 $message['billing_address4'] = $row['billing_address4'];
                 $message['billing_state'] = $row['billing_state'];
+                $message['billing_phone'] = $row['billing_phone'];
+                $message['billing_fax'] = $row['billing_fax'];
+                $message['billing_pic'] = $row['billing_pic'];
                 $message['customer_phone'] = $row['customer_phone'];
                 $message['pic'] = $row['pic'];
                 $message['fax'] = $row['fax'];

@@ -512,11 +512,7 @@ ALTER TABLE `companies` ADD `wholesale_mode` VARCHAR(15) NOT NULL DEFAULT 'Stand
 -- 26/04/2026 (SKY)--
 ALTER TABLE `customers` ADD `fax` VARCHAR(100) NULL AFTER `pic`;
 
-ALTER TABLE `customers` ADD `billing_address` TEXT NULL AFTER `states`, ADD `billing_address2` TEXT NULL AFTER `billing_address`, ADD `billing_address3` TEXT NULL AFTER `billing_address2`, ADD `billing_address4` TEXT NULL AFTER `billing_address3`;
-
-ALTER TABLE `customers` ADD `billing_state` INT(5) NULL AFTER `billing_address4`;
-
-ALTER TABLE `customers` ADD `billing_name` VARCHAR(100) NULL AFTER `states`;
+ALTER TABLE `customers` ADD `billing_name` VARCHAR(100) NULL AFTER `fax`, ADD `billing_address` TEXT NULL AFTER `billing_name`, ADD `billing_address2` TEXT NULL AFTER `billing_address`, ADD `billing_address3` TEXT NULL AFTER `billing_address2`, ADD `billing_address4` TEXT NULL AFTER `billing_address3`, ADD `billing_state` INT(5) NULL AFTER `billing_address4`, ADD `billing_pic` VARCHAR(50) NULL AFTER `billing_state`, ADD `billing_phone` VARCHAR(50) NULL AFTER `billing_pic`, ADD `billing_fax` VARCHAR(50) NULL AFTER `billing_phone`;
 
 ALTER TABLE `customers` CHANGE `reg_no` `reg_no` TEXT CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL;
 
