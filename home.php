@@ -161,7 +161,7 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-2">
-                        <img src="assets/food-packaging-icon.png" alt="Weighing Brdige" class="modules-img">
+                        <img src="assets/food-packaging-icon.png" alt="Weighing Brdige" class="modules-img" width="45%">
                         <div class="modules-txt">Packing</div>
                     </div>
                 </a>

@@ -746,6 +746,10 @@ $(function () {
     $("a[href='#weighbridges']").click();
     <?php } else if ($module == 'industrial') { ?>
     $("a[href='#industrial']").click();
+    <?php } else if ($module == 'packing') { ?>
+    $("a[href='#packing']").click();
+    <?php } else if ($module == 'pricing') { ?>
+    $("a[href='#pricing']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>
