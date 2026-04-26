@@ -23,6 +23,9 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $billingAddress3 = null;
     $billingAddress4 = null;
     $billingStates = null;
+    $billingPhone = null;
+    $billingFax = null;
+    $billingPic = null;
 
     if(isset($_POST['reg_no']) && $_POST['reg_no'] != null && $_POST['reg_no'] != ''){
         $reg_no = filter_input(INPUT_POST, 'reg_no', FILTER_SANITIZE_STRING);
@@ -88,9 +91,21 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         $billingStates = filter_input(INPUT_POST, 'billingStates', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['billingPhone']) && $_POST['billingPhone'] != null && $_POST['billingPhone'] != ''){
+        $billingPhone = filter_input(INPUT_POST, 'billingPhone', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['billingFax']) && $_POST['billingFax'] != null && $_POST['billingFax'] != ''){
+        $billingFax = filter_input(INPUT_POST, 'billingFax', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['billingPic']) && $_POST['billingPic'] != null && $_POST['billingPic'] != ''){
+        $billingPic = filter_input(INPUT_POST, 'billingPic', FILTER_SANITIZE_STRING);
+    }
+
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, fax=?, pic=?, parent=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, fax=?, pic=?, parent=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -115,8 +130,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, fax, pic, customer, parent, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $company, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates);
+        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, fax, pic, customer, parent, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $company, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

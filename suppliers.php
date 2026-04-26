@@ -206,31 +206,9 @@ else{
                 </div>
               </div>
 
-              <!-- Row 3: Phone, Fax, PIC -->
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['phone_code'][$language]?></label>
-                    <input type="text" class="form-control" name="phone" id="phone" placeholder="<?=$languageArray['enter_phone_code'][$language]?>">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Fax</label>
-                    <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['pic_code'][$language]?></label>
-                    <input type="text" class="form-control" id="email" name="email" placeholder="<?=$languageArray['enter_pic_code'][$language]?>">
-                  </div>
-                </div>
-              </div>
-
               <hr>
 
-              <!-- Row 4: Address 1 & 2 -->
+              <!-- Row 3: Address 1 & 2 -->
               <p class="font-weight-bold mb-2"><?=$languageArray['delivery_address_code'][$language]?></p>
               <div class="row">
                 <div class="col-md-6">
@@ -247,7 +225,7 @@ else{
                 </div>
               </div>
 
-              <!-- Row 5: Address 3, 4, State -->
+              <!-- Row 4: Address 3, 4, State -->
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
@@ -270,6 +248,28 @@ else{
                         <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
                       <?php } ?>
                     </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 5: Phone, Fax, PIC -->
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['phone_code'][$language]?></label>
+                    <input type="text" class="form-control" name="phone" id="phone" placeholder="<?=$languageArray['enter_phone_code'][$language]?>">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Fax</label>
+                    <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['pic_code'][$language]?></label>
+                    <input type="text" class="form-control" id="email" name="email" placeholder="<?=$languageArray['enter_pic_code'][$language]?>">
                   </div>
                 </div>
               </div>
@@ -325,7 +325,26 @@ else{
                   </div>
                 </div>
               </div>
-
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['billing_phone_code'][$language]?></label>
+                    <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['billing_fax_code'][$language]?></label>
+                    <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['billing_pic_code'][$language]?></label>
+                    <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="modal-footer justify-content-between bg-gray-dark color-palette">
               <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
@@ -467,6 +486,9 @@ $(function () {
       $('#addModal').find('#billingAddress3').val("");
       $('#addModal').find('#billingAddress4').val("");
       $('#addModal').find('#billingStates').val("").trigger('change');
+      $('#addModal').find('#billingPhone').val("");
+      $('#addModal').find('#billingFax').val("");
+      $('#addModal').find('#billingPic').val("");
       $('#addModal').find('#parent').val("").trigger('change');
       $('#addModal').modal('show');
       
@@ -614,14 +636,14 @@ function displayPreview(data) {
   var sheet = workbook.Sheets[sheetName];
 
   // Convert the sheet to an array of objects
-  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 17 });
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 20 });
 
   // Get the headers
   var headers = Object.keys(jsonData[0] || {});
 
-  // Ensure we handle cases where there may be less than 17 columns
-  while (headers.length < 17) {
-      headers.push(''); // Adding empty headers to reach 17 columns
+  // Ensure we handle cases where there may be less than 20 columns
+  while (headers.length < 20) {
+      headers.push(''); // Adding empty headers to reach 20 columns
   }
 
   // Create HTML table headers
@@ -636,7 +658,7 @@ function displayPreview(data) {
       htmlTable += '<tr>';
       var rowData = jsonData[i];
 
-      for (var j = 0; j < 17 && j < headers.length; j++) {
+      for (var j = 0; j < 20 && j < headers.length; j++) {
           var cellData = rowData[headers[j]];
           var formattedData = cellData;
 
@@ -680,6 +702,9 @@ function edit(id){
           $('#addModal').find('#billingAddress3').val(obj.message.billing_address3);
           $('#addModal').find('#billingAddress4').val(obj.message.billing_address4);
           $('#addModal').find('#billingStates').val(obj.message.billing_state).trigger('change');
+          $('#addModal').find('#billingPhone').val(obj.message.billing_phone);
+          $('#addModal').find('#billingFax').val(obj.message.billing_fax);
+          $('#addModal').find('#billingPic').val(obj.message.billing_pic);
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
           $('#addModal').modal('show');
