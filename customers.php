@@ -99,7 +99,7 @@ else{
 </section><!-- /.content -->
 
 <div class="modal fade" id="uploadModal">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog" style="max-width: 90vw">
     <div class="modal-content">
       <form role="form" id="uploadForm">
           <div class="modal-header">
@@ -679,14 +679,14 @@ function displayPreview(data) {
   var sheet = workbook.Sheets[sheetName];
 
   // Convert the sheet to an array of objects
-  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 11 });
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 17 });
 
   // Get the headers
   var headers = Object.keys(jsonData[0] || {});
 
-  // Ensure we handle cases where there may be less than 11 columns
-  while (headers.length < 11) {
-      headers.push(''); // Adding empty headers to reach 11 columns
+  // Ensure we handle cases where there may be less than 17 columns
+  while (headers.length < 17) {
+      headers.push(''); // Adding empty headers to reach 17 columns
   }
 
   // Create HTML table headers
@@ -701,7 +701,7 @@ function displayPreview(data) {
       htmlTable += '<tr>';
       var rowData = jsonData[i];
 
-      for (var j = 0; j < 11 && j < headers.length; j++) {
+      for (var j = 0; j < 17 && j < headers.length; j++) {
           var cellData = rowData[headers[j]];
           var formattedData = cellData;
 
