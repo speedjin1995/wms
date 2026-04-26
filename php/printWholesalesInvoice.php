@@ -22,14 +22,23 @@ if(isset($_GET['id'])){
                 // Company info from companies table (joined)
                 $companyNameCn = $wholesale['chinese_name'] ?? '';
                 $companyName = $wholesale['name'] ?? '';
+                $companyRegNo = $wholesale['reg_no'] ?? '';
                 $companyAddress1 = $wholesale['address'] ?? '';
                 $companyAddress2 = $wholesale['address2'] ?? '';
                 $companyAddress3 = $wholesale['address3'] ?? '';
                 $companyAddress4 = $wholesale['address4'] ?? '';
                 $companyTel = $wholesale['phone'] ?? '';
-                $companyTin = $wholesale['reg_no'] ?? '';
+                $companyTin = $wholesale['tin_no'] ?? '';
                 $companyEmail = $wholesale['email'] ?? '';
                 $companyPhone = $wholesale['phone'] ?? '';
+                $companyBankerName = $wholesale['banker_name'] ?? '';
+                $companyBankAcctNo = $wholesale['bank_acct_no'] ?? '';
+                $companyBankSwiftCode = $wholesale['bank_swift_code'] ?? '';
+                $companyLogo = $wholesale['company_logo'];
+                $companyLogoSrc = '';
+                if (!empty($companyLogo)) {
+                    $companyLogoSrc = 'php/viewPhoto.php?file=' . urlencode($companyLogo) . '&type=file_table';
+                }
 
                 // SO details from wholesales table
                 $soNo = $wholesale['po_no'];
@@ -52,29 +61,31 @@ if(isset($_GET['id'])){
                     }
                 }
 
-                $billToName = $customerData['customer_name'] ?? '';
-                $billToAddr1 = $customerData['address'] ?? '';
-                $billToAddr2 = $customerData['address2'] ?? '';
-                $billToAddr3 = $customerData['address3'] ?? '';
-                $billToAttn = $customerData['contact_person'] ?? '';
-                $billToTel = $customerData['phone'] ?? '';
-                $billToFax = $customerData['fax'] ?? '';
+                $deliverToName = $customerData['customer_name'] ?? '';
+                $deliverToAddr1 = $customerData['customer_address'] ?? '';
+                $deliverToAddr2 = $customerData['customer_address2'] ?? '';
+                $deliverToAddr3 = $customerData['customer_address3'] ?? '';
+                $deliverToAddr4 = $customerData['customer_address4'] ?? '';
+                $deliverToAttn = $customerData['pic'] ?? '';
+                $deliverToTel = $customerData['customer_phone'] ?? '';
+                $deliverToFax = $customerData['fax'] ?? '';
 
                 // Delivery To (same as Bill To)
-                $deliverToName = $billToName;
-                $deliverToAddr1 = $billToAddr1;
-                $deliverToAddr2 = $billToAddr2;
-                $deliverToAddr3 = $billToAddr3;
-                $deliverToAttn = $billToAttn;
-                $deliverToTel = $billToTel;
-                $deliverToFax = $billToFax;
+                $billToName = $customerData['billing_name'] ?? '';
+                $billToAddr1 = $customerData['billing_address'] ?? '';
+                $billToAddr2 = $customerData['billing_address2'] ?? '';
+                $billToAddr3 = $customerData['billing_address3'] ?? '';
+                $billToAddr4 = $customerData['billing_address4'] ?? '';
+                $billToAttn = $customerData['billing_pic'] ?? '';
+                $billToTel = $customerData['billing_phone'] ?? '';
+                $billToFax = $customerData['billing_fax'] ?? '';
 
                 // Footer data
+                $formatter = new NumberFormatter("en", NumberFormatter::SPELLOUT);
+                $total = floatval($wholesale['total_price']);
+                $totalAmountWords = strtoupper($formatter->format($total));
                 $totalAmount = number_format(floatval($wholesale['total_price']), 2);
-                $totalAmountWords = '';
-                $bankerName = '';
-                $bankAccount = '';
-                $bankSwift = '';
+                // $totalAmountWords = '';
 
                 // Summary data
                 $startWeightTime = date('g:i:s A', strtotime($wholesale['created_datetime']));
@@ -91,6 +102,7 @@ if(isset($_GET['id'])){
                             'grade' => $detail['grade'] ?? '',
                             'unit' => strtoupper($detail['unit'] ?? 'KG'),
                             'weights' => [],
+                            'tare' => [],
                             'qty' => 0,
                             'uom' => strtoupper($detail['unit'] ?? 'KG'),
                             'unit_price' => floatval($detail['price'] ?? 0),
@@ -98,7 +110,9 @@ if(isset($_GET['id'])){
                         ];
                     }
                     $net = floatval($detail['net'] ?? 0);
+                    $tare = floatval($detail['tare'] ?? 0);
                     $grouped[$key]['weights'][] = $net;
+                    $grouped[$key]['tare'][] = $tare;
                     $grouped[$key]['qty'] += $net;
                     $grouped[$key]['total_price'] += floatval($detail['total'] ?? 0);
                 }
@@ -110,7 +124,10 @@ if(isset($_GET['id'])){
 
                 // Build item rows HTML
                 $itemRowsHtml = '';
+                $totalTareWeight = 0;
                 foreach ($items as $index => $item) {
+                    // echo json_encode($item);exit;
+
                     $weightLines = '';
                     $chunks = array_chunk($item['weights'], 5);
                     foreach ($chunks as $chunk) {
@@ -120,13 +137,19 @@ if(isset($_GET['id'])){
                     $qty = number_format($item['qty'], 2);
                     $unitPrice = number_format($item['unit_price'], 2);
                     $totalPrice = number_format($item['total_price'], 2);
-                    $tareWeight = number_format($item['bin'] * 0.60, 2);
+                    $tareWeight = 0;
+                    foreach ($item['tare'] as $tare) {
+                        $tareWeight += floatval($tare);
+                        $totalTareWeight += floatval($tare);
+                    }
+
+                    $tareOverBin = $tareWeight/floatval($item['bin']);
                     $itemRowsHtml .= '
                                     <tr style="break-inside:avoid; page-break-inside:avoid;">
                                         <td style="width:30px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $no . '</td>
                                         <td style="width:400px; text-align:left; border:0; vertical-align:top; padding-top:8px;">
                                             <span style="vertical-align:top; display:inline-block; width:170px; font-weight:bold;">' . $item['product'] . '</span><span style="display:inline-block; width:150px;">GRADE : ' . $item['grade'] . '</span><br>
-                                            <span style="display:inline-block; width:170px;">TARE / BIN : ' . $tareWeight . ' kg / ' . $qty . 'kg</span><span style="display:inline-block; width:150px;">BIN : ' . $item['bin'] . '</span><br>
+                                            <span style="display:inline-block; width:170px;">TARE / BIN : ' . $tareOverBin . $item['uom'].'</span><span style="display:inline-block; width:150px;">BIN : ' . $item['bin'] . '</span><br>
                                             <span>' . $weightLines . '</span>
                                         </td>
                                         <td style="width:72px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $qty . '</td>
@@ -139,10 +162,6 @@ if(isset($_GET['id'])){
                 // Summary calculations
                 $totalBinCount = array_sum(array_column($items, 'bin'));
                 $totalActualWeight = number_format(array_sum(array_column($items, 'qty')), 2);
-                $totalTareWeight = 0;
-                foreach ($items as $it) { $totalTareWeight += count($it['weights']) * 0.60; }
-                $totalTareWeight = number_format($totalTareWeight, 2);
-
                 $message = '
                     <html>
                     <head>
@@ -166,7 +185,7 @@ if(isset($_GET['id'])){
                             /* Header */
                             .header-block { padding: 10px 0; border-bottom: 2px dashed #000; text-align: center; }
                             .header-inner { display: inline-flex; align-items: center; gap: 15px; }
-                            .logo img { width: 90px; height: auto; }
+                            .logo img { width: 110px; height: auto; }
                             .company-info { text-align: left; }
                             .company-cn { font-size: 32px; font-weight: bold; color: #2a6e2a; letter-spacing: 8px; }
                             .company-en { font-size: 18px; font-weight: bold; margin: 2px 0; }
@@ -225,16 +244,14 @@ if(isset($_GET['id'])){
                         <div class="running-header">
                             <div class="header-block">
                                 <div class="header-inner">
-                                    <div class="logo">
-                                        <img src="assets/company_logo.jpeg" alt="Logo">
-                                    </div>
+                                    ' . ($companyLogoSrc ? '<div class="logo"><img src="' . $companyLogoSrc . '" alt="Logo"></div>' : '') . '
                                     <div class="company-info">
                                         <div class="company-cn">' . $companyNameCn . '</div>
                                         <div class="company-en">' . $companyName . '</div>
                                         <div class="company-addr">' . $companyAddress1 . ' ' . $companyAddress2 . '</div>
                                         <div class="company-addr">' . $companyAddress3 . ' ' . $companyAddress4 . '</div>
-                                        <div class="company-contact">Tel: ' . $companyTel . '</div>
-                                        <div class="company-contact">E-INVOICE TIN No. : ' . $companyTin . '&nbsp;&nbsp;&nbsp;EMAIL : ' . $companyEmail . '</div>
+                                        <div class="company-contact">Tel: ' . $companyTel . '&nbsp;&nbsp;&nbsp;E-INVOICE TIN No. : ' . $companyTin . '</div>
+                                        <div class="company-contact">EMAIL : ' . $companyEmail . '</div>
                                     </div>
                                 </div>
                             </div>
@@ -299,9 +316,9 @@ if(isset($_GET['id'])){
                                 </div>
                                 <div class="footer-note">* We confirm acceptance of the above item description billing with goods sold are not returnable.</div>
                                 <div class="footer-note">* All payment cheque &amp; cash should be crossed and made payable to &#39;<b>' . $companyName . '</b>&#39;</div>
-                                <div class="footer-note">* Banker Name&nbsp;&nbsp;&nbsp;&nbsp;: ' . $bankerName . '</div>
-                                <div class="footer-note">* Bank Account No: ' . $bankAccount . '</div>
-                                <div class="footer-note">* Bank Swift Code: ' . $bankSwift . '</div>
+                                <div class="footer-note">* Banker Name&nbsp;&nbsp;&nbsp;&nbsp;: ' . $companyBankerName . '</div>
+                                <div class="footer-note">* Bank Account No: ' . $companyBankAcctNo . '</div>
+                                <div class="footer-note">* Bank Swift Code: ' . $companyBankSwiftCode . '</div>
                                 <div class="footer-section-title">Remark :</div>
                                 <div class="footer-note">* We reserve the right to charge interest base on invoice date overdue bills at the rate of 2.5% per days and refer to payment Franz.</div>
                                 <div class="footer-note">* If the remaining payment for 30 Days is not fully paid, We have the right to recover all of the above description of goods.</div>
@@ -323,7 +340,7 @@ if(isset($_GET['id'])){
                                             <div style="font-size:11px; line-height:1.6;">
                                                 <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Bin Count</span><span style="width:10px;">:</span><span>' . $totalBinCount . '</span></div>
                                                 <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Actual Weight</span><span style="width:10px;">:</span><span>' . $totalActualWeight . ' kg</span></div>
-                                                <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Tare Weight</span><span style="width:10px;">:</span><span>' . $totalTareWeight . ' t</span></div>
+                                                <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Tare Weight</span><span style="width:10px;">:</span><span>' . $totalTareWeight . ' kg</span></div>
                                                 <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Start Weight Time</span><span style="width:10px;">:</span><span>' . $startWeightTime . '</span></div>
                                                 <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">End Weight Time</span><span style="width:10px;">:</span><span>' . $endWeightTime . '</span></div>
                                             </div>
