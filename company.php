@@ -25,6 +25,9 @@ else{
 	$phone = '';
 	$email = '';
 	$fax = '';
+	$bankerName = '';
+	$bankAcctNo = '';
+	$bankSwiftCode = '';
 	$includePrice = 'N';
 	$includePhoto = 'N';
 	$includeBarcode = 'N';
@@ -44,6 +47,9 @@ else{
         $phone = $row['phone'];
         $email = $row['email'];
         $fax = $row['fax'];
+        $bankerName = $row['banker_name'];
+        $bankAcctNo = $row['bank_acct_no'];
+        $bankSwiftCode = $row['bank_swift_code'];
         $includePrice = $row['include_price'];
         $includePhoto = $row['include_photo'];
         $includeBarcode = $row['include_barcode'];
@@ -182,6 +188,35 @@ else{
 								</div>
 								<input type="text" class="form-control" id="fax" name="fax" value="<?=$fax ?>" placeholder="<?=$languageArray['enter_fax_code'][$language]?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
 							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Banking Details -->
+		<div class="card card-primary card-outline">
+			<div class="card-header">
+				<h3 class="card-title"><i class="fas fa-university mr-2"></i><?=$languageArray['banking_details_code'][$language]?></h3>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group">
+						<label for="bankerName"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['banker_name_code'][$language]?></small></label>
+						<input type="text" class="form-control" name="bankerName" id="bankerName" value="<?=$bankerName ?>" placeholder="<?=$languageArray['enter_banker_name_code'][$language]?>">
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+						<label for="bankAccountNo"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['bank_account_no_code'][$language]?></small></label>
+						<input type="text" class="form-control" name="bankAccountNo" id="bankAccountNo" value="<?=$bankAcctNo ?>" placeholder="<?=$languageArray['enter_bank_account_no_code'][$language]?>">
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+						<label for="bankSwiftCode"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['bank_swift_code_code'][$language]?></small></label>
+						<input type="text" class="form-control" name="bankSwiftCode" id="bankSwiftCode" value="<?=$bankSwiftCode ?>" placeholder="<?=$languageArray['enter_bank_swift_code_code'][$language]?>">
 						</div>
 					</div>
 				</div>
