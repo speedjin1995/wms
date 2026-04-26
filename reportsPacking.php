@@ -134,7 +134,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3">
+              <div class="col-3" style="display:none;">
                 <div class="form-group">
                   <label><?=$languageArray['checked_by_code'][$language]?></label>
                   <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
@@ -174,10 +174,6 @@ else{
                   </select>
                 </div>
               </div-->
-            </div>
-
-            <div class="row">
-              <div class="col-9"></div>
               <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
@@ -211,7 +207,6 @@ else{
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
@@ -219,17 +214,13 @@ else{
                   <th><?=$languageArray['driver_code'][$language]?></th>
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
-                  <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <th><?=$languageArray['checked_by_code'][$language]?></th>
                   <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
-                    <th></th>
-                    <th></th>
+                    <th colspan="8"><?=$languageArray['total_code'][$language]?></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -296,7 +287,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWholesale.php',
+      'url':'php/filterPacking.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -323,7 +314,6 @@ $(function () {
       },
       { data: 'serial_no' },
       { data: 'po_no' },
-      { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
@@ -331,9 +321,7 @@ $(function () {
       { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
-      { data: 'total_reject' },
       { data: 'weighted_by' },
-      { data: 'checked_by' },
       // { 
       //   data: 'id',
       //   render: function ( data, type, row ) {
@@ -345,29 +333,21 @@ $(function () {
       var api = this.api();
 
       var totalItem = api
-        .column(9, { page: 'current' })
+        .column(8, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(b || 0);
         }, 0);
 
       var totalWeight = api
-        .column(10, { page: 'current' })
+        .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(b || 0);
         }, 0);
 
-      var totalReject = api
-        .column(11, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
-        }, 0);
-
-      $(api.column(9).footer()).html(totalItem);
-      $(api.column(10).footer()).html(totalWeight.toFixed(2));
-      $(api.column(11).footer()).html(totalReject.toFixed(2));
+      $(api.column(8).footer()).html(totalItem);
+      $(api.column(9).footer()).html(totalWeight.toFixed(2));
     }
   });
 
@@ -399,7 +379,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWholesale.php',
+        'url':'php/filterPacking.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -426,7 +406,6 @@ $(function () {
         },
         { data: 'serial_no' },
         { data: 'po_no' },
-        { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
@@ -434,9 +413,7 @@ $(function () {
         { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
-        { data: 'total_reject' },
         { data: 'weighted_by' },
-        { data: 'checked_by' },
         // { 
         //   data: 'id',
         //   render: function ( data, type, row ) {
@@ -448,29 +425,21 @@ $(function () {
         var api = this.api();
 
         var totalItem = api
-          .column(9, { page: 'current' })
+          .column(8, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(b || 0);
           }, 0);
 
         var totalWeight = api
-          .column(10, { page: 'current' })
+          .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(b || 0);
           }, 0);
 
-        var totalReject = api
-          .column(11, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
-          }, 0);
-
-        $(api.column(9).footer()).html(totalItem);
-        $(api.column(10).footer()).html(totalWeight.toFixed(2));
-        $(api.column(11).footer()).html(totalReject.toFixed(2));
+        $(api.column(8).footer()).html(totalItem);
+        $(api.column(9).footer()).html(totalWeight.toFixed(2));
       }
     });
   });
