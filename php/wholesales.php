@@ -89,11 +89,11 @@ if(isset($_POST['status'])){
                 'time' => $weightDetail['time'] ?? '',
                 'grade' => $weightDetail['grade'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
-                'photo' => (function() use ($key, $db, $company) {
+                'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
-                        $oldPhotoId = $_POST['weightDetails'][$key]['photo'] ?? '';
-                        if ($oldPhotoId) {
-                            deleteOldFile($oldPhotoId, $db);
+                        $oldPhoto = $_POST['weightDetails'][$key]['photoPath'] ?? '';
+                        if ($oldPhoto) {
+                            deleteOldFile($oldPhoto, $db, 'photoPath');
                         }
                         $f = [
                             'name' => $_FILES['photoFiles']['name'][$key],
@@ -102,12 +102,12 @@ if(isset($_POST['status'])){
                             'type' => $_FILES['photoFiles']['type'][$key],
                             'error' => $_FILES['photoFiles']['error'][$key],
                         ];
-                        $result = uploadFile($f, 'wholesales', $company, $db);
+                        $result = uploadFile($f, 'photo', $company, $db, 'photoPath');
                         if ($result['status'] === 'success' && $result['fid']) {
                             return (string)$result['fid'];
                         }
                     }
-                    return $_POST['weightDetails'][$key]['photo'] ?? '';
+                    return $_POST['weightDetails'][$key]['photoPath'] ?? '';
                 })(),
             ];
 
@@ -138,11 +138,11 @@ if(isset($_POST['status'])){
                 'time' => $rejectDetail['time'] ?? '',
                 'grade' => $rejectDetail['grade'] ?? '',
                 'isedit' => $rejectDetail['isedit'] ?? 'N',
-                'photo' => (function() use ($key, $db, $company) {
+                'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['rejectPhotoFiles']['name'][$key]) && $_FILES['rejectPhotoFiles']['error'][$key] === UPLOAD_ERR_OK) {
-                        $oldPhotoId = $_POST['rejectDetails'][$key]['photo'] ?? '';
-                        if ($oldPhotoId) {
-                            deleteOldFile($oldPhotoId, $db);
+                        $oldPhoto = $_POST['rejectDetails'][$key]['photoPath'] ?? '';
+                        if ($oldPhoto) {
+                            deleteOldFile($oldPhoto, $db, 'photoPath');
                         }
                         $f = [
                             'name' => $_FILES['rejectPhotoFiles']['name'][$key],
@@ -151,12 +151,12 @@ if(isset($_POST['status'])){
                             'type' => $_FILES['rejectPhotoFiles']['type'][$key],
                             'error' => $_FILES['rejectPhotoFiles']['error'][$key],
                         ];
-                        $result = uploadFile($f, 'wholesales', $company, $db);
+                        $result = uploadFile($f, 'photo', $company, $db, 'photoPath');
                         if ($result['status'] === 'success' && $result['fid']) {
                             return (string)$result['fid'];
                         }
                     }
-                    return $_POST['rejectDetails'][$key]['photo'] ?? '';
+                    return $_POST['rejectDetails'][$key]['photoPath'] ?? '';
                 })(),
             ];
 

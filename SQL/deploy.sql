@@ -316,3 +316,208 @@ ALTER TABLE `drivers` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `cus
 ALTER TABLE `vehicles` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
 
 ALTER TABLE `grades` ADD `is_manual` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `customer`;
+
+CREATE TABLE `food_packaging` (
+  `id` int(10) NOT NULL,
+  `serial_no` varchar(30) NOT NULL,
+  `po_no` varchar(50) DEFAULT NULL,
+  `security_bills` varchar(15) DEFAULT NULL,
+  `status` varchar(10) NOT NULL DEFAULT 'SALES',
+  `customer` varchar(10) DEFAULT NULL,
+  `supplier` varchar(10) DEFAULT NULL,
+  `product` varchar(50) DEFAULT NULL,
+  `package` text DEFAULT NULL,
+  `vehicle_no` varchar(15) NOT NULL,
+  `driver` text DEFAULT NULL,
+  `driver_ic` text DEFAULT NULL,
+  `other_customer` varchar(100) DEFAULT NULL,
+  `other_supplier` varchar(100) DEFAULT NULL,
+  `units` varchar(10) DEFAULT NULL,
+  `weight_details` text DEFAULT '[]',
+  `reject_details` text DEFAULT '[]',
+  `total_item` varchar(10) NOT NULL DEFAULT '0',
+  `total_weight` varchar(10) NOT NULL DEFAULT '0.0',
+  `total_reject` varchar(10) NOT NULL DEFAULT '0.0',
+  `total_price` varchar(10) NOT NULL DEFAULT '0.00',
+  `remark` text DEFAULT NULL,
+  `remarks2` text DEFAULT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_by` varchar(30) NOT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `modified_at` datetime DEFAULT current_timestamp(),
+  `modified_by` varchar(10) DEFAULT NULL,
+  `checked_by` varchar(30) DEFAULT NULL,
+  `company` int(5) DEFAULT NULL,
+  `weighted_by` varchar(30) DEFAULT NULL,
+  `indicator` varchar(30) DEFAULT NULL,
+  `deleted` int(3) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL,
+  `records_type` varchar(15) NOT NULL DEFAULT 'wholesales'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+CREATE TABLE `food_packaging_log` (
+  `id` int(10) NOT NULL,
+  `food_packaging_id` int(10) NOT NULL,
+  `serial_no` varchar(30) DEFAULT NULL,
+  `po_no` varchar(50) DEFAULT NULL,
+  `security_bills` varchar(15) DEFAULT NULL,
+  `status` varchar(10) DEFAULT NULL,
+  `customer` varchar(10) DEFAULT NULL,
+  `supplier` varchar(10) DEFAULT NULL,
+  `product` varchar(50) DEFAULT NULL,
+  `package` text DEFAULT NULL,
+  `vehicle_no` varchar(15) DEFAULT NULL,
+  `driver` text DEFAULT NULL,
+  `driver_ic` text DEFAULT NULL,
+  `other_customer` varchar(100) DEFAULT NULL,
+  `other_supplier` varchar(100) DEFAULT NULL,
+  `units` varchar(10) DEFAULT NULL,
+  `weight_details` text DEFAULT '[]',
+  `reject_details` text DEFAULT '[]',
+  `total_item` varchar(10) NOT NULL DEFAULT '0',
+  `total_weight` varchar(10) NOT NULL DEFAULT '0.0',
+  `total_reject` varchar(10) NOT NULL DEFAULT '0.0',
+  `total_price` varchar(10) NOT NULL DEFAULT '0.00',
+  `remark` text DEFAULT NULL,
+  `created_datetime` datetime DEFAULT NULL,
+  `created_by` varchar(30) DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `checked_by` varchar(30) DEFAULT NULL,
+  `company` int(5) DEFAULT NULL,
+  `weighted_by` varchar(30) DEFAULT NULL,
+  `indicator` varchar(30) DEFAULT NULL,
+  `deleted` int(3) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL,
+  `action_id` varchar(5) NOT NULL,
+  `action_by` varchar(15) NOT NULL,
+  `event_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+DELIMITER $$
+CREATE TRIGGER `TRG_INS_FOOD_PACKAGING` AFTER INSERT ON `food_packaging` FOR EACH ROW INSERT INTO food_packaging_log (
+    food_packaging_id, serial_no, po_no, security_bills, status, customer, supplier, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, created_datetime, created_by, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+
+CREATE TRIGGER `TRG_UPD_FOOD_PACKAGING` BEFORE UPDATE ON `food_packaging` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+    DECLARE action_by_value VARCHAR(255);
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- If modified_by is NULL, use 'SYSTEM'
+    SET action_by_value = IFNULL(NEW.modified_by, 'SYSTEM');
+
+    INSERT INTO food_packaging_log (
+        food_packaging_id,
+        serial_no,
+        po_no,
+        security_bills,
+        status,
+        customer,
+        supplier,
+        product,
+        package,
+        vehicle_no,
+        driver,
+        driver_ic,
+        other_customer,
+        other_supplier,
+        units,
+        weight_details,
+        reject_details,
+        total_item,
+        total_weight,
+        total_reject,
+        total_price,
+        remark,
+        created_datetime,
+        created_by,
+        end_time,
+        checked_by,
+        company,
+        weighted_by,
+        indicator,
+        deleted,
+        delete_reason,
+        action_id,
+        action_by,
+        event_date
+    ) 
+    VALUES (
+        NEW.id,
+        NEW.serial_no,
+        NEW.po_no,
+        NEW.security_bills,
+        NEW.status,
+        NEW.customer,
+        NEW.supplier,
+        NEW.product,
+        NEW.package,
+        NEW.vehicle_no,
+        NEW.driver,
+        NEW.driver_ic,
+        NEW.other_customer,
+        NEW.other_supplier,
+        NEW.units,
+        NEW.weight_details,
+        NEW.reject_details,
+        NEW.total_item,
+        NEW.total_weight,
+        NEW.total_reject,
+        NEW.total_price,
+        NEW.remark,
+        NEW.created_datetime,
+        NEW.created_by,
+        NEW.end_time,
+        NEW.checked_by,
+        NEW.company,
+        NEW.weighted_by,
+        NEW.indicator,
+        NEW.deleted,
+        NEW.delete_reason,
+        action_value,
+        action_by_value,
+        NOW()
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `food_packaging`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `food_packaging`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `food_packaging_log`
+  ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `food_packaging_log`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `companies` ADD `pricing_mode` VARCHAR(15) NOT NULL DEFAULT 'Standard' AFTER `include_sec_remark`;
+
+ALTER TABLE `companies` ADD `wholesale_mode` VARCHAR(15) NOT NULL DEFAULT 'Standard' AFTER `pricing_mode`;
+
+-- 26/04/2026 (SKY)--
+ALTER TABLE `customers` ADD `fax` VARCHAR(100) NULL AFTER `pic`;
+
+ALTER TABLE `customers` ADD `billing_name` VARCHAR(100) NULL AFTER `fax`, ADD `billing_address` TEXT NULL AFTER `billing_name`, ADD `billing_address2` TEXT NULL AFTER `billing_address`, ADD `billing_address3` TEXT NULL AFTER `billing_address2`, ADD `billing_address4` TEXT NULL AFTER `billing_address3`, ADD `billing_state` INT(5) NULL AFTER `billing_address4`, ADD `billing_pic` VARCHAR(50) NULL AFTER `billing_state`, ADD `billing_phone` VARCHAR(50) NULL AFTER `billing_pic`, ADD `billing_fax` VARCHAR(50) NULL AFTER `billing_phone`;
+
+ALTER TABLE `customers` CHANGE `reg_no` `reg_no` TEXT CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL;
+
+ALTER TABLE `supplies` ADD `fax` VARCHAR(100) NULL AFTER `pic`;
+
+ALTER TABLE `supplies` ADD `billing_name` VARCHAR(100) NULL AFTER `fax`, ADD `billing_address` TEXT NULL AFTER `billing_name`, ADD `billing_address2` TEXT NULL AFTER `billing_address`, ADD `billing_address3` TEXT NULL AFTER `billing_address2`, ADD `billing_address4` TEXT NULL AFTER `billing_address3`, ADD `billing_state` INT(5) NULL AFTER `billing_address4`, ADD `billing_pic` VARCHAR(50) NULL AFTER `billing_state`, ADD `billing_phone` VARCHAR(50) NULL AFTER `billing_pic`, ADD `billing_fax` VARCHAR(50) NULL AFTER `billing_phone`;
+
+ALTER TABLE `supplies` CHANGE `reg_no` `reg_no` TEXT CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL;

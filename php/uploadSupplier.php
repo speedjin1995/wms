@@ -24,6 +24,17 @@ if (!empty($data)) {
         $State = !empty($rows['State']) ? searchStateIdByName(trim($rows['State']), $db) : null;
         $Phone = !empty($rows['Phone']) ? trim($rows['Phone']) : '';
         $PIC = !empty($rows['PIC']) ? trim($rows['PIC']) : '';
+        $Fax = !empty($rows['Fax']) ? trim($rows['Fax']) : '';
+        $BillingName = !empty($rows['BillingName']) ? trim($rows['BillingName']) : '';
+        $BillingAddress = !empty($rows['BillingAddress']) ? trim($rows['BillingAddress']) : '';
+        $BillingAddress2 = !empty($rows['BillingAddress2']) ? trim($rows['BillingAddress2']) : '';
+        $BillingAddress3 = !empty($rows['BillingAddress3']) ? trim($rows['BillingAddress3']) : '';
+        $BillingAddress4 = !empty($rows['BillingAddress4']) ? trim($rows['BillingAddress4']) : '';
+        $BillingState = !empty($rows['BillingState']) ? searchStateIdByName(trim($rows['BillingState']), $db) : null;
+        $BillingPhone = !empty($rows['BillingPhone']) ? trim($rows['BillingPhone']) : '';
+        $BillingPIC = !empty($rows['BillingPIC']) ? trim($rows['BillingPIC']) : '';
+        $BillingFax = !empty($rows['BillingFax']) ? trim($rows['BillingFax']) : '';
+
 
         # Check if unit exist in DB
         $deleted = "0";
@@ -32,8 +43,8 @@ if (!empty($data)) {
         $unitRow = mysqli_fetch_assoc($unitDetail);
 
         if(empty($unitRow)){
-            if ($insert_stmt = $db->prepare("INSERT INTO supplies (parent, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, pic, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                $insert_stmt->bind_param('ssssssssssss', $Parent, $SupplierCode, $RegistrationNo, $SupplierName, $Address, $Address2, $Address3, $Address4, $State, $Phone, $PIC, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO supplies (parent, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, supplier_phone, pic, fax, customer, billing_phone, billing_pic, billing_fax) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('ssssssssssssssssssssss', $Parent, $SupplierCode, $RegistrationNo, $SupplierName, $Address, $Address2, $Address3, $Address4, $State, $BillingName, $BillingAddress, $BillingAddress2, $BillingAddress3, $BillingAddress4, $BillingState, $Phone, $PIC, $Fax, $company, $BillingPhone, $BillingPIC, $BillingFax);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            

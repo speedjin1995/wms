@@ -564,7 +564,7 @@ $(function () {
 });
 
 function printSlip(id) {
-  $.post('php/print.php', {userID: id}, function(data){
+  $.post('php/printPacking.php', {userID: id}, function(data){
     var response = JSON.parse(data);
     if(response.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);

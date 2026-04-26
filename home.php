@@ -155,6 +155,30 @@ if(!isset($_SESSION['userID'])){
                         <div class="modules-txt">Wholesales</div>
                     </div>
                 </a>
+                <a href="php/setModule.php?module=packing"
+                    <?php 
+                        if (!in_array('packing', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-2">
+                        <img src="assets/food-packaging-icon.png" alt="Weighing Brdige" class="modules-img">
+                        <div class="modules-txt">Packing</div>
+                    </div>
+                </a>
+                <a href="php/setModule.php?module=pricing"
+                    <?php 
+                        if (!in_array('pricing', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-2">
+                        <img src="assets/pricing-icon.png" alt="Weighing Brdige" class="modules-img">
+                        <div class="modules-txt">Pricing</div>
+                    </div>
+                </a>
                 <a href="php/logout.php">
                     <div class="modules-box modules-box-3">
                         <img src="assets/logout-icon.png" alt="Weighing Brdige" class="modules-img">

@@ -11,6 +11,9 @@ if(isset($_POST['id'], $_POST['regNo'], $_POST['name'], $_POST['address1'])){
 	$phone = null;
 	$email = null;
 	$fax = null;
+	$bankerName = null;
+	$bankAccountNo = null;
+	$bankSwiftCode = null;
 	$photoUploadMode = 'local';
 	$id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
 
@@ -38,6 +41,18 @@ if(isset($_POST['id'], $_POST['regNo'], $_POST['name'], $_POST['address1'])){
 		$fax = filter_input(INPUT_POST, 'fax', FILTER_SANITIZE_STRING);
 	} 
 
+	if($_POST['bankerName'] != null && $_POST['bankerName'] != ""){
+		$bankerName = filter_input(INPUT_POST, 'bankerName', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['bankAccountNo'] != null && $_POST['bankAccountNo'] != ""){
+		$bankAccountNo = filter_input(INPUT_POST, 'bankAccountNo', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['bankSwiftCode'] != null && $_POST['bankSwiftCode'] != ""){
+		$bankSwiftCode = filter_input(INPUT_POST, 'bankSwiftCode', FILTER_SANITIZE_STRING);
+	} 
+
 	if($_POST['includePrice'] != null && $_POST['includePrice'] != ""){
 		$includePrice = filter_input(INPUT_POST, 'includePrice', FILTER_SANITIZE_STRING);
 	} 
@@ -58,8 +73,8 @@ if(isset($_POST['id'], $_POST['regNo'], $_POST['name'], $_POST['address1'])){
 		$photoUploadMode = filter_input(INPUT_POST, 'photoUploadMode', FILTER_SANITIZE_STRING);
 	}
 	
-	if ($stmt2 = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, fax=?, include_price=?, include_photo=?, include_barcode=?, include_sec_remark=?, photo_upload_mode=? WHERE id=?")) {
-		$stmt2->bind_param('sssssssssssssss', $regNo, $name, $address, $address2, $address3, $address4, $phone, $email, $fax, $includePrice, $includePhoto, $includeBarcode, $includeSecRemark, $photoUploadMode, $id);
+	if ($stmt2 = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, fax=?, banker_name=?, bank_acct_no=?, bank_swift_code=?, include_price=?, include_photo=?, include_barcode=?, include_sec_remark=?, photo_upload_mode=? WHERE id=?")) {
+		$stmt2->bind_param('ssssssssssssssssss', $regNo, $name, $address, $address2, $address3, $address4, $phone, $email, $fax, $bankerName, $bankAccountNo, $bankSwiftCode, $includePrice, $includePhoto, $includeBarcode, $includeSecRemark, $photoUploadMode, $id);
 		
 		if($stmt2->execute()){
 			$stmt2->close();
