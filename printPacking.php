@@ -153,6 +153,20 @@ if(isset($_GET['id'])){
                         $select_stmt2->close();
                     }
                 }
+
+                // Footer Processing
+                $totalBags = floatval($row['total_item']);
+                $totalWeight = floatval($row['total_weight']);
+                $totalItems = 0;
+                foreach ($groupedData as $productId => $productData) {
+                    foreach ($productData['grades'] as $grade => $items) {
+                        foreach($items as $item){
+                            $totalItems += floatval($item['itemPerPack']) ?? 0;
+                        }
+                    }
+                }
+                
+                $average = $totalWeight/$totalItems;
                 
                 $companyNameUpper = strtoupper($compname);
                 $showInlineReg = strlen($compname) <= 20;
@@ -440,7 +454,75 @@ if(isset($_GET['id'])){
                                     </table>
                                 </div>
 
-                                <div class="page-footer-placeholder"></div>
+                                <div class="page-footer">
+                                    <hr>
+                                    <table class="table" style="width:100%; border:0">
+                                        <tbody>
+                                            <tr>
+                                                <td style="width:50%;vertical-align:top;">
+                                                    <p style="font-size:12px;font-family:sans-serif;"><b>SUMMARY - TOTAL</b></p>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width: 40%;border-top:0px;padding: 0 0.7rem;font-size: 12px;font-family: sans-serif;font-weight: bold;">Total Bags</td>
+                                                                <td style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;text-align: center;">'.$totalBags.'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="width: 40%;border-top:0px;padding: 0 0.7rem;font-size: 12px;font-family: sans-serif;font-weight: bold;">Total Weight (kg)</td>
+                                                                <td style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;text-align: center;">'.number_format($totalWeight, 2).'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="width: 40%;border-top:0px;padding: 0 0.7rem;font-size: 12px;font-family: sans-serif;font-weight: bold;">Total Items</td>
+                                                                <td style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;text-align: center;">'.$totalItems.'</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="width: 40%;border-top:0px;padding: 0 0.7rem;font-size: 12px;font-family: sans-serif;font-weight: bold;">Average (kg)</td>
+                                                                <td style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;text-align: center;">'.number_format($average, 2).'</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%;vertical-align:top;">
+                                                    <p style="font-size:12px;font-family:sans-serif;"><b>SUMMARY - Grade</b></p>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;background-color: silver;">Grade</th>
+                                                                <th style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;background-color: silver;">Bags</th>
+                                                                <th style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;background-color: silver;">Weight (kg)</th>
+                                                                <th style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;background-color: silver;">Items</th>
+                                                                <th style="width: 20%;border-top:0px;padding: 0 0.7rem;border: 1px solid #000000;font-size: 12px;font-family: sans-serif;background-color: silver;">Average (kg)</th>
+                                                            </tr>';
+                                                        $gradeSummary = [];
+                                                        foreach ($groupedData as $productId => $productData) {
+                                                            foreach ($productData['grades'] as $grade => $items) {
+                                                                if (!isset($gradeSummary[$grade])) $gradeSummary[$grade] = ['bags' => 0, 'itemsPerPack' => 0, 'net' => 0.0];
+                                                                foreach ($items as $item) {
+                                                                    $gradeSummary[$grade]['bags']++;
+                                                                    $gradeSummary[$grade]['itemsPerPack'] += floatval($item['itemPerPack'] ?? 0);
+                                                                    $gradeSummary[$grade]['net'] += floatval($item['net'] ?? 0);
+                                                                }
+                                                            }
+                                                        }
+                                                        foreach ($gradeSummary as $grade => $data) {
+                                                            $avg = $data['itemsPerPack'] > 0 ? number_format($data['net'] / $data['itemsPerPack'], 3, '.', '') : '-';
+                                                            $message .= '<tr>';
+                                                            $message .= '<td style="border-top:0px;padding:0 0.7rem;border:1px solid #000000;font-size:12px;font-family:sans-serif;">'.$grade.'</td>';
+                                                            $message .= '<td style="border-top:0px;padding:0 0.7rem;border:1px solid #000000;font-size:12px;font-family:sans-serif;text-align:center;">'.$data['bags'].'</td>';
+                                                            $message .= '<td style="border-top:0px;padding:0 0.7rem;border:1px solid #000000;font-size:12px;font-family:sans-serif;text-align:center;">'.number_format($data['net'], 2, '.', '').'</td>';
+                                                            $message .= '<td style="border-top:0px;padding:0 0.7rem;border:1px solid #000000;font-size:12px;font-family:sans-serif;text-align:center;">'.$data['itemsPerPack'].'</td>';
+                                                            $message .= '<td style="border-top:0px;padding:0 0.7rem;border:1px solid #000000;font-size:12px;font-family:sans-serif;text-align:center;">'.number_format($avg,2).'</td>';
+                                                            $message .= '</tr>';
+                                                        }
+
+                                                $message .='
+                                                        </tbody>
+                                                    </table> 
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
 
                                 <div class="page-content">';
                                     if (!empty($groupedData)) {
@@ -480,96 +562,10 @@ if(isset($_GET['id'])){
                                         }
                                     }
 
-                                $message .= 
-                                '</div>
+                                $message .= '</div>
                             </section>
                         </body>
                     </html>';
-
-                // Build summary data per product > grade
-                $summaryData = [];
-                foreach ($groupedData as $productId => $productData) {
-                    $summaryData[$productId] = [
-                        'product_name' => $productData['product_name'],
-                        'grades' => []
-                    ];
-                    foreach ($productData['grades'] as $grade => $items) {
-                        $gCount = 0; $gGross = 0.0; $gNet = 0.0; $gItems = 0;
-                        foreach ($items as $item) {
-                            $gCount++;
-                            $gGross += floatval($item['gross']);
-                            $gNet   += floatval($item['net']);
-                            $gItems += intval($item['itemPerPack'] ?? 0);
-                        }
-                        $summaryData[$productId]['grades'][$grade] = [
-                            'count' => $gCount,
-                            'gross' => $gGross,
-                            'net'   => $gNet,
-                            'items' => $gItems
-                        ];
-                    }
-                }
-
-                $tdB = 'border-top:0;padding:0 0.5rem;border:1px solid #000;font-size:12px;font-family:sans-serif;text-align:center;';
-                $tdL = 'border-top:0;padding:0 0.5rem;font-size:12px;font-family:sans-serif;font-weight:bold;';
-                $thS = 'border-top:0;padding:0 0.5rem;border:1px solid #000;font-size:12px;font-family:sans-serif;background-color:silver;text-align:center;';
-
-                $footerHtml = '<div class="page-footer"><hr>';
-                $footerHtml .= '<p style="font-size:12px;font-family:sans-serif;"><b>SUMMARY - TOTAL</b></p>';
-
-                foreach ($summaryData as $productId => $pData) {
-                    $grades = array_keys($pData['grades']);
-                    $pTotalCount = 0; $pTotalGross = 0.0; $pTotalNet = 0.0; $pTotalItems = 0;
-                    foreach ($pData['grades'] as $g) {
-                        $pTotalCount += $g['count'];
-                        $pTotalGross += $g['gross'];
-                        $pTotalNet   += $g['net'];
-                        $pTotalItems += $g['items'];
-                    }
-
-                    $footerHtml .= '<p style="font-size:12px;font-family:sans-serif;margin:4px 0;"><b>' . $pData['product_name'] . '</b></p>';
-                    $footerHtml .= '<table class="table" style="width:95%;margin-bottom:10px;"><tbody>';
-
-                    // Header row
-                    $footerHtml .= '<tr><th style="' . $tdL . 'width:30%;">&nbsp;</th>';
-                    foreach ($grades as $g) {
-                        $footerHtml .= '<th style="' . $thS . '">' . $g . '</th>';
-                    }
-                    $footerHtml .= '<th style="' . $thS . '">Total</th></tr>';
-
-                    // Count row
-                    $footerHtml .= '<tr><td style="' . $tdL . '">Count</td>';
-                    foreach ($pData['grades'] as $g) {
-                        $footerHtml .= '<td style="' . $tdB . '">' . $g['count'] . '</td>';
-                    }
-                    $footerHtml .= '<td style="' . $tdB . '">' . $pTotalCount . '</td></tr>';
-
-                    // Gross Wt row
-                    $footerHtml .= '<tr><td style="' . $tdL . '">Gross Wt (kg)</td>';
-                    foreach ($pData['grades'] as $g) {
-                        $footerHtml .= '<td style="' . $tdB . '">' . number_format($g['gross'], 2) . '</td>';
-                    }
-                    $footerHtml .= '<td style="' . $tdB . '">' . number_format($pTotalGross, 2) . '</td></tr>';
-
-                    // Nett Wt row
-                    $footerHtml .= '<tr><td style="' . $tdL . '">Nett Wt (kg)</td>';
-                    foreach ($pData['grades'] as $g) {
-                        $footerHtml .= '<td style="' . $tdB . '">' . number_format($g['net'], 2) . '</td>';
-                    }
-                    $footerHtml .= '<td style="' . $tdB . '">' . number_format($pTotalNet, 2) . '</td></tr>';
-
-                    // Items Per Pack row
-                    $footerHtml .= '<tr><td style="' . $tdL . '">Total Items</td>';
-                    foreach ($pData['grades'] as $g) {
-                        $footerHtml .= '<td style="' . $tdB . '">' . $g['items'] . '</td>';
-                    }
-                    $footerHtml .= '<td style="' . $tdB . '">' . $pTotalItems . '</td></tr>';
-
-                    $footerHtml .= '</tbody></table>';
-                }
-
-                $footerHtml .= '</div>';
-                $message = str_replace('<div class="page-footer-placeholder"></div>', $footerHtml, $message);
 
                 echo $message;
                 echo '
