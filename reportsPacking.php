@@ -84,9 +84,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                    <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                    <option value="SALES" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="PURCHASE"><?=$languageArray['receiving_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -215,12 +214,13 @@ else{
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <!-- <th width="10%">Action</th> -->
+                  <th width="10%">Action</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                     <th colspan="8"><?=$languageArray['total_code'][$language]?></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -322,12 +322,12 @@ $(function () {
       { data: 'total_item' },
       { data: 'total_weight' },
       { data: 'weighted_by' },
-      // { 
-      //   data: 'id',
-      //   render: function ( data, type, row ) {
-      //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-      //   }
-      // }
+      { 
+        data: 'id',
+        render: function ( data, type, row ) {
+          return '<button type="button" onclick="printReport('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+        }
+      }
     ],
     "footerCallback": function(row, data, start, end, display) {
       var api = this.api();
@@ -414,12 +414,12 @@ $(function () {
         { data: 'total_item' },
         { data: 'total_weight' },
         { data: 'weighted_by' },
-        // { 
-        //   data: 'id',
-        //   render: function ( data, type, row ) {
-        //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-        //   }
-        // }
+        { 
+          data: 'id',
+          render: function ( data, type, row ) {
+            return '<button type="button" onclick="printReport('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          }
+        }
       ],
       "footerCallback": function(row, data, start, end, display) {
         var api = this.api();
@@ -547,5 +547,9 @@ function printSlip(id) {
       alert('Error: ' + response.message);
     }
   });
+}
+
+function printReport(id) {
+  window.open('printPacking.php?id=' + id, '_blank');
 }
 </script>
