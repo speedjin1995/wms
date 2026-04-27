@@ -13,13 +13,6 @@ $totalCrate = 0.0;
 $totalNet = 0.0;
 $totalCrates = 0;
 
-// Filter the excel data 
-function filterData(&$str){ 
-    $str = preg_replace("/\t/", "\\t", $str); 
-    $str = preg_replace("/\r?\n/", "\\n", $str); 
-    if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"'; 
-}
-
 function arrangeByGrade($weighingDetails) {
     $arranged = [];
     if (isset($weighingDetails) && !empty($weighingDetails)) {
@@ -34,19 +27,6 @@ function arrangeByGrade($weighingDetails) {
         }
     }
     return ['arranged' => $arranged];
-}
-
-function totalWeight($strings){ 
-    $totalSum = 0;
-
-    for ($i =0; $i < count($strings); $i++) {
-        if (preg_match('/([\d.]+)/', $strings[$i]['grossWeight'], $matches)) {
-            $value = floatval($matches[1]);
-            $totalSum += $value;
-        }
-    }
-
-    return $totalSum;
 }
 
 if(isset($_GET['id'])){
