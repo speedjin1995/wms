@@ -8,40 +8,10 @@ $compaddress = 'No.34, Jalan Bagan 1, Taman Bagan, 13400 Butterworth. Penang. Ma
 $compphone = '6043325822';
 $compiemail = 'admin@synctronix.com.my';
 
-$mapOfWeights = array();
-$mapOfHouses = array();
-$mapOfBirdsToCages = array();
-
-$totalCount = 0;
 $totalGross = 0.0;
 $totalCrate = 0.0;
-$totalReduce = 0.0;
 $totalNet = 0.0;
-
-$totalSGross = 0.0;
-$totalSCrate = 0.0;
-$totalSReduce = 0.0;
-$totalSNet = 0.0;
-
-$totalAGross = 0.0;
-$totalACrate = 0.0;
-$totalAReduce = 0.0;
-$totalANet = 0.0;
-
 $totalCrates = 0;
-$totalBirds = 0;
-$totalMaleBirds = 0;
-$totalSBirds = 0;
-$totalABirds = 0;
-$totalSCages = 0;
-$totalACages = 0;
-$totalMaleCages = 0;
-$totalFemaleBirds = 0;
-$totalFemaleCages = 0;
-$totalMixedBirds = 0;
-$totalMixedCages = 0;
-
-$gradeData = [];
 
 // Filter the excel data 
 function filterData(&$str){ 
