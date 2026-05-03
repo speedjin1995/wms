@@ -525,4 +525,6 @@ ALTER TABLE `supplies` CHANGE `reg_no` `reg_no` TEXT CHARACTER SET utf8mb3 COLLA
 -- 02/05/2026 --
 ALTER TABLE `companies` ADD `pulp_and_paste_mode` VARCHAR(15) NOT NULL DEFAULT 'Portrait' AFTER `wholesale_mode`;
 
+ALTER TABLE `companies` ADD `waste_mode` VARCHAR(15) NOT NULL DEFAULT 'Portrait' AFTER `pulp_and_paste_mode`;
+
 ALTER TABLE `users` ADD `allow_add` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `stopbits`;
