@@ -255,7 +255,7 @@ else{
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
-              <div class="col-2" style="visibility: hidden;">
+              <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
             </div>
@@ -316,6 +316,34 @@ else{
           <input type="hidden" class="form-control" id="id" name="id">
           
           <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label><?=$languageArray['serial_no_code'][$language]?> *</label>
+                <input type="text" class="form-control" id="serialNo" name="serialNo" readonly>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Start Time</label>
+                <div class="input-group date" id="startTimePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#startTimePicker" id="startTime" name="startTime"/>
+                  <div class="input-group-append" data-target="#startTimePicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>End Time</label>
+                <div class="input-group date" id="endTimePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#endTimePicker" id="endTime" name="endTime"/>
+                  <div class="input-group-append" data-target="#endTimePicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['status_code'][$language]?> *</label>
@@ -400,6 +428,15 @@ else{
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label><?=$languageArray['remark_code'][$language]?></label>
+                <textarea colspan="3" class="form-control" id="remarks" name="remarks" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
               </div>
             </div>
           </div>
@@ -583,6 +620,16 @@ $(function () {
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
     defaultDate: today
+  });
+
+  $('#startTimePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY HH:mm'
+  });
+
+  $('#endTimePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY HH:mm'
   });
 
   $('.select2').each(function() {
@@ -1750,15 +1797,29 @@ function formatNormal (row) {
 
 function newEntry(){
   $('#extendModal').find('#id').val("");
-  $('#extendModal').find('#serialNumber').val("");
-  $('#extendModal').find('#poNumber').val("");
-  $('#extendModal').find('#status').val("DISPATCH");
+  $('#extendModal').find('#serialNo').val("");
+  $('#extendModal').find('#status').val("DISPATCH").trigger('change');
+  $('#extendModal').find('#doPoNo').val("");
+  $('#extendModal').find('#securityBillNo').val("");
   $('#extendModal').find('#customer').val("").trigger('change');
   $('#extendModal').find('#supplier').val("").trigger('change');
-  $('#extendModal').find('#vehicleNo').val("");
-  $('#extendModal').find('#driver').val("");
-  $('#extendModal').find('#remark').val("");
+  $('#extendModal').find('#vehicle').val("").trigger('change');
+  $('#extendModal').find('#driver').val("").trigger('change');
+  $('#extendModal').find('#startTime').val("");
+  $('#startTimePicker').datetimepicker('date', moment());
+  $('#endTimePicker').datetimepicker('clear');
+  $('#extendModal').find('#remarks').val("");
+  $('#extendModal').find('#remarks2').val("");
+  $('#extendModal').find('#totalWeightGross').text(0.00);
+  $('#extendModal').find('#totalWeightTare').text(0.00);
+  $('#extendModal').find('#totalWeightNet').text(0.00);
+  $('#extendModal').find('#totalWeightPrice').text(0.00);
+  $('#extendModal').find('#totalRejectGross').text(0.00);
+  $('#extendModal').find('#totalRejectTare').text(0.00);
+  $('#extendModal').find('#totalRejectNet').text(0.00);
+  $('#extendModal').find('#totalRejectPrice').text(0.00);
   $('#weightDetailsTable').empty();
+  $('#rejectDetailsTable').empty();
   $('#extendModal').modal('show');
   
   $('#extendForm').validate({
@@ -1812,11 +1873,13 @@ function edit(id) {
     
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
+      $('#extendModal').find('#serialNo').val(obj.message.serial_no);
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
+      $('#extendModal').find('#remarks').val(obj.message.remark);
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
 
       if (obj.message.other_vehicle){
@@ -1827,6 +1890,16 @@ function edit(id) {
         $('#extendModal').find('#otherVehicleNo').val('');
       }
       $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
+      if (obj.message.created_datetime) {
+        $('#startTimePicker').datetimepicker('date', moment(obj.message.created_datetime, 'YYYY-MM-DD HH:mm:ss'));
+      } else {
+        $('#startTimePicker').datetimepicker('clear');
+      }
+      if (obj.message.end_time) {
+        $('#endTimePicker').datetimepicker('date', moment(obj.message.end_time, 'YYYY-MM-DD HH:mm:ss'));
+      } else {
+        $('#endTimePicker').datetimepicker('clear');
+      }
       $('#extendModal').find('#remark').val(obj.message.remark);
       
       // Populate weight details table
