@@ -328,9 +328,9 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label>Start Time</label>
+                <label><?=$languageArray['start_time_code'][$language]?> *</label>
                 <div class="input-group date" id="startTimePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#startTimePicker" id="startTime" name="startTime"/>
+                  <input type="text" class="form-control datetimepicker-input" data-target="#startTimePicker" id="startTime" name="startTime" required/>
                   <div class="input-group-append" data-target="#startTimePicker" data-toggle="datetimepicker">
                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                   </div>
@@ -339,7 +339,7 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label>End Time</label>
+                <label><?=$languageArray['end_time_code'][$language]?></label>
                 <div class="input-group date" id="endTimePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#endTimePicker" id="endTime" name="endTime"/>
                   <div class="input-group-append" data-target="#endTimePicker" data-toggle="datetimepicker">
