@@ -528,3 +528,5 @@ ALTER TABLE `companies` ADD `pulp_and_paste_mode` VARCHAR(15) NOT NULL DEFAULT '
 ALTER TABLE `companies` ADD `waste_mode` VARCHAR(15) NOT NULL DEFAULT 'Portrait' AFTER `pulp_and_paste_mode`;
 
 ALTER TABLE `users` ADD `allow_add` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `stopbits`;
+
+ALTER TABLE `products` ADD `range_set` INT(1) NOT NULL DEFAULT '0' AFTER `is_manual`, ADD `ok_weight` VARCHAR(100) NULL AFTER `range_set`, ADD `ok_weight_unit` INT(11) NULL AFTER `ok_weight`, ADD `lo_weight` VARCHAR(100) NULL AFTER `ok_weight_unit`, ADD `lo_weight_unit` INT(11) NULL AFTER `lo_weight`, ADD `hi_weight` VARCHAR(100) NULL AFTER `lo_weight_unit`, ADD `hi_weight_unit` INT(11) NULL AFTER `hi_weight`;
