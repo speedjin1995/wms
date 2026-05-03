@@ -16,6 +16,7 @@ else{
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
+	$allowAdd = 'N';
 	$allowEdit = 'N';
   $allowDelete = 'N';
   $allowPhoto = 'N';
@@ -24,6 +25,7 @@ else{
 
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
+    $allowAdd = $row['allow_add'];
     $allowEdit = $row['allow_edit'];
     $allowDelete = $row['allow_delete'];
   }
@@ -102,7 +104,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['weighing_record_code'][$language]?></h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['wholesales_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -251,13 +253,15 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"></div>
+              <div class="col-10"><?=$languageArray['wholesales_code'][$language]?></div>
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
+              <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
+              <?php } ?>
             </div>
           </div>
 
