@@ -399,6 +399,29 @@ to get the desired effect
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p><?=$languageArray['pricing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <?php if ($module == 'pricing') { ?>
+              <li class="nav-item">
+                <a href="#pricingSales" data-file="pricingSales.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['sales_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#pricingSalesReport" data-file="pricingSalesReport.php" class="nav-link link">
+                  <i class="nav-icon fas fa-chart-bar"></i>
+                  <p><?=$languageArray['sales_report_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
+            </ul>
+          </li>
+          <?php if ($module != 'pricing') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
               <p><?=$languageArray['weighing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
@@ -468,6 +491,7 @@ to get the desired effect
               </li> -->
             </ul>
           </li>
+          <?php } ?>
           <?php if ($module == 'wholesale') { ?>
           <li class="nav-item">
             <a href="#reports" data-file="reports.php" class="nav-link link">
@@ -761,7 +785,7 @@ $(function () {
     <?php } else if ($module == 'packing') { ?>
     $("a[href='#packing']").click();
     <?php } else if ($module == 'pricing') { ?>
-    $("a[href='#pricing']").click();
+    $("a[href='#pricingSales']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>
