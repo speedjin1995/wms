@@ -528,7 +528,7 @@ to get the desired effect
                   </li>
                   <li class="nav-item">
                     <a href="#packaging" data-file="packaging.php" class="nav-link link">
-                      <i class="nav-icon fas fa-tags"></i>
+                      <i class="nav-icon fas fa-box"></i>
                       <p>'.$languageArray['packaging_code'][$language].'</p>
                     </a>
                   </li>
