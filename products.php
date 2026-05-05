@@ -12,6 +12,9 @@ else{
   $role = $_SESSION['role'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
   $units = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
+  $units2 = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
+  $units3 = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
+  $units4 = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
 
   if ($role != 'SADMIN'){
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
@@ -149,189 +152,192 @@ else{
 </div>
 
 <div class="modal fade" id="addModal">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <form role="form" id="productForm">
-            <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_products_code'][$language]?></h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-              <div class="card-body p-3">
-                <input type="hidden" class="form-control" id="id" name="id">
-                <div class="form-group mb-2" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
-                  <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
-                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-                <div class="row">
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="code"><?=$languageArray['product_code_code'][$language]?> *</label>
-                      <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="product"><?=$languageArray['product_name_code'][$language]?> *</label>
-                      <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <!-- <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="serial">Serial No</label>
-                      <input type="text" class="form-control" name="serial" id="serial" placeholder="Serial No.">
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="batch">Batch No</label>
-                      <input type="text" class="form-control" name="batch" id="batch" placeholder="Batch No.">
-                    </div>
-                  </div> -->
-                </div>
-                <div class="row">
-                  <!-- <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="part">Parts No</label>
-                      <input type="text" class="form-control" name="part" id="part" placeholder="Part No.">
-                    </div>
-                  </div>
-                  -->
-                </div>
-                <div class="row">
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="weight"><?=$languageArray['weight_code'][$language]?></label>
-                      <input type="number" class="form-control" name="weight" id="weight" placeholder="<?=$languageArray['weight_code'][$language]?>">
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="pricingType"><?=$languageArray['pricing_type_code'][$language]?></label>
-                      <select class="form-control" id="pricingType" name="pricingType"> 
-                        <option selected="selected"><?=$languageArray['fixed_code'][$language]?></option>
-                        <option><?=$languageArray['float_code'][$language]?></option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="price"><?=$languageArray['price_code'][$language]?></label>
-                      <input type="number" class="form-control" name="price" id="price" placeholder="<?=$languageArray['price_code'][$language]?>">
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="form-group mb-2">
-                      <label for="uom"><?=$languageArray['unit_code'][$language]?></label>
-                      <select class="form-control" id="uom" name="uom"> 
-                        <option selected="selected">-</option>
-                        <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
-                          <option value="<?=$rowunits['id'] ?>"><?=$rowunits['units'] ?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div> 
-                </div>
-                <div class="form-group mb-3"> 
-                  <label for="remark"><?=$languageArray['remark_code'][$language]?></label>
-                  <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
-                </div>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form role="form" id="productForm">
+        <div class="modal-header bg-gradient-dark">
+          <h5 class="modal-title text-white"><i class="fas fa-box mr-2"></i><?=$languageArray['add_products_code'][$language]?></h5>
+          <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body" style="max-height:75vh; overflow-y:auto; background:#f4f6f9;">
+          <input type="hidden" id="id" name="id">
 
-                <div class="row">
-                  <div class="col-12">
-                    <div class="card bg-light">
-                      <div class="card-header">
-                        <div class="row">
-                          <div class="col-10">
-                            <h3><?=$languageArray['customers_code'][$language]?></h3>
-                          </div>
-                          <div class="col-2">
-                            <button type="button" class="btn btn-success add-customer">
-                              <i class="ri-add-circle-line align-middle me-1"></i><?=$languageArray['add_customers_code'][$language]?>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <div class="col-xxl-12 col-lg-12 mb-3">
-                            <table class="table table-primary">
-                              <thead>
-                                <tr>
-                                  <th width="10%"><?=$languageArray['number_short_code'][$language]?></th>
-                                  <th><?=$languageArray['customer_code'][$language]?></th>
-                                  <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                                  <th><?=$languageArray['price_code'][$language]?> (RM)</th>
-                                  <th><?=$languageArray['actions_code'][$language]?></th>
-                                </tr>
-                              </thead>
-                              <tbody id="customerTable"></tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-12">
-                    <div class="card bg-light">
-                      <div class="card-header">
-                        <div class="row">
-                          <div class="col-10">
-                            <h3><?=$languageArray['grades_code'][$language]?></h3>
-                          </div>
-                          <div class="col-2">
-                            <button type="button" class="btn btn-success add-grade">
-                              <i class="ri-add-circle-line align-middle me-1"></i><?=$languageArray['add_grade_code'][$language]?>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <div class="col-xxl-12 col-lg-12 mb-3">
-                            <table class="table table-primary">
-                              <thead>
-                                <tr>
-                                  <th width="10%"><?=$languageArray['number_short_code'][$language]?></th>
-                                  <th><?=$languageArray['unit_code'][$language]?></th>
-                                  <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                                  <th><?=$languageArray['price_code'][$language]?> (RM)</th>
-                                  <th><?=$languageArray['actions_code'][$language]?></th>
-                                </tr>
-                              </thead>
-                              <tbody id="gradeTable"></tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
+          <!-- Company (SADMIN only) -->
+          <div <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+            <div class="card card-outline card-primary mb-3">
+              <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-building mr-1"></i><?=$languageArray['company_code'][$language]?></h6></div>
+              <div class="card-body py-2">
+                <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+                  <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                    <option value="<?=$rowCompany['id']?>" <?php if($rowCompany['id']==$company) echo 'selected';?>><?=$rowCompany['name']?></option>
+                  <?php } ?>
+                </select>
               </div>
             </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+          </div>
+
+          <!-- Product Info -->
+          <div class="card card-outline card-primary mb-3">
+            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i>Product Information</h6></div>
+            <div class="card-body py-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['weight_code'][$language]?></label>
+                    <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['unit_code'][$language]?></label>
+                    <select class="form-control" id="uom" name="uom">
+                      <option selected>-</option>
+                      <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
+                        <option value="<?=$rowunits['id']?>"><?=$rowunits['units']?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['pricing_type_code'][$language]?></label>
+                    <select class="form-control" id="pricingType" name="pricingType">
+                      <option selected><?=$languageArray['fixed_code'][$language]?></option>
+                      <option><?=$languageArray['float_code'][$language]?></option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['price_code'][$language]?></label>
+                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group mb-0">
+                <label class="font-weight-bold"><?=$languageArray['remark_code'][$language]?></label>
+                <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
+              </div>
             </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
+          </div>
+
+          <!-- Ranges Set -->
+          <div class="card card-outline card-warning mb-3">
+            <div class="card-header py-2 d-flex align-items-center justify-content-between">
+              <h6 class="mb-0 text-danger font-weight-bold"><i class="fas fa-sliders-h mr-1"></i>Ranges Set</h6>
+              <div class="ml-auto d-flex align-items-center">
+                <input type="hidden" name="rangeSet" id="rangeSet" value="0">
+                <div id="rangeSetToggle" style="cursor:pointer; display:inline-flex; align-items:center; background:#ccc; border-radius:30px; width:110px; height:34px; position:relative; transition:background 0.3s;">
+                  <div id="rangeSetKnob" style="position:absolute; width:30px; height:30px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left 0.3s; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.3);">
+                    <i id="rangeSetIcon" class="fas fa-times text-danger"></i>
+                  </div>
+                  <span id="rangeSetLabel" style="position:absolute; right:10px; font-size:11px; font-weight:600; color:#fff; letter-spacing:0.5px;">Disable</span>
+                </div>
+              </div>
+            </div>
+            <div id="rangeWeightFields" class="card-body py-3" style="display:none;">
+              <div class="row align-items-center mb-2">
+                <div class="col-md-2"><label class="mb-0 font-weight-bold">OK. Weight</label></div>
+                <div class="col-md-7">
+                  <input type="number" step="any" class="form-control font-weight-bold" id="okWeight" name="okWeight" placeholder="0.000" style="background:rgba(40,167,69,0.25); color:#155724; border:1px solid #28a745;">
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="okWeightUnit" name="okWeightUnit">
+                    <?php while($r=mysqli_fetch_assoc($units2)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="row align-items-center mb-2">
+                <div class="col-md-2"><label class="mb-0 font-weight-bold">LO. Weight</label></div>
+                <div class="col-md-7">
+                  <input type="number" step="any" class="form-control font-weight-bold" id="loWeight" name="loWeight" placeholder="0.000" style="background:rgba(255,193,7,0.25); color:#856404; border:1px solid #ffc107;">
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="loWeightUnit" name="loWeightUnit">
+                    <?php while($r=mysqli_fetch_assoc($units3)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="row align-items-center">
+                <div class="col-md-2"><label class="mb-0 font-weight-bold">HI. Weight</label></div>
+                <div class="col-md-7">
+                  <input type="number" step="any" class="form-control font-weight-bold" id="hiWeight" name="hiWeight" placeholder="0.000" style="background:rgba(220,53,69,0.2); color:#721c24; border:1px solid #dc3545;">
+                </div>
+                <div class="col-md-3">
+                  <select class="form-control" id="hiWeightUnit" name="hiWeightUnit">
+                    <?php while($r=mysqli_fetch_assoc($units4)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customers -->
+          <div class="card card-outline card-success mb-3">
+            <div class="card-header py-2 d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="fas fa-users mr-1"></i><?=$languageArray['customers_code'][$language]?></h6>
+              <button type="button" class="btn btn-success btn-sm add-customer ml-auto"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+            </div>
+            <div class="card-body p-2">
+              <table class="table table-sm table-bordered mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th width="8%"><?=$languageArray['number_short_code'][$language]?></th>
+                    <th><?=$languageArray['customer_code'][$language]?></th>
+                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
+                    <th><?=$languageArray['price_code'][$language]?> (RM)</th>
+                    <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="customerTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Grades -->
+          <div class="card card-outline card-info mb-0">
+            <div class="card-header py-2 d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="fas fa-layer-group mr-1"></i><?=$languageArray['grades_code'][$language]?></h6>
+              <button type="button" class="btn btn-info btn-sm add-grade ml-auto"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+            </div>
+            <div class="card-body p-2">
+              <table class="table table-sm table-bordered mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th width="8%"><?=$languageArray['number_short_code'][$language]?></th>
+                    <th><?=$languageArray['unit_code'][$language]?></th>
+                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
+                    <th><?=$languageArray['price_code'][$language]?> (RM)</th>
+                    <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="gradeTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer justify-content-end">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
     </div>
-    <!-- /.modal-dialog -->
+  </div>
 </div>
 
 <!-- jQuery -->
@@ -515,6 +521,10 @@ $(function () {
     $('#addModal').find('#pricingType').val("Fixed");
     $('#addModal').find('#price').val("");
     $('#addModal').find('#weight').val("");
+    setRangeSet(0);
+    $('#okWeight').val(''); $('#okWeightUnit').val('kg');
+    $('#loWeight').val(''); $('#loWeightUnit').val('kg');
+    $('#hiWeight').val(''); $('#hiWeightUnit').val('kg');
 
     // clear customer table
     customerRowCount = 0;
@@ -814,6 +824,10 @@ function edit(id){
       $('#addModal').find('#price').val(obj.message.price);
       $('#addModal').find('#weight').val(obj.message.weight);
       $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+      setRangeSet(obj.message.range_set == '1' ? 1 : 0);
+      $('#okWeight').val(obj.message.ok_weight); $('#okWeightUnit').val(obj.message.ok_weight_unit || 'kg');
+      $('#loWeight').val(obj.message.lo_weight); $('#loWeightUnit').val(obj.message.lo_weight_unit || 'kg');
+      $('#hiWeight').val(obj.message.hi_weight); $('#hiWeightUnit').val(obj.message.hi_weight_unit || 'kg');
 
       // customer table
       $('#customerTable').html('');
@@ -916,6 +930,20 @@ function edit(id){
     $('#spinnerLoading').hide();
   });
 }
+
+function setRangeSet(val) {
+  var enabled = val == 1;
+  $('#rangeSet').val(enabled ? 1 : 0);
+  $('#rangeSetToggle').css('background', enabled ? '#28a745' : '#ccc');
+  $('#rangeSetKnob').css('left', enabled ? '75px' : '1px');
+  $('#rangeSetIcon').attr('class', enabled ? 'fas fa-check text-success' : 'fas fa-times text-danger');
+  $('#rangeSetLabel').text(enabled ? 'Enable' : 'Disable').css('right', enabled ? 'auto' : '8px').css('left', enabled ? '8px' : 'auto');
+  $('#rangeWeightFields').toggle(enabled);
+}
+
+$('#rangeSetToggle').on('click', function() {
+  setRangeSet($('#rangeSet').val() == 1 ? 0 : 1);
+});
 
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
