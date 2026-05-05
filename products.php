@@ -19,10 +19,14 @@ else{
   if ($role != 'SADMIN'){
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
+    $category = $db->query("SELECT * FROM categories WHERE deleted = 0 AND customer = '".$company."' ORDER BY category_name ASC");
+    $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 AND customer = '".$company."' ORDER BY packaging_name ASC");
   }
   else{
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
+    $category = $db->query("SELECT * FROM categories WHERE deleted = 0 ORDER BY category_name ASC");
+    $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 ORDER BY packaging_name ASC");
   }
 
   // Language
@@ -195,16 +199,16 @@ else{
                 </div>
               </div>
               <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['weight_code'][$language]?></label>
                     <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['unit_code'][$language]?></label>
-                    <select class="form-control" id="uom" name="uom">
+                    <select class="form-control select2" id="uom" name="uom">
                       <option selected>-</option>
                       <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
                         <option value="<?=$rowunits['id']?>"><?=$rowunits['units']?></option>
@@ -212,7 +216,29 @@ else{
                     </select>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['category_code'][$language]?></label>
+                    <select class="form-control select2" id="productCategory" name="productCategory">
+                      <option value="" selected>-</option>
+                      <?php while($rowCat=mysqli_fetch_assoc($category)){ ?>
+                        <option value="<?=$rowCat['id']?>"><?=$rowCat['category_name']?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
+                    <select class="form-control select2" id="productPackaging" name="productPackaging">
+                      <option value="" selected>-</option>
+                      <?php while($rowPack=mysqli_fetch_assoc($packaging)){ ?>
+                        <option value="<?=$rowPack['id']?>"><?=$rowPack['packaging_name']?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['pricing_type_code'][$language]?></label>
                     <select class="form-control" id="pricingType" name="pricingType">
@@ -221,7 +247,7 @@ else{
                     </select>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['price_code'][$language]?></label>
                     <input type="number" class="form-control" name="price" id="price" placeholder="0.00">
@@ -521,6 +547,9 @@ $(function () {
     $('#addModal').find('#pricingType').val("Fixed");
     $('#addModal').find('#price').val("");
     $('#addModal').find('#weight').val("");
+    $('#addModal').find('#productCategory').val("").trigger('change');
+    $('#addModal').find('#productPackaging').val("").trigger('change');
+    $('#addModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
     $('#okWeight').val(''); $('#okWeightUnit').val('kg');
     $('#loWeight').val(''); $('#loWeightUnit').val('kg');
@@ -818,11 +847,13 @@ function edit(id){
       $('#addModal').find('#serial').val(obj.message.product_sn);
       $('#addModal').find('#batch').val(obj.message.batch_no);
       $('#addModal').find('#part').val(obj.message.parts_no);
-      $('#addModal').find('#uom').val(obj.message.uom);
+      $('#addModal').find('#uom').val(obj.message.uom).trigger('change');
       $('#addModal').find('#remark').val(obj.message.remark);
       $('#addModal').find('#pricingType').val(obj.message.pricing_type);
       $('#addModal').find('#price').val(obj.message.price);
       $('#addModal').find('#weight').val(obj.message.weight);
+      $('#addModal').find('#productCategory').val(obj.message.category).trigger('change');
+      $('#addModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
       $('#addModal').find('#company').val(obj.message.customer).trigger('change');
       setRangeSet(obj.message.range_set == '1' ? 1 : 0);
       $('#okWeight').val(obj.message.ok_weight); $('#okWeightUnit').val(obj.message.ok_weight_unit || 'kg');

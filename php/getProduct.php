@@ -236,6 +236,8 @@ if(isset($_POST['userID'])){
                     $message['lo_weight_unit'] = $row['lo_weight_unit'];
                     $message['hi_weight'] = $row['hi_weight'];
                     $message['hi_weight_unit'] = $row['hi_weight_unit'];
+                    $message['packaging'] = $row['packaging'];
+                    $message['category'] = $row['category'];
 
                     // retrieve product customers
                     $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";

@@ -549,3 +549,5 @@ CREATE TABLE `packaging` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ALTER TABLE `packaging` ADD PRIMARY KEY (`id`);
 ALTER TABLE `packaging` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `products` ADD `packaging` INT(11) NULL AFTER `hi_weight_unit`, ADD `category` INT(11) NULL AFTER `packaging`;
