@@ -527,6 +527,12 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#packaging" data-file="packaging.php" class="nav-link link">
+                      <i class="nav-icon fas fa-tags"></i>
+                      <p>'.$languageArray['packaging_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#customer" data-file="customers.php" class="nav-link link">
                       <i class="nav-icon fas fa-users"></i>
                       <p>'.$languageArray['customer_code'][$language].'</p>

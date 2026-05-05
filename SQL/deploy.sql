@@ -531,3 +531,12 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 ALTER TABLE `categories` ADD PRIMARY KEY (`id`);
 ALTER TABLE `categories` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `packaging` (
+  `id` int(11) NOT NULL,
+  `packaging_name` varchar(100) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE `packaging` ADD PRIMARY KEY (`id`);
+ALTER TABLE `packaging` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
