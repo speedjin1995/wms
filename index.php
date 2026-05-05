@@ -410,7 +410,7 @@ to get the desired effect
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#pricingSalesReport" data-file="pricingSalesReport.php" class="nav-link link">
+                <a href="#reportsPricingSales" data-file="reportsPricingSales.php" class="nav-link link">
                   <i class="nav-icon fas fa-chart-bar"></i>
                   <p><?=$languageArray['sales_report_code'][$language]?></p>
                 </a>

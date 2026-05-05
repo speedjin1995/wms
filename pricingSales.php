@@ -383,7 +383,7 @@ $(function(){
       if(obj.status === 'success'){
         toastr["success"](obj.message, "Success:");
         $('#spinnerLoading').hide();
-        $("a[href='#pricingSalesReport']").click();
+        $("a[href='#reportsPricingSales']").click();
       }
       else if(obj.status === 'failed'){
         toastr["error"](obj.message, "Failed:");

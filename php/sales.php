@@ -72,8 +72,8 @@ if(isset($_POST['paymentMethod'], $_POST['taxAmount'], $_POST['taxRate'],$_POST[
         
                 $receiptNo .= strval($count);  //S00009
 
-                if ($insert_stmt = $db->prepare("INSERT INTO sales (receipt_no, subtotal, tax, tax_amount, discount, total_price, payment_method, created_by, created_datetime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    $insert_stmt->bind_param('sssssssss', $receiptNo, $subTotalPricing, $tax, $taxAmount, $totalDiscount, $totalPricing, $paymentMethod, $userID, $now);
+                if ($insert_stmt = $db->prepare("INSERT INTO sales (receipt_no, subtotal, tax, tax_amount, discount, total_price, payment_method, created_by, created_datetime, company) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    $insert_stmt->bind_param('ssssssssss', $receiptNo, $subTotalPricing, $taxRate, $taxAmount, $totalDiscount, $totalPricing, $paymentMethod, $userID, $now, $company);
 
                     // Execute the prepared query.
                     if (! $insert_stmt->execute()) {
