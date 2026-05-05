@@ -551,3 +551,5 @@ ALTER TABLE `packaging` ADD PRIMARY KEY (`id`);
 ALTER TABLE `packaging` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `products` ADD `packaging` INT(11) NULL AFTER `hi_weight_unit`, ADD `category` INT(11) NULL AFTER `packaging`;
+
+ALTER TABLE `products` ADD `product_image` TEXT NULL AFTER `category`;

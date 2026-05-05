@@ -1,5 +1,6 @@
 <?php
 require_once "db_connect.php";
+require_once "uploadFileHelper.php";
 
 session_start();
 
@@ -177,6 +178,27 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 }
 
                 $update_stmt->close();
+
+                // Handle image upload for UPDATE
+                if (isset($_FILES['productImage']) && $_FILES['productImage']['error'] === UPLOAD_ERR_OK) {
+                    $imgCheck = $db->prepare("SELECT product_image FROM products WHERE id=?");
+                    $imgCheck->bind_param('s', $_POST['id']);
+                    $imgCheck->execute();
+                    $imgRow = $imgCheck->get_result()->fetch_assoc();
+                    $imgCheck->close();
+                    if ($imgRow && $imgRow['product_image']) {
+                        deleteOldFile($imgRow['product_image'], $db);
+                    }
+                    $result = uploadFile($_FILES['productImage'], 'photo', $_POST['id'], $db);
+                    if ($result['status'] === 'success' && $result['fid']) {
+                        $fid = (string)$result['fid'];
+                        $imgStmt = $db->prepare("UPDATE products SET product_image=? WHERE id=?");
+                        $imgStmt->bind_param('ss', $fid, $_POST['id']);
+                        $imgStmt->execute();
+                        $imgStmt->close();
+                    }
+                }
+
                 $db->close();
                 
                 echo json_encode(
@@ -203,6 +225,18 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
             }
             else{
                 $productId = $insert_stmt->insert_id;
+
+                // Handle image upload for INSERT
+                if (isset($_FILES['productImage']) && $_FILES['productImage']['error'] === UPLOAD_ERR_OK) {
+                    $result = uploadFile($_FILES['productImage'], 'photo', $productId, $db);
+                    if ($result['status'] === 'success' && $result['fid']) {
+                        $fid = (string)$result['fid'];
+                        $imgStmt = $db->prepare("UPDATE products SET product_image=? WHERE id=?");
+                        $imgStmt->bind_param('ss', $fid, $productId);
+                        $imgStmt->execute();
+                        $imgStmt->close();
+                    }
+                }
 
                 # product_customers
                 if(isset($_POST['no'])){

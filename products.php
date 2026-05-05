@@ -261,6 +261,35 @@ else{
             </div>
           </div>
 
+          <!-- Product Image -->
+          <div class="card card-outline card-secondary mb-3">
+            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image mr-1"></i>Product Image</h6></div>
+            <div class="card-body py-3">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <div id="productImageDropzone" style="border:2px dashed #adb5bd; border-radius:6px; padding:24px; text-align:center; cursor:pointer; background:#fff;">
+                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                    <p class="mb-1 text-muted">Click or drag &amp; drop to upload</p>
+                    <small class="text-muted">PNG, JPG, JPEG — max 10MB</small>
+                    <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+                  </div>
+                </div>
+                <div class="col-md-6 text-center">
+                  <div id="productImagePreview" style="display:none;">
+                    <img id="productImageThumb" src="" style="max-height:160px; max-width:100%; border-radius:6px; border:1px solid #dee2e6; object-fit:contain;">
+                    <div class="mt-2">
+                      <button type="button" id="removeProductImage" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash mr-1"></i>Remove</button>
+                    </div>
+                  </div>
+                  <div id="productImagePlaceholder" style="color:#adb5bd;">
+                    <i class="fas fa-image fa-3x"></i>
+                    <p class="mt-1 mb-0">No image selected</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Ranges Set -->
           <div class="card card-outline card-warning mb-3">
             <div class="card-header py-2 d-flex align-items-center justify-content-between">
@@ -511,25 +540,58 @@ $(function () {
     },        
   });
     
+  $('#productImageDropzone').on('click', function(e){
+    if (!$(e.target).is('input')) $('#productImage').click();
+  });
+
+  $('#productImageDropzone').on('dragover', function(e){
+    e.preventDefault();
+    $(this).css({'border-color':'#007bff', 'background':'#e8f0fe'});
+  }).on('dragleave', function(e){
+    e.preventDefault();
+    $(this).css({'border-color':'#adb5bd', 'background':'#fff'});
+  }).on('drop', function(e){
+    e.preventDefault();
+    $(this).css({'border-color':'#adb5bd', 'background':'#fff'});
+    var file = e.originalEvent.dataTransfer.files[0];
+    if (file) setProductImagePreview(file);
+  });
+
+  $('#productImage').on('change', function(){
+    if (this.files[0]) setProductImagePreview(this.files[0]);
+  });
+
+  $('#removeProductImage').on('click', function(){
+    $('#productImage').val('');
+    $('#productImageThumb').attr('src', '');
+    $('#productImagePreview').hide();
+    $('#productImagePlaceholder').show();
+  });
+
   $.validator.setDefaults({
     submitHandler: function () {
       $('#spinnerLoading').show();
-      $.post('php/products.php', $('#productForm').serialize(), function(data){
-        var obj = JSON.parse(data); 
-        
-        if(obj.status === 'success'){
-          $('#addModal').modal('hide');
-          toastr["success"](obj.message, "Success:");
-          $('#productTable').DataTable().ajax.reload();
-          $('#spinnerLoading').hide();
-        }
-        else if(obj.status === 'failed'){
+      var formData = new FormData($('#productForm')[0]);
+      $.ajax({
+        url: 'php/products.php',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data){
+          var obj = JSON.parse(data);
+          if(obj.status === 'success'){
+            $('#addModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#productTable').DataTable().ajax.reload();
+            $('#spinnerLoading').hide();
+          } else if(obj.status === 'failed'){
             toastr["error"](obj.message, "Failed:");
             $('#spinnerLoading').hide();
-        }
-        else{
+          } else {
             toastr["error"]("Something wrong when edit", "Failed:");
             $('#spinnerLoading').hide();
+          }
         }
       });
     }
@@ -554,6 +616,10 @@ $(function () {
     $('#okWeight').val(''); $('#okWeightUnit').val('kg');
     $('#loWeight').val(''); $('#loWeightUnit').val('kg');
     $('#hiWeight').val(''); $('#hiWeightUnit').val('kg');
+    $('#productImage').val('');
+    $('#productImagePreview').hide();
+    $('#productImageThumb').attr('src', '');
+    $('#productImagePlaceholder').show();
 
     // clear customer table
     customerRowCount = 0;
@@ -834,6 +900,15 @@ function displayPreview(data) {
   previewTable.innerHTML = htmlTable;
 }
 
+function setProductImagePreview(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    $('#productImageThumb').attr('src', e.target.result);
+    $('#productImagePreview').show();
+    $('#productImagePlaceholder').hide();
+  };
+  reader.readAsDataURL(file);
+}
 
 function edit(id){
   $('#spinnerLoading').show();
@@ -855,6 +930,16 @@ function edit(id){
       $('#addModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#addModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
       $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+      $('#productImage').val('');
+      if (obj.message.product_image) {
+        $('#productImageThumb').attr('src', 'php/viewPhoto.php?file=' + obj.message.product_image + '&type=file_table');
+        $('#productImagePreview').show();
+        $('#productImagePlaceholder').hide();
+      } else {
+        $('#productImagePreview').hide();
+        $('#productImageThumb').attr('src', '');
+        $('#productImagePlaceholder').show();
+      }
       setRangeSet(obj.message.range_set == '1' ? 1 : 0);
       $('#okWeight').val(obj.message.ok_weight); $('#okWeightUnit').val(obj.message.ok_weight_unit || 'kg');
       $('#loWeight').val(obj.message.lo_weight); $('#loWeightUnit').val(obj.message.lo_weight_unit || 'kg');
