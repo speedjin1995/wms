@@ -588,3 +588,32 @@ CREATE TABLE `sales_cart` (
 ALTER TABLE `sales_cart` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `sales_cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `purchases` (
+  `id` int(11) NOT NULL,
+  `purchase_no` varchar(100) NOT NULL,
+  `total_price` varchar(50) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0,
+  `created_by` int(11) NOT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `purchases` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `purchases` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `purchases_cart` (
+  `id` int(11) NOT NULL,
+  `purchase_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `weight` varchar(100) NOT NULL,
+  `price` varchar(100) NOT NULL,
+  `total_price` varchar(100) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `purchases_cart` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `purchases_cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
