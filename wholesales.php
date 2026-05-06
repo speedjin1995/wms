@@ -33,6 +33,7 @@ else{
   if ($role != 'SADMIN'){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
@@ -43,6 +44,7 @@ else{
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
 
     // Company Detail 
@@ -59,6 +61,7 @@ else{
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
@@ -69,6 +72,7 @@ else{
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
 
     $allowPhoto = 'Y';
@@ -510,7 +514,12 @@ else{
           </div>
 
           <hr>
-          <h5><?=$languageArray['reject_details_code'][$language]?></h5>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0"><?=$languageArray['reject_details_code'][$language]?></h5>
+            <button type="button" class="btn btn-danger btn-sm" id="addRejectWeightBtn">
+              <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
+            </button>
+          </div>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
@@ -1220,6 +1229,75 @@ $(function () {
     }
   });
 
+  $('#addRejectWeightBtn').on('click', function() {
+    var idx = rejectCount++;
+    var rowNum = $('#rejectDetailsTable tr').length + 1;
+    var now = new Date();
+    var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0') + ':' + 
+                      now.getSeconds().toString().padStart(2, '0');
+    var row = `
+      <tr class="details">
+        <td>${rowNum}</td>
+        <td style="display:none">
+          <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="">
+          <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="">
+          <input type="hidden" id="pretare${idx}" name="rejectDetails[${idx}][pretare]" value="0.00">
+          <input type="hidden" id="unit${idx}" name="rejectDetails[${idx}][unit]" value="Kg">
+          <input type="hidden" id="package${idx}" name="rejectDetails[${idx}][package]" value="">
+          <input type="hidden" id="fixedfloat${idx}" name="rejectDetails[${idx}][fixedfloat]" value="">
+          <input type="hidden" id="isedit${idx}" name="rejectDetails[${idx}][isedit]" value="N">
+          <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="0.00">
+          <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="YES">
+        </td>
+        <td>
+          <select class="form-control select2" id="product_name${idx}" name="rejectDetails[${idx}][product_name]">
+            <option value="" selected disabled>Select Product</option>
+            <?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?>
+              <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+            <?php } ?>
+          </select>
+        </td>
+        <td>
+          <select class="form-control select2" id="grade${idx}" name="rejectDetails[${idx}][grade]">
+            <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
+              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
+            <?php } ?>
+          </select>
+        </td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00">
+        </td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="total${idx}" name="rejectDetails[${idx}][total]" step="0.01" value="0.00" readonly>
+        </td>
+        <td>
+          <input type="time" class="form-control" id="time${idx}" name="rejectDetails[${idx}][time]" value="${currentTime}"/>
+        </td>
+        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
+          <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="">
+          <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+          <button type="button" class="btn btn-info btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <span id="rejectPhotoStatus${idx}"></span>
+        </td>
+        <td>
+          <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `;
+    $('#rejectDetailsTable').append(row);
+    $('.select2').select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+  });
+
   $('#addWeightBtn').on('click', function() {
     var idx = weightCount++;
     var rowNum = $('#weightDetailsTable tr').length + 1;
@@ -1244,14 +1322,14 @@ $(function () {
         <td>
           <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
             <option value="" selected disabled>Select Product</option>
-            <?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?>
+            <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
               <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
             <?php } ?>
           </select>
         </td>
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
-            <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
+            <?php while($rowGrade=mysqli_fetch_assoc($grades4)){ ?>
               <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
