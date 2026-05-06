@@ -530,3 +530,13 @@ ALTER TABLE `companies` ADD `waste_mode` VARCHAR(15) NOT NULL DEFAULT 'Portrait'
 ALTER TABLE `users` ADD `allow_add` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `stopbits`;
 
 ALTER TABLE `products` ADD `range_set` INT(1) NOT NULL DEFAULT '0' AFTER `is_manual`, ADD `ok_weight` VARCHAR(100) NULL AFTER `range_set`, ADD `ok_weight_unit` INT(11) NULL AFTER `ok_weight`, ADD `lo_weight` VARCHAR(100) NULL AFTER `ok_weight_unit`, ADD `lo_weight_unit` INT(11) NULL AFTER `lo_weight`, ADD `hi_weight` VARCHAR(100) NULL AFTER `lo_weight_unit`, ADD `hi_weight_unit` INT(11) NULL AFTER `hi_weight`;
+
+-- 07/05/2026 --
+CREATE TABLE `running_no_setup` (
+  `id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  `module` varchar(100) NOT NULL,
+  `transaction_status` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `value` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
