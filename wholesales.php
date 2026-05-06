@@ -178,6 +178,7 @@ else{
                   <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
                       <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
                     <?php } ?>
@@ -411,6 +412,7 @@ else{
                 <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                 <select class="form-control select2" id="vehicle" name="vehicle">
                   <option value="" selected disabled hidden>Please Select</option>
+                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
                     <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
                   <?php } ?>
@@ -1200,7 +1202,7 @@ $(function () {
 
   $('#extendModal').find('#vehicle').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKNOWN"){
+    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
       $('#extendModal').find('#vehicleNoOtherDiv').show();
     }
     else{
@@ -1210,7 +1212,7 @@ $(function () {
 
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKNOWN"){
+    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
       $('#otherVehicleFilterDiv').show();
     }
     else{
@@ -1887,7 +1889,7 @@ function edit(id) {
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
 
       if (obj.message.other_vehicle){
-        $('#extendModal').find('#vehicle').val('UNKNOWN').trigger('change');
+        $('#extendModal').find('#vehicle').val('OTHERS').trigger('change');
         $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
       } else {
         $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
