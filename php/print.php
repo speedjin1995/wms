@@ -52,6 +52,7 @@ if(isset($_POST['userID'])){
             if ($wholesale = $result->fetch_assoc()) {
                 // Company Detail 
                 $companyDetail = searchCompanyById($wholesale['company'], $db);
+                $companyLogoSrc = !empty($wholesale['company_logo']) ? 'php/viewPhoto.php?file=' . urlencode($wholesale['company_logo']) . '&type=file_table' : '';
                 $weighingDetails = json_decode($wholesale['weight_details'], true);
                 $arrangedData = arrangeByGrade($weighingDetails);
 
@@ -312,7 +313,7 @@ if(isset($_POST['userID'])){
                         /* Paged.js styles */
                         @page {
                             size: A4;
-                            margin: 80mm 5mm 20mm 5mm;
+                            margin: 90mm 5mm 20mm 5mm;
                             @top-left {
                                 content: element(running-header);
                             }
@@ -337,12 +338,15 @@ if(isset($_POST['userID'])){
                 <body>
                     <div class="running-header">
                         <div class="row mb-1">
-                            <div class="col-8">
-                                <div class="company-name">'.$wholesale['name'].'</div>
-                                <div class="address">'.$wholesale['address'].'</div>
-                                <div class="address">'.$wholesale['address2'].'</div>
-                                <div class="address">'.$wholesale['address3'].'</div>
-                                <div class="address">'.$wholesale['address4'].'</div>
+                            <div class="col-8" style="display:flex;align-items:flex-start;gap:10px;">
+                                '.($companyLogoSrc ? '<img src="'.$companyLogoSrc.'" alt="Logo" style="width:130px;height:auto;flex-shrink:0;">' : '').'
+                                <div>
+                                    <div class="company-name">'.$wholesale['name'].'</div>
+                                    <div class="address">'.$wholesale['address'].'</div>
+                                    <div class="address">'.$wholesale['address2'].'</div>
+                                    <div class="address">'.$wholesale['address3'].'</div>
+                                    <div class="address">'.$wholesale['address4'].'</div>
+                                </div>
                             </div>
                             <div class="col-4">
                                 <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>

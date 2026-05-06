@@ -16,6 +16,13 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     $pricingType = null;
     $price = null;
     $weight = null;
+    $rangeSet = 0;
+    $okWeight = null;
+    $okWeightUnit = null;
+    $loWeight = null;
+    $loWeightUnit = null;
+    $hiWeight = null;
+    $hiWeightUnit = null;
 
     if(isset($_POST['serial']) && $_POST['serial'] != null && $_POST['serial'] != ''){
         $serial = filter_input(INPUT_POST, 'serial', FILTER_SANITIZE_STRING);
@@ -49,9 +56,37 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         $weight = filter_input(INPUT_POST, 'weight', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['rangeSet']) && $_POST['rangeSet'] != null && $_POST['rangeSet'] != ''){
+        $rangeSet = intval($_POST['rangeSet']);
+    }
+
+    if(isset($_POST['okWeight']) && $_POST['okWeight'] != null && $_POST['okWeight'] != ''){
+        $okWeight = filter_input(INPUT_POST, 'okWeight', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['okWeightUnit']) && $_POST['okWeightUnit'] != null && $_POST['okWeightUnit'] != ''){
+        $okWeightUnit = filter_input(INPUT_POST, 'okWeightUnit', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['loWeight']) && $_POST['loWeight'] != null && $_POST['loWeight'] != ''){
+        $loWeight = filter_input(INPUT_POST, 'loWeight', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['loWeightUnit']) && $_POST['loWeightUnit'] != null && $_POST['loWeightUnit'] != ''){
+        $loWeightUnit = filter_input(INPUT_POST, 'loWeightUnit', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['hiWeight']) && $_POST['hiWeight'] != null && $_POST['hiWeight'] != ''){
+        $hiWeight = filter_input(INPUT_POST, 'hiWeight', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['hiWeightUnit']) && $_POST['hiWeightUnit'] != null && $_POST['hiWeightUnit'] != ''){
+        $hiWeightUnit = filter_input(INPUT_POST, 'hiWeightUnit', FILTER_SANITIZE_STRING);
+    }
+
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, price=?, weight=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, price=?, weight=?, range_set=?, ok_weight=?, ok_weight_unit=?, lo_weight=?, lo_weight_unit=?, hi_weight=?, hi_weight_unit=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -144,8 +179,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, weight, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, weight, customer, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $company, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

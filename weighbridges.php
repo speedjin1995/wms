@@ -15,22 +15,35 @@ else{
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
-	
+  $allowAdd = 'N';
+	$allowEdit = 'N';
+  $allowDelete = 'N';
+
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
+    $allowAdd = $row['allow_add'];
+    $allowEdit = $row['allow_edit'];
+    $allowDelete = $row['allow_delete'];
   }
 
   if ($role != 'SADMIN'){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
+    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
-
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
+    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
   }
@@ -40,7 +53,6 @@ else{
   $languageArray = $_SESSION['languageArray'];
 }
 ?>
-
 
 <div class="content-header">
   <div class="container-fluid">
@@ -174,13 +186,18 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-6"><?=$languageArray['weighbridge_code'][$language]?></div>
+              <div class="col-10"><?=$languageArray['weighbridge_code'][$language]?></div>
               <!-- <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
               </div>
               <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel">Export Excel</button>
               </div> -->
+              <?php if($allowAdd == 'Y'){ ?>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+              </div>
+              <?php } ?>
             </div>
           </div>
 
@@ -209,7 +226,221 @@ else{
       </div>
     </div>
   </div>
-</div>  
+</div>   
+
+<div class="modal fade" id="extendModal">
+  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+    <div class="modal-content">
+      <form role="form" id="extendForm">
+        <div class="modal-header bg-gray-dark color-palette">
+          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body bg-light">
+          <input type="hidden" class="form-control" id="id" name="id">
+          <input type="hidden" class="form-control" id="customerCode" name="customerCode">
+          <input type="hidden" class="form-control" id="supplierCode" name="supplierCode">
+          <input type="hidden" class="form-control" id="productCode" name="productCode">
+
+          <div class="card card-outline card-primary mb-3 shadow-sm">
+            <div class="card-header py-2">
+              <h6 class="card-title mb-0"><i class="fas fa-file-alt mr-2"></i>Transaction Info</h6>
+            </div>
+            <div class="card-body pt-3">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['transaction_id_code'][$language]?> *</label>
+                    <input type="text" class="form-control form-control" id="transactionId" name="transactionId" readonly>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['transaction_date_code'][$language]?> *</label>
+                    <div class="input-group input-group date" id="transactionDateTimePicker" data-target-input="nearest">
+                      <input type="text" class="form-control datetimepicker-input" data-target="#transactionDateTimePicker" id="transactionDate" name="transactionDate"/>
+                      <div class="input-group-append" data-target="#transactionDateTimePicker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['transaction_status_code'][$language]?></label>
+                    <select class="form-control form-control" id="transactionStatus" name="transactionStatus">
+                      <option value="Dispatch" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                      <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
+                      <!-- <option value="Local">Internal Transfer</option>
+                      <option value="Misc">Miscellaneous</option> -->
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4" id="purchaseOrderDiv">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['po_no_code'][$language]?></label>
+                    <input type="text" class="form-control form-control" id="poNo" name="poNo">
+                  </div>
+                </div>
+                <div class="col-md-4" id="deliveryOrderDiv">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['do_no_code'][$language]?></label>
+                    <input type="text" class="form-control form-control" id="doNo" name="doNo">
+                  </div>
+                </div>
+                <div class="col-md-4" id="customerDiv">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['customer_code'][$language]?></label>
+                    <select class="form-control form-control select2" id="customer" name="customer">
+                      <option value="" selected disabled hidden>Please Select</option>
+                      <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
+                        <option value="<?=$rowCustomer3['customer_name'] ?>" data-code="<?=$rowCustomer3['customer_code'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4" id="supplierDiv">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['supplier_code'][$language]?></label>
+                    <select class="form-control form-control select2" id="supplier" name="supplier">
+                      <option value="" selected disabled hidden>Please Select</option>
+                      <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
+                        <option value="<?=$rowSupplier3['supplier_name'] ?>" data-code="<?=$rowSupplier3['supplier_code'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['product_code'][$language]?></label>
+                    <select class="form-control form-control select2" id="product" name="product">
+                      <option value="" selected disabled hidden>Please Select</option>
+                      <?php while($rowProduct3=mysqli_fetch_assoc($products2)){ ?>
+                        <option value="<?=$rowProduct3['product_name'] ?>" data-code="<?=$rowProduct3['product_code'] ?>"><?=$rowProduct3['product_name'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['vehicle_no_code'][$language]?></label>
+                    <select class="form-control form-control select2" id="vehicle" name="vehicle">
+                      <option value="" selected disabled hidden>Please Select</option>
+                      <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
+                        <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+              </div><!-- /.row -->
+            </div>
+          </div><!-- /.card Transaction Info -->
+
+          <div class="card card-outline card-warning mb-0 shadow-sm">
+            <div class="card-header py-2">
+              <h6 class="card-title mb-0"><i class="fas fa-weight mr-2"></i><?=$languageArray['weighing_details_code'][$language]?></h6>
+            </div>
+            <div class="card-body pt-3">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['incoming_weight_code'][$language]?></label>
+                    <div class="input-group input-group">
+                      <input type="number" class="form-control" id="grossIncoming" name="grossIncoming" placeholder="0" required>
+                      <div class="input-group-text">KG</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_weight_code'][$language]?></label>
+                    <div class="input-group input-group">
+                      <input type="number" class="form-control" id="tareOutgoing" name="tareOutgoing" placeholder="0">
+                      <div class="input-group-text">KG</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['nett_weight_code'][$language]?></label>
+                    <div class="input-group input-group">
+                      <input type="number" class="form-control" id="nettWeight" name="nettWeight" placeholder="0" readonly>
+                      <div class="input-group-text">KG</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['incoming_date_code'][$language]?></label>
+                    <div class="input-group input-group date" id="grossIncomingDatePicker" data-target-input="nearest">
+                      <input type="text" class="form-control datetimepicker-input" data-target="#grossIncomingDatePicker" id="grossIncomingDate" name="grossIncomingDate">
+                      <div class="input-group-append" data-target="#grossIncomingDatePicker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_date_code'][$language]?></label>
+                    <div class="input-group input-group date" id="tareOutgoingDatePicker" data-target-input="nearest">
+                      <input type="text" class="form-control datetimepicker-input" data-target="#tareOutgoingDatePicker" id="tareOutgoingDate" name="tareOutgoingDate">
+                      <div class="input-group-append" data-target="#tareOutgoingDatePicker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /.card Weighing Details -->
+        </div><!-- /.modal-body -->
+
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+        </div>
+      </form>
+    </div> <!-- /.modal-content -->
+  </div> <!-- /.modal-dialog -->
+</div> <!-- /.modal -->  
+
+<div class="modal fade" id="cancelModal">
+  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+    <div class="modal-content">
+      <form role="form" id="cancelForm">
+        <div class="modal-header bg-gray-dark color-palette">
+          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
+                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+              </div>
+            </div>
+            <input type="hidden" class="form-control" id="id" name="id">
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script>
 $(function () {
@@ -235,6 +466,22 @@ $(function () {
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
     defaultDate: today
+  });
+
+  $('#transactionDateTimePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY HH:mm',
+    defaultDate: today
+  });
+
+  $('#grossIncomingDatePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY HH:mm',
+  });
+
+  $('#tareOutgoingDatePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY HH:mm',
   });
 
   $('#selectAllCheckbox').on('change', function() {
@@ -299,7 +546,16 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+          if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+          }
+          buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+          }
+          buttons += '</div>';
+          return buttons;
         }
       }
     ],
@@ -396,7 +652,16 @@ $(function () {
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+            if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            }
+            buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            }
+            buttons += '</div>';
+            return buttons;
           }
         }
       ],
@@ -429,6 +694,60 @@ $(function () {
       //   $(api.column(10).footer()).html(totalReject.toFixed(2));
       // }
     });
+  });
+
+  $.validator.setDefaults({
+    submitHandler: function () {
+      if($('#extendModal').hasClass('show')){
+        $('#spinnerLoading').show();
+        var formData = new FormData($('#extendForm')[0]);
+        $.ajax({
+          url: 'php/weighbridges.php',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(data){
+            var obj = JSON.parse(data); 
+            if(obj.status === 'success'){
+              $('#extendModal').modal('hide');
+              toastr["success"](obj.message, "Success:");
+              $('#weightTable').DataTable().ajax.reload();
+            }
+            else if(obj.status === 'failed'){
+              toastr["error"](obj.message, "Failed:");
+            }
+            else{
+              toastr["error"]("Something wrong when edit", "Failed:");
+            }
+            $('#spinnerLoading').hide();
+          },
+          error: function(){
+            toastr["error"]("Something wrong when saving", "Failed:");
+            $('#spinnerLoading').hide();
+          }
+        });
+      }else if($('#cancelModal').hasClass('show')){
+        $('#spinnerLoading').show();
+        $.post('php/deleteWeighbridge.php', $('#cancelForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+
+          if(obj.status === 'success'){
+            $('#cancelModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#weightTable').DataTable().ajax.reload();
+            
+          }
+          else if(obj.status === 'failed'){
+            toastr["error"](obj.message, "Failed:");
+          }
+          else{
+            toastr["error"]("Something wrong when delete", "Failed:");
+          }
+          $('#spinnerLoading').hide();
+        });
+      }
+    }
   });
 
   $('#exportExcel').on('click', function(){
@@ -502,7 +821,176 @@ $(function () {
       $('#supplierDiv').show();
     }
   });
+
+  $('#transactionStatus').on('change', function(){
+    var status = $(this).val();
+    $('#customer').val('').trigger('change');
+    if (status == 'Dispatch' || status == 'Sales' || status == 'Misc') {
+      $('#extendModal').find('#supplierDiv').hide();
+      $('#extendModal').find('#purchaseOrderDiv').hide();
+      $('#extendModal').find('#customerDiv').show();
+      $('#extendModal').find('#deliveryOrderDiv').show();
+    } else {
+      $('#extendModal').find('#customerDiv').hide();
+      $('#extendModal').find('#deliveryOrderDiv').hide();
+      $('#extendModal').find('#supplierDiv').show();
+      $('#extendModal').find('#purchaseOrderDiv').show();
+    }
+  });
+
+  $('#customer').on('change', function(){
+    $('#customerCode').val($(this).find(':selected').data('code'));
+  });
+
+  $('#supplier').on('change', function(){
+    $('#supplierCode').val($(this).find(':selected').data('code'));
+  });
+
+  $('#product').on('change', function(){
+    $('#productCode').val($(this).find(':selected').data('code'));
+  });
+
+  $('#grossIncoming').on('keyup', function(){
+    $('#grossIncomingDatePicker').datetimepicker('date', moment());
+    calculateWeight();
+  });
+
+  $('#tareOutgoing').on('keyup', function(){
+    $('#tareOutgoingDatePicker').datetimepicker('date', moment());
+    calculateWeight();
+  });
 });
+
+function calculateWeight(){
+  var gross = $('#grossIncoming').val() || 0;
+  var tare = $('#tareOutgoing').val() || 0;
+  var result = Math.abs(parseFloat(gross) - parseFloat(tare));
+  $('#nettWeight').val(result);
+}
+
+function newEntry(){
+  $('#extendModal').find('#id').val("");
+  $('#extendModal').find('#transactionId').val("");
+  $('#extendModal').find('#transactionStatus').val("Dispatch").trigger('change');
+  $('#transactionDateTimePicker').datetimepicker('date', moment());
+  $('#extendModal').find('#poNo').val("");
+  $('#extendModal').find('#doNo').val("");
+  $('#extendModal').find('#securityBillNo').val("");
+  $('#extendModal').find('#customer').val("").trigger('change');
+  $('#extendModal').find('#supplier').val("").trigger('change');
+  $('#extendModal').find('#product').val("").trigger('change');
+  $('#extendModal').find('#vehicle').val("").trigger('change');
+  $('#extendModal').find('#grossIncoming').val("");
+  $('#grossIncomingDatePicker').datetimepicker('clear');
+  $('#extendModal').find('#tareOutgoing').val("");
+  $('#tareOutgoingDatePicker').datetimepicker('clear');
+  $('#extendModal').find('#nettWeight').val("");
+  $('#extendModal').modal('show');
+  
+  $('#extendForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+      error.addClass('invalid-feedback');
+      element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass('is-invalid');
+    }
+  });
+}
+
+function edit(id) {
+  $('#spinnerLoading').show();
+  $.post('php/getWeighbridge.php', {userID: id}, function(data){
+    var obj = JSON.parse(data);
+    
+    if(obj.status === 'success'){
+      $('#extendModal').find('#id').val(obj.message.id);
+      $('#extendModal').find('#transactionId').val(obj.message.transaction_id);
+      $('#extendModal').find('#transactionStatus').val(obj.message.transaction_status).trigger('change');
+      if (obj.message.transaction_date) {
+        $('#transactionDateTimePicker').datetimepicker('date', moment(obj.message.transaction_date, 'YYYY-MM-DD HH:mm:ss'));
+      } else {
+        $('#transactionDateTimePicker').datetimepicker('clear');
+      }
+      $('#extendModal').find('#poNo').val(obj.message.purchase_order);
+      $('#extendModal').find('#doNo').val(obj.message.delivery_no);
+      $('#extendModal').find('#customer').val(obj.message.customer_name).trigger('change');
+      $('#extendModal').find('#supplier').val(obj.message.supplier_name).trigger('change');
+      $('#extendModal').find('#product').val(obj.message.product_name).trigger('change');
+      $('#extendModal').find('#vehicle').val(obj.message.lorry_plate_no1).trigger('change');
+      $('#extendModal').find('#grossIncoming').val(obj.message.gross_weight1);
+      if (obj.message.gross_weight1_date) {
+        $('#grossIncomingDatePicker').datetimepicker('date', moment(obj.message.gross_weight1_date, 'YYYY-MM-DD HH:mm:ss'));
+      } else {
+        $('#grossIncomingDatePicker').datetimepicker('clear');
+      }
+      $('#extendModal').find('#tareOutgoing').val(obj.message.tare_weight1);
+      if (obj.message.tare_weight1_date) {
+        $('#tareOutgoingDatePicker').datetimepicker('date', moment(obj.message.tare_weight1_date, 'YYYY-MM-DD HH:mm:ss'));
+      } else {
+        $('#tareOutgoingDatePicker').datetimepicker('clear');
+      }
+      $('#extendModal').find('#nettWeight').val(obj.message.nett_weight1);
+
+      $('.select2').each(function() {
+        $(this).select2({
+          allowClear: true,
+          placeholder: "Please Select",
+          // Conditionally set dropdownParent based on the element’s location
+          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        });
+      });
+      
+      $('#extendModal').modal('show');
+
+      $('#extendForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+          $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+          $(element).removeClass('is-invalid');
+        }
+      });
+    }
+    else if(obj.status === 'failed'){
+      toastr["error"](obj.message, "Failed:");
+    }
+    else{
+      toastr["error"]("Something wrong when pull data", "Failed:");
+    }
+    $('#spinnerLoading').hide();
+  });
+}
+
+function deactivate(id) {
+  if (confirm('Are you sure you want to delete this item?')) {
+    $('#cancelModal').find('#id').val(id);
+    $('#cancelModal').modal('show');
+
+    $('#cancelForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+          $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+          $(element).removeClass('is-invalid');
+      }
+    });
+  }
+}
 
 function printSlip(id) {
   $.post('php/printWeighbridge.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
