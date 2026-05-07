@@ -413,8 +413,8 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['vehicle_no_code'][$language]?></label>
-                <select class="form-control select2" id="vehicle" name="vehicle">
+                <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
+                <select class="form-control select2" id="vehicle" name="vehicle" required>
                   <option value="" selected disabled hidden>Please Select</option>
                   <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
@@ -425,14 +425,14 @@ else{
             </div>
             <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
               <div class="form-group">
-                <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
+                <label><?=$languageArray['other_vehicle_no_code'][$language]?> *</label>
                 <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['driver_code'][$language]?></label>
-                <select class="form-control select2" id="driver" name="driver">
+                <label><?=$languageArray['driver_code'][$language]?> *</label>
+                <select class="form-control select2" id="driver" name="driver" required>
                   <option value="" selected disabled hidden>Please Select</option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
@@ -970,6 +970,12 @@ $(function () {
   $.validator.setDefaults({
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
+        var vehicle = $('#extendModal').find('#vehicle').val();
+        var otherVehicleNo = $('#extendModal').find('#otherVehicleNo').val();
+        if((vehicle == 'OTHERS' || vehicle == 'UNKNOWN' || vehicle == 'UNKOWN NO') && !otherVehicleNo) {
+          alert('Please enter the vehicle number.');
+          return false;
+        }
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
