@@ -109,6 +109,7 @@ if(isset($_POST['paymentMethod'], $_POST['taxAmount'], $_POST['taxRate'],$_POST[
                                             if ($sales_stmt = $db->prepare("INSERT INTO sales_cart (sales_id, product_id, weight, price, total_price) VALUES (?, ?, ?, ?, ?)")){
                                                 $sales_stmt->bind_param('sssss', $id, $itemId, $itemWeight[$key], $itemPrice[$key], $totalPrice[$key]);
                                                 $sales_stmt->execute();
+                                                $sales_stmt->close();
                                             }
                                         }
                                     }

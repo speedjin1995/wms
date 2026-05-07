@@ -604,6 +604,7 @@ CREATE TABLE `purchases` (
   `purchase_no` varchar(100) NOT NULL,
   `total_price` varchar(50) NOT NULL,
   `status` int(1) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
   `created_by` int(11) NOT NULL,
   `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
   `modified_by` int(11) DEFAULT NULL,

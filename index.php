@@ -396,13 +396,13 @@ to get the desired effect
               <p><?=$languageArray['home_code'][$language]?></p>
             </a>
           </li>
+          <?php if ($module == 'pricing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p><?=$languageArray['pricing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
-              <?php if ($module == 'pricing') { ?>
               <li class="nav-item">
                 <a href="#pricingSales" data-file="pricingSales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
@@ -421,9 +421,9 @@ to get the desired effect
                   <p><?=$languageArray['purchase_code'][$language]?></p>
                 </a>
               </li>
-              <?php } ?>
             </ul>
           </li>
+          <?php } ?>
           <?php if ($module != 'pricing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">

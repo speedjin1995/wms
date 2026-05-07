@@ -2,64 +2,167 @@
 require_once 'db_connect.php';
 session_start();
 
-$userID  = $_SESSION['userID'];
-$company = $_SESSION['customer'];
-$now     = date('Y-m-d H:i:s');
-$today   = date('Y-m-d 00:00:00');
+if(isset($_POST['purchaseNo'], $_POST['itemProduct'], $_POST['itemWeight'], $_POST['itemPrice'], $_POST['itemTotal'], $_POST['grandTotal'])) {
+  $grandTotal = filter_input(INPUT_POST, 'grandTotal', FILTER_SANITIZE_STRING);
+  $userID  = $_SESSION['userID'];
+  $company = $_SESSION['customer'];
+  $now = date('Y-m-d H:i:s');
+  $today = date('Y-m-d 00:00:00');
+  $success = true;
 
-$id          = isset($_POST['id']) && $_POST['id'] != '' ? $_POST['id'] : null;
-$purchaseDate = isset($_POST['purchaseDate']) ? $_POST['purchaseDate'] : $now;
-$supplier    = isset($_POST['supplier']) ? mysqli_real_escape_string($db, $_POST['supplier']) : '';
-$poNo        = isset($_POST['poNo'])     ? mysqli_real_escape_string($db, $_POST['poNo'])     : '';
-$items       = isset($_POST['items'])    ? $_POST['items'] : [];
+  // Build Purchase No
+  if(!isset($_POST['purchaseNo']) || $_POST['purchaseNo'] == null || $_POST['purchaseNo'] == ''){
+		$prefix = "P";
+    $count = 1;
+		$purchaseNo = $prefix.date("Ymd");;
 
-// Parse date
-$dt = DateTime::createFromFormat('d/m/Y H:i', $purchaseDate);
-$purchaseDateFmt = $dt ? $dt->format('Y-m-d H:i:s') : $now;
+		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM purchases WHERE created_datetime >= ?")) {
+      $select_stmt->bind_param('s', $today);
+      
+      // Execute the prepared query.
+      if (! $select_stmt->execute()) {
+          echo json_encode(
+              array(
+                  "status" => "failed",
+                  "message" => "Failed to get latest count"
+              )); 
+      }
+      else{
+        $result = $select_stmt->get_result();
+        
+        if ($row = $result->fetch_assoc()) {
+          $count = (int)$row['COUNT(*)'] + 1;
+        }
 
-// Calculate total
-$totalPrice = 0;
-foreach ($items as $item) {
-  $totalPrice += floatval($item['total'] ?? 0);
-}
+        $charSize = strlen(strval($count));
 
-if ($id) {
-  // Update
-  $stmt = $db->prepare("UPDATE purchases SET purchase_date=?, supplier=?, po_no=?, total_price=? WHERE id=?");
-  $stmt->bind_param('sssss', $purchaseDateFmt, $supplier, $poNo, $totalPrice, $id);
-  if (!$stmt->execute()) {
-    echo json_encode(['status'=>'failed','message'=>$stmt->error]); exit;
+        for($i=0; $i<(4-(int)$charSize); $i++){
+          $purchaseNo.='0';  // S0000
+        }
+
+        $purchaseNo .= strval($count);  //S00009
+			}
+		}
+		
+		$select_stmt->close();
+	}
+	else{
+    $purchaseNo = $_POST['purchaseNo'];
+	}
+
+  if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
+    if ($update_stmt = $db->prepare("UPDATE purchases SET purchase_no=?, total_price=?, modified_by=?, modified_datetime=? WHERE id=?")) {
+      $update_stmt->bind_param('sssss', $purchaseNo, $grandTotal, $userID, $now, $_POST['id']);
+
+      // Execute the prepared query.
+      if (! $update_stmt->execute()) {
+        echo json_encode(
+            array(
+                "status"=> "failed", 
+                "message"=> $update_stmt->error
+            )
+        );
+      }
+      else{
+        $update_stmt->close();
+
+        # purchases_cart 
+        if (isset($_POST['itemProduct'])){
+          $itemProduct = $_POST['itemProduct'];
+          $itemWeight = $_POST['itemWeight'];
+          $itemPrice = $_POST['itemPrice'];
+          $itemTotal = $_POST['itemTotal'];
+          $deleteStatus = 1; // mark as deleted
+          if(isset($itemProduct) && $itemProduct != null && count($itemProduct) > 0){
+            # Delete all existing product rawmat records tied to the product id then reinsert
+            if ($delete_stmt = $db->prepare("UPDATE purchases_cart SET status=? WHERE purchase_id=?")){
+                $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
+                $delete_stmt->execute();
+                $delete_stmt->close();
+
+                foreach ($itemProduct as $key => $itemId) {
+                  if ($purchase_stmt = $db->prepare("INSERT INTO purchases_cart (purchase_id, product_id, weight, price, total_price) VALUES (?, ?, ?, ?, ?)")){
+                    $purchase_stmt->bind_param('sssss', $_POST['id'], $itemId, $itemWeight[$key], $itemPrice[$key], $itemTotal[$key]);
+                    $purchase_stmt->execute();
+                    $purchase_stmt->close();
+                  }
+                }
+            } 
+          }
+        }
+
+        $db->close();
+
+        echo json_encode(
+            array(
+                "status"=> "success", 
+                "message"=> "Updated Successfully!!"
+            )
+        );
+      }
   }
-  $stmt->close();
+  }else{
+    if ($insert_stmt = $db->prepare("INSERT INTO purchases (purchase_no, total_price, created_by, created_datetime, company) VALUES (?, ?, ?, ?, ?)")) {
+      $insert_stmt->bind_param('sssss', $purchaseNo, $grandTotal, $userID, $now, $company);
 
-  // Delete old items
-  $db->query("UPDATE purchases_items SET status=1 WHERE purchase_id='$id'");
-} else {
-  // Generate purchase number
-  $count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as c FROM purchases WHERE created_datetime >= '$today'"))['c'] + 1;
-  $purchaseNo = 'P'.date('Ymd').str_pad($count, 4, '0', STR_PAD_LEFT);
+      // Execute the prepared query.
+      if (! $insert_stmt->execute()) {
+        echo json_encode(
+            array(
+                "status"=> "failed", 
+                "message"=> "Failed to created purchases records due to ".$insert_stmt->error
+            )
+        );
+        exit();
+      }
+      else{
+          $id = $insert_stmt->insert_id;;
+          $insert_stmt->close();
 
-  $stmt = $db->prepare("INSERT INTO purchases (purchase_no, purchase_date, supplier, po_no, total_price, company, created_by, created_datetime) VALUES (?,?,?,?,?,?,?,?)");
-  $stmt->bind_param('ssssssss', $purchaseNo, $purchaseDateFmt, $supplier, $poNo, $totalPrice, $company, $userID, $now);
-  if (!$stmt->execute()) {
-    echo json_encode(['status'=>'failed','message'=>$stmt->error]); exit;
+          if (isset($_POST['itemProduct'])){
+            $itemProduct = $_POST['itemProduct'];
+            $itemWeight = $_POST['itemWeight'];
+            $itemPrice = $_POST['itemPrice'];
+            $itemTotal = $_POST['itemTotal'];
+            $deleteStatus = 1;
+            if(isset($itemProduct) && $itemProduct != null && count($itemProduct) > 0){
+              # Delete all existing product rawmat records tied to the product id then reinsert
+              if ($delete_stmt = $db->prepare("UPDATE purchases_cart SET status=? WHERE purchase_id=?")){
+                  $delete_stmt->bind_param('ss', $deleteStatus, $id);
+                  $delete_stmt->execute();
+                  $delete_stmt->close();
+
+                  foreach ($itemProduct as $key => $itemId) {
+                    if ($purchase_stmt = $db->prepare("INSERT INTO purchases_cart (purchase_id, product_id, weight, price, total_price) VALUES (?, ?, ?, ?, ?)")){
+                      $purchase_stmt->bind_param('sssss', $id, $itemId, $itemWeight[$key], $itemPrice[$key], $itemTotal[$key]);
+                      $purchase_stmt->execute();
+                      $purchase_stmt->close();
+                    }
+                  }
+              } 
+            }
+          }
+
+          $db->close();
+
+          echo json_encode(
+              array(
+                "status"=> "success", 
+                "message"=> "Added Successfully!!"
+              )
+          );
+      }
   }
-  $id = $stmt->insert_id;
-  $stmt->close();
+  }
+}
+else{
+    echo json_encode(
+        array(
+            "status"=> "failed", 
+            "message"=> "Please fill in all the fields"
+        )
+    );
+    
 }
 
-// Insert items
-foreach ($items as $item) {
-  $productId = $item['product_id'] ?? '';
-  $weight    = $item['weight']     ?? 0;
-  $price     = $item['price']      ?? 0;
-  $total     = $item['total']      ?? 0;
-  if (!$productId) continue;
-  $stmt = $db->prepare("INSERT INTO purchases_items (purchase_id, product_id, weight, price, total_price) VALUES (?,?,?,?,?)");
-  $stmt->bind_param('sssss', $id, $productId, $weight, $price, $total);
-  $stmt->execute();
-  $stmt->close();
-}
-
-echo json_encode(['status'=>'success','message'=>'Saved Successfully!']);
 ?>

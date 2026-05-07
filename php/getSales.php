@@ -35,7 +35,7 @@ if(isset($_POST['id'])){
                 );
 
                 // Get Sales Cart
-                $cart_stmt = $db->prepare("SELECT sales_cart.*, products.product_name as product_name FROM sales_cart LEFT JOIN products ON sales_cart.product_id = products.id WHERE sales_cart.sales_id=?");
+                $cart_stmt = $db->prepare("SELECT sales_cart.*, products.product_name as product_name FROM sales_cart LEFT JOIN products ON sales_cart.product_id = products.id WHERE sales_cart.sales_id=? AND sales_cart.status = 0");
                 $cart_stmt->bind_param('s', $id);
                 $cart_stmt->execute();
                 $cart_result = $cart_stmt->get_result();
