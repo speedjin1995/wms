@@ -628,3 +628,15 @@ CREATE TABLE `purchases_cart` (
 ALTER TABLE `purchases_cart` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `purchases_cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `inventory` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `quantity` varchar(100) NOT NULL,
+  `packaging_id` int(11) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `inventory` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

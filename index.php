@@ -421,6 +421,12 @@ to get the desired effect
                   <p><?=$languageArray['purchase_code'][$language]?></p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="#pricingInventory" data-file="pricingInventory.php" class="nav-link link">
+                  <i class="nav-icon fas fa-warehouse"></i>
+                  <p><?=$languageArray['inventory_code'][$language]?></p>
+                </a>
+              </li>
             </ul>
           </li>
           <?php } ?>

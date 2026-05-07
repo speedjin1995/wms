@@ -21,9 +21,9 @@ $stmt->fetch();
 $stmt->close();
 
 if ($role != 'SADMIN') {
-  $products  = $db->query("SELECT * FROM products WHERE deleted='0' AND customer='$company' ORDER BY product_name ASC");
+  $products  = $db->query("SELECT id, product_name FROM products WHERE deleted='0' AND customer='$company' ORDER BY product_name ASC");
 } else {
-  $products  = $db->query("SELECT * FROM products WHERE deleted='0' ORDER BY product_name ASC");
+  $products  = $db->query("SELECT id, product_name FROM products WHERE deleted='0' ORDER BY product_name ASC");
 }
 ?>
 
@@ -140,14 +140,19 @@ if ($role != 'SADMIN') {
                     <!-- Purchase Info -->
                     <div class="card card-outline card-primary mb-3 shadow-sm">
                         <div class="card-header py-2">
-                            <h6 class="card-title mb-0"><i class="fas fa-file-invoice mr-2"></i><?=$languageArray['purchase_code'][$language]?> Info</h6>
+                            <h6 class="card-title mb-0"><i
+                                    class="fas fa-file-invoice mr-2"></i><?=$languageArray['purchase_code'][$language]?>
+                                Info</h6>
                         </div>
                         <div class="card-body pt-3">
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <label class="text-muted small mb-1"><?=$languageArray['purchase_code'][$language]?> No</label>
-                                        <input type="text" class="form-control" id="purchaseNo" name="purchaseNo" readonly>
+                                        <label
+                                            class="text-muted small mb-1"><?=$languageArray['purchase_code'][$language]?>
+                                            No</label>
+                                        <input type="text" class="form-control" id="purchaseNo" name="purchaseNo"
+                                            readonly>
                                     </div>
                                 </div>
                             </div>
@@ -157,29 +162,33 @@ if ($role != 'SADMIN') {
                     <!-- Items -->
                     <div class="card card-outline card-warning mb-3 shadow-sm">
                         <div class="card-header py-2 d-flex justify-content-between align-items-center w-100">
-                            <h6 class="card-title mb-0"><i class="fas fa-boxes mr-2"></i><?=$languageArray['item_code'][$language]?></h6>
+                            <h6 class="card-title mb-0"><i
+                                    class="fas fa-boxes mr-2"></i><?=$languageArray['item_code'][$language]?></h6>
                             <button type="button" class="btn btn-success btn-sm ml-auto" id="addItemRow">
-                              <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
+                                <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
                             </button>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-bordered mb-0">
                                 <thead class="thead-light">
-                                  <tr>
-                                    <th><?=$languageArray['item_code'][$language]?></th>
-                                    <th><?=$languageArray['weight_code'][$language]?></th>
-                                    <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
-                                    <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
-                                    <th></th>
-                                  </tr>
+                                    <tr>
+                                        <th><?=$languageArray['item_code'][$language]?></th>
+                                        <th><?=$languageArray['weight_code'][$language]?></th>
+                                        <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
+                                        <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
+                                        <th></th>
+                                    </tr>
                                 </thead>
                                 <tbody id="itemTable"></tbody>
                                 <tfoot>
-                                  <tr>
-                                    <td colspan="3" class="text-right font-weight-bold"> <?=$languageArray['total_code'][$language]?> (RM)</td>
-                                    <td><input type="text" id="grandTotal" name="grandTotal" class="form-control form-control-sm text-right font-weight-bold" readonly value="0.00"></td>
-                                    <td></td>
-                                  </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-right font-weight-bold">
+                                            <?=$languageArray['total_code'][$language]?> (RM)</td>
+                                        <td><input type="text" id="grandTotal" name="grandTotal"
+                                                class="form-control form-control-sm text-right font-weight-bold"
+                                                readonly value="0.00"></td>
+                                        <td></td>
+                                    </tr>
                                 </tfoot>
                             </table>
                         </div>
@@ -188,97 +197,68 @@ if ($role != 'SADMIN') {
                 </div>
 
                 <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-                    <button type="submit" class="btn btn-primary" id="saveBtn"><?=$languageArray['save_code'][$language]?></button>
+                    <button type="button" class="btn btn-secondary"
+                        data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+                    <button type="submit" class="btn btn-primary"
+                        id="saveBtn"><?=$languageArray['save_code'][$language]?></button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- View Purchase Modal -->
-<div class="modal fade" id="viewPurchaseModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-
-      <div class="modal-header bg-info color-palette">
-        <h5 class="modal-title text-white">
-          <i class="fas fa-file-invoice mr-2"></i><?=$languageArray['purchase_code'][$language]?> - <span id="v_purchase_no"></span>
-        </h5>
-        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-      </div>
-
-      <div class="modal-body">
-
-        <!-- Items Card -->
-        <div class="card card-outline card-warning shadow-sm mb-3">
-          <div class="card-header py-2">
-            <h6 class="card-title mb-0"><i class="fas fa-boxes mr-2"></i><?=$languageArray['item_code'][$language]?></h6>
-          </div>
-          <div class="card-body p-0">
-            <table class="table table-bordered table-striped mb-0">
-              <thead class="thead-dark">
-                <tr>
-                  <th width="40">#</th>
-                  <th><?=$languageArray['item_code'][$language]?></th>
-                  <th width="120"><?=$languageArray['weight_code'][$language]?></th>
-                  <th width="150"><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
-                  <th width="150"><?=$languageArray['total_price_code'][$language]?> (RM)</th>
-                </tr>
-              </thead>
-              <tbody id="v_cart_items"></tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="4" class="text-right font-weight-bold"><?=$languageArray['total_code'][$language]?></td>
-                  <td class="font-weight-bold text-right">RM <span id="v_total_price"></span></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="deleteForm">
+                <div class="modal-header bg-gray-dark color-palette">
+                    <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
+                    <button type="button" class="close bg-gray-dark color-palette"
+                        data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="deleteId" name="id">
+                    <div class="form-group">
+                        <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
+                        <textarea class="form-control" id="deleteReason" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+                    <button type="button" class="btn btn-secondary"
+                        data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+                    <button type="submit" class="btn btn-danger"><?=$languageArray['submit_code'][$language]?></button>
+                </div>
+            </form>
         </div>
-
-        <!-- Meta Info -->
-        <div class="card card-outline card-primary shadow-sm mb-0">
-          <div class="card-body py-2 px-3">
-            <small><strong><?=$languageArray['created_by_code'][$language]?>:</strong> <span id="v_created_by"></span> &nbsp;|&nbsp; <span id="v_created_datetime"></span></small>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="modal-footer justify-content-end bg-gray-dark color-palette">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-      </div>
-
     </div>
-  </div>
 </div>
 
 <script type="text/html" id="itemDetail">
-  <tr class="details">
+<tr class="details">
     <td>
-      <select class="form-control select2" id="itemProduct" name="itemProduct" style="width:100%">
-        <?php while($rowPF = mysqli_fetch_assoc($products)){ ?>
-        <option value="<?=$rowPF['id'] ?>" data-packaging-id="<?=$rowPF['packaging'] ?>"><?=$rowPF['product_name'] ?></option>
-        <?php } ?>
-      </select>
-      <input type="hidden" id="itemPackaging" name="itemPackaging">
+        <select class="form-control select2" id="itemProduct" name="itemProduct" style="width:100%">
+            <?php while($rowPF = mysqli_fetch_assoc($products)){ ?>
+            <option value="<?=$rowPF['id'] ?>"><?=$rowPF['product_name'] ?></option>
+            <?php } ?>
+        </select>
     </td>
     <td>
-      <input type="number" class="form-control form-control-sm" id="itemWeight" name="itemWeight" step="0.01" min="0">
+        <input type="number" class="form-control form-control-sm" id="itemWeight" name="itemWeight" step="0.01" min="0">
     </td>
     <td>
-      <input type="number" class="form-control form-control-sm" id="itemPrice" name="itemPrice" step="0.01" min="0">
+        <input type="number" class="form-control form-control-sm" id="itemPrice" name="itemPrice" step="0.01" min="0">
     </td>
     <td>
-      <input type="text" class="form-control form-control-sm text-right" id="itemTotal" name="itemTotal" readonly value="0.00">
+        <input type="text" class="form-control form-control-sm text-right" id="itemTotal" name="itemTotal" readonly
+            value="0.00">
     </td>
     <td class="d-flex" style="text-align:center">
-      <button class="btn btn-sm btn-danger" id="remove" style="background-color: #f06548;">
-          <i class="fa fa-times"></i>
-      </button>
+        <button class="btn btn-sm btn-danger" id="remove" style="background-color: #f06548;">
+            <i class="fa fa-times"></i>
+        </button>
     </td>
-  </tr>
+</tr>
 </script>
 
 <script>
@@ -323,47 +303,44 @@ $(function() {
       serverSide: true,
       serverMethod: 'post',
       order: [
-        [1, 'desc']
+          [1, 'desc']
       ],
       ajax: {
-        url: 'php/filterPurchase.php',
-        data: {
-          fromDate: fromDateI,
-          toDate: toDateI,
-          purchaseNo: purchaseNoI
-        }
+          url: 'php/filterPurchase.php',
+          data: {
+              fromDate: fromDateI,
+              toDate: toDateI,
+              purchaseNo: purchaseNoI
+          }
       },
       columns: [
-        {
-          data: 'purchase_no'
-        },
-        {
-          data: 'total_price'
-        },
-        {
-          data: 'created_by_name'
-        },
-        {
-          data: 'created_datetime'
-        },
-        {
-          data: 'id',
-          orderable: false,
-          render: function(data) {
-            var btns = `<div class="d-flex flex-nowrap" style="gap:4px;">
-              <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm">
-                <i class="fas fa-eye"></i>
-              </button>`;
-            // if (allowEdit) {
-            //     btns += '<button type="button" onclick="edit(' + data + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
-            // }
-            if (allowDelete) {
-                btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+          {
+            data: 'purchase_no'
+          },
+          {
+            data: 'total_price'
+          },
+          {
+            data: 'created_by_name'
+          },
+          {
+            data: 'created_datetime'
+          },
+          {
+            data: 'id',
+            orderable: false,
+            render: function(data) {
+              var btns = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+              if (allowEdit) {
+                  btns += '<button type="button" onclick="edit(' + data + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              }
+              if (allowDelete) {
+                  btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              }
+              btns += '</div>';
+              return btns;
             }
-            btns += '</div>';
-            return btns;
           }
-        }
       ]
     });
 
@@ -394,36 +371,33 @@ $(function() {
           }
         },
         columns: [
-          {
-            data: 'purchase_no'
-          },
-          {
-            data: 'total_price'
-          },
-          {
-            data: 'created_by_name'
-          },
-          {
-            data: 'created_datetime'
-          },
-          {
-            data: 'id',
-            orderable: false,
-            render: function(data) {
-              var btns = `<div class="d-flex flex-nowrap" style="gap:4px;">
-                <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm">
-                  <i class="fas fa-eye"></i>
-                </button>`;
-              if (allowEdit) {
-                  btns += '<button type="button" onclick="edit(' + data + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            {
+              data: 'purchase_no'
+            },
+            {
+              data: 'total_price'
+            },
+            {
+              data: 'created_by_name'
+            },
+            {
+              data: 'created_datetime'
+            },
+            {
+              data: 'id',
+              orderable: false,
+              render: function(data) {
+                  var btns = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+                  if (allowEdit) {
+                      btns += '<button type="button" onclick="edit(' + data + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+                  }
+                  if (allowDelete) {
+                      btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                  }
+                  btns += '</div>';
+                  return btns;
               }
-              if (allowDelete) {
-                  btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
-              }
-              btns += '</div>';
-              return btns;
             }
-          }
         ]
       });
     });
@@ -488,9 +462,8 @@ $(function() {
         $("#itemTable").find('.details:last').attr("id", "detail" + itemRowCount);
         $("#itemTable").find('.details:last').attr("data-index", itemRowCount);
         $("#itemTable").find('#remove:last').attr("id", "remove" + itemRowCount);
-        
-        $("#itemTable").find('#itemPackaging:last').attr('name', 'itemPackaging[' + itemRowCount + ']') .attr("id", "itemPackaging" + itemRowCount);
-        $("#itemTable").find('#itemProduct:last').attr('name', 'itemProduct[' + itemRowCount + ']') .attr("id", "itemProduct" + itemRowCount).trigger('change');
+
+        $("#itemTable").find('#itemProduct:last').attr('name', 'itemProduct[' + itemRowCount + ']') .attr("id", "itemProduct" + itemRowCount);
         $("#itemTable").find('#itemWeight:last').attr('name', 'itemWeight[' + itemRowCount + ']').attr( "id", "itemWeight" + itemRowCount);
         $("#itemTable").find('#itemPrice:last').attr('name', 'itemPrice[' + itemRowCount + ']').attr( "id", "itemPrice" + itemRowCount);
         $("#itemTable").find('#itemTotal:last').attr('name', 'itemTotal[' + itemRowCount + ']').attr( "id", "itemTotal" + itemRowCount);
@@ -498,16 +471,10 @@ $(function() {
         itemRowCount++;
 
         $('.select2').select2({
-          allowClear: true,
-          placeholder: "Please Select",
-          width: '100%'
+            allowClear: true,
+            placeholder: "Please Select",
+            width: '100%'
         });
-    });
-
-    // Event delegation to trigger change when product selected to get packaging info
-    $("#itemTable").on('change', 'select[id^="itemProduct"]', function() {
-        var packagingId = $(this).find(':selected').data('packaging-id');
-        $(this).closest('.details').find('input[id^="itemPackaging"]').val(packagingId);
     });
 
     // Event delegation to calculate total price from weight
@@ -536,39 +503,10 @@ $(function() {
 function calculateTotals() {
   var grandTotal = 0;
   $("#itemTable tr").each(function() {
-    var itemTotal = parseFloat($(this).find('input[id^="itemTotal"]').val()) || 0;
-    grandTotal += itemTotal;
+      var itemTotal = parseFloat($(this).find('input[id^="itemTotal"]').val()) || 0;
+      grandTotal += itemTotal;
   });
   $('#grandTotal').val(grandTotal.toFixed(2));
-}
-
-function view(id){
-  $.post('php/getPurchase.php', {id: id}, function(data){
-    var obj = JSON.parse(data);
-    if(obj.status === 'success'){
-      var m = obj.message;
-      $('#v_purchase_no').text(m.purchase_no);
-      $('#v_total_price').text(m.total_price);
-      $('#v_created_by').text(m.created_by_name);
-      $('#v_created_datetime').text(m.created_datetime);
-
-      var rows = '';
-      $.each(m.cart_items, function(i, item){
-        rows += `<tr>
-          <td>${i + 1}</td>
-          <td>${item.product_name}</td>
-          <td>${item.weight}</td>
-          <td>${item.price}</td>
-          <td>${item.total_price}</td>
-        </tr>`;
-      });
-      $('#v_cart_items').html(rows || '<tr><td colspan="5" class="text-center">No items</td></tr>');
-
-      $('#viewPurchaseModal').modal('show');
-    } else {
-      toastr["error"](obj.message, "Failed:");
-    }
-  });
 }
 
 function newEntry() {

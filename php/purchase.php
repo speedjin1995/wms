@@ -121,6 +121,7 @@ if(isset($_POST['purchaseNo'], $_POST['itemProduct'], $_POST['itemWeight'], $_PO
 
           if (isset($_POST['itemProduct'])){
             $itemProduct = $_POST['itemProduct'];
+            $itemPackaging = $_POST['itemPackaging'];
             $itemWeight = $_POST['itemWeight'];
             $itemPrice = $_POST['itemPrice'];
             $itemTotal = $_POST['itemTotal'];
@@ -128,17 +129,55 @@ if(isset($_POST['purchaseNo'], $_POST['itemProduct'], $_POST['itemWeight'], $_PO
             if(isset($itemProduct) && $itemProduct != null && count($itemProduct) > 0){
               # Delete all existing product rawmat records tied to the product id then reinsert
               if ($delete_stmt = $db->prepare("UPDATE purchases_cart SET status=? WHERE purchase_id=?")){
-                  $delete_stmt->bind_param('ss', $deleteStatus, $id);
-                  $delete_stmt->execute();
-                  $delete_stmt->close();
+                $delete_stmt->bind_param('ss', $deleteStatus, $id);
+                $delete_stmt->execute();
+                $delete_stmt->close();
 
-                  foreach ($itemProduct as $key => $itemId) {
-                    if ($purchase_stmt = $db->prepare("INSERT INTO purchases_cart (purchase_id, product_id, weight, price, total_price) VALUES (?, ?, ?, ?, ?)")){
-                      $purchase_stmt->bind_param('sssss', $id, $itemId, $itemWeight[$key], $itemPrice[$key], $itemTotal[$key]);
-                      $purchase_stmt->execute();
-                      $purchase_stmt->close();
-                    }
+                foreach ($itemProduct as $key => $itemId) {
+                  // Insert new records
+                  if ($purchase_stmt = $db->prepare("INSERT INTO purchases_cart (purchase_id, product_id, weight, price, total_price) VALUES (?, ?, ?, ?, ?)")){
+                    $purchase_stmt->bind_param('sssss', $id, $itemId, $itemWeight[$key], $itemPrice[$key], $itemTotal[$key]);
+                    $purchase_stmt->execute();
+                    $purchase_stmt->close();
                   }
+
+                  // Query Inventory to see if the product exist, if exist update stock, else insert new record with stock
+                  if ($select_stmt = $db->prepare("SELECT id FROM inventory WHERE product_id = ? AND status = 0")) {
+                    $select_stmt->bind_param('s', $itemId);
+                    
+                    // Execute the prepared query.
+                    if (! $select_stmt->execute()) {
+                        echo json_encode(
+                            array(
+                                "status" => "failed",
+                                "message" => "Failed to check product existence"
+                            )); 
+                    }
+                    else{
+                      $result = $select_stmt->get_result();
+                      
+                      if ($row = $result->fetch_assoc()) {
+                        $inventoryId = $row['id'];
+                        // Product exist, update stock
+                        if ($update_stock_stmt = $db->prepare("UPDATE inventory SET quantity = quantity + ? WHERE id = ?")){
+                          $update_stock_stmt->bind_param('ss', $itemWeight[$key], $inventoryId);
+                          $update_stock_stmt->execute();
+                          $update_stock_stmt->close();
+                        }
+                      }
+                      else{
+                        // Product not exist, insert new record with stock
+                        if ($insert_product_stmt = $db->prepare("INSERT INTO inventory (product_id, quantity, packaging_id) VALUES (?, ?, ?)")){
+                          $insert_product_stmt->bind_param('sss', $itemId, $itemWeight[$key], $itemPackaging[$key]);
+                          $insert_product_stmt->execute();
+                          $insert_product_stmt->close();
+                        }
+                      }
+                    }
+
+                    $select_stmt->close();
+                  }
+                }
               } 
             }
           }

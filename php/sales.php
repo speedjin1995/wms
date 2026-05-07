@@ -106,10 +106,40 @@ if(isset($_POST['paymentMethod'], $_POST['taxAmount'], $_POST['taxRate'],$_POST[
                                     }
                                     else{
                                         foreach ($items as $key => $itemId) {
+                                            // Insert new records
                                             if ($sales_stmt = $db->prepare("INSERT INTO sales_cart (sales_id, product_id, weight, price, total_price) VALUES (?, ?, ?, ?, ?)")){
                                                 $sales_stmt->bind_param('sssss', $id, $itemId, $itemWeight[$key], $itemPrice[$key], $totalPrice[$key]);
                                                 $sales_stmt->execute();
                                                 $sales_stmt->close();
+                                            }
+
+                                            // Query Inventory to see if the product exist, if exist update stock, else insert new record with stock
+                                            if ($select_stmt = $db->prepare("SELECT id FROM inventory WHERE product_id = ? AND status = 0")) {
+                                                $select_stmt->bind_param('s', $itemId);
+                                                
+                                                // Execute the prepared query.
+                                                if (! $select_stmt->execute()) {
+                                                    echo json_encode(
+                                                        array(
+                                                            "status" => "failed",
+                                                            "message" => "Failed to check product existence"
+                                                        )); 
+                                                }
+                                                else{
+                                                    $result = $select_stmt->get_result();
+                                                    
+                                                    if ($row = $result->fetch_assoc()) {
+                                                        $inventoryId = $row['id'];
+                                                        // Product exist, update stock
+                                                        if ($update_stock_stmt = $db->prepare("UPDATE inventory SET quantity = quantity - ? WHERE id = ?")){
+                                                            $update_stock_stmt->bind_param('ss', $itemWeight[$key], $inventoryId);
+                                                            $update_stock_stmt->execute();
+                                                            $update_stock_stmt->close();
+                                                        }
+                                                    }
+                                                }
+
+                                                $select_stmt->close();
                                             }
                                         }
                                     }
