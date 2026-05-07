@@ -427,6 +427,12 @@ to get the desired effect
                   <p><?=$languageArray['inventory_code'][$language]?></p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="#repacking" data-file="repacking.php" class="nav-link link">
+                  <i class="nav-icon fas fa-box-open"></i>
+                  <p><?=$languageArray['repacking_code'][$language]?></p>
+                </a>
+              </li>
             </ul>
           </li>
           <?php } ?>

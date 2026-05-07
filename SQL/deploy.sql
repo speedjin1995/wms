@@ -560,6 +560,10 @@ CREATE TABLE `packaging` (
 ALTER TABLE `packaging` ADD PRIMARY KEY (`id`);
 ALTER TABLE `packaging` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+INSERT INTO `packaging` (`id`, `packaging_name`, `customer`, `deleted`) VALUES
+(1, 'Box', 10, 0),
+(2, 'KG', 10, 0);
+
 ALTER TABLE `products` ADD `packaging` INT(11) NULL AFTER `hi_weight_unit`, ADD `category` INT(11) NULL AFTER `packaging`;
 
 ALTER TABLE `products` ADD `product_image` TEXT NULL AFTER `category`;
