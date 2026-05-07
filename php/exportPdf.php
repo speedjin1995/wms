@@ -44,7 +44,7 @@ if(isset($_GET['supplier']) && $_GET['supplier'] != null && $_GET['supplier'] !=
 }
 
 if($_GET['vehicle'] != null && $_GET['vehicle'] != '' && $_GET['vehicle'] != '-'){
-  if ($_GET['vehicle'] == 'UNKOWN NO'){
+  if ($_GET['vehicle'] == 'UNKOWN NO' || $_GET['vehicle'] == 'OTHERS' || $_GET['vehicle'] == 'UNKNOWN'){
     if($_GET['otherVehicle'] != null && $_GET['otherVehicle'] != '' && $_GET['otherVehicle'] != '-'){
       $searchQuery .= " and wholesales.vehicle_no = '".mysqli_real_escape_string($db, $_GET['otherVehicle'])."'";
     }
