@@ -540,3 +540,6 @@ CREATE TABLE `running_no_setup` (
   `name` varchar(100) NOT NULL,
   `value` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 07/05/2026 --
+ALTER TABLE `companies` ADD `packing_mode` VARCHAR(20) NOT NULL DEFAULT 'Food_Packaging' AFTER `waste_mode`;
