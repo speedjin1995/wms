@@ -160,7 +160,7 @@ else{
           $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ')"';
 
           echo '
-          <div class="product-item' . $oosCls . '"' . $onclick . '>
+          <div class="product-item' . $oosCls . '" data-stock="' . $stock . '" data-pid="' . $pid . '"' . $onclick . '>
             <div class="product-card" style="position:relative;">
               ' . $imgHtml . $badge . '
               <div class="card-info">
@@ -430,12 +430,12 @@ function recalc() {
   $('#submitSales').toggleClass('ready', parseFloat(total) > 0);
 }
 
-function addOrderRow(id, name, price, uomLabel, weight) {
+function addOrderRow(id, name, price, uomLabel, weight, stock) {
   var total = (parseFloat(price) * parseFloat(weight)).toFixed(2);
   var priceDisplay = parseFloat(price).toFixed(2) + (uomLabel ? ' / ' + uomLabel : '');
 
   var html =
-    '<tr class="order-row" id="row_' + id + '" data-id="' + id + '" data-price="' + price + '" data-total="' + total + '">' +
+    '<tr class="order-row" id="row_' + id + '" data-id="' + id + '" data-price="' + price + '" data-total="' + total + '" data-stock="' + (parseFloat(stock) || 0) + '">' +
       '<td class="item-name px-3 py-2">' + name + '<input type="hidden" name="items[' + size + ']" value="' + id + '"></td>' +
       '<td class="px-3 py-2">' +
         priceDisplay +
@@ -458,10 +458,17 @@ function updateWeight(id) {
   var $row  = $('#row_' + id);
   var price = parseFloat($row.data('price'));
   var wt    = parseFloat($('#wt_' + id).val());
+  var stock = parseFloat($row.data('stock'));
 
   if (isNaN(wt) || wt <= 0) {
     removeRow(id);
     return;
+  }
+
+  if (stock > 0 && wt > stock) {
+    toastr.error('Weight exceeds available stock (' + stock + ').');
+    wt = stock;
+    $('#wt_' + id).val(stock);
   }
 
   var total = (price * wt).toFixed(2);
@@ -526,7 +533,8 @@ function addItems(id) {
       if ($('#row_' + id).length) {
         changeQty(id, 1);
       } else {
-        addOrderRow(id, p.product_name, p.price || 0, uomLabel, 0);
+        var stock = parseFloat($('.product-item[data-pid="' + id + '"]').data('stock')) || 0;
+        addOrderRow(id, p.product_name, p.price || 0, uomLabel, 0, stock);
         recalc();
       }
     } else {
