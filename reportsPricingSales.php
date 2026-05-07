@@ -144,20 +144,20 @@ else{
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-info">
-        <h5 class="modal-title text-white"><i class="fas fa-receipt mr-2"></i>Sales Order - <span id="v_receipt_no"></span></h5>
+        <h5 class="modal-title text-white"><i class="fas fa-receipt mr-2"></i><?=$languageArray['sales_code'][$language]?> - <span id="v_receipt_no"></span></h5>
         <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
         <!-- Cart Items -->
-        <h6 class="font-weight-bold mb-2">Items</h6>
+        <h6 class="font-weight-bold mb-2"><?=$languageArray['item_code'][$language]?></h6>
         <table class="table table-bordered table-sm table-striped">
           <thead class="thead-dark">
             <tr>
               <th>#</th>
-              <th>Product</th>
-              <th>Weight (kg)</th>
-              <th>Price (RM)</th>
-              <th>Total (RM)</th>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th width="120"><?=$languageArray['weight_code'][$language]?></th>
+              <th width="150"><?=$languageArray['price_code'][$language]?> (RM)</th>
+              <th width="150"><?=$languageArray['total_price_code'][$language]?> (RM)</th>
             </tr>
           </thead>
           <tbody id="v_cart_items"></tbody>
@@ -166,21 +166,21 @@ else{
         <div class="row justify-content-end">
           <div class="col-5">
             <table class="table table-sm">
-              <tr><td>Sub Total</td><td class="text-right">RM <span id="v_subtotal"></span></td></tr>
-              <tr><td>Tax (<span id="v_tax"></span>%)</td><td class="text-right">RM <span id="v_tax_amount"></span></td></tr>
-              <tr><td>Discount</td><td class="text-right">RM <span id="v_discount"></span></td></tr>
-              <tr class="font-weight-bold"><td>Total</td><td class="text-right">RM <span id="v_total_price"></span></td></tr>
+              <tr><td><?=$languageArray['sub_total_code'][$language]?></td><td class="text-right">RM <span id="v_subtotal"></span></td></tr>
+              <tr><td><?=$languageArray['tax_code'][$language]?> (<span id="v_tax"></span>%)</td><td class="text-right">RM <span id="v_tax_amount"></span></td></tr>
+              <tr><td><?=$languageArray['discount_code'][$language]?></td><td class="text-right">RM <span id="v_discount"></span></td></tr>
+              <tr class="font-weight-bold"><td><?=$languageArray['total_price_code'][$language]?></td><td class="text-right">RM <span id="v_total_price"></span></td></tr>
             </table>
           </div>
         </div>
         <hr>
         <div class="row">
-          <div class="col-6"><small><strong>Payment Method:</strong> <span id="v_payment_method"></span></small></div>
-          <div class="col-6 text-right"><small><strong>Created By:</strong> <span id="v_created_by"></span> on <span id="v_created_datetime"></span></small></div>
+          <div class="col-6"><small><strong><?=$languageArray['payment_method_code'][$language]?>:</strong> <span id="v_payment_method"></span></small></div>
+          <div class="col-6 text-right"><small><strong><?=$languageArray['created_by_code'][$language]?>:</strong> <span id="v_created_by"></span> on <span id="v_created_datetime"></span></small></div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
       </div>
     </div>
   </div>
