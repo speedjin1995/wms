@@ -16,9 +16,9 @@ else{
   $message = array();
 
   if ($role != 'SADMIN'){
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image FROM products p LEFT JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   } else {
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image FROM products p LEFT JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   }
 
   while($rowProducts=mysqli_fetch_assoc($products)){
@@ -35,7 +35,8 @@ else{
       'id'        => $rowProducts['id'],
       'item_name' => $rowProducts['product_name'],
       'price'     => $rowProducts['price'],
-      'img'       => $rowProducts['product_image']
+      'img'       => $rowProducts['product_image'],
+      'stock'     => $rowProducts['stock']
     ));
   }
 
@@ -71,6 +72,10 @@ else{
 
   .product-card { border:1px solid #e5e7eb; border-radius:12px; cursor:pointer; transition:box-shadow 0.2s, transform 0.2s; overflow:hidden; background:#fff; }
   .product-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.10); transform:translateY(-2px); }
+  .product-item.out-of-stock { pointer-events:none; }
+  .product-item.out-of-stock .product-card { opacity:0.55; cursor:not-allowed; background:#f9fafb; }
+  .product-item.out-of-stock .product-card:hover { box-shadow:none; transform:none; }
+  .out-of-stock-badge { position:absolute; top:8px; right:8px; background:#ef4444; color:#fff; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:20px; }
   .product-card .product-img { width:100%; height:160px; object-fit:cover; background:#f3f4f6; }
   .product-card .product-img-placeholder { width:100%; height:160px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; color:#d1d5db; font-size:3rem; }
   .product-card .card-info { padding:12px 14px 14px; }
@@ -139,19 +144,25 @@ else{
         echo '  <div class="product-grid" id="grid_' . $tabId . '">';
 
         for ($k = 0; $k < count($message[$j]['Products']); $k++) {
-          $pid   = $message[$j]['Products'][$k]['id'];
-          $name  = htmlspecialchars($message[$j]['Products'][$k]['item_name']);
-          $price = number_format((float) $message[$j]['Products'][$k]['price'], 2);
-          $img   = $message[$j]['Products'][$k]['img'];
+          $pid      = $message[$j]['Products'][$k]['id'];
+          $name     = htmlspecialchars($message[$j]['Products'][$k]['item_name']);
+          $price    = number_format((float) $message[$j]['Products'][$k]['price'], 2);
+          $img      = $message[$j]['Products'][$k]['img'];
+          $stock    = (float) $message[$j]['Products'][$k]['stock'];
+          $noStock  = $stock <= 0;
 
           $imgHtml = $img
             ? '<img src="php/viewPhoto.php?file=' . $img . '&type=file_table" class="product-img" loading="lazy">'
             : '<div class="product-img-placeholder"><i class="fas fa-box"></i></div>';
 
+          $badge    = $noStock ? '<span class="out-of-stock-badge">Not Available</span>' : '';
+          $oosCls   = $noStock ? ' out-of-stock' : '';
+          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ')"';
+
           echo '
-          <div class="product-item" onclick="addItems(' . $pid . ')">
-            <div class="product-card">
-              ' . $imgHtml . '
+          <div class="product-item' . $oosCls . '"' . $onclick . '>
+            <div class="product-card" style="position:relative;">
+              ' . $imgHtml . $badge . '
               <div class="card-info">
                 <p class="product-name">' . $name . '</p>
                 <p class="product-price">RM ' . $price . '/kg</p>
