@@ -633,7 +633,6 @@ CREATE TABLE `inventory` (
   `id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `quantity` varchar(100) NOT NULL,
-  `packaging_id` int(11) NOT NULL,
   `status` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

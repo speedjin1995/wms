@@ -262,7 +262,6 @@ if ($role != 'SADMIN') {
         <option value="<?=$rowPF['id'] ?>" data-packaging-id="<?=$rowPF['packaging'] ?>"><?=$rowPF['product_name'] ?></option>
         <?php } ?>
       </select>
-      <input type="hidden" id="itemPackaging" name="itemPackaging">
     </td>
     <td>
       <input type="number" class="form-control form-control-sm" id="itemWeight" name="itemWeight" step="0.01" min="0">
@@ -489,7 +488,6 @@ $(function() {
         $("#itemTable").find('.details:last').attr("data-index", itemRowCount);
         $("#itemTable").find('#remove:last').attr("id", "remove" + itemRowCount);
         
-        $("#itemTable").find('#itemPackaging:last').attr('name', 'itemPackaging[' + itemRowCount + ']') .attr("id", "itemPackaging" + itemRowCount);
         $("#itemTable").find('#itemProduct:last').attr('name', 'itemProduct[' + itemRowCount + ']') .attr("id", "itemProduct" + itemRowCount).trigger('change');
         $("#itemTable").find('#itemWeight:last').attr('name', 'itemWeight[' + itemRowCount + ']').attr( "id", "itemWeight" + itemRowCount);
         $("#itemTable").find('#itemPrice:last').attr('name', 'itemPrice[' + itemRowCount + ']').attr( "id", "itemPrice" + itemRowCount);
@@ -502,12 +500,6 @@ $(function() {
           placeholder: "Please Select",
           width: '100%'
         });
-    });
-
-    // Event delegation to trigger change when product selected to get packaging info
-    $("#itemTable").on('change', 'select[id^="itemProduct"]', function() {
-        var packagingId = $(this).find(':selected').data('packaging-id');
-        $(this).closest('.details').find('input[id^="itemPackaging"]').val(packagingId);
     });
 
     // Event delegation to calculate total price from weight

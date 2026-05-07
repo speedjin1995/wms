@@ -121,7 +121,6 @@ if(isset($_POST['purchaseNo'], $_POST['itemProduct'], $_POST['itemWeight'], $_PO
 
           if (isset($_POST['itemProduct'])){
             $itemProduct = $_POST['itemProduct'];
-            $itemPackaging = $_POST['itemPackaging'];
             $itemWeight = $_POST['itemWeight'];
             $itemPrice = $_POST['itemPrice'];
             $itemTotal = $_POST['itemTotal'];
@@ -167,8 +166,8 @@ if(isset($_POST['purchaseNo'], $_POST['itemProduct'], $_POST['itemWeight'], $_PO
                       }
                       else{
                         // Product not exist, insert new record with stock
-                        if ($insert_product_stmt = $db->prepare("INSERT INTO inventory (product_id, quantity, packaging_id) VALUES (?, ?, ?)")){
-                          $insert_product_stmt->bind_param('sss', $itemId, $itemWeight[$key], $itemPackaging[$key]);
+                        if ($insert_product_stmt = $db->prepare("INSERT INTO inventory (product_id, quantity) VALUES (?, ?)")){
+                          $insert_product_stmt->bind_param('ss', $itemId, $itemWeight[$key]);
                           $insert_product_stmt->execute();
                           $insert_product_stmt->close();
                         }
