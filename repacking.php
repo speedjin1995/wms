@@ -13,11 +13,11 @@ $language = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 
 if ($role != 'SADMIN') {
-    $sources = $db->query("SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id WHERE products.deleted='0' AND products.packaging<>'1' AND products.customer='$company' AND inventory.quantity > 0 ORDER BY products.product_name ASC");
-    $targets = $db->query("SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id WHERE products.deleted='0' AND products.packaging='1' AND products.customer='$company' ORDER BY products.product_name ASC");
+    $sources = $db->query("SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Original' AND products.customer='$company' AND inventory.quantity > 0 ORDER BY products.product_name ASC");
+    $targets = $db->query("SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Repack' AND products.customer='$company' ORDER BY products.product_name ASC");
 } else {
-    $sources = $db->query("SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id WHERE products.deleted='0' AND products.packaging<>'1' AND inventory.quantity > 0 ORDER BY products.product_name ASC");
-    $targets = $db->query("SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id WHERE products.deleted='0' AND products.packaging='1' ORDER BY products.product_name ASC");
+    $sources = $db->query("SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Original' AND inventory.quantity > 0 ORDER BY products.product_name ASC");
+    $targets = $db->query("SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Repack' ORDER BY products.product_name ASC");
 }
 ?>
 
