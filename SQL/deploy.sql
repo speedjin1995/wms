@@ -645,3 +645,6 @@ ALTER TABLE `inventory` ADD PRIMARY KEY (`id`);
 ALTER TABLE `inventory` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `companies` ADD `packing_mode` VARCHAR(20) NOT NULL DEFAULT 'Food_Packaging' AFTER `waste_mode`;
+
+-- 09/05/2026 --
+ALTER TABLE `packaging` ADD `packaging_type` VARCHAR(30) NOT NULL DEFAULT 'original' AFTER `packaging_name`;
