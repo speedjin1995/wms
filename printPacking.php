@@ -7,6 +7,7 @@ $compname = 'SYNCTRONIX TECHNOLOGY (M) SDN BHD';
 $compaddress = 'No.34, Jalan Bagan 1, Taman Bagan, 13400 Butterworth. Penang. Malaysia.';
 $compphone = '6043325822';
 $compiemail = 'admin@synctronix.com.my';
+$packingMode = 'Food_Packaging';
 
 $totalGross = 0.0;
 $totalCrate = 0.0;
@@ -85,6 +86,7 @@ if(isset($_GET['id'])){
                     $compphone = $rowc['phone'] ?? '';
                     $compfax = $rowc['fax'] ?? '';
                     $compiemail = $rowc['email'] ?? '';
+                    $packingMode = $rowc['packing_mode'];
                 }
                 $stmtcomp->close();
 
@@ -105,7 +107,7 @@ if(isset($_GET['id'])){
                 }
 
                 // Footer Processing
-                $totalBags = floatval($row['total_item']);
+                $totalBags = ($packingMode != 'Food_Packaging') ? floatval($row['total_reject']) : floatval($row['total_item']);
                 $totalWeight = floatval($row['total_weight']);
                 $totalItems = 0;
                 foreach ($groupedData as $productId => $productData) {
@@ -334,7 +336,7 @@ if(isset($_GET['id'])){
                                             if ($stmtcs->execute()) {
                                                 $rcs = $stmtcs->get_result();
                         
-                                                if ($rcsRow= $rcs->fetch_assoc()) { var_dump($rcsRow);
+                                                if ($rcsRow= $rcs->fetch_assoc()) {
                                                     $csValue = $rcsRow['customer_name'];
                                                 }
                                             }
@@ -491,7 +493,9 @@ if(isset($_GET['id'])){
                                                 $indexString = '<tr><td style="border-top:0;padding:0 0.7rem;"><p><span style="font-size:12px;font-family:sans-serif;font-weight:bold;">1</span></p></td>';
 
                                                 foreach ($items as $element) {
-                                                    $cellVal = $element['gross'] . '/' . ($element['itemPerPack'] ?? '-');
+                                                    $cellVal = $packingMode == 'Food_Packaging'
+                                                        ? $element['gross'] . '/' . ($element['itemPerPack'] ?? '-')
+                                                        : $element['gross'];
                                                     if ($count < 10) {
                                                         $indexString .= '<td style="border-top:0;padding:0 0.7rem;width:10%;"><p><span style="font-size:12px;font-family:sans-serif;white-space:nowrap;">' . $cellVal . '</span></p></td>';
                                                         $count++;
