@@ -541,5 +541,107 @@ CREATE TABLE `running_no_setup` (
   `value` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- 07/05/2026 --
+-- 08/05/2026 --
+CREATE TABLE `categories` (
+  `id` int(11) NOT NULL,
+  `category_name` varchar(100) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE `categories` ADD PRIMARY KEY (`id`);
+ALTER TABLE `categories` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `packaging` (
+  `id` int(11) NOT NULL,
+  `packaging_name` varchar(100) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE `packaging` ADD PRIMARY KEY (`id`);
+ALTER TABLE `packaging` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `packaging` (`id`, `packaging_name`, `customer`, `deleted`) VALUES
+(1, 'Box', 10, 0),
+(2, 'KG', 10, 0);
+
+ALTER TABLE `products` ADD `packaging` INT(11) NULL AFTER `hi_weight_unit`, ADD `category` INT(11) NULL AFTER `packaging`;
+
+ALTER TABLE `products` ADD `product_image` TEXT NULL AFTER `category`;
+
+CREATE TABLE `sales` (
+  `id` int(11) NOT NULL,
+  `receipt_no` varchar(100) DEFAULT NULL,
+  `subtotal` varchar(100) DEFAULT NULL,
+  `tax` varchar(50) DEFAULT NULL,
+  `tax_amount` varchar(100) DEFAULT NULL,
+  `discount` varchar(100) DEFAULT NULL,
+  `total_price` varchar(100) DEFAULT NULL,
+  `payment_method` varchar(30) DEFAULT NULL,
+  `status` int(1) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `sales` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `sales` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `sales_cart` (
+  `id` int(11) NOT NULL,
+  `sales_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `weight` varchar(100) NOT NULL,
+  `price` varchar(100) NOT NULL,
+  `total_price` VARCHAR(100) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `sales_cart` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `sales_cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `purchases` (
+  `id` int(11) NOT NULL,
+  `purchase_no` varchar(100) NOT NULL,
+  `total_price` varchar(50) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `purchases` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `purchases` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `purchases_cart` (
+  `id` int(11) NOT NULL,
+  `purchase_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `weight` varchar(100) NOT NULL,
+  `price` varchar(100) NOT NULL,
+  `total_price` varchar(100) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `purchases_cart` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `purchases_cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `inventory` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `quantity` varchar(100) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `inventory` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `companies` ADD `packing_mode` VARCHAR(20) NOT NULL DEFAULT 'Food_Packaging' AFTER `waste_mode`;
