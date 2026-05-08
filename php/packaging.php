@@ -3,13 +3,14 @@ require_once "db_connect.php";
 
 session_start();
 
-if(isset($_POST['packagingName'],$_POST['company'])){
+if(isset($_POST['packagingName'],$_POST['company'],$_POST['packagingType'])){
     $packagingName = filter_input(INPUT_POST, 'packagingName', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
+    $packagingType = filter_input(INPUT_POST, 'packagingType', FILTER_SANITIZE_STRING);
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE packaging SET packaging_name=? WHERE id=?")) {
-            $update_stmt->bind_param('ss', $packagingName, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE packaging SET packaging_name=?, packaging_type=? WHERE id=?")) {
+            $update_stmt->bind_param('sss', $packagingName, $packagingType, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -34,8 +35,8 @@ if(isset($_POST['packagingName'],$_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, customer) VALUES (?, ?)")) {
-            $insert_stmt->bind_param('ss', $packagingName, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, customer) VALUES (?, ?, ?)")) {
+            $insert_stmt->bind_param('sss', $packagingName, $packagingType, $company);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

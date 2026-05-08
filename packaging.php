@@ -73,6 +73,7 @@ else{
 								<tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['packaging_name_code'][$language]?></th>
+                  <th><?=$languageArray['packaging_type_code'][$language]?></th>
 									<th><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
@@ -163,6 +164,13 @@ else{
                   <label for="packagingName"><?=$languageArray['packaging_name_code'][$language]?> *</label>
                   <input type="text" class="form-control" name="packagingName" id="packagingName" placeholder="<?=$languageArray['enter_packaging_name_code'][$language]?>" required>
                 </div>
+                <div class="form-group">
+                  <label for="packagingType"><?=$languageArray['packaging_type_code'][$language]?> *</label>
+                  <select class="form-control" name="packagingType" id="packagingType" required>
+                    <option value="Original"><?=$languageArray['original_code'][$language]?></option>
+                    <option value="Repack"><?=$languageArray['repack_code'][$language]?></option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
@@ -235,6 +243,7 @@ $(function () {
         }
       },
       { data: 'packaging_name' },
+      { data: 'packaging_type', render: function(data){ return data ? data.charAt(0).toUpperCase() + data.slice(1) : ''; } },
       { 
         data: 'deleted',
         render: function (data, type, row) {
@@ -281,6 +290,7 @@ $(function () {
   $('#addPackaging').on('click', function(){
     $('#addModal').find('#id').val("");
     $('#addModal').find('#packagingName').val("");
+    $('#addModal').find('#packagingType').val("Original");
     $('#addModal').modal('show');
     
     $('#packagingForm').validate({
@@ -483,14 +493,14 @@ function displayPreview(data) {
     // Get the headers from first row
     var headers = jsonData[0] || [];
 
-    // Ensure we handle cases where there may be less than 1 columns
-    while (headers.length < 1) {
-        headers.push(''); // Adding empty headers to reach 1 columns
+    // Ensure we handle cases where there may be less than 2 columns
+    while (headers.length < 2) {
+        headers.push(''); // Adding empty headers to reach 2 columns
     }
 
     // Create HTML table headers
     var htmlTable = '<table style="width:50%;"><thead><tr>';
-    for (var h = 0; h < 1; h++) {
+    for (var h = 0; h < 2; h++) {
         htmlTable += '<th>' + (headers[h] || '') + '</th>';
     }
     htmlTable += '</tr></thead><tbody>';
@@ -500,7 +510,7 @@ function displayPreview(data) {
         htmlTable += '<tr>';
         var rowData = jsonData[i] || [];
 
-        for (var j = 0; j < 1; j++) {
+        for (var j = 0; j < 2; j++) {
             var cellData = rowData[j];
             var formattedData = cellData;
 
@@ -528,6 +538,7 @@ function edit(id){
       if(obj.status === 'success'){
         $('#addModal').find('#id').val(obj.message.id);
         $('#addModal').find('#packagingName').val(obj.message.packaging_name);
+        $('#addModal').find('#packagingType').val(obj.message.packaging_type);
         $('#addModal').find('#company').val(obj.message.customer).trigger('change');
         $('#addModal').modal('show');
         

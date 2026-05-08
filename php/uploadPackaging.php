@@ -14,6 +14,7 @@ $errorArray = array();
 if (!empty($data)) {
     foreach ($data as $rows) {
         $PackagingName = !empty($rows['PackagingName']) ? trim($rows['PackagingName']) : '';
+        $PackagingType = !empty($rows['PackagingType']) ? trim($rows['PackagingType']) : 'Original';
 
         # Check if unit exist in DB
         $deleted = "0";
@@ -22,8 +23,8 @@ if (!empty($data)) {
         $row = mysqli_fetch_assoc($categoryDetail);
 
         if(empty($row)){
-            if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, customer) VALUES (?, ?)")) {
-                $insert_stmt->bind_param('ss', $PackagingName, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, customer) VALUES (?, ?, ?)")) {
+                $insert_stmt->bind_param('sss', $PackagingName, $PackagingType, $company);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            
