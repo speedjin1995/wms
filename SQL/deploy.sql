@@ -648,3 +648,16 @@ ALTER TABLE `companies` ADD `packing_mode` VARCHAR(20) NOT NULL DEFAULT 'Food_Pa
 
 -- 09/05/2026 --
 ALTER TABLE `packaging` ADD `packaging_type` VARCHAR(30) NOT NULL DEFAULT 'original' AFTER `packaging_name`;
+
+CREATE TABLE `statuses` (
+  `id` int(11) NOT NULL,
+  `module` varchar(100) NOT NULL,
+  `status` varchar(100) NOT NULL,
+  `prefix` VARCHAR(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `statuses` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `statuses` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `running_no_setup` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT, add PRIMARY KEY (`id`);
