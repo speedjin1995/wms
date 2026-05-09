@@ -137,7 +137,7 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-1">
-                        <img src="assets/weighing-bridge-icon-1.png" alt="Weighing Brdige" class="modules-img">
+                        <img src="assets/weighing-bridge-icon-1.png" alt="Weighing Bridge" class="modules-img">
                         <div class="modules-txt">Weighing Bridge</div>
                     </div>
                 </a>
@@ -149,7 +149,7 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-2">
-                        <img src="assets/wholesales-icon.png" alt="Weighing Brdige" class="modules-img">
+                        <img src="assets/wholesales-icon.png" alt="Wholesales" class="modules-img">
                         <div class="modules-txt">Wholesales</div>
                     </div>
                 </a>
@@ -161,7 +161,7 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-2">
-                        <img src="assets/food-packaging-icon.png" alt="Weighing Brdige" style="width: 55%; display: block; margin: 0 auto;">
+                        <img src="assets/food-packaging-icon.png" alt="Packing" style="width: 55%; display: block; margin: 0 auto;">
                         <div class="modules-txt">Packing</div>
                     </div>
                 </a>
@@ -173,13 +173,13 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-2">
-                        <img src="assets/pricing-icon.png" alt="Weighing Brdige" style="width: 55%; display: block; margin: 0 auto;">
+                        <img src="assets/pricing-icon.png" alt="Pricing" style="width: 55%; display: block; margin: 0 auto;">
                         <div class="modules-txt">Pricing</div>
                     </div>
                 </a>
                 <a href="php/logout.php">
                     <div class="modules-box modules-box-3">
-                        <img src="assets/logout-icon.png" alt="Weighing Brdige" class="modules-img">
+                        <img src="assets/logout-icon.png" alt="Logout" class="modules-img">
                         <div class="modules-txt">Logout</div>
                     </div>
                 </a>
