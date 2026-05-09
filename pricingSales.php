@@ -16,9 +16,9 @@ else{
   $message = array();
 
   if ($role != 'SADMIN'){
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   } else {
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   }
 
   while($rowProducts=mysqli_fetch_assoc($products)){
@@ -36,7 +36,8 @@ else{
       'item_name' => $rowProducts['product_name'],
       'price'     => $rowProducts['price'],
       'img'       => $rowProducts['product_image'],
-      'stock'     => $rowProducts['stock']
+      'stock'     => $rowProducts['stock'],
+      'packaging_name' => $rowProducts['packaging_name']
     ));
   }
 
@@ -149,7 +150,8 @@ else{
           $price    = number_format((float) $message[$j]['Products'][$k]['price'], 2);
           $img      = $message[$j]['Products'][$k]['img'];
           $stock    = (float) $message[$j]['Products'][$k]['stock'];
-          $noStock  = $stock <= 0;
+          $packagingName = $message[$j]['Products'][$k]['packaging_name'] ?? 'kg';
+          $noStock = $stock <= 0;
 
           $imgHtml = $img
             ? '<img src="php/viewPhoto.php?file=' . $img . '&type=file_table" class="product-img" loading="lazy">'
@@ -157,7 +159,7 @@ else{
 
           $badge    = $noStock ? '<span class="out-of-stock-badge">Not Available</span>' : '';
           $oosCls   = $noStock ? ' out-of-stock' : '';
-          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ')"';
+          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ', \'' . $packagingName . '\')"';
 
           echo '
           <div class="product-item' . $oosCls . '" data-stock="' . $stock . '" data-pid="' . $pid . '"' . $onclick . '>
@@ -165,7 +167,7 @@ else{
               ' . $imgHtml . $badge . '
               <div class="card-info">
                 <p class="product-name">' . $name . '</p>
-                <p class="product-price">RM ' . $price . '/kg</p>
+                <p class="product-price">RM ' . $price . '/'.$packagingName.'</p>
               </div>
             </div>
           </div>';
@@ -314,6 +316,48 @@ else{
 
 <input type="text" id="barcodeScan" style="position:absolute;left:-9999px;">
 
+<!-- Weight Input Modal -->
+<div class="modal fade" id="weightModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><?=$languageArray['enter_quantity_code'][$language]?></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="card mb-3" style="background:#2563eb;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h2 class="text-white mb-0"><span id="indicatorWeight">0</span> KG</h2>
+              </div>
+              <div>
+                <span class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center" style="width:45px;height:45px;">
+                  <i class="fas fa-weight-hanging text-info"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label><?=$languageArray['quantity_code'][$language]?> (<span id="uom">kg</span>)</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="quantity" step="0.01" min="0.01" placeholder="<?=$languageArray['enter_quantity_code'][$language]?>">
+            <div class="input-group-append">
+              <button class="btn" id="weightCapture" type="button" style="background:#2563eb;color:white;"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <input type="hidden" id="productId">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-primary" id="weightConfirm"><?=$languageArray['save_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 var size = 0;
 var PAGE_SIZE = 6;
@@ -404,6 +448,55 @@ $(function(){
         toastr["error"]("Something wrong when edit", "Failed:");
         $('#spinnerLoading').hide();
       }
+    });
+  });
+
+  $('#weightCapture').on('click', function() {
+    var indicatorWeight = $('#indicatorWeight').text();  
+    $('#weightModal').find('#quantity').val(indicatorWeight);
+  });
+
+  $('#weightConfirm').on('click', function() {
+    var id = $('#weightModal').find('#productId').val();
+    var quantity = parseFloat($('#weightModal').find('#quantity').val()) || 0;
+
+    if (quantity <= 0) {
+      alert('Please enter a valid quantity.', 'Failed:');
+      return;
+    }
+
+    if ($('#row_' + id).length) {
+      $('#wt_' + id).val(quantity);
+      updateWeight(id);
+      $('#weightModal').modal('hide');
+      $('#spinnerLoading').hide();
+      return;
+    }
+
+    $('#spinnerLoading').show();
+
+    $.post('php/getProduct.php', { userID: id }, function(data) {
+      var obj = JSON.parse(data);
+
+      if (obj.status === 'success') {
+        var product = obj.message;
+        var uomLabel = product.packaging_name || product.uom_name || '';
+        var stock = parseFloat($('.product-item[data-pid="' + id + '"]').data('stock')) || 0;
+
+        if (stock > 0 && quantity > stock) {
+          alert('Weight exceeds available stock (' + stock + ' kg).', 'Failed:');
+          $('#spinnerLoading').hide();
+          return;
+        }
+
+        addOrderRow(id, product.product_name, product.price || 0, uomLabel, quantity, stock);
+        recalc();
+        $('#weightModal').modal('hide');
+      } else {
+        toastr.error(obj.message, 'Failed:');
+      }
+
+      $('#spinnerLoading').hide();
     });
   });
 });
@@ -518,30 +611,11 @@ function initPagination(tabId) {
   showPage(1);
 }
 
-function addItems(id) {
-  $('#spinnerLoading').show();
-
-  $.post('php/getProduct.php', { userID: id }, function(data) {
-    var obj = JSON.parse(data);
-
-    if (obj.status === 'success') {
-      var p = obj.message;
-
-      // Build display label: packaging name if set, else uom name, else price only
-      var uomLabel = p.packaging_name || p.uom_name || '';
-
-      if ($('#row_' + id).length) {
-        toastr['error']('Product already added.', 'Failed:');
-      } else {
-        var stock = parseFloat($('.product-item[data-pid="' + id + '"]').data('stock')) || 0;
-        addOrderRow(id, p.product_name, p.price || 0, uomLabel, 0, stock);
-        recalc();
-      }
-    } else {
-      toastr.error(obj.message, 'Failed:');
-    }
-
-    $('#spinnerLoading').hide();
-  });
+function addItems(id, packagingName) {
+  $('#weightModal').find('#productId').val(id);
+  $('#weightModal').find('#uom').text(packagingName);
+  $('#weightModal').find('#quantity').val('');
+  $('#weightModal').modal('show');
 }
+
 </script>
