@@ -531,7 +531,7 @@ function addItems(id) {
       var uomLabel = p.packaging_name || p.uom_name || '';
 
       if ($('#row_' + id).length) {
-        changeQty(id, 1);
+        toastr['error']('Product already added.', 'Failed:');
       } else {
         var stock = parseFloat($('.product-item[data-pid="' + id + '"]').data('stock')) || 0;
         addOrderRow(id, p.product_name, p.price || 0, uomLabel, 0, stock);
