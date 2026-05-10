@@ -16,9 +16,9 @@ else{
   $message = array();
 
   if ($role != 'SADMIN'){
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   } else {
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   }
 
   while($rowProducts=mysqli_fetch_assoc($products)){
@@ -37,7 +37,8 @@ else{
       'price'     => $rowProducts['price'],
       'img'       => $rowProducts['product_image'],
       'stock'     => $rowProducts['stock'],
-      'packaging_name' => $rowProducts['packaging_name']
+      'packaging_name' => $rowProducts['packaging_name'],
+      'by_weight' => $rowProducts['by_weight'],
     ));
   }
 
@@ -151,6 +152,7 @@ else{
           $img      = $message[$j]['Products'][$k]['img'];
           $stock    = (float) $message[$j]['Products'][$k]['stock'];
           $packagingName = $message[$j]['Products'][$k]['packaging_name'] ?? 'kg';
+          $byWeight = $message[$j]['Products'][$k]['by_weight'] ?? 'kg';
           $noStock = $stock <= 0;
 
           $imgHtml = $img
@@ -159,7 +161,7 @@ else{
 
           $badge    = $noStock ? '<span class="out-of-stock-badge">Not Available</span>' : '';
           $oosCls   = $noStock ? ' out-of-stock' : '';
-          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ', \'' . $packagingName . '\')"';
+          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ', \'' . $packagingName . '\', \'' . $byWeight . '\')"';
 
           echo '
           <div class="product-item' . $oosCls . '" data-stock="' . $stock . '" data-pid="' . $pid . '"' . $onclick . '>
@@ -317,7 +319,7 @@ else{
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
-        <div class="card mb-3" style="background:#2563eb;">
+        <div class="card mb-3" style="background:#2563eb;" id="displayIndicatorWeight">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div>
@@ -335,7 +337,7 @@ else{
           <label><?=$languageArray['quantity_code'][$language]?> (<span id="uom">kg</span>)</label>
           <div class="input-group">
             <input type="number" class="form-control" id="quantity" step="0.01" min="0.01" placeholder="<?=$languageArray['enter_quantity_code'][$language]?>">
-            <div class="input-group-append">
+            <div class="input-group-append" id="displayWeightCapture">
               <button class="btn" id="weightCapture" type="button" style="background:#2563eb;color:white;"><i class="fas fa-sync"></i></button>
             </div>
           </div>
@@ -759,10 +761,19 @@ function initPagination(tabId) {
   showPage(1);
 }
 
-function addItems(id, packagingName) {
+function addItems(id, packagingName, byWeight) {
   $('#weightModal').find('#productId').val(id);
   $('#weightModal').find('#uom').text(packagingName);
   $('#weightModal').find('#quantity').val('');
+
+  if (byWeight == 'Y'){
+    $('#displayIndicatorWeight').show();
+    $('#displayWeightCapture').show();
+  }else{
+    $('#displayIndicatorWeight').hide();
+    $('#displayWeightCapture').hide();
+  }
+  
   $('#weightModal').modal('show');
 }
 
