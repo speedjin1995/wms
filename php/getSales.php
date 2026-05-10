@@ -29,6 +29,8 @@ if(isset($_POST['id'])){
                     'tax_amount' => $row['tax_amount'],
                     'discount' => $row['discount'],
                     'total_price' => $row['total_price'],
+                    'total_paid_amount' => $row['total_paid_amount'],
+                    'change_amount' => $row['change_amount'],
                     'payments' => json_decode($row['payments'], true),
                     'created_by_name' => $row['created_by_name'],
                     'created_datetime' => $row['created_datetime'],
