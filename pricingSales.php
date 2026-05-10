@@ -50,63 +50,75 @@ else{
 <style>
   .content-wrapper { padding:0 !important; }
   #sales-wrap { display:flex; height:calc(100vh - 57px); overflow:hidden; }
-  #sales-left  { flex:1; overflow:hidden; display:flex; flex-direction:column; border-right:1px solid #e5e7eb; }
-  #sales-right { width:480px; flex-shrink:0; overflow:hidden; display:flex; flex-direction:column; }
+  #sales-left  { flex:1; overflow:hidden; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.15); background:transparent; }
+  #sales-right { width:480px; flex-shrink:0; overflow:hidden; display:flex; flex-direction:column; background:rgba(20,16,0,0.72); backdrop-filter:blur(4px); }
 
   #sales-wrap { font-family: 'Source Sans Pro', sans-serif; font-size:0.9rem; }
   #sales-wrap *:not(.fas):not(.far):not(.fab):not(.fal):not([class*='fa-']) { font-family: 'Source Sans Pro', sans-serif; font-size:0.9rem; }
-  #sales-wrap h1 { font-size:2rem !important; font-weight:700; }
+  #sales-wrap h1 { font-size:2rem !important; font-weight:700; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
 
-  .sales-header { flex-shrink:0; }
-  .cat-tabs { display:flex; border-bottom:2px solid #e5e7eb; flex-shrink:0; }
-  .cat-tab  { padding:10px 18px; font-size:0.9rem; font-weight:600; color:#6b7280; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all 0.2s; white-space:nowrap; }
-  .cat-tab.active { color:#2563eb; border-bottom-color:#2563eb; }
+  .sales-header { flex-shrink:0; background:transparent; }
+  .cat-tabs { display:flex; border-bottom:2px solid rgba(255,255,255,0.2); flex-shrink:0; background:transparent; }
+  .cat-tab  { padding:10px 18px; font-size:0.9rem; font-weight:600; color:rgba(255,255,255,0.7); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all 0.2s; white-space:nowrap; }
+  .cat-tab.active { color:#fff; border-bottom-color:#f59e0b; }
 
   .search-wrap { flex-shrink:0; }
-  .search-wrap .input-group { border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; display:flex; align-items:center; }
-  .search-wrap .input-group-text { background:#fff; color:#9ca3af; border:0; padding:8px 12px; flex-shrink:0; }
-  .search-wrap input { border:0; flex:1; min-width:0; font-size:0.9rem; padding:8px 12px; outline:none; box-shadow:none; border-radius:0 8px 8px 0; }
+  .search-wrap .input-group { border:1px solid rgba(255,255,255,0.6); border-radius:8px; overflow:hidden; display:flex; align-items:center; background:rgba(255,255,255,0.85); }
+  .search-wrap .input-group-text { background:transparent; color:#6b7280; border:0; padding:8px 12px; flex-shrink:0; }
+  .search-wrap input { border:0; flex:1; min-width:0; font-size:0.9rem; padding:8px 12px; outline:none; box-shadow:none; border-radius:0 8px 8px 0; background:transparent; color:#111827; }
+  .search-wrap input::placeholder { color:#9ca3af; }
   .search-wrap input:focus { box-shadow:none; outline:none; }
 
   .product-scroll { flex:1; overflow-y:auto; }
+  .product-scroll::-webkit-scrollbar { width:5px; }
+  .product-scroll::-webkit-scrollbar-track { background:transparent; }
+  .product-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.3); border-radius:4px; }
   .product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
 
-  .product-card { border:1px solid #e5e7eb; border-radius:12px; cursor:pointer; transition:box-shadow 0.2s, transform 0.2s; overflow:hidden; background:#fff; }
-  .product-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.10); transform:translateY(-2px); }
+  .product-card { border:1px solid rgba(255,255,255,0.3); border-radius:12px; cursor:pointer; transition:box-shadow 0.2s, transform 0.2s; overflow:hidden; background:rgba(255,255,255,0.92); }
+  .product-card:hover { box-shadow:0 4px 24px rgba(0,0,0,0.35); transform:translateY(-2px); }
   .product-item.out-of-stock { pointer-events:none; }
-  .product-item.out-of-stock .product-card { opacity:0.55; cursor:not-allowed; background:#f9fafb; }
+  .product-item.out-of-stock .product-card { opacity:1; cursor:not-allowed; background:rgba(30,25,0,0.55); border:1px solid rgba(255,255,255,0.15); }
+  .product-item.out-of-stock .product-card .product-name { color:#e5e7eb; }
+  .product-item.out-of-stock .product-card .product-price { color:#9ca3af; }
+  .product-item.out-of-stock .product-card .product-img-placeholder { background:rgba(0,0,0,0.3); color:rgba(255,255,255,0.2); }
   .product-item.out-of-stock .product-card:hover { box-shadow:none; transform:none; }
   .out-of-stock-badge { position:absolute; top:8px; right:8px; background:#ef4444; color:#fff; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:20px; }
   .product-card .product-img { width:100%; height:160px; object-fit:cover; background:#f3f4f6; }
-  .product-card .product-img-placeholder { width:100%; height:160px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; color:#d1d5db; font-size:3rem; }
+  .product-card .product-img-placeholder { width:100%; height:160px; background:rgba(243,244,246,0.6); display:flex; align-items:center; justify-content:center; color:#d1d5db; font-size:3rem; }
   .product-card .card-info { padding:12px 14px 14px; }
   .product-card .product-name { font-size:0.9rem; font-weight:700; color:#111827; margin:0 0 4px; }
   .product-card .product-price { font-size:0.9rem; color:#6b7280; margin:0; }
 
   .pagination-wrap { display:flex; justify-content:center; }
-  .pagination .page-link { font-size:0.82rem; padding:4px 11px; color:#2563eb; border-color:#e5e7eb; }
-  .pagination .page-item.active .page-link { background:#2563eb; border-color:#2563eb; color:#fff; }
-  .pagination .page-item.disabled .page-link { color:#d1d5db; }
+  .pagination .page-link { font-size:0.82rem; padding:4px 11px; color:#fff; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.15); }
+  .pagination .page-item.active .page-link { background:#f59e0b; border-color:#f59e0b; color:#fff; }
+  .pagination .page-item.disabled .page-link { color:rgba(255,255,255,0.3); }
 
-  .order-header { background: rgba(47, 40, 0, .75); color:#fff; font-size:1rem; font-weight:700; flex-shrink:0; display:flex; align-items:center; gap:10px; }
+  .order-header { background:rgba(47,40,0,0.85); color:#fff; font-size:1rem; font-weight:700; flex-shrink:0; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.1); }
   .order-table-wrap { flex:1; overflow-y:auto; }
+  .order-table-wrap::-webkit-scrollbar { width:4px; }
+  .order-table-wrap::-webkit-scrollbar-track { background:transparent; }
+  .order-table-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:4px; }
   .order-table { width:100%; border-collapse:collapse; }
-  .order-table thead th { font-size:0.9rem; color:#6b7280; font-weight:600; border-bottom:1px solid #f3f4f6; background:#fff; }
-  .order-table tbody td { font-size:0.9rem; border-bottom:1px solid #f9fafb; vertical-align:middle; color:#111827; }
+  .order-table thead th { font-size:0.85rem; color:rgba(255,255,255,0.6); font-weight:600; border-bottom:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2); padding-top:10px; padding-bottom:10px; }
+  .order-table tbody td { font-size:0.9rem; border-bottom:1px solid rgba(255,255,255,0.07); vertical-align:middle; color:#f3f4f6; }
   .order-table .item-name { font-weight:600; }
-  .del-btn { background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer; padding:0 4px; }
+  .del-btn { background:none; border:none; color:#f87171; font-size:1rem; cursor:pointer; padding:0 4px; }
 
-  .order-summary { border-top:1px solid #f3f4f6; flex-shrink:0; }
-  .summary-row   { display:flex; justify-content:space-between; font-size:0.9rem; color:#6b7280; }
-  .summary-total { display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700; color:#2563eb; }
+  .order-summary { border-top:1px solid rgba(255,255,255,0.1); flex-shrink:0; }
+  .summary-row   { display:flex; justify-content:space-between; font-size:0.9rem; color:rgba(255,255,255,0.7); }
+  .summary-total { display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700; color:#f59e0b; }
+  .order-summary input { background:rgba(255,255,255,0.1) !important; border-color:rgba(255,255,255,0.2) !important; color:#fff !important; }
+  .order-summary #totalDisplay { background:rgba(245,158,11,0.2) !important; border-color:#f59e0b !important; color:#f59e0b !important; }
   .order-footer  { flex-shrink:0; }
-  .order-footer label { font-size:0.9rem; font-weight:600; color:#374151; }
-  .order-footer select { border-radius:8px; font-size:0.9rem; border-color:#e5e7eb; }
-  .btn-cancel { flex:1; border:1.5px solid #ef4444; color:#ef4444; background:#fff; border-radius:8px; font-weight:600; font-size:0.88rem; transition:background 0.15s; }
-  .btn-cancel:hover { background:#fef2f2; }
-  .btn-submit { flex:1; background:#94a3b8; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88rem; display:flex; align-items:center; justify-content:center; gap:6px; transition:background 0.15s; }
-  .btn-submit.ready { background:#2563eb; }
-  .btn-submit.ready:hover { background:#1d4ed8; }
+  .order-footer label { font-size:0.9rem; font-weight:600; color:rgba(255,255,255,0.8); }
+  .order-footer select { border-radius:8px; font-size:0.9rem; border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.1); color:#fff; }
+  .btn-cancel { flex:1; border:1.5px solid #ef4444; color:#ef4444; background:rgba(255,255,255,0.08); border-radius:8px; font-weight:600; font-size:0.88rem; transition:background 0.15s; }
+  .btn-cancel:hover { background:rgba(239,68,68,0.15); }
+  .btn-submit { flex:1; background:rgba(148,163,184,0.4); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88rem; display:flex; align-items:center; justify-content:center; gap:6px; transition:background 0.15s; }
+  .btn-submit.ready { background:#f59e0b; }
+  .btn-submit.ready:hover { background:#d97706; }
 </style>
 
 <div id="sales-wrap">
@@ -223,7 +235,7 @@ else{
               step="0.01"
               value="0.00"
               readonly
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right; background:#f9fafb;"
+              style="width:70px; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right;"
             >
           </span>
         </div>
@@ -236,7 +248,7 @@ else{
               id="totalDiscount"
               step="0.01"
               value="0.00"
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
+              style="width:70px; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
             >
           </span>
         </div>
@@ -249,7 +261,7 @@ else{
               id="taxRate"
               step="0.01"
               value="0.00"
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
+              style="width:70px; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
             >
           </span>
         </div>
@@ -262,7 +274,7 @@ else{
               step="0.01"
               value="0.00"
               readonly
-              style="width:70px; border:1px solid #2563eb; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right; background:#eff6ff; color:#2563eb; font-weight:700;"
+              style="width:70px; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right; font-weight:700;"
             >
           </span>
         </div>
@@ -664,7 +676,7 @@ function addOrderRow(id, name, price, uomLabel, weight, stock) {
       '</td>' +
       '<td class="px-3 py-2">' +
         '<input type="number" class="wt-input" id="wt_' + id + '" name="itemWeight[' + size + ']" value="' + weight + '" step="0.01" min="0.01"' +
-        ' style="width:80px; border:1px solid #e5e7eb; border-radius:6px; padding:3px 6px; font-size:0.85rem; text-align:center;"' +
+        ' style="width:80px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:3px 6px; font-size:0.85rem; text-align:center; background:rgba(255,255,255,0.1); color:#fff;"' +
         ' onchange="updateWeight(' + id + ')">' +
       '</td>' +
       '<td id="tot_' + id + '" class="px-3 py-2">' + total + '<input type="hidden" name="totalPrice[' + size + ']" id="tp_' + id + '" value="' + total + '"></td>' +
