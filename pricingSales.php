@@ -325,7 +325,7 @@ else{
               </div>
               <div>
                 <span class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center" style="width:45px;height:45px;">
-                  <i class="fas fa-weight-hanging text-dark"></i>
+                  <i class="fas fa-weight-hanging" style="color:black"></i>
                 </span>
               </div>
             </div>
