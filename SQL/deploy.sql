@@ -664,3 +664,5 @@ ALTER TABLE `running_no_setup` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT,
 
 -- 10/05/2026 --
 ALTER TABLE `sales` ADD `payments` TEXT NULL AFTER `payment_method`;
+
+ALTER TABLE `companies` ADD `indicator` INT(11) NULL AFTER `photo_upload_mode`;
