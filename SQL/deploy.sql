@@ -668,3 +668,6 @@ ALTER TABLE `sales` ADD `payments` TEXT NULL AFTER `payment_method`;
 ALTER TABLE `companies` ADD `indicator` INT(11) NULL AFTER `photo_upload_mode`;
 
 ALTER TABLE `sales` ADD `total_paid_amount` VARCHAR(100) NULL AFTER `payments`, ADD `change_amount` VARCHAR(100) NULL AFTER `total_payment_amount`;
+
+ALTER TABLE `packaging` ADD `is_by_weight` VARCHAR(3) NOT NULL DEFAULT 'N' AFTER `packaging_type`;
+

@@ -48,6 +48,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "id"=>$row['id'],
       "packaging_name"=>$row['packaging_name'],
       "packaging_type"=>$row['packaging_type'],
+      "is_by_weight"=>$row['is_by_weight'],
       "deleted"=>$row['deleted']
     );
 }
