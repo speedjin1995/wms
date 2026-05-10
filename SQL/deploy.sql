@@ -521,3 +521,148 @@ ALTER TABLE `supplies` ADD `fax` VARCHAR(100) NULL AFTER `pic`;
 ALTER TABLE `supplies` ADD `billing_name` VARCHAR(100) NULL AFTER `fax`, ADD `billing_address` TEXT NULL AFTER `billing_name`, ADD `billing_address2` TEXT NULL AFTER `billing_address`, ADD `billing_address3` TEXT NULL AFTER `billing_address2`, ADD `billing_address4` TEXT NULL AFTER `billing_address3`, ADD `billing_state` INT(5) NULL AFTER `billing_address4`, ADD `billing_pic` VARCHAR(50) NULL AFTER `billing_state`, ADD `billing_phone` VARCHAR(50) NULL AFTER `billing_pic`, ADD `billing_fax` VARCHAR(50) NULL AFTER `billing_phone`;
 
 ALTER TABLE `supplies` CHANGE `reg_no` `reg_no` TEXT CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL;
+
+-- 02/05/2026 --
+ALTER TABLE `companies` ADD `pulp_and_paste_mode` VARCHAR(15) NOT NULL DEFAULT 'Portrait' AFTER `wholesale_mode`;
+
+ALTER TABLE `companies` ADD `waste_mode` VARCHAR(15) NOT NULL DEFAULT 'Portrait' AFTER `pulp_and_paste_mode`;
+
+ALTER TABLE `users` ADD `allow_add` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `stopbits`;
+
+ALTER TABLE `products` ADD `range_set` INT(1) NOT NULL DEFAULT '0' AFTER `is_manual`, ADD `ok_weight` VARCHAR(100) NULL AFTER `range_set`, ADD `ok_weight_unit` INT(11) NULL AFTER `ok_weight`, ADD `lo_weight` VARCHAR(100) NULL AFTER `ok_weight_unit`, ADD `lo_weight_unit` INT(11) NULL AFTER `lo_weight`, ADD `hi_weight` VARCHAR(100) NULL AFTER `lo_weight_unit`, ADD `hi_weight_unit` INT(11) NULL AFTER `hi_weight`;
+
+-- 07/05/2026 --
+CREATE TABLE `running_no_setup` (
+  `id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  `module` varchar(100) NOT NULL,
+  `transaction_status` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `value` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 08/05/2026 --
+CREATE TABLE `categories` (
+  `id` int(11) NOT NULL,
+  `category_name` varchar(100) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE `categories` ADD PRIMARY KEY (`id`);
+ALTER TABLE `categories` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `packaging` (
+  `id` int(11) NOT NULL,
+  `packaging_name` varchar(100) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE `packaging` ADD PRIMARY KEY (`id`);
+ALTER TABLE `packaging` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `packaging` (`id`, `packaging_name`, `customer`, `deleted`) VALUES
+(1, 'Box', 10, 0),
+(2, 'KG', 10, 0);
+
+ALTER TABLE `products` ADD `packaging` INT(11) NULL AFTER `hi_weight_unit`, ADD `category` INT(11) NULL AFTER `packaging`;
+
+ALTER TABLE `products` ADD `product_image` TEXT NULL AFTER `category`;
+
+CREATE TABLE `sales` (
+  `id` int(11) NOT NULL,
+  `receipt_no` varchar(100) DEFAULT NULL,
+  `subtotal` varchar(100) DEFAULT NULL,
+  `tax` varchar(50) DEFAULT NULL,
+  `tax_amount` varchar(100) DEFAULT NULL,
+  `discount` varchar(100) DEFAULT NULL,
+  `total_price` varchar(100) DEFAULT NULL,
+  `payment_method` varchar(30) DEFAULT NULL,
+  `status` int(1) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `sales` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `sales` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `sales_cart` (
+  `id` int(11) NOT NULL,
+  `sales_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `weight` varchar(100) NOT NULL,
+  `price` varchar(100) NOT NULL,
+  `total_price` VARCHAR(100) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `sales_cart` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `sales_cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `purchases` (
+  `id` int(11) NOT NULL,
+  `purchase_no` varchar(100) NOT NULL,
+  `total_price` varchar(50) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `purchases` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `purchases` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `purchases_cart` (
+  `id` int(11) NOT NULL,
+  `purchase_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `weight` varchar(100) NOT NULL,
+  `price` varchar(100) NOT NULL,
+  `total_price` varchar(100) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `purchases_cart` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `purchases_cart` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `inventory` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `quantity` varchar(100) NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `inventory` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inventory` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `companies` ADD `packing_mode` VARCHAR(20) NOT NULL DEFAULT 'Food_Packaging' AFTER `waste_mode`;
+
+-- 09/05/2026 --
+ALTER TABLE `packaging` ADD `packaging_type` VARCHAR(30) NOT NULL DEFAULT 'original' AFTER `packaging_name`;
+
+CREATE TABLE `statuses` (
+  `id` int(11) NOT NULL,
+  `module` varchar(100) NOT NULL,
+  `status` varchar(100) NOT NULL,
+  `prefix` VARCHAR(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `statuses` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `statuses` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `running_no_setup` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT, add PRIMARY KEY (`id`);
+
+-- 10/05/2026 --
+ALTER TABLE `sales` ADD `payments` TEXT NULL AFTER `payment_method`;
+
+ALTER TABLE `companies` ADD `indicator` INT(11) NULL AFTER `photo_upload_mode`;

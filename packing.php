@@ -16,7 +16,6 @@ else{
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
-	$allowAdd = 'N';
 	$allowEdit = 'N';
   $allowDelete = 'N';
   $allowPhoto = 'N';
@@ -25,7 +24,6 @@ else{
 
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
-    $allowAdd = $row['allow_add'];
     $allowEdit = $row['allow_edit'];
     $allowDelete = $row['allow_delete'];
   }
@@ -33,7 +31,6 @@ else{
   if ($role != 'SADMIN'){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
-    $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
@@ -44,7 +41,6 @@ else{
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
 
     // Company Detail 
@@ -61,7 +57,6 @@ else{
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
@@ -72,7 +67,6 @@ else{
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
 
     $allowPhoto = 'Y';
@@ -108,7 +102,7 @@ else{
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['wholesales_code'][$language]?></h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['weighing_record_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -146,9 +140,9 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                    <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                    <option value="SALES" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="PURCHASE"><?=$languageArray['receiving_code'][$language]?></option>
+                    <!--option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option-->
                   </select>
                 </div>
               </div>
@@ -182,7 +176,6 @@ else{
                   <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
                       <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
                     <?php } ?>
@@ -197,7 +190,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3">
+              <div class="col-3" style="display:none;">
                 <div class="form-group">
                   <label><?=$languageArray['checked_by_code'][$language]?></label>
                   <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
@@ -237,10 +230,8 @@ else{
                   </select>
                 </div>
               </div>
-            </div>
 
-            <div class="row">
-              <div class="col-9"></div>
+              <div class="col-3"></div>
               <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
@@ -258,15 +249,13 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['wholesales_code'][$language]?></div>
+              <div class="col-10"></div>
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
-              <?php if($allowAdd == 'Y'){ ?>
-              <div class="col-2">
+              <div class="col-2" style="visibility: hidden;">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
-              <?php } ?>
             </div>
           </div>
 
@@ -276,7 +265,6 @@ else{
                 <tr>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
@@ -284,9 +272,7 @@ else{
                   <th><?=$languageArray['driver_code'][$language]?></th>
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
-                  <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <th><?=$languageArray['checked_by_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -325,34 +311,6 @@ else{
           <input type="hidden" class="form-control" id="id" name="id">
           
           <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['serial_no_code'][$language]?> *</label>
-                <input type="text" class="form-control" id="serialNo" name="serialNo" readonly>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['start_time_code'][$language]?> *</label>
-                <div class="input-group date" id="startTimePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#startTimePicker" id="startTime" name="startTime" required/>
-                  <div class="input-group-append" data-target="#startTimePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['end_time_code'][$language]?></label>
-                <div class="input-group date" id="endTimePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#endTimePicker" id="endTime" name="endTime"/>
-                  <div class="input-group-append" data-target="#endTimePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['status_code'][$language]?> *</label>
@@ -413,10 +371,9 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
-                <select class="form-control select2" id="vehicle" name="vehicle" required>
+                <label><?=$languageArray['vehicle_no_code'][$language]?></label>
+                <select class="form-control select2" id="vehicle" name="vehicle">
                   <option value="" selected disabled hidden>Please Select</option>
-                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
                     <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
                   <?php } ?>
@@ -425,28 +382,19 @@ else{
             </div>
             <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
               <div class="form-group">
-                <label><?=$languageArray['other_vehicle_no_code'][$language]?> *</label>
+                <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['driver_code'][$language]?> *</label>
-                <select class="form-control select2" id="driver" name="driver" required>
+                <label><?=$languageArray['driver_code'][$language]?></label>
+                <select class="form-control select2" id="driver" name="driver">
                   <option value="" selected disabled hidden>Please Select</option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
                   <?php } ?>
                 </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['remark_code'][$language]?></label>
-                <textarea colspan="3" class="form-control" id="remarks" name="remarks" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
               </div>
             </div>
           </div>
@@ -514,12 +462,7 @@ else{
           </div>
 
           <hr>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0"><?=$languageArray['reject_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-danger btn-sm" id="addRejectWeightBtn">
-              <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
-            </button>
-          </div>
+          <h5><?=$languageArray['reject_details_code'][$language]?></h5>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
@@ -637,16 +580,6 @@ $(function () {
     defaultDate: today
   });
 
-  $('#startTimePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY HH:mm'
-  });
-
-  $('#endTimePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY HH:mm'
-  });
-
   $('.select2').each(function() {
     $(this).select2({
         allowClear: true,
@@ -678,7 +611,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWholesale.php',
+      'url':'php/filterPacking.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -696,7 +629,6 @@ $(function () {
     'columns': [
       { data: 'serial_no' },
       { data: 'po_no' },
-      { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
@@ -704,9 +636,7 @@ $(function () {
       { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
-      { data: 'total_reject' },
       { data: 'weighted_by' },
-      { data: 'checked_by' },
       <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
       <?php }?>
@@ -715,11 +645,11 @@ $(function () {
         class: 'action-button',
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
-          if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+          /*if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
-          }
+          }*/
           buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-          if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+          if(allowInvoice == 'Y' && row.status == 'SALES'){
             buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
           }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
@@ -846,7 +776,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWholesale.php',
+        'url':'php/filterPacking.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -864,7 +794,6 @@ $(function () {
       'columns': [
         { data: 'serial_no' },
         { data: 'po_no' },
-        { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
@@ -872,9 +801,7 @@ $(function () {
         { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
-        { data: 'total_reject' },
         { data: 'weighted_by' },
-        { data: 'checked_by' },
         <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
         <?php }?>
@@ -883,11 +810,11 @@ $(function () {
           class: 'action-button',
           render: function ( data, type, row ) {
             var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
-            if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+            /*if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
-            }
+            }*/
             buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-            if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+            if(allowInvoice == 'Y' && row.status == 'SALES'){
               buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
@@ -970,12 +897,6 @@ $(function () {
   $.validator.setDefaults({
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
-        var vehicle = $('#extendModal').find('#vehicle').val();
-        var otherVehicleNo = $('#extendModal').find('#otherVehicleNo').val();
-        if((vehicle == 'OTHERS' || vehicle == 'UNKNOWN' || vehicle == 'UNKOWN NO') && !otherVehicleNo) {
-          alert('Please enter the vehicle number.');
-          return false;
-        }
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
@@ -1217,7 +1138,7 @@ $(function () {
 
   $('#extendModal').find('#vehicle').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
+    if(vehicleNo == "UNKNOWN"){
       $('#extendModal').find('#vehicleNoOtherDiv').show();
     }
     else{
@@ -1227,64 +1148,12 @@ $(function () {
 
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
+    if(vehicleNo == "UNKNOWN"){
       $('#otherVehicleFilterDiv').show();
     }
     else{
       $('#otherVehicleFilterDiv').hide();
     }
-  });
-
-  $('#addRejectWeightBtn').on('click', function() {
-    var idx = rejectCount++;
-    var rowNum = $('#rejectDetailsTable tr').length + 1;
-    var now = new Date();
-    var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                      now.getMinutes().toString().padStart(2, '0') + ':' + 
-                      now.getSeconds().toString().padStart(2, '0');
-    var row = `
-      <tr class="details">
-        <td>${rowNum}</td>
-        <td style="display:none">
-          <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="35">
-          <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="1REJ">
-          <input type="hidden" id="pretare${idx}" name="rejectDetails[${idx}][pretare]" value="0.00">
-          <input type="hidden" id="unit${idx}" name="rejectDetails[${idx}][unit]" value="Kg">
-          <input type="hidden" id="package${idx}" name="rejectDetails[${idx}][package]" value="">
-          <input type="hidden" id="fixedfloat${idx}" name="rejectDetails[${idx}][fixedfloat]" value="">
-          <input type="hidden" id="isedit${idx}" name="rejectDetails[${idx}][isedit]" value="N">
-          <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="0.00">
-          <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="YES">
-          <input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="REJECT (拒收)">
-          <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="REJ">
-        </td>
-        <td>REJECT (拒收)</td>
-        <td>REJ</td>
-        <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00">
-        </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="total${idx}" name="rejectDetails[${idx}][total]" step="0.01" value="0.00" readonly>
-        </td>
-        <td>
-          <input type="time" class="form-control" id="time${idx}" name="rejectDetails[${idx}][time]" value="${currentTime}"/>
-        </td>
-        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-          <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="">
-          <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
-          <span id="rejectPhotoStatus${idx}"></span>
-        </td>
-        <td>
-          <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-    $('#rejectDetailsTable').append(row);
   });
 
   $('#addWeightBtn').on('click', function() {
@@ -1311,14 +1180,14 @@ $(function () {
         <td>
           <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
             <option value="" selected disabled>Select Product</option>
-            <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
+            <?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?>
               <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
             <?php } ?>
           </select>
         </td>
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
-            <?php while($rowGrade=mysqli_fetch_assoc($grades4)){ ?>
+            <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
               <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
@@ -1870,29 +1739,15 @@ function formatNormal (row) {
 
 function newEntry(){
   $('#extendModal').find('#id').val("");
-  $('#extendModal').find('#serialNo').val("");
-  $('#extendModal').find('#status').val("DISPATCH").trigger('change');
-  $('#extendModal').find('#doPoNo').val("");
-  $('#extendModal').find('#securityBillNo').val("");
+  $('#extendModal').find('#serialNumber').val("");
+  $('#extendModal').find('#poNumber').val("");
+  $('#extendModal').find('#status').val("DISPATCH");
   $('#extendModal').find('#customer').val("").trigger('change');
   $('#extendModal').find('#supplier').val("").trigger('change');
-  $('#extendModal').find('#vehicle').val("").trigger('change');
-  $('#extendModal').find('#driver').val("").trigger('change');
-  $('#extendModal').find('#startTime').val("");
-  $('#startTimePicker').datetimepicker('date', moment());
-  $('#endTimePicker').datetimepicker('clear');
-  $('#extendModal').find('#remarks').val("");
-  $('#extendModal').find('#remarks2').val("");
-  $('#extendModal').find('#totalWeightGross').text(0.00);
-  $('#extendModal').find('#totalWeightTare').text(0.00);
-  $('#extendModal').find('#totalWeightNet').text(0.00);
-  $('#extendModal').find('#totalWeightPrice').text(0.00);
-  $('#extendModal').find('#totalRejectGross').text(0.00);
-  $('#extendModal').find('#totalRejectTare').text(0.00);
-  $('#extendModal').find('#totalRejectNet').text(0.00);
-  $('#extendModal').find('#totalRejectPrice').text(0.00);
+  $('#extendModal').find('#vehicleNo').val("");
+  $('#extendModal').find('#driver').val("");
+  $('#extendModal').find('#remark').val("");
   $('#weightDetailsTable').empty();
-  $('#rejectDetailsTable').empty();
   $('#extendModal').modal('show');
   
   $('#extendForm').validate({
@@ -1946,33 +1801,21 @@ function edit(id) {
     
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
-      $('#extendModal').find('#serialNo').val(obj.message.serial_no);
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
-      $('#extendModal').find('#remarks').val(obj.message.remark);
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
 
       if (obj.message.other_vehicle){
-        $('#extendModal').find('#vehicle').val('OTHERS').trigger('change');
+        $('#extendModal').find('#vehicle').val('UNKNOWN').trigger('change');
         $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
       } else {
         $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
         $('#extendModal').find('#otherVehicleNo').val('');
       }
       $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
-      if (obj.message.created_datetime) {
-        $('#startTimePicker').datetimepicker('date', moment(obj.message.created_datetime, 'YYYY-MM-DD HH:mm:ss'));
-      } else {
-        $('#startTimePicker').datetimepicker('clear');
-      }
-      if (obj.message.end_time) {
-        $('#endTimePicker').datetimepicker('date', moment(obj.message.end_time, 'YYYY-MM-DD HH:mm:ss'));
-      } else {
-        $('#endTimePicker').datetimepicker('clear');
-      }
       $('#extendModal').find('#remark').val(obj.message.remark);
       
       // Populate weight details table
@@ -2084,7 +1927,11 @@ function edit(id) {
               </td>
               <td><input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
               <td>
-                <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="${detail.grade}">${detail.grade}
+                <select class="form-control select2" id="grade${idx}" name="rejectDetails[${idx}][grade]">
+                  <?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?>
+                    <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
+                  <?php } ?>
+                </select>
               </td>
               <td><input type="hidden" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
@@ -2180,29 +2027,7 @@ function rejectRow(button) {
       $(this).attr('name', name.replace('photoFiles', 'rejectPhotoFiles').replace(/\[\d+\]/, '[' + rejectIndex + ']'));
     }
   });
-
-  // Hardcode product and grade to REJECT
-  row.find('input[name*="[product]"]').val('35');
-  row.find('input[name*="[product_name]"]').val('REJECT (拒收)');
-  row.find('input[name*="[product_desc]"]').val('REJ');
-  row.find('input[name*="[isRejected]"]').val('YES');
-
-  // Replace product_name select/text with static display
-  var productCell = row.find('select[name*="[product_name]"]').closest('td');
-  if(productCell.length) {
-    productCell.find('select').select2('destroy').remove();
-    productCell.text('REJECT (拒收)');
-    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][product_name]', value:'REJECT (拒收)'}).appendTo(productCell);
-  }
-
-  // Replace grade select with static display
-  var gradeCell = row.find('select[name*="[grade]"]').closest('td');
-  if(gradeCell.length) {
-    gradeCell.find('select').select2('destroy').remove();
-    gradeCell.text('REJ');
-    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][grade]', value:'REJ'}).appendTo(gradeCell);
-  }
-
+  
   row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
   
@@ -2210,6 +2035,12 @@ function rejectRow(button) {
   reindexWeightDetails();
   reindexRejectDetails();
   updateTotals();
+  $('.select2').select2({
+    allowClear: true,
+    placeholder: "Please Select",
+    dropdownParent: $('#extendModal .modal-body'),
+    width: '100%'
+  });
 }
 
 function acceptRow(button) {
@@ -2335,7 +2166,7 @@ function deactivate(id) {
 }
 
 function print(id) {
-  $.post('php/print.php', {userID: id}, function(data){
+  $.post('php/printPacking.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
     if(obj.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);

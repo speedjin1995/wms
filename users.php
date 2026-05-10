@@ -43,6 +43,7 @@
                 <tr>
                   <th><?=$languageArray['full_name_code'][$language]?></th>
                   <th><?=$languageArray['role_code'][$language]?></th>
+                  <th><?=$languageArray['allow_add_code'][$language]?></th>
                   <th><?=$languageArray['allow_edit_code'][$language]?></th>
                   <th><?=$languageArray['allow_delete_code'][$language]?></th>
                   <th><?=$languageArray['created_date_code'][$language]?></th>
@@ -90,6 +91,13 @@
 						</select>
 					</div>
           <div class="form-group">
+						<label><?=$languageArray['allow_add_code'][$language]?> *</label>
+						<select class="form-control" id="allowAdd" name="allowAdd" required>
+              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+						</select>
+					</div>
+          <div class="form-group">
 						<label><?=$languageArray['allow_edit_code'][$language]?> *</label>
 						<select class="form-control" id="allowEdit" name="allowEdit" required>
               <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
@@ -129,6 +137,7 @@ $(function () {
       'columns': [
         { data: 'name' },
         { data: 'role_name' },
+        { data: 'allow_add' },
         { data: 'allow_edit' },
         { data: 'allow_delete' },
         { data: 'created_date' },
@@ -173,6 +182,9 @@ $(function () {
       $('#addModal').find('#username').val("");
       $('#addModal').find('#name').val("");
       $('#addModal').find('#userRole').val("");
+      $('#addModal').find('#allowAdd').val("Y");
+      $('#addModal').find('#allowEdit').val("Y");
+      $('#addModal').find('#allowDelete').val("Y");
       $('#addModal').modal('show');
       
       $('#memberForm').validate({
@@ -201,6 +213,7 @@ function edit(id){
             $('#addModal').find('#username').val(obj.message.username);
             $('#addModal').find('#name').val(obj.message.name);
             $('#addModal').find('#userRole').val(obj.message.role_code);
+            $('#addModal').find('#allowAdd').val(obj.message.allow_add);
             $('#addModal').find('#allowEdit').val(obj.message.allow_edit);
             $('#addModal').find('#allowDelete').val(obj.message.allow_delete);
             $('#addModal').modal('show');

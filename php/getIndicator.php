@@ -6,7 +6,7 @@ session_start();
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($update_stmt = $db->prepare("SELECT * FROM users WHERE id=?")) {
+    if ($update_stmt = $db->prepare("SELECT * FROM indicators WHERE id=?")) {
         $update_stmt->bind_param('s', $id);
         
         // Execute the prepared query.
@@ -23,13 +23,14 @@ if(isset($_POST['userID'])){
             
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
-                $message['username'] = $row['username'];
                 $message['name'] = $row['name'];
-                $message['role_code'] = $row['role_code'];
-                $message['allow_add'] = $row['allow_add'];
-                $message['allow_edit'] = $row['allow_edit'];
-                $message['allow_delete'] = $row['allow_delete'];
+                $message['nickname'] = $row['nickname'];
+                $message['serial_no'] = $row['serial_no'];
+                $message['mac_address'] = $row['mac_address'];
+                $message['udid'] = $row['udid'];
                 $message['customer'] = $row['customer'];
+                $message['users'] = $row['users'];
+                $message['indicator'] = $row['indicator'];
             }
             
             echo json_encode(

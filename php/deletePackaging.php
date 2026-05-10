@@ -11,26 +11,19 @@ if(isset($_POST['userID'])){
 	if(isset($_POST['type']) && $_POST['type']!=null && $_POST['type']!=""){
 		$type = $_POST['type'];
 	}
-	
+
 	if ($type == 'MULTI'){
 		if(is_array($_POST['userID'])){
 			$ids = implode(",", $_POST['userID']);
 		}else{
 			$ids = $_POST['userID'];
 		}
-		if ($stmt2 = $db->prepare("UPDATE products SET deleted=? WHERE id IN ($ids)")) {
+
+		if ($stmt2 = $db->prepare("UPDATE packaging SET deleted=? WHERE id IN ($ids)")) {
 			$stmt2->bind_param('s', $del);
 			
 			if($stmt2->execute()){
 				$stmt2->close();
-
-				// Update the deleted products in the inventory table
-				if ($stmt3 = $db->prepare("UPDATE inventory SET status=? WHERE product_id IN ($ids)")) {
-					$stmt3->bind_param('s', $del);
-					$stmt3->execute();
-					$stmt3->close();
-				}
-
 				$db->close();
 				
 				echo json_encode(
@@ -56,21 +49,12 @@ if(isset($_POST['userID'])){
 				)
 			);
 		}
-	}
-	else{
-		if ($stmt2 = $db->prepare("UPDATE products SET deleted=? WHERE id=?")) {
+	}else{
+		if ($stmt2 = $db->prepare("UPDATE packaging SET deleted=? WHERE id=?")) {
 			$stmt2->bind_param('ss', $del , $id);
 			
 			if($stmt2->execute()){
 				$stmt2->close();
-
-				// Update the deleted products in the inventory table
-				if ($stmt3 = $db->prepare("UPDATE inventory SET status=? WHERE product_id = ?")) {
-					$stmt3->bind_param('ss', $del, $id);
-					$stmt3->execute();
-					$stmt3->close();
-				}
-
 				$db->close();
 				
 				echo json_encode(

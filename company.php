@@ -32,6 +32,7 @@ else{
 	$includePhoto = 'N';
 	$includeBarcode = 'N';
 	$includeSecRemark = 'N';
+	$includeInvoice = 'N';
 	$photoUploadMode = 'local';
 
 	$logoPath = '';
@@ -54,6 +55,7 @@ else{
         $includePhoto = $row['include_photo'];
         $includeBarcode = $row['include_barcode'];
         $includeSecRemark = $row['include_sec_remark'];
+        $includeInvoice = $row['include_invoice'];
         $photoUploadMode = $row['photo_upload_mode'] ?? 'local';
 
         if(!empty($row['company_logo'])){
@@ -105,7 +107,7 @@ else{
 							<input type="text" class="form-control" id="chineseName" name="chineseName" value="<?=$chineseName ?>" <?=($role != 'SADMIN') ? 'readonly' : ''?>>
 						</div>
 					</div>
-					<div class="col-md-6">
+					<div class="col-md-6" <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
 						<div class="form-group">
 							<label for="tinNo"><small class="text-uppercase text-muted font-weight-bold"><?=$languageArray['tin_no_code'][$language]?></small></label>
 							<input type="text" class="form-control" id="tinNo" name="tinNo" value="<?=$tinNo ?>"<?=($role != 'SADMIN') ? 'readonly' : ''?>>
@@ -195,7 +197,7 @@ else{
 		</div>
 
 		<!-- Banking Details -->
-		<div class="card card-primary card-outline">
+		<div class="card card-primary card-outline" <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
 			<div class="card-header">
 				<h3 class="card-title"><i class="fas fa-university mr-2"></i><?=$languageArray['banking_details_code'][$language]?></h3>
 			</div>

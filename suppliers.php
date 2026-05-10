@@ -24,6 +24,15 @@ else{
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
+  
+  $includeInvoice = 'N';
+  if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
+    $company_stmt->bind_param("i", $company);
+    $company_stmt->execute();
+    $company_result = $company_stmt->get_result();
+    $rowCompany = mysqli_fetch_assoc($company_result);
+    $includeInvoice = $rowCompany['include_invoice'];
+  }
 }
 ?>
 
@@ -277,71 +286,73 @@ else{
               <hr>
 
               <!-- Row 6: Billing Address -->
-              <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Billing Name</label>
-                    <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
+              <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
+                <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Billing Name</label>
+                      <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_address_code'][$language]?></label>
-                    <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 1">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 1">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?> 2</label>
+                      <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 2">
+                    </div>
                   </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_address_code'][$language]?> 2</label>
-                    <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 2">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?> 3</label>
+                      <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 3">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?> 4</label>
+                      <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 4">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_state_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
+                        <option selected="selected">-</option>
+                        <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
+                          <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_address_code'][$language]?> 3</label>
-                    <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 3">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_address_code'][$language]?> 4</label>
-                    <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 4">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_fax_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_state_code'][$language]?></label>
-                    <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
-                      <option selected="selected">-</option>
-                      <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
-                        <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_phone_code'][$language]?></label>
-                    <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_fax_code'][$language]?></label>
-                    <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['billing_pic_code'][$language]?></label>
-                    <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
+                    </div>
                   </div>
                 </div>
               </div>

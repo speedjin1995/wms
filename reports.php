@@ -120,6 +120,7 @@ else{
                   <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
                       <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
                     <?php } ?>
@@ -554,7 +555,7 @@ $(function () {
 
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO"){
+    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
       $('#otherVehicleFilterDiv').show();
     }
     else{

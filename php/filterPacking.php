@@ -14,72 +14,72 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = " and wholesales.records_type = 'wholesales'";
+$searchQuery = '';
 
 if(isset($_POST['recordType']) && $_POST['recordType'] != null && $_POST['recordType'] != ''){
-  $searchQuery = " and wholesales.records_type = '".$_POST['recordType']."'";
+  $searchQuery = " and food_packaging.records_type = '".$_POST['recordType']."'";
 }
 
 if($_POST['fromDate'] != null && $_POST['fromDate'] != ''){
   $dateTime = DateTime::createFromFormat('d/m/Y', $_POST['fromDate']);
   $fromDateTime = $dateTime->format('Y-m-d 00:00:00');
-  $searchQuery .= " and wholesales.created_datetime >= '".$fromDateTime."'";
+  $searchQuery .= " and food_packaging.created_datetime >= '".$fromDateTime."'";
 }
 
 if($_POST['toDate'] != null && $_POST['toDate'] != ''){
   $dateTime = DateTime::createFromFormat('d/m/Y', $_POST['toDate']);
   $toDateTime = $dateTime->format('Y-m-d 23:59:59');
-	$searchQuery .= " and wholesales.created_datetime <= '".$toDateTime."'";
+	$searchQuery .= " and food_packaging.created_datetime <= '".$toDateTime."'";
 }
 
 if($_POST['transactionStatus'] != null && $_POST['transactionStatus'] != '' && $_POST['transactionStatus'] != '-'){
-  $searchQuery .= " and wholesales.status = '".$_POST['transactionStatus']."'";
+  $searchQuery .= " and food_packaging.status = '".$_POST['transactionStatus']."'";
 }
 
 if($_POST['product'] != null && $_POST['product'] != '' && $_POST['product'] != '-'){
-  $searchQuery .= " and wholesales.product = '".$_POST['product']."'";
+  $searchQuery .= " and food_packaging.product = '".$_POST['product']."'";
 }
 
 if($_POST['customer'] != null && $_POST['customer'] != '' && $_POST['customer'] != '-'){
-  $searchQuery .= " and wholesales.customer = '".$_POST['customer']."'";
+  $searchQuery .= " and food_packaging.customer = '".$_POST['customer']."'";
 }
 
 if($_POST['supplier'] != null && $_POST['supplier'] != '' && $_POST['supplier'] != '-'){
-  $searchQuery .= " and wholesales.supplier = '".$_POST['supplier']."'";
+  $searchQuery .= " and food_packaging.supplier = '".$_POST['supplier']."'";
 }
 
 if($_POST['vehicle'] != null && $_POST['vehicle'] != '' && $_POST['vehicle'] != '-'){
-  if ($_POST['vehicle'] == 'UNKOWN NO' || $_POST['vehicle'] == 'OTHERS' || $_POST['vehicle'] == 'UNKNOWN'){
+  if ($_POST['vehicle'] == 'UNKOWN NO'){
     if($_POST['otherVehicle'] != null && $_POST['otherVehicle'] != '' && $_POST['otherVehicle'] != '-'){
-      $searchQuery .= " and wholesales.vehicle_no = '".$_POST['otherVehicle']."'";
+      $searchQuery .= " and food_packaging.vehicle_no = '".$_POST['otherVehicle']."'";
     }
   } else {
-    $searchQuery .= " and wholesales.vehicle_no = '".$_POST['vehicle']."'";
+    $searchQuery .= " and food_packaging.vehicle_no = '".$_POST['vehicle']."'";
   }
 }
 
 if($_POST['checkedBy'] != null && $_POST['checkedBy'] != '' && $_POST['checkedBy'] != '-'){
-  $searchQuery .= " and wholesales.checked_by = '".$_POST['checkedBy']."'";
+  $searchQuery .= " and food_packaging.checked_by = '".$_POST['checkedBy']."'";
 }
 
 if($_POST['weightedBy'] != null && $_POST['weightedBy'] != '' && $_POST['weightedBy'] != '-'){
-  $searchQuery .= " and wholesales.weighted_by = '".$_POST['weightedBy']."'";
+  $searchQuery .= " and food_packaging.weighted_by = '".$_POST['weightedBy']."'";
 }
 
 if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
   if ($_POST['status'] == 'active'){
-    $searchQuery .= " and wholesales.deleted = '0'";
+    $searchQuery .= " and food_packaging.deleted = '0'";
   } else if ($_POST['status'] == 'deleted'){
-    $searchQuery .= " and wholesales.deleted = '1'";
+    $searchQuery .= " and food_packaging.deleted = '1'";
   }
 }
 
 ## Search 
 if($searchValue != ''){
-   $searchQuery .= " and (wholesales.serial_no like '%".$searchValue."%' or 
-        wholesales.po_no like '%".$searchValue."%' or
-        wholesales.vehicle_no like '%".$searchValue."%' or
-        wholesales.driver like '%".$searchValue."%' or
+   $searchQuery .= " and (food_packaging.serial_no like '%".$searchValue."%' or 
+        food_packaging.po_no like '%".$searchValue."%' or
+        food_packaging.vehicle_no like '%".$searchValue."%' or
+        food_packaging.driver like '%".$searchValue."%' or
         c.customer_name like '%".$searchValue."%' or
         s.supplier_name like '%".$searchValue."%') ";
 }
@@ -96,17 +96,17 @@ if ($role != 'SADMIN'){
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from wholesales where 1=1".$companyFilter);
+$sel = mysqli_query($db,"select count(*) as allcount from food_packaging where 1=1".$companyFilter);
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from food_packaging LEFT JOIN customers c ON food_packaging.customer = c.id LEFT JOIN supplies s ON food_packaging.supplier = s.id where 1=1".$companyFilter.$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select wholesales.* from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select food_packaging.* from food_packaging LEFT JOIN customers c ON food_packaging.customer = c.id LEFT JOIN supplies s ON food_packaging.supplier = s.id where 1=1".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
