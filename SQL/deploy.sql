@@ -661,3 +661,6 @@ ALTER TABLE `statuses` ADD PRIMARY KEY (`id`);
 ALTER TABLE `statuses` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `running_no_setup` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT, add PRIMARY KEY (`id`);
+
+-- 10/05/2026 --
+ALTER TABLE `sales` ADD `payments` TEXT NULL AFTER `payment_method`;

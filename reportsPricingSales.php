@@ -175,7 +175,14 @@ else{
         </div>
         <hr>
         <div class="row">
-          <div class="col-6"><small><strong><?=$languageArray['payment_method_code'][$language]?>:</strong> <span id="v_payment_method"></span></small></div>
+          <div class="col-6">
+            <small><strong><?=$languageArray['payments_code'][$language]?>:</strong></small>
+            <table class="table table-sm table-bordered mt-1 mb-0">
+              <tbody id="v_payments">
+
+              </tbody>
+            </table>
+          </div>
           <div class="col-6 text-right"><small><strong><?=$languageArray['created_by_code'][$language]?>:</strong> <span id="v_created_by"></span> on <span id="v_created_datetime"></span></small></div>
         </div>
       </div>
@@ -187,6 +194,8 @@ else{
 </div>
 
 <script>
+var methodLabels = {cash:'Cash', credit_card:'Credit Card', 'e-wallet':'E-Wallet', bank_transfer:'Bank Transfer'};
+
 $(function () {
   const today = new Date();
   const tomorrow = new Date(today);
@@ -355,6 +364,17 @@ function view(id){
       $('#v_discount').text(m.discount);
       $('#v_total_price').text(m.total_price);
       $('#v_payment_method').text(m.payment_method);
+
+      var paymentRows = '';
+      if (m.payments && m.payments.length > 0) {
+        $.each(m.payments, function(i, p){
+          paymentRows += '<tr><td>' + (methodLabels[p.method] || p.method) + '</td><td>RM ' + parseFloat(p.amount).toFixed(2) + '</td></tr>';
+        });
+      } else {
+        paymentRows = '<tr><td colspan="2" class="text-center">-</td></tr>';
+      }
+
+      $('#v_payments').html(paymentRows);
       $('#v_created_by').text(m.created_by_name);
       $('#v_created_datetime').text(m.created_datetime);
 
