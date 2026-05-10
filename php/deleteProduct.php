@@ -23,6 +23,14 @@ if(isset($_POST['userID'])){
 			
 			if($stmt2->execute()){
 				$stmt2->close();
+
+				// Update the deleted products in the inventory table
+				if ($stmt3 = $db->prepare("UPDATE inventory SET status=? WHERE product_id IN ($ids)")) {
+					$stmt3->bind_param('s', $del);
+					$stmt3->execute();
+					$stmt3->close();
+				}
+
 				$db->close();
 				
 				echo json_encode(
@@ -55,6 +63,14 @@ if(isset($_POST['userID'])){
 			
 			if($stmt2->execute()){
 				$stmt2->close();
+
+				// Update the deleted products in the inventory table
+				if ($stmt3 = $db->prepare("UPDATE inventory SET status=? WHERE product_id = ?")) {
+					$stmt3->bind_param('ss', $del, $id);
+					$stmt3->execute();
+					$stmt3->close();
+				}
+
 				$db->close();
 				
 				echo json_encode(

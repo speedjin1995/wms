@@ -49766,10 +49766,17 @@ a.text-muted:hover {
 }
 
 .dark-mode .text-black,
-.dark-mode .text-dark,
 .dark-mode .link-black,
 .dark-mode .link-dark {
   color: #ced4da !important;
+}
+
+.dark-mode .text-dark {
+  color: #000 !important;
+}
+
+.dark-mode .text-white {
+  color: #fff !important;
 }
 
 .dark-mode.bg-primary {

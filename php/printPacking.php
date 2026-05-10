@@ -36,7 +36,7 @@ function arrangeByGrade($weighingDetails) {
 if(isset($_POST['userID'])){
     $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
+    if ($select_stmt = $db->prepare("SELECT * FROM food_packaging LEFT JOIN companies ON food_packaging.company = companies.id WHERE food_packaging.id = ?")) {
         $select_stmt->bind_param('s', $id);
 
         if (! $select_stmt->execute()) {

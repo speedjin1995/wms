@@ -400,6 +400,47 @@ to get the desired effect
               <p><?=$languageArray['home_code'][$language]?></p>
             </a>
           </li>
+          <?php if ($module == 'pricing') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p><?=$languageArray['pricing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <li class="nav-item">
+                <a href="#pricingSales" data-file="pricingSales.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['sales_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#reportsPricingSales" data-file="reportsPricingSales.php" class="nav-link link">
+                  <i class="nav-icon fas fa-chart-bar"></i>
+                  <p><?=$languageArray['sales_report_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#pricingPurchase" data-file="pricingPurchase.php" class="nav-link link">
+                  <i class="nav-icon fas fa-truck"></i>
+                  <p><?=$languageArray['purchase_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#pricingInventory" data-file="pricingInventory.php" class="nav-link link">
+                  <i class="nav-icon fas fa-warehouse"></i>
+                  <p><?=$languageArray['inventory_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#repacking" data-file="repacking.php" class="nav-link link">
+                  <i class="nav-icon fas fa-box-open"></i>
+                  <p><?=$languageArray['repacking_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php if ($module != 'pricing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -472,6 +513,7 @@ to get the desired effect
               </li> -->
             </ul>
           </li>
+          <?php } ?>
           <?php if ($module == 'wholesale') { ?>
           <li class="nav-item">
             <a href="#reports" data-file="reports.php" class="nav-link link">
@@ -522,6 +564,18 @@ to get the desired effect
                     <a href="#units" data-file="units.php" class="nav-link link">
                       <i class="nav-icon fas fa-balance-scale"></i>
                       <p>'.$languageArray['units_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#categories" data-file="categories.php" class="nav-link link">
+                      <i class="nav-icon fas fa-tags"></i>
+                      <p>'.$languageArray['category_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#packaging" data-file="packaging.php" class="nav-link link">
+                      <i class="nav-icon fas fa-box"></i>
+                      <p>'.$languageArray['packaging_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
@@ -602,8 +656,8 @@ to get the desired effect
 
               <li class="nav-item">
                 <a href="#setup" data-file="setup.php" class="nav-link link">
-                  <i class="nav-icon fas fa-user-cog"></i>
-                  <p><?=$languageArray['port_setup_code'][$language]?></p>
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p><?=$languageArray['indicator_setup_code'][$language]?></p>
                 </a>
               </li>
 
@@ -750,6 +804,10 @@ $(function () {
     $("a[href='#weighbridges']").click();
     <?php } else if ($module == 'industrial') { ?>
     $("a[href='#industrial']").click();
+    <?php } else if ($module == 'packing') { ?>
+    $("a[href='#packing']").click();
+    <?php } else if ($module == 'pricing') { ?>
+    $("a[href='#pricingSales']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>

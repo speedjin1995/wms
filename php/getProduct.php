@@ -201,7 +201,7 @@ if(isset($_POST['userID'])){
                 ));
         }
     }else{
-        if ($update_stmt = $db->prepare("SELECT * FROM products WHERE id=?")) {
+        if ($update_stmt = $db->prepare("SELECT p.*, u.units AS uom_name, pk.packaging_name FROM products p LEFT JOIN units u ON p.uom = u.id LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.id=?")) {
             $update_stmt->bind_param('s', $id);
             
             // Execute the prepared query.
@@ -229,6 +229,18 @@ if(isset($_POST['userID'])){
                     $message['price'] = $row['price'];
                     $message['weight'] = $row['weight'];
                     $message['customer'] = $row['customer'];
+                    $message['range_set'] = $row['range_set'];
+                    $message['ok_weight'] = $row['ok_weight'];
+                    $message['ok_weight_unit'] = $row['ok_weight_unit'];
+                    $message['lo_weight'] = $row['lo_weight'];
+                    $message['lo_weight_unit'] = $row['lo_weight_unit'];
+                    $message['hi_weight'] = $row['hi_weight'];
+                    $message['hi_weight_unit'] = $row['hi_weight_unit'];
+                    $message['packaging'] = $row['packaging'];
+                    $message['category'] = $row['category'];
+                    $message['product_image'] = $row['product_image'];
+                    $message['uom_name'] = $row['uom_name'];
+                    $message['packaging_name'] = $row['packaging_name'];
 
                     // retrieve product customers
                     $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
