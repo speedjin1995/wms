@@ -125,7 +125,8 @@ else{
                   <th><?=$languageArray['tax_amount_code'][$language]?> (RM)</th>
                   <th><?=$languageArray['discount_code'][$language]?> (RM)</th>
                   <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
-                  <th><?=$languageArray['payment_method_code'][$language]?></th>
+                  <th><?=$languageArray['paid_amount_code'][$language]?> (RM)</th>
+                  <th><?=$languageArray['change_amount_code'][$language]?> (RM)</th>
                   <th><?=$languageArray['created_by_code'][$language]?></th>
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
@@ -144,12 +145,15 @@ else{
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header bg-info">
-        <h5 class="modal-title text-white"><i class="fas fa-receipt mr-2"></i><?=$languageArray['sales_code'][$language]?> - <span id="v_receipt_no"></span></h5>
+        <div>
+          <h5 class="modal-title text-white mb-0"><i class="fas fa-receipt mr-2"></i><?=$languageArray['sales_code'][$language]?> - <span id="v_receipt_no"></span></h5>
+          <small class="text-white-50"><i class="fas fa-user mr-1"></i><?=$languageArray['created_by_code'][$language]?>: <span id="v_created_by"></span> &nbsp;|&nbsp; <i class="fas fa-clock mr-1"></i><span id="v_created_datetime"></span></small>
+        </div>
         <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
         <!-- Cart Items -->
-        <h6 class="font-weight-bold mb-2"><?=$languageArray['item_code'][$language]?></h6>
+        <h6 class="font-weight-bold mb-2"><i class="fas fa-box mr-1"></i><?=$languageArray['item_code'][$language]?></h6>
         <table class="table table-bordered table-sm table-striped">
           <thead class="thead-dark">
             <tr>
@@ -162,28 +166,60 @@ else{
           </thead>
           <tbody id="v_cart_items"></tbody>
         </table>
-        <!-- Summary -->
-        <div class="row justify-content-end">
-          <div class="col-5">
-            <table class="table table-sm">
-              <tr><td><?=$languageArray['sub_total_code'][$language]?></td><td class="text-right">RM <span id="v_subtotal"></span></td></tr>
-              <tr><td><?=$languageArray['tax_code'][$language]?> (<span id="v_tax"></span>%)</td><td class="text-right">RM <span id="v_tax_amount"></span></td></tr>
-              <tr><td><?=$languageArray['discount_code'][$language]?></td><td class="text-right">RM <span id="v_discount"></span></td></tr>
-              <tr class="font-weight-bold"><td><?=$languageArray['total_price_code'][$language]?></td><td class="text-right">RM <span id="v_total_price"></span></td></tr>
-            </table>
-          </div>
-        </div>
-        <hr>
-        <div class="row">
-          <div class="col-6">
-            <small><strong><?=$languageArray['payments_code'][$language]?>:</strong></small>
-            <table class="table table-sm table-bordered mt-1 mb-0">
-              <tbody id="v_payments">
 
-              </tbody>
-            </table>
+        <div class="row mt-3">
+          <!-- Payment Section -->
+          <div class="col-6">
+            <h6 class="font-weight-bold mb-2"><i class="fas fa-money-bill-wave mr-1"></i><?=$languageArray['payments_code'][$language]?></h6>
+            <div class="card border" style="border-color:#e9ecef !important; border-radius:8px;">
+              <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr style="background:#f1f3f5;"><th style="font-size:0.8rem; color:#6c757d; font-weight:600; border-bottom:1px solid #dee2e6; padding:8px 12px;"><?=$languageArray['payment_method_code'][$language]?></th><th style="font-size:0.8rem; color:#6c757d; font-weight:600; border-bottom:1px solid #dee2e6; padding:8px 12px; text-align:right;"><?=$languageArray['amount_code'][$language]?> (RM)</th></tr>
+                  </thead>
+                  <tbody id="v_payments"></tbody>
+                </table>
+                <div style="border-top:1px solid #dee2e6; padding:10px 12px;">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted" style="font-size:0.85rem;"><?=$languageArray['paid_amount_code'][$language]?></span>
+                    <strong style="font-size:0.85rem;">RM <span id="v_total_paid"></span></strong>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span class="text-muted" style="font-size:0.85rem;"><?=$languageArray['change_amount_code'][$language]?></span>
+                    <strong style="font-size:0.85rem; color:#e67e22;">RM <span id="v_change_amount"></span></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="col-6 text-right"><small><strong><?=$languageArray['created_by_code'][$language]?>:</strong> <span id="v_created_by"></span> on <span id="v_created_datetime"></span></small></div>
+          <!-- Summary Section -->
+          <div class="col-6">
+            <h6 class="font-weight-bold mb-2"><i class="fas fa-calculator mr-1"></i><?=$languageArray['sub_total_code'][$language]?></h6>
+            <div class="card border" style="border-color:#e9ecef !important; border-radius:8px;">
+              <div class="card-body p-0">
+                <div style="padding:10px 12px;">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted" style="font-size:0.85rem;"><?=$languageArray['sub_total_code'][$language]?></span>
+                    <span style="font-size:0.85rem;">RM <span id="v_subtotal"></span></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted" style="font-size:0.85rem;"><?=$languageArray['tax_code'][$language]?> (<span id="v_tax"></span>%)</span>
+                    <span style="font-size:0.85rem;">RM <span id="v_tax_amount"></span></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted" style="font-size:0.85rem;"><?=$languageArray['discount_code'][$language]?></span>
+                    <span style="font-size:0.85rem;">RM <span id="v_discount"></span></span>
+                  </div>
+                </div>
+                <div style="border-top:1px solid #dee2e6; padding:10px 12px;">
+                  <div class="d-flex justify-content-between">
+                    <strong style="font-size:0.9rem;"><?=$languageArray['total_price_code'][$language]?></strong>
+                    <strong style="font-size:0.9rem; color:#17a2b8;">RM <span id="v_total_price"></span></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -261,7 +297,8 @@ $(function () {
       { data: 'tax_amount' },
       { data: 'discount' },
       { data: 'total_price' },
-      { data: 'payment_method' },
+      { data: 'total_paid_amount' },
+      { data: 'change_amount' },
       { data: 'created_by_name' },
       { data: 'created_datetime' },
       { 
@@ -363,18 +400,23 @@ function view(id){
       $('#v_tax_amount').text(m.tax_amount);
       $('#v_discount').text(m.discount);
       $('#v_total_price').text(m.total_price);
-      $('#v_payment_method').text(m.payment_method);
 
       var paymentRows = '';
-      if (m.payments && m.payments.length > 0) {
-        $.each(m.payments, function(i, p){
-          paymentRows += '<tr><td>' + (methodLabels[p.method] || p.method) + '</td><td>RM ' + parseFloat(p.amount).toFixed(2) + '</td></tr>';
+      var entries = (m.payments && m.payments) ? m.payments : (Array.isArray(m.payments) ? m.payments : []);
+      if (entries.length > 0) {
+        $.each(entries, function(i, p){
+          paymentRows += '<tr><td>' + (methodLabels[p.method] || p.method) + '</td><td class="text-right">RM ' + parseFloat(p.amount).toFixed(2) + '</td></tr>';
         });
       } else {
-        paymentRows = '<tr><td colspan="2" class="text-center">-</td></tr>';
+        paymentRows = '<tr><td colspan="2" class="text-center text-muted">-</td></tr>';
       }
-
       $('#v_payments').html(paymentRows);
+
+      var totalPaid = m.total_paid_amount ? m.total_paid_amount : '0.00';
+      var changeAmt = m.change_amount ? m.change_amount : '0.00';
+      $('#v_total_paid').text(parseFloat(totalPaid || 0).toFixed(2));
+      $('#v_change_amount').text(parseFloat(changeAmt || 0).toFixed(2));
+
       $('#v_created_by').text(m.created_by_name);
       $('#v_created_datetime').text(m.created_datetime);
 
