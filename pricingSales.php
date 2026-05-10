@@ -16,9 +16,9 @@ else{
   $message = array();
 
   if ($role != 'SADMIN'){
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   } else {
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   }
 
   while($rowProducts=mysqli_fetch_assoc($products)){
@@ -36,7 +36,8 @@ else{
       'item_name' => $rowProducts['product_name'],
       'price'     => $rowProducts['price'],
       'img'       => $rowProducts['product_image'],
-      'stock'     => $rowProducts['stock']
+      'stock'     => $rowProducts['stock'],
+      'packaging_name' => $rowProducts['packaging_name']
     ));
   }
 
@@ -149,7 +150,8 @@ else{
           $price    = number_format((float) $message[$j]['Products'][$k]['price'], 2);
           $img      = $message[$j]['Products'][$k]['img'];
           $stock    = (float) $message[$j]['Products'][$k]['stock'];
-          $noStock  = $stock <= 0;
+          $packagingName = $message[$j]['Products'][$k]['packaging_name'] ?? 'kg';
+          $noStock = $stock <= 0;
 
           $imgHtml = $img
             ? '<img src="php/viewPhoto.php?file=' . $img . '&type=file_table" class="product-img" loading="lazy">'
@@ -157,7 +159,7 @@ else{
 
           $badge    = $noStock ? '<span class="out-of-stock-badge">Not Available</span>' : '';
           $oosCls   = $noStock ? ' out-of-stock' : '';
-          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ')"';
+          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ', \'' . $packagingName . '\')"';
 
           echo '
           <div class="product-item' . $oosCls . '" data-stock="' . $stock . '" data-pid="' . $pid . '"' . $onclick . '>
@@ -165,7 +167,7 @@ else{
               ' . $imgHtml . $badge . '
               <div class="card-info">
                 <p class="product-name">' . $name . '</p>
-                <p class="product-price">RM ' . $price . '/kg</p>
+                <p class="product-price">RM ' . $price . '/'.$packagingName.'</p>
               </div>
             </div>
           </div>';
@@ -288,14 +290,6 @@ else{
         </div>
         <?php } ?>
 
-        <div class="form-group mb-3">
-          <label><?=$languageArray['payment_method_code'][$language]?><span class="text-danger">*</span></label>
-          <select class="form-control" id="paymentMethod" name="paymentMethod" required>
-            <option value="" selected disabled hidden>Please Select</option>
-            <option value="e-wallet">e-wallet</option>
-            <option value="cash">cash</option>
-          </select>
-        </div>
         <div class="d-flex" style="gap:10px;">
           <button type="button" class="btn-cancel py-2" id="cancelSales">
             <i class="fas fa-times mr-1"></i> <?=$languageArray['cancel_code'][$language]?>
@@ -314,10 +308,115 @@ else{
 
 <input type="text" id="barcodeScan" style="position:absolute;left:-9999px;">
 
+<!-- Weight Input Modal -->
+<div class="modal fade" id="weightModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><?=$languageArray['enter_quantity_code'][$language]?></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="card mb-3" style="background:#2563eb;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h2 class="text-white mb-0"><span id="indicatorWeight">0</span> KG</h2>
+              </div>
+              <div>
+                <span class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center" style="width:45px;height:45px;">
+                  <i class="fas fa-weight-hanging text-info"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label><?=$languageArray['quantity_code'][$language]?> (<span id="uom">kg</span>)</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="quantity" step="0.01" min="0.01" placeholder="<?=$languageArray['enter_quantity_code'][$language]?>">
+            <div class="input-group-append">
+              <button class="btn" id="weightCapture" type="button" style="background:#2563eb;color:white;"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+          <input type="hidden" id="productId">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-primary" id="weightConfirm"><?=$languageArray['save_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-money-bill-wave mr-2"></i><?=$languageArray['payments_code'][$language]?></h5>
+      </div>
+      <div class="modal-body">
+        <div class="card bg-success mb-3">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-white-50"><?=$languageArray['total_amount_code'][$language]?></small>
+                <h3 class="text-white mb-0">RM <span id="paymentTotal">0.00</span></h3>
+              </div>
+              <div>
+                <small class="text-white-50"><?=$languageArray['balance_due_code'][$language]?></small>
+                <h3 class="text-white mb-0">RM <span id="paymentBalance">0.00</span></h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <table class="table table-sm table-bordered mb-3" id="paymentEntries">
+          <thead>
+            <tr>
+              <th><?=$languageArray['payment_method_code'][$language]?></th>
+              <th><?=$languageArray['amount_code'][$language]?> (RM)</th>
+              <th width="40"></th>
+            </tr>
+          </thead>
+          <tbody id="paymentTable"></tbody>
+        </table>
+
+        <button type="button" class="btn btn-primary btn-sm" id="addPaymentBtn"><i class="fas fa-plus"></i> <?=$languageArray['add_payments_code'][$language]?></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="cancelPaymentBtn"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-success" id="confirmPaymentBtn" disabled><i class="fas fa-check"></i> <?=$languageArray['save_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/html" id="paymentDetail">
+  <tr class="details">
+    <td>
+      <select class="form-control form-control-sm" id="payMethod" name="payMethod">
+        <option value="cash">Cash</option>
+        <option value="credit_card">Credit Card</option>
+        <option value="e-wallet">E-Wallet</option>
+        <option value="bank_transfer">Bank Transfer</option>
+      </select>
+    </td>
+    <td>
+      <input type="number" class="form-control form-control-sm" id="payAmount" name="payAmount" step="0.01" min="0.01" placeholder="Amount">
+    </td>
+    <td>
+      <button type="button" class="btn btn-danger btn-sm remove-payment"><i class="fas fa-times"></i></button>
+    </td>
+  </tr>
+</script>
+
 <script>
 var size = 0;
 var PAGE_SIZE = 6;
-var orderItems = {}; // keyed by product id: {name, price, weight, total}
+var paymentIndex = 0; // keyed by product id: {name, price, weight, total}
 
 $(function(){
   // Company filter (SADMIN only) — update hidden field when changed
@@ -373,37 +472,148 @@ $(function(){
     });
   });
 
-  // Submit
+  // Submit - open payment modal
   $('#saleForm').on('submit', function(e) {
     e.preventDefault();
-    $('#spinnerLoading').show();
 
     if ($('#TableId .order-row').length === 0) {
       toastr.warning('Please add items first.');
       return;
     }
 
-    if (!$('#paymentMethod').val()) {
-      toastr.warning('Please select a payment method.');
+    var total = parseFloat($('#totalPricing').val()) || 0;
+    if (total <= 0) {
+      toastr.warning('Total must be greater than 0.');
       return;
     }
 
-    $.post('php/sales.php', $('#saleForm').serialize(), function(data){
-      var obj = JSON.parse(data); 
-      
+    // Reset payment modal
+    payments = [];
+    paymentIndex = 0;
+    $('#paymentTable').empty();
+    $('#paymentTotal').text(total.toFixed(2));
+    $('#paymentBalance').text(total.toFixed(2));
+    $('#confirmPaymentBtn').prop('disabled', true);
+    $('#paymentModal').modal('show');
+  });
+
+  // Remove item row
+  $("#paymentTable").on('click', 'button[id^="remove"]', function() {
+    var $row = $(this).parents("tr");
+    var rowId = $row.attr('id');
+    $row.remove();
+
+    paymentIndex--;
+    recalcPaymentBalance();
+  });
+
+  // Add payment row
+  $("#addPaymentBtn").click(function() {
+    var $addContents = $("#paymentDetail").clone();
+    $("#paymentTable").append($addContents.html());
+
+    $("#paymentTable").find('.details:last').attr("id", "detail" + paymentIndex);
+    $("#paymentTable").find('.details:last').attr("data-index", paymentIndex);
+    $("#paymentTable").find('#remove:last').attr("id", "remove" + paymentIndex);
+    
+    $("#paymentTable").find('#payMethod:last').attr('name', 'payMethod[' + paymentIndex + ']') .attr("id", "payMethod" + paymentIndex).trigger('change');
+    $("#paymentTable").find('#payAmount:last').attr('name', 'payAmount[' + paymentIndex + ']').attr( "id", "payAmount" + paymentIndex);
+
+    paymentIndex++;
+
+    $('.select2').select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      width: '100%'
+    });
+  });
+
+  // Event delegation to calculate total price from weight
+  $("#paymentTable").on('input', 'input[id^="payAmount"]', function() {
+    recalcPaymentBalance();
+  });
+
+  // Cancel payment
+  $('#cancelPaymentBtn').on('click', function() {
+    $('#paymentModal').modal('hide');
+  });
+
+  // Confirm payment - submit sale
+  $('#confirmPaymentBtn').on('click', function() {
+    $('#spinnerLoading').show();
+    var formData = $('#saleForm').serialize();
+
+    $('#paymentTable .details').each(function(i) {
+      var method = $(this).find('select[id^="payMethod"]').val();
+      var amount = $(this).find('input[id^="payAmount"]').val();
+      formData += '&payments[' + i + '][method]=' + encodeURIComponent(method);
+      formData += '&payments[' + i + '][amount]=' + encodeURIComponent(amount);
+    });
+
+    $.post('php/sales.php', formData, function(data){
+      var obj = JSON.parse(data);
+
       if(obj.status === 'success'){
         toastr["success"](obj.message, "Success:");
-        $('#spinnerLoading').hide();
+        $('#paymentModal').modal('hide');
         $("a[href='#reportsPricingSales']").click();
       }
       else if(obj.status === 'failed'){
         toastr["error"](obj.message, "Failed:");
-        $('#spinnerLoading').hide();
       }
       else{
         toastr["error"]("Something wrong when edit", "Failed:");
-        $('#spinnerLoading').hide();
       }
+      $('#spinnerLoading').hide();
+    });
+  });
+
+  $('#weightCapture').on('click', function() {
+    var indicatorWeight = $('#indicatorWeight').text();  
+    $('#weightModal').find('#quantity').val(indicatorWeight);
+  });
+
+  $('#weightConfirm').on('click', function() {
+    var id = $('#weightModal').find('#productId').val();
+    var quantity = parseFloat($('#weightModal').find('#quantity').val()) || 0;
+
+    if (quantity <= 0) {
+      alert('Please enter a valid quantity.', 'Failed:');
+      return;
+    }
+
+    if ($('#row_' + id).length) {
+      $('#wt_' + id).val(quantity);
+      updateWeight(id);
+      $('#weightModal').modal('hide');
+      $('#spinnerLoading').hide();
+      return;
+    }
+
+    $('#spinnerLoading').show();
+
+    $.post('php/getProduct.php', { userID: id }, function(data) {
+      var obj = JSON.parse(data);
+
+      if (obj.status === 'success') {
+        var product = obj.message;
+        var uomLabel = product.packaging_name || product.uom_name || '';
+        var stock = parseFloat($('.product-item[data-pid="' + id + '"]').data('stock')) || 0;
+
+        if (stock > 0 && quantity > stock) {
+          alert('Weight exceeds available stock (' + stock + ' kg).', 'Failed:');
+          $('#spinnerLoading').hide();
+          return;
+        }
+
+        addOrderRow(id, product.product_name, product.price || 0, uomLabel, quantity, stock);
+        recalc();
+        $('#weightModal').modal('hide');
+      } else {
+        toastr.error(obj.message, 'Failed:');
+      }
+
+      $('#spinnerLoading').hide();
     });
   });
 });
@@ -428,6 +638,17 @@ function recalc() {
   $('#totalPricing').val(total);
   $('#totalDisplay').val(total);
   $('#submitSales').toggleClass('ready', parseFloat(total) > 0);
+}
+
+function recalcPaymentBalance() {
+  var total = parseFloat($('#paymentTotal').text()) || 0;
+  var paid = 0;
+  $('#paymentTable .details').each(function() {
+    paid += parseFloat($(this).find('input[id^="payAmount"]').val()) || 0;
+  });
+  var balance = total - paid;
+  $('#paymentBalance').text(balance.toFixed(2));
+  $('#confirmPaymentBtn').prop('disabled', balance != 0 || paid == 0);
 }
 
 function addOrderRow(id, name, price, uomLabel, weight, stock) {
@@ -518,30 +739,11 @@ function initPagination(tabId) {
   showPage(1);
 }
 
-function addItems(id) {
-  $('#spinnerLoading').show();
-
-  $.post('php/getProduct.php', { userID: id }, function(data) {
-    var obj = JSON.parse(data);
-
-    if (obj.status === 'success') {
-      var p = obj.message;
-
-      // Build display label: packaging name if set, else uom name, else price only
-      var uomLabel = p.packaging_name || p.uom_name || '';
-
-      if ($('#row_' + id).length) {
-        changeQty(id, 1);
-      } else {
-        var stock = parseFloat($('.product-item[data-pid="' + id + '"]').data('stock')) || 0;
-        addOrderRow(id, p.product_name, p.price || 0, uomLabel, 0, stock);
-        recalc();
-      }
-    } else {
-      toastr.error(obj.message, 'Failed:');
-    }
-
-    $('#spinnerLoading').hide();
-  });
+function addItems(id, packagingName) {
+  $('#weightModal').find('#productId').val(id);
+  $('#weightModal').find('#uom').text(packagingName);
+  $('#weightModal').find('#quantity').val('');
+  $('#weightModal').modal('show');
 }
+
 </script>

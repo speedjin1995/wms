@@ -3,10 +3,9 @@ require_once "db_connect.php";
 
 session_start();
 
-if(isset($_POST['paymentMethod'], $_POST['taxAmount'], $_POST['taxRate'],$_POST['subTotalPricing'], $_POST['totalDiscount'], $_POST['totalPricing'], $_POST['company'])){
+if(isset($_POST['taxAmount'], $_POST['taxRate'],$_POST['subTotalPricing'], $_POST['totalDiscount'], $_POST['totalPricing'], $_POST['company'])){
     $userID = $_SESSION['userID'];    
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);    
-    $paymentMethod = filter_input(INPUT_POST, 'paymentMethod', FILTER_SANITIZE_STRING);
     $subTotalPricing = filter_input(INPUT_POST, 'subTotalPricing', FILTER_SANITIZE_STRING);
     $taxAmount = filter_input(INPUT_POST, 'taxAmount', FILTER_SANITIZE_STRING);
     $taxRate = filter_input(INPUT_POST, 'taxRate', FILTER_SANITIZE_STRING);
@@ -15,6 +14,17 @@ if(isset($_POST['paymentMethod'], $_POST['taxAmount'], $_POST['taxRate'],$_POST[
     $success = true;
     $today = date("Y-m-d 00:00:00");
     $now = date("Y-m-d H:i:s");
+
+    # Payments json
+    $payments = [];
+    if (isset($_POST['payments']) && !empty($_POST['payments']) && count($_POST['payments']) > 0){
+        foreach ($_POST['payments'] as $payment){
+            $payments[] = [
+                'method' => $payment['method'],
+                'amount' => $payment['amount']
+            ];
+        }
+    }
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
         if ($update_stmt = $db->prepare("UPDATE transporters SET transporter_code=?, transporter_name=?, transporter_ic=? WHERE id=?")) {
@@ -72,8 +82,9 @@ if(isset($_POST['paymentMethod'], $_POST['taxAmount'], $_POST['taxRate'],$_POST[
         
                 $receiptNo .= strval($count);  //S00009
 
-                if ($insert_stmt = $db->prepare("INSERT INTO sales (receipt_no, subtotal, tax, tax_amount, discount, total_price, payment_method, created_by, created_datetime, company) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    $insert_stmt->bind_param('ssssssssss', $receiptNo, $subTotalPricing, $taxRate, $taxAmount, $totalDiscount, $totalPricing, $paymentMethod, $userID, $now, $company);
+                if ($insert_stmt = $db->prepare("INSERT INTO sales (receipt_no, subtotal, tax, tax_amount, discount, total_price, payments, created_by, created_datetime, company) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    $paymentsJson = json_encode($payments);
+                    $insert_stmt->bind_param('ssssssssss', $receiptNo, $subTotalPricing, $taxRate, $taxAmount, $totalDiscount, $totalPricing, $paymentsJson, $userID, $now, $company);
 
                     // Execute the prepared query.
                     if (! $insert_stmt->execute()) {
