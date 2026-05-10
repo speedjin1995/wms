@@ -25,6 +25,7 @@ if(isset($_POST['userID'])){
                 $message['id'] = $row['id'];
                 $message['packaging_name'] = $row['packaging_name'];
                 $message['packaging_type'] = $row['packaging_type'];
+                $message['is_by_weight'] = $row['is_by_weight'];
                 $message['customer'] = $row['customer'];
             }
             
