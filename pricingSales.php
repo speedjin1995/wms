@@ -88,7 +88,7 @@ else{
   .pagination .page-item.active .page-link { background:#2563eb; border-color:#2563eb; color:#fff; }
   .pagination .page-item.disabled .page-link { color:#d1d5db; }
 
-  .order-header { background:#2563eb; color:#fff; font-size:1rem; font-weight:700; flex-shrink:0; display:flex; align-items:center; gap:10px; }
+  .order-header { background: rgba(47, 40, 0, .75); color:#fff; font-size:1rem; font-weight:700; flex-shrink:0; display:flex; align-items:center; gap:10px; }
   .order-table-wrap { flex:1; overflow-y:auto; }
   .order-table { width:100%; border-collapse:collapse; }
   .order-table thead th { font-size:0.9rem; color:#6b7280; font-weight:600; border-bottom:1px solid #f3f4f6; background:#fff; }
@@ -317,7 +317,7 @@ else{
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
-        <div class="card mb-3" style="background:#2563eb;">
+        <div class="card mb-3 bg-danger">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div>
@@ -325,7 +325,7 @@ else{
               </div>
               <div>
                 <span class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center" style="width:45px;height:45px;">
-                  <i class="fas fa-weight-hanging text-info"></i>
+                  <i class="fas fa-weight-hanging text-dark"></i>
                 </span>
               </div>
             </div>
@@ -336,7 +336,7 @@ else{
           <div class="input-group">
             <input type="number" class="form-control" id="quantity" step="0.01" min="0.01" placeholder="<?=$languageArray['enter_quantity_code'][$language]?>">
             <div class="input-group-append">
-              <button class="btn" id="weightCapture" type="button" style="background:#2563eb;color:white;"><i class="fas fa-sync"></i></button>
+              <button class="btn bg-danger" id="weightCapture" type="button"><i class="fas fa-sync"></i></button>
             </div>
           </div>
           <input type="hidden" id="productId">
