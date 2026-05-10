@@ -49771,14 +49771,6 @@ a.text-muted:hover {
   color: #ced4da !important;
 }
 
-.dark-mode .text-dark {
-  color: #000 !important;
-}
-
-.dark-mode .text-white {
-  color: #fff !important;
-}
-
 .dark-mode.bg-primary {
   background-color: #3f6791 !important;
 }
