@@ -539,18 +539,18 @@ function edit(id){
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').modal('show');
           
-          $('#vehicleForm').validate({
-              errorElement: 'span',
-              errorPlacement: function (error, element) {
-                  error.addClass('invalid-feedback');
-                  element.closest('.form-group').append(error);
-              },
-              highlight: function (element, errorClass, validClass) {
-                  $(element).addClass('is-invalid');
-              },
-              unhighlight: function (element, errorClass, validClass) {
-                  $(element).removeClass('is-invalid');
-              }
+          $('#driverForm').validate({
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
           });
       }
       else if(obj.status === 'failed'){

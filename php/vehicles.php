@@ -10,6 +10,7 @@ if(isset($_POST['vehicleNumber'],$_POST['company'])){
 	$attendence2 = null;
 	$vehicleWeight = null;
     $driver = null;
+    $isManual = 'N';
 
     if(isset($_POST['attendence1']) && $_POST['attendence1'] != null && $_POST['attendence1'] != ''){
         $attendence1 = filter_input(INPUT_POST, 'attendence1', FILTER_SANITIZE_STRING);
@@ -28,8 +29,8 @@ if(isset($_POST['vehicleNumber'],$_POST['company'])){
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE vehicles SET veh_number=?, vehicle_weight=?, driver=?, attandence_1=?, attandence_2=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssss', $vehicleNumber, $vehicleWeight, $driver, $attendence1, $attendence2, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE vehicles SET veh_number=?, vehicle_weight=?, driver=?, attandence_1=?, attandence_2=?, is_manual=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssss', $vehicleNumber, $vehicleWeight, $driver, $attendence1, $attendence2, $isManual, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
