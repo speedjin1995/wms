@@ -26,6 +26,7 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $fax = null;
     $email = null;
     $parent = null;
+    $isManual = 'N';
 
     if(isset($_POST['reg_no']) && $_POST['reg_no'] != null && $_POST['reg_no'] != ''){
         $reg_no = filter_input(INPUT_POST, 'reg_no', FILTER_SANITIZE_STRING);
@@ -104,8 +105,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, customer_phone=?, pic=?, fax=?, parent=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $phone, $email, $fax, $parent, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, customer_phone=?, pic=?, fax=?, parent=?, is_manual=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $phone, $email, $fax, $parent, $isManual, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {

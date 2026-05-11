@@ -7,10 +7,11 @@ if(isset($_POST['driverName'], $_POST['driverIC'], $_POST['company'])){
     $driverName = filter_input(INPUT_POST, 'driverName', FILTER_SANITIZE_STRING);
     $driverIC = filter_input(INPUT_POST, 'driverIC', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
+    $isManual = 'N';
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE drivers SET driver_name=?, driver_ic=? WHERE id=?")) {
-            $update_stmt->bind_param('sss', $driverName, $driverIC, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE drivers SET driver_name=?, driver_ic=?, is_manual=? WHERE id=?")) {
+            $update_stmt->bind_param('ssss', $driverName, $driverIC, $isManual, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
