@@ -1577,6 +1577,16 @@ $(function () {
     });
     $('#totalRejectPrice').text('RM ' + totalPrice.toFixed(2));
   });
+
+  // Show tick when file is selected
+  $('#extendForm').on('change', 'input[type="file"]', function() {
+    var statusSpan = $(this).siblings('span[id$="Status"], span[id*="photoStatus"], span[id*="PhotoStatus"]');
+    if (this.files && this.files[0]) {
+      statusSpan.html('<i class="fas fa-check-circle text-success"></i>');
+    } else {
+      statusSpan.html('');
+    }
+  });
 });
 
 function updatePrices(isFromCurrency, rat){
@@ -2490,16 +2500,5 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   });
 }
-
-
-  // Show tick when file is selected
-  $('#extendForm').on('change', 'input[type="file"]', function() {
-    var statusSpan = $(this).siblings('span[id$="Status"], span[id*="photoStatus"], span[id*="PhotoStatus"]');
-    if (this.files && this.files[0]) {
-      statusSpan.html('<i class="fas fa-check-circle text-success"></i>');
-    } else {
-      statusSpan.html('');
-    }
-  });
 
 </script>
