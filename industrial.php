@@ -33,6 +33,7 @@ else{
   if ($role != 'SADMIN'){
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
@@ -43,6 +44,7 @@ else{
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
 
     // Company Detail 
@@ -59,6 +61,7 @@ else{
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
@@ -69,6 +72,7 @@ else{
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
 
     $allowPhoto = 'Y';
@@ -83,14 +87,6 @@ else{
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
-
-  // Company Detail 
-  $companyDetail = searchCompanyById($company, $db);
-  // $companyProducts = json_decode($companyDetail['products'], true);
-  $secRemarksExists = false;
-  if ($companyDetail['include_sec_remark'] == 'Y') { 
-    $secRemarksExists = true;
-  }
 }
 ?>
 <!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
@@ -185,6 +181,7 @@ else{
                   <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
                       <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
                     <?php } ?>
@@ -260,13 +257,15 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"></div>
+              <div class="col-10"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
-              <div class="col-2" style="visibility: hidden;">
+              <?php if($allowAdd == 'Y'){ ?>
+              <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
+              <?php } ?>
             </div>
           </div>
 
@@ -412,9 +411,10 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['vehicle_no_code'][$language]?></label>
-                <select class="form-control select2" id="vehicle" name="vehicle">
+                <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
+                <select class="form-control select2" id="vehicle" name="vehicle" required>
                   <option value="" selected disabled hidden>Please Select</option>
+                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
                     <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
                   <?php } ?>
@@ -423,19 +423,28 @@ else{
             </div>
             <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
               <div class="form-group">
-                <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
+                <label><?=$languageArray['other_vehicle_no_code'][$language]?> *</label>
                 <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['driver_code'][$language]?></label>
-                <select class="form-control select2" id="driver" name="driver">
+                <label><?=$languageArray['driver_code'][$language]?> *</label>
+                <select class="form-control select2" id="driver" name="driver" required>
                   <option value="" selected disabled hidden>Please Select</option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label><?=$languageArray['remark_code'][$language]?></label>
+                <textarea colspan="3" class="form-control" id="remarks" name="remarks" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
               </div>
             </div>
           </div>
@@ -454,15 +463,19 @@ else{
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
-              <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
-            </button>
+            <div class="d-flex align-items-center gap-2">
+              <label class="mb-0 mr-1 text-muted small"><?=$languageArray['unit_price_code'][$language]?></label>
+              <input type="number" class="form-control form-control-sm mr-2" id="bulkUnitPrice" step="0.01" placeholder="0.00" style="width:120px;">
+              <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
+              </button>
+            </div>
           </div>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
                 <tr>
-                  <th><?=$languageArray['number_short_code'][$language]?></th>
+                  <th><input type="checkbox" id="selectAllWeightCheckbox" class="selectAllCheckbox"></th>
                   <th width="10%"><?=$languageArray['product_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
                   <th><?=$languageArray['gross_code'][$language]?></th>
@@ -476,7 +489,7 @@ else{
                   <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
                   <?php } ?>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="weightDetailsTable">
@@ -503,7 +516,12 @@ else{
           </div>
 
           <hr>
-          <h5><?=$languageArray['reject_details_code'][$language]?></h5>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0"><?=$languageArray['reject_details_code'][$language]?></h5>
+            <button type="button" class="btn btn-danger btn-sm" id="addRejectWeightBtn">
+              <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
+            </button>
+          </div>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
@@ -522,7 +540,7 @@ else{
                   <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
                   <?php } ?>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="rejectDetailsTable">
@@ -1200,7 +1218,7 @@ $(function () {
 
   $('#extendModal').find('#vehicle').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKNOWN"){
+    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
       $('#extendModal').find('#vehicleNoOtherDiv').show();
     }
     else{
@@ -1210,12 +1228,64 @@ $(function () {
 
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKNOWN"){
+    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
       $('#otherVehicleFilterDiv').show();
     }
     else{
       $('#otherVehicleFilterDiv').hide();
     }
+  });
+
+  $('#addRejectWeightBtn').on('click', function() {
+    var idx = rejectCount++;
+    var rowNum = $('#rejectDetailsTable tr').length + 1;
+    var now = new Date();
+    var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0') + ':' + 
+                      now.getSeconds().toString().padStart(2, '0');
+    var row = `
+      <tr class="details">
+        <td>${rowNum}</td>
+        <td style="display:none">
+          <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="35">
+          <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="1REJ">
+          <input type="hidden" id="pretare${idx}" name="rejectDetails[${idx}][pretare]" value="0.00">
+          <input type="hidden" id="unit${idx}" name="rejectDetails[${idx}][unit]" value="Kg">
+          <input type="hidden" id="package${idx}" name="rejectDetails[${idx}][package]" value="">
+          <input type="hidden" id="fixedfloat${idx}" name="rejectDetails[${idx}][fixedfloat]" value="">
+          <input type="hidden" id="isedit${idx}" name="rejectDetails[${idx}][isedit]" value="N">
+          <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="0.00">
+          <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="YES">
+          <input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="REJECT (拒收)">
+          <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="REJ">
+        </td>
+        <td>REJECT (拒收)</td>
+        <td>REJ</td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00" readonly>
+        </td>
+        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="total${idx}" name="rejectDetails[${idx}][total]" step="0.01" value="0.00" readonly>
+        </td>
+        <td>
+          <input type="time" class="form-control" id="time${idx}" name="rejectDetails[${idx}][time]" value="${currentTime}"/>
+        </td>
+        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
+          <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="">
+          <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+          <button type="button" class="btn btn-info btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <span id="rejectPhotoStatus${idx}"></span>
+        </td>
+        <td>
+          <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `;
+    $('#rejectDetailsTable').append(row);
   });
 
   $('#addWeightBtn').on('click', function() {
@@ -1227,7 +1297,7 @@ $(function () {
                       now.getSeconds().toString().padStart(2, '0');
     var row = `
       <tr class="details">
-        <td>${rowNum}</td>
+        <td><input type="checkbox" id="weightCheckbox${idx}"></td>
         <td style="display:none">
           <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="">
           <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="">
@@ -1242,32 +1312,26 @@ $(function () {
         <td>
           <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
             <option value="" selected disabled>Select Product</option>
-            <?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?>
+            <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
               <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
             <?php } ?>
           </select>
         </td>
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
-            <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
-              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
+            <?php while($rowGrade=mysqli_fetch_assoc($grades4)){ ?>
+              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
-        <td>
-          <input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00">
-        </td>
-        <td>
-          <input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00">
-        </td>
-        <td>
-          <input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly>
-        </td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00">
         </td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00">
+          <input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00" readonly>
         </td>
         <td>
           <input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/>
@@ -1297,13 +1361,15 @@ $(function () {
     var row = $(this).closest('tr');
     var productName = $(this).val();
     var productId = $(this).find('option:selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
     row.find('input[name*="[product]"]').val(productId);
     row.find('input[name*="[product_desc]"]').val(productName);
     
     // Filter grades by selected product
     var gradeSelect = row.find('select[name*="[grade]"]');
     var currentGrade = gradeSelect.val();
-    
+    var currentGradeId = gradeSelect.find(':selected').data('id');
+
     // Destroy Select2 before modifying options
     gradeSelect.select2('destroy');
     
@@ -1334,6 +1400,16 @@ $(function () {
     });
     
     gradeSelect.val(currentGrade).trigger('change');
+  });
+
+  $('#weightDetailsTable').on('change', 'select[id^="grade"]', function() {
+    var grade = $(this).find(':selected').data('id');
+    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
+
+    if (allowPrice == 'Y' && productId){
+      calculatePrice(productId, customerId, grade, $(this));
+    }
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
@@ -1369,13 +1445,22 @@ $(function () {
     $('#totalWeightGross').text(totalGross.toFixed(2));
     $('#totalWeightTare').text(totalTare.toFixed(2));
     $('#totalWeightNet').text(totalNet.toFixed(2));
+
+    $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var net = parseFloat(row.find('input[name*="[net]"]').val());
-    var total = price * net;
+    var pricingType = row.find('input[id^="fixedfloat"]').val();
+    var net = parseFloat(row.find('input[id^="net"]').val());
+    var total = 0;
+
+    if (pricingType == 'Float'){
+      total = price * net;
+    }else{
+      total = price;
+    }
 
     row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
@@ -1398,7 +1483,8 @@ $(function () {
     // Filter grades by selected product
     var gradeSelect = row.find('select[name*="[grade]"]');
     var currentGrade = gradeSelect.val();
-    
+    var currentGradeId = gradeSelect.find(':selected').data('id');
+
     // Destroy Select2 before modifying options
     gradeSelect.select2('destroy');
     
@@ -1431,6 +1517,16 @@ $(function () {
     gradeSelect.val(currentGrade).trigger('change');
   });
 
+  $('#rejectDetailsTable').on('change', 'select[id^="grade"]', function() {
+    var grade = $(this).find(':selected').data('id');
+    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
+
+    if (allowPrice == 'Y' && productId){
+      calculatePrice(productId, customerId, grade, $(this));
+    }
+  });
+
   $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
@@ -1455,13 +1551,23 @@ $(function () {
     $('#totalRejectGross').text(totalGross.toFixed(2));
     $('#totalRejectTare').text(totalTare.toFixed(2));
     $('#totalRejectNet').text(totalNet.toFixed(2));
+
+    $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var net = parseFloat(row.find('input[name*="[net]"]').val());
-    var total = price * net;
+    var pricingType = row.find('input[id^="fixedfloat"]').val();
+    var net = parseFloat(row.find('input[id^="net"]').val());
+    var total = 0;
+
+    if (pricingType == 'Float'){
+      total = price * net;
+    }else{
+      total = price;
+    }
+
     row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
 
@@ -1481,6 +1587,19 @@ $(function () {
     } else {
       statusSpan.html('');
     }
+  });
+
+  $('#bulkUnitPrice').on('input', function() {
+    var price = parseFloat($(this).val());
+    if (isNaN(price)) return;
+    $('#weightDetailsTable input[type="checkbox"]:checked').each(function() {
+      $(this).closest('tr').find('input[id^="price"]').val(price.toFixed(2)).trigger('change');
+    });
+  });
+
+  $('#selectAllWeightCheckbox').on('change', function() {
+    var checkboxes = $('#weightDetailsTable input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 });
 
@@ -1625,7 +1744,7 @@ function format (row) {
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
               ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
-              <td>${detail.time}</td>              
+              <td>${detail.time}</td>
               ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
@@ -1796,6 +1915,7 @@ function newEntry(){
   $('#extendModal').find('#totalRejectTare').text(0.00);
   $('#extendModal').find('#totalRejectNet').text(0.00);
   $('#extendModal').find('#totalRejectPrice').text(0.00);
+  $('#extendModal').find('#bulkUnitPrice').val('');
   $('#weightDetailsTable').empty();
   $('#rejectDetailsTable').empty();
   $('#extendModal').modal('show');
@@ -1815,8 +1935,33 @@ function newEntry(){
   });
 }
 
+function calculatePrice(productId, customerId, currentGrade, element) {
+  if (productId){
+    $.post('php/getProduct.php', {userID: productId, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+      var obj = JSON.parse(data);
+
+      if(obj.status === 'success'){
+        var pricingType = obj.message.pricingType;
+        var price = obj.message.price;
+
+        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
+        element.closest('tr').find('input[id^="price"]').val(price).trigger('change');
+      }
+      else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+      }
+      else{
+        toastr["error"]("Something wrong when delete", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    });
+  }else{
+
+  }
+}
+
 function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function edit(id) {
@@ -1834,6 +1979,7 @@ function edit(id) {
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
       $('#extendModal').find('#remarks').val(obj.message.remark);
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
+      $('#extendModal').find('#bulkUnitPrice').val('');
 
       if (obj.message.other_vehicle){
         $('#extendModal').find('#vehicle').val('OTHERS').trigger('change');
@@ -1870,7 +2016,7 @@ function edit(id) {
           var idx = weightCount++;
           var row = `
             <tr class="details">
-              <td>${i + 1}</td>
+              <td><input type="checkbox" id="weightCheckbox${idx}"></td>
               <td style="display:none">
                 <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="${detail.product}">
                 <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="${detail.product_desc}">
@@ -1893,8 +2039,8 @@ function edit(id) {
               <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${parseFloat(detail.price).toFixed(2)}"></td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${parseFloat(detail.total).toFixed(2)}" readonly></td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
@@ -1964,11 +2110,7 @@ function edit(id) {
               </td>
               <td><input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
               <td>
-                <select class="form-control select2" id="grade${idx}" name="rejectDetails[${idx}][grade]">
-                  <?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?>
-                    <option value="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
-                  <?php } ?>
-                </select>
+                <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="${detail.grade}">${detail.grade}
               </td>
               <td><input type="hidden" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
@@ -2064,7 +2206,29 @@ function rejectRow(button) {
       $(this).attr('name', name.replace('photoFiles', 'rejectPhotoFiles').replace(/\[\d+\]/, '[' + rejectIndex + ']'));
     }
   });
-  
+
+  // Hardcode product and grade to REJECT
+  row.find('input[name*="[product]"]').val('35');
+  row.find('input[name*="[product_name]"]').val('REJECT (拒收)');
+  row.find('input[name*="[product_desc]"]').val('REJ');
+  row.find('input[name*="[isRejected]"]').val('YES');
+
+  // Replace product_name select/text with static display
+  var productCell = row.find('select[name*="[product_name]"]').closest('td');
+  if(productCell.length) {
+    productCell.find('select').select2('destroy').remove();
+    productCell.text('REJECT (拒收)');
+    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][product_name]', value:'REJECT (拒收)'}).appendTo(productCell);
+  }
+
+  // Replace grade select with static display
+  var gradeCell = row.find('select[name*="[grade]"]').closest('td');
+  if(gradeCell.length) {
+    gradeCell.find('select').select2('destroy').remove();
+    gradeCell.text('REJ');
+    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][grade]', value:'REJ'}).appendTo(gradeCell);
+  }
+
   row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
   
@@ -2072,12 +2236,6 @@ function rejectRow(button) {
   reindexWeightDetails();
   reindexRejectDetails();
   updateTotals();
-  $('.select2').select2({
-    allowClear: true,
-    placeholder: "Please Select",
-    dropdownParent: $('#extendModal .modal-body'),
-    width: '100%'
-  });
 }
 
 function acceptRow(button) {
@@ -2122,7 +2280,7 @@ function acceptRow(button) {
 function reindexWeightDetails() {
   $('#weightDetailsTable tr').each(function(index) {
     $(this).find('td:first').text(index + 1);
-    $(this).find('input[type="hidden"], select, input[type="file"]').each(function() {
+    $(this).find('input[type="hidden"], select').each(function() {
       var name = $(this).attr('name');
       if(name) {
         $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
@@ -2134,7 +2292,7 @@ function reindexWeightDetails() {
 function reindexRejectDetails() {
   $('#rejectDetailsTable tr').each(function(index) {
     $(this).find('td:first').text(index + 1);
-    $(this).find('input[type="hidden"], select, input[type="file"]').each(function() {
+    $(this).find('input[type="hidden"], select').each(function() {
       var name = $(this).attr('name');
       if(name) {
         $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
