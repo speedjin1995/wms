@@ -538,7 +538,7 @@ else{
                   <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
                   <?php } ?>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="rejectDetailsTable">
