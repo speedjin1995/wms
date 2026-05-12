@@ -6,10 +6,11 @@ session_start();
 if(isset($_POST['unit'], $_POST['company'])){
     $unit = filter_input(INPUT_POST, 'unit', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
+    $isManual = 'N';
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE grades SET units=? WHERE id=?")) {
-            $update_stmt->bind_param('ss', $unit, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE grades SET units=?, is_manual=? WHERE id=?")) {
+            $update_stmt->bind_param('sss', $unit, $isManual, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {

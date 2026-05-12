@@ -16,9 +16,9 @@ else{
   $message = array();
 
   if ($role != 'SADMIN'){
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   } else {
-    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
+    $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   }
 
   while($rowProducts=mysqli_fetch_assoc($products)){
@@ -37,7 +37,8 @@ else{
       'price'     => $rowProducts['price'],
       'img'       => $rowProducts['product_image'],
       'stock'     => $rowProducts['stock'],
-      'packaging_name' => $rowProducts['packaging_name']
+      'packaging_name' => $rowProducts['packaging_name'],
+      'by_weight' => $rowProducts['by_weight'],
     ));
   }
 
@@ -163,6 +164,7 @@ else{
           $img      = $message[$j]['Products'][$k]['img'];
           $stock    = (float) $message[$j]['Products'][$k]['stock'];
           $packagingName = $message[$j]['Products'][$k]['packaging_name'] ?? 'kg';
+          $byWeight = $message[$j]['Products'][$k]['by_weight'] ?? 'kg';
           $noStock = $stock <= 0;
 
           $imgHtml = $img
@@ -171,7 +173,7 @@ else{
 
           $badge    = $noStock ? '<span class="out-of-stock-badge">Not Available</span>' : '';
           $oosCls   = $noStock ? ' out-of-stock' : '';
-          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ', \'' . $packagingName . '\')"';
+          $onclick  = $noStock ? '' : ' onclick="addItems(' . $pid . ', \'' . $packagingName . '\', \'' . $byWeight . '\')"';
 
           echo '
           <div class="product-item' . $oosCls . '" data-stock="' . $stock . '" data-pid="' . $pid . '"' . $onclick . '>
@@ -329,7 +331,7 @@ else{
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
-        <div class="card mb-3 bg-danger">
+        <div class="card mb-3 bg-danger" id="displayIndicatorWeight">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div>
@@ -347,7 +349,7 @@ else{
           <label><?=$languageArray['quantity_code'][$language]?> (<span id="uom">kg</span>)</label>
           <div class="input-group">
             <input type="number" class="form-control" id="quantity" step="0.01" min="0.01" placeholder="<?=$languageArray['enter_quantity_code'][$language]?>">
-            <div class="input-group-append">
+            <div class="input-group-append" id="displayWeightCapture">
               <button class="btn bg-danger" id="weightCapture" type="button"><i class="fas fa-sync"></i></button>
             </div>
           </div>
@@ -377,9 +379,13 @@ else{
                 <small class="text-white-50"><?=$languageArray['total_amount_code'][$language]?></small>
                 <h3 class="text-white mb-0">RM <span id="paymentTotal">0.00</span></h3>
               </div>
-              <div>
+              <div id="balanceWrap">
                 <small class="text-white-50"><?=$languageArray['balance_due_code'][$language]?></small>
                 <h3 class="text-white mb-0">RM <span id="paymentBalance">0.00</span></h3>
+              </div>
+              <div id="changeWrap" style="display:none;">
+                <small class="text-white-50"><?=$languageArray['change_amount_code'][$language]?></small>
+                <h3 class="text-warning mb-0">RM <span id="paymentChange">0.00</span></h3>
               </div>
             </div>
           </div>
@@ -400,6 +406,7 @@ else{
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" id="cancelPaymentBtn"><?=$languageArray['cancel_code'][$language]?></button>
+        <input type="hidden" id="totalPaidAmount" name="totalPaidAmount" value="0.00">
         <button type="button" class="btn btn-success" id="confirmPaymentBtn" disabled><i class="fas fa-check"></i> <?=$languageArray['save_code'][$language]?></button>
       </div>
     </div>
@@ -420,7 +427,7 @@ else{
       <input type="number" class="form-control form-control-sm" id="payAmount" name="payAmount" step="0.01" min="0.01" placeholder="Amount">
     </td>
     <td>
-      <button type="button" class="btn btn-danger btn-sm remove-payment"><i class="fas fa-times"></i></button>
+      <button type="button" class="btn btn-danger btn-sm" id="remove"><i class="fas fa-times"></i></button>
     </td>
   </tr>
 </script>
@@ -505,6 +512,9 @@ $(function(){
     $('#paymentTable').empty();
     $('#paymentTotal').text(total.toFixed(2));
     $('#paymentBalance').text(total.toFixed(2));
+    $('#totalPaidAmount').val('0.00');
+    $('#balanceWrap').show();
+    $('#changeWrap').hide();
     $('#confirmPaymentBtn').prop('disabled', true);
     $('#paymentModal').modal('show');
   });
@@ -555,6 +565,8 @@ $(function(){
     $('#spinnerLoading').show();
     var formData = $('#saleForm').serialize();
 
+    formData += '&changeAmount=' + encodeURIComponent($('#paymentChange').text() || '0.00');
+    formData += '&totalPaidAmount=' + encodeURIComponent($('#totalPaidAmount').val() || '0.00');
     $('#paymentTable .details').each(function(i) {
       var method = $(this).find('select[id^="payMethod"]').val();
       var amount = $(this).find('input[id^="payAmount"]').val();
@@ -659,8 +671,18 @@ function recalcPaymentBalance() {
     paid += parseFloat($(this).find('input[id^="payAmount"]').val()) || 0;
   });
   var balance = total - paid;
-  $('#paymentBalance').text(balance.toFixed(2));
-  $('#confirmPaymentBtn').prop('disabled', balance != 0 || paid == 0);
+  if (paid > total) {
+    $('#balanceWrap').hide();
+    $('#changeWrap').show();
+    $('#paymentChange').text((paid - total).toFixed(2));
+    $('#confirmPaymentBtn').prop('disabled', false);
+  } else {
+    $('#balanceWrap').show();
+    $('#changeWrap').hide();
+    $('#paymentBalance').text(balance.toFixed(2));
+    $('#confirmPaymentBtn').prop('disabled', balance != 0 || paid == 0);
+  }
+  $('#totalPaidAmount').val(paid.toFixed(2));
 }
 
 function addOrderRow(id, name, price, uomLabel, weight, stock) {
@@ -751,10 +773,19 @@ function initPagination(tabId) {
   showPage(1);
 }
 
-function addItems(id, packagingName) {
+function addItems(id, packagingName, byWeight) {
   $('#weightModal').find('#productId').val(id);
   $('#weightModal').find('#uom').text(packagingName);
   $('#weightModal').find('#quantity').val('');
+
+  if (byWeight == 'Y'){
+    $('#displayIndicatorWeight').show();
+    $('#displayWeightCapture').show();
+  }else{
+    $('#displayIndicatorWeight').hide();
+    $('#displayWeightCapture').hide();
+  }
+  
   $('#weightModal').modal('show');
 }
 

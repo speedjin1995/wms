@@ -45,13 +45,16 @@ if(!isset($_SESSION['userID'])){
         <style>
             .wrapper {
                 display: flex;
+                flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                height: 100vh;
+                height: auto;
                 background: url('assets/main-background.jpg');
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
+                padding-top: 100px;
+                padding-bottom: 100px;
             }
 
             .company-name h1 {
@@ -100,14 +103,15 @@ if(!isset($_SESSION['userID'])){
             }
 
             .company-name {
-                position: absolute;
-                top: 15%;
+                /*position: absolute;
+                top: 15%;*/
                 width: 100%;
                 text-align: center;
                 font-size: 32px;
                 font-weight: 700;
                 letter-spacing: 1.5px;
                 color: #1f2d3d;
+                margin-bottom: 35px;
             }
         </style>
     </head>
