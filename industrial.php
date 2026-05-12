@@ -463,15 +463,19 @@ else{
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
-              <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
-            </button>
+            <div class="d-flex align-items-center gap-2">
+              <label class="mb-0 mr-1 text-muted small"><?=$languageArray['unit_price_code'][$language]?></label>
+              <input type="number" class="form-control form-control-sm mr-2" id="bulkUnitPrice" step="0.01" placeholder="0.00" style="width:120px;">
+              <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
+              </button>
+            </div>
           </div>
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
                 <tr>
-                  <th><?=$languageArray['number_short_code'][$language]?></th>
+                  <th><input type="checkbox" id="selectAllWeightCheckbox" class="selectAllCheckbox"></th>
                   <th width="10%"><?=$languageArray['product_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
                   <th><?=$languageArray['gross_code'][$language]?></th>
@@ -1261,7 +1265,7 @@ $(function () {
         <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00">
+          <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00" readonly>
         </td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="total${idx}" name="rejectDetails[${idx}][total]" step="0.01" value="0.00" readonly>
@@ -1293,7 +1297,7 @@ $(function () {
                       now.getSeconds().toString().padStart(2, '0');
     var row = `
       <tr class="details">
-        <td>${rowNum}</td>
+        <td><input type="checkbox" id="weightCheckbox${idx}"></td>
         <td style="display:none">
           <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="">
           <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="">
@@ -1583,6 +1587,19 @@ $(function () {
     } else {
       statusSpan.html('');
     }
+  });
+
+  $('#bulkUnitPrice').on('input', function() {
+    var price = parseFloat($(this).val());
+    if (isNaN(price)) return;
+    $('#weightDetailsTable input[type="checkbox"]:checked').each(function() {
+      $(this).closest('tr').find('input[id^="price"]').val(price.toFixed(2)).trigger('change');
+    });
+  });
+
+  $('#selectAllWeightCheckbox').on('change', function() {
+    var checkboxes = $('#weightDetailsTable input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 });
 
@@ -1898,6 +1915,7 @@ function newEntry(){
   $('#extendModal').find('#totalRejectTare').text(0.00);
   $('#extendModal').find('#totalRejectNet').text(0.00);
   $('#extendModal').find('#totalRejectPrice').text(0.00);
+  $('#extendModal').find('#bulkUnitPrice').val('');
   $('#weightDetailsTable').empty();
   $('#rejectDetailsTable').empty();
   $('#extendModal').modal('show');
@@ -1961,6 +1979,7 @@ function edit(id) {
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
       $('#extendModal').find('#remarks').val(obj.message.remark);
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
+      $('#extendModal').find('#bulkUnitPrice').val('');
 
       if (obj.message.other_vehicle){
         $('#extendModal').find('#vehicle').val('OTHERS').trigger('change');
@@ -1997,7 +2016,7 @@ function edit(id) {
           var idx = weightCount++;
           var row = `
             <tr class="details">
-              <td>${i + 1}</td>
+              <td><input type="checkbox" id="weightCheckbox${idx}"></td>
               <td style="display:none">
                 <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="${detail.product}">
                 <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="${detail.product_desc}">
@@ -2020,8 +2039,8 @@ function edit(id) {
               <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="weightDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="weightDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${parseFloat(detail.price).toFixed(2)}"></td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${parseFloat(detail.total).toFixed(2)}" readonly></td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
