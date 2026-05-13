@@ -123,6 +123,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
 
   $data[] = array( 
     "id"=>$row['id'],
+    "indicator"=>$row['indicator'],
     "serial_no"=>$row['serial_no'],
     "security_bills"=>$row['security_bills'] ?? '',
     "po_no"=>$row['po_no'] ?? '',

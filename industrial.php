@@ -273,17 +273,17 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
+                  <th><?=$languageArray['indicator_code'][$language]?></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
-                  <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-                  <th><?=$languageArray['driver_code'][$language]?></th>
                   <th><?=$languageArray['total_item_code'][$language]?></th>
-                  <th><?=$languageArray['total_weight_code'][$language]?></th>
-                  <th><?=$languageArray['total_reject_code'][$language]?></th>
+                  <th><?=$languageArray['total_tare_code'][$language]?></th>
+                  <th><?=$languageArray['total_nett_code'][$language]?></th>
+                  <th><?=$languageArray['total_variance_code'][$language]?></th>
+                  <th><?=$languageArray['total_variance_code'][$language]?> (%)</th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
@@ -367,7 +367,7 @@ else{
                 <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
               </div>
             </div>
-            <div class="col-md-4" id="securityBillDiv">
+            <div class="col-md-4" id="securityBillDiv" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
@@ -409,10 +409,10 @@ else{
                 <input type="text" class="form-control" id="supplierOther" name="supplierOther">
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
-                <select class="form-control select2" id="vehicle" name="vehicle" required>
+                <select class="form-control select2" id="vehicle" name="vehicle">
                   <option value="" selected disabled hidden>Please Select</option>
                   <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
@@ -427,10 +427,10 @@ else{
                 <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['driver_code'][$language]?> *</label>
-                <select class="form-control select2" id="driver" name="driver" required>
+                <select class="form-control select2" id="driver" name="driver">
                   <option value="" selected disabled hidden>Please Select</option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
@@ -697,17 +697,13 @@ $(function () {
       } 
     },
     'columns': [
+      { data: 'indicator' },
       { data: 'serial_no' },
       { data: 'po_no' },
-      { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
-      { data: 'vehicle_no' },
-      { data: 'driver' },
       { data: 'total_item' },
-      { data: 'total_weight' },
-      { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
       <?php if ($secRemarksExists) { ?>
@@ -863,17 +859,13 @@ $(function () {
         } 
       },
       'columns': [
+        { data: 'indicator' },
         { data: 'serial_no' },
         { data: 'po_no' },
-        { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
-        { data: 'vehicle_no' },
-        { data: 'driver' },
         { data: 'total_item' },
-        { data: 'total_weight' },
-        { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
         <?php if ($secRemarksExists) { ?>
