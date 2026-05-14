@@ -176,7 +176,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3">
+              <div class="col-3" style="display:none">
                 <div class="form-group">
                   <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
@@ -273,19 +273,19 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
-                  <th><?=$languageArray['indicator_code'][$language]?></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['total_item_code'][$language]?></th>
+                  <th><?=$languageArray['total_gross_code'][$language]?></th>
                   <th><?=$languageArray['total_tare_code'][$language]?></th>
                   <th><?=$languageArray['total_nett_code'][$language]?></th>
                   <th><?=$languageArray['total_variance_code'][$language]?></th>
                   <th><?=$languageArray['total_variance_code'][$language]?> (%)</th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <th><?=$languageArray['indicator_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -367,7 +367,7 @@ else{
                 <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
               </div>
             </div>
-            <div class="col-md-4" id="securityBillDiv" style="display:none">
+            <div class="col-md-4" id="securityBillDiv">
               <div class="form-group">
                 <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
@@ -409,7 +409,7 @@ else{
                 <input type="text" class="form-control" id="supplierOther" name="supplierOther">
               </div>
             </div>
-            <div class="col-md-4" style="display:none">
+            <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
                 <select class="form-control select2" id="vehicle" name="vehicle">
@@ -697,17 +697,21 @@ $(function () {
       } 
     },
     'columns': [
-      { data: 'indicator' },
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
       { data: 'total_item' },
+      { data: 'total_gross' },
+      { data: 'total_tare' },
+      { data: 'total_nett' },
+      { data: 'total_variance' },
+      { data: 'total_variance_perc' },
       { data: 'weighted_by' },
-      { data: 'checked_by' },
+      { data: 'indicator' },
       <?php if ($secRemarksExists) { ?>
-        { data: 'remarks2' },
+      { data: 'remarks2' },
       <?php }?>
       { 
         data: 'id',
@@ -866,8 +870,13 @@ $(function () {
         { data: 'parent' },
         { data: 'customer_supplier' },
         { data: 'total_item' },
+        { data: 'total_gross' },
+        { data: 'total_tare' },
+        { data: 'total_nett' },
+        { data: 'total_variance' },
+        { data: 'total_variance_perc' },
         { data: 'weighted_by' },
-        { data: 'checked_by' },
+        { data: 'indicator' },  
         <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
         <?php }?>
@@ -1672,17 +1681,17 @@ function format (row) {
       <p><strong>Serial No:</strong> ${row.serial_no}</p>
       <p><strong>Parent:</strong> ${row.parent}</p>
       <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
-      <p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p>
+      ${row.records_type != 'industrial' ? '<p><strong>Security Bill No:</strong> ' + row.security_bills + '</p>' : ''}
       <p><strong>PO No:</strong> ${row.po_no}</p>
-      <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
-      <p><strong>Driver:</strong> ${row.driver}</p>
+      ${row.records_type != 'industrial' ? '<p><strong>Vehicle:</strong> ' + row.vehicle_no + '</p>' : ''}
+      ${row.records_type != 'industrial' ? '<p><strong>Driver:</strong> ' + row.driver + '</p>' : ''}
     </div>
     <div class="col-6">
       <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
-      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
+      <!--p><strong>Checked By:</strong> ${row.checked_by || ''}</p-->
       <p><strong>Total Item:</strong> ${row.total_item}</p>
-      <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
+      ${row.records_type != 'industrial' ? '<p><strong>Total Weight:</strong> ' + row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00' + '</p>' : ''}
+      ${row.records_type != 'industrial' ? '<p><strong>Total Reject:</strong> ' + row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00' + '</p>' : ''}
       ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
     </div>
   </div>
@@ -1699,7 +1708,7 @@ function format (row) {
         <option value="">All Products</option>
       </select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3" style="display:none">
       <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
         <option value="">All Grades</option>
       </select>
@@ -1710,10 +1719,11 @@ function format (row) {
       <thead>
           <tr>
             <th>Product</th>
-            <th>Grade</th>
             <th>Gross</th>
             <th>Tare</th>
             <th>Net</th>
+            <th>Variance</th>
+            <th>Variance (%)</th>
             ${allowPrice == 'Y' ? '<th>Price</th><th>Total</th>' : ''}            
             <th>Time</th>
             ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
@@ -1724,6 +1734,8 @@ function format (row) {
       var totalWeightGross = 0;
       var totalWeightTare = 0;
       var totalWeightNet = 0;
+      var totalWeightVariance = 0;
+      var totalWeightVariancePerc = 0;
       var totalWeightPrice = 0;
       for (var i = 0; i < row.weightDetails.length; i++) {
         var detail = row.weightDetails[i]; 
@@ -1731,10 +1743,11 @@ function format (row) {
         returnString += `
             <tr>
               <td>${detail.product_name}</td>
-              <td>${detail.grade}</td>
               <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.variance).toFixed(2)} ${detail.unit}</td>
+              <td>${parseFloat(detail.varPerc).toFixed(2)} </td>
               ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
               <td>${detail.time}</td>
               ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
@@ -1744,6 +1757,8 @@ function format (row) {
         totalWeightGross += parseFloat(detail.gross);
         totalWeightTare += parseFloat(detail.tare);
         totalWeightNet += parseFloat(detail.net);
+        totalWeightVariance += parseFloat(detail.variance);
+        totalWeightVariancePerc += parseFloat(detail.varPerc);
         totalWeightPrice += parseFloat(detail.total);
       }
 
@@ -1751,10 +1766,12 @@ function format (row) {
       </tbody>
       <tfoot>
         <tr>
-          <th colspan="2">Total</th>
-          <th>${totalWeightGross.toFixed(2)}</th>
-          <th>${totalWeightTare.toFixed(2)}</th>
-          <th>${totalWeightNet.toFixed(2)}</th>
+          <th colspan="1">Total</th>
+          <th>${totalWeightGross.toFixed(2)} ${detail.unit}</th>
+          <th>${totalWeightTare.toFixed(2)} ${detail.unit}</th>
+          <th>${totalWeightNet.toFixed(2)} ${detail.unit}</th>
+          <th>${totalWeightVariance.toFixed(2)} ${detail.unit}</th>
+          <th>${totalWeightVariancePerc.toFixed(2)}</th>
           ${allowPrice == 'Y' ? '<th></th><th>RM ' + totalWeightPrice.toFixed(2) + '</th>' : ''}
           <th></th>
           ${allowPhoto == 'Y' ? '<th></th>' : ''}

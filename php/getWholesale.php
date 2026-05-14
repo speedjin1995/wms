@@ -49,6 +49,7 @@ if(isset($_POST['userID'])){
                 $message['remarks2'] = $row['remarks2'];
                 $message['created_datetime'] = $row['created_datetime'];
                 $message['end_time'] = $row['end_time'];
+                $message['records_type'] = $row['records_type'];
 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
@@ -73,6 +74,29 @@ if(isset($_POST['userID'])){
                 }
 
                 $message['rejectDetails'] = $rejectDetails;
+
+                // For Industrial
+                $totalTare = 0;
+                $totalNett = 0;
+                $totalVariance = 0;
+                $totalVariancePerc = 0;
+
+                if(isset($row['records_type']) && $row['records_type'] == 'industrial'){
+                    $weightDetails = json_decode($row['weight_details'], true);
+                    if($weightDetails && count($weightDetails) > 0){
+                        foreach($weightDetails as $detail){
+                            $totalTare += floatval($detail['tare'] ?? 0);
+                            $totalNett += floatval($detail['net'] ?? 0);
+                            $totalVariance += floatval($detail['variance'] ?? 0);
+                            $totalVariancePerc += floatval($detail['varPerc'] ?? 0);
+                        }
+                    }
+                }
+
+                $message['total_tare'] = number_format((float)$totalTare, 2, '.', '');
+                $message['total_nett'] = number_format((float)$totalNett, 2, '.', '');
+                $message['total_variance'] = number_format((float)$totalVariance, 2, '.', '');
+                $message['total_variance_perc'] = number_format((float)$totalVariancePerc, 2, '.', '');
             }
             
             echo json_encode(
