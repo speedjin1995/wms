@@ -48,7 +48,7 @@ if(!isset($_SESSION['userID'])){
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                height: auto;
+                min-height: 100vh;
                 background: url('assets/main-background.jpg');
                 background-repeat: no-repeat;
                 background-size: cover;
