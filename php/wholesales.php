@@ -34,6 +34,8 @@ if(isset($_POST['status'], $_POST['startTime'])){
     $startDateTime = $startDateTimeObj->format("d/m/Y 00:00:00");
     $startDateTime2 = $startDateTimeObj->format("Ymd");
     $startDateTime3 = $startDateTimeObj->format("Y-m-d H:i:s");
+    $currentDateTimeObj = new DateTime();
+	$year = $currentDateTimeObj->format("y");
 
     if(isset($_POST['endTime']) && $_POST['endTime'] != null && $_POST['endTime'] != ''){
         $endTime = $_POST['endTime'];
@@ -41,9 +43,48 @@ if(isset($_POST['status'], $_POST['startTime'])){
         $endDateTime = $endTimeObj->format("Y-m-d H:i:s");
     }
 
+    if(isset($_POST['recordType']) && $_POST['recordType'] != null && $_POST['recordType'] != ''){
+		$recordType = $_POST['recordType'];
+	}
+
     if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
 		$doPoNo = $_POST['doPoNo'];
-	}
+	}else{
+        $doPoNo = $year;
+
+        if ($select_stmt2 = $db->prepare("SELECT * FROM running_no_setup WHERE module = ? AND company_id = ? AND transaction_status = ?")) {
+            $select_stmt2->bind_param('sss', $recordType, $company, $status);
+            
+            // Execute the prepared query.
+            if (! $select_stmt2->execute()) {
+                echo json_encode(
+                    array(
+                        "status" => "failed",
+                        "message" => "Failed to get latest count"
+                    )); 
+            }
+            else{
+                $result2 = $select_stmt2->get_result();
+                $count = 1;
+                
+                if ($row = $result2->fetch_assoc()) {
+                    $doPoNo = $row['name'].$doPoNo;
+                    $count = (int)$row['value'];
+                    $curval = $count;
+                }
+
+                $charSize = strlen(strval($count));
+
+                for($i=0; $i<(6-(int)$charSize); $i++){
+                    $doPoNo.='0';  // S000000
+                }
+        
+                $doPoNo .= strval($count);  //S0000009
+            }
+        }
+        
+        $select_stmt2->close();
+    }
 
     if(isset($_POST['securityBillNo']) && $_POST['securityBillNo'] != null && $_POST['securityBillNo'] != ''){
 		$securityBillNo = $_POST['securityBillNo'];
@@ -75,7 +116,11 @@ if(isset($_POST['status'], $_POST['startTime'])){
         }else{
             $vehicle = $_POST['vehicle'];
         }
-	}
+	}else{
+        if ($recordType == 'industrial'){
+            $vehicle = "-";
+        }
+    }
 
     if(isset($_POST['driver']) && $_POST['driver'] != null && $_POST['driver'] != ''){
 		$driver = $_POST['driver'];
@@ -311,6 +356,16 @@ if(isset($_POST['status'], $_POST['startTime'])){
             } 
             else{
                 $insert_stmt->close();
+
+                if(!isset($post['doPoNo']) || $post['doPoNo'] == null || $post['do_doPoNono'] == ''){
+					$curval = $curval + 1;
+					$curval = strval($curval);
+					$stmtUS = $db->prepare("UPDATE running_no_setup SET value = ? WHERE module = ? AND company_id = ? AND transaction_status = ?");
+					$stmtUS->bind_param('ssss', $curval, $recordType, $company, $status);
+					$stmtUS->execute();
+					$stmtUS->close();
+				}
+
                 $db->close();
                 
                 echo json_encode(
@@ -319,7 +374,6 @@ if(isset($_POST['status'], $_POST['startTime'])){
                         "message"=> "Added Successfully!!" 
                     )
                 );
-
             }
         } 
         else{
