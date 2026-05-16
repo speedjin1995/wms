@@ -322,6 +322,7 @@ else{
 
         <div class="modal-body" >
           <input type="hidden" class="form-control" id="id" name="id">
+          <input type="hidden" class="form-control" id="recordType" name="recordType" value="industrial">
           
           <div class="row">
             <div class="col-md-4">
@@ -363,11 +364,11 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['do_po_no_code'][$language]?> *</label>
-                <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
+                <label><?=$languageArray['do_po_no_code'][$language]?></label>
+                <input type="text" class="form-control" id="doPoNo" name="doPoNo">
               </div>
             </div>
-            <div class="col-md-4" id="securityBillDiv">
+            <div class="col-md-4" id="securityBillDiv" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
@@ -411,8 +412,8 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
-                <select class="form-control select2" id="vehicle" name="vehicle" required>
+                <label><?=$languageArray['vehicle_no_code'][$language]?></label>
+                <select class="form-control select2" id="vehicle" name="vehicle">
                   <option value="" selected disabled hidden>Please Select</option>
                   <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
@@ -423,14 +424,14 @@ else{
             </div>
             <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
               <div class="form-group">
-                <label><?=$languageArray['other_vehicle_no_code'][$language]?> *</label>
+                <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" style="display:none">
               <div class="form-group">
-                <label><?=$languageArray['driver_code'][$language]?> *</label>
-                <select class="form-control select2" id="driver" name="driver" required>
+                <label><?=$languageArray['driver_code'][$language]?></label>
+                <select class="form-control select2" id="driver" name="driver">
                   <option value="" selected disabled hidden>Please Select</option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
@@ -1172,7 +1173,7 @@ $(function () {
 
   $('#transactionStatusFilter').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
+    if(status == "OUTGOING" || status == 'STOCK-BAL'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }
@@ -1184,15 +1185,15 @@ $(function () {
 
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
+    if(status == "OUTGOING" || status == 'STOCK-BAL'){
       $('#extendModal').find('#customerDiv').show();
       $('#extendModal').find('#supplierDiv').hide();
-      $('#extendModal').find('#securityBillDiv').hide();
+      // $('#extendModal').find('#securityBillDiv').hide();
     }
     else{
       $('#extendModal').find('#customerDiv').hide();
       $('#extendModal').find('#supplierDiv').show();
-      $('#extendModal').find('#securityBillDiv').show();
+      // $('#extendModal').find('#securityBillDiv').show();
     }
   });
 
@@ -1895,7 +1896,7 @@ function formatNormal (row) {
 function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
-  $('#extendModal').find('#status').val("OUTGOING").trigger('change');
+  $('#extendModal').find('#status').val("INCOMING").trigger('change');
   $('#extendModal').find('#doPoNo').val("");
   $('#extendModal').find('#securityBillNo').val("");
   $('#extendModal').find('#customer').val("").trigger('change');
