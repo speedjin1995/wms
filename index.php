@@ -55,7 +55,7 @@ else{
 
   <title>WMS</title>
 
-  <link rel="icon" href="assets/wms-logo-white-site-icon.png" type="image">
+  <link rel="icon" href="assets/phg-site-logo.png" type="image">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <!-- IonIcons -->
@@ -83,7 +83,7 @@ else{
   
   <style>
     body {
-      background: #eee;
+      /*background: #eee;*/
       font-family: Assistant, sans-serif
     }
   
@@ -107,8 +107,12 @@ else{
     } */
 
     thead {
-      background-color: #007bff; 
+      background-color: #0b5208; 
       color:white;
+    }
+
+    .table-bordered tbody .action-button .row {
+      gap: 5px;
     }
   
     .table-elipse {
@@ -319,7 +323,7 @@ to get the desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini" style="background: url(../../assets/main-background-1.jpg); background-repeat: no-repeat; background-size: cover; background-position: center;">
 <div class="loading" id="spinnerLoading">
   <div class='uil-ring-css' style='transform:scale(0.79);'>
     <div></div>
@@ -328,11 +332,11 @@ to get the desired effect
 
 <div class="wrapper">
   <!-- Navbar -->
-  <nav class="main-header navbar navbar-expand navbar-primary navbar-light" style="background-color: white;">
+  <nav class="main-header navbar navbar-expand navbar-primary navbar-light" style="background-color: rgba(47, 40, 0, .75);">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars bg-success" style="background: #003392 !important;"></i></a>
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars bg-success" style="background: transparent !important;"></i></a>
       </li>
     </ul>
     
@@ -359,11 +363,11 @@ to get the desired effect
 
   <!-- Main Sidebar Container -->
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #003392;">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: rgba(47, 40, 0, .75); border-right: 1px solid #dee2e6;">
     <!-- Brand Logo -->
-    <a href="#" class="brand-link logo-switch" style="line-height: 5.5; border-bottom-color: #ffffff;">
-      <img src="assets/wms-logo-white-site-icon.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs" style="left: 15px; top: 15px; line-height: 5.5;">
-      <img src="assets/wms-logo-white-2.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content; left: 25px; top: 15px;">
+    <a href="#" class="brand-link logo-switch" style="line-height: 3.25; border-bottom-color: #ffffff;">
+      <img src="assets/phg-site-logo.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs" style="left: 15px; top: 15px; line-height: 5.5;">
+      <img src="assets/phg-logo-1.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 75%;max-height: max-content; left: 0px; position: relative; top: 0px; margin-left: auto; margin-right: auto;">
     </a>
 
     <!-- Sidebar -->
@@ -699,7 +703,7 @@ to get the desired effect
 
   <!-- Main Footer -->
   <footer class="main-footer">
-    <strong>Copyright &copy; 2024 <a href="#">SyncWeight</a>.</strong>All rights reserved.<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.0.0 </div>
+    <strong>Copyright &copy; 2020 <a href="#">Idea of Synctronix</a> · </strong>All Rights Reserved<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.10 </div>
   </footer>
 </div>
 <!-- ./wrapper -->

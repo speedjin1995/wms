@@ -73,7 +73,7 @@ else{
 	<div class="container-fluid px-5">
 		<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><i class="fas fa-building mr-2 text-primary"></i><?=$languageArray['company_profile_code'][$language]?></h1>
+				<h1 class="m-0 text-dark"><i class="fas fa-building mr-2 text-primary" style="color: #f01c27 !important;"></i><?=$languageArray['company_profile_code'][$language]?></h1>
 			</div>
 		</div>
 	</div>
@@ -297,7 +297,7 @@ else{
 
             <input type="hidden" name="id" value="<?=$company?>">
 			<div class="card-footer">
-				<button class="btn btn-primary" id="saveProfile"><i class="fas fa-save mr-1"></i> <?=$languageArray['save_code'][$language]?></button>
+				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save mr-1"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</div>
 

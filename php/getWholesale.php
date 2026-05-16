@@ -49,6 +49,7 @@ if(isset($_POST['userID'])){
                 $message['remarks2'] = $row['remarks2'];
                 $message['created_datetime'] = $row['created_datetime'];
                 $message['end_time'] = $row['end_time'];
+                $message['records_type'] = $row['records_type'];
 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);

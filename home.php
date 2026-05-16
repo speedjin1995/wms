@@ -16,7 +16,7 @@ if(!isset($_SESSION['userID'])){
         
         <title>WMS</title>
         
-        <link rel="icon" href="assets/wms-logo-white-site-icon.png" type="image">
+        <link rel="icon" href="assets/phg-site-logo.png" type="image">
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
         <!-- IonIcons -->
@@ -48,15 +48,17 @@ if(!isset($_SESSION['userID'])){
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                height: auto;
-                /*background: url('assets/modules-bg.jpeg');*/
-                background: url('assets/module-bg.jpeg');
-                /*background: url('assets/modules-bg.jpg');*/
+                min-height: 100vh;
+                background: url('assets/main-background.jpg');
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
                 padding-top: 100px;
                 padding-bottom: 100px;
+            }
+
+            .company-name h1 {
+                color: #fff;
             }
 
             .modules-box-list {
@@ -86,7 +88,7 @@ if(!isset($_SESSION['userID'])){
             .modules-box-list .modules-box:hover {
                 cursor: pointer;
                 transform: translateY(-10px);
-                box-shadow: 5px -5px 0px 2.5px rgba(0, 51, 146, 1);
+                box-shadow: 5px -5px 0px 2.5px #fff7a8;
             }
 
             .modules-box-list .modules-box .modules-img {
