@@ -142,6 +142,8 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'tare' => $weightDetail['tare'] ?? '',
                 'pretare' => $weightDetail['pretare'] ?? '0.0',
                 'net' => $weightDetail['net'] ?? '',
+                'variance' => $recordType == 'industrial' ? ($weightDetail['variance'] ?? '') : '',
+                'varPerc' => $recordType == 'industrial' ? ($weightDetail['variancePerc'] ?? '') : '',
                 'reject' => $weightDetail['reject'] ?? '',
                 'isRejected' => $weightDetail['isRejected'] ?? 'N',
                 'product' => $weightDetail['product'] ?? '',
