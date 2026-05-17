@@ -323,7 +323,8 @@ else{
 
         <div class="modal-body" >
           <input type="hidden" class="form-control" id="id" name="id">
-          
+          <input type="hidden" class="form-control" id="recordType" name="recordType" value="wholesales">
+
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
@@ -365,8 +366,8 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['do_po_no_code'][$language]?> *</label>
-                <input type="text" class="form-control" id="doPoNo" name="doPoNo" required>
+                <label><?=$languageArray['do_po_no_code'][$language]?></label>
+                <input type="text" class="form-control" id="doPoNo" name="doPoNo">
               </div>
             </div>
             <div class="col-md-4" id="securityBillDiv">
