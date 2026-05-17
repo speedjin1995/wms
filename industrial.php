@@ -176,7 +176,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" style="display:none">
+              <div class="col-3">
                 <div class="form-group">
                   <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
