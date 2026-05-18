@@ -1899,7 +1899,7 @@ function formatNormal (row) {
 function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
-  $('#extendModal').find('#status').val("DISPATCH").trigger('change');
+  $('#extendModal').find('#status').val("RECEIVING").trigger('change');
   $('#extendModal').find('#doPoNo').val("");
   $('#extendModal').find('#securityBillNo').val("");
   $('#extendModal').find('#customer').val("").trigger('change');
