@@ -6,6 +6,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $user = $_SESSION['userID'];
 $company = $_SESSION['customer'];
+$module = $_SESSION['module'];
 
 // Read the JSON data from the request body
 $data = json_decode(file_get_contents('php://input'), true);
@@ -22,8 +23,8 @@ if (!empty($data)) {
         $row = mysqli_fetch_assoc($categoryDetail);
 
         if(empty($row)){
-            if ($insert_stmt = $db->prepare("INSERT INTO categories (category_name, customer) VALUES (?, ?)")) {
-                $insert_stmt->bind_param('ss', $CategoryName, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO categories (category_name, customer, module) VALUES (?, ?, ?)")) {
+                $insert_stmt->bind_param('sss', $CategoryName, $company, $module);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            
