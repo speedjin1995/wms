@@ -7,9 +7,10 @@ if(!isset($_SESSION['userID'])){
   exit;
 }
 
-$company  = $_SESSION['customer'];
-$user     = $_SESSION['userID'];
-$role     = $_SESSION['role'];
+$company = $_SESSION['customer'];
+$user = $_SESSION['userID'];
+$role = $_SESSION['role'];
+$module = $_SESSION['module'];
 $language = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 
@@ -21,7 +22,12 @@ $stmt->fetch();
 $stmt->close();
 
 if ($role != 'SADMIN') {
-  $products  = $db->query("SELECT * FROM products WHERE deleted='0' AND customer='$company' ORDER BY product_name ASC");
+  $productQuery = "SELECT * FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted='0' AND p.customer='$company' AND c.module='$module' AND c.deleted='0' ORDER BY p.product_name ASC";
+  $productCheck = $db->query($productQuery);
+  if ($productCheck->num_rows == 0) {
+    $productQuery = "SELECT * FROM products WHERE deleted='0' AND customer='$company' ORDER BY product_name ASC";
+  }
+  $products = $db->query($productQuery);
 } else {
   $products  = $db->query("SELECT * FROM products WHERE deleted='0' ORDER BY product_name ASC");
 }
