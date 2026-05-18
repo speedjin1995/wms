@@ -34,6 +34,7 @@ else{
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $products4 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
@@ -62,6 +63,7 @@ else{
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $products4 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
@@ -83,7 +85,7 @@ else{
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
-  
+
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
@@ -1388,7 +1390,7 @@ $(function () {
     if(productName) {
       // Remove options that don't match the selected product
       gradeSelect.find('option').each(function() {
-        var gradeProduct = $(this).data('product');
+        var gradeProduct = $(this).attr('data-product');
         if(gradeProduct && gradeProduct != productName) {
           $(this).remove();
         }
@@ -1503,7 +1505,7 @@ $(function () {
     if(productName) {
       // Remove options that don't match the selected product
       gradeSelect.find('option').each(function() {
-        var gradeProduct = $(this).data('product');
+        var gradeProduct = $(this).attr('data-product');
         if(gradeProduct && gradeProduct !== productName) {
           $(this).remove();
         }
@@ -2032,7 +2034,14 @@ function edit(id) {
                 <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="${detail.reject}">
                 <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="${detail.isRejected}">
               </td>
-              <td><input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
+              <td>
+                <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
+                  <option value="" selected disabled>Select Product</option>
+                  <?php while($rowProduct=mysqli_fetch_assoc($products4)){ ?>
+                    <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+                  <?php } ?>
+                </select>
+              </td>
               <td>
                 <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
                   <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
@@ -2040,12 +2049,12 @@ function edit(id) {
                   <?php } ?>
                 </select>
               </td>
-              <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${parseFloat(detail.price).toFixed(2)}"></td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${parseFloat(detail.total).toFixed(2)}" readonly></td>
-              <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
+              <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01"></td>
+              <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
+              <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01" readonly></td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${(parseFloat(detail.price)||0).toFixed(2)}"></td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${(parseFloat(detail.total)||0).toFixed(2)}" readonly></td>
+              <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}"></td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
@@ -2064,8 +2073,11 @@ function edit(id) {
           // Filter grades by product
           var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade]"]`);
           var productName = detail.product_name;
+          // Store original options before filtering
+          gradeSelect.data('original-options', gradeSelect.html());
           gradeSelect.find('option').each(function() {
-            if($(this).data('product') && $(this).data('product') !== productName) {
+            var gradeProduct = $(this).attr('data-product');
+            if(gradeProduct && gradeProduct !== productName) {
               $(this).remove();
             }
           });
@@ -2073,10 +2085,13 @@ function edit(id) {
           // Set the selected value for the grade dropdown
           gradeSelect.val(detail.grade);
 
-          totalGross += parseFloat(detail.gross);
-          totalTare += parseFloat(detail.tare);
-          totalNet += parseFloat(detail.net);
-          totalPrice += parseFloat(detail.total);
+          // Set selected product
+          tbody.find(`select[name="weightDetails[${idx}][product_name]"]`).val(detail.product_name);
+
+          totalGross += parseFloat(detail.gross) || 0;
+          totalTare += parseFloat(detail.tare) || 0;
+          totalNet += parseFloat(detail.net) || 0;
+          totalPrice += parseFloat(detail.total) || 0;
         }
 
         $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
@@ -2116,11 +2131,11 @@ function edit(id) {
               <td>
                 <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="${detail.grade}">${detail.grade}
               </td>
-              <td><input type="hidden" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
+              <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01"></td>
+              <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
+              <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${(parseFloat(detail.net)||0).toFixed(2)} ${detail.unit}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${(parseFloat(detail.price)||0).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${(parseFloat(detail.total)||0).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
@@ -2140,10 +2155,10 @@ function edit(id) {
           // Set the selected value for the grade dropdown
           tbody.find(`select[name="rejectDetails[${idx}][grade]"]`).val(detail.grade);
 
-          totalRejectGross += parseFloat(detail.gross);
-          totalRejectTare += parseFloat(detail.tare);
-          totalRejectNet += parseFloat(detail.net);
-          totalRejectPrice += parseFloat(detail.total);
+          totalRejectGross += parseFloat(detail.gross) || 0;
+          totalRejectTare += parseFloat(detail.tare) || 0;
+          totalRejectNet += parseFloat(detail.net) || 0;
+          totalRejectPrice += parseFloat(detail.total) || 0;
         }
 
         $('#rejectDetailsFooter').find('#totalRejectGross').text(totalRejectGross.toFixed(2));
