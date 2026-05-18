@@ -176,7 +176,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" style="display:none">
+              <div class="col-3">
                 <div class="form-group">
                   <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                   <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
@@ -412,7 +412,7 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
+                <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                 <select class="form-control select2" id="vehicle" name="vehicle">
                   <option value="" selected disabled hidden>Please Select</option>
                   <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
@@ -478,10 +478,12 @@ else{
                 <tr>
                   <th><input type="checkbox" id="selectAllWeightCheckbox" class="selectAllCheckbox"></th>
                   <th width="10%"><?=$languageArray['product_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
+                  <!-- <th width="10%"><?=$languageArray['grade_code'][$language]?></th> -->
                   <th><?=$languageArray['gross_code'][$language]?></th>
                   <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['net_code'][$language]?></th>
+                  <th><?=$languageArray['variance_code'][$language]?></th>
+                  <th><?=$languageArray['variance_code'][$language]?> (%)</th>
                   <?php if($allowPrice == 'Y') { ?>
                   <th><?=$languageArray['price_code'][$language]?></th>
                   <th><?=$languageArray['total_code'][$language]?></th>
@@ -498,10 +500,12 @@ else{
               </tbody>
               <tfoot id="weightDetailsFooter">
                 <tr>
-                  <th colspan="3"><?=$languageArray['total_code'][$language]?></th>
+                  <th colspan="2"><?=$languageArray['total_code'][$language]?></th>
                   <th id="totalWeightGross">0.00</th>
                   <th id="totalWeightTare">0.00</th>
                   <th id="totalWeightNet">0.00</th>
+                  <th id="totalWeightVariance">0.00</th>
+                  <th></th>
                   <?php if($allowPrice == 'Y') { ?>
                   <th></th>
                   <th id="totalWeightPrice">0.00</th>
@@ -529,7 +533,7 @@ else{
                 <tr>
                   <th><?=$languageArray['number_short_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['product_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
+                  <!-- <th width="10%"><?=$languageArray['grade_code'][$language]?></th> -->
                   <th><?=$languageArray['gross_code'][$language]?></th>
                   <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['net_code'][$language]?></th>
@@ -549,7 +553,7 @@ else{
               </tbody>
               <tfoot id="rejectDetailsFooter">
                 <tr>
-                  <th colspan="3"><?=$languageArray['total_code'][$language]?></th>
+                  <th colspan="2"><?=$languageArray['total_code'][$language]?></th>
                   <th id="totalRejectGross">0.00</th>
                   <th id="totalRejectTare">0.00</th>
                   <th id="totalRejectNet">0.00</th>
@@ -864,7 +868,6 @@ $(function () {
         } 
       },
       'columns': [
-        { data: 'indicator' },
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'created_datetime' },
@@ -877,7 +880,7 @@ $(function () {
         { data: 'total_variance' },
         { data: 'total_variance_perc' },
         { data: 'weighted_by' },
-        { data: 'indicator' },  
+        { data: 'indicator' },
         <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
         <?php }?>
@@ -1259,10 +1262,10 @@ $(function () {
           <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="0.00">
           <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="YES">
           <input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="REJECT (拒收)">
-          <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="REJ">
+          <!--input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="REJ"-->
         </td>
         <td>REJECT (拒收)</td>
-        <td>REJ</td>
+        <!--td>REJ</td-->
         <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
@@ -1319,16 +1322,18 @@ $(function () {
             <?php } ?>
           </select>
         </td>
-        <td>
+        <!--td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
             <?php while($rowGrade=mysqli_fetch_assoc($grades4)){ ?>
               <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
-        </td>
+        </td-->
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td><input type="number" class="form-control" id="variance${idx}" name="weightDetails[${idx}][variance]" step="0.01" value="0.00" readonly></td>
+        <td><input type="number" class="form-control" id="variancePerc${idx}" name="weightDetails[${idx}][variancePerc]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00">
         </td>
@@ -1402,6 +1407,7 @@ $(function () {
     });
     
     gradeSelect.val(currentGrade).trigger('change');
+    calculateVariance($(this).closest('tr'));
   });
 
   $('#weightDetailsTable').on('change', 'select[id^="grade"]', function() {
@@ -1433,22 +1439,26 @@ $(function () {
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
-    var totalGross = 0;
-    var totalTare = 0;
-    var totalNet = 0;
-    var totalPrice = 0;
+    // var totalGross = 0;
+    // var totalTare = 0;
+    // var totalNet = 0;
+    // var totalPrice = 0;
+    // var totalVariance = 0;
 
-    $('#weightDetailsTable tr').each(function() {
-      totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
-      totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
-      totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
-    });
+    // $('#weightDetailsTable tr').each(function() {
+    //   totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+    //   totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
+    //   totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
+    //   totalVariance += parseFloat($(this).find('input[name*="[variance]"]').val() || 0);
+    // });
 
-    $('#totalWeightGross').text(totalGross.toFixed(2));
-    $('#totalWeightTare').text(totalTare.toFixed(2));
-    $('#totalWeightNet').text(totalNet.toFixed(2));
+    // $('#totalWeightGross').text(totalGross.toFixed(2));
+    // $('#totalWeightTare').text(totalTare.toFixed(2));
+    // $('#totalWeightNet').text(totalNet.toFixed(2));
+    // $('#totalWeightVariance').text(totalVariance.toFixed(2));
 
     $(this).closest('tr').find('input[id^="price"]').trigger("change");
+    calculateVariance($(this).closest('tr'));
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
@@ -1604,6 +1614,39 @@ $(function () {
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 });
+
+function calculateVariance(row){
+  var product = row.find('select[name*="[product_name]');
+  var productId = product.find('option:selected').data('id');
+  var nett = parseFloat(row.find('input[id^="net"]').val());
+
+  if (nett > 0){
+    $.post('php/getProduct.php', {userID: productId}, function(data){
+      var obj = JSON.parse(data);
+
+      if(obj.status === 'success'){
+        var okWeight = parseFloat(obj.message.ok_weight); 
+        var variance = Math.abs(nett - okWeight);
+        var variancePercentage = okWeight !== 0 ? (variance / okWeight) * 100 : 0;
+
+        row.find('input[id^="variance"]').val(variance.toFixed(2));
+        row.find('input[id^="variancePerc"]').val(variancePercentage.toFixed(2));
+        updateTotals();
+      }
+      else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+        updateTotals();
+      }
+      else{
+        toastr["error"]("Something wrong when delete", "Failed:");
+        updateTotals();
+      }
+      $('#spinnerLoading').hide();
+    });
+  }else{
+    updateTotals();
+  }
+}
 
 function updatePrices(isFromCurrency, rat){
   var totalPrice;
@@ -1920,6 +1963,7 @@ function newEntry(){
   $('#extendModal').find('#totalWeightGross').text(0.00);
   $('#extendModal').find('#totalWeightTare').text(0.00);
   $('#extendModal').find('#totalWeightNet').text(0.00);
+  $('#extendModal').find('#totalWeightVariance').text(0.00);
   $('#extendModal').find('#totalWeightPrice').text(0.00);
   $('#extendModal').find('#totalRejectGross').text(0.00);
   $('#extendModal').find('#totalRejectTare').text(0.00);
@@ -2020,6 +2064,7 @@ function edit(id) {
         var totalTare = 0;
         var totalNet = 0;
         var totalPrice = 0;
+        var totalVariance = 0;
 
         for(var i = 0; i < obj.message.weightDetails.length; i++) {
           var detail = obj.message.weightDetails[i];
@@ -2039,16 +2084,18 @@ function edit(id) {
                 <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="${detail.isRejected}">
               </td>
               <td><input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
-              <td>
+              <!--td>
                 <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
                   <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
                     <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
                   <?php } ?>
                 </select>
-              </td>
+              </td-->
               <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <td><input type="hidden" class="form-control" id="variance${idx}" name="weightDetails[${idx}][variance]" value="${detail.variance}">${parseFloat(detail.variance ?? 0).toFixed(2)}</td>
+              <td><input type="hidden" class="form-control" id="variancePerc${idx}" name="weightDetails[${idx}][variancePerc]" value="${detail.varPerc}">${parseFloat(detail.varPerc ?? 0).toFixed(2)}</td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${parseFloat(detail.price).toFixed(2)}"></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${parseFloat(detail.total).toFixed(2)}" readonly></td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
@@ -2082,12 +2129,14 @@ function edit(id) {
           totalGross += parseFloat(detail.gross);
           totalTare += parseFloat(detail.tare);
           totalNet += parseFloat(detail.net);
+          totalVariance += parseFloat(detail.variance);
           totalPrice += parseFloat(detail.total);
         }
 
         $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightTare').text(totalTare.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightNet').text(totalNet.toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightVariance').text(totalVariance.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightPrice').text('RM' + totalPrice .toFixed(2));
       }
       
@@ -2241,6 +2290,8 @@ function rejectRow(button) {
 
   row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
+  row.find('input[id^="variance"]').closest('td').hide();
+  row.find('input[id^="variancePerc"]').closest('td').hide();
   
   $('#rejectDetailsTable').append(row);
   reindexWeightDetails();
@@ -2324,16 +2375,18 @@ function removeRejectDetail(button) {
 }
 
 function updateTotals() {
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0;
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0; totalVariance = 0;
   $('#weightDetailsTable tr').each(function() {
     totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
     totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
     totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
+    totalVariance += parseFloat($(this).find('input[name*="[variance]"]').val() || 0);
     totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
   });
   $('#totalWeightGross').text(totalGross.toFixed(2));
   $('#totalWeightTare').text(totalTare.toFixed(2));
   $('#totalWeightNet').text(totalNet.toFixed(2));
+  $('#totalWeightVariance').text(totalVariance.toFixed(2));
   $('#totalWeightPrice').text('RM' + totalPrice.toFixed(2));
   
   var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0;
