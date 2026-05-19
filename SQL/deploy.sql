@@ -671,3 +671,5 @@ ALTER TABLE `sales` ADD `total_paid_amount` VARCHAR(100) NULL AFTER `payments`, 
 
 ALTER TABLE `packaging` ADD `is_by_weight` VARCHAR(3) NOT NULL DEFAULT 'N' AFTER `packaging_type`;
 
+-- 18/05/2026 --
+ALTER TABLE `categories` ADD `module` VARCHAR(50) NOT NULL DEFAULT 'wholesale' AFTER `category_name`;

@@ -15,10 +15,11 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = " WHERE 1=1 AND categories.deleted = 0 ";
 $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 $role = $_SESSION['role'];
+$module = $_SESSION['module'];
+$searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module = '".$module."'";
 
 if ($role != 'SADMIN'){
   $searchQuery .= " AND categories.customer = '".$company."'";
