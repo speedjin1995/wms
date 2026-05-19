@@ -10,6 +10,7 @@ if(!isset($_SESSION['userID'])){
 else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
+  $module = $_SESSION['module'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -27,8 +28,13 @@ else{
   }
 
   if ($role != 'SADMIN'){
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0' ORDER BY p.product_name ASC"; 
+    $productCheck = $db->query($productQuery);
+    if ($productCheck->num_rows == 0) {
+      $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
+    }
+    $products = $db->query($productQuery);
+    $products2 = $db->query($productQuery);
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");

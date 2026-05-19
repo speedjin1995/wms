@@ -15,19 +15,16 @@ function filterData(&$str){
     if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"'; 
 } 
 
-function arrangeByGrade($weighingDetails) {
+function arrangeByProductGrade($weighingDetails) {
     $arranged = [];
-    
     if(isset($weighingDetails) && !empty($weighingDetails)) {
         foreach($weighingDetails as $detail) {
+            if(empty($detail['product_name'])) continue;
+            $product = $detail['product_name'];
             $grade = $detail['grade'] ?? 'Unknown';
-            if(!isset($arranged[$grade])) {
-                $arranged[$grade] = [];
-            }
-            $arranged[$grade][] = $detail;
+            $arranged[$product][$grade][] = $detail;
         }
     }
-    
     return $arranged;
 }
  
@@ -108,48 +105,49 @@ if($isMulti == 'Y'){
     $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
 }
 
-$gradeColumns = [];
+// $productGradeColumns[ product_name ] = [ grade, ... ]
+$productGradeColumns = [];
 $allRows = [];
 
-// First pass: collect all data and unique grades
-if ($query->num_rows > 0) { 
+if ($query->num_rows > 0) {
     $count = 1;
-    while ($row = $query->fetch_assoc()) { 
+    while ($row = $query->fetch_assoc()) {
         $createdDateTime = new DateTime($row['created_datetime']);
         $formattedDate = $createdDateTime->format('d/m/Y');
         $formattedTime = $createdDateTime->format('H:i:s');
 
-        // Reserve for Weighing Details
         $weighingDetails = json_decode($row['weight_details'], true);
-        $arrangedDetails = arrangeByGrade($weighingDetails);
+        $arrangedDetails = arrangeByProductGrade($weighingDetails);
 
         $totalWeight = 0;
         $totalBinWeight = 0;
         $totalRejectWeight = 0;
-        $actualWeight = 0;
         $totalPrice = 0;
         $actualPrice = 0;
+        // gradeWeights keyed as "product_name|grade"
         $gradeWeights = [];
-        
-        foreach ($arrangedDetails as $grade => $details) {
-            $gradeColumns[] = 'Grade '.$grade;
-            $gradeNettWeight = 0;
-            foreach ($details as $detail) {
-                $gradeNettWeight += floatval($detail['net'] ?? 0);
 
-                $totalWeight += floatval($detail['gross'] ?? 0);
-                $totalBinWeight += floatval($detail['tare'] ?? 0);
-                $totalRejectWeight += floatval($detail['reject'] ?? 0);
+        foreach ($arrangedDetails as $product => $grades) {
+            foreach ($grades as $grade => $details) {
+                if (!isset($productGradeColumns[$product])) $productGradeColumns[$product] = [];
+                if (!in_array($grade, $productGradeColumns[$product])) $productGradeColumns[$product][] = $grade;
 
-                if ($detail['fixedfloat'] == 'fixed'){
-                    $totalPrice += floatval($detail['price'] ?? 0);
-                    $actualPrice += floatval($detail['price'] ?? 0);
-                }else{
-                    $totalPrice += floatval($detail['gross'] ?? 0) * floatval($detail['price'] ?? 0);
-                    $actualPrice += (floatval($detail['net'] ?? 0) - floatval($detail['reject'] ?? 0)) * floatval($detail['price'] ?? 0);
+                $gradeNettWeight = 0;
+                foreach ($details as $detail) {
+                    $gradeNettWeight += floatval($detail['net'] ?? 0);
+                    $totalWeight += floatval($detail['gross'] ?? 0);
+                    $totalBinWeight += floatval($detail['tare'] ?? 0);
+                    $totalRejectWeight += floatval($detail['reject'] ?? 0);
+                    if ($detail['fixedfloat'] == 'fixed') {
+                        $totalPrice += floatval($detail['price'] ?? 0);
+                        $actualPrice += floatval($detail['price'] ?? 0);
+                    } else {
+                        $totalPrice += floatval($detail['gross'] ?? 0) * floatval($detail['price'] ?? 0);
+                        $actualPrice += (floatval($detail['net'] ?? 0) - floatval($detail['reject'] ?? 0)) * floatval($detail['price'] ?? 0);
+                    }
                 }
+                $gradeWeights[$product.'|'.$grade] = $gradeNettWeight;
             }
-            $gradeWeights['Grade '.$grade] = $gradeNettWeight;
         }
 
         $actualWeight = $totalWeight - $totalBinWeight - $totalRejectWeight;
@@ -179,19 +177,19 @@ if ($query->num_rows > 0) {
             'checked_by' => $row['checked_by'],
             'weighted_by' => searchUserNameById($row['weighted_by'], $db)
         ];
-
         $count++;
-    } 
+    }
 }
-
-$gradeColumns = array_unique($gradeColumns);
 
 // Calculate subtotals
 $subtotals = ['gradeWeights' => [], 'totalWeight' => 0, 'totalBinWeight' => 0, 'total_reject' => 0, 'actualWeight' => 0, 'totalPrice' => 0, 'actualPrice' => 0];
 foreach ($allRows as $rowData) {
-    foreach ($gradeColumns as $gradeCol) {
-        if (!isset($subtotals['gradeWeights'][$gradeCol])) $subtotals['gradeWeights'][$gradeCol] = 0;
-        $subtotals['gradeWeights'][$gradeCol] += ($rowData['gradeWeights'][$gradeCol] ?? 0);
+    foreach ($productGradeColumns as $product => $grades) {
+        foreach ($grades as $grade) {
+            $key = $product.'|'.$grade;
+            if (!isset($subtotals['gradeWeights'][$key])) $subtotals['gradeWeights'][$key] = 0;
+            $subtotals['gradeWeights'][$key] += ($rowData['gradeWeights'][$key] ?? 0);
+        }
     }
     $subtotals['totalWeight'] += $rowData['totalWeight'];
     $subtotals['totalBinWeight'] += $rowData['totalBinWeight'];
@@ -207,49 +205,99 @@ $spreadsheet = new Spreadsheet();
 // Get the active worksheet
 $sheet = $spreadsheet->getActiveSheet();
 
-// Column names 
+// Helper: convert 1-based column index to letter(s)
+function colLetter($n) {
+    $l = '';
+    while ($n > 0) { $n--; $l = chr(65 + ($n % 26)) . $l; $n = floor($n / 26); }
+    return $l;
+}
+
 if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') {
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer');
-}else{
-    $fields = array('No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier');
+    $fixedHeaders = ['No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
+} else {
+    $fixedHeaders = ['No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
+}
+$trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight', 'Total Price (RM)', 'Actual Price (RM)', 'Vehicle No.', 'Driver Name', 'Weigh By', 'Checked By'];
+
+$borderStyle = [
+    'borders' => [
+        'allBorders' => [
+            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+        ]
+    ]
+];
+
+$colIndex = 1;
+
+// Row 2 only: fixed headers
+foreach ($fixedHeaders as $header) {
+    $cl = colLetter($colIndex);
+    $sheet->setCellValue($cl.'2', $header);
+    $sheet->getStyle($cl.'2')->applyFromArray($borderStyle);
+    $sheet->getStyle($cl.'2')->getFont()->setBold(true);
+    $colIndex++;
 }
 
-// Add grade columns
-foreach ($gradeColumns as $gradeCol) {
-    $fields[] = $gradeCol;
+// Row 1: product name merged across grades (centered+bold); Row 2: grade labels
+foreach ($productGradeColumns as $product => $grades) {
+    $gradeCount  = count($grades);
+    $startLetter = colLetter($colIndex);
+    $endLetter   = colLetter($colIndex + $gradeCount - 1);
+
+    $sheet->setCellValue($startLetter.'1', $product);
+    if ($gradeCount > 1) {
+        $sheet->mergeCells($startLetter.'1:'.$endLetter.'1');
+    }
+    $sheet->getStyle($startLetter.'1:'.$endLetter.'1')->applyFromArray($borderStyle);
+    $sheet->getStyle($startLetter.'1:'.$endLetter.'1')->getFont()->setBold(true);
+    $sheet->getStyle($startLetter.'1:'.$endLetter.'1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+    foreach ($grades as $grade) {
+        $cl = colLetter($colIndex);
+        $sheet->setCellValue($cl.'2', 'Grade '.$grade);
+        $sheet->getStyle($cl.'2')->applyFromArray($borderStyle);
+        $sheet->getStyle($cl.'2')->getFont()->setBold(true);
+        $colIndex++;
+    }
 }
 
-$fields = array_merge($fields, array('Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight', 'Total Price (RM)', 'Actual Price (RM)', 'Vehicle No.', 'Driver Name', 'Weigh By', 'Checked By'));
+// Row 2 only: trailing headers
+foreach ($trailingHeaders as $header) {
+    $cl = colLetter($colIndex);
+    $sheet->setCellValue($cl.'2', $header);
+    $sheet->getStyle($cl.'2')->applyFromArray($borderStyle);
+    $sheet->getStyle($cl.'2')->getFont()->setBold(true);
+    $colIndex++;
+}
 
-// Display column names as first row 
-$sheet->fromArray($fields, NULL, 'A1');
-
-$rowIndex = 2; // Start from the second row
+$totalCols = $colIndex - 1;
+$rowIndex = 3; // data starts at row 3
 
 if (!empty($allRows)) {
-    // Output each row of the data 
     foreach ($allRows as $rowData) {
-        $lineData = array(
+        $lineData = [
             $rowData['count'],
             $rowData['formattedDate'],
             $rowData['formattedTime'],
             $rowData['serial_no'],
             $rowData['po_no']
-        );
+        ];
 
         if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING'){
             $lineData[] = $rowData['security_bills'];
         }
-        
-        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'],$db) : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
 
-        // Add grade weights in correct order
-        foreach ($gradeColumns as $gradeCol) {
-            $lineData[] = number_format(($rowData['gradeWeights'][$gradeCol] ?? 0), 2);
+        $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING')
+            ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'], $db)
+            : searchSupplierNameById($rowData['supplier'], $rowData['other_supplier'], $db);
+
+        foreach ($productGradeColumns as $product => $grades) {
+            foreach ($grades as $grade) {
+                $lineData[] = number_format(($rowData['gradeWeights'][$product.'|'.$grade] ?? 0), 2);
+            }
         }
 
-        // Add remaining data
-        $lineData = array_merge($lineData, array(
+        $lineData = array_merge($lineData, [
             number_format($rowData['totalWeight'], 2),
             number_format($rowData['totalBinWeight'], 2),
             number_format($rowData['total_reject'], 2),
@@ -260,26 +308,27 @@ if (!empty($allRows)) {
             $rowData['driver'],
             $rowData['weighted_by'],
             $rowData['checked_by']
-        ));
+        ]);
 
-        array_walk($lineData, 'filterData'); 
+        array_walk($lineData, 'filterData');
         $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
         $rowIndex++;
     }
-    
-    // Add subtotal row
-    $subtotalData = array('SUBTOTAL', '', '', '');
+
+    // Subtotal row
+    $subtotalData = ['SUBTOTAL', '', '', '', ''];
     if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
         $subtotalData[] = '';
     }
     $subtotalData[] = '';
-    $subtotalData[] = '';
-    
-    foreach ($gradeColumns as $gradeCol) {
-        $subtotalData[] = number_format($subtotals['gradeWeights'][$gradeCol], 2);
+
+    foreach ($productGradeColumns as $product => $grades) {
+        foreach ($grades as $grade) {
+            $subtotalData[] = number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2);
+        }
     }
-    
-    $subtotalData = array_merge($subtotalData, array(
+
+    $subtotalData = array_merge($subtotalData, [
         number_format($subtotals['totalWeight'], 2),
         number_format($subtotals['totalBinWeight'], 2),
         number_format($subtotals['total_reject'], 2),
@@ -287,21 +336,12 @@ if (!empty($allRows)) {
         number_format($subtotals['totalPrice'], 2),
         number_format($subtotals['actualPrice'], 2),
         '', '', ''
-    ));
-    
+    ]);
+
     $sheet->fromArray($subtotalData, NULL, 'A'.$rowIndex);
-    
-    // Calculate last column letter
-    $lastCol = count($subtotalData);
-    $colLetter = '';
-    while ($lastCol > 0) {
-        $lastCol--;
-        $colLetter = chr(65 + ($lastCol % 26)) . $colLetter;
-        $lastCol = floor($lastCol / 26);
-    }
-    $sheet->getStyle('A'.$rowIndex.':'.$colLetter.$rowIndex)->getFont()->setBold(true);
+    $sheet->getStyle('A'.$rowIndex.':'.colLetter($totalCols).$rowIndex)->getFont()->setBold(true);
 } else {
-    $sheet->setCellValue('A'.$rowIndex, 'No records found...');
+    $sheet->setCellValue('A3', 'No records found...');
 }
 
 // Create a writer object

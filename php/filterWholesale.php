@@ -121,8 +121,28 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     $parent = searchSupplierNameById($parentId, '', $db);
   }
 
+  $totalGross = 0;
+  $totalTare = 0;
+  $totalNett = 0;
+  $totalVariance = 0;
+  $totalVariancePerc = 0;
+
+  if(isset($_POST['recordType']) && $_POST['recordType'] == 'industrial'){
+    $weightDetails = json_decode($row['weight_details'], true);
+    if($weightDetails && count($weightDetails) > 0){
+      foreach($weightDetails as $detail){
+        $totalGross += floatval($detail['gross'] ?? 0);
+        $totalTare += floatval($detail['tare'] ?? 0);
+        $totalNett += floatval($detail['net'] ?? 0);
+        $totalVariance += floatval($detail['variance'] ?? 0);
+        $totalVariancePerc += floatval($detail['varPerc'] ?? 0);
+      }
+    }
+  }
+
   $data[] = array( 
     "id"=>$row['id'],
+    "indicator"=>$row['indicator'],
     "serial_no"=>$row['serial_no'],
     "security_bills"=>$row['security_bills'] ?? '',
     "po_no"=>$row['po_no'] ?? '',
@@ -135,6 +155,11 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "driver_ic"=>$row['driver_ic'] ?? '',
     "total_item"=>$row['total_item'],
     "total_weight"=>number_format($row['total_weight'], 2, '.', ','),
+    "total_gross"=>number_format($totalGross, 2, '.', ','),
+    "total_tare"=>number_format($totalTare, 2, '.', ','),
+    "total_nett"=>number_format($totalNett, 2, '.', ','),
+    "total_variance"=>number_format($totalVariance, 2, '.', ','),
+    "total_variance_perc"=>number_format($totalVariancePerc, 2, '.', ','),
     "total_reject"=>number_format($row['total_reject'], 2, '.', ','),
     "total_price"=>number_format($row['total_price'], 2, '.', ','),
     "remark"=>$row['remark'] ?? '',

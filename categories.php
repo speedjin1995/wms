@@ -11,6 +11,7 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
+  $module = $_SESSION['module'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
 
   // Language
@@ -150,6 +151,7 @@ else{
               <div class="card-body">
                 <div class="form-group">
                   <input type="hidden" class="form-control" id="id" name="id">
+                  <input type="hidden" class="form-control" id="module" name="module" value="<?= $module ?>">
                 </div>
                 <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
                   <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
