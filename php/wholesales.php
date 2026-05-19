@@ -123,7 +123,15 @@ if(isset($_POST['status'], $_POST['startTime'])){
     }
 
     if(isset($_POST['driver']) && $_POST['driver'] != null && $_POST['driver'] != ''){
-		$driver = $_POST['driver'];
+        if ($_POST['driver'] == 'UNKNOWN' || $_POST['driver'] == 'OTHERS'){
+            if(isset($_POST['otherDriver']) && $_POST['otherDriver'] != null && $_POST['otherDriver'] != ''){
+                $driver = $_POST['otherDriver'];
+            }else{
+                $driver = null;
+            }
+        }else{
+            $driver = $_POST['driver'];
+        }
 	}
 
     if(isset($_POST['remarks']) && $_POST['remarks'] != null && $_POST['remarks'] != ''){
