@@ -1432,7 +1432,7 @@ $(function () {
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
     var nettWeight = Math.abs(gross - tare);
 
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="tare"]', function(){
@@ -1441,7 +1441,7 @@ $(function () {
     var tare = parseFloat($(this).val());
     var nettWeight = Math.abs(gross - tare);
 
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
@@ -1549,14 +1549,14 @@ $(function () {
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
     var nettWeight = Math.abs(gross - tare);
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="tare"]', function(){
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
     var nettWeight = Math.abs(gross - tare);
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight).trigger("change");
+    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="net"]', function(){
