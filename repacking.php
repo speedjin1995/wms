@@ -9,12 +9,22 @@ if (!isset($_SESSION['userID'])) {
 
 $company  = $_SESSION['customer'];
 $role     = $_SESSION['role'];
+$module   = $_SESSION['module'];
 $language = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 
 if ($role != 'SADMIN') {
-    $sources = $db->query("SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Original' AND products.customer='$company' AND inventory.quantity > 0 ORDER BY products.product_name ASC");
-    $targets = $db->query("SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Repack' AND products.customer='$company' ORDER BY products.product_name ASC");
+    $sourceQuery = "SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id INNER JOIN categories c ON products.category = c.id WHERE products.deleted='0' AND packaging.packaging_type='Original' AND products.customer='$company' AND inventory.quantity > 0 AND c.module='$module' AND c.deleted='0' ORDER BY products.product_name ASC";
+    if ($db->query($sourceQuery)->num_rows == 0) {
+        $sourceQuery = "SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Original' AND products.customer='$company' AND inventory.quantity > 0 ORDER BY products.product_name ASC";
+    }
+    $sources = $db->query($sourceQuery);
+
+    $targetQuery = "SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id INNER JOIN categories c ON products.category = c.id WHERE products.deleted='0' AND packaging.packaging_type='Repack' AND products.customer='$company' AND c.module='$module' AND c.deleted='0' ORDER BY products.product_name ASC";
+    if ($db->query($targetQuery)->num_rows == 0) {
+        $targetQuery = "SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Repack' AND products.customer='$company' ORDER BY products.product_name ASC";
+    }
+    $targets = $db->query($targetQuery);
 } else {
     $sources = $db->query("SELECT products.id, products.product_name, COALESCE(inventory.quantity, 0) as stock FROM products INNER JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Original' AND inventory.quantity > 0 ORDER BY products.product_name ASC");
     $targets = $db->query("SELECT products.id, products.product_name FROM products LEFT JOIN inventory ON products.id = inventory.product_id INNER JOIN packaging ON products.packaging = packaging.id WHERE products.deleted='0' AND packaging.packaging_type='Repack' ORDER BY products.product_name ASC");
