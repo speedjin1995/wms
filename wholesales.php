@@ -443,10 +443,17 @@ else{
                 <label><?=$languageArray['driver_code'][$language]?> *</label>
                 <select class="form-control select2" id="driver" name="driver" required>
                   <option value="" selected disabled hidden>Please Select</option>
+                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="driverOtherDiv" style="display: none;">
+              <div class="form-group">
+                <label><?=$languageArray['other_driver_code'][$language]?> *</label>
+                <input type="text" class="form-control" id="otherDriver" name="otherDriver" placeholder="<?=$languageArray['please_enter_driver_code'][$language]?>">
               </div>
             </div>
           </div>
@@ -1238,6 +1245,16 @@ $(function () {
     }
   });
 
+  $('#extendModal').find('#driver').on('change', function () {
+    var driver = $(this).val();
+    if(driver == "UNKOWN NO" || driver == "OTHERS" || driver == "UNKNOWN"){
+      $('#extendModal').find('#driverOtherDiv').show();
+    }
+    else{
+      $('#extendModal').find('#driverOtherDiv').hide();
+    }
+  });
+
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
     if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
@@ -1912,8 +1929,10 @@ function newEntry(){
   $('#extendModal').find('#securityBillNo').val("");
   $('#extendModal').find('#customer').val("").trigger('change');
   $('#extendModal').find('#supplier').val("").trigger('change');
-  $('#extendModal').find('#vehicle').val("").trigger('change');
-  $('#extendModal').find('#driver').val("").trigger('change');
+  $('#extendModal').find('#vehicle').val("OTHERS").trigger('change');
+  $('#extendModal').find('#otherVehicleNo').val("-");
+  $('#extendModal').find('#driver').val("OTHERS").trigger('change');
+  $('#extendModal').find('#otherDriver').val("-");
   $('#extendModal').find('#startTime').val("");
   $('#startTimePicker').datetimepicker('date', moment());
   $('#endTimePicker').datetimepicker('clear');
@@ -2000,7 +2019,14 @@ function edit(id) {
         $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
         $('#extendModal').find('#otherVehicleNo').val('');
       }
-      $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
+      if (obj.message.driver){
+        $('#extendModal').find('#driver').val('OTHERS').trigger('change');
+        $('#extendModal').find('#otherDriver').val(obj.message.driver);
+      } else {
+        $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
+        $('#extendModal').find('#otherDriver').val('');
+      }
+
       if (obj.message.created_datetime) {
         $('#startTimePicker').datetimepicker('date', moment(obj.message.created_datetime, 'YYYY-MM-DD HH:mm:ss'));
       } else {
