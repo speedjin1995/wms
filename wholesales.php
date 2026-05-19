@@ -2305,7 +2305,7 @@ function acceptRow(button) {
 function reindexWeightDetails() {
   $('#weightDetailsTable tr').each(function(index) {
     $(this).find('td:first').text(index + 1);
-    $(this).find('input[type="hidden"], select').each(function() {
+    $(this).find('input, select').each(function() {
       var name = $(this).attr('name');
       if(name) {
         $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
@@ -2317,7 +2317,7 @@ function reindexWeightDetails() {
 function reindexRejectDetails() {
   $('#rejectDetailsTable tr').each(function(index) {
     $(this).find('td:first').text(index + 1);
-    $(this).find('input[type="hidden"], select').each(function() {
+    $(this).find('input, select').each(function() {
       var name = $(this).attr('name');
       if(name) {
         $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
