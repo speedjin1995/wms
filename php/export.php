@@ -179,7 +179,8 @@ if ($query->num_rows > 0) {
             'vehicle_no' => $row['vehicle_no'],
             'driver' => $row['driver'],
             'checked_by' => $row['checked_by'],
-            'weighted_by' => searchUserNameById($row['weighted_by'], $db)
+            'weighted_by' => searchUserNameById($row['weighted_by'], $db),
+            'remark' => $row['remark'],
         ];
         $count++;
     }
@@ -226,12 +227,11 @@ if ($allowPrice == 'Y') {
     $trailingHeaders[] = 'Total Price (RM)';
     $trailingHeaders[] = 'Actual Price (RM)';
 }
-if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') {
-    $trailingHeaders = array_merge($trailingHeaders, ['Vehicle No.', 'Driver Name', 'Weigh By', 'Checked By']);
+if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'OUTGOING') {
+    $trailingHeaders = array_merge($trailingHeaders, ['Vehicle No.', 'Driver Name', 'Weigh By', 'Checked By', 'Remark']);
 } else {
-    $trailingHeaders = array_merge($trailingHeaders, ['Vehicle No.', 'Weigh By', 'Checked By']);
+    $trailingHeaders = array_merge($trailingHeaders, ['Vehicle No.', 'Weigh By', 'Checked By', 'Remark']);
 }
-
 
 $borderStyle = [
     'borders' => [
@@ -319,8 +319,12 @@ if (!empty($allRows)) {
             $lineData[] = number_format($rowData['totalPrice'], 2);
             $lineData[] = number_format($rowData['actualPrice'], 2);
         }
-        $driver = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'STOCK-BAL' || $rowData['status'] == 'OUTGOING') ? $rowData['driver'] : '';
-        array_push($lineData, $rowData['vehicle_no'], $driver, $rowData['weighted_by'], $rowData['checked_by']);
+
+        array_push($lineData, $rowData['vehicle_no']);
+        if ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'OUTGOING'){
+            array_push($lineData, $rowData['driver']);
+        }
+        array_push($lineData, $rowData['weighted_by'], $rowData['checked_by'], $rowData['remark']);
 
         array_walk($lineData, 'filterData');
         $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);

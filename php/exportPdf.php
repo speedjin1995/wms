@@ -169,6 +169,7 @@ try {
                 'vehicle_no' => $row['vehicle_no'],
                 'driver' => $row['driver'],
                 'checked_by' => $row['checked_by'],
+                'remark' => $row['remark'],
                 'weighted_by' => searchUserNameById($row['weighted_by'], $db)
             ];
             $count++;
@@ -220,9 +221,12 @@ try {
                 $content .= '<td>'.number_format($rowData['actualPrice'], 2).'</td>';
             }
             $content .= '<td>'.$rowData['vehicle_no'].'</td>';
-            $content .= '<td>'.(($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'STOCK-BAL' || $rowData['status'] == 'OUTGOING') ? $rowData['driver'] : '').'</td>';
+            if ($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'OUTGOING'){
+                $content .= '<td>'. $rowData['driver'] .'</td>';
+            }
             $content .= '<td>'.$rowData['weighted_by'].'</td>';
             $content .= '<td>'.$rowData['checked_by'].'</td>';
+            $content .= '<td>'.$rowData['remark'].'</td>';
             $content .= '</tr>';
         }
     } else {
@@ -312,7 +316,11 @@ try {
                             foreach ($productGradeColumns as $product => $grades) {
                                 $html .= '<th colspan="'.count($grades).'" style="text-align:center; font-weight:bold;">'.htmlspecialchars($product).'</th>';
                             }
+
                             $trailingCount = ($allowPrice == 'Y') ? 10 : 8;
+                            if ($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'OUTGOING'){
+                                $trailingCount++;
+                            }
                             $html .= '<th colspan="'.$trailingCount.'"></th>';
                             $html .= '</tr><tr>
                             <th>No</th>
@@ -340,13 +348,14 @@ try {
                             }
                             $html .= '<th>Vehicle No.</th>';
 
-                            if ($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING'){
+                            if ($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'OUTGOING'){
                                 $html .= '<th>Driver Name</th>';
                             }
 
                             $html .= '
                             <th>Weigh By</th>
                             <th>Checked By</th>
+                            <th>Remark</th>
                         </tr>
                     </thead>
                     <tbody>
