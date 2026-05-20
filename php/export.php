@@ -7,6 +7,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 session_start();
 $company = $_SESSION['customer'];
+$allowPrice = 'N';
+// Company Detail 
+$companyDetail = searchCompanyById($company, $db);
+$allowPrice = $companyDetail['include_price'];
  
 // Filter the excel data 
 function filterData(&$str){ 
@@ -175,7 +179,8 @@ if ($query->num_rows > 0) {
             'vehicle_no' => $row['vehicle_no'],
             'driver' => $row['driver'],
             'checked_by' => $row['checked_by'],
-            'weighted_by' => searchUserNameById($row['weighted_by'], $db)
+            'weighted_by' => searchUserNameById($row['weighted_by'], $db),
+            'remark' => $row['remark'],
         ];
         $count++;
     }
@@ -215,9 +220,18 @@ function colLetter($n) {
 if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') {
     $fixedHeaders = ['No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
 } else {
-    $fixedHeaders = ['No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Supplier'];
 }
-$trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight', 'Total Price (RM)', 'Actual Price (RM)', 'Vehicle No.', 'Driver Name', 'Weigh By', 'Checked By'];
+$trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
+if ($allowPrice == 'Y') {
+    $trailingHeaders[] = 'Total Price (RM)';
+    $trailingHeaders[] = 'Actual Price (RM)';
+}
+if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'OUTGOING') {
+    $trailingHeaders = array_merge($trailingHeaders, ['Vehicle No.', 'Driver Name', 'Weigh By', 'Checked By', 'Remark']);
+} else {
+    $trailingHeaders = array_merge($trailingHeaders, ['Vehicle No.', 'Weigh By', 'Checked By', 'Remark']);
+}
 
 $borderStyle = [
     'borders' => [
@@ -283,9 +297,9 @@ if (!empty($allRows)) {
             $rowData['po_no']
         ];
 
-        if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING'){
-            $lineData[] = $rowData['security_bills'];
-        }
+        // if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING'){
+        //     $lineData[] = $rowData['security_bills'];
+        // }
 
         $lineData[] = ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING')
             ? searchCustomerNameById($rowData['customer'], $rowData['other_customer'], $db)
@@ -297,18 +311,20 @@ if (!empty($allRows)) {
             }
         }
 
-        $lineData = array_merge($lineData, [
-            number_format($rowData['totalWeight'], 2),
-            number_format($rowData['totalBinWeight'], 2),
-            number_format($rowData['total_reject'], 2),
-            number_format($rowData['actualWeight'], 2),
-            number_format($rowData['totalPrice'], 2),
-            number_format($rowData['actualPrice'], 2),
-            $rowData['vehicle_no'],
-            $rowData['driver'],
-            $rowData['weighted_by'],
-            $rowData['checked_by']
-        ]);
+        $lineData[] = number_format($rowData['totalWeight'], 2);
+        $lineData[] = number_format($rowData['totalBinWeight'], 2);
+        $lineData[] = number_format($rowData['total_reject'], 2);
+        $lineData[] = number_format($rowData['actualWeight'], 2);
+        if ($allowPrice == 'Y') {
+            $lineData[] = number_format($rowData['totalPrice'], 2);
+            $lineData[] = number_format($rowData['actualPrice'], 2);
+        }
+
+        array_push($lineData, $rowData['vehicle_no']);
+        if ($rowData['status'] == 'DISPATCH' || $rowData['status'] == 'OUTGOING'){
+            array_push($lineData, $rowData['driver']);
+        }
+        array_push($lineData, $rowData['weighted_by'], $rowData['checked_by'], $rowData['remark']);
 
         array_walk($lineData, 'filterData');
         $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
@@ -317,9 +333,9 @@ if (!empty($allRows)) {
 
     // Subtotal row
     $subtotalData = ['SUBTOTAL', '', '', '', ''];
-    if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
-        $subtotalData[] = '';
-    }
+    // if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
+    //     $subtotalData[] = '';
+    // }
     $subtotalData[] = '';
 
     foreach ($productGradeColumns as $product => $grades) {
@@ -328,15 +344,15 @@ if (!empty($allRows)) {
         }
     }
 
-    $subtotalData = array_merge($subtotalData, [
-        number_format($subtotals['totalWeight'], 2),
-        number_format($subtotals['totalBinWeight'], 2),
-        number_format($subtotals['total_reject'], 2),
-        number_format($subtotals['actualWeight'], 2),
-        number_format($subtotals['totalPrice'], 2),
-        number_format($subtotals['actualPrice'], 2),
-        '', '', ''
-    ]);
+    $subtotalData[] = number_format($subtotals['totalWeight'], 2);
+    $subtotalData[] = number_format($subtotals['totalBinWeight'], 2);
+    $subtotalData[] = number_format($subtotals['total_reject'], 2);
+    $subtotalData[] = number_format($subtotals['actualWeight'], 2);
+    if ($allowPrice == 'Y') {
+        $subtotalData[] = number_format($subtotals['totalPrice'], 2);
+        $subtotalData[] = number_format($subtotals['actualPrice'], 2);
+    }
+    array_push($subtotalData, '', '', '');
 
     $sheet->fromArray($subtotalData, NULL, 'A'.$rowIndex);
     $sheet->getStyle('A'.$rowIndex.':'.colLetter($totalCols).$rowIndex)->getFont()->setBold(true);
