@@ -254,7 +254,7 @@ foreach ($productGradeColumns as $product => $grades) {
 
     foreach ($grades as $grade) {
         $cl = colLetter($colIndex);
-        $sheet->setCellValue($cl.'2', 'Grade '.$grade);
+        $sheet->setCellValue($cl.'2', $grade);
         $sheet->getStyle($cl.'2')->applyFromArray($borderStyle);
         $sheet->getStyle($cl.'2')->getFont()->setBold(true);
         $colIndex++;
