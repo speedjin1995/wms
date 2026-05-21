@@ -176,6 +176,12 @@ try {
         }
     }
 
+    // Sort grades alphabetically for each product
+    foreach ($productGradeColumns as $product => &$grades) {
+        sort($grades);
+    }
+    unset($grades);
+
     // Calculate subtotals
     $subtotals = ['gradeWeights' => [], 'totalWeight' => 0, 'totalBinWeight' => 0, 'total_reject' => 0, 'actualWeight' => 0, 'totalPrice' => 0, 'actualPrice' => 0];
     foreach ($allRows as $rowData) {
