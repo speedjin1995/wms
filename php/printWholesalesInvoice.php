@@ -80,13 +80,6 @@ if(isset($_GET['id'])){
                 $billToTel = $customerData['billing_phone'] ?? '';
                 $billToFax = $customerData['billing_fax'] ?? '';
 
-                // Footer data
-                $formatter = new NumberFormatter("en", NumberFormatter::SPELLOUT);
-                $total = floatval($wholesale['total_price']);
-                $totalAmountWords = strtoupper($formatter->format($total));
-                $totalAmount = number_format(floatval($wholesale['total_price']), 2);
-                // $totalAmountWords = '';
-
                 // Summary data
                 $startWeightTime = date('g:i:s A', strtotime($wholesale['created_datetime']));
                 $endWeightTime = !empty($wholesale['end_time']) ? date('g:i:s A', strtotime($wholesale['end_time'])) : '';
@@ -125,6 +118,7 @@ if(isset($_GET['id'])){
                 // Build item rows HTML
                 $itemRowsHtml = '';
                 $totalTareWeight = 0;
+                $totalAmount = 0;
                 foreach ($items as $index => $item) {
                     // echo json_encode($item);exit;
 
@@ -137,6 +131,7 @@ if(isset($_GET['id'])){
                     $qty = number_format($item['qty'], 2);
                     $unitPrice = number_format($item['unit_price'], 2);
                     $totalPrice = number_format($item['total_price'], 2);
+                    $totalAmount += floatval($item['total_price']);
                     $tareWeight = 0;
                     foreach ($item['tare'] as $tare) {
                         $tareWeight += floatval($tare);
@@ -158,6 +153,15 @@ if(isset($_GET['id'])){
                                         <td style="width:145px; text-align:center; border:0; vertical-align:top; padding-top:8px;">RM' . $totalPrice . '</td>
                                     </tr>';
                 }
+
+                // Footer data
+                $formatter = new NumberFormatter("en", NumberFormatter::SPELLOUT);
+                $total = $totalAmount;
+                $ringgit = intval($total);
+                $cents = intval(round(($total - $ringgit) * 100));
+                $totalAmount = number_format($totalAmount, 2);
+                $totalAmountWords = strtoupper($formatter->format($ringgit)) . ' RINGGIT'
+                    . ($cents > 0 ? ' AND ' . strtoupper($formatter->format($cents)) . ' CENTS' : ' ONLY');
 
                 // Summary calculations
                 $totalBinCount = array_sum(array_column($items, 'bin'));
@@ -242,8 +246,8 @@ if(isset($_GET['id'])){
                     <body>
                         <!-- RUNNING HEADER -->
                         <div class="running-header">
-                            <div class="header-block">
-                                <div class="header-inner">
+                            <div class="header-block" style="text-align:left;">
+                                <div class="header-inner" style="display:flex; align-items:center; gap:15px;">
                                     ' . ($companyLogoSrc ? '<div class="logo"><img src="' . $companyLogoSrc . '" alt="Logo"></div>' : '') . '
                                     <div class="company-info">
                                         <div class="company-cn">' . $companyNameCn . '</div>
