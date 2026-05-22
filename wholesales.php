@@ -2051,7 +2051,7 @@ function edit(id) {
               <td>
                 <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
                   <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-                    <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
+                    <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
                   <?php } ?>
                 </select>
               </td>
