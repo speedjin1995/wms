@@ -241,6 +241,7 @@ if(isset($_POST['userID'])){
                     $message['product_image'] = $row['product_image'];
                     $message['uom_name'] = $row['uom_name'];
                     $message['packaging_name'] = $row['packaging_name'];
+                    $message['state'] = $row['state'];
 
                     // retrieve product customers
                     $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";

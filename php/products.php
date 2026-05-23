@@ -26,6 +26,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     $hiWeightUnit = null;
     $productCategory = null;
     $productPackaging = null;
+    $state = null;
     $isManual = 'N';
 
     if(isset($_POST['serial']) && $_POST['serial'] != null && $_POST['serial'] != ''){
@@ -96,9 +97,13 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         $productPackaging = filter_input(INPUT_POST, 'productPackaging', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['state']) && $_POST['state'] != null && $_POST['state'] != ''){
+        $state = filter_input(INPUT_POST, 'state', FILTER_SANITIZE_STRING);
+    }
+
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, price=?, weight=?, range_set=?, ok_weight=?, ok_weight_unit=?, lo_weight=?, lo_weight_unit=?, hi_weight=?, hi_weight_unit=?, category=?, packaging=?, is_manual=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $isManual, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, price=?, weight=?, range_set=?, ok_weight=?, ok_weight_unit=?, lo_weight=?, lo_weight_unit=?, hi_weight=?, hi_weight_unit=?, category=?, packaging=?, state=?, is_manual=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $isManual, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -212,8 +217,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, weight, customer, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, category, packaging) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $company, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging);
+        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, weight, customer, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, category, packaging, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $weight, $company, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

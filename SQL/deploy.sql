@@ -673,3 +673,6 @@ ALTER TABLE `packaging` ADD `is_by_weight` VARCHAR(3) NOT NULL DEFAULT 'N' AFTER
 
 -- 18/05/2026 --
 ALTER TABLE `categories` ADD `module` VARCHAR(50) NOT NULL DEFAULT 'wholesale' AFTER `category_name`;
+
+-- 22/05/2026 --
+ALTER TABLE `products` ADD `state` INT(11) NULL AFTER `product_image`;
