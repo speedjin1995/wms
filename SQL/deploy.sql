@@ -676,3 +676,65 @@ ALTER TABLE `categories` ADD `module` VARCHAR(50) NOT NULL DEFAULT 'wholesale' A
 
 -- 22/05/2026 --
 ALTER TABLE `products` ADD `state` INT(11) NULL AFTER `product_image`;
+
+CREATE TABLE `daily_sales_setup` (
+  `id` int(11) NOT NULL,
+  `module` varchar(50) NOT NULL,
+  `state` text NOT NULL,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_datetime` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `daily_sales_setup` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `daily_sales_setup` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `daily_sales_setup_log` (
+  `id` int(11) NOT NULL,
+  `daily_sales_setup_id` int(11) NOT NULL,
+  `module` varchar(50) NOT NULL,
+  `state` text NOT NULL,
+  `company` int(11) NOT NULL,
+  `action_id` varchar(5) NOT NULL,
+  `action_by` varchar(15) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `daily_sales_setup_log` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `daily_sales_setup_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_DSS` AFTER INSERT ON `daily_sales_setup` FOR EACH ROW 
+  INSERT INTO daily_sales_setup_log (
+    daily_sales_setup_id, module, state, company, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.module, NEW.state, NEW.company, 1, NEW.created_by, NOW()
+  )
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_DSS` BEFORE UPDATE ON `daily_sales_setup` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO daily_sales_setup_log (
+      daily_sales_setup_id, module, state, company, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.module, NEW.state, NEW.company, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;
