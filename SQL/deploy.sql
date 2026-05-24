@@ -738,3 +738,5 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_DSS` BEFORE UPDATE ON `daily_sales_setup` FOR
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `companies` ADD `enable_daily_sales_setup` VARCHAR(1) NULL DEFAULT 'N' AFTER `photo_upload_mode`, ADD `daily_sales_modules` TEXT NULL AFTER `enable_daily_sales_setup`;

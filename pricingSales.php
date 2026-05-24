@@ -12,12 +12,37 @@ else{
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
   $module = $_SESSION['module'];
+  $enableDailySales = $_SESSION['enableDailySales'];
+  $dailySalesModules = $_SESSION['dailySalesModules'];
+  $filterStates = [];
+  if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
+    // Query to get daily setup states
+    $stateQuery = "SELECT * FROM daily_sales_setup WHERE module = 'pricing' AND company = ? AND deleted = 0";
+    if ($state_stmt = $db->prepare($stateQuery)) {
+        $state_stmt->bind_param('s', $company);
+        $state_stmt->execute();
+        $state_result = $state_stmt->get_result();
+        while ($state_row = $state_result->fetch_assoc()) {
+            $decoded = json_decode($state_row['state'], true);
+            if (is_array($decoded)) {
+                $filterStates = array_merge($filterStates, $decoded);
+            }
+        }
+    }
+  }
+
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
   $productGroup = array();
   $message = array();
 
   if ($role != 'SADMIN'){
-    $productQuery = "SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0' ORDER BY p.product_name ASC";
+    $stateFilter = '';
+    if (!empty($filterStates)) {
+      $stateJson = json_encode(array_values($filterStates));
+      $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
+    }
+    
+    $productQuery = "SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";
     $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC";

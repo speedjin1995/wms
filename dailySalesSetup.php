@@ -92,7 +92,7 @@ else{
                     <?php if (in_array('industrial', $products, true)) { ?>
                       <option value="industrial"><?=$languageArray['pulp_and_paste_code'][$language]?></option>
                     <?php } ?>
-                    <?php if (in_array('weighing', $products, true)) { ?>
+                    <?php if (in_array('fruits', $products, true)) { ?>
                       <option value="weighing"><?=$languageArray['weighbridge_code'][$language]?></option>
                     <?php } ?>
                     <?php if (in_array('wholesale', $products, true)) { ?>
