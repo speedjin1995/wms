@@ -201,11 +201,10 @@ else{
                 <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?></label>
-                    <select class="form-control select2" id="state" name="state">
-                      <option selected>-</option>
-                      <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
-                        <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
-                      <?php } ?>
+                    <select class="form-control select2" id="state" name="state[]" multiple>
+                        <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
+                            <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
+                        <?php } ?>
                     </select>
                   </div>
                 </div>

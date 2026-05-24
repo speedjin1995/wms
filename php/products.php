@@ -98,7 +98,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     }
 
     if(isset($_POST['state']) && $_POST['state'] != null && $_POST['state'] != ''){
-        $state = filter_input(INPUT_POST, 'state', FILTER_SANITIZE_STRING);
+        $state = json_encode($_POST['state']);
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
