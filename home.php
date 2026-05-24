@@ -1,4 +1,6 @@
 <?php
+require_once 'php/db_connect.php';
+
 session_start();
 
 if(!isset($_SESSION['userID'])){
@@ -6,8 +8,23 @@ if(!isset($_SESSION['userID'])){
   echo 'window.location.href = "login.html";</script>';
 }else{
     // Language
+    $company = $_SESSION['customer'];
     $language = $_SESSION['language'];
-    $languageArray = $_SESSION['languageArray'];
+    $packages = $_SESSION['packages'] ?? [];
+
+    // Load message resource
+    if (in_array('P', $packages, true)) {
+        $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+    }else{
+        $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
+    }
+    
+    $languageArray = Array();
+    while($row=mysqli_fetch_assoc($message_resource)){
+        $languageArray[$row['message_key_code']] = array("en"=>$row['en'],"zh"=>$row['zh'],"my"=>$row['my'],"ne"=>$row['ne'], "ja"=>$row['ja']);
+    }
+
+    $_SESSION['languageArray'] = $languageArray;
 }
 ?>
 
