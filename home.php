@@ -1,9 +1,30 @@
 <?php
+require_once 'php/db_connect.php';
+
 session_start();
 
 if(!isset($_SESSION['userID'])){
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
+}else{
+    // Language
+    $company = $_SESSION['customer'];
+    $language = $_SESSION['language'];
+    $packages = $_SESSION['packages'] ?? [];
+
+    // Load message resource
+    if (in_array('P', $packages, true)) {
+        $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+    }else{
+        $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
+    }
+    
+    $languageArray = Array();
+    while($row=mysqli_fetch_assoc($message_resource)){
+        $languageArray[$row['message_key_code']] = array("en"=>$row['en'],"zh"=>$row['zh'],"my"=>$row['my'],"ne"=>$row['ne'], "ja"=>$row['ja']);
+    }
+
+    $_SESSION['languageArray'] = $languageArray;
 }
 ?>
 
@@ -132,7 +153,7 @@ if(!isset($_SESSION['userID'])){
                 >
                     <div class="modules-box modules-box-1">
                         <img src="assets/pieces-n-puree-1.png" alt="Pulp & Paste" class="modules-img">
-                        <div class="modules-txt">Pulp & Paste</div>
+                        <div class="modules-txt"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/setModule.php?module=weighing" 
@@ -144,7 +165,7 @@ if(!isset($_SESSION['userID'])){
                 >
                     <div class="modules-box modules-box-1">
                         <img src="assets/weighing-bridge-icon-1.png" alt="Weighing Bridge" class="modules-img">
-                        <div class="modules-txt">Weighing Bridge</div>
+                        <div class="modules-txt"><?=$languageArray['weighbridge_code'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/setModule.php?module=wholesale"
@@ -156,7 +177,7 @@ if(!isset($_SESSION['userID'])){
                 >
                     <div class="modules-box modules-box-2">
                         <img src="assets/wholesales-icon.png" alt="Wholesales" class="modules-img">
-                        <div class="modules-txt">Wholesales</div>
+                        <div class="modules-txt"><?=$languageArray['wholesales_code'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/setModule.php?module=packing"
@@ -168,7 +189,7 @@ if(!isset($_SESSION['userID'])){
                 >
                     <div class="modules-box modules-box-2">
                         <img src="assets/food-packaging-icon.png" alt="Packing" style="width: 55%; display: block; margin: 0 auto;">
-                        <div class="modules-txt">Packing</div>
+                        <div class="modules-txt"><?=$languageArray['packing_code'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/setModule.php?module=pricing"
@@ -180,13 +201,13 @@ if(!isset($_SESSION['userID'])){
                 >
                     <div class="modules-box modules-box-2">
                         <img src="assets/pricing-icon.png" alt="Pricing" style="width: 55%; display: block; margin: 0 auto;">
-                        <div class="modules-txt">Pricing</div>
+                        <div class="modules-txt"><?=$languageArray['pricing_code'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/logout.php">
                     <div class="modules-box modules-box-3">
                         <img src="assets/logout-icon.png" alt="Logout" class="modules-img">
-                        <div class="modules-txt">Logout</div>
+                        <div class="modules-txt"><?=$languageArray['logout_code'][$language]?></div>
                     </div>
                 </a>
             </div>

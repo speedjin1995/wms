@@ -650,7 +650,14 @@ to get the desired effect
                             <i class="nav-icon fas fa-user"></i>
                             <p>'.$languageArray['staffs_code'][$language].'</p>
                           </a>
-                        </li>';
+                        </li>
+                        <li class="nav-item">
+                          <a href="#dailySalesSetup" data-file="dailySalesSetup.php" class="nav-link link">
+                            <i class="nav-icon fas fa-calendar-check"></i>
+                            <p>'.$languageArray['daily_sales_setup_code'][$language].'</p>
+                          </a>
+                        </li>
+                      ';
                 }
               ?>
 
