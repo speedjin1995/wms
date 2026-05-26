@@ -307,7 +307,7 @@ else{
                 <tr>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['sec_bill_no_code'][$language]?></th> -->
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
@@ -739,7 +739,7 @@ $(function () {
     'columns': [
       { data: 'serial_no' },
       { data: 'po_no' },
-      { data: 'security_bills' },
+      // { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
@@ -907,7 +907,7 @@ $(function () {
       'columns': [
         { data: 'serial_no' },
         { data: 'po_no' },
-        { data: 'security_bills' },
+        // { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
@@ -1234,7 +1234,7 @@ $(function () {
     else{
       $('#extendModal').find('#customerDiv').hide();
       $('#extendModal').find('#supplierDiv').show();
-      $('#extendModal').find('#securityBillDiv').show();
+      $('#extendModal').find('#securityBillDiv').hide();
     }
   });
 
@@ -1732,7 +1732,7 @@ function format (row) {
       <p><strong>Serial No:</strong> ${row.serial_no}</p>
       <p><strong>Parent:</strong> ${row.parent}</p>
       <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
-      <p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p>
+      <!--p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p-->
       <p><strong>PO No:</strong> ${row.po_no}</p>
       <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
       <p><strong>Driver:</strong> ${row.driver}</p>

@@ -212,7 +212,7 @@ else{
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['sec_bill_no_code'][$language]?></th> -->
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
@@ -228,7 +228,7 @@ else{
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
+                    <th colspan="8"><?=$languageArray['total_code'][$language]?></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -324,7 +324,7 @@ $(function () {
       },
       { data: 'serial_no' },
       { data: 'po_no' },
-      { data: 'security_bills' },
+      // { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
       { data: 'customer_supplier' },
@@ -346,29 +346,29 @@ $(function () {
       var api = this.api();
 
       var totalItem = api
-        .column(9, { page: 'current' })
+        .column(8, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(b || 0);
         }, 0);
 
       var totalWeight = api
-        .column(10, { page: 'current' })
+        .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(b || 0);
         }, 0);
 
       var totalReject = api
-        .column(11, { page: 'current' })
+        .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(b || 0);
         }, 0);
 
-      $(api.column(9).footer()).html(totalItem);
-      $(api.column(10).footer()).html(totalWeight.toFixed(2));
-      $(api.column(11).footer()).html(totalReject.toFixed(2));
+      $(api.column(8).footer()).html(totalItem);
+      $(api.column(9).footer()).html(totalWeight.toFixed(2));
+      $(api.column(10).footer()).html(totalReject.toFixed(2));
     }
   });
 
@@ -427,7 +427,7 @@ $(function () {
         },
         { data: 'serial_no' },
         { data: 'po_no' },
-        { data: 'security_bills' },
+        // { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
         { data: 'customer_supplier' },
@@ -449,29 +449,29 @@ $(function () {
         var api = this.api();
 
         var totalItem = api
-          .column(9, { page: 'current' })
+          .column(8, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(b || 0);
           }, 0);
 
         var totalWeight = api
-          .column(10, { page: 'current' })
+          .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(b || 0);
           }, 0);
 
         var totalReject = api
-          .column(11, { page: 'current' })
+          .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(b || 0);
           }, 0);
 
-        $(api.column(9).footer()).html(totalItem);
-        $(api.column(10).footer()).html(totalWeight.toFixed(2));
-        $(api.column(11).footer()).html(totalReject.toFixed(2));
+        $(api.column(8).footer()).html(totalItem);
+        $(api.column(9).footer()).html(totalWeight.toFixed(2));
+        $(api.column(10).footer()).html(totalReject.toFixed(2));
       }
     });
   });
