@@ -740,3 +740,6 @@ $$
 DELIMITER ;
 
 ALTER TABLE `companies` ADD `enable_daily_sales_setup` VARCHAR(1) NULL DEFAULT 'N' AFTER `photo_upload_mode`, ADD `daily_sales_modules` TEXT NULL AFTER `enable_daily_sales_setup`;
+
+-- 28/05/2026 --
+ALTER TABLE `companies` CHANGE `email` `email` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
