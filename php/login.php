@@ -21,10 +21,10 @@ $username=$_POST['userEmail'];
 $password=$_POST['userPassword'];
 $now = date("Y-m-d H:i:s");
 
-$stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products, c.name AS company_name FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0");
+$stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products, c.name AS company_name, c.enable_daily_sales_setup AS enable_daily_sales, c.daily_sales_modules as daily_sales_modules FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0");
 
 if($licenseIsProfessional){
-    $stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products, c.name AS company_name FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0 AND c.id = '".$licenseCompanyId."'");
+    $stmt = $db->prepare("SELECT u.*, c.packages AS packages, c.products AS products, c.name AS company_name, c.enable_daily_sales_setup AS enable_daily_sales, c.daily_sales_modules as daily_sales_modules FROM users u LEFT JOIN companies c ON u.customer = c.id WHERE username=? AND u.deleted=0 AND c.id = '".$licenseCompanyId."'");
 }
 
 $stmt->bind_param('s', $username);
@@ -35,6 +35,7 @@ if(($row = $result->fetch_assoc()) !== null){
 	// Checking to see if user company has medium or professional package
 	$packages = json_decode($row['packages'], true);
 	$products = json_decode($row['products'], true);
+	$dailySalesModules = json_decode($row['daily_sales_modules'], true);
 
 	if ($row['role_code'] == 'SADMIN' || in_array('M', $packages, true) || in_array('P', $packages, true)) {
 		$password = hash('sha512', $password . $row['salt']);
@@ -46,6 +47,8 @@ if(($row = $result->fetch_assoc()) !== null){
 			$_SESSION['language']=$row['languages'];
 			$_SESSION['role']=$row['role_code'];
 			$_SESSION['packages']=$packages;
+			$_SESSION['enableDailySales']=$row['enable_daily_sales'];
+			$_SESSION['dailySalesModules']=$dailySalesModules;
 			$stmt->close();
 			$db->close();
 			
