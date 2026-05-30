@@ -579,6 +579,20 @@ $(function () {
 
   $.validator.setDefaults({
     submitHandler: function () {
+      var gradeError = false;
+      $('#gradeTable .details').each(function() {
+        var $select = $(this).find('select[name^="grades"]');
+        if (!$select.val()) {
+          gradeError = true;
+          $select.next('.select2-container').find('.select2-selection').css({'border': '1px solid #dc3545'});
+        } else {
+          $select.next('.select2-container').find('.select2-selection').css({'border': ''});
+        }
+      });
+      if (gradeError) {
+        toastr["error"]("Please select a unit for all grade rows.", "Failed:");
+        return false;
+      }
       $('#spinnerLoading').show();
       var formData = new FormData($('#productForm')[0]);
       $.ajax({
