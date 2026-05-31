@@ -257,3 +257,47 @@ function searchStateIdByName($value, $db) {
 
     return $id;
 }
+
+function getStatesByIds($stateJson, $db) {
+    $ids = json_decode($stateJson, true);
+    if (empty($ids)) {
+        return null;
+    }
+
+    $idList = implode(',', array_map('intval', $ids));
+    $result = $db->query("SELECT states FROM states WHERE id IN ($idList)");
+    $names = [];
+    while ($r = $result->fetch_assoc()) {
+        $names[] = $r['states'];
+    }
+
+    return $names;
+}
+
+function formatModules($value, $languageArray, $language) {
+    $id = '';
+
+    if(isset($value)){
+        switch ($value) {
+            case 'industrial':
+                $id = $languageArray['pulp_and_paste_code'][$language];
+                break;
+            case 'weighing':
+                $id = $languageArray['weighbridge_code'][$language];
+                break;
+            case 'wholesales':
+                $id = $languageArray['wholesales_code'][$language];
+                break;
+            case 'packing':
+                $id = $languageArray['packing_code'][$language];
+                break;
+            case 'pricing':
+                $id = $languageArray['pricing_code'][$language];
+                break;
+            default:
+                $id = 'N/A';
+        }
+    }
+
+    return $id;
+}

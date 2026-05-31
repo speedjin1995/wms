@@ -12,6 +12,8 @@ else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
   $module = $_SESSION['module'];
+  $enableDailySales = $_SESSION['enableDailySales'];
+  $dailySalesModules = $_SESSION['dailySalesModules'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -23,6 +25,22 @@ else{
   $allowPhoto = 'N';
   $allowPrice = 'N';
   $allowInvoice = 'N';
+  $filterStates = [];
+  if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
+    // Query to get daily setup states
+    $stateQuery = "SELECT * FROM daily_sales_setup WHERE module = 'wholesales' AND company = ? AND deleted = 0";
+    if ($state_stmt = $db->prepare($stateQuery)) {
+        $state_stmt->bind_param('s', $company);
+        $state_stmt->execute();
+        $state_result = $state_stmt->get_result();
+        while ($state_row = $state_result->fetch_assoc()) {
+            $decoded = json_decode($state_row['state'], true);
+            if (is_array($decoded)) {
+                $filterStates = array_merge($filterStates, $decoded);
+            }
+        }
+    }
+  }
 
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
@@ -32,8 +50,12 @@ else{
   }
 
   if ($role != 'SADMIN'){
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0' ORDER BY p.product_name ASC";
-    $productCheck = $db->query($productQuery);
+    $stateFilter = '';
+    if (!empty($filterStates)) {
+      $stateJson = json_encode(array_values($filterStates));
+      $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
+    }
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";    $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
     }

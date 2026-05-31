@@ -15,6 +15,7 @@ else{
   $units2 = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
   $units3 = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
   $units4 = $db->query("SELECT * FROM units WHERE deleted = '0' ORDER BY units ASC");
+  $states = $db->query("SELECT * FROM states ORDER BY states ASC");
 
   if ($role != 'SADMIN'){
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
@@ -185,20 +186,28 @@ else{
             <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i>Product Information</h6></div>
             <div class="card-body py-3">
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
                   </div>
                 </div>
-              </div>
-              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?></label>
+                    <select class="form-control select2" id="state" name="state[]" multiple>
+                        <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
+                            <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
+                        <?php } ?>
+                    </select>
+                  </div>
+                </div>
                 <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['weight_code'][$language]?></label>
@@ -263,14 +272,14 @@ else{
 
           <!-- Product Image -->
           <div class="card card-outline card-secondary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image mr-1"></i>Product Image</h6></div>
+            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image mr-1"></i><?=$languageArray['product_image_code'][$language]?></h6></div>
             <div class="card-body py-3">
               <div class="row align-items-center">
                 <div class="col-md-6">
                   <div id="productImageDropzone" style="border:2px dashed #adb5bd; border-radius:6px; padding:24px; text-align:center; cursor:pointer; background:#fff;">
                     <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                    <p class="mb-1 text-muted">Click or drag &amp; drop to upload</p>
-                    <small class="text-muted">PNG, JPG, JPEG — max 10MB</small>
+                    <p class="mb-1 text-muted"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
+                    <p class="mb-1 text-muted"><?=$languageArray['file_format_max_size_code'][$language]?></p>
                     <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
                   </div>
                 </div>
@@ -278,12 +287,12 @@ else{
                   <div id="productImagePreview" style="display:none;">
                     <img id="productImageThumb" src="" style="max-height:160px; max-width:100%; border-radius:6px; border:1px solid #dee2e6; object-fit:contain;">
                     <div class="mt-2">
-                      <button type="button" id="removeProductImage" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash mr-1"></i>Remove</button>
+                      <button type="button" id="removeProductImage" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
                     </div>
                   </div>
                   <div id="productImagePlaceholder" style="color:#adb5bd;">
                     <i class="fas fa-image fa-3x"></i>
-                    <p class="mt-1 mb-0">No image selected</p>
+                    <p class="mt-1 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
                   </div>
                 </div>
               </div>
@@ -293,20 +302,20 @@ else{
           <!-- Ranges Set -->
           <div class="card card-outline card-warning mb-3">
             <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0 text-danger font-weight-bold"><i class="fas fa-sliders-h mr-1"></i>Ranges Set</h6>
+              <h6 class="mb-0 text-danger font-weight-bold"><i class="fas fa-sliders-h mr-1"></i><?=$languageArray['ranges_set_code'][$language]?></h6>
               <div class="ml-auto d-flex align-items-center">
                 <input type="hidden" name="rangeSet" id="rangeSet" value="0">
                 <div id="rangeSetToggle" style="cursor:pointer; display:inline-flex; align-items:center; background:#ccc; border-radius:30px; width:110px; height:34px; position:relative; transition:background 0.3s;">
                   <div id="rangeSetKnob" style="position:absolute; width:30px; height:30px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left 0.3s; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.3);">
                     <i id="rangeSetIcon" class="fas fa-times text-danger"></i>
                   </div>
-                  <span id="rangeSetLabel" style="position:absolute; right:10px; font-size:11px; font-weight:600; color:#fff; letter-spacing:0.5px;">Disable</span>
+                  <span id="rangeSetLabel" style="position:absolute; right:10px; font-size:11px; font-weight:600; color:#fff; letter-spacing:0.5px;"><?=$languageArray['disable_code'][$language]?></span>
                 </div>
               </div>
             </div>
             <div id="rangeWeightFields" class="card-body py-3" style="display:none;">
               <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold">OK. Weight</label></div>
+                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['ok_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
                   <input type="number" step="any" class="form-control font-weight-bold" id="okWeight" name="okWeight" placeholder="0.000" style="background:rgba(40,167,69,0.25); color:#155724; border:1px solid #28a745;">
                 </div>
@@ -317,7 +326,7 @@ else{
                 </div>
               </div>
               <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold">LO. Weight</label></div>
+                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['lo_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
                   <input type="number" step="any" class="form-control font-weight-bold" id="loWeight" name="loWeight" placeholder="0.000" style="background:rgba(255,193,7,0.25); color:#856404; border:1px solid #ffc107;">
                 </div>
@@ -328,7 +337,7 @@ else{
                 </div>
               </div>
               <div class="row align-items-center">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold">HI. Weight</label></div>
+                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['hi_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
                   <input type="number" step="any" class="form-control font-weight-bold" id="hiWeight" name="hiWeight" placeholder="0.000" style="background:rgba(220,53,69,0.2); color:#721c24; border:1px solid #dc3545;">
                 </div>
@@ -570,6 +579,20 @@ $(function () {
 
   $.validator.setDefaults({
     submitHandler: function () {
+      var gradeError = false;
+      $('#gradeTable .details').each(function() {
+        var $select = $(this).find('select[name^="grades"]');
+        if (!$select.val()) {
+          gradeError = true;
+          $select.next('.select2-container').find('.select2-selection').css({'border': '1px solid #dc3545'});
+        } else {
+          $select.next('.select2-container').find('.select2-selection').css({'border': ''});
+        }
+      });
+      if (gradeError) {
+        toastr["error"]("Please select a unit for all grade rows.", "Failed:");
+        return false;
+      }
       $('#spinnerLoading').show();
       var formData = new FormData($('#productForm')[0]);
       $.ajax({
@@ -611,6 +634,7 @@ $(function () {
     $('#addModal').find('#weight').val("");
     $('#addModal').find('#productCategory').val("").trigger('change');
     $('#addModal').find('#productPackaging').val("").trigger('change');
+    $('#addModal').find('#state').val("").trigger('change');
     $('#addModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
     $('#okWeight').val(''); $('#okWeightUnit').val('kg');
@@ -929,6 +953,7 @@ function edit(id){
       $('#addModal').find('#weight').val(obj.message.weight);
       $('#addModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#addModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
+      $('#addModal').find('#state').val(obj.message.state).trigger('change');
       $('#addModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');
       if (obj.message.product_image) {
