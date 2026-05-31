@@ -12,6 +12,7 @@ else{
   $user = $_SESSION['userID'];
   $module = $_SESSION['module'] ?? '';
   $packages = $_SESSION['packages'] ?? [];
+  $enableDailySales = $_SESSION['enableDailySales'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -651,13 +652,17 @@ to get the desired effect
                             <p>'.$languageArray['staffs_code'][$language].'</p>
                           </a>
                         </li>
+                      ';
+                  
+                  if ($enableDailySales == 'Y'){
+                    echo '
                         <li class="nav-item">
                           <a href="#dailySalesSetup" data-file="dailySalesSetup.php" class="nav-link link">
                             <i class="nav-icon fas fa-calendar-check"></i>
                             <p>'.$languageArray['daily_sales_setup_code'][$language].'</p>
                           </a>
-                        </li>
-                      ';
+                        </li>';
+                  }
                 }
               ?>
 
