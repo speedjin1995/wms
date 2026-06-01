@@ -87,6 +87,8 @@ else{
                     <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING" selected><?=$languageArray['receiving_code'][$language]?></option>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                    <option value="NITROGEN"><?=$languageArray['nitrogen_code'][$language]?></option>
+                    <option value="REJECT"><?=$languageArray['reject_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -543,7 +545,7 @@ $(function () {
     var status = $(this).val();
     $('#customerNoFilter').val('').trigger('change');
     $('#supplierNoFilter').val('').trigger('change');
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
+    if(status == "DISPATCH" || status == 'STOCK-BAL' || status == 'NITROGEN' || status == 'REJECT'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }

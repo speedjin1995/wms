@@ -180,6 +180,8 @@ else{
                     <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING" selected><?=$languageArray['receiving_code'][$language]?></option>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                    <option value="NITROGEN"><?=$languageArray['nitrogen_code'][$language]?></option>
+                    <option value="REJECT"><?=$languageArray['reject_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -392,6 +394,8 @@ else{
                   <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
                   <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
                   <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                  <option value="NITROGEN"><?=$languageArray['nitrogen_code'][$language]?></option>
+                  <option value="REJECT"><?=$languageArray['reject_code'][$language]?></option>
                 </select>
               </div>
             </div>
@@ -1214,7 +1218,7 @@ $(function () {
 
   $('#transactionStatusFilter').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
+    if(status == "DISPATCH" || status == 'STOCK-BAL' || status == 'NITROGEN' || status == 'REJECT'){
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
     }
@@ -1226,7 +1230,7 @@ $(function () {
 
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
+    if(status == "DISPATCH" || status == 'STOCK-BAL' || status == 'NITROGEN' || status == 'REJECT'){
       $('#extendModal').find('#customerDiv').show();
       $('#extendModal').find('#supplierDiv').hide();
       $('#extendModal').find('#securityBillDiv').hide();
