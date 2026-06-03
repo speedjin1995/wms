@@ -29,6 +29,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
     $serialNo = null;
     $remarks = null;
     $remarks2 = null;
+	$isManual = 'Y';
 
     $startDateTimeObj = DateTime::createFromFormat('d/m/Y H:i', $startTime);
     $startDateTime = $startDateTimeObj->format("d/m/Y 00:00:00");
@@ -98,12 +99,58 @@ if(isset($_POST['status'], $_POST['startTime'])){
 		$customerOther = $_POST['customerOther'];
 	}
 
+    if($status == 'DISPATCH' || $status == 'OUTGOING'){
+	    if($customer == 'OTHERS'){
+            // 🔥 Insert new customer
+            $sql = "INSERT INTO customers 
+                    (customer_name, customer_code, customer, is_manual) 
+                    VALUES (?, ?, ?, ?)";
+    
+            $stmt = $db->prepare($sql);
+    
+            $newCustomerName = $customerOther;
+            $customerCode = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $newCustomerName), 0, 10));
+            $stmt->bind_param("ssss", $newCustomerName, $customerCode, $company, $isManual);
+            $stmt->execute();
+    
+            // ✅ Get new ID
+            $customerId = $db->insert_id;
+    
+            // Use this ID
+            $customer = $customerId;
+            $customerOther = $newCustomerName;
+	    }
+	}
+
     if(isset($_POST['supplier']) && $_POST['supplier'] != null && $_POST['supplier'] != ''){
 		$supplier = $_POST['supplier'];
 	}
 
     if(isset($_POST['supplierOther']) && $_POST['supplierOther'] != null && $_POST['supplierOther'] != ''){
 		$supplierOther = $_POST['supplierOther'];
+	}
+
+    if($status == 'RECEIVING' || $status == 'INCOMING'){
+		if($supplier == 'OTHERS'){
+		    // 🔥 Insert new customer
+            $sql = "INSERT INTO supplies 
+                    (supplier_name, supplier_code, customer, is_manual) 
+                    VALUES (?, ?, ?, ?)";
+    
+            $stmt = $db->prepare($sql);
+    
+            $newSupplierName = $supplierOther;
+            $supplierCode = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $newSupplierName), 0, 10));
+            $stmt->bind_param("ssss", $newSupplierName, $supplierCode, $company, $isManual);
+            $stmt->execute();
+    
+            // ✅ Get new ID
+            $supplierId = $db->insert_id;
+    
+            // Use this ID
+            $supplier = $supplierId;
+	        $supplierOther = $newSupplierName;
+	    }
 	}
 
     if(isset($_POST['vehicle']) && $_POST['vehicle'] != null && $_POST['vehicle'] != ''){
