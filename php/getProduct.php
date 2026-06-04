@@ -12,6 +12,17 @@ if(isset($_POST['userID'])){
     }
 
     if ($type == 'getPrice'){
+        if (!isset($_POST['status']) || $_POST['status'] == null || $_POST['status'] == ''){
+            echo json_encode(
+                array(
+                    "status" => "failed",
+                    "message" => "Missing status"
+                ));
+            exit();
+        }else{
+            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_STRING);
+        }
+
         $customerID = null;
         $grade = null;
         
@@ -38,7 +49,12 @@ if(isset($_POST['userID'])){
         if ($product_result->num_rows > 0) {
             while ($row = $product_result->fetch_assoc()) {
                 $productPricingType = $row['pricing_type'];
-                $productPrice = $row['price'];
+                if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                    $productPrice = $row['purchasing_price'];
+                }else{
+                    $productPrice = $row['price'];
+                }
+
             }
         }else{
             echo json_encode(
@@ -61,7 +77,11 @@ if(isset($_POST['userID'])){
                 // If customer have pricing
                 while ($row = $result->fetch_assoc()) {
                     $pricingType = $row['pricing_type'];
-                    $price = $row['price'];
+                    if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                        $price = $row['purchasing_price'];
+                    }else{
+                        $price = $row['price'];
+                    }
                 }
 
                 // If pricing type is Standard then need to take product price
@@ -94,7 +114,11 @@ if(isset($_POST['userID'])){
                         // If grade has pricing
                         while ($row = $productGradeResult->fetch_assoc()) {
                             $pricingType = $row['pricing_type'];
-                            $price = $row['price'];
+                            if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                                $price = $row['purchasing_price'];
+                            }else{
+                                $price = $row['price'];
+                            }
                         }
 
                         // If pricing type is Standard then need to take product price
@@ -153,7 +177,11 @@ if(isset($_POST['userID'])){
                 // If grade has pricing
                 while ($row = $productGradeResult->fetch_assoc()) {
                     $pricingType = $row['pricing_type'];
-                    $price = $row['price'];
+                    if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                        $price = $row['purchasing_price'];
+                    }else{
+                        $price = $row['price'];
+                    }
                 }
 
                 // If pricing type is Standard then need to take product price
