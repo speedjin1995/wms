@@ -743,3 +743,8 @@ ALTER TABLE `companies` ADD `enable_daily_sales_setup` VARCHAR(1) NULL DEFAULT '
 
 -- 28/05/2026 --
 ALTER TABLE `companies` CHANGE `email` `email` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+
+-- 04/06/2026 --
+ALTER TABLE `products` ADD `purchasing_price` TEXT NULL AFTER `price`;
+ALTER TABLE `product_customers` ADD `purchasing_price` TEXT NULL AFTER `price`;
+ALTER TABLE `product_grades` ADD `purchasing_price` TEXT NULL AFTER `price`;

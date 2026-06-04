@@ -227,6 +227,7 @@ if(isset($_POST['userID'])){
                     $message['remark'] = $row['remark'];
                     $message['pricing_type'] = $row['pricing_type'];
                     $message['price'] = $row['price'];
+                    $message['purchasing_price'] = $row['purchasing_price'];
                     $message['weight'] = $row['weight'];
                     $message['customer'] = $row['customer'];
                     $message['range_set'] = $row['range_set'];
@@ -256,7 +257,8 @@ if(isset($_POST['userID'])){
                             "product_id" => $row2['product_id'],
                             "customer_id" => $row2['customer_id'],
                             "pricing_type" => $row2['pricing_type'],
-                            "price" => $row2['price']
+                            "price" => $row2['price'],
+                            "purchasing_price" => $row2['purchasing_price']
                         );
                         $productCustomerCount++;
                     }
@@ -276,7 +278,8 @@ if(isset($_POST['userID'])){
                             "product_id" => $row2['product_id'],
                             "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
-                            "price" => $row2['price']
+                            "price" => $row2['price'],
+                            "purchasing_price" => $row2['purchasing_price']
                         );
                         $productGradeCount++;
                     }
