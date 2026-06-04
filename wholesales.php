@@ -1228,6 +1228,8 @@ $(function () {
       $('#extendModal').find('#supplierDiv').show();
       $('#extendModal').find('#securityBillDiv').show();
     }
+    
+    $('#weightDetailsTable').find('select[id^="grade"]').trigger('change');
   });
 
   $('#extendModal').find('#customer').on('change', function () {
@@ -1440,9 +1442,10 @@ $(function () {
     var grade = $(this).find(':selected').data('id');
     var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var status = $('#extendModal').find('#status').val();
 
     if (allowPrice == 'Y' && productId){
-      calculatePrice(productId, customerId, grade, $(this));
+      calculatePrice(productId, status, customerId, grade, $(this));
     }
   });
 
@@ -1555,9 +1558,10 @@ $(function () {
     var grade = $(this).find(':selected').data('id');
     var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId){
-      calculatePrice(productId, customerId, grade, $(this));
+    if (allowPrice == 'Y' && productId && status){
+      calculatePrice(productId, status, customerId, grade, $(this));
     }
   });
 
@@ -1969,9 +1973,9 @@ function newEntry(){
   });
 }
 
-function calculatePrice(productId, customerId, currentGrade, element) {
+function calculatePrice(productId, status, customerId, currentGrade, element) {
   if (productId){
-    $.post('php/getProduct.php', {userID: productId, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+    $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){

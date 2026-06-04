@@ -12,6 +12,17 @@ if(isset($_POST['userID'])){
     }
 
     if ($type == 'getPrice'){
+        if (!isset($_POST['status']) || $_POST['status'] == null || $_POST['status'] == ''){
+            echo json_encode(
+                array(
+                    "status" => "failed",
+                    "message" => "Missing status"
+                ));
+            exit();
+        }else{
+            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_STRING);
+        }
+
         $customerID = null;
         $grade = null;
         
@@ -38,7 +49,12 @@ if(isset($_POST['userID'])){
         if ($product_result->num_rows > 0) {
             while ($row = $product_result->fetch_assoc()) {
                 $productPricingType = $row['pricing_type'];
-                $productPrice = $row['price'];
+                if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                    $productPrice = $row['purchasing_price'];
+                }else{
+                    $productPrice = $row['price'];
+                }
+
             }
         }else{
             echo json_encode(
@@ -61,7 +77,11 @@ if(isset($_POST['userID'])){
                 // If customer have pricing
                 while ($row = $result->fetch_assoc()) {
                     $pricingType = $row['pricing_type'];
-                    $price = $row['price'];
+                    if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                        $price = $row['purchasing_price'];
+                    }else{
+                        $price = $row['price'];
+                    }
                 }
 
                 // If pricing type is Standard then need to take product price
@@ -94,7 +114,11 @@ if(isset($_POST['userID'])){
                         // If grade has pricing
                         while ($row = $productGradeResult->fetch_assoc()) {
                             $pricingType = $row['pricing_type'];
-                            $price = $row['price'];
+                            if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                                $price = $row['purchasing_price'];
+                            }else{
+                                $price = $row['price'];
+                            }
                         }
 
                         // If pricing type is Standard then need to take product price
@@ -153,7 +177,11 @@ if(isset($_POST['userID'])){
                 // If grade has pricing
                 while ($row = $productGradeResult->fetch_assoc()) {
                     $pricingType = $row['pricing_type'];
-                    $price = $row['price'];
+                    if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                        $price = $row['purchasing_price'];
+                    }else{
+                        $price = $row['price'];
+                    }
                 }
 
                 // If pricing type is Standard then need to take product price
@@ -227,6 +255,7 @@ if(isset($_POST['userID'])){
                     $message['remark'] = $row['remark'];
                     $message['pricing_type'] = $row['pricing_type'];
                     $message['price'] = $row['price'];
+                    $message['purchasing_price'] = $row['purchasing_price'];
                     $message['weight'] = $row['weight'];
                     $message['customer'] = $row['customer'];
                     $message['range_set'] = $row['range_set'];
@@ -256,7 +285,8 @@ if(isset($_POST['userID'])){
                             "product_id" => $row2['product_id'],
                             "customer_id" => $row2['customer_id'],
                             "pricing_type" => $row2['pricing_type'],
-                            "price" => $row2['price']
+                            "price" => $row2['price'],
+                            "purchasing_price" => $row2['purchasing_price']
                         );
                         $productCustomerCount++;
                     }
@@ -276,7 +306,8 @@ if(isset($_POST['userID'])){
                             "product_id" => $row2['product_id'],
                             "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
-                            "price" => $row2['price']
+                            "price" => $row2['price'],
+                            "purchasing_price" => $row2['purchasing_price']
                         );
                         $productGradeCount++;
                     }

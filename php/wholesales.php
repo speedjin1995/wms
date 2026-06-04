@@ -233,7 +233,11 @@ if(isset($_POST['status'], $_POST['startTime'])){
     }
 
     if(!isset($_POST['serialNo']) || $_POST['serialNo'] == null || $_POST['serialNo'] == ''){
-		$prefix = ($status === 'DISPATCH') ? 'S' : (($status === 'RECEIVING') ? 'P' : 'SB');
+        if ($recordType == 'industrial') {
+            $prefix = ($status == 'INCOMING') ? 'I' : 'O';
+        } else {
+            $prefix = ($status == 'DISPATCH') ? 'S' : (($status == 'RECEIVING') ? 'P' : (($status == 'NITROGEN') ? 'N' : (($status == 'REJECT') ? 'REJ' : 'SB')));
+        }
 		$serialNo = $prefix.$startDateTime2;
 
 		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE created_datetime >= ? AND status = ? AND deleted='0'")) {
