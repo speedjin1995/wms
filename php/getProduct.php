@@ -48,10 +48,11 @@ if(isset($_POST['userID'])){
         $product_result = $product_stmt->get_result();
         if ($product_result->num_rows > 0) {
             while ($row = $product_result->fetch_assoc()) {
-                $productPricingType = $row['pricing_type'];
                 if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                    $productPricingType = $row['purchasing_pricing_type'];
                     $productPrice = $row['purchasing_price'];
                 }else{
+                    $productPricingType = $row['pricing_type'];
                     $productPrice = $row['price'];
                 }
 
@@ -76,10 +77,11 @@ if(isset($_POST['userID'])){
             if ($result->num_rows > 0) {
                 // If customer have pricing
                 while ($row = $result->fetch_assoc()) {
-                    $pricingType = $row['pricing_type'];
                     if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                        $pricingType = $row['purchasing_pricing_type'];
                         $price = $row['purchasing_price'];
                     }else{
+                        $pricingType = $row['pricing_type'];
                         $price = $row['price'];
                     }
                 }
@@ -113,10 +115,11 @@ if(isset($_POST['userID'])){
                     if ($productGradeResult->num_rows > 0) {
                         // If grade has pricing
                         while ($row = $productGradeResult->fetch_assoc()) {
-                            $pricingType = $row['pricing_type'];
                             if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                                $pricingType = $row['purchasing_pricing_type'];
                                 $price = $row['purchasing_price'];
                             }else{
+                                $pricingType = $row['pricing_type'];
                                 $price = $row['price'];
                             }
                         }
@@ -176,10 +179,11 @@ if(isset($_POST['userID'])){
             if ($productGradeResult->num_rows > 0) {
                 // If grade has pricing
                 while ($row = $productGradeResult->fetch_assoc()) {
-                    $pricingType = $row['pricing_type'];
                     if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                        $pricingType = $row['purchasing_pricing_type'];
                         $price = $row['purchasing_price'];
                     }else{
+                        $pricingType = $row['pricing_type'];
                         $price = $row['price'];
                     }
                 }
