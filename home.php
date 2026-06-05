@@ -90,7 +90,7 @@ if(!isset($_SESSION['userID'])){
             }
 
             .modules-box-list a {
-                width: 25%;
+                width: 500px;
             }
 
             .modules-box-list .modules-box {
@@ -112,6 +112,8 @@ if(!isset($_SESSION['userID'])){
 
             .modules-box-list .modules-box .modules-img {
                 width: 100%;
+                height: 160px;
+                object-fit: contain;
                 margin-bottom: 35px;
             }
 
@@ -186,7 +188,7 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-2">
-                        <img src="assets/food-packaging-icon.png" alt="Packing" style="width: 55%; display: block; margin: 0 auto;">
+                        <img src="assets/food-packaging-icon.png" alt="Packing" class="modules-img">
                         <div class="modules-txt"><?=$languageArray['packing_code'][$language]?></div>
                     </div>
                 </a>
@@ -198,8 +200,20 @@ if(!isset($_SESSION['userID'])){
                     ?>
                 >
                     <div class="modules-box modules-box-2">
-                        <img src="assets/pricing-icon.png" alt="Pricing" style="width: 55%; display: block; margin: 0 auto;">
+                        <img src="assets/pricing-icon.png" alt="Pricing" class="modules-img">
                         <div class="modules-txt"><?=$languageArray['pricing_code'][$language]?></div>
+                    </div>
+                </a>
+                <a href="php/setModule.php?module=processing"
+                    <?php 
+                        if (!in_array('processing', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-2">
+                        <img src="assets/packaging-icon.png" alt="Processing" class="modules-img">
+                        <div class="modules-txt"><?=$languageArray['processing_code'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/logout.php">

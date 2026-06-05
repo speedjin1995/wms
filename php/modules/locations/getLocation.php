@@ -1,5 +1,5 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
@@ -24,6 +24,7 @@ if(isset($_POST['userID'])){
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
                 $message['locations'] = $row['locations'];
+                $message['customer'] = $row['customer'];
             }
             
             echo json_encode(

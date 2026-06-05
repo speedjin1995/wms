@@ -1,15 +1,17 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
-if(isset($_POST['code'])){
-    $product = filter_input(INPUT_POST, 'code', FILTER_SANITIZE_STRING);
+$user = $_SESSION['userID'];
+
+if(isset($_POST['location']) && isset($_POST['company'])){
+    $location = filter_input(INPUT_POST, 'location', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE locations SET locations=? WHERE id=?")) {
-            $update_stmt->bind_param('ss', $product, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE locations SET locations=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sss', $location, $user, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -34,9 +36,9 @@ if(isset($_POST['code'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO locations (locations, customer) VALUES (?, ?)")) {
-            $insert_stmt->bind_param('ss', $product, $company);
-            
+        if ($insert_stmt = $db->prepare("INSERT INTO locations (locations, customer, created_by) VALUES (?, ?, ?)")) {
+            $insert_stmt->bind_param('sss', $location, $company, $user);
+
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
                 echo json_encode(

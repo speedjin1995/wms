@@ -437,7 +437,23 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module != 'pricing') { ?>
+          <?php if ($module == 'processing') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-cog"></i>
+              <p><?=$languageArray['processing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <li class="nav-item">
+                <a href="#grading" data-file="grading.php" class="nav-link link">
+                  <i class="nav-icon fas fa-clipboard-check"></i>
+                  <p><?=$languageArray['grading_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php if ($module != 'pricing' || $module != 'processing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -617,12 +633,29 @@ to get the desired effect
                       <p>'.$languageArray['grades_code'][$language].'</p>
                     </a>
                   </li>
-                  <!--li class="nav-item">
-                    <a href="#locations" data-file="locations.php" class="nav-link link">
-                      <i class="nav-icon fas fa-shopping-bag"></i>
-                      <p>Location</p>
+                  ';
+                if ($module == 'processing') {
+                  echo '
+                  <li class="nav-item">
+                    <a href="#shipmentTypes" data-file="shipmentTypes.php" class="nav-link link">
+                      <i class="nav-icon fas fa-shipping-fast"></i>
+                      <p>'.$languageArray['shipment_types_code'][$language].'</p>
                     </a>
-                  </li -->
+                  </li>
+                  <li class="nav-item">
+                    <a href="#locations" data-file="locations.php" class="nav-link link">
+                      <i class="nav-icon fas fa-map-marker-alt"></i>
+                      <p>'.$languageArray['locations_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#productionLines" data-file="productionLines.php" class="nav-link link">
+                      <i class="nav-icon fas fa-industry"></i>
+                      <p>'.$languageArray['production_lines_code'][$language].'</p>
+                    </a>
+                  </li>';
+                }
+                echo '
                 </ul>
               </li>';
               }
@@ -815,6 +848,8 @@ $(function () {
     $("a[href='#packing']").click();
     <?php } else if ($module == 'pricing') { ?>
     $("a[href='#pricingSales']").click();
+    <?php } else if ($module == 'processing') { ?>
+    $("a[href='#grading']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>
