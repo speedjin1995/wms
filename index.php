@@ -617,6 +617,12 @@ to get the desired effect
                       <p>'.$languageArray['grades_code'][$language].'</p>
                     </a>
                   </li>
+                  <li class="nav-item">
+                    <a href="#shipmentTypes" data-file="shipmentTypes.php" class="nav-link link">
+                      <i class="nav-icon fas fa-shipping-fast"></i>
+                      <p>'.$languageArray['shipment_types_code'][$language].'</p>
+                    </a>
+                  </li>
                   <!--li class="nav-item">
                     <a href="#locations" data-file="locations.php" class="nav-link link">
                       <i class="nav-icon fas fa-shopping-bag"></i>

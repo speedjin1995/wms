@@ -753,3 +753,64 @@ ALTER TABLE `product_grades` ADD `purchasing_price` TEXT NULL AFTER `price`;
 ALTER TABLE `products` ADD `purchasing_pricing_type` VARCHAR(10) NULL AFTER `price`;
 ALTER TABLE `product_customers` ADD `purchasing_pricing_type` VARCHAR(10) NULL AFTER `price`;
 ALTER TABLE `product_grades` ADD `purchasing_pricing_type` VARCHAR(10) NULL AFTER `price`;
+
+-- 05/06/2026 (part 2) --
+CREATE TABLE `shipment_types` (
+  `id` int(11) NOT NULL,
+  `shipment_type` varchar(100) NOT NULL,
+  `customers` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `shipment_types` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `shipment_types` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `shipment_types_log` (
+  `id` int(11) NOT NULL,
+  `shipment_type_id` int(11) NOT NULL,
+  `shipment_type` varchar(100) NOT NULL,
+  `customers` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` int(11) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `shipment_types_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `shipment_types_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_SHIPMENT_TYPES` AFTER INSERT ON `shipment_types` FOR EACH ROW INSERT INTO shipment_types_log (
+  shipment_type_id, shipment_type, customers, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.shipment_type, NEW.customers, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_SHIPMENT_TYPES` BEFORE UPDATE ON `shipment_types` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO shipment_types_log (
+      shipment_type_id, shipment_type, customers, action_id, action_by, event_date
+  ) 
+  VALUES (
+      NEW.id, NEW.shipment_type, NEW.customers, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
+
