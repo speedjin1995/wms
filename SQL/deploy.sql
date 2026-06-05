@@ -814,3 +814,48 @@ END
 $$
 DELIMITER ;
 
+ALTER TABLE `locations` ADD `created_by` INT(11) NOT NULL AFTER `customer`, ADD `created_datetime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` INT(11) NULL AFTER `created_datetime`, ADD `modified_date` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `locations_log` (
+  `id` int(11) NOT NULL,
+  `location_id` int(11) NOT NULL,
+  `location` varchar(50) NOT NULL,
+  `customers` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` int(11) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+ALTER TABLE `locations_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `locations_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_LOCATIONS` AFTER INSERT ON `locations` FOR EACH ROW INSERT INTO locations_log (
+  location_id, location, customers, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.locations, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_LOCATIONS` BEFORE UPDATE ON `locations` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO locations_log (
+      location_id, location, customers, action_id, action_by, event_date
+  ) 
+  VALUES (
+      NEW.id, NEW.locations, NEW.customer, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;

@@ -1,6 +1,8 @@
 <?php
 ## Database configuration
-require_once 'db_connect.php';
+require_once '../../db_connect.php';
+
+session_start();
 
 ## Read value
 $draw = $_POST['draw'];
@@ -13,13 +15,16 @@ $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Sear
 
 ## Search 
 $searchQuery = " ";
-
-if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-  $searchQuery = " AND customer = '".$_POST['id']."'";
-}
+$company = $_SESSION['customer'];
+$user = $_SESSION['userID'];
+$role = $_SESSION['role'];
 
 if($searchValue != ''){
-   $searchQuery = " AND locations like '%".$searchValue."%'";
+  $searchQuery = " AND locations like '%".$searchValue."%'";
+}
+
+if ($role != 'SADMIN'){
+  $searchQuery .= " AND customer = '".$company."'";
 }
 
 ## Total number of records without filtering
@@ -41,8 +46,8 @@ $count = 1;
 while($row = mysqli_fetch_assoc($empRecords)) {
   $data[] = array( 
     "id"=>$row['id'],
-    "no"=>$count,
-    "locations"=>$row['locations']
+    "locations"=>$row['locations'],
+    "deleted"=>$row['deleted']
   );
 
   $count++;
