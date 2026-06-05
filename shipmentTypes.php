@@ -57,7 +57,7 @@ else{
                     </button>
                   </div>
                   <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addShipmentType"><?=$languageArray['add_vehicle_code'][$language]?></button>
+                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addShipmentType"><?=$languageArray['add_shipment_type_code'][$language]?></button>
                   </div>
               </div>
           </div>
