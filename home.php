@@ -204,28 +204,16 @@ if(!isset($_SESSION['userID'])){
                         <div class="modules-txt"><?=$languageArray['pricing_code'][$language]?></div>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=grading"
+                <a href="php/setModule.php?module=processing"
                     <?php 
-                        if (!in_array('grading', $_SESSION['products'], false)) {
+                        if (!in_array('processing', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
                     <div class="modules-box modules-box-2">
-                        <img src="assets/grading-icon.png" alt="Grading" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['grading_code'][$language]?></div>
-                    </div>
-                </a>
-                <a href="php/setModule.php?module=packaging"
-                    <?php 
-                        if (!in_array('packaging', $_SESSION['products'], false)) {
-                            echo 'style="display:none;"';
-                        }
-                    ?>
-                >
-                    <div class="modules-box modules-box-2">
-                        <img src="assets/packaging-icon.png" alt="Packaging" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['packaging_code'][$language]?></div>
+                        <img src="assets/packaging-icon.png" alt="Processing" class="modules-img">
+                        <div class="modules-txt"><?=$languageArray['processing_code'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/logout.php">
