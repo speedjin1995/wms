@@ -859,3 +859,62 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_LOCATIONS` BEFORE UPDATE ON `locations` FOR E
 END
 $$
 DELIMITER ;
+
+CREATE TABLE `production_lines` (
+  `id` int(11) NOT NULL,
+  `production_line` varchar(100) NOT NULL,
+  `customers` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `production_lines` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `production_lines` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `production_lines_log` (
+  `id` int(11) NOT NULL,
+  `production_line_id` int(11) NOT NULL,
+  `production_line` varchar(100) NOT NULL,
+  `customers` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` int(11) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `production_lines_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `production_lines_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCTION_LINES` AFTER INSERT ON `production_lines` FOR EACH ROW INSERT INTO production_lines_log (
+  production_line_id, production_line, customers, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.production_line, NEW.customers, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTION_LINES` BEFORE UPDATE ON `production_lines` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO production_lines_log (
+      production_line_id, production_line, customers, action_id, action_by, event_date
+  ) 
+  VALUES (
+      NEW.id, NEW.production_line, NEW.customers, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
