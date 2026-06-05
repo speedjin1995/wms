@@ -292,7 +292,7 @@ $(function () {
     });
   });
 
-   $('#uploadExcel').on('click', function(){
+  $('#uploadExcel').on('click', function(){
     $('#uploadModal').modal('show');
 
     $('#uploadForm').validate({

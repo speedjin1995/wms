@@ -18,12 +18,12 @@ $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 $role = $_SESSION['role'];
 
-if ($role != 'SADMIN'){
-  $searchQuery .= " AND shipment_types.customers = '".$company."'";
-}
-
 if($searchValue != ''){
   $searchQuery .= " AND (shipment_types.shipment_type like '%".$searchValue."%')";
+}
+
+if ($role != 'SADMIN'){
+  $searchQuery .= " AND shipment_types.customers = '".$company."'";
 }
 
 ## Total number of records without filtering
