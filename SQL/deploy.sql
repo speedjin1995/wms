@@ -748,3 +748,8 @@ ALTER TABLE `companies` CHANGE `email` `email` VARCHAR(255) CHARACTER SET utf8mb
 ALTER TABLE `products` ADD `purchasing_price` TEXT NULL AFTER `price`;
 ALTER TABLE `product_customers` ADD `purchasing_price` TEXT NULL AFTER `price`;
 ALTER TABLE `product_grades` ADD `purchasing_price` TEXT NULL AFTER `price`;
+
+-- 05/06/2026 --
+ALTER TABLE `products` ADD `purchasing_pricing_type` VARCHAR(10) NULL AFTER `price`;
+ALTER TABLE `product_customers` ADD `purchasing_pricing_type` VARCHAR(10) NULL AFTER `price`;
+ALTER TABLE `product_grades` ADD `purchasing_pricing_type` VARCHAR(10) NULL AFTER `price`;

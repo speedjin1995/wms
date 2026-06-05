@@ -286,6 +286,7 @@ if(isset($_POST['userID'])){
                             "customer_id" => $row2['customer_id'],
                             "pricing_type" => $row2['pricing_type'],
                             "price" => $row2['price'],
+                            "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
                             "purchasing_price" => $row2['purchasing_price']
                         );
                         $productCustomerCount++;
@@ -307,6 +308,7 @@ if(isset($_POST['userID'])){
                             "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
                             "price" => $row2['price'],
+                            "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
                             "purchasing_price" => $row2['purchasing_price']
                         );
                         $productGradeCount++;
