@@ -1039,3 +1039,20 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_SHIPMENT_TYPES` BEFORE UPDATE ON `shipment_ty
 END
 $$
 DELIMITER ;
+
+CREATE TABLE `raw_stock_balance` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(100) NOT NULL,
+  `balance` varchar(100) NOT NULL,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modifed_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `raw_stock_balance` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `raw_stock_balance` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
