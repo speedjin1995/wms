@@ -927,6 +927,7 @@ CREATE TABLE `grading` (
   `end_date` datetime DEFAULT NULL,
   `product_category` int(11) DEFAULT NULL,
   `remark` text DEFAULT NULL,
+  `customers` int(11) NOT NULL,
   `created_by` int(11) NOT NULL,
   `created_date` datetime NOT NULL DEFAULT current_timestamp(),
   `modified_by` int(11) DEFAULT NULL,
@@ -945,6 +946,7 @@ CREATE TABLE `grading_log` (
   `end_date` datetime DEFAULT NULL,
   `product_category` int(11) DEFAULT NULL,
   `remark` text DEFAULT NULL,
+  `customers` int(11) NOT NULL,
   `action_id` int(1) NOT NULL,
   `action_by` int(11) NOT NULL,
   `event_date` datetime NOT NULL DEFAULT current_timestamp()
@@ -956,10 +958,10 @@ ALTER TABLE `grading_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 DELIMITER $$
 CREATE OR REPLACE TRIGGER `TRG_INS_GRADING` AFTER INSERT ON `grading` FOR EACH ROW INSERT INTO grading_log (
-  grading_id, grading_no, start_date, end_date, product_category, remark, action_id, action_by, event_date
+  grading_id, grading_no, start_date, end_date, product_category, remark, customers, action_id, action_by, event_date
 ) 
 VALUES (
-  NEW.id, NEW.grading_no, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, 1, NEW.created_by, NEW.created_date
+  NEW.id, NEW.grading_no, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.customers, 1, NEW.created_by, NEW.created_date
 )
 $$
 DELIMITER ;
@@ -975,10 +977,10 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_GRADING` BEFORE UPDATE ON `grading` FOR EACH 
   END IF;
 
   INSERT INTO grading_log (
-      grading_id, grading_no, start_date, end_date, product_category, remark, action_id, action_by, event_date
+      grading_id, grading_no, start_date, end_date, product_category, remark, customers, action_id, action_by, event_date
   ) 
   VALUES (
-      NEW.id, NEW.grading_no, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, action_value, NEW.modified_by, NOW()
+      NEW.id, NEW.grading_no, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.customers, action_value, NEW.modified_by, NOW()
   );
 END
 $$
@@ -988,6 +990,7 @@ CREATE TABLE `grading_items` (
   `id` int(11) NOT NULL,
   `grading_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
+  `wholesales_id` int(11) DEFAULT NULL,
   `from_grade` varchar(50) DEFAULT NULL,
   `to_grade` varchar(50) DEFAULT NULL,
   `gross_weight` varchar(100) DEFAULT NULL,
