@@ -918,3 +918,89 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTION_LINES` BEFORE UPDATE ON `productio
 END
 $$
 DELIMITER ;
+
+-- 06/06/2026 --
+CREATE TABLE `grading` (
+  `id` int(11) NOT NULL,
+  `grading_no` varchar(100) NOT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `product_category` int(11) DEFAULT NULL,
+  `remark` text DEFAULT NULL,
+  `customers` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `grading` ADD PRIMARY KEY (`id`);
+ALTER TABLE `grading` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `grading_log` (
+  `id` int(11) NOT NULL,
+  `grading_id` int(11) NOT NULL,
+  `grading_no` varchar(100) NOT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `product_category` int(11) DEFAULT NULL,
+  `remark` text DEFAULT NULL,
+  `customers` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` int(11) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `grading_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `grading_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_GRADING` AFTER INSERT ON `grading` FOR EACH ROW INSERT INTO grading_log (
+  grading_id, grading_no, start_date, end_date, product_category, remark, customers, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.grading_no, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.customers, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_GRADING` BEFORE UPDATE ON `grading` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO grading_log (
+      grading_id, grading_no, start_date, end_date, product_category, remark, customers, action_id, action_by, event_date
+  ) 
+  VALUES (
+      NEW.id, NEW.grading_no, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.customers, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
+
+CREATE TABLE `grading_items` (
+  `id` int(11) NOT NULL,
+  `grading_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `wholesales_id` int(11) DEFAULT NULL,
+  `from_grade` varchar(50) DEFAULT NULL,
+  `to_grade` varchar(50) DEFAULT NULL,
+  `gross_weight` varchar(100) DEFAULT NULL,
+  `tare_weight` varchar(100) DEFAULT NULL,
+  `nett_weight` varchar(100) DEFAULT NULL,
+  `weighing_time` datetime NOT NULL,
+  `photo_path` text DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `grading_items` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `grading_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
