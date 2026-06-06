@@ -23,7 +23,7 @@ if($searchValue != ''){
 }
 
 if ($role != 'SADMIN'){
-  $searchQuery .= " AND shipment_types.customers = '".$company."'";
+  $searchQuery .= " AND shipment_types.customer = '".$company."'";
 }
 
 ## Total number of records without filtering
