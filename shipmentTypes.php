@@ -472,7 +472,7 @@ function edit(id){
       if(obj.status === 'success'){
           $('#addModal').find('#id').val(obj.message.id);
           $('#addModal').find('#shipmentType').val(obj.message.shipment_type);
-          $('#addModal').find('#company').val(obj.message.customers);
+          $('#addModal').find('#company').val(obj.message.customer);
           $('#addModal').modal('show');
           
           $('#shipmentTypeForm').validate({

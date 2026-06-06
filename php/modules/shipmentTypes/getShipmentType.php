@@ -24,7 +24,7 @@ if(isset($_POST['userID'])){
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
                 $message['shipment_type'] = $row['shipment_type'];
-                $message['customers'] = $row['customers'];
+                $message['customer'] = $row['customer'];
             }
             
             echo json_encode(

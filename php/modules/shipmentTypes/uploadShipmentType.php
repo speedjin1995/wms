@@ -16,12 +16,12 @@ if (!empty($data)) {
 
         # Check if unit exist in DB
         $deleted = "0";
-        $unitQuery = "SELECT * FROM shipment_types WHERE shipment_type = '".mysqli_real_escape_string($db, $ShipmentType)."' AND customers = '".mysqli_real_escape_string($db, $company)."' AND deleted = '".mysqli_real_escape_string($db, $deleted)."'";
+        $unitQuery = "SELECT * FROM shipment_types WHERE shipment_type = '".mysqli_real_escape_string($db, $ShipmentType)."' AND customer = '".mysqli_real_escape_string($db, $company)."' AND deleted = '".mysqli_real_escape_string($db, $deleted)."'";
         $unitDetail = mysqli_query($db, $unitQuery);
         $unitRow = mysqli_fetch_assoc($unitDetail);
 
         if(empty($unitRow)){
-            if ($insert_stmt = $db->prepare("INSERT INTO shipment_types (shipment_type, customers, created_by) VALUES (?, ?, ?)")) {
+            if ($insert_stmt = $db->prepare("INSERT INTO shipment_types (shipment_type, customer, created_by) VALUES (?, ?, ?)")) {
                 $insert_stmt->bind_param('sss', $ShipmentType, $company, $user);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID

@@ -10,7 +10,7 @@ if(isset($_POST['shipmentType'],$_POST['company'])){
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE shipment_types SET shipment_type=?, customers=?, modified_by=? WHERE id=?")) {
+        if ($update_stmt = $db->prepare("UPDATE shipment_types SET shipment_type=?, customer=?, modified_by=? WHERE id=?")) {
             $update_stmt->bind_param('ssss', $shipmentType, $company, $user, $_POST['id']);
             
             // Execute the prepared query.
@@ -36,7 +36,7 @@ if(isset($_POST['shipmentType'],$_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO shipment_types (shipment_type, customers, created_by) VALUES (?, ?, ?)")) {
+        if ($insert_stmt = $db->prepare("INSERT INTO shipment_types (shipment_type, customer, created_by) VALUES (?, ?, ?)")) {
             $insert_stmt->bind_param('sss', $shipmentType, $company, $user);
             
             // Execute the prepared query.

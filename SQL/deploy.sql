@@ -1004,3 +1004,38 @@ CREATE TABLE `grading_items` (
 ALTER TABLE `grading_items` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `grading_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- 06/06/2026 (part02) --
+ALTER TABLE `shipment_types` CHANGE `customers` `customer` INT(11) NOT NULL;
+
+ALTER TABLE `shipment_types_log` CHANGE `customers` `customer` INT(11) NOT NULL;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_SHIPMENT_TYPES` AFTER INSERT ON `shipment_types` FOR EACH ROW INSERT INTO shipment_types_log (
+  shipment_type_id, shipment_type, customer, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.shipment_type, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_SHIPMENT_TYPES` BEFORE UPDATE ON `shipment_types` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO shipment_types_log (
+      shipment_type_id, shipment_type, customer, action_id, action_by, event_date
+  ) 
+  VALUES (
+      NEW.id, NEW.shipment_type, NEW.customer, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
