@@ -241,7 +241,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
 		$serialNo = $prefix.$startDateTime2;
 
 		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE created_datetime >= ? AND status = ? AND deleted='0' AND company = ? AND records_type = ?")) {
-            $select_stmt->bind_param('ss', $startDateTime, $status);
+            $select_stmt->bind_param('ssss', $startDateTime, $status, $company, $record_type);
             
             // Execute the prepared query.
             if (! $select_stmt->execute()) {
