@@ -460,14 +460,14 @@ function displayPreview(data) {
     // Get the headers from first row
     var headers = jsonData[0] || [];
 
-    // Ensure we handle cases where there may be less than 3 columns
-    while (headers.length < 3) {
-        headers.push(''); // Adding empty headers to reach 3 columns
+    // Ensure we handle cases where there may be less than 4 columns
+    while (headers.length < 4) {
+        headers.push(''); // Adding empty headers to reach 4 columns
     }
 
     // Create HTML table headers
     var htmlTable = '<table style="width:50%;"><thead><tr>';
-    for (var h = 0; h < 3; h++) {
+    for (var h = 0; h < 4; h++) {
         htmlTable += '<th>' + (headers[h] || '') + '</th>';
     }
     htmlTable += '</tr></thead><tbody>';
@@ -477,7 +477,7 @@ function displayPreview(data) {
         htmlTable += '<tr>';
         var rowData = jsonData[i] || [];
 
-        for (var j = 0; j < 3; j++) {
+        for (var j = 0; j < 4; j++) {
             var cellData = rowData[j];
             var formattedData = cellData;
 
