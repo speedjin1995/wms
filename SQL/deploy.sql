@@ -1039,3 +1039,147 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_SHIPMENT_TYPES` BEFORE UPDATE ON `shipment_ty
 END
 $$
 DELIMITER ;
+
+-- 06/06/2026 (part03) --
+CREATE TABLE `raw_stock_balance` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(100) NOT NULL,
+  `balance` varchar(100) NOT NULL,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_date` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modifed_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `raw_stock_balance` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `raw_stock_balance` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `grading` ADD `delete_reason` TEXT NULL AFTER `deleted`;
+ALTER TABLE `grading_log` CHANGE `customers` `company` INT(11) NOT NULL;
+ALTER TABLE `grading_log` ADD `deleted` int(1) NOT NULL DEFAULT 0 AFTER `company`;
+ALTER TABLE `grading_log` ADD `delete_reason` TEXT NULL AFTER `deleted`;
+
+-- ALTER TABLE `grading` ADD `location` INT(11) NOT NULL AFTER `grading_no`, ADD `indicator` VARCHAR(50) NOT NULL DEFAULT "X722" AFTER `location`;
+ALTER TABLE `grading_log` ADD `location` INT(11) NOT NULL AFTER `grading_no`, ADD `indicator` VARCHAR(50) NOT NULL DEFAULT "X722" AFTER `location`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_GRADING` AFTER INSERT ON `grading` FOR EACH ROW INSERT INTO grading_log (
+  grading_id, grading_no, location, indicator, start_date, end_date, product_category, remark, company, deleted, delete_reason, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.grading_no, NEW.location, NEW.indicator, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.company, NEW.deleted, NEW.delete_reason, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_GRADING` BEFORE UPDATE ON `grading` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO grading_log (
+      grading_id, grading_no, location, indicator, start_date, end_date, product_category, remark, company, deleted, delete_reason, action_id, action_by, event_date
+  ) 
+  VALUES (
+      NEW.id, NEW.grading_no, NEW.location, NEW.indicator, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.company, NEW.deleted, NEW.delete_reason, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
+
+CREATE TABLE `packaging_batches` (
+  `id` int(11) NOT NULL,
+  `batch_no` varchar(50) NOT NULL,
+  `packaging_date` datetime NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `location` int(11) DEFAULT NULL,
+  `production_line` int(11) DEFAULT NULL,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` TEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `packaging_batches` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `packaging_batches` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `packaging_batch_items` (
+  `id` int(11) NOT NULL,
+  `packaging_batch_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(100) NOT NULL,
+  `packaging_size` varchar(100) NOT NULL,
+  `units_per_box` varchar(100) NOT NULL,
+  `weight` varchar(100) NOT NULL,
+  `packing_time` datetime NOT NULL,
+  `photo_path` text DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `packaging_batch_items` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `packaging_batch_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `packaging_batch_logs` (
+  `id` int(11) NOT NULL,
+  `packaging_batch_id` int(11) NOT NULL,
+  `batch_no` varchar(50) NOT NULL,
+  `packaging_date` datetime NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `location` int(11) DEFAULT NULL,
+  `production_line` int(11) DEFAULT NULL,
+  `company` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` TEXT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` int(11) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `packaging_batch_logs` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `packaging_batch_logs` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PACKAGING_BATCH` AFTER INSERT ON `packaging_batches` FOR EACH ROW INSERT INTO packaging_batch_logs (
+  packaging_batch_id, batch_no, packaging_date, remarks, location, production_line, company, deleted, delete_reason, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.location, NEW.production_line, NEW.company, NEW.deleted, NEW.delete_reason, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_batches` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO packaging_batch_logs (
+    packaging_batch_id, batch_no, packaging_date, remarks, location, production_line, company, deleted, delete_reason, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.location, NEW.production_line, NEW.company, NEW.deleted, NEW.delete_reason, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;

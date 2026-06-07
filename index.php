@@ -445,6 +445,12 @@ to get the desired effect
             </a>
             <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
+                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['wholesales_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="#grading" data-file="grading.php" class="nav-link link">
                   <i class="nav-icon fas fa-clipboard-check"></i>
                   <p><?=$languageArray['grading_code'][$language]?></p>
@@ -453,7 +459,7 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module != 'pricing' || $module != 'processing') { ?>
+          <?php if ($module != 'pricing' && $module != 'processing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>

@@ -19,7 +19,10 @@ $company = $_SESSION['customer'];
 $user = $_SESSION['userID'];
 $role = $_SESSION['role'];
 $module = $_SESSION['module'];
-$searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module = '".$module."'";
+
+if ($module == 'processing'){
+  $searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module IN ('".$module."', 'wholesale')";
+}
 
 if ($role != 'SADMIN'){
   $searchQuery .= " AND categories.customer = '".$company."'";
