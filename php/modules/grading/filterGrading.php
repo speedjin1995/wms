@@ -83,7 +83,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "start_date"=>$row['start_date'],
     "end_date"=>$row['end_date'],
     "created_by"=>$row['created_by'],
-    "customers"=>$row['customers'],
+    "company"=>$row['company'],
   );
 }
 
