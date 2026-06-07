@@ -62,17 +62,34 @@ if(isset($_POST['userID'])){
                 }
 
                 $weightDetails = array();
+                $totalItems = 0;
+                $totalReject = 0;
+                $totalWeight = 0; 
+                $totalPrice = 0;
                 if (isset($row['weight_details']) && !empty($row['weight_details'])){
                     $weightDetails = json_decode($row['weight_details'], true);
+                    $totalItems = count($weightDetails);
+                    foreach ($weightDetails as $weight){
+                        $totalWeight += floatval($weight['net']);
+                        $totalPrice += floatval($weight['price']);
+                    }
                 }
 
                 $message['weightDetails'] = $weightDetails;
+                $message['totalItems'] = $totalItems;
+                $message['totalWeight'] = $totalWeight;
+                $message['totalPrice'] = $totalPrice;
 
                 $rejectDetails = array();
                 if (isset($row['reject_details']) && !empty($row['reject_details'])){
                     $rejectDetails = json_decode($row['reject_details'], true);
+
+                    foreach ($weightDetails as $weight){
+                        $totalReject += floatval($weight['net']);
+                    }
                 }
 
+                $message['totalPrice'] = $totalReject;
                 $message['rejectDetails'] = $rejectDetails;
             }
             

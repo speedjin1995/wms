@@ -1726,10 +1726,10 @@ function format (row) {
     <div class="col-6">
       <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
       <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
-      <p><strong>Total Item:</strong> ${row.total_item}</p>
-      <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
-      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
+      <p><strong>Total Item:</strong> ${row.totalItems}</p>
+      <p><strong>Total Weight:</strong> ${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'}</p>
+      <p><strong>Total Reject:</strong> ${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'}</p>
+      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.totalPrice).toFixed(2) + '</p>' : ''}
     </div>
   </div>
   <div class="row">
