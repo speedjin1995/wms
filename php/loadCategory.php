@@ -22,6 +22,8 @@ $module = $_SESSION['module'];
 
 if ($module == 'processing'){
   $searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module IN ('".$module."', 'wholesale')";
+}else{
+  $searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module = '".$module."'";
 }
 
 if ($role != 'SADMIN'){
