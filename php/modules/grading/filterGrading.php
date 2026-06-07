@@ -46,7 +46,7 @@ $user = $_SESSION['userID'];
 $role = $_SESSION['role'];
 
 if ($role != 'SADMIN'){
-  $companyFilter = " AND grading.customers = '".$company."'";
+  $companyFilter = " AND grading.company = '".$company."'";
 }else{
   $companyFilter = '';
 }
@@ -57,12 +57,12 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from grading left join categories on grading.product_category = categories.id left join locations on grading.location_id = locations.id where grading.deleted=0".$companyFilter.$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from grading left join categories on grading.product_category = categories.id left join locations on grading.location = locations.id where grading.deleted=0".$companyFilter.$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select grading.*, categories.category_name as category, locations.locations as locations from grading left join categories on grading.product_category = categories.id left join locations on grading.location_id = locations.id where grading.deleted=0".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select grading.*, categories.category_name as category, locations.locations as locations from grading left join categories on grading.product_category = categories.id left join locations on grading.location = locations.id where grading.deleted=0".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 

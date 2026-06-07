@@ -213,7 +213,7 @@ else{
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
-                <label><?=$languageArray['grade_no_code'][$language]?> *</label>
+                <label><?=$languageArray['grading_no_code'][$language]?> *</label>
                 <input type="text" class="form-control" id="gradingNo" name="gradingNo" readonly>
               </div>
             </div>
@@ -913,30 +913,30 @@ function format (row) {
   </div>
   <div class="row">
     <div class="col-6">
-      <p><strong>Grading No:</strong> ${row.grading_no}</p>
-      <p><strong>Category:</strong> ${row.category}</p>
+      <p><strong><?=$languageArray['grading_no_code'][$language]?>:</strong> ${row.grading_no}</p>
+      <p><strong><?=$languageArray['category_code'][$language]?>:</strong> ${row.category}</p>
     </div>
     <div class="col-6">
-      <p><strong>Start Time:</strong> ${row.start_date}</p>
-      <p><strong>End Time:</strong> ${row.end_date || ''}</p>
+      <p><strong><?=$languageArray['start_time_code'][$language]?>:</strong> ${row.start_date}</p>
+      <p><strong><?=$languageArray['end_time_code'][$language]?>:</strong> ${row.end_date || ''}</p>
     </div>
   </div>
   <div class="row">
     <div class="col-12">
-      <p><strong>Remarks:</strong> ${row.remark || ''}</p>
+      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remark || ''}</p>
     </div>
   </div>
     <hr>
-  <h3>Weighing Details</h3>
+  <h3><?=$languageArray['weighing_details_code'][$language]?></h3>
   <div class="row mb-2">
     <div class="col-md-3">
       <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value="">All Products</option>
+        <option value=""><?=$languageArray['all_products_code'][$language]?></option>
       </select>
     </div>
     <div class="col-md-3">
       <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value="">All Grades</option>
+        <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
       </select>
     </div>
   </div>
@@ -944,12 +944,12 @@ function format (row) {
     <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
       <thead>
           <tr>
-            <th>Product</th>
-            <th>Grade</th>
-            <th>Gross</th>
-            <th>Tare</th>
-            <th>Net</th>
-            <th>Time</th>
+            <th><?=$languageArray['product_code'][$language]?></th>
+            <th><?=$languageArray['grade_code'][$language]?></th>
+            <th><?=$languageArray['gross_code'][$language]?></th>
+            <th><?=$languageArray['tare_code'][$language]?></th>
+            <th><?=$languageArray['net_code'][$language]?></th>
+            <th><?=$languageArray['time_code'][$language]?></th>
             ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
       </thead>
@@ -1001,12 +1001,12 @@ function format (row) {
     <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
       <thead>
           <tr>
-            <th>Product</th>
-            <th>Grade</th>
-            <th>Gross</th>
-            <th>Tare</th>
-            <th>Net</th>
-            <th>Time</th>
+            <th><?=$languageArray['product_code'][$language]?></th>
+            <th><?=$languageArray['grade_code'][$language]?></th>
+            <th><?=$languageArray['gross_code'][$language]?></th>
+            <th><?=$languageArray['tare_code'][$language]?></th>
+            <th><?=$languageArray['net_code'][$language]?></th>
+            <th><?=$languageArray['time_code'][$language]?></th>
             ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
       </thead>
@@ -1096,7 +1096,7 @@ function edit(id) {
       $('#extendModal').find('#gradingNo').val(obj.message.grading_no);
       $('#extendModal').find('#remarks').val(obj.message.remark);
       $('#extendModal').find('#category').val(obj.message.product_category).trigger('change');
-      $('#extendModal').find('#location').val(obj.message.location_id).trigger('change');
+      $('#extendModal').find('#location').val(obj.message.location).trigger('change');
       
       if (obj.message.start_date) {
         $('#startTimePicker').datetimepicker('date', moment(obj.message.start_date, 'YYYY-MM-DD HH:mm:ss'));

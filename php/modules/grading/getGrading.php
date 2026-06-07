@@ -26,8 +26,8 @@ if(isset($_POST['userID'])){
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
                 $message['grading_no'] = $row['grading_no'];
-                $message['location_id'] = $row['location_id'];
-                $message['location'] = searchLocationById($row['location_id'], $db);
+                $message['location'] = $row['location'];
+                $message['locations'] = searchLocationById($row['location'], $db);
                 $message['indicator'] = $row['indicator'];
                 $message['start_date'] = $row['start_date'];
                 $message['end_date'] = $row['end_date'];

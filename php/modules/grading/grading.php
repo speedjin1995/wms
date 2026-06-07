@@ -63,7 +63,7 @@ if(isset($_POST['startTime'])){
     if(!isset($_POST['gradingNo']) || $_POST['gradingNo'] == null || $_POST['gradingNo'] == ''){
 		$gradingNo = 'G'.$startDateTime2;
 
-		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM grading WHERE created_date >= ? AND deleted='0' AND customers = ?")) {
+		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM grading WHERE created_date >= ? AND deleted='0' AND company = ?")) {
             $select_stmt->bind_param('ss', $startDateTime, $company);
             
             // Execute the prepared query.
@@ -93,7 +93,7 @@ if(isset($_POST['startTime'])){
                 // Check grading
                 do {
                     // Generate the grading number
-                    if ($select_stmt2 = $db->prepare("SELECT COUNT(*) FROM grading WHERE grading_no = ? AND customers =?")) {
+                    if ($select_stmt2 = $db->prepare("SELECT COUNT(*) FROM grading WHERE grading_no = ? AND company =?")) {
                         $select_stmt2->bind_param('ss', $gradingNo, $company);
                         
                         // Execute the prepared query to check if the grading number exists
@@ -149,7 +149,7 @@ if(isset($_POST['startTime'])){
         //     }
         // }
 
-        if ($update_stmt = $db->prepare("UPDATE grading SET grading_no=?, location_id=?, start_date=?, end_date=?, product_category=?, remark=?, modified_by=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE grading SET grading_no=?, location=?, start_date=?, end_date=?, product_category=?, remark=?, modified_by=? WHERE id=?")){
             $update_stmt->bind_param('ssssssss', $gradingNo, $location, $startDateTime3, $endDateTime, $category, $remarks, $userID, $_POST['id']);
             
             // Execute the prepared query.
@@ -256,7 +256,7 @@ if(isset($_POST['startTime'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO grading (grading_no, location_id, start_date, end_date, product_category, remark, customers, created_by) VALUES  (?, ?, ?, ?, ?, ?, ?, ?)")){
+        if ($insert_stmt = $db->prepare("INSERT INTO grading (grading_no, location, start_date, end_date, product_category, remark, company, created_by) VALUES  (?, ?, ?, ?, ?, ?, ?, ?)")){
             $insert_stmt->bind_param('ssssssss', $gradingNo, $location, $startDateTime3, $endDateTime, $category, $remarks, $company, $userID);
                         
             // Execute the prepared query.

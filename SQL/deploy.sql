@@ -1059,18 +1059,19 @@ ALTER TABLE `raw_stock_balance` ADD PRIMARY KEY (`id`);
 ALTER TABLE `raw_stock_balance` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `grading` ADD `delete_reason` TEXT NULL AFTER `deleted`;
-ALTER TABLE `grading_log` ADD `deleted` int(1) NOT NULL DEFAULT 0 AFTER `customers`;
+ALTER TABLE `grading_log` CHANGE `customers` `company` INT(11) NOT NULL;
+ALTER TABLE `grading_log` ADD `deleted` int(1) NOT NULL DEFAULT 0 AFTER `company`;
 ALTER TABLE `grading_log` ADD `delete_reason` TEXT NULL AFTER `deleted`;
 
-ALTER TABLE `grading` ADD `location_id` INT(11) NOT NULL AFTER `grading_no`, ADD `indicator` VARCHAR(50) NOT NULL DEFAULT "X722" AFTER `location_id`;
-ALTER TABLE `grading_log` ADD `location_id` INT(11) NOT NULL AFTER `grading_no`, ADD `indicator` VARCHAR(50) NOT NULL DEFAULT "X722" AFTER `location_id`;
+-- ALTER TABLE `grading` ADD `location` INT(11) NOT NULL AFTER `grading_no`, ADD `indicator` VARCHAR(50) NOT NULL DEFAULT "X722" AFTER `location`;
+ALTER TABLE `grading_log` ADD `location` INT(11) NOT NULL AFTER `grading_no`, ADD `indicator` VARCHAR(50) NOT NULL DEFAULT "X722" AFTER `location`;
 
 DELIMITER $$
 CREATE OR REPLACE TRIGGER `TRG_INS_GRADING` AFTER INSERT ON `grading` FOR EACH ROW INSERT INTO grading_log (
-  grading_id, grading_no, location_id, indicator, start_date, end_date, product_category, remark, customers, deleted, delete_reason, action_id, action_by, event_date
+  grading_id, grading_no, location, indicator, start_date, end_date, product_category, remark, company, deleted, delete_reason, action_id, action_by, event_date
 ) 
 VALUES (
-  NEW.id, NEW.grading_no, NEW.location_id, NEW.indicator, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.customers, NEW.deleted, NEW.delete_reason, 1, NEW.created_by, NEW.created_date
+  NEW.id, NEW.grading_no, NEW.location, NEW.indicator, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.company, NEW.deleted, NEW.delete_reason, 1, NEW.created_by, NEW.created_date
 )
 $$
 DELIMITER ;
@@ -1086,10 +1087,10 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_GRADING` BEFORE UPDATE ON `grading` FOR EACH 
   END IF;
 
   INSERT INTO grading_log (
-      grading_id, grading_no, location_id, indicator, start_date, end_date, product_category, remark, customers, deleted, delete_reason, action_id, action_by, event_date
+      grading_id, grading_no, location, indicator, start_date, end_date, product_category, remark, company, deleted, delete_reason, action_id, action_by, event_date
   ) 
   VALUES (
-      NEW.id, NEW.grading_no, NEW.location_id, NEW.indicator, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.customers, NEW.deleted, NEW.delete_reason, action_value, NEW.modified_by, NOW()
+      NEW.id, NEW.grading_no, NEW.location, NEW.indicator, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.company, NEW.deleted, NEW.delete_reason, action_value, NEW.modified_by, NOW()
   );
 END
 $$
