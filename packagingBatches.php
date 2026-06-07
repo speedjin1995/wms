@@ -372,7 +372,7 @@ else{
           <select class="form-control select2" id="bulkPackagingSize" required>
             <option value="" selected disabled>Select Packaging</option>
             <?php while($rowPkg=mysqli_fetch_assoc($packagings)){ ?>
-              <option value="<?=$rowPkg['id'] ?>"><?=$rowPkg['packaging_name'] ?></option>
+              <option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option>
             <?php } ?>
           </select>
           <div class="invalid-feedback">Please select a packaging size.</div>
@@ -435,7 +435,7 @@ var weightCount = 0;
 var allowPhoto = '<?=$allowPhoto?>';
 var categoryOptions = `<?php while($rowCat=mysqli_fetch_assoc($categories)){ ?><option value="<?=$rowCat['id'] ?>"><?=$rowCat['category_name'] ?></option><?php } ?>`;
 var productOptions = `<?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?><option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option><?php } ?>`;
-var packagingOptions = `<?php while($rowPkg=mysqli_fetch_assoc($packagings2)){ ?><option value="<?=$rowPkg['id'] ?>"><?=$rowPkg['packaging_name'] ?></option><?php } ?>`;
+var packagingOptions = `<?php while($rowPkg=mysqli_fetch_assoc($packagings2)){ ?><option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option><?php } ?>`;
 var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
 
 $(function () {
@@ -703,7 +703,7 @@ $(function () {
           <select class="form-control select2" id="packagingSize${idx}" name="weightDetails[${idx}][packaging_size]" required>
             <option value="" selected disabled>Select Packaging</option>
             <?php while($rowPkg=mysqli_fetch_assoc($packagings3)){ ?>
-              <option value="<?=$rowPkg['id'] ?>"><?=$rowPkg['packaging_name'] ?></option>
+              <option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option>
             <?php } ?>
           </select>
         </td>
@@ -802,6 +802,19 @@ $(function () {
     });
     
     gradeSelect.val(currentGrade).trigger('change');
+  });
+
+  // Auto-fill weight from selected packaging size
+  $('#weightDetailsTable').on('change', 'select[name*="[packaging_size]"]', function() {
+    var weight = $(this).find('option:selected').data('weight');
+    if (weight) {
+      $(this).closest('tr').find('input[name*="[weight]"]').val(parseFloat(weight).toFixed(2));
+    }
+  });
+
+  $('#bulkPackagingSize').on('change', function() {
+    var weight = $(this).find('option:selected').data('weight');
+    if (weight) $('#bulkWeight').val(parseFloat(weight).toFixed(2));
   });
 
   // Fix scroll when nested modal opens
