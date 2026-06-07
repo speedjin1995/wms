@@ -180,7 +180,7 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
-                  <th><?=$languageArray['grade_no_code'][$language]?></th>
+                  <th><?=$languageArray['grading_no_code'][$language]?></th>
                   <th><?=$languageArray['category_code'][$language]?></th>
                   <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['start_time_code'][$language]?></th>

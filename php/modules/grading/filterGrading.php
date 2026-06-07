@@ -33,7 +33,7 @@ if($_POST['category'] != null && $_POST['category'] != '' && $_POST['category'] 
 }
 
 if($_POST['location'] != null && $_POST['location'] != '' && $_POST['location'] != 'all'){
-  $searchQuery .= " and grading.location_id = '".$_POST['location']."'";
+  $searchQuery .= " and grading.location = '".$_POST['location']."'";
 }
 
 ## Search 
