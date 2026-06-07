@@ -1125,6 +1125,8 @@ CREATE TABLE `packaging_batch_items` (
   `packaging_size` varchar(100) NOT NULL,
   `units_per_box` varchar(100) NOT NULL,
   `weight` varchar(100) NOT NULL,
+  `packing_time` datetime NOT NULL,
+  `photo_path` text DEFAULT NULL,
   `deleted` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
