@@ -1185,6 +1185,8 @@ $$
 DELIMITER ;
 
 -- 07/06/2026 --
+ALTER TABLE `packaging` ADD `weight` VARCHAR(100) NULL AFTER `packaging_type`;
+
 CREATE TABLE `stock_movements` (
   `id` int(11) NOT NULL,
   `movement_no` varchar(20) NOT NULL,

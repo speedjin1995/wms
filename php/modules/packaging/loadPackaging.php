@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 session_start();
 ## Database configuration
-require_once 'db_connect.php';
+require_once '../../db_connect.php';
 
 ## Read value
 $draw = $_POST['draw'];
@@ -48,6 +48,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "id"=>$row['id'],
       "packaging_name"=>$row['packaging_name'],
       "packaging_type"=>$row['packaging_type'],
+      "weight"=>$row['weight'],
       "is_by_weight"=>$row['is_by_weight'],
       "deleted"=>$row['deleted']
     );
