@@ -331,7 +331,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
         // If Stock Management is enabled, process the stock changes based on the weight details
-        if (in_array('processing', $_SESSION['products'])) {
+        if (in_array('stocks', $_SESSION['products'])) {
             // Query current record to get existing data
             if ($currentRecordStmt = $db->prepare("SELECT * FROM wholesales WHERE id = ?")){
                 $currentRecordStmt->bind_param('s', $_POST['id']);
@@ -366,7 +366,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 $update_stmt->close();
 
                 // If Stock Management is enabled, process the stock changes based on the weight details
-                if (in_array('processing', $_SESSION['products'])) {
+                if (in_array('stocks', $_SESSION['products'])) {
                     $productWeights = groupWeightDetails($weightDetails);
                     
                     foreach ($productWeights as $key => $productWeight){
@@ -417,7 +417,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 $insert_stmt->close();
 
                 // If Stock Management is enabled, process the stock changes based on the weight details
-                if (in_array('processing', $_SESSION['products'])) {
+                if (in_array('stocks', $_SESSION['products'])) {
                     $productWeights = groupWeightDetails($weightDetails);
                     foreach ($productWeights as $weight) {
                         $productId = $weight['product'];

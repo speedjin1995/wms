@@ -34,7 +34,7 @@ if(isset($_POST['userID'])){
                 $message['product_category'] = $row['product_category'];
                 $message['category'] = searchCategoryById($row['product_category'], $db);
                 $message['remark'] = $row['remark'];
-                $message['customers'] = $row['customers'];
+                $message['company'] = $row['company'];
 
                 // Query grading_items table
                 $weightDetails = array();

@@ -173,8 +173,8 @@ else{
                   </select>
                 </div>
                 <div class="form-group">
-                  <label for="packagingByWeight"><?=$languageArray['by_weight_code'][$language]?> *</label>
-                  <select class="form-control" name="packagingByWeight" id="packagingByWeight" required>
+                  <label for="packagingByWeight"><?=$languageArray['by_weight_code'][$language]?></label>
+                  <select class="form-control" name="packagingByWeight" id="packagingByWeight">
                     <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
                     <option value="N"><?=$languageArray['no_code'][$language]?></option>
                   </select>
