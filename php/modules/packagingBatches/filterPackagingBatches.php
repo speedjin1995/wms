@@ -79,6 +79,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "remarks"=>$row['remarks'] ?? '',
     "packaging_date"=>$row['packaging_date'],
     "company"=>$row['company'],
+    "status"=>$row['status']
   );
 }
 

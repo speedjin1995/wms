@@ -462,6 +462,12 @@ to get the desired effect
                   <p><?=$languageArray['batch_packaging_code'][$language]?></p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="#loadingOrders" data-file="loadingOrders.php" class="nav-link link">
+                  <i class="nav-icon fas fa-truck-loading"></i>
+                  <p><?=$languageArray['loading_orders_code'][$language]?></p>
+                </a>
+              </li>
             </ul>
           </li>
           <?php } ?>

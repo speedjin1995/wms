@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-
 require_once 'php/db_connect.php';
 require_once 'php/lookup.php';
 
@@ -201,6 +197,7 @@ else{
                   <th><?=$languageArray['packaging_date_code'][$language]?></th>
                   <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['production_lines_code'][$language]?></th>
+                  <th><?=$languageArray['status_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -489,6 +486,7 @@ $(function () {
       { data: 'packaging_date' },
       { data: 'locations' },
       { data: 'production_line' },
+      { data: 'status', render: function(d) { var cls = { pending: 'warning', partial: 'info', completed: 'success' }; return '<span class="badge badge-' + (cls[d] || 'secondary') + '">' + d + '</span>'; } },
       { 
         data: 'id',
         class: 'action-button',
@@ -574,6 +572,7 @@ $(function () {
         { data: 'packaging_date' },
         { data: 'locations' },
         { data: 'production_line' },
+        { data: 'status', render: function(d) { var cls = { pending: 'warning', partial: 'info', completed: 'success' }; return '<span class="badge badge-' + (cls[d] || 'secondary') + '">' + d + '</span>'; } },
         { 
           data: 'id',
           class: 'action-button',
@@ -1005,28 +1004,21 @@ $(function () {
 });
 
 function format (row) {
+  var statusCls = { pending: 'warning', partial: 'info', completed: 'success' };
   var returnString = `
-  <!-- Wholesale Information -->
-  <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;">Grading Information</strong></span>
-  </div>
   <div class="row">
     <div class="col-6">
-      <p><strong><?=$languageArray['grading_no_code'][$language]?>:</strong> ${row.grading_no}</p>
-      <p><strong><?=$languageArray['category_code'][$language]?>:</strong> ${row.category}</p>
+      <p><strong><?=$languageArray['batch_no_code'][$language]?>:</strong> ${row.batch_no}</p>
+      <p><strong><?=$languageArray['locations_code'][$language]?>:</strong> ${row.locations || ''}</p>
+      <p><strong><?=$languageArray['production_lines_code'][$language]?>:</strong> ${row.production_lines || ''}</p>
     </div>
     <div class="col-6">
-      <p><strong><?=$languageArray['start_time_code'][$language]?>:</strong> ${row.start_date}</p>
-      <p><strong><?=$languageArray['end_time_code'][$language]?>:</strong> ${row.end_date || ''}</p>
+      <p><strong><?=$languageArray['packaging_date_code'][$language]?>:</strong> ${row.packaging_date || ''}</p>
+      <p><strong><?=$languageArray['status_code'][$language]?>:</strong> <span class="badge badge-${statusCls[row.status] || 'secondary'}">${row.status}</span></p>
+      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remarks || ''}</p>
     </div>
   </div>
-  <div class="row">
-    <div class="col-12">
-      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remark || ''}</p>
-    </div>
-  </div>
-    <hr>
-  <h3><?=$languageArray['weighing_details_code'][$language]?></h3>
+  <hr>
   <div class="row mb-2">
     <div class="col-md-3">
       <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
@@ -1040,49 +1032,41 @@ function format (row) {
     </div>
   </div>
   <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
+    <table class="table table-bordered table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
       <thead>
-          <tr>
-            <th><?=$languageArray['product_code'][$language]?></th>
-            <th><?=$languageArray['grade_code'][$language]?></th>
-            <th><?=$languageArray['gross_code'][$language]?></th>
-            <th><?=$languageArray['tare_code'][$language]?></th>
-            <th><?=$languageArray['net_code'][$language]?></th>
-            <th><?=$languageArray['time_code'][$language]?></th>
-            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
-          </tr>
+        <tr>
+          <th><?=$languageArray['product_code'][$language]?></th>
+          <th><?=$languageArray['grade_code'][$language]?></th>
+          <th><?=$languageArray['packaging_size_code'][$language]?></th>
+          <th><?=$languageArray['unit_per_box_code'][$language]?></th>
+          <th><?=$languageArray['weight_code'][$language]?></th>
+          <th><?=$languageArray['time_code'][$language]?></th>
+          <th><?=$languageArray['status_code'][$language]?></th>
+          ${allowPhoto == 'Y' ? '<th><?=$languageArray['photo_code'][$language]?></th>' : ''}
+        </tr>
       </thead>
       <tbody>`;
 
-      var totalWeightGross = 0;
-      var totalWeightTare = 0;
-      var totalWeightNet = 0;
-      for (var i = 0; i < row.weightDetails.length; i++) {
-        var detail = row.weightDetails[i]; 
-        
-        returnString += `
-            <tr>
-              <td>${detail.product_name}</td>
-              <td>${detail.to_grade}</td>
-              <td>${parseFloat(detail.gross_weight).toFixed(2)}</td>
-              <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
-              <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
-              <td>${detail.weighing_time}</td>
-              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
-            returnString += `
-            </tr>`;
+  for (var i = 0; i < row.weightDetails.length; i++) {
+    var d = row.weightDetails[i];
+    var itemCls = { pending: 'warning', completed: 'success' };
+    returnString += `
+      <tr>
+        <td>${d.product_name}</td>
+        <td>${d.grade}</td>
+        <td>${d.packaging_size_name}</td>
+        <td>${d.units_per_box}</td>
+        <td>${parseFloat(d.weight).toFixed(2)}</td>
+        <td>${d.packing_time}</td>
+        <td><span class="badge badge-${itemCls[d.status] || 'secondary'}">${d.status}</span></td>
+        ${allowPhoto == 'Y' ? '<td>' + (d.photo_path ? '<a href="php/viewPhoto.php?file=' + d.photo_path + '" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}
+      </tr>`;
+  }
 
-        totalWeightGross += parseFloat(detail.gross_weight);
-        totalWeightTare += parseFloat(detail.tare_weight);
-        totalWeightNet += parseFloat(detail.nett_weight);
-      }
-
-      returnString += `
+  returnString += `
       </tbody>
     </table>
-  </div>
-
-  `;
+  </div>`;
 
   return returnString;
 }
@@ -1093,7 +1077,8 @@ function newEntry(){
   $('#extendModal').find('#packagingDate').val("");
   $('#packagingDatePicker').datetimepicker('date', moment());
   $('#extendModal').find('#remarks').val("");
-  $('#extendModal').find('#category').val("").trigger('change');
+  $('#extendModal').find('#location').val("").trigger('change');
+  $('#extendModal').find('#productionLines').val("").trigger('change');
   $('#weightDetailsTable').empty();
   $('#extendModal').modal('show');
   

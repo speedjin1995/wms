@@ -1315,6 +1315,7 @@ $$
 DELIMITER ;
 
 ALTER TABLE `packaging_batches` ADD `status` VARCHAR(10) NOT NULL DEFAULT 'pending' AFTER `delete_reason`;
+ALTER TABLE `packaging_batch_logs` ADD `status` VARCHAR(10) NOT NULL DEFAULT 'pending' AFTER `delete_reason`;
 ALTER TABLE `packaging_batch_items` ADD `status` VARCHAR(10) NOT NULL DEFAULT 'pending' AFTER `deleted`;
 
 DELIMITER $$
