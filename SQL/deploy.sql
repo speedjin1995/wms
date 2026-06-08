@@ -1210,3 +1210,22 @@ CREATE TABLE `stock_movements` (
 
 ALTER TABLE `stock_movements` ADD PRIMARY KEY (`id`);
 ALTER TABLE `stock_movements` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- Loading Module --
+CREATE TABLE `stock_balances` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(100) NOT NULL,
+  `packaging_size` int(11) NOT NULL COMMENT 'FK to packaging.id',
+  `box_quantity` int(11) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `stock_balances` ADD PRIMARY KEY (`id`);
+ALTER TABLE `stock_balances` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+

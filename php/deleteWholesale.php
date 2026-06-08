@@ -19,7 +19,7 @@ if(isset($_POST['id'], $_POST['cancelReason'])){
 			$stmt2->close();
 
 			if (in_array('stocks', $_SESSION['products'])) {
-				processDeleteStock($db, $id, 'wholesales', $_SESSION['customer'], $_SESSION['userID']);
+				processDeleteRawStock($db, $id, 'wholesales', $_SESSION['customer'], $_SESSION['userID']);
 			}
 
 			$db->close();
