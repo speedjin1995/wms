@@ -1229,3 +1229,121 @@ CREATE TABLE `stock_balances` (
 ALTER TABLE `stock_balances` ADD PRIMARY KEY (`id`);
 ALTER TABLE `stock_balances` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+CREATE TABLE `loading_orders` (
+  `id` int(11) NOT NULL,
+  `loading_no` varchar(50) NOT NULL,
+  `loading_date` datetime NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `shipment_type` int(11) NOT NULL,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL,
+  `status` VARCHAR(10) NOT NULL DEFAULT 'pending' 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `loading_orders` ADD PRIMARY KEY (`id`);
+ALTER TABLE `loading_orders` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `loading_order_items` (
+  `id` int(11) NOT NULL,
+  `loading_order_id` int(11) NOT NULL,
+  `packaging_batch_item_id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(100) NOT NULL,
+  `packaging_size` varchar(100) NOT NULL,
+  `units_per_box` varchar(100) NOT NULL,
+  `weight` varchar(100) NOT NULL,
+  `loading_time` datetime NOT NULL,
+  `photo_path` text DEFAULT NULL,
+  `remarks` text DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `loading_order_items` ADD PRIMARY KEY (`id`);
+ALTER TABLE `loading_order_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `loading_order_logs` (
+  `id` int(11) NOT NULL,
+  `loading_order_id` int(11) NOT NULL,
+  `loading_no` varchar(50) NOT NULL,
+  `loading_date` datetime NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `shipment_type` int(11) NOT NULL,
+  `company` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL,
+  `status` VARCHAR(10) NOT NULL DEFAULT 'pending',
+  `action_id` int(1) NOT NULL COMMENT '1=INSERT, 2=UPDATE, 3=DELETE',
+  `action_by` int(11) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `loading_order_logs` ADD PRIMARY KEY (`id`);
+ALTER TABLE `loading_order_logs` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_LOADING_ORDER` AFTER INSERT ON `loading_orders` FOR EACH ROW INSERT INTO loading_order_logs (
+  loading_order_id, loading_no, loading_date, remarks, shipment_type, company, deleted, delete_reason, status, action_id, action_by, event_date
+)
+VALUES (
+  NEW.id, NEW.loading_no, NEW.loading_date, NEW.remarks, NEW.shipment_type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_LOADING_ORDER` BEFORE UPDATE ON `loading_orders` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+  IF NEW.deleted = 1 THEN
+    SET action_value = 3;
+  ELSE
+    SET action_value = 2;
+  END IF;
+  INSERT INTO loading_order_logs (
+    loading_order_id, loading_no, loading_date, remarks, shipment_type, company, deleted, delete_reason, status, action_id, action_by, event_date
+  )
+  VALUES (
+    NEW.id, NEW.loading_no, NEW.loading_date, NEW.remarks, NEW.shipment_type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `packaging_batches` ADD `status` VARCHAR(10) NOT NULL DEFAULT 'pending' AFTER `delete_reason`;
+ALTER TABLE `packaging_batch_items` ADD `status` VARCHAR(10) NOT NULL DEFAULT 'pending' AFTER `deleted`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PACKAGING_BATCH` AFTER INSERT ON `packaging_batches` FOR EACH ROW INSERT INTO packaging_batch_logs (
+  packaging_batch_id, batch_no, packaging_date, remarks, location, production_line, company, deleted, delete_reason, status, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.location, NEW.production_line, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_batches` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO packaging_batch_logs (
+    packaging_batch_id, batch_no, packaging_date, remarks, location, production_line, company, deleted, delete_reason, status, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.location, NEW.production_line, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
+
