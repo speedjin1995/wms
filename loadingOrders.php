@@ -440,14 +440,11 @@ $(function () {
           row.child.hide();
           tr.removeClass('shown');
       } else {
-          $.post('php/modules/packagingBatches/getpackagingBatch.php', { userID: row.data().id}, function (data) {
+          $.post('php/modules/loading/getLoadingOrder.php', { userID: row.data().id}, function (data) {
             var obj = JSON.parse(data);
             if (obj.status === 'success') {
               row.child(format(obj.message)).show();
               tr.addClass("shown");
-              if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
-                populateFilters(obj.message.id, obj.message.weightDetails);
-              }
             }
           });
       }
@@ -629,84 +626,59 @@ $(function () {
 });
 
 function format (row) {
+  var statusCls = { pending: 'warning', partial: 'info', completed: 'success' };
   var returnString = `
-  <!-- Wholesale Information -->
-  <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;">Grading Information</strong></span>
-  </div>
   <div class="row">
     <div class="col-6">
-      <p><strong><?=$languageArray['grading_no_code'][$language]?>:</strong> ${row.grading_no}</p>
-      <p><strong><?=$languageArray['category_code'][$language]?>:</strong> ${row.category}</p>
+      <p><strong><?=$languageArray['loading_no_code'][$language]?>:</strong> ${row.loading_no}</p>
+      <p><strong><?=$languageArray['loading_date_code'][$language]?>:</strong> ${row.loading_date}</p>
+      <p><strong><?=$languageArray['status_code'][$language]?>:</strong> <span class="badge badge-${statusCls[row.status] || 'secondary'}">${row.status}</span></p>
     </div>
     <div class="col-6">
-      <p><strong><?=$languageArray['start_time_code'][$language]?>:</strong> ${row.start_date}</p>
-      <p><strong><?=$languageArray['end_time_code'][$language]?>:</strong> ${row.end_date || ''}</p>
+      <p><strong><?=$languageArray['shipment_types_code'][$language]?>:</strong> ${row.shipmentType || ''}</p>
+      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remarks || ''}</p>
     </div>
   </div>
+  <hr>
   <div class="row">
-    <div class="col-12">
-      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remark || ''}</p>
-    </div>
-  </div>
-    <hr>
-  <h3><?=$languageArray['weighing_details_code'][$language]?></h3>
-  <div class="row mb-2">
-    <div class="col-md-3">
-      <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value=""><?=$languageArray['all_products_code'][$language]?></option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
-      </select>
-    </div>
-  </div>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
+    <table class="table table-bordered table-striped align-middle" style="width:100%">
       <thead>
-          <tr>
-            <th><?=$languageArray['product_code'][$language]?></th>
-            <th><?=$languageArray['grade_code'][$language]?></th>
-            <th><?=$languageArray['gross_code'][$language]?></th>
-            <th><?=$languageArray['tare_code'][$language]?></th>
-            <th><?=$languageArray['net_code'][$language]?></th>
-            <th><?=$languageArray['time_code'][$language]?></th>
-            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
-          </tr>
+        <tr>
+          <th><?=$languageArray['batch_no_code'][$language]?></th>
+          <th><?=$languageArray['product_code'][$language]?></th>
+          <th><?=$languageArray['grade_code'][$language]?></th>
+          <th><?=$languageArray['packaging_size_code'][$language]?></th>
+          <th><?=$languageArray['unit_per_box_code'][$language]?></th>
+          <th><?=$languageArray['customer_code'][$language]?></th>
+          <th><?=$languageArray['time_code'][$language]?></th>
+          <th><?=$languageArray['remark_code'][$language]?></th>
+        </tr>
       </thead>
       <tbody>`;
 
-      var totalWeightGross = 0;
-      var totalWeightTare = 0;
-      var totalWeightNet = 0;
-      for (var i = 0; i < row.weightDetails.length; i++) {
-        var detail = row.weightDetails[i]; 
-        
-        returnString += `
-            <tr>
-              <td>${detail.product_name}</td>
-              <td>${detail.to_grade}</td>
-              <td>${parseFloat(detail.gross_weight).toFixed(2)}</td>
-              <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
-              <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
-              <td>${detail.weighing_time}</td>
-              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
-            returnString += `
-            </tr>`;
-
-        totalWeightGross += parseFloat(detail.gross_weight);
-        totalWeightTare += parseFloat(detail.tare_weight);
-        totalWeightNet += parseFloat(detail.nett_weight);
-      }
-
+  if (row.items && row.items.length > 0) {
+    for (var i = 0; i < row.items.length; i++) {
+      var d = row.items[i];
       returnString += `
+        <tr>
+          <td>${d.batch_no || ''}</td>
+          <td>${d.product_name}</td>
+          <td>${d.grade}</td>
+          <td>${d.packaging_size_name}</td>
+          <td>${d.units_per_box}</td>
+          <td>${d.customer_name || ''}</td>
+          <td>${d.loading_time ? d.loading_time.substring(11,16) : ''}</td>
+          <td>${d.remarks || ''}</td>
+        </tr>`;
+    }
+  } else {
+    returnString += '<tr><td colspan="8" class="text-center">No items</td></tr>';
+  }
+
+  returnString += `
       </tbody>
     </table>
-  </div>
-
-  `;
+  </div>`;
 
   return returnString;
 }

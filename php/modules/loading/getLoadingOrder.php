@@ -11,7 +11,7 @@ if (!isset($_POST['userID'])) {
 
 $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_NUMBER_INT);
 
-$stmt = $db->prepare("SELECT * FROM loading_orders WHERE id = ?");
+$stmt = $db->prepare("SELECT lo.*, st.shipment_type as shipmentType FROM loading_orders lo LEFT JOIN shipment_types st ON lo.shipment_type = st.id WHERE lo.id = ?");
 $stmt->bind_param('s', $id);
 $stmt->execute();
 $row = $stmt->get_result()->fetch_assoc();
@@ -27,6 +27,7 @@ $message = [
     'loading_no'    => $row['loading_no'],
     'loading_date'  => date('d/m/Y', strtotime($row['loading_date'])),
     'shipment_type' => $row['shipment_type'],
+    'shipmentType'  => $row['shipmentType'],
     'remarks'       => $row['remarks'],
     'status'        => $row['status'],
     'company'       => $row['company'],
