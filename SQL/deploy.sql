@@ -1348,3 +1348,38 @@ END
 $$
 DELIMITER ;
 
+
+-- ============================================================
+-- STOCK TRANSFER
+-- ============================================================
+
+CREATE TABLE `stock_transfers` (
+  `id` int(11) NOT NULL,
+  `transfer_no` varchar(50) NOT NULL,
+  `from_batch_id` int(11) NOT NULL,
+  `to_batch_id` int(11) NOT NULL,
+  `remarks` text DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'completed',
+  `company` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `stock_transfers` ADD PRIMARY KEY (`id`);
+ALTER TABLE `stock_transfers` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `stock_transfer_items` (
+  `id` int(11) NOT NULL,
+  `stock_transfer_id` int(11) NOT NULL,
+  `packaging_batch_item_id` int(11) NOT NULL,
+  `from_batch_id` int(11) NOT NULL,
+  `to_batch_id` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `stock_transfer_items` ADD PRIMARY KEY (`id`);
+ALTER TABLE `stock_transfer_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
