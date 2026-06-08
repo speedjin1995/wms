@@ -1089,7 +1089,8 @@ function newEntry(){
   $('#extendModal').find('#packagingDate').val("");
   $('#packagingDatePicker').datetimepicker('date', moment());
   $('#extendModal').find('#remarks').val("");
-  $('#extendModal').find('#category').val("").trigger('change');
+  $('#extendModal').find('#location').val("").trigger('change');
+  $('#extendModal').find('#productionLines').val("").trigger('change');
   $('#weightDetailsTable').empty();
   $('#extendModal').modal('show');
   
