@@ -375,7 +375,9 @@ if(isset($_POST['status'], $_POST['startTime'])){
                         $afterValue = $productWeight['net'];
                         $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
 
-                        processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue);
+                        if (floatval($afterValue) == floatval($beforeValue)) continue;
+
+                        processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue, $_POST['id'], 'wholesales', $customer, $supplier);
                     }
                 }
 
@@ -414,6 +416,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 );
             } 
             else{
+                $wholesaleId = $insert_stmt->insert_id;
                 $insert_stmt->close();
 
                 // If Stock Management is enabled, process the stock changes based on the weight details
@@ -423,7 +426,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                         $productId = $weight['product'];
                         $grade = $weight['grade'];
                         $nettWeight = $weight['net'];
-                        processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status);
+                        processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status, false, 0, $wholesaleId, 'wholesales', $customer, $supplier);
                     }
                 }
 

@@ -125,25 +125,10 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 	}
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        // If Stock Management is enabled, process the stock changes based on the weight details
-        // if (in_array('processing', $_SESSION['products'])) {
-        //     // Query current record to get existing data
-        //     if ($currentRecordStmt = $db->prepare("SELECT * FROM wholesales WHERE id = ?")){
-        //         $currentRecordStmt->bind_param('s', $_POST['id']);
-        //         $currentRecordStmt->execute();
-        //         $result = $currentRecordStmt->get_result();
-
-        //         if ($row = $result->fetch_assoc()) {
-        //             $existingWeights = json_decode($row['weight_details'], true);
-        //             $existingGroupedWeights = groupWeightDetails($existingWeights); 
-        //         }
-
-        //         $currentRecordStmt->close();
-        //     }
-        // }
+        $batchId = $_POST['id'];
 
         if ($update_stmt = $db->prepare("UPDATE packaging_batches SET batch_no=?, packaging_date=?, location=?, production_line=?, remarks=?, modified_by=? WHERE id=?")){
-            $update_stmt->bind_param('sssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $userID, $_POST['id']);
+            $update_stmt->bind_param('sssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $userID, $batchId);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -162,9 +147,18 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
                 if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
                     $data = $_POST['weightDetails'];
 
-                    // Update packaging_batch_items deleted to 0 first
+                    // Fetch existing items BEFORE soft-deleting, for stock reversal
+                    if (in_array('stocks', $_SESSION['products'])) {
+                        $prevStmt = $db->prepare("SELECT * FROM packaging_batch_items WHERE packaging_batch_id = ? AND deleted = 0");
+                        $prevStmt->bind_param('s', $batchId);
+                        $prevStmt->execute();
+                        $prevItems = $prevStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                        $prevStmt->close();
+                    }
+
+                    // Soft-delete old items
                     if ($delete_stmt = $db->prepare("UPDATE packaging_batch_items SET deleted='1' WHERE packaging_batch_id=?")){
-                        $delete_stmt->bind_param('s', $_POST['id']);
+                        $delete_stmt->bind_param('s', $batchId);
                         $delete_stmt->execute();
                         $delete_stmt->close();
 
@@ -178,31 +172,21 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
                                 }
                             }else{
                                 if ($insert_stmt2 = $db->prepare("INSERT INTO packaging_batch_items (packaging_batch_id, category_id, product_id, grade, packaging_size, units_per_box, weight, packing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
-                                    $insert_stmt2->bind_param('sssssssss', $_POST['id'], $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['unit_per_box'], $weightDetail['weight'], $time, $weightDetail['photoPath']);
+                                    $insert_stmt2->bind_param('sssssssss', $batchId, $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['unit_per_box'], $weightDetail['weight'], $time, $weightDetail['photoPath']);
                                     $insert_stmt2->execute();
                                     $insert_stmt2->close();
                                 }
                             }
                         }
+
+                        // Reverse previous + apply new stock in one call
+                        if (in_array('stocks', $_SESSION['products'])) {
+                            processPackagingBatch($db, $batchId, $company, $userID, 'EDIT', $data, $prevItems);
+                        }
                     }
                 }
 
-                // If Stock Management is enabled, process the stock changes based on the weight details
-                // if (in_array('processing', $_SESSION['products'])) {
-                //     $productWeights = groupWeightDetails($weightDetails);
-                    
-                //     foreach ($productWeights as $key => $productWeight){
-                //         $productId = $productWeight['product'];
-                //         $grade = $productWeight['grade'];
-                //         $afterValue = $productWeight['net'];
-                //         $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
-
-                //         processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue);
-                //     }
-                // }
-
                 $db->close();
-                
                 echo json_encode(
                     array(
                         "status"=> "success", 
@@ -223,7 +207,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
     else{
         if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, company, created_by) VALUES  (?, ?, ?, ?, ?, ?, ?)")){
             $insert_stmt->bind_param('sssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $company, $userID);
-                        
+            
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
                 echo json_encode(
@@ -237,18 +221,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
                 $packagingBatchId = $insert_stmt->insert_id;
                 $insert_stmt->close();
 
-                // If Stock Management is enabled, process the stock changes based on the weight details
-                // if (in_array('processing', $_SESSION['products'])) {
-                //     $productWeights = groupWeightDetails($weightDetails);
-                //     foreach ($productWeights as $weight) {
-                //         $productId = $weight['product'];
-                //         $grade = $weight['grade'];
-                //         $nettWeight = $weight['net'];
-                //         processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status);
-                //     }
-                // }
-
-                # Insert into grading_items table
+                # Insert into packaging_batch_items table
                 if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
                     $data = $_POST['weightDetails'];
                     foreach($data as $key => $weightDetail){
@@ -259,10 +232,14 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
                             $insert_stmt2->close();
                         }
                     }
+
+                    // If Stock Management is enabled, process the stock changes based on the weight details
+                    if (in_array('stocks', $_SESSION['products'])) {
+                        processPackagingBatch($db, $packagingBatchId, $company, $userID, 'CREATE', $data);
+                    }
                 }
 
                 $db->close();
-                
                 echo json_encode(
                     array(
                         "status"=> "success", 

@@ -74,6 +74,7 @@ else{
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['packaging_name_code'][$language]?></th>
                   <th><?=$languageArray['packaging_type_code'][$language]?></th>
+                  <th><?=$languageArray['packaging_weight_code'][$language]?></th>
                   <th><?=$languageArray['by_weight_code'][$language]?></th>
 									<th><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
@@ -173,6 +174,10 @@ else{
                   </select>
                 </div>
                 <div class="form-group">
+                  <label for="packagingWeight"><?=$languageArray['packaging_weight_code'][$language]?></label>
+                  <input type="number" class="form-control" name="packagingWeight" id="packagingWeight" placeholder="<?=$languageArray['enter_packaging_weight_code'][$language]?>">
+                </div>
+                <div class="form-group">
                   <label for="packagingByWeight"><?=$languageArray['by_weight_code'][$language]?></label>
                   <select class="form-control" name="packagingByWeight" id="packagingByWeight">
                     <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
@@ -238,7 +243,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-      'url':'php/loadPackaging.php',
+      'url':'php/modules/packaging/loadPackaging.php',
     },
     'columns': [
       {
@@ -252,6 +257,7 @@ $(function () {
       },
       { data: 'packaging_name' },
       { data: 'packaging_type', render: function(data){ return data ? data.charAt(0).toUpperCase() + data.slice(1) : ''; } },
+      { data: 'weight' },
       { data: 'is_by_weight' },
       { 
         data: 'deleted',
@@ -275,7 +281,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/packaging.php', $('#packagingForm').serialize(), function(data){
+          $.post('php/modules/packaging/packaging.php', $('#packagingForm').serialize(), function(data){
               var obj = JSON.parse(data); 
               
               if(obj.status === 'success'){
@@ -300,6 +306,7 @@ $(function () {
     $('#addModal').find('#id').val("");
     $('#addModal').find('#packagingName').val("");
     $('#addModal').find('#packagingType').val("Original");
+    $('#addModal').find('#packagingWeight').val(0);
     $('#addModal').find('#packagingByWeight').val("N");
     $('#addModal').modal('show');
     
@@ -370,7 +377,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/uploadPackaging.php',
+        url: 'php/modules/packaging/uploadPackaging.php',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -413,7 +420,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/deletePackaging.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+          $.post('php/modules/packaging/deletePackaging.php', {userID: selectedIds, type: 'MULTI'}, function(data){
               var obj = JSON.parse(data);
               
               if(obj.status === 'success'){
@@ -437,56 +444,6 @@ $(function () {
         $('#spinnerLoading').hide();
     }     
   });
-
-  // document.getElementById('fileInput').addEventListener('change', function (e) {
-  //   const file = e.target.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = function (e) {
-  //     const data = new Uint8Array(e.target.result);
-  //     const workbook = XLSX.read(data, { type: 'array' });
-
-  //     const sheetName = workbook.SheetNames[1];
-  //     const sheet = workbook.Sheets[sheetName];
-  //     jsonData = XLSX.utils.sheet_to_json(sheet);
-  //     console.log(jsonData);
-  //   };
-  //   reader.readAsArrayBuffer(file);
-  // });
-
-  // $('#importExcelbtn').on('click', function(){
-  //     jsonData.forEach(function(row) {
-  //         $.ajax({
-  //             url: 'php/importExcelCustomer.php',
-  //             type: 'POST',
-  //             contentType: 'application/json',
-  //             data: JSON.stringify(row),
-  //             success: function(response) {
-  //                 debugger;
-  //                 var obj = JSON.parse(response); 
-                  
-  //                 if(obj.status === 'success'){
-  //                     $('#addModal').modal('hide');
-  //                     toastr["success"](obj.message, "Success:");
-  //                     $('#customerTable').DataTable().ajax.reload();
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else if(obj.status === 'failed'){
-  //                     toastr["error"](obj.message, "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else{
-  //                     toastr["error"]("Something wrong when import", "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //             },
-  //             error: function(error) {
-  //                 toastr["error"](obj.message, "Failed:");
-  //                 $('#spinnerLoading').hide();
-  //             }
-  //         })
-  //     })
-  // });
 });
 
 function displayPreview(data) {
@@ -503,14 +460,14 @@ function displayPreview(data) {
     // Get the headers from first row
     var headers = jsonData[0] || [];
 
-    // Ensure we handle cases where there may be less than 3 columns
-    while (headers.length < 3) {
-        headers.push(''); // Adding empty headers to reach 3 columns
+    // Ensure we handle cases where there may be less than 4 columns
+    while (headers.length < 4) {
+        headers.push(''); // Adding empty headers to reach 4 columns
     }
 
     // Create HTML table headers
     var htmlTable = '<table style="width:50%;"><thead><tr>';
-    for (var h = 0; h < 3; h++) {
+    for (var h = 0; h < 4; h++) {
         htmlTable += '<th>' + (headers[h] || '') + '</th>';
     }
     htmlTable += '</tr></thead><tbody>';
@@ -520,7 +477,7 @@ function displayPreview(data) {
         htmlTable += '<tr>';
         var rowData = jsonData[i] || [];
 
-        for (var j = 0; j < 3; j++) {
+        for (var j = 0; j < 4; j++) {
             var cellData = rowData[j];
             var formattedData = cellData;
 
@@ -542,13 +499,14 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getPackaging.php', {userID: id}, function(data){
+  $.post('php/modules/packaging/getPackaging.php', {userID: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){
         $('#addModal').find('#id').val(obj.message.id);
         $('#addModal').find('#packagingName').val(obj.message.packaging_name);
         $('#addModal').find('#packagingType').val(obj.message.packaging_type);
+        $('#addModal').find('#packagingWeight').val(obj.message.weight);
         $('#addModal').find('#packagingByWeight').val(obj.message.is_by_weight);
         $('#addModal').find('#company').val(obj.message.customer).trigger('change');
         $('#addModal').modal('show');
@@ -580,7 +538,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/deletePackaging.php', {userID: id}, function(data){
+    $.post('php/modules/packaging/deletePackaging.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){

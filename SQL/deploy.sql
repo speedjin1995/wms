@@ -1183,3 +1183,49 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_
 END
 $$
 DELIMITER ;
+
+-- 07/06/2026 --
+ALTER TABLE `packaging` ADD `weight` VARCHAR(100) NULL AFTER `packaging_type`;
+
+CREATE TABLE `stock_movements` (
+  `id` int(11) NOT NULL,
+  `movement_no` varchar(20) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(100) NOT NULL,
+  `company` int(11) NOT NULL,
+  `module` varchar(50) NOT NULL,
+  `source_id` int(11) NOT NULL,
+  `movement_type` varchar(10) NOT NULL COMMENT 'ADD, MINUS, REVERSAL',
+  `status` varchar(20) NOT NULL COMMENT 'RECEIVING, DISPATCH, INCOMING, OUTGOING, etc.',
+  `quantity` varchar(100) NOT NULL,
+  `balance_before` varchar(100) NOT NULL,
+  `balance_after` varchar(100) NOT NULL,
+  `customer` int(11) DEFAULT NULL,
+  `supplier` int(11) DEFAULT NULL,
+  `original_movement_id` int(11) DEFAULT NULL COMMENT 'Points to the reversed movement row',
+  `edit_ref` varchar(20) DEFAULT NULL COMMENT 'Copied from movement_no of the original row on reversal+new entry pair',
+  `created_by` int(11) DEFAULT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `stock_movements` ADD PRIMARY KEY (`id`);
+ALTER TABLE `stock_movements` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- Loading Module --
+CREATE TABLE `stock_balances` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(100) NOT NULL,
+  `packaging_size` int(11) NOT NULL COMMENT 'FK to packaging.id',
+  `box_quantity` int(11) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `stock_balances` ADD PRIMARY KEY (`id`);
+ALTER TABLE `stock_balances` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+

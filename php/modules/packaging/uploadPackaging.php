@@ -1,7 +1,6 @@
 <?php
 session_start();
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $user = $_SESSION['userID'];
@@ -15,6 +14,7 @@ if (!empty($data)) {
     foreach ($data as $rows) {
         $PackagingName = !empty($rows['PackagingName']) ? trim($rows['PackagingName']) : '';
         $PackagingType = !empty($rows['PackagingType']) ? trim($rows['PackagingType']) : 'Original';
+        $PackagingWeight = !empty($rows['PackagingWeight']) ? trim($rows['PackagingWeight']) : 0;
         $ByWeight = !empty($rows['ByWeight']) ? trim($rows['ByWeight']) : 'N';
 
         # Check if unit exist in DB
@@ -24,8 +24,8 @@ if (!empty($data)) {
         $row = mysqli_fetch_assoc($categoryDetail);
 
         if(empty($row)){
-            if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, is_by_weight, customer) VALUES (?, ?, ?, ?)")) {
-                $insert_stmt->bind_param('ssss', $PackagingName, $PackagingType, $ByWeight, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, weight, is_by_weight, customer) VALUES (?, ?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('sssss', $PackagingName, $PackagingType, $PackagingWeight, $ByWeight, $company);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            

@@ -1,5 +1,5 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
@@ -25,6 +25,7 @@ if(isset($_POST['userID'])){
                 $message['id'] = $row['id'];
                 $message['packaging_name'] = $row['packaging_name'];
                 $message['packaging_type'] = $row['packaging_type'];
+                $message['weight'] = $row['weight'];
                 $message['is_by_weight'] = $row['is_by_weight'];
                 $message['customer'] = $row['customer'];
             }
