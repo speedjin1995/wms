@@ -342,9 +342,6 @@ else{
           <label><?=$languageArray['category_code'][$language]?> *</label>
           <select class="form-control select2" id="bulkCategory" required>
             <option value="" selected disabled>Select Category</option>
-            <?php while($rowCat=mysqli_fetch_assoc($categories3)){ ?>
-              <option value="<?=$rowCat['id'] ?>"><?=$rowCat['category_name'] ?></option>
-            <?php } ?>
           </select>
           <div class="invalid-feedback">Please select a category.</div>
         </div>
@@ -352,18 +349,12 @@ else{
           <label><?=$languageArray['product_code'][$language]?> *</label>
           <select class="form-control select2" id="bulkProduct" required>
             <option value="" selected disabled>Select Product</option>
-            <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
-              <option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option>
-            <?php } ?>
           </select>
           <div class="invalid-feedback">Please select a product.</div>
         </div>
         <div class="form-group">
           <label><?=$languageArray['grade_code'][$language]?> *</label>
           <select class="form-control select2" id="bulkGrade" required>
-            <?php while($rowGrade=mysqli_fetch_assoc($grades3)){ ?>
-              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_id'] ?>"><?=$rowGrade['units'] ?></option>
-            <?php } ?>
           </select>
           <div class="invalid-feedback">Please select a grade.</div>
         </div>
@@ -371,9 +362,6 @@ else{
           <label><?=$languageArray['packaging_size_code'][$language]?> *</label>
           <select class="form-control select2" id="bulkPackagingSize" required>
             <option value="" selected disabled>Select Packaging</option>
-            <?php while($rowPkg=mysqli_fetch_assoc($packagings)){ ?>
-              <option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option>
-            <?php } ?>
           </select>
           <div class="invalid-feedback">Please select a packaging size.</div>
         </div>
@@ -827,11 +815,16 @@ $(function () {
   // Bulk Add
   var now = new Date();
   $('#bulkAddBtn').on('click', function() {
+    $('#bulkCategory').html('<option value="" selected disabled>Select Category</option>' + categoryOptions);
+    $('#bulkProduct').html('<option value="" selected disabled>Select Product</option>' + productOptions);
+    $('#bulkGrade').html(gradeOptions);
+    $('#bulkPackagingSize').html('<option value="" selected disabled>Select Packaging</option>' + packagingOptions);
+
+    ['#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize'].forEach(function(id) {
+      $(id).val(null).select2({ allowClear: true, placeholder: 'Please Select', dropdownParent: $('#bulkAddModal .modal-body'), width: '100%' });
+    });
+
     $('#bulkAddModal').find('#bulkNo').val(1);
-    $('#bulkAddModal').find('#bulkCategory').val('').trigger('change');
-    $('#bulkAddModal').find('#bulkProduct').val('').trigger('change');
-    $('#bulkAddModal').find('#bulkGrade').val('').trigger('change');
-    $('#bulkAddModal').find('#bulkPackagingSize').val('').trigger('change');
     $('#bulkAddModal').find('#bulkUnitPerBox').val(0);
     $('#bulkAddModal').find('#bulkWeight').val(0);
     $('#bulkAddModal').find('#bulkTime').val(now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0'));
@@ -842,10 +835,7 @@ $(function () {
   $('#bulkCategory').on('change', function() {
     var selectedCategory = $(this).val();
     var productSelect = $('#bulkProduct');
-    if (!productSelect.data('original-options')) {
-      productSelect.data('original-options', productSelect.html());
-    }
-    productSelect.html(productSelect.data('original-options'));
+    productSelect.html('<option value="" selected disabled>Select Product</option>' + productOptions);
     productSelect.find('option').each(function() {
       if ($(this).val() && $(this).data('category') != selectedCategory) {
         $(this).remove();
@@ -858,10 +848,7 @@ $(function () {
   $('#bulkProduct').on('change', function() {
     var productId = $(this).val();
     var gradeSelect = $('#bulkGrade');
-    if (!gradeSelect.data('original-options')) {
-      gradeSelect.data('original-options', gradeSelect.html());
-    }
-    gradeSelect.html(gradeSelect.data('original-options'));
+    gradeSelect.html(gradeOptions);
     gradeSelect.find('option').each(function() {
       if ($(this).attr('data-product') && $(this).attr('data-product') != productId) {
         $(this).remove();
