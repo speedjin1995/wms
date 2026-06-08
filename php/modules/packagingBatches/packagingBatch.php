@@ -205,7 +205,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, company, created_by) VALUES  (?, ?, ?, ?, ?, ?, ?)")){
+        if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, company, created_by, status) VALUES  (?, ?, ?, ?, ?, ?, ?, 'pending')")){
             $insert_stmt->bind_param('sssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $company, $userID);
             
             // Execute the prepared query.
@@ -226,7 +226,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
                     $data = $_POST['weightDetails'];
                     foreach($data as $key => $weightDetail){
                         $time = date('Y-m-d') . ' ' . $weightDetail['time'];
-                        if ($insert_stmt2 = $db->prepare("INSERT INTO packaging_batch_items (packaging_batch_id, category_id, product_id, grade, packaging_size, units_per_box, weight, packing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                        if ($insert_stmt2 = $db->prepare("INSERT INTO packaging_batch_items (packaging_batch_id, category_id, product_id, grade, packaging_size, units_per_box, weight, packing_time, photo_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')")){
                             $insert_stmt2->bind_param('sssssssss', $packagingBatchId, $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['unit_per_box'], $weightDetail['weight'], $time, $weightDetail['photoPath']);
                             $insert_stmt2->execute();
                             $insert_stmt2->close();
