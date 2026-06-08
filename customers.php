@@ -297,7 +297,7 @@ else{
               <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
                 <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
                 <div class="row">
-                  <div class="col-md-6">
+                  <div class="col-md-12">
                     <div class="form-group">
                       <label><?=$languageArray['billing_name_code'][$language]?></label>
                       <input type="text" class="form-control" name="billingName" id="billingName" placeholder="<?=$languageArray['billing_name_code'][$language]?>">
@@ -446,7 +446,7 @@ $(function () {
         data: 'deleted',
         render: function (data, type, row) {
           if (data == 0) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+            return '<div class="row"><div class="col-4"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-4"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
           } 
           else{
             return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';

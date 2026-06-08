@@ -289,7 +289,7 @@ else{
               <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
                 <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
                 <div class="row">
-                  <div class="col-md-6">
+                  <div class="col-md-12">
                     <div class="form-group">
                       <label>Billing Name</label>
                       <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
@@ -435,7 +435,7 @@ $(function () {
       { 
           data: 'id',
           render: function ( data, type, row ) {
-              return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+              return '<div class="row"><div class="col-4"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-4"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
           }
       }
     ],
