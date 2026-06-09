@@ -50,9 +50,9 @@ function addStockMovement($db, $movementNo, $productId, $grade, $company, $modul
 
 
 // =============================================================================
-// RAW STOCK BALANCE
+// WHOLESALES
 // Manages raw_stock_balance — weight-based stock (kg) before packaging.
-// Used by: wholesales, grading, packaging batches.
+// Used by: wholesales, packaging batches.
 // =============================================================================
 
 /**
@@ -85,10 +85,10 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
                 $origRow = $origStmt->get_result()->fetch_assoc();
                 $origStmt->close();
 
-                $reversalQty        = floatval($beforeValue);
-                $balAfterReversal   = $isAdd ? $currentBalance - $reversalQty : $currentBalance + $reversalQty;
-                $newQty             = floatval($newValue);
-                $finalBalance       = $isAdd ? $balAfterReversal + $newQty    : $balAfterReversal - $newQty;
+                $reversalQty      = floatval($beforeValue);
+                $balAfterReversal = $isAdd ? $currentBalance - $reversalQty : $currentBalance + $reversalQty;
+                $newQty           = floatval($newValue);
+                $finalBalance     = $isAdd ? $balAfterReversal + $newQty    : $balAfterReversal - $newQty;
 
                 addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, 'REVERSAL', $status, $reversalQty, $currentBalance, $balAfterReversal, $customer, $supplier, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null);
                 addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $newQty, $balAfterReversal, $finalBalance, $customer, $supplier, $userId, null, $origRow['movement_no'] ?? null);
@@ -162,7 +162,111 @@ function processDeleteRawStock($db, $sourceId, $module, $company, $userId) {
 
 
 // =============================================================================
-// PACKAGING BATCH STOCK
+// GRADING
+// Manages grading_stock_balance — weight-based stock per product/grade after grading.
+// Used by: grading module.
+// =============================================================================
+
+/**
+ * CREATE / EDIT — writes ADD movement and updates grading_stock_balance.
+ * Grading always ADDs stock (output of grading process).
+ * On EDIT: REVERSAL of previous qty + new ADD. Both rows share edit_ref.
+ */
+function processGradingStock($db, $productId, $grade, $company, $newValue, $userId, $isEdit = false, $beforeValue = 0, $sourceId = null) {
+    try {
+        $stmt = $db->prepare("SELECT id, balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0'");
+        $stmt->bind_param('sss', $productId, $grade, $company);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        if ($row) {
+            $currentBalance = floatval($row['balance']);
+
+            if ($isEdit) {
+                $origStmt = $db->prepare("SELECT id, movement_no FROM stock_movements WHERE source_id = ? AND module = 'grading' AND product_id = ? AND grade = ? AND company = ? AND movement_type != 'REVERSAL' ORDER BY id DESC LIMIT 1");
+                $origStmt->bind_param('ssss', $sourceId, $productId, $grade, $company);
+                $origStmt->execute();
+                $origRow = $origStmt->get_result()->fetch_assoc();
+                $origStmt->close();
+
+                $reversalQty      = floatval($beforeValue);
+                $balAfterReversal = $currentBalance - $reversalQty;
+                $newQty           = floatval($newValue);
+                $finalBalance     = $balAfterReversal + $newQty;
+
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, 'grading', $sourceId, 'REVERSAL', 'GRADING', $reversalQty, $currentBalance, $balAfterReversal, null, null, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, 'grading', $sourceId, 'ADD', 'GRADING', $newQty, $balAfterReversal, $finalBalance, null, null, $userId, null, $origRow['movement_no'] ?? null);
+            } else {
+                $qty          = floatval($newValue);
+                $finalBalance = $currentBalance + $qty;
+
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, 'grading', $sourceId, 'ADD', 'GRADING', $qty, $currentBalance, $finalBalance, null, null, $userId);
+            }
+
+            $upd = $db->prepare("UPDATE grading_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
+            $upd->bind_param('sss', $finalBalance, $userId, $row['id']);
+            $upd->execute();
+            $upd->close();
+        } else {
+            $qty          = floatval($newValue);
+            $finalBalance = $qty;
+
+            addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, 'grading', $sourceId, 'ADD', 'GRADING', $qty, 0, $finalBalance, null, null, $userId);
+
+            $ins = $db->prepare("INSERT INTO grading_stock_balance (product_id, grade, company, balance, created_by) VALUES (?,?,?,?,?)");
+            $ins->bind_param('sssss', $productId, $grade, $company, $finalBalance, $userId);
+            $ins->execute();
+            $ins->close();
+        }
+
+        return ['status' => 'success'];
+    } catch (Exception $e) {
+        return ['status' => 'failed', 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * DELETE — reverses all grading stock movements for the given grading record.
+ */
+function processDeleteGradingStock($db, $sourceId, $company, $userId) {
+    try {
+        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.movement_type, s.quantity FROM stock_movements s INNER JOIN (SELECT product_id, grade, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = 'grading' AND company = ? AND movement_type != 'REVERSAL' GROUP BY product_id, grade) latest ON s.id = latest.max_id");
+        $stmt->bind_param('ss', $sourceId, $company);
+        $stmt->execute();
+        $movements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        foreach ($movements as $m) {
+            $balStmt = $db->prepare("SELECT id, balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0'");
+            $balStmt->bind_param('sss', $m['product_id'], $m['grade'], $company);
+            $balStmt->execute();
+            $balRow = $balStmt->get_result()->fetch_assoc();
+            $balStmt->close();
+
+            if (!$balRow) continue;
+
+            $currentBalance = floatval($balRow['balance']);
+            $qty            = floatval($m['quantity']);
+            $newBalance     = ($m['movement_type'] === 'ADD') ? $currentBalance - $qty : $currentBalance + $qty;
+
+            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, 'grading', $sourceId, 'REVERSAL', 'GRADING', $qty, $currentBalance, $newBalance, null, null, $userId, $m['id'], $m['movement_no']);
+
+            $upd = $db->prepare("UPDATE grading_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
+            $upd->bind_param('sss', $newBalance, $userId, $balRow['id']);
+            $upd->execute();
+            $upd->close();
+        }
+
+        return ['status' => 'success'];
+    } catch (Exception $e) {
+        return ['status' => 'failed', 'message' => $e->getMessage()];
+    }
+}
+
+
+// =============================================================================
+// PACKAGING BATCH
 // Manages stock_balances — box-count stock per product/grade/packaging_size.
 // Used by: packaging batches (produce boxes), loading orders (dispatch boxes).
 // =============================================================================
@@ -273,6 +377,17 @@ function _getStockBalanceRow($db, $productId, $grade, $packagingSize, $company) 
     $stmt->close();
     return $row;
 }
+
+
+// =============================================================================
+// STOCK TRANSFER
+// =============================================================================
+
+
+// =============================================================================
+// LOADING ORDER
+// Manages stock_balances — dispatches packaged boxes to customers.
+// =============================================================================
 
 /**
  * DISPATCH / REVERSAL for loading orders.

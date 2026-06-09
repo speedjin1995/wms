@@ -1181,7 +1181,7 @@ function edit(id) {
           });
           
           // Set the selected value for the grade dropdown
-          gradeSelect.val(detail.grade_id);
+          gradeSelect.val(detail.to_grade);
 
           totalGross += parseFloat(detail.gross_weight) || 0;
           totalTare += parseFloat(detail.tare_weight) || 0;
