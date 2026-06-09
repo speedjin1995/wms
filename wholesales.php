@@ -1011,6 +1011,21 @@ $(function () {
           alert('Please enter the vehicle number.');
           return false;
         }
+        // Validate weight detail rows
+        var weightRowError = false;
+        $('#weightDetailsTable tr').each(function() {
+          var product = $(this).find('select[name*="[product_name]"]').val();
+          var grade = $(this).find('select[name*="[grade]"]').val();
+          var gross = parseFloat($(this).find('input[name*="[gross]"]').val());
+          if (!product || !grade || isNaN(gross) || gross <= 0) {
+            weightRowError = true;
+            return false;
+          }
+        });
+        if (weightRowError) {
+          toastr["error"]("Please fill in Product, Grade and Gross for all weight detail rows.", "Validation Error:");
+          return false;
+        }
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
@@ -1346,7 +1361,7 @@ $(function () {
           <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="NO">
         </td>
         <td>
-          <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
+          <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]" required>
             <option value="" selected disabled>Select Product</option>
             <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
               <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
@@ -1354,13 +1369,14 @@ $(function () {
           </select>
         </td>
         <td>
-          <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
+          <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]" required>
+            <option value="" selected disabled>Select Grade</option>
             <?php while($rowGrade=mysqli_fetch_assoc($grades4)){ ?>
               <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
-        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
@@ -1960,15 +1976,24 @@ function newEntry(){
   
   $('#extendForm').validate({
     errorElement: 'span',
+    ignore: [],
     errorPlacement: function (error, element) {
-      error.addClass('invalid-feedback');
-      element.closest('.form-group').append(error);
+      error.addClass('invalid-feedback').css('display', 'block');
+      if (element.hasClass('select2') || element.next('.select2-container').length) {
+        error.insertAfter(element.next('.select2-container'));
+      } else {
+        element.closest('td').append(error);
+      }
     },
     highlight: function (element, errorClass, validClass) {
       $(element).addClass('is-invalid');
+      if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
+        $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
+      }
     },
     unhighlight: function (element, errorClass, validClass) {
       $(element).removeClass('is-invalid');
+      $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
     }
   });
 }
@@ -2212,15 +2237,24 @@ function edit(id) {
 
       $('#extendForm').validate({
         errorElement: 'span',
+        ignore: [],
         errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
+          error.addClass('invalid-feedback').css('display', 'block');
+          if (element.hasClass('select2') || element.next('.select2-container').length) {
+            error.insertAfter(element.next('.select2-container'));
+          } else {
+            element.closest('td').append(error);
+          }
         },
         highlight: function (element, errorClass, validClass) {
           $(element).addClass('is-invalid');
+          if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
+            $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
+          }
         },
         unhighlight: function (element, errorClass, validClass) {
           $(element).removeClass('is-invalid');
+          $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
         }
       });
     }
