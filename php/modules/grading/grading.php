@@ -1,6 +1,7 @@
 <?php
 require_once '../../db_connect.php';
 require_once '../../uploadFileHelper.php';
+require_once '../../lookup.php';
 require_once '../../services/stockManagementService.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
@@ -177,15 +178,16 @@ if(isset($_POST['startTime'])){
 
                         foreach($data as $key => $weightDetail){
                             $time = date('Y-m-d') . ' ' . $weightDetail['time'];
+                            $toGrade = $weightDetail['to_grade'] ?? '';
                             if (isset($weightDetail['gradingItemId']) && $weightDetail['gradingItemId'] != null && $weightDetail['gradingItemId'] != ''){
                                 if ($update_stmt2 = $db->prepare("UPDATE grading_items SET product_id=?, to_grade=?, gross_weight=?, tare_weight=?, nett_weight=?, weighing_time=?, photo_path=?, deleted='0' WHERE id=?")){
-                                    $update_stmt2->bind_param('ssssssss', $weightDetail['product'], $weightDetail['grade'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath'], $weightDetail['gradingItemId']);
+                                    $update_stmt2->bind_param('ssssssss', $weightDetail['product'], $toGrade, $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath'], $weightDetail['gradingItemId']);
                                     $update_stmt2->execute();
                                     $update_stmt2->close();
                                 }
                             }else{
                                 if ($insert_stmt2 = $db->prepare("INSERT INTO grading_items (grading_id, product_id, to_grade, gross_weight, tare_weight, nett_weight, weighing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")){
-                                    $insert_stmt2->bind_param('ssssssss', $_POST['id'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
+                                    $insert_stmt2->bind_param('ssssssss', $_POST['id'], $weightDetail['product'], $toGrade, $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
                                     $insert_stmt2->execute();
                                     $insert_stmt2->close();
                                 }
@@ -288,8 +290,9 @@ if(isset($_POST['startTime'])){
                     $data = $_POST['weightDetails'];
                     foreach($data as $key => $weightDetail){
                         $time = date('Y-m-d') . ' ' . $weightDetail['time'];
+                        $toGrade = $weightDetail['to_grade'] ?? '';
                         if ($insert_stmt2 = $db->prepare("INSERT INTO grading_items (grading_id, product_id, to_grade, gross_weight, tare_weight, nett_weight, weighing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")){
-                            $insert_stmt2->bind_param('ssssssss', $gradingId, $weightDetail['product'], $weightDetail['grade'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
+                            $insert_stmt2->bind_param('ssssssss', $gradingId, $weightDetail['product'], $toGrade, $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
                             $insert_stmt2->execute();
                             $insert_stmt2->close();
                         }
