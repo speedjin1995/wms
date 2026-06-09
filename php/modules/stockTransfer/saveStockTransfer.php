@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once '../../db_connect.php';
 require_once '../../services/batchStatusService.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -67,8 +71,8 @@ if ($insert_stmt = $db->prepare("INSERT INTO stock_transfers (transfer_no, from_
         }
 
         // Move the item to target batch
-        $updItem = $db->prepare("UPDATE packaging_batch_items SET packaging_batch_id = ?, modified_by = ? WHERE id = ?");
-        $updItem->bind_param('sss', $itemToId, $userID, $pbiId);
+        $updItem = $db->prepare("UPDATE packaging_batch_items SET packaging_batch_id = ? WHERE id = ?");
+        $updItem->bind_param('ss', $itemToId, $pbiId);
         $updItem->execute();
         $updItem->close();
     }

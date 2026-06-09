@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once '../../db_connect.php';
 require_once '../../services/batchStatusService.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -35,8 +39,8 @@ $itemStmt->close();
 
 // Revert each item back to from_batch_id
 foreach ($items as $item) {
-    $revertStmt = $db->prepare("UPDATE packaging_batch_items SET packaging_batch_id = ?, modified_by = ? WHERE id = ?");
-    $revertStmt->bind_param('sss', $item['from_batch_id'], $userID, $item['packaging_batch_item_id']);
+    $revertStmt = $db->prepare("UPDATE packaging_batch_items SET packaging_batch_id = ? WHERE id = ?");
+    $revertStmt->bind_param('ss', $item['from_batch_id'], $item['packaging_batch_item_id']);
     $revertStmt->execute();
     $revertStmt->close();
 

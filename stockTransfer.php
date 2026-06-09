@@ -9,32 +9,35 @@ if(!isset($_SESSION['userID'])){
   echo 'window.location.href = "login.html";</script>';
 }
 else{
-  $user    = $_SESSION['userID'];
+  $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
-  $module  = $_SESSION['module'];
+  $module = $_SESSION['module'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
-  $stmt->bind_param('s', $user);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $role        = 'NORMAL';
-  $allowAdd    = 'N';
+	$stmt->bind_param('s', $user);
+	$stmt->execute();
+	$result = $stmt->get_result();
+  $role = 'NORMAL';
+	$allowAdd = 'N';
+	$allowEdit = 'N';
   $allowDelete = 'N';
+  $allowPhoto = 'N';
 
-  if(($row = $result->fetch_assoc()) !== null){
-    $role        = $row['role_code'];
-    $allowAdd    = $row['allow_add'];
+	if(($row = $result->fetch_assoc()) !== null){
+    $role = $row['role_code'];
+    $allowAdd = $row['allow_add'];
+    $allowEdit = $row['allow_edit'];
     $allowDelete = $row['allow_delete'];
   }
 
   if ($role != 'SADMIN'){
-    $batches  = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' AND company='$company' ORDER BY packaging_date DESC");
+    $batches = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' AND company='$company' ORDER BY packaging_date DESC");
     $batches2 = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' AND company='$company' ORDER BY packaging_date DESC");
   } else {
-    $batches  = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' ORDER BY packaging_date DESC");
+    $batches = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' ORDER BY packaging_date DESC");
     $batches2 = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' ORDER BY packaging_date DESC");
   }
 
-  $language      = $_SESSION['language'];
+  $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
 }
 ?>
@@ -76,9 +79,14 @@ else{
                   </div>
                 </div>
               </div>
-              <div class="col-3 d-flex align-items-end">
+            </div>
+
+            <div class="row">
+              <div class="col-9"></div>
+              <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
-                  <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+                  <i class="fas fa-search"></i>
+                  <?=$languageArray['search_code'][$language]?>
                 </button>
               </div>
             </div>
@@ -136,11 +144,13 @@ else{
           </button>
         </div>
         <div class="modal-body">
+          <input type="hidden" class="form-control" id="id" name="id">
+
           <div class="row mb-3">
-            <div class="col-md-5">
+            <div class="col-md-6">
               <div class="form-group">
                 <label><?=$languageArray['batch_code'][$language]?> A *</label>
-                <select class="form-control select2" id="batchA" required style="width:100%;">
+                <select class="form-control select2" id="batchA" name="batchA" required style="width:100%;">
                   <option value="">Select Batch</option>
                   <?php while($b = mysqli_fetch_assoc($batches)) { ?>
                     <option value="<?=$b['id']?>"><?=$b['batch_no']?></option>
@@ -148,10 +158,10 @@ else{
                 </select>
               </div>
             </div>
-            <div class="col-md-5 offset-md-2">
+            <div class="col-md-6">
               <div class="form-group">
                 <label><?=$languageArray['batch_code'][$language]?> B *</label>
-                <select class="form-control select2" id="batchB" required style="width:100%;">
+                <select class="form-control select2" id="batchB" name="batchB" required style="width:100%;">
                   <option value="">Select Batch</option>
                   <?php while($b = mysqli_fetch_assoc($batches2)) { ?>
                     <option value="<?=$b['id']?>"><?=$b['batch_no']?></option>
@@ -176,7 +186,7 @@ else{
             <div class="col-md-6">
               <div class="card card-outline card-primary">
                 <div class="card-header">
-                  <h6 class="mb-0">Batch A: <span id="batchALabel">-</span>
+                  <h6 class="mb-0"><?=$languageArray['batch_code'][$language]?> A: <span id="batchALabel"></span>
                     <span class="badge badge-secondary ml-2" id="batchACount">0</span>
                   </h6>
                 </div>
@@ -184,11 +194,11 @@ else{
                   <table class="table table-bordered table-sm mb-0">
                     <thead class="bg-primary text-white">
                       <tr>
-                        <th>Product</th>
-                        <th>Grade</th>
-                        <th>Pkg Size</th>
-                        <th>Weight</th>
-                        <th style="width:40px;"></th>
+                        <th><?=$languageArray['category_code'][$language]?></th>
+                        <th><?=$languageArray['product_code'][$language]?></th>
+                        <th><?=$languageArray['grade_code'][$language]?></th>
+                        <th><?=$languageArray['packaging_size_code'][$language]?></th>
+                        <th style="width:5%;"></th>
                       </tr>
                     </thead>
                     <tbody id="tableA" class="transfer-zone" data-side="A">
@@ -202,7 +212,7 @@ else{
             <div class="col-md-6">
               <div class="card card-outline card-success">
                 <div class="card-header">
-                  <h6 class="mb-0">Batch B: <span id="batchBLabel">-</span>
+                  <h6 class="mb-0"><?=$languageArray['batch_code'][$language]?> B: <span id="batchBLabel"></span>
                     <span class="badge badge-secondary ml-2" id="batchBCount">0</span>
                   </h6>
                 </div>
@@ -210,11 +220,11 @@ else{
                   <table class="table table-bordered table-sm mb-0">
                     <thead class="bg-success text-white">
                       <tr>
-                        <th>Product</th>
-                        <th>Grade</th>
-                        <th>Pkg Size</th>
-                        <th>Weight</th>
-                        <th style="width:40px;"></th>
+                        <th><?=$languageArray['category_code'][$language]?></th>
+                        <th><?=$languageArray['product_code'][$language]?></th>
+                        <th><?=$languageArray['grade_code'][$language]?></th>
+                        <th><?=$languageArray['packaging_size_code'][$language]?></th>
+                        <th style="width:5%;"></th>
                       </tr>
                     </thead>
                     <tbody id="tableB" class="transfer-zone" data-side="B">
@@ -225,7 +235,7 @@ else{
             </div>
           </div>
 
-          <small class="text-muted"><i class="fas fa-info-circle"></i> Drag rows between tables or use the arrow buttons to transfer items.</small>
+          <small class="text-muted"><i class="fas fa-info-circle"></i> <?=$languageArray['drag_rows_hint_code'][$language]?></small>
         </div>
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
@@ -243,12 +253,12 @@ else{
     <div class="modal-content">
       <form role="form" id="cancelForm">
         <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
+          <h4 class="modal-title"><i class="fas fa-undo"></i> <?=$languageArray['undo_stock_transfer_code'][$language]?></h4>
           <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
+            <label><?=$languageArray['reason_for_undo'][$language]?> *</label>
             <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
           </div>
           <input type="hidden" id="cancelId" name="id">
@@ -274,19 +284,47 @@ else{
 $(function () {
   const today = new Date();
 
-  $('#fromDatePicker').datetimepicker({ icons: { time: 'far fa-clock' }, format: 'DD/MM/YYYY', defaultDate: today });
-  $('#toDatePicker').datetimepicker({ icons: { time: 'far fa-clock' }, format: 'DD/MM/YYYY', defaultDate: today });
-
-  $('.select2').each(function() {
-    $(this).select2({ allowClear: true, placeholder: 'Please Select', dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined });
+  $('#fromDatePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY',
+    defaultDate: today
   });
 
-  // DataTable
-  var table = $('#transferTable').DataTable({
-    responsive: true, autoWidth: false, processing: true, serverSide: true, serverMethod: 'post', searching: true,
-    order: [[3, 'desc']],
-    ajax: { url: 'php/modules/stockTransfer/filterStockTransfers.php', data: { fromDate: '', toDate: '' } },
-    columns: [
+  $('#toDatePicker').datetimepicker({
+    icons: { time: 'far fa-clock' },
+    format: 'DD/MM/YYYY',
+    defaultDate: today
+  });
+
+  $('.select2').each(function() {
+    $(this).select2({
+        allowClear: true,
+        placeholder: "Please Select",
+        // Conditionally set dropdownParent based on the element’s location
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+    });
+  });
+
+  var fromDateI = $('#fromDate').val();
+  var toDateI = $('#toDate').val();
+
+  var table = $("#transferTable").DataTable({
+    "responsive": true,
+    "autoWidth": false,
+    'processing': true,
+    'serverSide': true,
+    'serverMethod': 'post',
+    'searching': true,
+    'order': [[ 1, 'asc' ]],
+    'columnDefs': [ { orderable: false, targets: [0] }],
+    'ajax': {
+      'url':'php/modules/stockTransfer/filterStockTransfers.php',
+      'data': {
+        fromDate: fromDateI,
+        toDate: toDateI
+      } 
+    },
+    'columns': [
       { data: 'transfer_no' },
       { data: 'from_batch_no' },
       { data: 'to_batch_no' },
@@ -295,7 +333,7 @@ $(function () {
       { data: 'id', class: 'action-button', render: function(data) {
           var btn = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           <?php if($allowDelete == 'Y'){ ?>
-          btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-undo"></i></button>';
+            btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-undo"></i></button>';
           <?php } ?>
           btn += '</div>';
           return btn;
@@ -305,12 +343,29 @@ $(function () {
   });
 
   $('#filterSearch').on('click', function() {
-    $('#transferTable').DataTable().clear().destroy();
-    table = $('#transferTable').DataTable({
-      responsive: true, autoWidth: false, processing: true, serverSide: true, serverMethod: 'post', searching: true,
-      order: [[3, 'desc']],
-      ajax: { url: 'php/modules/stockTransfer/filterStockTransfers.php', data: { fromDate: $('#fromDate').val(), toDate: $('#toDate').val() } },
-      columns: [
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+
+    //Destroy the old Datatable
+    $("#transferTable").DataTable().clear().destroy();
+
+    table = $("#transferTable").DataTable({
+      "responsive": true,
+      "autoWidth": false,
+      'processing': true,
+      'serverSide': true,
+      'serverMethod': 'post',
+      'searching': true,
+      'order': [[ 1, 'asc' ]],
+      'columnDefs': [ { orderable: false, targets: [0] }],
+      'ajax': {
+        'url':'php/modules/stockTransfer/filterStockTransfers.php',
+        'data': {
+          fromDate: fromDateI,
+          toDate: toDateI
+        } 
+      },
+      'columns': [
         { data: 'transfer_no' },
         { data: 'from_batch_no' },
         { data: 'to_batch_no' },
@@ -334,7 +389,11 @@ $(function () {
     var id = $(this).val();
     var label = $(this).find('option:selected').text();
     $('#batchALabel').text(label || '-');
-    if (!id) { $('#tableA').empty(); updateCounts(); return; }
+    if (!id) { 
+      $('#tableA').empty(); 
+      updateCounts(); 
+      return; 
+    }
     loadBatchItems(id, '#tableA', 'A');
   });
 
@@ -342,71 +401,72 @@ $(function () {
     var id = $(this).val();
     var label = $(this).find('option:selected').text();
     $('#batchBLabel').text(label || '-');
-    if (!id) { $('#tableB').empty(); updateCounts(); return; }
+    if (!id) { 
+      $('#tableB').empty(); 
+      updateCounts(); 
+      return; 
+    }
     loadBatchItems(id, '#tableB', 'B');
   });
 
-  // Form submit
-  $('#transferForm').on('submit', function(e) {
-    e.preventDefault();
-    var fromBatchId = $('#batchA').val();
-    var toBatchId   = $('#batchB').val();
-    if (!fromBatchId || !toBatchId) { toastr['error']('Please select both batches.', 'Validation:'); return; }
-    if (fromBatchId === toBatchId) { toastr['error']('Batch A and Batch B must be different.', 'Validation:'); return; }
+  $.validator.setDefaults({
+    submitHandler: function () {
+      if ($('#transferModal').hasClass('show')) {
+        var fromBatchId = $('#batchA').val();
+        var toBatchId   = $('#batchB').val();
+        if (!fromBatchId || !toBatchId) { toastr['error']('Please select both batches.', 'Validation:'); return; }
+        if (fromBatchId === toBatchId) { toastr['error']('Batch A and Batch B must be different.', 'Validation:'); return; }
 
-    // Collect all items and their current side to determine from/to
-    var items = [];
-    $('#tableA tr').each(function() {
-      var pbiId      = $(this).data('id');
-      var originSide = $(this).data('origin');
-      if (originSide === 'B') { // was in B, now in A — transferred B→A
-        items.push({ packaging_batch_item_id: pbiId, from_batch_id: toBatchId, to_batch_id: fromBatchId });
-      }
-    });
-    $('#tableB tr').each(function() {
-      var pbiId      = $(this).data('id');
-      var originSide = $(this).data('origin');
-      if (originSide === 'A') { // was in A, now in B — transferred A→B
-        items.push({ packaging_batch_item_id: pbiId, from_batch_id: fromBatchId, to_batch_id: toBatchId });
-      }
-    });
+        var items = [];
+        $('#tableA tr').each(function() {
+          var pbiId      = $(this).data('id');
+          var originSide = $(this).data('origin');
+          if (originSide === 'B') {
+            items.push({ packaging_batch_item_id: pbiId, from_batch_id: toBatchId, to_batch_id: fromBatchId });
+          }
+        });
+        $('#tableB tr').each(function() {
+          var pbiId      = $(this).data('id');
+          var originSide = $(this).data('origin');
+          if (originSide === 'A') {
+            items.push({ packaging_batch_item_id: pbiId, from_batch_id: fromBatchId, to_batch_id: toBatchId });
+          }
+        });
 
-    if (items.length === 0) { toastr['warning']('No items have been transferred.', 'Info:'); return; }
+        if (items.length === 0) { toastr['warning']('No items have been transferred.', 'Info:'); return; }
 
-    $('#spinnerLoading').show();
-    $.post('php/modules/stockTransfer/saveStockTransfer.php', {
-      fromBatchId: fromBatchId,
-      toBatchId:   toBatchId,
-      remarks:     $('#transferRemarks').val(),
-      items:       items
-    }, function(data) {
-      var obj = JSON.parse(data);
-      if (obj.status === 'success') {
-        $('#transferModal').modal('hide');
-        toastr['success'](obj.message, 'Success:');
-        $('#transferTable').DataTable().ajax.reload();
-      } else {
-        toastr['error'](obj.message, 'Failed:');
+        $('#spinnerLoading').show();
+        $.post('php/modules/stockTransfer/saveStockTransfer.php', {
+          fromBatchId: fromBatchId,
+          toBatchId:   toBatchId,
+          remarks:     $('#transferRemarks').val(),
+          items:       items
+        }, function(data) {
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#transferModal').modal('hide');
+            toastr['success'](obj.message, 'Success:');
+            $('#transferTable').DataTable().ajax.reload();
+          } else {
+            toastr['error'](obj.message, 'Failed:');
+          }
+          $('#spinnerLoading').hide();
+        });
+      } else if ($('#cancelModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/stockTransfer/deleteStockTransfer.php', { id: $('#cancelId').val(), cancelReason: $('#cancelReason').val() }, function(data) {
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#cancelModal').modal('hide');
+            toastr['success'](obj.message, 'Success:');
+            $('#transferTable').DataTable().ajax.reload();
+          } else {
+            toastr['error'](obj.message, 'Failed:');
+          }
+          $('#spinnerLoading').hide();
+        });
       }
-      $('#spinnerLoading').hide();
-    });
-  });
-
-  // Cancel form
-  $('#cancelForm').on('submit', function(e) {
-    e.preventDefault();
-    $('#spinnerLoading').show();
-    $.post('php/modules/stockTransfer/deleteStockTransfer.php', { id: $('#cancelId').val(), cancelReason: $('#cancelReason').val() }, function(data) {
-      var obj = JSON.parse(data);
-      if (obj.status === 'success') {
-        $('#cancelModal').modal('hide');
-        toastr['success'](obj.message, 'Success:');
-        $('#transferTable').DataTable().ajax.reload();
-      } else {
-        toastr['error'](obj.message, 'Failed:');
-      }
-      $('#spinnerLoading').hide();
-    });
+    }
   });
 });
 
@@ -511,11 +571,37 @@ function newEntry() {
   });
 
   $('#transferModal').modal('show');
+  $('#transferForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+      error.addClass('invalid-feedback');
+      element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass('is-invalid');
+    }
+  });
 }
 
 function deactivate(id) {
   $('#cancelId').val(id);
   $('#cancelReason').val('');
   $('#cancelModal').modal('show');
+  $('#cancelForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+      error.addClass('invalid-feedback');
+      element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass('is-invalid');
+    }
+  });
 }
 </script>
