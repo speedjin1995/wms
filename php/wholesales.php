@@ -9,15 +9,15 @@ function groupWeightDetails($weightDetails) {
     $grouped = [];
     foreach ($weightDetails as $detail) {
         $product = $detail['product'] ?? '';
-        $grade = $detail['grade'] ?? '';
-        $key = $product . '_' . $grade;
+        $gradeId = $detail['grade_id'] ?? '';
+        $key = $product . '_' . $gradeId;
 
         if (isset($grouped[$key])) {
             $grouped[$key]['net'] += floatval($detail['net'] ?? 0);
         } else {
             $grouped[$key] = [
                 'product' => $product,
-                'grade' => $grade,
+                'grade_id' => $gradeId,
                 'net' => floatval($detail['net'] ?? 0)
             ];
         }
@@ -177,6 +177,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'fixedfloat' => $weightDetail['fixedfloat'] ?? '',
                 'time' => $weightDetail['time'] ?? '',
                 'grade' => $weightDetail['grade'] ?? '',
+                'grade_id' => $weightDetail['grade_id'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
@@ -371,7 +372,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                     
                     foreach ($productWeights as $key => $productWeight){
                         $productId = $productWeight['product'];
-                        $grade = $productWeight['grade'];
+                        $grade = $productWeight['grade_id'];
                         $afterValue = $productWeight['net'];
                         $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
 
@@ -424,7 +425,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                     $productWeights = groupWeightDetails($weightDetails);
                     foreach ($productWeights as $weight) {
                         $productId = $weight['product'];
-                        $grade = $weight['grade'];
+                        $grade = $weight['grade_id'];
                         $nettWeight = $weight['net'];
                         processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status, false, 0, $wholesaleId, 'wholesales', $customer, $supplier);
                     }
