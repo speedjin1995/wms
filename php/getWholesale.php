@@ -69,10 +69,14 @@ if(isset($_POST['userID'])){
                 if (isset($row['weight_details']) && !empty($row['weight_details'])){
                     $weightDetails = json_decode($row['weight_details'], true);
                     $totalItems = count($weightDetails);
+                    $weightDetailsOut = [];
                     foreach ($weightDetails as $weight){
+                        $weight['product_name'] = searchProductNameById($weight['product'], $db);
                         $totalWeight += floatval($weight['net']);
                         $totalPrice += floatval($weight['price']);
+                        $weightDetailsOut[] = $weight;
                     }
+                    $weightDetails = $weightDetailsOut;
                 }
 
                 $message['weightDetails'] = $weightDetails;
