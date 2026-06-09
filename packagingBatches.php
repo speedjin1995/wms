@@ -421,7 +421,7 @@ var allowPhoto = '<?=$allowPhoto?>';
 var categoryOptions = `<?php while($rowCat=mysqli_fetch_assoc($categories)){ ?><option value="<?=$rowCat['id'] ?>"><?=$rowCat['category_name'] ?></option><?php } ?>`;
 var productOptions = `<?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?><option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option><?php } ?>`;
 var packagingOptions = `<?php while($rowPkg=mysqli_fetch_assoc($packagings2)){ ?><option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option><?php } ?>`;
-var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
+var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
 
 $(function () {
   $('#uomhidden').hide();
@@ -682,7 +682,7 @@ $(function () {
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]" required>
             <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
+              <option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>

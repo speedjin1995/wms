@@ -404,7 +404,7 @@ var weightCount = 0;
 var rejectCount = 0;
 var allowPhoto = '<?=$allowPhoto?>';
 var productOptions = `<?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?><option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option><?php } ?>`;
-var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
+var gradeOptions = `<option value="" selected disabled>Select Grade</option><?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
 
 $(function () {
   $('#uomhidden').hide();
@@ -682,9 +682,10 @@ $(function () {
           </select>
         </td>
         <td>
-          <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
+          <select class="form-control select2" id="to_grade${idx}" name="weightDetails[${idx}][to_grade]">
+            <option value="" selected disabled>Select Grade</option>
             <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
+              <option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
@@ -733,7 +734,7 @@ $(function () {
     var productName = $(this).find('option:selected').text();
     
     // Filter grades by selected product
-    var gradeSelect = row.find('select[name*="[grade]"]');
+    var gradeSelect = row.find('select[name*="[to_grade]"]');
     var currentGrade = gradeSelect.val();
     var currentGradeId = gradeSelect.find(':selected').data('id');
 
@@ -1132,7 +1133,7 @@ function edit(id) {
                 </select>
               </td>
               <td>
-                <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
+                <select class="form-control select2" id="to_grade${idx}" name="weightDetails[${idx}][to_grade]">
                   ${gradeOptions}
                 </select>
               </td>
@@ -1170,7 +1171,7 @@ function edit(id) {
           newProductSelect.val(detail.product_id);
           
           // Filter grades by product
-          var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade]"]`);
+          var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][to_grade]"]`);
           gradeSelect.data('original-options', gradeSelect.html());
           gradeSelect.find('option').each(function() {
             var gradeProduct = $(this).attr('data-product');

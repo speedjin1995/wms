@@ -72,6 +72,14 @@ if(isset($_POST['userID'])){
                     $weightDetailsOut = [];
                     foreach ($weightDetails as $weight){
                         $weight['product_name'] = searchProductNameById($weight['product'], $db);
+
+                        // Backward compatibility: if grade_id is missing, lookup by grade name
+                        if (empty($weight['grade_id']) && !empty($weight['grade'])) {
+                            $weight['grade_id'] = searchGradeIdByName($weight['grade'], $row['company'], $db);
+                        } else if (!empty($weight['grade_id'])) {
+                            $weight['grade'] = searchGradeNameById($weight['grade_id'], $db);
+                        }
+
                         $totalWeight += floatval($weight['net']);
                         $totalPrice += floatval($weight['price']);
                         $weightDetailsOut[] = $weight;

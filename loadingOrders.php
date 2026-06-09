@@ -177,7 +177,7 @@ else{
           </button>
         </div>
 
-        <div class="modal-body" >
+        <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
           <input type="hidden" class="form-control" id="id" name="id">
 
           <div class="row">
@@ -708,7 +708,7 @@ function initRowControls(idx, customerId) {
     $('select[name="items[' + idx + '][customer_id]"]').select2({
       allowClear: true,
       placeholder: 'Select Customer',
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal'),
       width: '100%'
     }).val(customerId || '').trigger('change');
   }, 0);
@@ -733,6 +733,7 @@ function newEntry(){
   $('#loadingDatePicker').datetimepicker('date', moment());
   $('#extendModal').find('#remarks').val('');
   $('#extendModal').find('#shipmentType').val('').trigger('change');
+  $('#extendModal').find('#batchNo').val('').trigger('change');
   $('#weightDetailsTable').empty();
   $('#selectedBatchCount').val(0);
   $('#totalWeightRecords').val(0);
