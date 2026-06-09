@@ -378,12 +378,6 @@ function _getStockBalanceRow($db, $productId, $grade, $packagingSize, $company) 
     return $row;
 }
 
-
-// =============================================================================
-// STOCK TRANSFER
-// =============================================================================
-
-
 // =============================================================================
 // LOADING ORDER
 // Manages stock_balances — dispatches packaged boxes to customers.
