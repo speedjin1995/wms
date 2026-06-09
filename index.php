@@ -873,7 +873,7 @@ $(function () {
     <?php } else if ($module == 'pricing') { ?>
     $("a[href='#pricingSales']").click();
     <?php } else if ($module == 'processing') { ?>
-    $("a[href='#grading']").click();
+    $("a[href='#wholesales']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>
