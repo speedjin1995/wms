@@ -175,8 +175,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
-                    <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+                    <option value="OUTGOING"><?=$languageArray['outgoing_code'][$language]?></option>
+                    <option value="INCOMING" selected><?=$languageArray['incoming_code'][$language]?></option>
                   </select>
                 </div>
               </div>
