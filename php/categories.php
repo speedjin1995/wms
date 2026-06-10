@@ -11,7 +11,6 @@ if(isset($_POST['categoryName'], $_POST['company'], $_POST['module'])){
     if($_POST['id'] != null && $_POST['id'] != ''){
         if ($update_stmt = $db->prepare("UPDATE categories SET category_name=?, module=? WHERE id=?")) {
             $update_stmt->bind_param('sss', $categoryName, $module, $_POST['id']);
-            
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
                 echo json_encode(
@@ -37,7 +36,7 @@ if(isset($_POST['categoryName'], $_POST['company'], $_POST['module'])){
     else{
         if ($insert_stmt = $db->prepare("INSERT INTO categories (category_name, module, customer) VALUES (?, ?, ?)")) {
             $insert_stmt->bind_param('sss', $categoryName, $module, $company);
-            
+                        
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
                 echo json_encode(

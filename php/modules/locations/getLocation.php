@@ -1,12 +1,12 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($update_stmt = $db->prepare("SELECT * FROM packaging WHERE id=?")) {
+    if ($update_stmt = $db->prepare("SELECT * FROM locations WHERE id=?")) {
         $update_stmt->bind_param('s', $id);
         
         // Execute the prepared query.
@@ -23,9 +23,7 @@ if(isset($_POST['userID'])){
             
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
-                $message['packaging_name'] = $row['packaging_name'];
-                $message['packaging_type'] = $row['packaging_type'];
-                $message['is_by_weight'] = $row['is_by_weight'];
+                $message['locations'] = $row['locations'];
                 $message['customer'] = $row['customer'];
             }
             

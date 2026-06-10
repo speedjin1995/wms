@@ -1,12 +1,12 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($update_stmt = $db->prepare("SELECT * FROM locations WHERE id=?")) {
+    if ($update_stmt = $db->prepare("SELECT * FROM production_lines WHERE id=?")) {
         $update_stmt->bind_param('s', $id);
         
         // Execute the prepared query.
@@ -23,7 +23,8 @@ if(isset($_POST['userID'])){
             
             while ($row = $result->fetch_assoc()) {
                 $message['id'] = $row['id'];
-                $message['locations'] = $row['locations'];
+                $message['production_line'] = $row['production_line'];
+                $message['customers'] = $row['customers'];
             }
             
             echo json_encode(
