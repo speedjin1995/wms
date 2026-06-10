@@ -315,6 +315,7 @@ else{
                   <th><?=$languageArray['total_variance_code'][$language]?> (%)</th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['indicator_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -744,6 +745,7 @@ $(function () {
       { data: 'total_variance_perc' },
       { data: 'weighted_by' },
       { data: 'indicator' },
+      { data: 'remark' },
       <?php if ($secRemarksExists) { ?>
       { data: 'remarks2' },
       <?php }?>
@@ -910,8 +912,9 @@ $(function () {
         { data: 'total_variance_perc' },
         { data: 'weighted_by' },
         { data: 'indicator' },
+        { data: 'remark' },
         <?php if ($secRemarksExists) { ?>
-        { data: 'remarks2' },
+          { data: 'remarks2' },
         <?php }?>
         { 
           data: 'id',
