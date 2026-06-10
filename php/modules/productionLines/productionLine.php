@@ -1,17 +1,17 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
-if(isset($_POST['packagingName'],$_POST['company'],$_POST['packagingType'],$_POST['packagingByWeight'])){
-    $packagingName = filter_input(INPUT_POST, 'packagingName', FILTER_SANITIZE_STRING);
+$user = $_SESSION['userID'];
+
+if(isset($_POST['productionLine']) && isset($_POST['company'])){
+    $productionLine = filter_input(INPUT_POST, 'productionLine', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
-    $packagingType = filter_input(INPUT_POST, 'packagingType', FILTER_SANITIZE_STRING);
-    $packagingByWeight = filter_input(INPUT_POST, 'packagingByWeight', FILTER_SANITIZE_STRING);
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE packaging SET packaging_name=?, packaging_type=?, is_by_weight=? WHERE id=?")) {
-            $update_stmt->bind_param('ssss', $packagingName, $packagingType, $packagingByWeight, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE production_lines SET production_line=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sss', $productionLine, $user, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -36,9 +36,9 @@ if(isset($_POST['packagingName'],$_POST['company'],$_POST['packagingType'],$_POS
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, is_by_weight, customer) VALUES (?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssss', $packagingName, $packagingType, $packagingByWeight, $company);
-            
+        if ($insert_stmt = $db->prepare("INSERT INTO production_lines (production_line, customers, created_by) VALUES (?, ?, ?)")) {
+            $insert_stmt->bind_param('sss', $productionLine, $company, $user);
+
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
                 echo json_encode(

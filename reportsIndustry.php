@@ -84,8 +84,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
-                    <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+                    <option value="OUTGOING"><?=$languageArray['outgoing_code'][$language]?></option>
+                    <option value="INCOMING" selected><?=$languageArray['incoming_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -221,12 +221,14 @@ else{
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
                   <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                     <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -334,6 +336,7 @@ $(function () {
       { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
+      { data: 'remark' },
       // { 
       //   data: 'id',
       //   render: function ( data, type, row ) {
@@ -438,6 +441,7 @@ $(function () {
         { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
+        { data: 'remark' },
         // { 
         //   data: 'id',
         //   render: function ( data, type, row ) {

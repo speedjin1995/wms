@@ -175,8 +175,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
-                    <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+                    <option value="OUTGOING"><?=$languageArray['outgoing_code'][$language]?></option>
+                    <option value="INCOMING" selected><?=$languageArray['incoming_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -315,6 +315,7 @@ else{
                   <th><?=$languageArray['total_variance_code'][$language]?> (%)</th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['indicator_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -744,6 +745,7 @@ $(function () {
       { data: 'total_variance_perc' },
       { data: 'weighted_by' },
       { data: 'indicator' },
+      { data: 'remark' },
       <?php if ($secRemarksExists) { ?>
       { data: 'remarks2' },
       <?php }?>
@@ -910,8 +912,9 @@ $(function () {
         { data: 'total_variance_perc' },
         { data: 'weighted_by' },
         { data: 'indicator' },
+        { data: 'remark' },
         <?php if ($secRemarksExists) { ?>
-        { data: 'remarks2' },
+          { data: 'remarks2' },
         <?php }?>
         { 
           data: 'id',
@@ -1228,6 +1231,8 @@ $(function () {
       $('#extendModal').find('#supplierDiv').show();
       // $('#extendModal').find('#securityBillDiv').show();
     }
+
+    $('#weightDetailsTable').find('select[id^="product_name"]').trigger('change');
   });
 
   $('#extendModal').find('#customer').on('change', function () {
@@ -1398,6 +1403,7 @@ $(function () {
     var productName = $(this).val();
     var productId = $(this).find('option:selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var status = $('#extendModal').find('#status').val();
     row.find('input[name*="[product]"]').val(productId);
     row.find('input[name*="[product_desc]"]').val(productName);
     
@@ -1443,9 +1449,10 @@ $(function () {
     var grade = $(this).find(':selected').data('id');
     var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId){
-      calculatePrice(productId, customerId, grade, $(this));
+    if (allowPrice == 'Y' && productId && status){
+      calculatePrice(productId, status, customerId, grade, $(this));
     }
   });
 
@@ -1562,9 +1569,10 @@ $(function () {
     var grade = $(this).find(':selected').data('id');
     var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId){
-      calculatePrice(productId, customerId, grade, $(this));
+    if (allowPrice == 'Y' && productId && status){
+      calculatePrice(productId, status, customerId, grade, $(this));
     }
   });
 
@@ -2018,9 +2026,9 @@ function newEntry(){
   });
 }
 
-function calculatePrice(productId, customerId, currentGrade, element) {
+function calculatePrice(productId, status, customerId, currentGrade, element) {
   if (productId){
-    $.post('php/getProduct.php', {userID: productId, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+    $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
@@ -2155,11 +2163,11 @@ function edit(id) {
           // Set the selected value for the grade dropdown
           gradeSelect.val(detail.grade);
 
-          totalGross += parseFloat(detail.gross);
-          totalTare += parseFloat(detail.tare);
-          totalNet += parseFloat(detail.net);
-          totalVariance += parseFloat(detail.variance);
-          totalPrice += parseFloat(detail.total);
+          totalGross += parseFloat(detail.gross) || 0;
+          totalTare += parseFloat(detail.tare) || 0;
+          totalNet += parseFloat(detail.net) || 0;
+          totalVariance += parseFloat(detail.variance) || 0;
+          totalPrice += parseFloat(detail.total) || 0;
         }
 
         $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
