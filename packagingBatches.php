@@ -495,7 +495,7 @@ $(function () {
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }
-          // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
           }
@@ -581,7 +581,7 @@ $(function () {
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
-            // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
             }
@@ -1283,8 +1283,8 @@ function deactivate(id) {
   }
 }
 
-function print(id) {
-  $.post('php/print.php', {userID: id}, function(data){
+function printBatch(id) {
+  $.post('php/modules/packagingBatches/print.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
     if(obj.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
