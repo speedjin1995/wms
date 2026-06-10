@@ -186,6 +186,32 @@ function searchGradesByCompanyId($value, $db) {
     return $id;
 }
 
+function searchGradeIdByName($gradeName, $company, $db) {
+    $id = null;
+    if (!empty($gradeName)) {
+        $stmt = $db->prepare("SELECT id FROM grades WHERE units = ? AND customer = ? AND deleted = 0 LIMIT 1");
+        $stmt->bind_param('ss', $gradeName, $company);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($row) $id = (int)$row['id'];
+    }
+    return $id;
+}
+
+function searchGradeNameById($gradeId, $db) {
+    $name = '';
+    if (!empty($gradeId)) {
+        $stmt = $db->prepare("SELECT units FROM grades WHERE id = ? AND deleted = 0 LIMIT 1");
+        $stmt->bind_param('s', $gradeId);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($row) $name = $row['units'];
+    }
+    return $name;
+}
+
 function searchDriverIcByDriverName($value, $company, $db) {
     $id = '';
 
@@ -296,6 +322,78 @@ function formatModules($value, $languageArray, $language) {
                 break;
             default:
                 $id = 'N/A';
+        }
+    }
+
+    return $id;
+}
+
+function searchCategoryById($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM categories WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['category_name'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
+
+function searchLocationById($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM locations WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['locations'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
+
+function searchProductionLineById($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM production_lines WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['production_line'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
+
+function searchPackagingNameById($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM packaging WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['packaging_name'];
+            }
+            $select_stmt->close();
         }
     }
 

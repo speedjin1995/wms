@@ -183,7 +183,7 @@ else{
 
           <!-- Product Info -->
           <div class="card card-outline card-primary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i>Product Information</h6></div>
+            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i><?=$languageArray['product_information_code'][$language]?></h6></div>
             <div class="card-body py-3">
               <div class="row">
                 <div class="col-md-4">
@@ -258,8 +258,23 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['price_code'][$language]?></label>
+                    <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
                     <input type="number" class="form-control" name="price" id="price" placeholder="0.00">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
+                    <select class="form-control" id="purchasingPricingType" name="purchasingPricingType">
+                      <option selected><?=$languageArray['fixed_code'][$language]?></option>
+                      <option><?=$languageArray['float_code'][$language]?></option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
+                    <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00">
                   </div>
                 </div>
               </div>
@@ -279,7 +294,7 @@ else{
                   <div id="productImageDropzone" style="border:2px dashed #adb5bd; border-radius:6px; padding:24px; text-align:center; cursor:pointer; background:#fff;">
                     <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
                     <p class="mb-1 text-muted"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
-                    <small class="text-muted"><?=$languageArray['file_format_max_size_code'][$language]?></small>
+                    <p class="mb-1 text-muted"><?=$languageArray['file_format_max_size_code'][$language]?></p>
                     <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
                   </div>
                 </div>
@@ -363,7 +378,9 @@ else{
                     <th width="8%"><?=$languageArray['number_short_code'][$language]?></th>
                     <th><?=$languageArray['customer_code'][$language]?></th>
                     <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['price_code'][$language]?> (RM)</th>
+                    <th><?=$languageArray['selling_price_code'][$language]?></th>
+                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
+                    <th><?=$languageArray['purchasing_price_code'][$language]?></th>
                     <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
@@ -385,7 +402,9 @@ else{
                     <th width="8%"><?=$languageArray['number_short_code'][$language]?></th>
                     <th><?=$languageArray['unit_code'][$language]?></th>
                     <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['price_code'][$language]?> (RM)</th>
+                    <th><?=$languageArray['selling_price_code'][$language]?></th>
+                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
+                    <th><?=$languageArray['purchasing_price_code'][$language]?></th>
                     <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
@@ -442,13 +461,23 @@ else{
     </td>
     <td>
       <select class="form-control" style="width: 100%; background-color:white;" id="customerPricingType" name="customerPricingType">
-        <option selected>Standard</option>
-        <option>Fixed</option>
-        <option>Float</option>
+        <option selected><?=$languageArray['standard_code'][$language]?></option>
+        <option><?=$languageArray['fixed_code'][$language]?></option>
+        <option><?=$languageArray['float_code'][$language]?></option>
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
+      <input type="number" class="form-control mb-1" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
+    </td>
+    <td>
+      <select class="form-control" style="width: 100%; background-color:white;" id="customerPurchasingPricingType" name="customerPurchasingPricingType">
+        <option selected><?=$languageArray['standard_code'][$language]?></option>
+        <option><?=$languageArray['fixed_code'][$language]?></option>
+        <option><?=$languageArray['float_code'][$language]?></option>
+      </select>
+    </td>
+    <td>
+      <input type="number" class="form-control" id="customerPurchasingPrice" name="customerPurchasingPrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
       <button class="btn btn-success" id="remove" style="background-color: #f06548;">
@@ -473,13 +502,23 @@ else{
     </td>
     <td>
       <select class="form-control" style="width: 100%; background-color:white;" id="gradePricingType" name="gradePricingType">
-        <option selected>Standard</option>
-        <option>Fixed</option>
-        <option>Float</option>
+        <option selected><?=$languageArray['standard_code'][$language]?></option>
+        <option><?=$languageArray['fixed_code'][$language]?></option>
+        <option><?=$languageArray['float_code'][$language]?></option>
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="gradePrice" name="gradePrice" style="background-color:white;" value="0">
+      <input type="number" class="form-control mb-1" id="gradePrice" name="gradePrice" style="background-color:white;" value="0">
+    </td>
+    <td>
+      <select class="form-control" style="width: 100%; background-color:white;" id="gradePurchasingPricingType" name="gradePurchasingPricingType">
+        <option selected><?=$languageArray['standard_code'][$language]?></option>
+        <option><?=$languageArray['fixed_code'][$language]?></option>
+        <option><?=$languageArray['float_code'][$language]?></option>
+      </select>
+    </td>
+    <td>
+      <input type="number" class="form-control" id="gradePurchasingPrice" name="gradePurchasingPrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
       <button class="btn btn-success" id="remove" style="background-color: #f06548;">
@@ -593,7 +632,6 @@ $(function () {
         toastr["error"]("Please select a unit for all grade rows.", "Failed:");
         return false;
       }
-      
       $('#spinnerLoading').show();
       var formData = new FormData($('#productForm')[0]);
       $.ajax({
@@ -632,6 +670,7 @@ $(function () {
     $('#addModal').find('#remark').val("");
     $('#addModal').find('#pricingType').val("Fixed");
     $('#addModal').find('#price').val("");
+    $('#addModal').find('#purchasingPrice').val("");
     $('#addModal').find('#weight').val("");
     $('#addModal').find('#productCategory').val("").trigger('change');
     $('#addModal').find('#productPackaging').val("").trigger('change');
@@ -816,6 +855,8 @@ $(function () {
     });
     $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount);
     $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount);
+    $("#customerTable").find('#customerPurchasingPricingType:last').attr('name', 'customerPurchasingPricingType['+customerRowCount+']').attr("id", "customerPurchasingPricingType" + customerRowCount);
+    $("#customerTable").find('#customerPurchasingPrice:last').attr('name', 'customerPurchasingPrice['+customerRowCount+']').attr("id", "customerPurchasingPrice" + customerRowCount);
 
     // Apply custom styling to Select2 elements in addModal
     $('#customerTable .select2-container .select2-selection--single').css({
@@ -857,6 +898,8 @@ $(function () {
     });
     $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount);
     $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount);
+    $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount);
+    $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount);
 
     // Apply custom styling to Select2 elements in addModal
     $('#gradeTable .select2-container .select2-selection--single').css({
@@ -951,6 +994,7 @@ function edit(id){
       $('#addModal').find('#remark').val(obj.message.remark);
       $('#addModal').find('#pricingType').val(obj.message.pricing_type);
       $('#addModal').find('#price').val(obj.message.price);
+      $('#addModal').find('#purchasingPrice').val(obj.message.purchasing_price);
       $('#addModal').find('#weight').val(obj.message.weight);
       $('#addModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#addModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
@@ -992,6 +1036,8 @@ function edit(id){
           });
           $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount).val(item.pricing_type || 'Standard');
           $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount).val(item.price || 0);
+          $("#customerTable").find('#customerPurchasingPricingType:last').attr('name', 'customerPurchasingPricingType['+customerRowCount+']').attr("id", "customerPurchasingPricingType" + customerRowCount).val(item.purchasing_pricing_type || 'Standard');
+          $("#customerTable").find('#customerPurchasingPrice:last').attr('name', 'customerPurchasingPrice['+customerRowCount+']').attr("id", "customerPurchasingPrice" + customerRowCount).val(item.purchasing_price || 0);
 
           // Apply custom styling to Select2 elements in addModal
           $('#customerTable .select2-container .select2-selection--single').css({
@@ -1030,6 +1076,8 @@ function edit(id){
           });
           $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val(item.pricing_type || 'Standard');
           $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price || 0.00);
+          $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount).val(item.purchasing_pricing_type || 'Standard');
+          $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount).val(item.purchasing_price || 0);
 
           // Apply custom styling to Select2 elements in addModal
           $('#gradeTable .select2-container .select2-selection--single').css({

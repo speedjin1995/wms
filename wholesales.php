@@ -55,7 +55,7 @@ else{
       $stateJson = json_encode(array_values($filterStates));
       $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
     }
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";    
     $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
@@ -357,7 +357,6 @@ else{
         <div class="modal-body" >
           <input type="hidden" class="form-control" id="id" name="id">
           <input type="hidden" class="form-control" id="recordType" name="recordType" value="wholesales">
-          
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
@@ -1023,6 +1022,21 @@ $(function () {
           alert('Please enter the vehicle number.');
           return false;
         }
+        // Validate weight detail rows
+        var weightRowError = false;
+        $('#weightDetailsTable tr').each(function() {
+          var product = $(this).find('select[name*="[product]"]').val();
+          var grade = $(this).find('select[name*="[grade_id]"]').val();
+          var gross = parseFloat($(this).find('input[name*="[gross]"]').val());
+          if (!product || !grade || isNaN(gross) || gross <= 0) {
+            weightRowError = true;
+            return false;
+          }
+        });
+        if (weightRowError) {
+          toastr["error"]("Please fill in Product, Grade and Gross for all weight detail rows.", "Validation Error:");
+          return false;
+        }
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
@@ -1240,6 +1254,8 @@ $(function () {
       $('#extendModal').find('#supplierDiv').show();
       $('#extendModal').find('#securityBillDiv').hide();
     }
+    
+    $('#weightDetailsTable').find('select[id^="grade_id"]').trigger('change');
   });
 
   $('#extendModal').find('#customer').on('change', function () {
@@ -1355,7 +1371,7 @@ $(function () {
       <tr class="details">
         <td><input type="checkbox" id="weightCheckbox${idx}"></td>
         <td style="display:none">
-          <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="">
+          <input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="">
           <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="">
           <input type="hidden" id="pretare${idx}" name="weightDetails[${idx}][pretare]" value="0.00">
           <input type="hidden" id="unit${idx}" name="weightDetails[${idx}][unit]" value="Kg">
@@ -1364,23 +1380,25 @@ $(function () {
           <input type="hidden" id="isedit${idx}" name="weightDetails[${idx}][isedit]" value="N">
           <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="0.00">
           <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="NO">
+          <input type="hidden" id="grade${idx}" name="weightDetails[${idx}][grade]" value="">
         </td>
         <td>
-          <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
+          <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
             <option value="" selected disabled>Select Product</option>
             <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
-              <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+              <option value="<?=$rowProduct['id'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
             <?php } ?>
           </select>
         </td>
         <td>
-          <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
+          <select class="form-control select2" id="grade_id${idx}" name="weightDetails[${idx}][grade_id]" required>
+            <option value="" selected disabled>Select Grade</option>
             <?php while($rowGrade=mysqli_fetch_assoc($grades4)){ ?>
-              <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-id="<?=$rowGrade['id'] ?>"><?=$rowGrade['units'] ?></option>
+              <option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
             <?php } ?>
           </select>
         </td>
-        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
@@ -1413,16 +1431,16 @@ $(function () {
     });
   });
 
-  $('#weightDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
+  $('#weightDetailsTable').on('change', 'select[name*="[product]"]', function() {
     var row = $(this).closest('tr');
-    var productName = $(this).val();
-    var productId = $(this).find('option:selected').data('id');
+    var productId = $(this).val();
+    var productName = $(this).find('option:selected').data('name');
     var customerId = $('#extendModal').find('#customer').val();
-    row.find('input[name*="[product]"]').val(productId);
+    row.find('input[name*="[product_name]"]').val(productName);
     row.find('input[name*="[product_desc]"]').val(productName);
     
     // Filter grades by selected product
-    var gradeSelect = row.find('select[name*="[grade]"]');
+    var gradeSelect = row.find('select[name*="[grade_id]"]');
     var currentGrade = gradeSelect.val();
     var currentGradeId = gradeSelect.find(':selected').data('id');
 
@@ -1458,13 +1476,16 @@ $(function () {
     gradeSelect.val(currentGrade).trigger('change');
   });
 
-  $('#weightDetailsTable').on('change', 'select[id^="grade"]', function() {
-    var grade = $(this).find(':selected').data('id');
+  $('#weightDetailsTable').on('change', 'select[id^="grade_id"]', function() {
+    var gradeId = $(this).val();
+    var gradeName = $(this).find('option:selected').data('name');
     var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var status = $('#extendModal').find('#status').val();
+    $(this).closest('tr').find('input[name*="[grade]"]').val(gradeName);
 
     if (allowPrice == 'Y' && productId){
-      calculatePrice(productId, customerId, grade, $(this));
+      calculatePrice(productId, status, customerId, gradeId, $(this));
     }
   });
 
@@ -1577,9 +1598,10 @@ $(function () {
     var grade = $(this).find(':selected').data('id');
     var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId){
-      calculatePrice(productId, customerId, grade, $(this));
+    if (allowPrice == 'Y' && productId && status){
+      calculatePrice(productId, status, customerId, grade, $(this));
     }
   });
 
@@ -1744,10 +1766,10 @@ function format (row) {
     <div class="col-6">
       <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
       <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
-      <p><strong>Total Item:</strong> ${row.total_item}</p>
-      <p><strong>Total Weight:</strong> ${row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Reject:</strong> ${row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00'}</p>
-      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
+      <p><strong>Total Item:</strong> ${row.totalItems}</p>
+      <p><strong>Total Weight:</strong> ${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'}</p>
+      <p><strong>Total Reject:</strong> ${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'}</p>
+      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.totalPrice).toFixed(2) + '</p>' : ''}
     </div>
   </div>
   <div class="row">
@@ -1980,22 +2002,31 @@ function newEntry(){
   
   $('#extendForm').validate({
     errorElement: 'span',
+    ignore: [],
     errorPlacement: function (error, element) {
-      error.addClass('invalid-feedback');
-      element.closest('.form-group').append(error);
+      error.addClass('invalid-feedback').css('display', 'block');
+      if (element.hasClass('select2') || element.next('.select2-container').length) {
+        error.insertAfter(element.next('.select2-container'));
+      } else {
+        element.closest('td').append(error);
+      }
     },
     highlight: function (element, errorClass, validClass) {
       $(element).addClass('is-invalid');
+      if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
+        $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
+      }
     },
     unhighlight: function (element, errorClass, validClass) {
       $(element).removeClass('is-invalid');
+      $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
     }
   });
 }
 
-function calculatePrice(productId, customerId, currentGrade, element) {
+function calculatePrice(productId, status, customerId, currentGrade, element) {
   if (productId){
-    $.post('php/getProduct.php', {userID: productId, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+    $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
@@ -2083,7 +2114,7 @@ function edit(id) {
             <tr class="details">
               <td><input type="checkbox" id="weightCheckbox${idx}"></td>
               <td style="display:none">
-                <input type="hidden" id="product${idx}" name="weightDetails[${idx}][product]" value="${detail.product}">
+                <input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="${detail.product_name}">
                 <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="${detail.product_desc}">
                 <input type="hidden" id="pretare${idx}" name="weightDetails[${idx}][pretare]" value="${detail.pretare}">
                 <input type="hidden" id="unit${idx}" name="weightDetails[${idx}][unit]" value="${detail.unit}">
@@ -2092,23 +2123,25 @@ function edit(id) {
                 <input type="hidden" id="isedit${idx}" name="weightDetails[${idx}][isedit]" value="${detail.isedit}">
                 <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="${detail.reject}">
                 <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="${detail.isRejected}">
+                <input type="hidden" id="grade${idx}" name="weightDetails[${idx}][grade]" value="${detail.grade}">
               </td>
               <td>
-                <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
+                <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
                   <option value="" selected disabled>Select Product</option>
                   <?php while($rowProduct=mysqli_fetch_assoc($products4)){ ?>
-                    <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+                    <option value="<?=$rowProduct['id'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
                   <?php } ?>
                 </select>
               </td>
               <td>
-                <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
+                <select class="form-control select2" id="grade_id${idx}" name="weightDetails[${idx}][grade_id]" required>
+                  <option value="" selected disabled>Select Grade</option>
                   <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-                    <option value="<?=$rowGrade['units'] ?>" data-product="<?=$rowGrade['product_name'] ?>"><?=$rowGrade['units'] ?></option>
+                    <option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
                   <?php } ?>
                 </select>
               </td>
-              <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01"></td>
+              <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" required min="0.01"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01" readonly></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${(parseFloat(detail.price)||0).toFixed(2)}"></td>
@@ -2130,7 +2163,7 @@ function edit(id) {
           tbody.append(row);
           
           // Filter grades by product
-          var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade]"]`);
+          var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade_id]"]`);
           var productName = detail.product_name;
           // Store original options before filtering
           gradeSelect.data('original-options', gradeSelect.html());
@@ -2140,12 +2173,18 @@ function edit(id) {
               $(this).remove();
             }
           });
-          
-          // Set the selected value for the grade dropdown
-          gradeSelect.val(detail.grade);
+
+          // Set selected grade_id
+          gradeSelect.val(detail.grade_id);
+
+          // Set hidden grade name
+          tbody.find(`input[name="weightDetails[${idx}][grade]"]`).val(detail.grade);
 
           // Set selected product
-          tbody.find(`select[name="weightDetails[${idx}][product_name]"]`).val(detail.product_name);
+          tbody.find(`select[name="weightDetails[${idx}][product]"]`).val(detail.product);
+
+          // Set hidden product_name
+          tbody.find(`input[name="weightDetails[${idx}][product_name]"]`).val(detail.product_name);
 
           totalGross += parseFloat(detail.gross) || 0;
           totalTare += parseFloat(detail.tare) || 0;
@@ -2195,7 +2234,7 @@ function edit(id) {
               <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${(parseFloat(detail.net)||0).toFixed(2)} ${detail.unit}</td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${(parseFloat(detail.price)||0).toFixed(2)}</td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${(parseFloat(detail.total)||0).toFixed(2)}</td>
-              <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
+              <td><input type="time" class="form-control" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}"></td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
@@ -2239,15 +2278,24 @@ function edit(id) {
 
       $('#extendForm').validate({
         errorElement: 'span',
+        ignore: [],
         errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
+          error.addClass('invalid-feedback').css('display', 'block');
+          if (element.hasClass('select2') || element.next('.select2-container').length) {
+            error.insertAfter(element.next('.select2-container'));
+          } else {
+            element.closest('td').append(error);
+          }
         },
         highlight: function (element, errorClass, validClass) {
           $(element).addClass('is-invalid');
+          if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
+            $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
+          }
         },
         unhighlight: function (element, errorClass, validClass) {
           $(element).removeClass('is-invalid');
+          $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
         }
       });
     }

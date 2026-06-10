@@ -1,8 +1,29 @@
 <?php
 require_once 'db_connect.php';
 require_once 'uploadFileHelper.php';
+require_once 'services/stockManagementService.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
+
+function groupWeightDetails($weightDetails) {
+    $grouped = [];
+    foreach ($weightDetails as $detail) {
+        $product = $detail['product'] ?? '';
+        $gradeId = $detail['grade_id'] ?? '';
+        $key = $product . '_' . $gradeId;
+
+        if (isset($grouped[$key])) {
+            $grouped[$key]['net'] += floatval($detail['net'] ?? 0);
+        } else {
+            $grouped[$key] = [
+                'product' => $product,
+                'grade_id' => $gradeId,
+                'net' => floatval($detail['net'] ?? 0)
+            ];
+        }
+    }
+    return $grouped;
+}
 
 if(isset($_POST['status'], $_POST['startTime'])){
     $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_STRING);
@@ -211,6 +232,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'fixedfloat' => $weightDetail['fixedfloat'] ?? '',
                 'time' => $weightDetail['time'] ?? '',
                 'grade' => $weightDetail['grade'] ?? '',
+                'grade_id' => $weightDetail['grade_id'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
@@ -293,11 +315,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
         } else {
             $prefix = ($status == 'DISPATCH') ? 'S' : (($status == 'RECEIVING') ? 'P' : (($status == 'NITROGEN') ? 'N' : (($status == 'REJECT') ? 'REJ' : 'SB')));
         }
-
 		$serialNo = $prefix.$startDateTime2;
 
-		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE created_datetime >= ? AND status = ? AND deleted='0'")) {
-            $select_stmt->bind_param('ss', $startDateTime, $status);
+		if ($select_stmt = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE created_datetime >= ? AND status = ? AND deleted='0' AND company = ? AND records_type = ?")) {
+            $select_stmt->bind_param('ssss', $startDateTime, $status, $company, $record_type);
             
             // Execute the prepared query.
             if (! $select_stmt->execute()) {
@@ -365,6 +386,23 @@ if(isset($_POST['status'], $_POST['startTime'])){
 	}
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
+        // If Stock Management is enabled, process the stock changes based on the weight details
+        if (in_array('stocks', $_SESSION['products'])) {
+            // Query current record to get existing data
+            if ($currentRecordStmt = $db->prepare("SELECT * FROM wholesales WHERE id = ?")){
+                $currentRecordStmt->bind_param('s', $_POST['id']);
+                $currentRecordStmt->execute();
+                $result = $currentRecordStmt->get_result();
+
+                if ($row = $result->fetch_assoc()) {
+                    $existingWeights = json_decode($row['weight_details'], true);
+                    $existingGroupedWeights = groupWeightDetails($existingWeights); 
+                }
+
+                $currentRecordStmt->close();
+            }
+        }
+
         if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, end_time=?, modified_by=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
@@ -382,6 +420,23 @@ if(isset($_POST['status'], $_POST['startTime'])){
             } 
             else{
                 $update_stmt->close();
+
+                // If Stock Management is enabled, process the stock changes based on the weight details
+                if (in_array('stocks', $_SESSION['products'])) {
+                    $productWeights = groupWeightDetails($weightDetails);
+                    
+                    foreach ($productWeights as $key => $productWeight){
+                        $productId = $productWeight['product'];
+                        $grade = $productWeight['grade_id'];
+                        $afterValue = $productWeight['net'];
+                        $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
+
+                        if (floatval($afterValue) == floatval($beforeValue)) continue;
+
+                        processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue, $_POST['id'], 'wholesales', $customer, $supplier);
+                    }
+                }
+
                 $db->close();
                 
                 echo json_encode(
@@ -405,7 +460,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
         if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, created_datetime, created_by, end_time, company, weighted_by, indicator, records_type) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $insert_stmt->bind_param('sssssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $startDateTime3, $userID, $endDateTime,$company, $userID, $indicator, $recordType);
+            $insert_stmt->bind_param('sssssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $startDateTime3, $userID, $endDateTime, $company, $userID, $indicator, $recordType);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
@@ -417,7 +472,19 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 );
             } 
             else{
+                $wholesaleId = $insert_stmt->insert_id;
                 $insert_stmt->close();
+
+                // If Stock Management is enabled, process the stock changes based on the weight details
+                if (in_array('stocks', $_SESSION['products'])) {
+                    $productWeights = groupWeightDetails($weightDetails);
+                    foreach ($productWeights as $weight) {
+                        $productId = $weight['product'];
+                        $grade = $weight['grade_id'];
+                        $nettWeight = $weight['net'];
+                        processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status, false, 0, $wholesaleId, 'wholesales', $customer, $supplier);
+                    }
+                }
 
                 if(!isset($post['doPoNo']) || $post['doPoNo'] == null || $post['doPoNo'] == ''){
 					$curval = $curval + 1;
@@ -455,7 +522,6 @@ else{
             "message"=> "Please fill in all the fields"
         )
     );
-    
 }
 
 ?>

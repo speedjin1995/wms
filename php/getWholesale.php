@@ -50,7 +50,7 @@ if(isset($_POST['userID'])){
                 $message['created_datetime'] = $row['created_datetime'];
                 $message['end_time'] = $row['end_time'];
                 $message['records_type'] = $row['records_type'];
-
+                
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
                     $parentId = searchCustomerParentById($row['customer'], $db);
@@ -62,17 +62,46 @@ if(isset($_POST['userID'])){
                 }
 
                 $weightDetails = array();
+                $totalItems = 0;
+                $totalReject = 0;
+                $totalWeight = 0; 
+                $totalPrice = 0;
                 if (isset($row['weight_details']) && !empty($row['weight_details'])){
                     $weightDetails = json_decode($row['weight_details'], true);
+                    $totalItems = count($weightDetails);
+                    $weightDetailsOut = [];
+                    foreach ($weightDetails as $weight){
+                        $weight['product_name'] = searchProductNameById($weight['product'], $db);
+
+                        // Backward compatibility: if grade_id is missing, lookup by grade name
+                        if (empty($weight['grade_id']) && !empty($weight['grade'])) {
+                            $weight['grade_id'] = searchGradeIdByName($weight['grade'], $row['company'], $db);
+                        } else if (!empty($weight['grade_id'])) {
+                            $weight['grade'] = searchGradeNameById($weight['grade_id'], $db);
+                        }
+
+                        $totalWeight += floatval($weight['net']);
+                        $totalPrice += floatval($weight['price']);
+                        $weightDetailsOut[] = $weight;
+                    }
+                    $weightDetails = $weightDetailsOut;
                 }
 
                 $message['weightDetails'] = $weightDetails;
+                $message['totalItems'] = $totalItems;
+                $message['totalWeight'] = $totalWeight;
+                $message['totalPrice'] = $totalPrice;
 
                 $rejectDetails = array();
                 if (isset($row['reject_details']) && !empty($row['reject_details'])){
                     $rejectDetails = json_decode($row['reject_details'], true);
+
+                    foreach ($weightDetails as $weight){
+                        $totalReject += floatval($weight['net']);
+                    }
                 }
 
+                $message['totalPrice'] = $totalReject;
                 $message['rejectDetails'] = $rejectDetails;
             }
             

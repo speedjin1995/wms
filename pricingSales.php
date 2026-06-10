@@ -30,7 +30,6 @@ else{
         }
     }
   }
-
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
   $productGroup = array();
   $message = array();
