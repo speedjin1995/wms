@@ -106,7 +106,7 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select wholesales.* from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select wholesales.* from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery." order by CASE WHEN COALESCE(c.is_manual, s.is_manual) = 'Y' THEN 0 ELSE 1 END ASC, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
@@ -168,6 +168,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "company"=>$row['company'],
     "weighted_by"=>searchUserNameById($row['weighted_by'], $db),
     "checked_by"=>($row['checked_by'] == 'JACKY' ? '' : $row['checked_by']),
+    'remark'=>$row['remark'] ?? '',
     'remarks2'=>$row['remarks2'] ?? ''
   );
 }
