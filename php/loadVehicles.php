@@ -37,7 +37,7 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select vehicles.*, drivers.driver_name as driver_name from vehicles LEFT JOIN drivers ON vehicles.driver = drivers.id ".$searchQuery." order by deleted, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select vehicles.*, drivers.driver_name as driver_name from vehicles LEFT JOIN drivers ON vehicles.driver = drivers.id ".$searchQuery." order by deleted, (vehicles.is_manual = 'Y') desc, ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
