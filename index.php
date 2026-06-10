@@ -462,6 +462,20 @@ to get the desired effect
                   <p><?=$languageArray['batch_packaging_code'][$language]?></p>
                 </a>
               </li>
+            </ul>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-bar"></i>
+              <p><?=$languageArray['stock_management'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none;">
+              <li class="nav-item">
+                <a href="#stockDashboard" data-file="stockDashboard.php" class="nav-link link">
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p>Stock Dashboard</p>
+                </a>
+              </li>
               <li class="nav-item">
                 <a href="#stockTransfer" data-file="stockTransfer.php" class="nav-link link">
                   <i class="nav-icon fas fa-exchange-alt"></i>
