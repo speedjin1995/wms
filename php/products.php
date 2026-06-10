@@ -204,15 +204,6 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
 
                             $delete_stmt->close();
                         } 
-
-                        $delete_stmt->close();
-                    }
-                }else{
-                    # Delete all existing product rawmat records tied to the product id then reinsert
-                    if ($delete_stmt = $db->prepare("UPDATE product_grades SET deleted=? WHERE product_id=?")){
-                        $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
-                        $delete_stmt->execute();
-                        $delete_stmt->close();
                     }
                 }else{
                     # Delete all existing product rawmat records tied to the product id then reinsert
