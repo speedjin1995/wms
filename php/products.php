@@ -126,19 +126,21 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 );
             }
             else{
-                # product_customers 
+                # product_customers
                 if (isset($_POST['no'])){
                     $no = $_POST['no'];
-                    $customers =  $_POST['customers'];
-                    $customerPricingType = $_POST['customerPricingType'];
-                    $customerPrice = $_POST['customerPrice'];
-                    $customerPurchasingPricingType = $_POST['customerPurchasingPricingType'];
-                    $customerPurchasingPrice = $_POST['customerPurchasingPrice'];
+                    $customers = (array)$_POST['customers'];
+                    $customerProductId = (array)$_POST['customerProductId'];
+                    $customerPricingType = (array)$_POST['customerPricingType'];
+                    $customerPrice = (array)$_POST['customerPrice'];
+                    $customerPurchasingPricingType = (array)$_POST['customerPurchasingPricingType'];
+                    $customerPurchasingPrice = (array)$_POST['customerPurchasingPrice'];
+
                     if(isset($no) && $no != null && count($no) > 0){
-                        # Delete all existing product rawmat records tied to the product id then reinsert
-                        if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted=? WHERE product_id=?")){
-                            $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
-    
+                        #  Soft-delete old product_customers
+                        if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted='1' WHERE product_id=?")){
+                            $delete_stmt->bind_param('s', $_POST['id']);
+
                             // Execute the prepared query.
                             if (! $delete_stmt->execute()) {
                                 echo json_encode(
@@ -147,41 +149,50 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                         "message"=> $delete_stmt->error
                                     )
                                 );
-                            }
-                            else{
-                                foreach ($no as $key => $number) {
-                                    if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price, purchasing_pricing_type, purchasing_price) VALUES (?, ?, ?, ?, ?, ?)")){
-                                        $product_stmt->bind_param('ssssss', $_POST['id'], $customers[$key], $customerPricingType[$key], $customerPrice[$key], $customerPurchasingPricingType[$key], $customerPurchasingPrice[$key]);
-                                        $product_stmt->execute();
-                                        $product_stmt->close();
+                            }else{
+                                foreach($no as $key => $number) {
+                                    $customerId = $customers[$key];
+                                    $cPricingType = $customerPricingType[$key];
+                                    $cPrice = $customerPrice[$key];
+                                    $cPurchasingPricingType = $customerPurchasingPricingType[$key];
+                                    $cPurchasingPrice = $customerPurchasingPrice[$key];
+
+                                    if (isset($customerProductId[$key]) && $customerProductId[$key] != null && $customerProductId[$key] != ''){
+                                        $cProductId = $customerProductId[$key];
+
+                                        if ($update_stmt2 = $db->prepare("UPDATE product_customers SET product_id=?, customer_id=?, pricing_type=?, price=?, purchasing_pricing_type=?, purchasing_price=?, deleted='0' WHERE id=?")){
+                                            $update_stmt2->bind_param('sssssss', $_POST['id'], $customerId, $cPricingType, $cPrice, $cPurchasingPricingType, $cPurchasingPrice, $cProductId);
+                                            $update_stmt2->execute();
+                                            $update_stmt2->close();
+                                        }
+                                    }else{
+                                        if ($product_stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, pricing_type, price, purchasing_pricing_type, purchasing_price) VALUES (?, ?, ?, ?, ?, ?)")){
+                                            $product_stmt->bind_param('ssssss', $_POST['id'], $customerId, $cPricingType, $cPrice, $cPurchasingPricingType, $cPurchasingPrice);
+                                            $product_stmt->execute();
+                                            $product_stmt->close();
+                                        }
                                     }
                                 }
                             }
-                        } 
-
-                        $delete_stmt->close();
-                    }
-                }else{
-                    # Delete all existing product rawmat records tied to the product id then reinsert
-                    if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted=? WHERE product_id=?")){
-                        $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
-                        $delete_stmt->execute();
-                        $delete_stmt->close();
+                            $delete_stmt->close();
+                        }
                     }
                 }
 
                 # product_grade 
                 if (isset($_POST['gradeNo'])){
                     $no = $_POST['gradeNo'];
-                    $grades =  $_POST['grades'];
-                    $gradePricingType = $_POST['gradePricingType'];
-                    $gradePrice = $_POST['gradePrice'];
-                    $gradePurchasingPricingType = $_POST['gradePurchasingPricingType'];
-                    $gradePurchasingPrice = $_POST['gradePurchasingPrice'];
+                    $productGradeId = (array)$_POST['productGradeId'];
+                    $grades =  (array)$_POST['grades'];
+                    $gradePricingType = (array)$_POST['gradePricingType'];
+                    $gradePrice = (array)$_POST['gradePrice'];
+                    $gradePurchasingPricingType = (array)$_POST['gradePurchasingPricingType'];
+                    $gradePurchasingPrice = (array)$_POST['gradePurchasingPrice'];
+
                     if(isset($no) && $no != null && count($no) > 0){
-                        # Delete all existing product rawmat records tied to the product id then reinsert
-                        if ($delete_stmt = $db->prepare("UPDATE product_grades SET deleted=? WHERE product_id=?")){
-                            $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
+                        #  Soft-delete old product_grades
+                        if ($delete_stmt = $db->prepare("UPDATE product_grades SET deleted='1' WHERE product_id=?")){
+                            $delete_stmt->bind_param('s', $_POST['id']);
     
                             // Execute the prepared query.
                             if (! $delete_stmt->execute()) {
@@ -193,24 +204,33 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                 );
                             }
                             else{
-                                foreach ($no as $key => $number) {
-                                    if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price) VALUES (?, ?, ?, ?, ?, ?)")){
-                                        $product_stmt->bind_param('ssssss', $_POST['id'], $grades[$key], $gradePricingType[$key], $gradePrice[$key], $gradePurchasingPricingType[$key], $gradePurchasingPrice[$key]);
-                                        $product_stmt->execute();
-                                        $product_stmt->close();
+                                foreach($no as $key => $number) {
+                                    $gradeId = $grades[$key];
+                                    $gPricingType = $gradePricingType[$key];
+                                    $gPrice = $gradePrice[$key];
+                                    $gPurchasingPricingType = $gradePurchasingPricingType[$key];
+                                    $gPurchasingPrice = $gradePurchasingPrice[$key];
+
+                                    if (isset($productGradeId[$key]) && $productGradeId[$key] != null && $productGradeId[$key] != ''){
+                                        $gProductId = $productGradeId[$key];
+
+                                        if ($update_stmt2 = $db->prepare("UPDATE product_grades SET product_id=?, grade_id=?, pricing_type=?, price=?, purchasing_pricing_type=?, purchasing_price=?, deleted='0' WHERE id=?")){
+                                            $update_stmt2->bind_param('sssssss', $_POST['id'], $gradeId, $gPricingType, $gPrice, $gPurchasingPricingType, $gPurchasingPrice, $gProductId);
+                                            $update_stmt2->execute();
+                                            $update_stmt2->close();
+                                        }
+                                    }else{
+                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price) VALUES (?, ?, ?, ?, ?, ?)")){
+                                            $product_stmt->bind_param('ssssss', $_POST['id'], $gradeId, $gPricingType, $gPrice, $gPurchasingPricingType, $gPurchasingPrice);
+                                            $product_stmt->execute();
+                                            $product_stmt->close();
+                                        }
                                     }
                                 }
                             }
 
                             $delete_stmt->close();
                         } 
-                    }
-                }else{
-                    # Delete all existing product rawmat records tied to the product id then reinsert
-                    if ($delete_stmt = $db->prepare("UPDATE product_grades SET deleted=? WHERE product_id=?")){
-                        $delete_stmt->bind_param('ss', $deleteStatus, $_POST['id']);
-                        $delete_stmt->execute();
-                        $delete_stmt->close();
                     }
                 }
 

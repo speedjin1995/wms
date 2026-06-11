@@ -239,16 +239,10 @@ try {
         $content .= '<tr><td colspan="15">No records found...</td></tr>';
     }
 
-    if ($_GET['transactionStatus'] == 'DISPATCH') {
-        $status = 'DISPATCH';
-    } else if ($_GET['transactionStatus'] == 'RECEIVING') {
-        $status = 'RECEIVING';
-    } else if ($_GET['transactionStatus'] == 'OUTGOING') {
-        $status = 'OUTGOING';
-    } else if ($_GET['transactionStatus'] == 'INCOMING') {
-        $status = 'INCOMING';
-    } else {
+    if ($_GET['transactionStatus'] == 'STOCK-BAL'){
         $status = 'STOCK BALANCE';
+    }else{
+        $status = $_GET['transactionStatus'];
     }
 
     // Set PDF header with logo and dynamic report title
@@ -295,7 +289,7 @@ try {
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                            <div class="fw-bold">WEEKLY MONTHLY '.$status.' REPORT WEIGHING</div>
+                            <div class="fw-bold">'.$status.' REPORT WEIGHING</div>
                         </td>
                         <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                             <div class="fw-bold">From Date: '.$fromDate.' - '.$toDate.'</div>
