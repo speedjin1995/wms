@@ -847,6 +847,7 @@ $(function () {
     $("#customerTable").find('.details:last').attr("data-index", customerRowCount);
     $("#customerTable").find('#remove:last').attr("id", "remove" + customerRowCount);
 
+    $("#customerTable").find('#customerProductId:last').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount);
     $("#customerTable").find('#no:last').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(customerRowCount+1);
     $("#customerTable").find('#customers:last').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).select2({
       allowClear: true,
@@ -890,6 +891,7 @@ $(function () {
     $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
     $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
 
+    $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount);
     $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(gradeRowCount+1);
     $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).select2({
       allowClear: true,
@@ -1029,6 +1031,7 @@ function edit(id){
           $("#customerTable").find('#remove:last').attr("id", "remove" + customerRowCount);
 
           $("#customerTable").find('#no:last').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(item.no);
+          $("#customerTable").find('#customerProductId:last').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount).val(item.id);
           $("#customerTable").find('#customers:last').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).val(item.customer_id).select2({
             allowClear: true,
             placeholder: "Please Select",
@@ -1068,6 +1071,7 @@ function edit(id){
           $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
           $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
 
+          $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount).val(item.id);
           $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(item.no);
           $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id).select2({
             allowClear: true,
