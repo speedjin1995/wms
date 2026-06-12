@@ -473,7 +473,7 @@ to get the desired effect
               <li class="nav-item">
                 <a href="#stockDashboard" data-file="stockDashboard.php" class="nav-link link">
                   <i class="nav-icon fas fa-tachometer-alt"></i>
-                  <p>Stock Dashboard</p>
+                  <p><?=$languageArray['dashboard_code'][$language]?></p>
                 </a>
               </li>
               <li class="nav-item">
