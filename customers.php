@@ -97,7 +97,8 @@ else{
 									<th><?=$languageArray['address_code'][$language]?></th>
 									<th><?=$languageArray['phone_code'][$language]?></th>
 									<th><?=$languageArray['pic_code'][$language]?></th>
-									<th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+									<th><?=$languageArray['pending_bins_code'][$language]?></th>
+								<th width="15%"><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
 						</table>
@@ -377,6 +378,71 @@ else{
     <!-- /.modal-dialog -->
 </div>
 
+<!-- Bin Modal -->
+<div class="modal fade" id="binModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="binForm">
+        <div class="modal-header bg-gradient-warning">
+          <h5 class="modal-title"><i class="fas fa-shopping-basket mr-2"></i><?=$languageArray['manage_bins_code'][$language]?> &mdash; <span id="binCustomerName"></span></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="binCustomerId" name="binCustomerId">
+          <div class="mb-3"><?=$languageArray['current_pending_bins_code'][$language]?>: <strong id="binCurrent"></strong></div>
+          <div class="form-group">
+            <label><?=$languageArray['actions_code'][$language]?></label>
+            <select class="form-control" id="binType" name="binType">
+              <option value="OUT"><?=$languageArray['bin_out_code'][$language]?></option>
+              <option value="IN"><?=$languageArray['bin_in_code'][$language]?></option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['quantity_code'][$language]?> <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="binQty" name="binQty" min="1" placeholder="Enter quantity">
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['remark_code'][$language]?></label>
+            <input type="text" class="form-control" id="binRemark" name="binRemark" placeholder="Optional remark">
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary" name="submit" id="submitBin"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Bin History Modal -->
+<div class="modal fade" id="binHistoryModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-gradient-info">
+        <h5 class="modal-title"><i class="fas fa-history mr-2"></i><?=$languageArray['bin_history_code'][$language]?> &mdash; <span id="binHistoryCustomerName"></span></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <table id="binHistoryTable" class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th><?=$languageArray['date_code'][$language]?></th>
+              <th><?=$languageArray['type_code'][$language]?></th>
+              <th><?=$languageArray['quantity_code'][$language]?></th>
+              <th><?=$languageArray['remark'][$language]?></th>
+              <th><?=$languageArray['by_code'][$language]?></th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
 <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
@@ -401,6 +467,7 @@ else{
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script>
 
+var binHistoryTable = null;
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
     var checkboxes = $('#customerTable tbody input[type="checkbox"]');
@@ -423,7 +490,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-      'url':'php/loadCustomers.php',
+      'url':'php/modules/customers/loadCustomers.php',
     },
     'columns': [
       {
@@ -442,14 +509,19 @@ $(function () {
       { data: 'customer_address' },
       { data: 'customer_phone' },
       { data: 'pic' },
+      { data: 'pending_bins' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
           if (data == 0) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-          } 
-          else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+            return '<div style="display:flex;gap:4px;">'
+              + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
+              + '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\', ' + row.pending_bins + ')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
+              + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>'
+              + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+              + '</div>';
+          } else {
+            return '<button onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
           }
         }
       }
@@ -462,36 +534,44 @@ $(function () {
   });
   
   $.validator.setDefaults({
-      submitHandler: function () {
-          $('#spinnerLoading').show();
-          $.post('php/customers.php', $('#customerForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
-              
-              if(obj.status === 'success'){
-                $('#addModal').modal('hide');
-                toastr["success"](obj.message, "Success:");
-                $('#customerTable').DataTable().ajax.reload();
-                
-                // Refresh the parent dropdown
-                $.get('php/getCustomers.php', function(customers) {
-                  $('#parent').empty().append('<option value="">Please Select</option>');
-                  customers.forEach(function(customer) {
-                    $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
-                  });
-                });
-                
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                toastr["error"](obj.message, "Failed:");
-                $('#spinnerLoading').hide();
-              }
-              else{
-                toastr["error"]("Something wrong when edit", "Failed:");
-                $('#spinnerLoading').hide();
-              }
-          });
+    submitHandler: function () {
+      if ($('#addModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/customers.php', $('#customerForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#addModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#customerTable').DataTable().ajax.reload();
+            $.get('php/modules/customers/getCustomers.php', function(customers) {
+              $('#parent').empty().append('<option value="">Please Select</option>');
+              customers.forEach(function(customer) {
+                $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
+              });
+            });
+          } else if (obj.status === 'failed') {
+            toastr["error"](obj.message, "Failed:");
+          } else {
+            toastr["error"]("Something wrong when edit", "Failed:");
+          }
+          $('#spinnerLoading').hide();
+        });
+      } else if ($('#binModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/updateBin.php', $('#binForm').serialize(), function(data) {
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#binModal').modal('hide');
+            toastr['success'](obj.message, 'Success:');
+            $('#binModal').find('#binCurrent').text(obj.pending_bins);
+            $('#customerTable').DataTable().ajax.reload();
+          } else {
+            toastr['error'](obj.message, 'Failed:');
+          }
+          $('#spinnerLoading').hide();
+        });
       }
+    }
   });
 
   $('#addCustomers').on('click', function(){
@@ -586,7 +666,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/uploadCustomer.php',
+        url: 'php/modules/customers/uploadCustomer.php',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -629,7 +709,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/deleteCustomer.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+          $.post('php/modules/customers/deleteCustomer.php', {userID: selectedIds, type: 'MULTI'}, function(data){
               var obj = JSON.parse(data);
               
               if(obj.status === 'success'){
@@ -653,56 +733,6 @@ $(function () {
         $('#spinnerLoading').hide();
     }     
   });
-
-  // document.getElementById('fileInput').addEventListener('change', function (e) {
-  //   const file = e.target.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = function (e) {
-  //     const data = new Uint8Array(e.target.result);
-  //     const workbook = XLSX.read(data, { type: 'array' });
-
-  //     const sheetName = workbook.SheetNames[1];
-  //     const sheet = workbook.Sheets[sheetName];
-  //     jsonData = XLSX.utils.sheet_to_json(sheet);
-  //     console.log(jsonData);
-  //   };
-  //   reader.readAsArrayBuffer(file);
-  // });
-
-  // $('#importExcelbtn').on('click', function(){
-  //     jsonData.forEach(function(row) {
-  //         $.ajax({
-  //             url: 'php/importExcelCustomer.php',
-  //             type: 'POST',
-  //             contentType: 'application/json',
-  //             data: JSON.stringify(row),
-  //             success: function(response) {
-  //                 debugger;
-  //                 var obj = JSON.parse(response); 
-                  
-  //                 if(obj.status === 'success'){
-  //                     $('#addModal').modal('hide');
-  //                     toastr["success"](obj.message, "Success:");
-  //                     $('#customerTable').DataTable().ajax.reload();
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else if(obj.status === 'failed'){
-  //                     toastr["error"](obj.message, "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else{
-  //                     toastr["error"]("Something wrong when import", "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //             },
-  //             error: function(error) {
-  //                 toastr["error"](obj.message, "Failed:");
-  //                 $('#spinnerLoading').hide();
-  //             }
-  //         })
-  //     })
-  // });
 });
 
 function displayPreview(data) {
@@ -758,7 +788,7 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getCustomer.php', {userID: id}, function(data){
+  $.post('php/modules/customers/getCustomer.php', {userID: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){
@@ -814,7 +844,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/deleteCustomer.php', {userID: id}, function(data){
+    $.post('php/modules/customers/deleteCustomer.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
@@ -837,7 +867,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/reactivateCustomer.php', {userID: id}, function(data){
+    $.post('php/modules/customers/reactivateCustomer.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
@@ -855,5 +885,50 @@ function reactivate(id){
         }
     });
   }
+}
+
+function openBinModal(id, name, pendingBins) {
+  $('#binModal').find('#binCustomerId').val(id);
+  $('#binModal').find('#binCustomerName').text(name);
+  $('#binModal').find('#binCurrent').text(pendingBins);
+  $('#binModal').find('#binQty').val('');
+  $('#binModal').find('#binType').val('OUT');
+  $('#binModal').find('#binRemark').val('');
+  $('#binModal').modal('show');
+
+  $('#binForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+    }
+  });
+}
+
+function openBinHistory(id, name) {
+  $('#binHistoryModal').find('#binHistoryCustomerName').text(name);
+  if (binHistoryTable) { binHistoryTable.destroy(); }
+  binHistoryTable = $('#binHistoryTable').DataTable({
+    responsive: true,
+    processing: true,
+    serverSide: true,
+    serverMethod: 'post',
+    ajax: { url: 'php/modules/customers/getBinHistory.php', data: { customer_id: id } },
+    columns: [
+      { data: 'created_at', title: 'Date' },
+      { data: 'type', title: 'Type', render: function(d) { return d === 'OUT' ? '<span class="badge badge-warning">OUT</span>' : '<span class="badge badge-success">IN</span>'; } },
+      { data: 'qty', title: 'Qty' },
+      { data: 'remark', title: 'Remark' },
+      { data: 'user_name', title: 'By' }
+    ],
+    order: [[0, 'desc']]
+  });
+  $('#binHistoryModal').modal('show');
 }
 </script>

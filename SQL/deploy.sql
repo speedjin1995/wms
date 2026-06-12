@@ -1396,3 +1396,16 @@ CREATE TABLE `stock_transfer_items` (
 
 ALTER TABLE `stock_transfer_items` ADD PRIMARY KEY (`id`);
 ALTER TABLE `stock_transfer_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- 12/06/2026 --
+ALTER TABLE `customers` ADD `pending_bins` INT(11) NOT NULL DEFAULT 0;
+
+CREATE TABLE `customer_bin_logs` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `customer_id` INT(11) NOT NULL,
+  `type` VARCHAR(3) NOT NULL,
+  `qty` INT(11) NOT NULL,
+  `remark` VARCHAR(255) NULL,
+  `created_by` INT(11) NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+);
