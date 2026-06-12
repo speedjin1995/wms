@@ -369,7 +369,10 @@ else{
           <div class="card card-outline card-success mb-3">
             <div class="card-header py-2 d-flex align-items-center justify-content-between">
               <h6 class="mb-0"><i class="fas fa-users mr-1"></i><?=$languageArray['customers_code'][$language]?></h6>
-              <button type="button" class="btn btn-success btn-sm add-customer ml-auto"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+              <div class="ml-auto">
+                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+              </div>
             </div>
             <div class="card-body p-2">
               <table class="table table-sm table-bordered mb-0">
@@ -423,6 +426,59 @@ else{
   </div>
 </div>
 
+<!-- Bulk Price by State Modal -->
+<div class="modal fade" id="bulkPriceByStateModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-gradient-warning">
+        <h5 class="modal-title text-white"><i class="fas fa-tags mr-2"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></h5>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?> <span class="text-danger">*</span></label>
+          <select class="form-control select2" id="bulkState" multiple style="width:100%;">
+            <?php
+              $statesBulk = $db->query("SELECT * FROM states ORDER BY states ASC");
+              while($rowStateBulk = mysqli_fetch_assoc($statesBulk)){
+            ?>
+              <option value="<?=$rowStateBulk['id']?>"><?=$rowStateBulk['states']?></option>
+            <?php } ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="font-weight-bold"><?=$languageArray['pricing_type_code'][$language]?></label>
+          <select class="form-control" id="bulkPricingType">
+            <option value="Standard"><?=$languageArray['standard_code'][$language]?></option>
+            <option value="Fixed"><?=$languageArray['fixed_code'][$language]?></option>
+            <option value="Float"><?=$languageArray['float_code'][$language]?></option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
+          <input type="number" class="form-control" id="bulkSellingPrice" placeholder="0.00" value="0">
+        </div>
+        <div class="form-group">
+          <label class="font-weight-bold"><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
+          <select class="form-control" id="bulkPurchasingPricingType">
+            <option value="Standard"><?=$languageArray['standard_code'][$language]?></option>
+            <option value="Fixed"><?=$languageArray['fixed_code'][$language]?></option>
+            <option value="Float"><?=$languageArray['float_code'][$language]?></option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
+          <input type="number" class="form-control" id="bulkPurchasingPrice" placeholder="0.00" value="0">
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-warning" id="bulkPriceByStateSave"><?=$languageArray['save_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
 <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
@@ -455,7 +511,7 @@ else{
     <td>
       <select class="form-control select2" style="width: 100%; background-color:white;" id="customers" name="customers">
         <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
-          <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name']?></option>
+          <option value="<?=$rowCustomer['id'] ?>" data-state="<?=$rowCustomer['states']?>"><?=$rowCustomer['customer_name']?></option>
         <?php } ?>
       </select>
     </td>
@@ -916,6 +972,50 @@ $(function () {
     });
 
     gradeRowCount++;
+  });
+
+  $('#bulkPriceByStateModal').on('show.bs.modal', function() {
+    $('#addModal .modal-content').css('filter', 'blur(3px)');
+  }).on('hide.bs.modal', function() {
+    $('#addModal .modal-content').css('filter', '');
+  });
+
+  $('#bulkPriceByState').on('click', function() {
+    $('#bulkState').val(null).trigger('change');
+    $('#bulkPricingType').val('Standard');
+    $('#bulkSellingPrice').val(0);
+    $('#bulkPurchasingPricingType').val('Standard');
+    $('#bulkPurchasingPrice').val(0);
+    $('#bulkPriceByStateModal').modal('show');
+  });
+
+  $('#bulkPriceByStateSave').on('click', function() {
+    var selectedStates = $('#bulkState').val();
+    if (!selectedStates || selectedStates.length === 0) {
+      toastr["error"]("Please select at least one state.", "Error:");
+      return;
+    }
+    var pricingType = $('#bulkPricingType').val();
+    var sellingPrice = $('#bulkSellingPrice').val();
+    var purchasingPricingType = $('#bulkPurchasingPricingType').val();
+    var purchasingPrice = $('#bulkPurchasingPrice').val();
+    var updated = 0;
+
+    $('#customerTable tr.details').each(function() {
+      var $row = $(this);
+      var $customerSelect = $row.find('select[id^="customers"]');
+      var customerState = $customerSelect.find('option:selected').data('state');
+      if (selectedStates.indexOf(String(customerState)) !== -1) {
+        $row.find('select[id^="customerPricingType"]').val(pricingType);
+        $row.find('input[id^="customerPrice"]').val(sellingPrice);
+        $row.find('select[id^="customerPurchasingPricingType"]').val(purchasingPricingType);
+        $row.find('input[id^="customerPurchasingPrice"]').val(purchasingPrice);
+        updated++;
+      }
+    });
+
+    $('#bulkPriceByStateModal').modal('hide');
+    toastr["success"](updated + " customer(s) updated.", "Success:");
   });
 });
 
