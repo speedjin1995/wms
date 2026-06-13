@@ -12,6 +12,7 @@ else{
   $user = $_SESSION['userID'];
   $module = $_SESSION['module'] ?? '';
   $packages = $_SESSION['packages'] ?? [];
+  $products = $_SESSION['products'] ?? [];
   $enableDailySales = $_SESSION['enableDailySales'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
@@ -464,32 +465,6 @@ to get the desired effect
               </li>
             </ul>
           </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-bar"></i>
-              <p><?=$languageArray['stock_management'][$language]?><i class="fas fa-angle-left right"></i></p>
-            </a>
-            <ul class="nav nav-treeview" style="display: none;">
-              <li class="nav-item">
-                <a href="#stockDashboard" data-file="stockDashboard.php" class="nav-link link">
-                  <i class="nav-icon fas fa-tachometer-alt"></i>
-                  <p><?=$languageArray['dashboard_code'][$language]?></p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#stockTransfer" data-file="stockTransfer.php" class="nav-link link">
-                  <i class="nav-icon fas fa-exchange-alt"></i>
-                  <p><?=$languageArray['stock_transfer_code'][$language]?></p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="#loadingOrders" data-file="loadingOrders.php" class="nav-link link">
-                  <i class="nav-icon fas fa-truck-loading"></i>
-                  <p><?=$languageArray['loading_orders_code'][$language]?></p>
-                </a>
-              </li>
-            </ul>
-          </li>
           <?php } ?>
           <?php if ($module != 'pricing' && $module != 'processing') { ?>
           <li class="nav-item has-treeview menu-open">
@@ -595,6 +570,50 @@ to get the desired effect
               <i class="nav-icon fas fa-cubes"></i>
               <p><?=$languageArray['reports_code'][$language]?></p>
             </a>
+          </li>
+          <?php } ?>
+          <?php if (in_array('stocks', $_SESSION['products'])) { ?>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-bar"></i>
+              <p><?=$languageArray['stock_management'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none;">
+              <li class="nav-item">
+                <a href="#stockDashboard" data-file="stockDashboard.php" class="nav-link link">
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p><?=$languageArray['dashboard_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#stockTransfer" data-file="stockTransfer.php" class="nav-link link">
+                  <i class="nav-icon fas fa-exchange-alt"></i>
+                  <p><?=$languageArray['stock_transfer_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#loadingOrders" data-file="loadingOrders.php" class="nav-link link">
+                  <i class="nav-icon fas fa-truck-loading"></i>
+                  <p><?=$languageArray['loading_orders_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php if (in_array('accounting', $_SESSION['products'])) { ?>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-calculator"></i>
+              <p><?=$languageArray['accounting_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none;">
+              <li class="nav-item">
+                <a href="#paymentVoucher" data-file="paymentVoucher.php" class="nav-link link">
+                  <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                  <p><?=$languageArray['payment_voucher_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
           </li>
           <?php } ?>
           <?php 
