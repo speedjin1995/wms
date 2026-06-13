@@ -121,7 +121,7 @@ while($r = mysqli_fetch_assoc($empRecords)){
                                     : date('d/m/Y', strtotime($r['latest_date']))),
         "voucher_no"        => $r['voucher_no'] ?? '-',
         "invoice_no"        => $r['invoice_no'] ?? '-',
-        "outstanding_amount"=> ($r['final_amount'] ? number_format($r['final_amount'], 2) : '0.00'),
+        "final_amount"=> ($r['final_amount'] ? number_format($r['final_amount'], 2) : '0.00'),
         "total_nett_weight" => number_format($r['total_nett_weight'], 2),
         "pv_id"             => $r['pv_id'] ?? '',
     );

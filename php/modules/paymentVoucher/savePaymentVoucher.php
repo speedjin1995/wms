@@ -120,13 +120,6 @@ if (isset($_POST['supplierId']) && $_POST['supplierId'] != null && $_POST['suppl
     if (isset($_POST['pvId']) && $_POST['pvId'] != null && $_POST['pvId'] != '') {
         $pvId = filter_input(INPUT_POST, 'pvId', FILTER_SANITIZE_NUMBER_INT);
 
-        // Unlink previously linked wholesales
-        if ($unlinkStmt = $db->prepare("UPDATE wholesales SET pv_id = NULL, unit_price = 0 WHERE pv_id = ?")) {
-            $unlinkStmt->bind_param('s', $pvId);
-            $unlinkStmt->execute();
-            $unlinkStmt->close();
-        }
-
         // Update PV header
         if ($update_stmt = $db->prepare("UPDATE payment_vouchers SET voucher_date=?, invoice_no=?, unit_price=?, tax=?, total_nett_weight=?, total_amount=?, deduction_amount=?, addition_amount=?, final_amount=?, deduction_details=?, addition_details=?, modified_by=? WHERE id=?")) {
             $update_stmt->bind_param('sssssssssssss', $voucherDate, $invoiceNo, $unitPrice, $tax, $totalNett, $totalAmount, $deductionAmount, $additionAmount, $finalAmount, $deductionDetails, $additionDetails, $userID, $pvId);

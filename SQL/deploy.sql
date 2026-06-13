@@ -1464,7 +1464,8 @@ CREATE TABLE `payment_vouchers` (
   `created_by` varchar(30) NOT NULL,
   `modified_date` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `modified_by` varchar(30) DEFAULT NULL,
-  `deleted` int(1) NOT NULL DEFAULT 0
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 ALTER TABLE `payment_vouchers` ADD PRIMARY KEY (`id`);
@@ -1487,11 +1488,13 @@ CREATE TABLE `payment_vouchers_log` (
   `final_amount` varchar(100) DEFAULT NULL,
   `deduction_details` text DEFAULT NULL,
   `addition_details` text DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL,
   `company` int(11) NOT NULL,
   `action_id` int(11) NOT NULL,
   `action_by` varchar(50) NOT NULL,
   `event_date` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 ALTER TABLE `payment_vouchers_log` ADD PRIMARY KEY (`id`);
 
@@ -1499,10 +1502,10 @@ ALTER TABLE `payment_vouchers_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 DELIMITER $$
 CREATE OR REPLACE TRIGGER `TRG_INS_PAY` AFTER INSERT ON `payment_vouchers` FOR EACH ROW INSERT INTO payment_vouchers_log (
-    payment_voucher_id, supplier_id, voucher_no,  voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, company, action_id, action_by, event_date
+    payment_voucher_id, supplier_id, voucher_no,  voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, deleted, delete_reason, company, action_id, action_by, event_date
 ) 
 VALUES (
-    NEW.id, NEW.supplier_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.company, 1, NEW.created_by, NEW.created_date
+    NEW.id, NEW.supplier_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.deleted, NEW.delete_reason, NEW.company, 1, NEW.created_by, NEW.created_date
 )
 $$
 DELIMITER ;
@@ -1519,10 +1522,10 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PAY` BEFORE UPDATE ON `payment_vouchers` FOR 
 
     -- Insert into payment_vouchers_log table
     INSERT INTO payment_vouchers_log (
-        payment_voucher_id, supplier_id, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, company, action_id, action_by, event_date
+        payment_voucher_id, supplier_id, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, deleted, delete_reason, company, action_id, action_by, event_date
     ) 
     VALUES (
-        NEW.id, NEW.supplier_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.company, action_value, NEW.modified_by, NEW.modified_date
+        NEW.id, NEW.supplier_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.deleted, NEW.delete_reason, NEW.company, action_value, NEW.modified_by, NEW.modified_date
     );
 END
 $$

@@ -127,7 +127,7 @@ $languageArray = $_SESSION['languageArray'];
                   <th><?=$languageArray['voucher_no_code'][$language]?></th>
                   <th><?=$languageArray['supplier_code'][$language]?></th>
                   <th><?=$languageArray['invoice_no_code'][$language]?></th>
-                  <th><?=$languageArray['payment_voucher_code'][$language]?> (RM)</th>
+                  <th><?=$languageArray['total_amount_code'][$language]?> (RM)</th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -151,9 +151,9 @@ $languageArray = $_SESSION['languageArray'];
         <div class="modal-body">
           <input type="hidden" id="pvId" name="pvId">
           <input type="hidden" id="pvSupplierId" name="supplierId">
-          <input type="hidden" id="deductionAmount" value="0">
-          <input type="hidden" id="additionAmount" value="0">
-          <input type="hidden" id="finalAmount" value="0">
+          <input type="hidden" id="deductionAmount" name="deductionAmount" value="0">
+          <input type="hidden" id="additionAmount" name="additionAmount" value="0">
+          <input type="hidden" id="finalAmount" name="finalAmount" value="0">
 
           <div class="row mb-3">
             <div class="col-md-4">
@@ -170,13 +170,13 @@ $languageArray = $_SESSION['languageArray'];
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['voucher_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="voucherNo" readonly placeholder="Auto Generated">
+                <input type="text" class="form-control" id="voucherNo" name="voucherNo" readonly placeholder="Auto Generated">
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['invoice_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="invoiceNo" readonly placeholder="Auto Generated">
+                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo" readonly placeholder="Auto Generated">
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@ $languageArray = $_SESSION['languageArray'];
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['total_amount_code'][$language]?> (RM)</label>
-                <input type="text" class="form-control" id="totalAmount" readonly>
+                <input type="text" class="form-control" id="totalAmount" name="totalAmount" readonly>
               </div>
             </div>
   
@@ -334,7 +334,7 @@ $(function() {
       { data: 'voucher_no' },
       { data: 'supplier_name' },
       { data: 'invoice_no' },
-      { data: 'outstanding_amount' },
+      { data: 'final_amount' },
       {
         data: 'id',
         class: 'action-button',
@@ -385,7 +385,7 @@ $(function() {
         { data: 'voucher_no' },
         { data: 'supplier_name' },
         { data: 'invoice_no' },
-        { data: 'outstanding_amount' },
+        { data: 'final_amount' },
         {
           data: 'id',
           class: 'action-button',
