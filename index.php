@@ -466,7 +466,7 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module != 'pricing' && $module != 'processing') { ?>
+          <?php if ($module != 'pricing' && $module != 'processing' && $module != 'accounting' && $module != 'stocks') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -572,8 +572,8 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
-          <?php if (in_array('stocks', $_SESSION['products'])) { ?>
-          <li class="nav-item has-treeview">
+          <?php if ($module == 'stocks') { ?>
+          <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-chart-bar"></i>
               <p><?=$languageArray['stock_management'][$language]?><i class="fas fa-angle-left right"></i></p>
@@ -600,8 +600,8 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if (in_array('accounting', $_SESSION['products'])) { ?>
-          <li class="nav-item has-treeview">
+          <?php if ($module == 'accounting') { ?>
+          <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-calculator"></i>
               <p><?=$languageArray['accounting_code'][$language]?><i class="fas fa-angle-left right"></i></p>
@@ -907,6 +907,10 @@ $(function () {
     $("a[href='#pricingSales']").click();
     <?php } else if ($module == 'processing') { ?>
     $("a[href='#wholesales']").click();
+    <?php } else if ($module == 'accounting') { ?>
+    $("a[href='#paymentVoucher']").click();
+    <?php } else if ($module == 'stocks') { ?>
+    $("a[href='#stockDashboard']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>
