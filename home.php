@@ -216,6 +216,30 @@ if(!isset($_SESSION['userID'])){
                         <div class="modules-txt"><?=$languageArray['processing_code'][$language]?></div>
                     </div>
                 </a>
+                <a href="php/setModule.php?module=accounting"
+                    <?php 
+                        if (!in_array('accounting', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-2">
+                        <img src="assets/accounting-icon.png" alt="Accounting" class="modules-img">
+                        <div class="modules-txt"><?=$languageArray['accounting_code'][$language]?></div>
+                    </div>
+                </a>
+                <a href="php/setModule.php?module=stocks"
+                    <?php 
+                        if (!in_array('stocks', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-2">
+                        <img src="assets/stocks-icon.png" alt="Stocks" class="modules-img">
+                        <div class="modules-txt"><?=$languageArray['stocks_management_code'][$language]?></div>
+                    </div>
+                </a>
                 <a href="php/logout.php">
                     <div class="modules-box modules-box-3">
                         <img src="assets/logout-icon.png" alt="Logout" class="modules-img">

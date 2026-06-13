@@ -97,7 +97,8 @@ else{
 									<th><?=$languageArray['address_code'][$language]?></th>
 									<th><?=$languageArray['phone_code'][$language]?></th>
 									<th><?=$languageArray['pic_code'][$language]?></th>
-									<th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+									<th><?=$languageArray['pending_bins_code'][$language]?></th>
+								<th width="15%"><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
 						</table>
@@ -377,6 +378,97 @@ else{
     <!-- /.modal-dialog -->
 </div>
 
+<!-- Bin Modal -->
+<div class="modal fade" id="binModal">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
+      <form id="binForm">
+        <div class="modal-header" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border:none;">
+          <div>
+            <h5 class="modal-title font-weight-bold mb-0" style="color:#1a1a2e;"><i class="fas fa-shopping-basket mr-2"></i><?=$languageArray['manage_bins_code'][$language]?></h5>
+            <small style="color:#1a1a2e;"><span id="binCustomerName"></span></small>
+          </div>
+          <button type="button" class="close" style="color:#1a1a2e;" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body" style="background:#f8f9fa; color:#333;">
+          <input type="hidden" id="binCustomerId" name="binCustomerId">
+
+          <!-- Pending count banner -->
+          <div class="text-center mb-4">
+            <div style="display:inline-block; background:#fff; border-radius:12px; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+              <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#666;"><?=$languageArray['current_pending_bins_code'][$language]?></div>
+              <div id="binCurrent" style="font-size:2.5rem; font-weight:700; color:#fda085; line-height:1.1;">0</div>
+              <div style="font-size:0.85rem; color:#666;"><?=$languageArray['bins_code'][$language]?></div>
+            </div>
+          </div>
+
+          <!-- IN / OUT toggle -->
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['actions_code'][$language]?></label>
+            <div class="d-flex" style="gap:10px;">
+              <div class="flex-fill">
+                <input type="radio" name="binType" id="binTypeOut" value="OUT" class="d-none" checked>
+                <label for="binTypeOut" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
+                  <i class="fas fa-arrow-up text-warning mr-1"></i> <?=$languageArray['bin_out_code'][$language]?>
+                  <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_takes_bins_code'][$language]?></div>
+                </label>
+              </div>
+              <div class="flex-fill">
+                <input type="radio" name="binType" id="binTypeIn" value="IN" class="d-none">
+                <label for="binTypeIn" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
+                  <i class="fas fa-arrow-down text-success mr-1"></i> <?=$languageArray['bin_in_code'][$language]?>
+                  <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_returns_bins_code'][$language]?></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['quantity_code'][$language]?> <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="binQty" name="binQty" min="1" placeholder="e.g. 5" style="border-radius:8px; font-size:0.9rem; height:48px;">
+          </div>
+
+          <div class="form-group mb-0">
+            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['remark_code'][$language]?></label>
+            <input type="text" class="form-control" id="binRemark" name="binRemark" placeholder="Optional note..." style="border-radius:8px;">
+          </div>
+        </div>
+        <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
+          <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px;"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-warning" name="submit" id="submitBin" style="border-radius:8px; min-width:90px; font-weight:600;"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.bin-type-btn { background:#fff; text-align:center; font-weight:600; }
+input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
+</style>
+
+<!-- Bin History Modal -->
+<div class="modal fade" id="binHistoryModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); border:none;">
+        <div>
+          <h5 class="modal-title font-weight-bold mb-0" style="color:#1a1a2e;"><i class="fas fa-history mr-2"></i><?=$languageArray['bin_history_code'][$language]?></h5>
+          <small style="color:#1a1a2e;"><span id="binHistoryCustomerName"></span></small>
+        </div>
+        <button type="button" class="close" style="color:#1a1a2e;" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body" style="background:#f0f2f5; color:#333; max-height:65vh; overflow-y:auto; padding:16px;">
+        <div id="binHistoryList"><div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin"></i></div></div>
+        <div id="binHistoryPager" class="d-flex justify-content-between align-items-center mt-2"></div>
+      </div>
+      <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
+        <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px; font-size:0.9rem;"><?=$languageArray['close_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
 <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
@@ -423,7 +515,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-      'url':'php/loadCustomers.php',
+      'url':'php/modules/customers/loadCustomers.php',
     },
     'columns': [
       {
@@ -442,14 +534,19 @@ $(function () {
       { data: 'customer_address' },
       { data: 'customer_phone' },
       { data: 'pic' },
+      { data: 'pending_bins' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
           if (data == 0) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-          } 
-          else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+            return '<div style="display:flex;gap:4px;">'
+              + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
+              + '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\', ' + row.pending_bins + ')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
+              + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>'
+              + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+              + '</div>';
+          } else {
+            return '<button onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
           }
         }
       }
@@ -462,36 +559,44 @@ $(function () {
   });
   
   $.validator.setDefaults({
-      submitHandler: function () {
-          $('#spinnerLoading').show();
-          $.post('php/customers.php', $('#customerForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
-              
-              if(obj.status === 'success'){
-                $('#addModal').modal('hide');
-                toastr["success"](obj.message, "Success:");
-                $('#customerTable').DataTable().ajax.reload();
-                
-                // Refresh the parent dropdown
-                $.get('php/getCustomers.php', function(customers) {
-                  $('#parent').empty().append('<option value="">Please Select</option>');
-                  customers.forEach(function(customer) {
-                    $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
-                  });
-                });
-                
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                toastr["error"](obj.message, "Failed:");
-                $('#spinnerLoading').hide();
-              }
-              else{
-                toastr["error"]("Something wrong when edit", "Failed:");
-                $('#spinnerLoading').hide();
-              }
-          });
+    submitHandler: function () {
+      if ($('#addModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/customers.php', $('#customerForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#addModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#customerTable').DataTable().ajax.reload();
+            $.get('php/modules/customers/getCustomers.php', function(customers) {
+              $('#parent').empty().append('<option value="">Please Select</option>');
+              customers.forEach(function(customer) {
+                $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
+              });
+            });
+          } else if (obj.status === 'failed') {
+            toastr["error"](obj.message, "Failed:");
+          } else {
+            toastr["error"]("Something wrong when edit", "Failed:");
+          }
+          $('#spinnerLoading').hide();
+        });
+      } else if ($('#binModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/updateBin.php', $('#binForm').serialize(), function(data) {
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#binModal').modal('hide');
+            toastr['success'](obj.message, 'Success:');
+            $('#binModal').find('#binCurrent').text(obj.pending_bins);
+            $('#customerTable').DataTable().ajax.reload();
+          } else {
+            toastr['error'](obj.message, 'Failed:');
+          }
+          $('#spinnerLoading').hide();
+        });
       }
+    }
   });
 
   $('#addCustomers').on('click', function(){
@@ -586,7 +691,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/uploadCustomer.php',
+        url: 'php/modules/customers/uploadCustomer.php',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -629,7 +734,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/deleteCustomer.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+          $.post('php/modules/customers/deleteCustomer.php', {userID: selectedIds, type: 'MULTI'}, function(data){
               var obj = JSON.parse(data);
               
               if(obj.status === 'success'){
@@ -653,56 +758,6 @@ $(function () {
         $('#spinnerLoading').hide();
     }     
   });
-
-  // document.getElementById('fileInput').addEventListener('change', function (e) {
-  //   const file = e.target.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = function (e) {
-  //     const data = new Uint8Array(e.target.result);
-  //     const workbook = XLSX.read(data, { type: 'array' });
-
-  //     const sheetName = workbook.SheetNames[1];
-  //     const sheet = workbook.Sheets[sheetName];
-  //     jsonData = XLSX.utils.sheet_to_json(sheet);
-  //     console.log(jsonData);
-  //   };
-  //   reader.readAsArrayBuffer(file);
-  // });
-
-  // $('#importExcelbtn').on('click', function(){
-  //     jsonData.forEach(function(row) {
-  //         $.ajax({
-  //             url: 'php/importExcelCustomer.php',
-  //             type: 'POST',
-  //             contentType: 'application/json',
-  //             data: JSON.stringify(row),
-  //             success: function(response) {
-  //                 debugger;
-  //                 var obj = JSON.parse(response); 
-                  
-  //                 if(obj.status === 'success'){
-  //                     $('#addModal').modal('hide');
-  //                     toastr["success"](obj.message, "Success:");
-  //                     $('#customerTable').DataTable().ajax.reload();
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else if(obj.status === 'failed'){
-  //                     toastr["error"](obj.message, "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else{
-  //                     toastr["error"]("Something wrong when import", "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //             },
-  //             error: function(error) {
-  //                 toastr["error"](obj.message, "Failed:");
-  //                 $('#spinnerLoading').hide();
-  //             }
-  //         })
-  //     })
-  // });
 });
 
 function displayPreview(data) {
@@ -758,7 +813,7 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getCustomer.php', {userID: id}, function(data){
+  $.post('php/modules/customers/getCustomer.php', {userID: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){
@@ -814,7 +869,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/deleteCustomer.php', {userID: id}, function(data){
+    $.post('php/modules/customers/deleteCustomer.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
@@ -837,7 +892,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/reactivateCustomer.php', {userID: id}, function(data){
+    $.post('php/modules/customers/reactivateCustomer.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
@@ -855,5 +910,103 @@ function reactivate(id){
         }
     });
   }
+}
+
+function openBinModal(id, name, pendingBins) {
+  $('#binModal').find('#binCustomerId').val(id);
+  $('#binModal').find('#binCustomerName').text(name);
+  $('#binModal').find('#binCurrent').text(pendingBins);
+  $('#binModal').find('#binQty').val('');
+  $('input[name="binType"][value="OUT"]').prop('checked', true);
+  $('#binModal').find('#binRemark').val('');
+  $('#binModal').modal('show');
+
+  $('#binForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+    }
+  });
+}
+
+function openBinHistory(id, name) {
+  $('#binHistoryModal').find('#binHistoryCustomerName').text(name);
+  $('#binHistoryList').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>');
+  $('#binHistoryPager').html('');
+  $('#binHistoryModal').modal('show');
+
+  $.post('php/modules/customers/getBinHistory.php', {
+    draw: 1, start: 0, length: 1000,
+    order: [{column: 0, dir: 'desc'}],
+    columns: [{data: 'created_at'}],
+    search: {value: ''},
+    customer_id: id
+  }, function(data) {
+    var obj = JSON.parse(data);
+    var rows = obj.aaData;
+    if (!rows || rows.length === 0) {
+      $('#binHistoryList').html('<div class="text-center text-muted py-5"><i class="fas fa-inbox fa-2x mb-2"></i><div>No records found</div></div>');
+      return;
+    }
+    var perPage = 5;
+    var currentPage = 1;
+    var totalPages = Math.ceil(rows.length / perPage);
+
+    function renderCards(page) {
+      var start = (page - 1) * perPage;
+      var pageRows = rows.slice(start, start + perPage);
+      var html = '';
+      pageRows.forEach(function(r) {
+        var isOut = r.type === 'OUT';
+        var icon       = isOut ? 'fa-arrow-up' : 'fa-arrow-down';
+        var iconClass  = isOut ? 'text-warning' : 'text-success';
+        var badgeClass = isOut ? 'badge-warning' : 'badge-success';
+        var label      = isOut ? 'OUT' : 'IN';
+        html += '<div class="card mb-2 border-0 shadow-sm">';
+        html +=   '<div class="card-body py-2 px-3 d-flex align-items-center">';
+        html +=     '<div class="mr-3"><i class="fas ' + icon + ' fa-lg ' + iconClass + '"></i></div>';
+        html +=     '<div class="flex-fill">';
+        html +=       '<div class="d-flex justify-content-between align-items-center">';
+        html +=         '<span class="font-weight-bold"><span class="badge ' + badgeClass + ' mr-1">' + label + '</span>' + r.qty + ' baskets</span>';
+        html +=         '<small class="text-muted">' + r.created_at + '</small>';
+        html +=       '</div>';
+        html +=       '<small class="text-muted"><i class="fas fa-user mr-1"></i>' + (r.user_name || '-');
+        if (r.remark) html += ' &middot; <i class="fas fa-comment mr-1"></i>' + r.remark;
+        html +=       '</small>';
+        html +=     '</div>';
+        html +=   '</div>';
+        html += '</div>';
+      });
+      $('#binHistoryList').html(html);
+
+      // Pagination controls
+      var pager = '<small class="text-muted">Showing ' + (start + 1) + '-' + Math.min(start + perPage, rows.length) + ' of ' + rows.length + '</small>';
+      pager += '<ul class="pagination pagination-sm mb-0">';
+      pager += '<li class="page-item ' + (page === 1 ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page - 1) + '">&laquo;</a></li>';
+      for (var i = 1; i <= totalPages; i++) {
+        pager += '<li class="page-item ' + (i === page ? 'active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+      }
+      pager += '<li class="page-item ' + (page === totalPages ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page + 1) + '">&raquo;</a></li>';
+      pager += '</ul>';
+      $('#binHistoryPager').html(pager);
+    }
+
+    renderCards(currentPage);
+
+    $('#binHistoryPager').off('click').on('click', 'a.page-link', function(e) {
+      e.preventDefault();
+      var page = parseInt($(this).data('page'));
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderCards(currentPage);
+    });
+  });
 }
 </script>

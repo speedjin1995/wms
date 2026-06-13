@@ -1396,3 +1396,142 @@ CREATE TABLE `stock_transfer_items` (
 
 ALTER TABLE `stock_transfer_items` ADD PRIMARY KEY (`id`);
 ALTER TABLE `stock_transfer_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- 12/06/2026 --
+ALTER TABLE `customers` ADD `pending_bins` INT(11) NOT NULL DEFAULT 0;
+
+CREATE TABLE `customer_bin_logs` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `customer_id` INT(11) NOT NULL,
+  `type` VARCHAR(3) NOT NULL,
+  `qty` INT(11) NOT NULL,
+  `remark` VARCHAR(255) NULL,
+  `created_by` INT(11) NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE `wholesales` ADD `pv_id` int(11) DEFAULT NULL AFTER `records_type`;
+ALTER TABLE `wholesales_log` ADD `records_type` VARCHAR(15) NOT NULL DEFAULT 'wholesales' AFTER `delete_reason`;
+ALTER TABLE `wholesales_log` ADD `pv_id` int(11) DEFAULT NULL AFTER `records_type`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_WHOLESALES` AFTER INSERT ON `wholesales` FOR EACH ROW INSERT INTO wholesales_log (
+    wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, created_datetime, created_by, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO wholesales_log (
+        wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, created_datetime, created_by, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;
+
+CREATE TABLE `payment_vouchers` (
+  `id` int(11) NOT NULL,
+  `supplier_id` int(11) NOT NULL,
+  `voucher_no` varchar(50) NOT NULL,
+  `voucher_date` date NOT NULL,
+  `invoice_no` varchar(50) DEFAULT NULL,
+  `unit_price` varchar(50) DEFAULT NULL,
+  `tax` varchar(50) DEFAULT NULL,
+  `total_nett_weight` varchar(50) DEFAULT NULL,
+  `total_amount` varchar(50) DEFAULT NULL,
+  `deduction_amount` varchar(50) DEFAULT NULL,
+  `addition_amount` varchar(50) DEFAULT NULL,
+  `final_amount` varchar(50) DEFAULT NULL,
+  `deduction_details` text DEFAULT NULL,
+  `addition_details` text DEFAULT NULL,
+  `company` int(11) NOT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_by` varchar(30) NOT NULL,
+  `modified_date` timestamp DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `modified_by` varchar(30) DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `payment_vouchers` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `payment_vouchers`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `payment_vouchers_log` (
+  `id` int(11) NOT NULL,
+  `payment_voucher_id` int(11) NOT NULL,
+  `supplier_id` varchar(100) NOT NULL,
+  `voucher_no` varchar(50) NOT NULL,
+  `voucher_date` datetime NOT NULL,
+  `invoice_no` varchar(100) NOT NULL,
+  `unit_price` varchar(100) NOT NULL DEFAULT '0',
+  `tax` varchar(3) NOT NULL DEFAULT '0',
+  `total_nett_weight` varchar(100) DEFAULT NULL,
+  `total_amount` varchar(100) DEFAULT NULL,
+  `deduction_amount` varchar(100) DEFAULT NULL,
+  `addition_amount` varchar(100) DEFAULT NULL,
+  `final_amount` varchar(100) DEFAULT NULL,
+  `deduction_details` text DEFAULT NULL,
+  `addition_details` text DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `delete_reason` text DEFAULT NULL,
+  `company` int(11) NOT NULL,
+  `action_id` int(11) NOT NULL,
+  `action_by` varchar(50) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `payment_vouchers_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `payment_vouchers_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PAY` AFTER INSERT ON `payment_vouchers` FOR EACH ROW INSERT INTO payment_vouchers_log (
+    payment_voucher_id, supplier_id, voucher_no,  voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, deleted, delete_reason, company, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.supplier_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.deleted, NEW.delete_reason, NEW.company, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PAY` BEFORE UPDATE ON `payment_vouchers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into payment_vouchers_log table
+    INSERT INTO payment_vouchers_log (
+        payment_voucher_id, supplier_id, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, deleted, delete_reason, company, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.supplier_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.deleted, NEW.delete_reason, NEW.company, action_value, NEW.modified_by, NEW.modified_date
+    );
+END
+$$
+DELIMITER ;
+
+-- 13/06/2026 --
+ALTER TABLE product_customers ADD COLUMN grade_id int(11) NULL AFTER customer_id;
+
+
