@@ -1530,3 +1530,8 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PAY` BEFORE UPDATE ON `payment_vouchers` FOR 
 END
 $$
 DELIMITER ;
+
+-- 13/06/2026 --
+ALTER TABLE product_customers ADD COLUMN grade_id int(11) NULL AFTER customer_id;
+
+

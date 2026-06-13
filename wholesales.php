@@ -1255,6 +1255,14 @@ $(function () {
     else{
       $('#extendModal').find('#customerOtherDiv').hide();
     }
+
+    var customerId = customer;
+    var status = $('#extendModal').find('#status').val();
+    if (allowPrice == 'Y' && customerId && status) {
+      $('#weightDetailsTable tr.details').each(function() {
+        $(this).find('select[id^="grade_id"]').trigger('change');
+      });
+    }
   });
 
   $('#extendModal').find('#supplier').on('change', function () {
@@ -1458,12 +1466,12 @@ $(function () {
   $('#weightDetailsTable').on('change', 'select[id^="grade_id"]', function() {
     var gradeId = $(this).val();
     var gradeName = $(this).find('option:selected').data('name');
-    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
+    var productId = $(this).closest('tr').find('select[id^="product"]').val();
     var customerId = $('#extendModal').find('#customer').val();
     var status = $('#extendModal').find('#status').val();
     $(this).closest('tr').find('input[name*="[grade]"]').val(gradeName);
 
-    if (allowPrice == 'Y' && productId){
+    if (allowPrice == 'Y' && productId && status){
       calculatePrice(productId, status, customerId, gradeId, $(this));
     }
   });

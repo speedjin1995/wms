@@ -68,11 +68,23 @@ if(isset($_POST['userID'])){
         if (!empty($customerID)){
             $pricingType = null;
             $price = 0;
-            // Query product_customers
-            $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND deleted=0");
-            $productCustomerStmt->bind_param('ss', $id, $customerID);
-            $productCustomerStmt->execute();
-            $result = $productCustomerStmt->get_result();
+            $result = null;
+
+            // If grade provided, try customer + grade match first
+            if (!empty($grade)) {
+                $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND grade_id=? AND deleted=0");
+                $productCustomerStmt->bind_param('sss', $id, $customerID, $grade);
+                $productCustomerStmt->execute();
+                $result = $productCustomerStmt->get_result();
+            }
+
+            // Fall back to customer-only if no grade match or grade not provided
+            if (empty($result) || $result->num_rows === 0) {
+                $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND deleted=0");
+                $productCustomerStmt->bind_param('ss', $id, $customerID);
+                $productCustomerStmt->execute();
+                $result = $productCustomerStmt->get_result();
+            }
 
             if ($result->num_rows > 0) {
                 // If customer have pricing
@@ -288,6 +300,7 @@ if(isset($_POST['userID'])){
                             "id" => $row2['id'],
                             "product_id" => $row2['product_id'],
                             "customer_id" => $row2['customer_id'],
+                            "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
                             "price" => $row2['price'],
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
