@@ -39,6 +39,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "no"=>$counter,
     "name"=>$row['name'],
     "username"=>$row['username'],
+    "username"=>$row['username'],
     "deleted"=>$row['deleted']
   );
 

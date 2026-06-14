@@ -1534,4 +1534,38 @@ DELIMITER ;
 -- 13/06/2026 --
 ALTER TABLE product_customers ADD COLUMN grade_id int(11) NULL AFTER customer_id;
 
+ALTER TABLE `users` ADD `location` INT(11) NULL AFTER `allow_delete`;
 
+ALTER TABLE `wholesales` ADD `location` INT(11) NULL AFTER `pv_id`;
+
+ALTER TABLE `wholesales_log` ADD `location` INT(11) NULL AFTER `pv_id`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_WHOLESALES` AFTER INSERT ON `wholesales` FOR EACH ROW INSERT INTO wholesales_log (
+    wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, created_datetime, created_by, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, location, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.location, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO wholesales_log (
+        wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, created_datetime, created_by, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, location, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.location, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;
