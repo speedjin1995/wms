@@ -37,7 +37,7 @@ if(!isset($_SESSION['userID'])){
         
         <title>WMS</title>
         
-        <link rel="icon" href="assets/wms-logo-white-site-icon.png" type="image">
+        <link rel="icon" href="assets/wms-logo-site-icon.png" type="image">
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
         <!-- IonIcons -->
@@ -90,7 +90,7 @@ if(!isset($_SESSION['userID'])){
             }
 
             .modules-box-list a {
-                width: 500px;
+                width: 400px;
             }
 
             .modules-box-list .modules-box {

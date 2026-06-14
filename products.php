@@ -266,7 +266,7 @@ else{
                     <input type="number" class="form-control" name="price" id="price" placeholder="0.00">
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
                     <select class="form-control" id="purchasingPricingType" name="purchasingPricingType">
@@ -275,7 +275,7 @@ else{
                     </select>
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
                     <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00">

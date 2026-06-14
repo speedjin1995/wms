@@ -363,9 +363,9 @@ to get the desired effect
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
   <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #003392;">
     <!-- Brand Logo -->
-    <a href="#" class="brand-link logo-switch" style="line-height: 5.5; border-bottom-color: #ffffff;">
+    <a href="#" class="brand-link logo-switch" style="line-height: 3.5; border-bottom-color: #ffffff;">
       <img src="assets/wms-logo-white-site-icon.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs" style="left: 15px; top: 15px; line-height: 5.5;">
-      <img src="assets/wms-logo-white-2.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content; left: 25px; top: 15px;">
+      <img src="assets/wms-logo-white-2.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 25%;max-height: max-content; left: 25px; top: 15px;">
     </a>
 
     <!-- Sidebar -->

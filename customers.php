@@ -298,7 +298,7 @@ else{
               <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
                 <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
                 <div class="row">
-                  <div class="col-md-6">
+                  <div class="col-md-12">
                     <div class="form-group">
                       <label><?=$languageArray['billing_name_code'][$language]?></label>
                       <input type="text" class="form-control" name="billingName" id="billingName" placeholder="<?=$languageArray['billing_name_code'][$language]?>">
