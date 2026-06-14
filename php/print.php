@@ -216,15 +216,10 @@ if(isset($_POST['userID'])){
                     $weightDetails .= '</div>';
                 }
                 
-
-                if ($wholesale['status'] == 'DISPATCH') {
-                    $status = 'Dispatch';
-                } else if ($wholesale['status'] == 'RECEIVING') {
-                    $status = 'Receiving';
-                } else if ($wholesale['status'] == 'STOCK-BAL') {
+                if ($wholesale['status'] == 'STOCK-BAL'){
                     $status = 'Stock Balance';
-                } else {
-                    $status = 'Unknown';
+                }else{
+                    $status = ucwords(strtolower($wholesale['status']));
                 }
 
             $message = '
