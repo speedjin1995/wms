@@ -1,6 +1,6 @@
 <?php
 ## Database configuration
-require_once 'db_connect.php';
+require_once '../../db_connect.php';
 
 ## Read value
 $draw = $_POST['draw'];
@@ -15,7 +15,7 @@ $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Sear
 $searchQuery = " ";
 
 if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-  $searchQuery = " AND customer = '".$_POST['id']."'";
+  $searchQuery = " AND users.customer = '".$_POST['id']."'";
 }
 
 if($searchValue != ''){
@@ -25,18 +25,17 @@ if($searchValue != ''){
 }
 
 ## Total number of records without filtering
-$sel = mysqli_query($db,"select count(*) as allcount from users, roles, companies WHERE users.role_code = roles.role_code AND users.customer = companies.id AND users.deleted = '0'");
+$sel = mysqli_query($db,"select count(*) as allcount from users LEFT JOIN roles ON users.role_code = roles.role_code LEFT JOIN companies ON users.customer = companies.id WHERE users.deleted = '0'");
 $records = mysqli_fetch_assoc($sel);
 $totalRecords = $records['allcount'];
 
 ## Total number of record with filtering
-$sel = mysqli_query($db,"select count(*) as allcount from users, roles, companies WHERE users.role_code = roles.role_code AND users.customer = companies.id AND users.deleted = '0'".$searchQuery);
+$sel = mysqli_query($db,"select count(*) as allcount from users LEFT JOIN roles ON users.role_code = roles.role_code LEFT JOIN companies ON users.customer = companies.id WHERE users.deleted = '0'".$searchQuery);
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select users.id, users.username, users.name, users.created_date, users.created_by, users.allow_add, users.allow_edit, users.allow_delete, roles.role_name, companies.name AS company from users, roles, companies WHERE 
-users.role_code = roles.role_code AND users.customer = companies.id AND users.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select users.id, users.username, users.name, users.created_date, users.created_by, users.allow_add, users.allow_edit, users.allow_delete, roles.role_name, companies.name AS company, locations.locations AS location from users LEFT JOIN roles ON users.role_code = roles.role_code LEFT JOIN companies ON users.customer = companies.id LEFT JOIN locations ON users.location = locations.id WHERE users.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
@@ -57,6 +56,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "allow_edit"=> ($row['allow_edit'] == 'Y') ? 'YES' : 'NO',
       "allow_delete"=> ($row['allow_delete'] == 'Y') ? 'YES' : 'NO',
       "company"=>$row['company'],
+      "location"=>$row['location'],
       "created_date"=>$joined_date
     );
 }
