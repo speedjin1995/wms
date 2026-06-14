@@ -186,6 +186,32 @@ function searchGradesByCompanyId($value, $db) {
     return $id;
 }
 
+function searchGradeIdByName($gradeName, $company, $db) {
+    $id = null;
+    if (!empty($gradeName)) {
+        $stmt = $db->prepare("SELECT id FROM grades WHERE units = ? AND customer = ? AND deleted = 0 LIMIT 1");
+        $stmt->bind_param('ss', $gradeName, $company);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($row) $id = (int)$row['id'];
+    }
+    return $id;
+}
+
+function searchGradeNameById($gradeId, $db) {
+    $name = '';
+    if (!empty($gradeId)) {
+        $stmt = $db->prepare("SELECT units FROM grades WHERE id = ? AND deleted = 0 LIMIT 1");
+        $stmt->bind_param('s', $gradeId);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($row) $name = $row['units'];
+    }
+    return $name;
+}
+
 function searchDriverIcByDriverName($value, $company, $db) {
     $id = '';
 

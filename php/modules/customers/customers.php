@@ -1,5 +1,5 @@
 <?php
-require_once "db_connect.php";
+require_once "../../db_connect.php";
 
 session_start();
 
@@ -108,61 +108,28 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, customer_phone=?, pic=?, fax=?, parent=?, is_manual=? WHERE id=?")) {
             $update_stmt->bind_param('sssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $phone, $email, $fax, $parent, $isManual, $_POST['id']);
             
-            // Execute the prepared query.
             if (! $update_stmt->execute()) {
-                echo json_encode(
-                    array(
-                        "status"=> "failed", 
-                        "message"=> $update_stmt->error
-                    )
-                );
-            }
-            else{
+                echo json_encode(array("status"=> "failed", "message"=> $update_stmt->error));
+            } else {
                 $update_stmt->close();
                 $db->close();
-                
-                echo json_encode(
-                    array(
-                        "status"=> "success", 
-                        "message"=> "Updated Successfully!!" 
-                    )
-                );
+                echo json_encode(array("status"=> "success", "message"=> "Updated Successfully!!"));
             }
         }
-    }
-    else{
+    } else {
         if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, customer_phone, pic, fax, parent, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
             $insert_stmt->bind_param('ssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $phone, $email, $fax, $parent, $company);
             
-            // Execute the prepared query.
             if (! $insert_stmt->execute()) {
-                echo json_encode(
-                    array(
-                        "status"=> "failed", 
-                        "message"=> $insert_stmt->error
-                    )
-                );
-            }
-            else{
+                echo json_encode(array("status"=> "failed", "message"=> $insert_stmt->error));
+            } else {
                 $insert_stmt->close();
                 $db->close();
-                
-                echo json_encode(
-                    array(
-                        "status"=> "success", 
-                        "message"=> "Added Successfully!!" 
-                    )
-                );
+                echo json_encode(array("status"=> "success", "message"=> "Added Successfully!!"));
             }
         }
     }
-}
-else{
-    echo json_encode(
-        array(
-            "status"=> "failed", 
-            "message"=> "Please fill in all the fields"
-        )
-    );
+} else {
+    echo json_encode(array("status"=> "failed", "message"=> "Please fill in all the fields"));
 }
 ?>

@@ -33,6 +33,7 @@ if(isset($_POST['userID'])){
                 $message['supplier'] = $row['supplier'];
                 $message['product'] = $row['product'];
                 $message['package'] = $row['package'];
+                $message['location'] = $row['location'];
                 $message['vehicle_no'] = $row['vehicle_no'];
                 $message['other_vehicle'] = checkMasterDataVehicle($row['vehicle_no'], $row['company'], $db);
                 $message['driver'] = $row['driver'];
@@ -69,10 +70,22 @@ if(isset($_POST['userID'])){
                 if (isset($row['weight_details']) && !empty($row['weight_details'])){
                     $weightDetails = json_decode($row['weight_details'], true);
                     $totalItems = count($weightDetails);
+                    $weightDetailsOut = [];
                     foreach ($weightDetails as $weight){
+                        $weight['product_name'] = searchProductNameById($weight['product'], $db);
+
+                        // Backward compatibility: if grade_id is missing, lookup by grade name
+                        if (empty($weight['grade_id']) && !empty($weight['grade'])) {
+                            $weight['grade_id'] = searchGradeIdByName($weight['grade'], $row['company'], $db);
+                        } else if (!empty($weight['grade_id'])) {
+                            $weight['grade'] = searchGradeNameById($weight['grade_id'], $db);
+                        }
+
                         $totalWeight += floatval($weight['net']);
                         $totalPrice += floatval($weight['price']);
+                        $weightDetailsOut[] = $weight;
                     }
+                    $weightDetails = $weightDetailsOut;
                 }
 
                 $message['weightDetails'] = $weightDetails;

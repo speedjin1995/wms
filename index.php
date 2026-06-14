@@ -12,6 +12,7 @@ else{
   $user = $_SESSION['userID'];
   $module = $_SESSION['module'] ?? '';
   $packages = $_SESSION['packages'] ?? [];
+  $products = $_SESSION['products'] ?? [];
   $enableDailySales = $_SESSION['enableDailySales'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
@@ -465,7 +466,7 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module != 'pricing' && $module != 'processing') { ?>
+          <?php if ($module != 'pricing' && $module != 'processing' && $module != 'accounting' && $module != 'stocks') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -571,8 +572,52 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
+          <?php if ($module == 'stocks') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-bar"></i>
+              <p><?=$languageArray['stock_management'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none;">
+              <li class="nav-item">
+                <a href="#stockDashboard" data-file="stockDashboard.php" class="nav-link link">
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p><?=$languageArray['dashboard_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#stockTransfer" data-file="stockTransfer.php" class="nav-link link">
+                  <i class="nav-icon fas fa-exchange-alt"></i>
+                  <p><?=$languageArray['stock_transfer_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#loadingOrders" data-file="loadingOrders.php" class="nav-link link">
+                  <i class="nav-icon fas fa-truck-loading"></i>
+                  <p><?=$languageArray['loading_orders_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php if ($module == 'accounting') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-calculator"></i>
+              <p><?=$languageArray['accounting_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none;">
+              <li class="nav-item">
+                <a href="#paymentVoucher" data-file="paymentVoucher.php" class="nav-link link">
+                  <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                  <p><?=$languageArray['payment_voucher_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
           <?php 
-              if($role == "ADMIN" || $role == "SADMIN"){
+              if($role == "ADMIN" || $role == "SADMIN" || $role == "MANAGER"){
                 echo '<li class="nav-item has-treeview">
                 <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-database"></i>
@@ -645,6 +690,12 @@ to get the desired effect
                       <p>'.$languageArray['grades_code'][$language].'</p>
                     </a>
                   </li>
+                  <li class="nav-item">
+                    <a href="#locations" data-file="locations.php" class="nav-link link">
+                      <i class="nav-icon fas fa-map-marker-alt"></i>
+                      <p>'.$languageArray['locations_code'][$language].'</p>
+                    </a>
+                  </li>
                   ';
                 if ($module == 'processing') {
                   echo '
@@ -652,12 +703,6 @@ to get the desired effect
                     <a href="#shipmentTypes" data-file="shipmentTypes.php" class="nav-link link">
                       <i class="nav-icon fas fa-shipping-fast"></i>
                       <p>'.$languageArray['shipment_types_code'][$language].'</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="#locations" data-file="locations.php" class="nav-link link">
-                      <i class="nav-icon fas fa-map-marker-alt"></i>
-                      <p>'.$languageArray['locations_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
@@ -861,7 +906,11 @@ $(function () {
     <?php } else if ($module == 'pricing') { ?>
     $("a[href='#pricingSales']").click();
     <?php } else if ($module == 'processing') { ?>
-    $("a[href='#grading']").click();
+    $("a[href='#wholesales']").click();
+    <?php } else if ($module == 'accounting') { ?>
+    $("a[href='#paymentVoucher']").click();
+    <?php } else if ($module == 'stocks') { ?>
+    $("a[href='#stockDashboard']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>

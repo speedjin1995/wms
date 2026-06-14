@@ -1,5 +1,6 @@
 <?php
 require_once '../../db_connect.php';
+require_once '../../services/stockManagementService.php';
 
 session_start();
 
@@ -17,6 +18,11 @@ if(isset($_POST['id'], $_POST['cancelReason'])){
 		
 		if($stmt2->execute()){
 			$stmt2->close();
+
+			if (in_array('stocks', $_SESSION['products'])) {
+				processDeleteGradingStock($db, $id, $_SESSION['customer'], $userID);
+			}
+
 			$db->close();
 			
 			echo json_encode(

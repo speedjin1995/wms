@@ -1,5 +1,5 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
@@ -19,10 +19,15 @@ if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['custome
     $allowAdd = filter_input(INPUT_POST, 'allowAdd', FILTER_SANITIZE_STRING);
     $allowEdit = filter_input(INPUT_POST, 'allowEdit', FILTER_SANITIZE_STRING);
     $allowDelete = filter_input(INPUT_POST, 'allowDelete', FILTER_SANITIZE_STRING);
+    $location = null;
+
+    if(isset($_POST['location']) && $_POST['location'] != null && $_POST['location'] != ''){
+		$location = $_POST['location'];
+	}
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE users SET username=?, name=?, role_code=?, customer=?, allow_add=?, allow_edit=?, allow_delete=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssss', $username, $name, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE users SET username=?, name=?, role_code=?, customer=?, allow_add=?, allow_edit=?, allow_delete=?, location=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssss', $username, $name, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete, $location, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -51,8 +56,8 @@ if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['custome
         $password = '123456';
         $password = hash('sha512', $password . $random_salt);
 
-        if ($insert_stmt = $db->prepare("INSERT INTO users (username, name, password, salt, created_by, role_code, customer, allow_add, allow_edit, allow_delete) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssss', $username, $name, $password, $random_salt, $userId, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete);
+        if ($insert_stmt = $db->prepare("INSERT INTO users (username, name, password, salt, created_by, role_code, customer, allow_add, allow_edit, allow_delete, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssss', $username, $name, $password, $random_salt, $userId, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete, $location);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

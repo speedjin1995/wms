@@ -1,5 +1,5 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
@@ -29,6 +29,7 @@ if(isset($_POST['userID'])){
                 $message['allow_add'] = $row['allow_add'];
                 $message['allow_edit'] = $row['allow_edit'];
                 $message['allow_delete'] = $row['allow_delete'];
+                $message['location'] = $row['location'];
                 $message['customer'] = $row['customer'];
             }
             

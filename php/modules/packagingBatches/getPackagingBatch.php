@@ -32,6 +32,7 @@ if(isset($_POST['userID'])){
                 $message['production_line'] = $row['production_line'];
                 $message['production_lines'] = searchLocationById($row['production_line'], $db);
                 $message['remarks'] = $row['remarks'];
+                $message['status'] = $row['status'];
                 $message['company'] = $row['company'];
 
                 // Query packaging_batch_items table
@@ -48,12 +49,14 @@ if(isset($_POST['userID'])){
                             'product_id' => $row2['product_id'],
                             'product_name' => searchProductNameById($row2['product_id'], $db),
                             'grade' => $row2['grade'],
+                            'grade_name' => searchGradeNameById($row2['grade'], $db),
                             'packaging_size' => $row2['packaging_size'],
                             'packaging_size_name' => searchPackagingNameById($row2['packaging_size'], $db),
                             'units_per_box' => $row2['units_per_box'],
                             'weight' => $row2['weight'],
                             'packing_time' => date('H:i:s', strtotime($row2['packing_time'])),
                             'photo_path' => $row2['photo_path'],
+                            'status' => $row2['status'],
                         );
                     }
                 }

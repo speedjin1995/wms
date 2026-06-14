@@ -1,6 +1,7 @@
 <?php
 require_once '../../db_connect.php';
 require_once '../../uploadFileHelper.php';
+require_once '../../lookup.php';
 require_once '../../services/stockManagementService.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
@@ -9,7 +10,7 @@ function groupWeightDetails($weightDetails) {
     $grouped = [];
     foreach ($weightDetails as $detail) {
         $product = $detail['product'] ?? '';
-        $grade = $detail['grade'] ?? '';
+        $grade = $detail['to_grade'] ?? $detail['grade'] ?? '';
         $key = $product . '_' . $grade;
 
         if (isset($grouped[$key])) {
@@ -132,22 +133,19 @@ if(isset($_POST['startTime'])){
 	}
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        // If Stock Management is enabled, process the stock changes based on the weight details
-        // if (in_array('processing', $_SESSION['products'])) {
-        //     // Query current record to get existing data
-        //     if ($currentRecordStmt = $db->prepare("SELECT * FROM wholesales WHERE id = ?")){
-        //         $currentRecordStmt->bind_param('s', $_POST['id']);
-        //         $currentRecordStmt->execute();
-        //         $result = $currentRecordStmt->get_result();
-
-        //         if ($row = $result->fetch_assoc()) {
-        //             $existingWeights = json_decode($row['weight_details'], true);
-        //             $existingGroupedWeights = groupWeightDetails($existingWeights); 
-        //         }
-
-        //         $currentRecordStmt->close();
-        //     }
-        // }
+        // Fetch existing grading_items for stock reversal on edit
+        $existingGroupedWeights = [];
+        if (in_array('stocks', $_SESSION['products'])) {
+            $existItemsStmt = $db->prepare("SELECT product_id AS product, to_grade AS grade, nett_weight AS net FROM grading_items WHERE grading_id = ? AND deleted = '0' AND to_grade <> 'REJ'");
+            $existItemsStmt->bind_param('s', $_POST['id']);
+            $existItemsStmt->execute();
+            $existingItems = $existItemsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $existItemsStmt->close();
+            foreach ($existingItems as $ei) {
+                $key = $ei['product'] . '_' . $ei['grade'];
+                $existingGroupedWeights[$key]['net'] = ($existingGroupedWeights[$key]['net'] ?? 0) + floatval($ei['net']);
+            }
+        }
 
         if ($update_stmt = $db->prepare("UPDATE grading SET grading_no=?, location=?, start_date=?, end_date=?, product_category=?, remark=?, modified_by=? WHERE id=?")){
             $update_stmt->bind_param('ssssssss', $gradingNo, $location, $startDateTime3, $endDateTime, $category, $remarks, $userID, $_POST['id']);
@@ -177,15 +175,16 @@ if(isset($_POST['startTime'])){
 
                         foreach($data as $key => $weightDetail){
                             $time = date('Y-m-d') . ' ' . $weightDetail['time'];
+                            $toGrade = $weightDetail['to_grade'] ?? '';
                             if (isset($weightDetail['gradingItemId']) && $weightDetail['gradingItemId'] != null && $weightDetail['gradingItemId'] != ''){
                                 if ($update_stmt2 = $db->prepare("UPDATE grading_items SET product_id=?, to_grade=?, gross_weight=?, tare_weight=?, nett_weight=?, weighing_time=?, photo_path=?, deleted='0' WHERE id=?")){
-                                    $update_stmt2->bind_param('ssssssss', $weightDetail['product'], $weightDetail['grade'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath'], $weightDetail['gradingItemId']);
+                                    $update_stmt2->bind_param('ssssssss', $weightDetail['product'], $toGrade, $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath'], $weightDetail['gradingItemId']);
                                     $update_stmt2->execute();
                                     $update_stmt2->close();
                                 }
                             }else{
                                 if ($insert_stmt2 = $db->prepare("INSERT INTO grading_items (grading_id, product_id, to_grade, gross_weight, tare_weight, nett_weight, weighing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")){
-                                    $insert_stmt2->bind_param('ssssssss', $_POST['id'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
+                                    $insert_stmt2->bind_param('ssssssss', $_POST['id'], $weightDetail['product'], $toGrade, $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
                                     $insert_stmt2->execute();
                                     $insert_stmt2->close();
                                 }
@@ -222,19 +221,16 @@ if(isset($_POST['startTime'])){
                     }
                 }
 
-                // If Stock Management is enabled, process the stock changes based on the weight details
-                // if (in_array('processing', $_SESSION['products'])) {
-                //     $productWeights = groupWeightDetails($weightDetails);
-                    
-                //     foreach ($productWeights as $key => $productWeight){
-                //         $productId = $productWeight['product'];
-                //         $grade = $productWeight['grade'];
-                //         $afterValue = $productWeight['net'];
-                //         $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
-
-                //         processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue);
-                //     }
-                // }
+                // Process grading stock balance
+                if (in_array('stocks', $_SESSION['products']) && isset($_POST['weightDetails'])) {
+                    $productWeights = groupWeightDetails($_POST['weightDetails']);
+                    foreach ($productWeights as $key => $productWeight) {
+                        $afterValue  = $productWeight['net'];
+                        $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
+                        if (floatval($afterValue) == floatval($beforeValue)) continue;
+                        processGradingStock($db, $productWeight['product'], $productWeight['grade'], $company, $afterValue, $userID, true, $beforeValue, $_POST['id']);
+                    }
+                }
 
                 $db->close();
                 
@@ -272,24 +268,14 @@ if(isset($_POST['startTime'])){
                 $gradingId = $insert_stmt->insert_id;
                 $insert_stmt->close();
 
-                // If Stock Management is enabled, process the stock changes based on the weight details
-                // if (in_array('processing', $_SESSION['products'])) {
-                //     $productWeights = groupWeightDetails($weightDetails);
-                //     foreach ($productWeights as $weight) {
-                //         $productId = $weight['product'];
-                //         $grade = $weight['grade'];
-                //         $nettWeight = $weight['net'];
-                //         processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status);
-                //     }
-                // }
-
                 # Insert into grading_items table
                 if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
                     $data = $_POST['weightDetails'];
                     foreach($data as $key => $weightDetail){
                         $time = date('Y-m-d') . ' ' . $weightDetail['time'];
+                        $toGrade = $weightDetail['to_grade'] ?? '';
                         if ($insert_stmt2 = $db->prepare("INSERT INTO grading_items (grading_id, product_id, to_grade, gross_weight, tare_weight, nett_weight, weighing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")){
-                            $insert_stmt2->bind_param('ssssssss', $gradingId, $weightDetail['product'], $weightDetail['grade'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
+                            $insert_stmt2->bind_param('ssssssss', $gradingId, $weightDetail['product'], $toGrade, $weightDetail['gross'], $weightDetail['tare'], $weightDetail['net'], $time, $weightDetail['photoPath']);
                             $insert_stmt2->execute();
                             $insert_stmt2->close();
                         }
@@ -305,6 +291,14 @@ if(isset($_POST['startTime'])){
                             $insert_stmt3->execute();
                             $insert_stmt3->close();
                         }
+                    }
+                }
+
+                // Process grading stock balance
+                if (in_array('stocks', $_SESSION['products']) && isset($_POST['weightDetails'])) {
+                    $productWeights = groupWeightDetails($_POST['weightDetails']);
+                    foreach ($productWeights as $weight) {
+                        processGradingStock($db, $weight['product'], $weight['grade'], $company, $weight['net'], $userID, false, 0, $gradingId);
                     }
                 }
 
