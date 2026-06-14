@@ -237,7 +237,7 @@ if(!isset($_SESSION['userID'])){
                 >
                     <div class="modules-box modules-box-2">
                         <img src="assets/stocks-icon.png" alt="Stocks" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['stocks_management_code'][$language]?></div>
+                        <div class="modules-txt"><?=$languageArray['stock_management'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/logout.php">
