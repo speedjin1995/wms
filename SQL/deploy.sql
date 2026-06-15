@@ -1604,3 +1604,17 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR
 END
 $$
 DELIMITER ;
+
+CREATE TABLE `product_suppliers` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `supplier_id` int(11) NOT NULL,
+  `grade_id` int(11) DEFAULT NULL,
+  `purchasing_pricing_type` varchar(10) DEFAULT NULL,
+  `purchasing_price` text DEFAULT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `product_suppliers` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `product_suppliers` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
