@@ -263,7 +263,7 @@ else{
                 <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00">
+                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00" value="0.00">
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -278,7 +278,7 @@ else{
                 <div class="col-md-6">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00">
+                    <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00" value="0.00">
                   </div>
                 </div>
               </div>
@@ -759,8 +759,8 @@ $(function () {
     $('#addModal').find('#unit').val("");
     $('#addModal').find('#remark').val("");
     $('#addModal').find('#pricingType').val("Fixed");
-    $('#addModal').find('#price').val("");
-    $('#addModal').find('#purchasingPrice').val("");
+    $('#addModal').find('#price').val("0.00");
+    $('#addModal').find('#purchasingPrice').val("0.00");
     $('#addModal').find('#weight').val("");
     $('#addModal').find('#productCategory').val("").trigger('change');
     $('#addModal').find('#productPackaging').val("").trigger('change');
