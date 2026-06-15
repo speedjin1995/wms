@@ -23,6 +23,7 @@ else{
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $gradesBulk = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
+    $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 AND customer = '".$company."' ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 AND customer = '".$company."' ORDER BY packaging_name ASC");
   }
@@ -32,6 +33,7 @@ else{
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $gradesBulk = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
+    $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 ORDER BY packaging_name ASC");
   }
@@ -613,11 +615,7 @@ else{
     <td>
       <select class="form-control select2" style="width: 100%; background-color:white;" id="supplierGrade" name="supplierGrade">
         <option value="">-</option>
-        <?php
-          $gradesSupplier = ($role != 'SADMIN')
-            ? $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC")
-            : $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
-          while($gradeSupRow=mysqli_fetch_assoc($gradesSupplier)){ ?>
+        <?php while($gradeSupRow=mysqli_fetch_assoc($gradesSupplier)){ ?>
           <option value="<?=$gradeSupRow['id']?>"><?=$gradeSupRow['units']?></option>
         <?php } ?>
       </select>
