@@ -353,10 +353,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
             }
         }
 
-        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, end_time=?, modified_by=?, location=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, start_time=?, end_time=?, modified_by=?, location=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $update_stmt->bind_param('ssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $endDateTime, $userID, $location, $_POST['id']);
+            $update_stmt->bind_param('sssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $startDateTime3, $endDateTime, $userID, $location, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -424,10 +424,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
             exit;
         }
 
-        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, created_datetime, created_by, end_time, company, weighted_by, indicator, records_type, location) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $insert_stmt->bind_param('ssssssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $startDateTime3, $userID, $endDateTime, $company, $userID, $indicator, $recordType, $location);
+            $insert_stmt->bind_param('ssssssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
