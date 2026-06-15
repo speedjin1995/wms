@@ -1487,11 +1487,16 @@ $(function () {
     var gradeName = $(this).find('option:selected').data('name');
     var productId = $(this).closest('tr').find('select[id^="product"]').val();
     var customerId = $('#extendModal').find('#customer').val();
+    var supplierId = $('#extendModal').find('#supplier').val();
     var status = $('#extendModal').find('#status').val();
     $(this).closest('tr').find('input[name*="[grade]"]').val(gradeName);
 
     if (allowPrice == 'Y' && productId && status){
-      calculatePrice(productId, status, customerId, gradeId, $(this));
+      if (status == 'RECEIVING' || status == 'INCOMING'){
+        calculatePrice(productId, status, supplierId, gradeId, $(this));
+      }else{
+        calculatePrice(productId, status, customerId, gradeId, $(this));
+      }
     }
   });
 
@@ -1607,7 +1612,11 @@ $(function () {
     var status = $('#extendModal').find('#status').val();
 
     if (allowPrice == 'Y' && productId && status){
-      calculatePrice(productId, status, customerId, grade, $(this));
+      if (status == 'RECEIVING' || status == 'INCOMING'){
+        calculatePrice(productId, status, supplierId, gradeId, $(this));
+      }else{
+        calculatePrice(productId, status, customerId, gradeId, $(this));
+      }
     }
   });
 

@@ -70,118 +70,42 @@ if(isset($_POST['userID'])){
             $price = 0;
             $result = null;
 
-            // If grade provided, try customer + grade match first
+            $isSupplier = ($status == 'RECEIVING' || $status == 'INCOMING');
+
+            // If grade provided, try match with grade first
             if (!empty($grade)) {
-                $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND grade_id=? AND deleted=0");
+                if ($isSupplier) {
+                    $productCustomerStmt = $db->prepare("SELECT * FROM product_suppliers WHERE product_id=? AND supplier_id=? AND grade_id=? AND deleted=0");
+                } else {
+                    $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND grade_id=? AND deleted=0");
+                }
                 $productCustomerStmt->bind_param('sss', $id, $customerID, $grade);
                 $productCustomerStmt->execute();
                 $result = $productCustomerStmt->get_result();
             }
 
-            // Fall back to customer-only if no grade match or grade not provided
-            if (empty($result) || $result->num_rows === 0) {
-                $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND deleted=0");
-                $productCustomerStmt->bind_param('ss', $id, $customerID);
-                $productCustomerStmt->execute();
-                $result = $productCustomerStmt->get_result();
-            }
-
-            if ($result->num_rows > 0) {
-                // If customer have pricing
+            if (!empty($result) && $result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                    if ($isSupplier) {
                         $pricingType = $row['purchasing_pricing_type'];
                         $price = $row['purchasing_price'];
-                    }else{
+                    } else {
                         $pricingType = $row['pricing_type'];
                         $price = $row['price'];
                     }
                 }
 
-                // If pricing type is Standard then need to take product price
                 if ($pricingType == 'Standard'){
                     $resultPricingType = $productPricingType;
                     $resultPrice = $productPrice;
-                }else{
+                } else {
                     $resultPricingType = $pricingType;
                     $resultPrice = $price;
                 }
 
-                $pricingDetail = [
-                    'pricingType' => $resultPricingType,
-                    'price' => $resultPrice,
-                ];
-
-                echo json_encode(
-                    array(
-                        "status" => "success",
-                        "message" => $pricingDetail
-                    ));
+                echo json_encode(array("status" => "success", "message" => ['pricingType' => $resultPricingType, 'price' => $resultPrice]));
             } else {
-                // If customer have no pricing, check grade
-                if (!empty($grade)){
-                    $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND deleted=0");
-                    $productGradeStmt->bind_param('ss', $id, $grade);
-                    $productGradeStmt->execute();
-                    $productGradeResult = $productGradeStmt->get_result();
-                    if ($productGradeResult->num_rows > 0) {
-                        // If grade has pricing
-                        while ($row = $productGradeResult->fetch_assoc()) {
-                            if ($status == 'RECEIVING' || $status == 'INCOMING'){
-                                $pricingType = $row['purchasing_pricing_type'];
-                                $price = $row['purchasing_price'];
-                            }else{
-                                $pricingType = $row['pricing_type'];
-                                $price = $row['price'];
-                            }
-                        }
-
-                        // If pricing type is Standard then need to take product price
-                        if ($pricingType == 'Standard'){
-                            $resultPricingType = $productPricingType;
-                            $resultPrice = $productPrice;
-                        }else{
-                            $resultPricingType = $pricingType;
-                            $resultPrice = $price;
-                        }
-
-                        $pricingDetail = [
-                            'pricingType' => $resultPricingType,
-                            'price' => $resultPrice,
-                        ];
-
-                        echo json_encode(
-                            array(
-                                "status" => "success",
-                                "message" => $pricingDetail
-                            ));
-                    }else{
-                        // If grade no pricing, take product pricing
-                        $pricingDetail = [
-                            'pricingType' => $productPricingType,
-                            'price' => $productPrice,
-                        ];
-
-                        echo json_encode(
-                            array(
-                                "status" => "success",
-                                "message" => $pricingDetail
-                            ));
-                    }
-                }else{
-                    // If customer no pricing and grade also no pricing, take product pricing
-                    $pricingDetail = [
-                        'pricingType' => $productPricingType,
-                        'price' => $productPrice,
-                    ];
-
-                    echo json_encode(
-                        array(
-                            "status" => "success",
-                            "message" => $pricingDetail
-                        ));
-                }
-                
+                echo json_encode(array("status" => "success", "message" => ['pricingType' => 'Fixed', 'price' => 0]));
             }
         } else if (empty($customerID) && !empty($grade)){
             $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND deleted=0");
