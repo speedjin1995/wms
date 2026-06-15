@@ -11,6 +11,7 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
+  $products = $_SESSION['products'];
   $includeInvoice = 'N';
   $states = $db->query("SELECT * FROM states ORDER BY states ASC");
   $states2 = $db->query("SELECT * FROM states ORDER BY states ASC");
@@ -493,6 +494,8 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script>
 
+var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
+
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
     var checkboxes = $('#customerTable tbody input[type="checkbox"]');
@@ -541,8 +544,8 @@ $(function () {
           if (data == 0) {
             return '<div style="display:flex;gap:4px;">'
               + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
-              + '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\', ' + row.pending_bins + ')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
-              + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>'
+              + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\', ' + row.pending_bins + ')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
+                          + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
               + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
               + '</div>';
           } else {
