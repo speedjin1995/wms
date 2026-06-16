@@ -1,10 +1,14 @@
 <?php
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
+
 require_once '../../db_connect.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 
 function generateVoucherNo($db, $company) {
-    $today     = date('Ymd');
+    $today = date('Ymd');
     $dateStart = date('Y-m-d') . ' 00:00:00';
 
     $stmt = $db->prepare("SELECT COUNT(*) FROM payment_vouchers WHERE company = ? AND created_date >= ?");
@@ -14,7 +18,7 @@ function generateVoucherNo($db, $company) {
     $stmt->close();
 
     do {
-        $no  = 'PV' . $today . str_pad($count, 4, '0', STR_PAD_LEFT);
+        $no = 'PV' . $today . str_pad($count, 4, '0', STR_PAD_LEFT);
         $chk = $db->prepare("SELECT COUNT(*) FROM payment_vouchers WHERE voucher_no = ? AND company = ?");
         $chk->bind_param('ss', $no, $company);
         $chk->execute();
@@ -28,7 +32,7 @@ function generateVoucherNo($db, $company) {
 }
 
 function generateInvoiceNo($db, $company) {
-    $today     = date('Ymd');
+    $today = date('Ymd');
     $dateStart = date('Y-m-d') . ' 00:00:00';
 
     $stmt = $db->prepare("SELECT COUNT(*) FROM payment_vouchers WHERE company = ? AND created_date >= ?");
@@ -38,7 +42,7 @@ function generateInvoiceNo($db, $company) {
     $stmt->close();
 
     do {
-        $no  = 'INV' . $today . str_pad($count, 4, '0', STR_PAD_LEFT);
+        $no = 'INV' . $today . str_pad($count, 4, '0', STR_PAD_LEFT);
         $chk = $db->prepare("SELECT COUNT(*) FROM payment_vouchers WHERE invoice_no = ? AND company = ?");
         $chk->bind_param('ss', $no, $company);
         $chk->execute();
@@ -51,13 +55,16 @@ function generateInvoiceNo($db, $company) {
     return $no;
 }
 
-if (isset($_POST['supplierId']) && $_POST['supplierId'] != null && $_POST['supplierId'] != '' &&
+if (isset($_POST['entityId']) && $_POST['entityId'] != null && $_POST['entityId'] != '' &&
     isset($_POST['voucherDate']) && $_POST['voucherDate'] != null && $_POST['voucherDate'] != '') {
 
-    $userID  = $_SESSION['userID'];
+    $userID = $_SESSION['userID'];
     $company = $_SESSION['customer'];
+    $module = $_SESSION['module'] ?? 'wholesales';
+    $transactionStatus = isset($_POST['transactionStatus']) && $_POST['transactionStatus'] != '' ? $_POST['transactionStatus'] : (($module == 'industrial') ? 'INCOMING' : 'RECEIVING');
+    $isIncoming = in_array($transactionStatus, ['RECEIVING', 'INCOMING']);
 
-    $supplierId = filter_input(INPUT_POST, 'supplierId', FILTER_SANITIZE_NUMBER_INT);
+    $entityId = filter_input(INPUT_POST, 'entityId', FILTER_SANITIZE_NUMBER_INT);
     $voucherDate = DateTime::createFromFormat('d/m/Y', $_POST['voucherDate'])->format('Y-m-d');
 
     $invoiceNo = null;
@@ -134,8 +141,8 @@ if (isset($_POST['supplierId']) && $_POST['supplierId'] != null && $_POST['suppl
         $voucherNo = generateVoucherNo($db, $company);
         $invoiceNo = generateInvoiceNo($db, $company);
 
-        if ($insert_stmt = $db->prepare("INSERT INTO payment_vouchers (supplier_id, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, company, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
-            $insert_stmt->bind_param('sssssssssssssss', $supplierId, $voucherNo, $voucherDate, $invoiceNo, $unitPrice, $tax, $totalNett, $totalAmount, $deductionAmount, $additionAmount, $finalAmount, $deductionDetails, $additionDetails, $company, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO payment_vouchers (entity_id, status, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, company, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+            $insert_stmt->bind_param('ssssssssssssssss', $entityId, $transactionStatus, $voucherNo, $voucherDate, $invoiceNo, $unitPrice, $tax, $totalNett, $totalAmount, $deductionAmount, $additionAmount, $finalAmount, $deductionDetails, $additionDetails, $company, $userID);
 
             if (!$insert_stmt->execute()) {
                 echo json_encode(['status' => 'failed', 'message' => $insert_stmt->error]);
@@ -158,9 +165,8 @@ if (isset($_POST['supplierId']) && $_POST['supplierId'] != null && $_POST['suppl
         }
     }
 
-    $db->close();
     echo json_encode([
-        'status'  => 'success',
+        'status' => 'success',
         'message' => isset($_POST['pvId']) && $_POST['pvId'] != '' ? 'Updated Successfully!!' : 'Saved Successfully!!'
     ]);
 } else {

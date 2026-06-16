@@ -1620,3 +1620,42 @@ CREATE TABLE `product_suppliers` (
 ALTER TABLE `product_suppliers` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `product_suppliers` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `payment_vouchers` CHANGE `supplier_id` `entity_id` INT(11) NOT NULL;
+
+ALTER TABLE `payment_vouchers` ADD `status` VARCHAR(100) NOT NULL AFTER `id`;
+
+ALTER TABLE `payment_vouchers_log` CHANGE `supplier_id` `entity_id` INT(11) NOT NULL;
+
+ALTER TABLE `payment_vouchers_log` ADD `status` VARCHAR(100) NOT NULL AFTER `payment_voucher_id`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PAY` AFTER INSERT ON `payment_vouchers` FOR EACH ROW INSERT INTO payment_vouchers_log (
+    payment_voucher_id, status, entity_id, voucher_no,  voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, deleted, delete_reason, company, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.status, NEW.entity_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.deleted, NEW.delete_reason, NEW.company, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PAY` BEFORE UPDATE ON `payment_vouchers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into payment_vouchers_log table
+    INSERT INTO payment_vouchers_log (
+        payment_voucher_id, status, entity_id, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, deleted, delete_reason, company, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.status, NEW.entity_id, NEW.voucher_no, NEW.voucher_date, NEW.invoice_no, NEW.unit_price, NEW.tax, NEW.total_nett_weight, NEW.total_amount, NEW.deduction_amount, NEW.addition_amount, NEW.final_amount, NEW.deduction_details, NEW.addition_details, NEW.deleted, NEW.delete_reason, NEW.company, action_value, NEW.modified_by, NEW.modified_date
+    );
+END
+$$
+DELIMITER ;

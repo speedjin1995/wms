@@ -51,7 +51,10 @@ if(isset($_POST['pvId'])){
         $result = $stmt->get_result();
         
         if ($row = $result->fetch_assoc()) {
-            $supplierName = searchSupplierNameById($row['supplier_id'], '', $db);
+            $isIncoming = in_array($row['status'], ['RECEIVING', 'INCOMING']);
+            $entityName = $isIncoming
+                ? searchSupplierNameById($row['entity_id'], '', $db)
+                : searchCustomerNameById($row['entity_id'], '', $db);
             $voucherDate = date('d/m/Y', strtotime($row['voucher_date']));
             $invoiceNo = $row['invoice_no'] ?? '';
             $paymentVoucherNo = $row['voucher_no'] ?? '';
@@ -194,7 +197,7 @@ if(isset($_POST['pvId'])){
                 <div class="info-row">
                     <div class="info-item">
                         <span class="info-label text-caps">'.$languageArray['name_code'][$language].' :</span>
-                        <span class="info-value">'.$supplierName.'</span>
+                        <span class="info-value">'.$entityName.'</span>
                     </div>
                     <div class="info-item">
                         <span class="info-label text-caps">'.$languageArray['date_code'][$language].' :</span>
