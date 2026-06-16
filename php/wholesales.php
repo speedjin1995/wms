@@ -453,7 +453,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                     }
                 }
 
-                if(!isset($post['doPoNo']) || $post['doPoNo'] == null || $post['doPoNo'] == ''){
+                if(!isset($_POST['doPoNo']) || $_POST['doPoNo'] == null || $_POST['doPoNo'] == ''){
 					$curval = $curval + 1;
 					$curval = strval($curval);
 					$stmtUS = $db->prepare("UPDATE running_no_setup SET value = ? WHERE module = ? AND company_id = ? AND transaction_status = ?");
