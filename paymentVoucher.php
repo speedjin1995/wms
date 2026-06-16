@@ -9,9 +9,9 @@ if (!isset($_SESSION['userID'])) {
     exit;
 }
 
-$user    = $_SESSION['userID'];
+$user = $_SESSION['userID'];
 $company = $_SESSION['customer'];
-$module  = $_SESSION['module'] ?? 'wholesales';
+$module = $_SESSION['module'] ?? 'wholesales';
 
 $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param('s', $user);
@@ -19,21 +19,23 @@ $stmt->execute();
 $row = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-$role        = $row['role_code']  ?? 'NORMAL';
-$allowEdit   = $row['allow_edit'] ?? 'N';
+$role = $row['role_code'] ?? 'NORMAL';
+$allowEdit = $row['allow_edit'] ?? 'N';
 $allowDelete = $row['allow_delete'] ?? 'N';
 
-$incomingStatus = ($module == 'industrial') ? 'INCOMING' : 'RECEIVING';
-
 if ($role != 'SADMIN') {
-    $supplies        = $db->query("SELECT s.* FROM supplies s WHERE s.deleted=0 AND s.customer='$company' AND s.parent IS NOT NULL ORDER BY s.supplier_name ASC");
-    $parentSupplies  = $db->query("SELECT DISTINCT sp.* FROM supplies sp INNER JOIN supplies sc ON sc.parent = sp.id WHERE sp.deleted=0 AND sp.customer='$company' ORDER BY sp.supplier_name ASC");
+  $supplies = $db->query("SELECT s.* FROM supplies s WHERE s.deleted=0 AND s.customer='$company' AND s.parent IS NOT NULL ORDER BY s.supplier_name ASC");
+  $parentSupplies = $db->query("SELECT DISTINCT sp.* FROM supplies sp INNER JOIN supplies sc ON sc.parent = sp.id WHERE sp.deleted=0 AND sp.customer='$company' ORDER BY sp.supplier_name ASC");
+  $customers = $db->query("SELECT * FROM customers WHERE deleted=0 AND customer='$company' AND parent IS NOT NULL ORDER BY customer_name ASC");
+  $parentCustomers = $db->query("SELECT DISTINCT cp.* FROM customers cp INNER JOIN customers cc ON cc.parent = cp.id WHERE cp.deleted=0 AND cp.customer='$company' ORDER BY cp.customer_name ASC");
 } else {
-    $supplies        = $db->query("SELECT s.* FROM supplies s WHERE s.deleted=0 AND s.parent IS NOT NULL ORDER BY s.supplier_name ASC");
-    $parentSupplies  = $db->query("SELECT DISTINCT sp.* FROM supplies sp INNER JOIN supplies sc ON sc.parent = sp.id WHERE sp.deleted=0 ORDER BY sp.supplier_name ASC");
+  $supplies = $db->query("SELECT s.* FROM supplies s WHERE s.deleted=0 AND s.parent IS NOT NULL ORDER BY s.supplier_name ASC");
+  $parentSupplies = $db->query("SELECT DISTINCT sp.* FROM supplies sp INNER JOIN supplies sc ON sc.parent = sp.id WHERE sp.deleted=0 ORDER BY sp.supplier_name ASC");
+  $customers = $db->query("SELECT * FROM customers WHERE deleted=0 AND parent IS NOT NULL ORDER BY customer_name ASC");
+  $parentCustomers = $db->query("SELECT DISTINCT cp.* FROM customers cp INNER JOIN customers cc ON cc.parent = cp.id WHERE cp.deleted=0 ORDER BY cp.customer_name ASC");
 }
 
-$language      = $_SESSION['language'];
+$language = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 ?>
 
@@ -76,6 +78,37 @@ $languageArray = $_SESSION['languageArray'];
               </div>
               <div class="col-3">
                 <div class="form-group">
+                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
+                  <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
+                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-3" id="viewCustomerFilter">
+                <div class="form-group">
+                  <label><?=$languageArray['customer_code'][$language]?></label>
+                  <select class="form-control select2" id="customerFilter">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php while($c = mysqli_fetch_assoc($customers)) { ?>
+                      <option value="<?=$c['id']?>"><?=$c['customer_name']?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-3" id="viewCustomerParentFilter">
+                <div class="form-group">
+                  <label><?=$languageArray['parent_customer_code'][$language]?></label>
+                  <select class="form-control select2" id="parentCustomerFilter">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php while($pc = mysqli_fetch_assoc($parentCustomers)) { ?>
+                      <option value="<?=$pc['id']?>"><?=$pc['customer_name']?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-3" id="viewSupplierFilter" style="display:none">
+                <div class="form-group">
                   <label><?=$languageArray['supplier_code'][$language]?></label>
                   <select class="form-control select2" id="supplierFilter">
                     <option value=""><?=$languageArray['please_select_code'][$language]?></option>
@@ -85,7 +118,7 @@ $languageArray = $_SESSION['languageArray'];
                   </select>
                 </div>
               </div>
-              <div class="col-3">
+              <div class="col-3" id="viewSupplierParentFilter" style="display:none">
                 <div class="form-group">
                   <label><?=$languageArray['parent_supplier_code'][$language]?></label>
                   <select class="form-control select2" id="parentSupplierFilter">
@@ -125,7 +158,7 @@ $languageArray = $_SESSION['languageArray'];
                 <tr>
                   <th><?=$languageArray['voucher_date_code'][$language]?></th>
                   <th><?=$languageArray['voucher_no_code'][$language]?></th>
-                  <th><?=$languageArray['supplier_code'][$language]?></th>
+                  <th><?=$languageArray['name_code'][$language]?></th>
                   <th><?=$languageArray['invoice_no_code'][$language]?></th>
                   <th><?=$languageArray['total_amount_code'][$language]?> (RM)</th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
@@ -150,7 +183,7 @@ $languageArray = $_SESSION['languageArray'];
         </div>
         <div class="modal-body">
           <input type="hidden" id="pvId" name="pvId">
-          <input type="hidden" id="pvSupplierId" name="supplierId">
+          <input type="hidden" id="pvEntityId" name="entityId">
           <input type="hidden" id="deductionAmount" name="deductionAmount" value="0">
           <input type="hidden" id="additionAmount" name="additionAmount" value="0">
           <input type="hidden" id="finalAmount" name="finalAmount" value="0">
@@ -218,7 +251,7 @@ $languageArray = $_SESSION['languageArray'];
               <thead class="bg-primary text-white">
                 <tr>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
-                  <th><?=$languageArray['supplier_name_code'][$language]?></th>
+                  <th><?=$languageArray['name_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
                   <th><?=$languageArray['nett_weight_code'][$language]?> (KG)</th>
                   <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
@@ -276,9 +309,6 @@ $languageArray = $_SESSION['languageArray'];
 </div>
 
 <script>
-var currentSupplierId = null;
-var currentPvId       = null;
-
 $(function() {
   const today = new Date();
 
@@ -307,10 +337,13 @@ $(function() {
     });
   });
 
-  var fromDateI       = $('#fromDate').val();
-  var toDateI         = $('#toDate').val();
-  var supplierI       = $('#supplierFilter').val() ? $('#supplierFilter').val() : '';
+  var fromDateI = $('#fromDate').val();
+  var toDateI = $('#toDate').val();
+  var supplierI = $('#supplierFilter').val() ? $('#supplierFilter').val() : '';
   var parentSupplierI = $('#parentSupplierFilter').val() ? $('#parentSupplierFilter').val() : '';
+  var customerI = $('#customerFilter').val() ? $('#customerFilter').val() : '';
+  var parentCustomerI = $('#parentCustomerFilter').val() ? $('#parentCustomerFilter').val() : '';
+  var transactionStatusI = $('#transactionStatusFilter').val();
 
   var table = $('#pvTable').DataTable({
     'responsive': true,
@@ -323,16 +356,19 @@ $(function() {
     'ajax': {
       'url': 'php/modules/paymentVoucher/filterPaymentVoucher.php',
       'data': {
-        fromDate:         fromDateI,
-        toDate:           toDateI,
-        supplierId:       supplierI,
-        parentSupplierId: parentSupplierI
+        fromDate: fromDateI,
+        toDate: toDateI,
+        supplierId: supplierI,
+        parentSupplierId: parentSupplierI,
+        customerId: customerI,
+        parentCustomerId: parentCustomerI,
+        transactionStatus: transactionStatusI
       }
     },
     'columns': [
       { data: 'voucher_date' },
       { data: 'voucher_no' },
-      { data: 'supplier_name' },
+      { data: 'entity_name' },
       { data: 'invoice_no' },
       { data: 'final_amount' },
       {
@@ -342,6 +378,9 @@ $(function() {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+          }
+          if (row.pv_id) {
+            buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm"><i class="fas fa-print"></i></button>';
           }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             if (row.pv_id) {
@@ -356,10 +395,13 @@ $(function() {
   });
 
   $('#filterSearch').on('click', function() {
-    var fromDateI       = $('#fromDate').val();
-    var toDateI         = $('#toDate').val();
-    var supplierI       = $('#supplierFilter').val() ? $('#supplierFilter').val() : '';
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var supplierI = $('#supplierFilter').val() ? $('#supplierFilter').val() : '';
     var parentSupplierI = $('#parentSupplierFilter').val() ? $('#parentSupplierFilter').val() : '';
+    var customerI = $('#customerFilter').val() ? $('#customerFilter').val() : '';
+    var parentCustomerI = $('#parentCustomerFilter').val() ? $('#parentCustomerFilter').val() : '';
+    var transactionStatusI = $('#transactionStatusFilter').val();
 
     $('#pvTable').DataTable().clear().destroy();
 
@@ -374,16 +416,19 @@ $(function() {
       'ajax': {
         'url': 'php/modules/paymentVoucher/filterPaymentVoucher.php',
         'data': {
-          fromDate:         fromDateI,
-          toDate:           toDateI,
-          supplierId:       supplierI,
-          parentSupplierId: parentSupplierI
+          fromDate: fromDateI,
+          toDate: toDateI,
+          supplierId: supplierI,
+          parentSupplierId: parentSupplierI,
+          customerId: customerI,
+          parentCustomerId: parentCustomerI,
+          transactionStatus: transactionStatusI
         }
       },
       'columns': [
         { data: 'voucher_date' },
         { data: 'voucher_no' },
-        { data: 'supplier_name' },
+        { data: 'entity_name' },
         { data: 'invoice_no' },
         { data: 'final_amount' },
         {
@@ -393,6 +438,9 @@ $(function() {
             var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            }
+            if (row.pv_id) {
+              buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm"><i class="fas fa-print"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               if (row.pv_id) {
@@ -407,6 +455,21 @@ $(function() {
     });
   });
 
+  $('#transactionStatusFilter').on('change', function() {
+    var status = $(this).val();
+
+    if (status == 'RECEIVING'){
+      $('#viewCustomerFilter').hide();
+      $('#viewCustomerParentFilter').hide();
+      $('#viewSupplierFilter').show();
+      $('#viewSupplierParentFilter').show();
+    }else{
+      $('#viewCustomerFilter').show();
+      $('#viewCustomerParentFilter').show();
+      $('#viewSupplierFilter').hide();
+      $('#viewSupplierParentFilter').hide();
+    }
+  });
 
   $('#pvModal').on('input', '#unitPrice, #taxRate', function() {
     recalculate();
@@ -424,6 +487,7 @@ $(function() {
     wholesaleIds.forEach(function(id, i) {
       formData.append('wholesaleIds[' + i + ']', id);
     });
+    formData.append('transactionStatus', $('#transactionStatusFilter').val());
     $.ajax({
       url: 'php/modules/paymentVoucher/savePaymentVoucher.php',
       type: 'POST',
@@ -468,12 +532,9 @@ $(function() {
   });
 });
 
-function openPv(supplierId, pvId) {
-  currentSupplierId = supplierId;
-  currentPvId       = pvId || null;
-
+function openPv(entityId, pvId) {
   $('#pvId').val(pvId || '');
-  $('#pvSupplierId').val(supplierId);
+  $('#pvEntityId').val(entityId);
   $('#voucherNo').val('');
   $('#invoiceNo').val('');
   $('#unitPrice').val(0);
@@ -488,8 +549,9 @@ function openPv(supplierId, pvId) {
 
   $('#spinnerLoading').show();
   $.post('php/modules/paymentVoucher/getPaymentVoucherItems.php', {
-    parent_id: supplierId,
-    pv_id: pvId || ''
+    parent_id: entityId,
+    pv_id: pvId || '',
+    transactionStatus: $('#transactionStatusFilter').val()
   }, function(data) {
     var obj = JSON.parse(data);
     if (obj.status === 'success') {
@@ -535,14 +597,14 @@ function openPv(supplierId, pvId) {
 
 function recalculate() {
   var unitPrice = parseFloat($('#unitPrice').val()) || 0;
-  var tax       = parseFloat($('#taxRate').val()) || 0;
+  var tax = parseFloat($('#taxRate').val()) || 0;
   var totalNett = 0, totalNettAmt = 0, totalTaxAmt = 0, totalPrice = 0;
 
   $('#pvItemsBody tr').each(function() {
-    var nett    = parseFloat($(this).data('nett')) || 0;
+    var nett = parseFloat($(this).data('nett')) || 0;
     var nettAmt = unitPrice * nett;
-    var taxAmt  = nettAmt * (tax / 100);
-    var total   = nettAmt + taxAmt;
+    var taxAmt = nettAmt * (tax / 100);
+    var total = nettAmt + taxAmt;
 
     $(this).find('.item-unit-price').text(unitPrice.toFixed(2));
     $(this).find('.item-nett-amt').text(nettAmt.toFixed(2));
@@ -567,5 +629,27 @@ function deactivate(pvId) {
   $('#cancelId').val(pvId);
   $('#cancelReason').val('');
   $('#cancelModal').modal('show');
+}
+
+function print(pvId){
+  $.post('php/modules/paymentVoucher/printPvSlip.php', {pvId: pvId}, function(data){
+    var obj = JSON.parse(data);
+
+    if(obj.status === 'success'){
+      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+      printWindow.document.write(obj.message);
+      printWindow.document.close();
+      setTimeout(function(){
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    }
+    else if(obj.status === 'failed'){
+      toastr["error"](obj.message, "Failed:");
+    }
+    else{
+      toastr["error"]("Something wrong when activate", "Failed:");
+    }
+  });
 }
 </script>

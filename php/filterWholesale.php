@@ -23,13 +23,13 @@ if(isset($_POST['recordType']) && $_POST['recordType'] != null && $_POST['record
 if($_POST['fromDate'] != null && $_POST['fromDate'] != ''){
   $dateTime = DateTime::createFromFormat('d/m/Y', $_POST['fromDate']);
   $fromDateTime = $dateTime->format('Y-m-d 00:00:00');
-  $searchQuery .= " and wholesales.created_datetime >= '".$fromDateTime."'";
+  $searchQuery .= " and wholesales.start_time >= '".$fromDateTime."'";
 }
 
 if($_POST['toDate'] != null && $_POST['toDate'] != ''){
   $dateTime = DateTime::createFromFormat('d/m/Y', $_POST['toDate']);
   $toDateTime = $dateTime->format('Y-m-d 23:59:59');
-	$searchQuery .= " and wholesales.created_datetime <= '".$toDateTime."'";
+	$searchQuery .= " and wholesales.start_time <= '".$toDateTime."'";
 }
 
 if($_POST['transactionStatus'] != null && $_POST['transactionStatus'] != '' && $_POST['transactionStatus'] != '-'){
@@ -164,6 +164,8 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "total_price"=>number_format($row['total_price'], 2, '.', ','),
     "remark"=>$row['remark'] ?? '',
     "created_datetime"=>$row['created_datetime'],
+    "start_time"=>$row['start_time'],
+    "end_time"=>$row['end_time'],
     "created_by"=>$row['created_by'],
     "company"=>$row['company'],
     "weighted_by"=>searchUserNameById($row['weighted_by'], $db),

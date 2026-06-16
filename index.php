@@ -139,7 +139,8 @@ else{
       width: 100%;
       height: 100%;
       background-color: rgba(16, 16, 16, 0.5);
-      z-index: 5;
+      z-index: 99999;
+      pointer-events: all;
     }
 
     @-webkit-keyframes uil-ring-anim {
@@ -606,7 +607,7 @@ to get the desired effect
               <i class="nav-icon fas fa-calculator"></i>
               <p><?=$languageArray['accounting_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
-            <ul class="nav nav-treeview" style="display: none;">
+            <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a href="#paymentVoucher" data-file="paymentVoucher.php" class="nav-link link">
                   <i class="nav-icon fas fa-file-invoice-dollar"></i>

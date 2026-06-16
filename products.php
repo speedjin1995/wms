@@ -19,17 +19,21 @@ else{
 
   if ($role != 'SADMIN'){
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
+    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 AND customer = '".$company."' ORDER BY supplier_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $gradesBulk = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
+    $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 AND customer = '".$company."' ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 AND customer = '".$company."' ORDER BY packaging_name ASC");
   }
   else{
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
+    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 ORDER BY supplier_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $gradesBulk = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
+    $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 ORDER BY packaging_name ASC");
   }
@@ -263,7 +267,7 @@ else{
                 <div class="col-md-4">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00">
+                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00" value="0.00">
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -278,7 +282,7 @@ else{
                 <div class="col-md-6">
                   <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00">
+                    <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00" value="0.00">
                   </div>
                 </div>
               </div>
@@ -414,25 +418,50 @@ else{
           <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body p-2">
-          <div class="mb-2 text-right">
-            <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
-            <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+          <ul class="nav nav-tabs mb-2" id="customerSupplierTabs">
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tabCustomers" id="tabCustomersLink"><?=$languageArray['customers_code'][$language]?></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tabSuppliers" id="tabSuppliersLink"><?=$languageArray['supplier_code'][$language]?></a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tabCustomers">
+              <div class="mb-2 text-right">
+                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+              </div>
+              <table class="table table-sm table-bordered mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
+                    <th><?=$languageArray['customer_code'][$language]?></th>
+                    <th><?=$languageArray['grade_code'][$language]?></th>
+                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
+                    <th><?=$languageArray['selling_price_code'][$language]?></th>
+                    <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="customerTable"></tbody>
+              </table>
+            </div>
+            <div class="tab-pane fade" id="tabSuppliers">
+              <div class="mb-2 text-right">
+                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
+              </div>
+              <table class="table table-sm table-bordered mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
+                    <th><?=$languageArray['supplier_code'][$language]?></th>
+                    <th><?=$languageArray['grade_code'][$language]?></th>
+                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
+                    <th><?=$languageArray['purchasing_price_code'][$language]?></th>
+                    <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="supplierTable"></tbody>
+              </table>
+            </div>
           </div>
-          <table class="table table-sm table-bordered mb-0">
-            <thead class="thead-light">
-              <tr>
-                <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
-                <th><?=$languageArray['customer_code'][$language]?></th>
-                <th><?=$languageArray['grade_code'][$language]?></th>
-                <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                <th><?=$languageArray['selling_price_code'][$language]?></th>
-                <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
-                <th><?=$languageArray['purchasing_price_code'][$language]?></th>
-                <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
-              </tr>
-            </thead>
-            <tbody id="customerTable"></tbody>
-          </table>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
@@ -452,6 +481,7 @@ else{
         <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="bulkTargetType" value="customer">
         <div class="form-group">
           <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?> <span class="text-danger">*</span></label>
           <select class="form-control select2" id="bulkState" multiple style="width:100%;">
@@ -472,7 +502,7 @@ else{
             <?php } ?>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="bulkPricingTypeGroup">
           <label class="font-weight-bold"><?=$languageArray['pricing_type_code'][$language]?></label>
           <select class="form-control" id="bulkPricingType">
             <option value="Standard"><?=$languageArray['standard_code'][$language]?></option>
@@ -480,11 +510,11 @@ else{
             <option value="Float"><?=$languageArray['float_code'][$language]?></option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="bulkSellingPriceGroup">
           <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
           <input type="number" class="form-control" id="bulkSellingPrice" placeholder="0.00" value="0">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="bulkPurchasingPricingTypeGroup">
           <label class="font-weight-bold"><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
           <select class="form-control" id="bulkPurchasingPricingType">
             <option value="Standard"><?=$languageArray['standard_code'][$language]?></option>
@@ -492,7 +522,7 @@ else{
             <option value="Float"><?=$languageArray['float_code'][$language]?></option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="bulkPurchasingPriceGroup">
           <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
           <input type="number" class="form-control" id="bulkPurchasingPrice" placeholder="0.00" value="0">
         </div>
@@ -533,6 +563,7 @@ else{
     <td>
       <input type="text" class="form-control" id="no" name="no" readonly>
       <input type="text" class="form-control" id="customerProductId" name="customerProductId" hidden>
+      <input type="hidden" id="customerRowType" name="customerRowType" value="customer">
     </td>
     <td>
       <select class="form-control select2" style="width: 100%; background-color:white;" id="customers" name="customers">
@@ -557,20 +588,50 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" class="form-control mb-1" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
+      <input type="number" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
+    </td>
+    <td class="d-flex" style="text-align:center">
+      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+          <i class="fa fa-times"></i>
+      </button>
+    </td>
+  </tr>
+</script>
+
+<script type="text/html" id="supplierDetail">
+  <tr class="details">
+    <td>
+      <input type="text" class="form-control" id="supplierNo" name="supplierNo" readonly>
+      <input type="text" class="form-control" id="supplierProductId" name="supplierProductId" hidden>
+      <input type="hidden" id="supplierRowType" name="supplierRowType" value="supplier">
     </td>
     <td>
-      <select class="form-control" style="width: 100%; background-color:white;" id="customerPurchasingPricingType" name="customerPurchasingPricingType">
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="suppliers" name="suppliers">
+        <?php while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
+          <option value="<?=$rowSupplier['id'] ?>" data-state="<?=$rowSupplier['states']?>"><?=$rowSupplier['supplier_name']?></option>
+        <?php } ?>
+      </select>
+    </td>
+    <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="supplierGrade" name="supplierGrade">
+        <option value="">-</option>
+        <?php while($gradeSupRow=mysqli_fetch_assoc($gradesSupplier)){ ?>
+          <option value="<?=$gradeSupRow['id']?>"><?=$gradeSupRow['units']?></option>
+        <?php } ?>
+      </select>
+    </td>
+    <td>
+      <select class="form-control" style="width: 100%; background-color:white;" id="supplierPricingType" name="supplierPricingType">
         <option selected><?=$languageArray['standard_code'][$language]?></option>
         <option><?=$languageArray['fixed_code'][$language]?></option>
         <option><?=$languageArray['float_code'][$language]?></option>
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="customerPurchasingPrice" name="customerPurchasingPrice" style="background-color:white;" value="0">
+      <input type="number" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+      <button class="btn btn-success" id="removeSupplier" style="background-color: #f06548;">
           <i class="fa fa-times"></i>
       </button>
     </td>
@@ -621,6 +682,7 @@ else{
 <script>
 var customerRowCount = $("#customerTable").find(".details").length;
 var gradeRowCount = $("#gradeTable").find(".details").length;
+var supplierRowCount = $("#supplierTable").find(".details").length;
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
@@ -759,8 +821,8 @@ $(function () {
     $('#addModal').find('#unit').val("");
     $('#addModal').find('#remark').val("");
     $('#addModal').find('#pricingType').val("Fixed");
-    $('#addModal').find('#price').val("");
-    $('#addModal').find('#purchasingPrice').val("");
+    $('#addModal').find('#price').val("0.00");
+    $('#addModal').find('#purchasingPrice').val("0.00");
     $('#addModal').find('#weight').val("");
     $('#addModal').find('#productCategory').val("").trigger('change');
     $('#addModal').find('#productPackaging').val("").trigger('change');
@@ -933,6 +995,7 @@ $(function () {
     $("#customerTable").find('#remove:last').attr("id", "remove" + customerRowCount);
 
     $("#customerTable").find('#customerProductId:last').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount);
+    $("#customerTable").find('#customerRowType:last').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
     $("#customerTable").find('#no:last').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(customerRowCount+1);
     $("#customerTable").find('#customers:last').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).select2({
       allowClear: true,
@@ -946,13 +1009,49 @@ $(function () {
     });
     $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount);
     $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount);
-    $("#customerTable").find('#customerPurchasingPricingType:last').attr('name', 'customerPurchasingPricingType['+customerRowCount+']').attr("id", "customerPurchasingPricingType" + customerRowCount);
-    $("#customerTable").find('#customerPurchasingPrice:last').attr('name', 'customerPurchasingPrice['+customerRowCount+']').attr("id", "customerPurchasingPrice" + customerRowCount);
 
     $('#customerTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
     $('#customerTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
 
     customerRowCount++;
+  });
+
+  // Find and remove selected supplier table rows
+  $("#supplierTable").on('click', 'button[id^="removeSupplier"]', function () {
+    $(this).parents("tr").remove();
+    $("#supplierTable tr").each(function (index) {
+      $(this).find('input[name^="supplierNo"]').val(index + 1);
+    });
+  });
+
+  $(".add-supplier").click(function(){
+    var $addContents = $("#supplierDetail").clone();
+    $("#supplierTable").append($addContents.html());
+
+    $("#supplierTable").find('.details:last').attr("id", "supplierDetail" + supplierRowCount);
+    $("#supplierTable").find('.details:last').attr("data-index", supplierRowCount);
+    $("#supplierTable").find('#removeSupplier:last').attr("id", "removeSupplier" + supplierRowCount);
+
+    $("#supplierTable").find('#supplierProductId:last').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount);
+    $("#supplierTable").find('#supplierRowType:last').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
+    $("#supplierTable").find('#supplierNo:last').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(supplierRowCount+1);
+    $("#supplierTable").find('#suppliers:last').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#customersModal')
+    });
+    $("#supplierTable").find('#supplierGrade:last').attr('name', 'supplierGrade['+supplierRowCount+']').attr("id", "supplierGrade" + supplierRowCount).select2({
+      allowClear: true,
+      placeholder: "-",
+      dropdownParent: $('#customersModal')
+    });
+    $("#supplierTable").find('#supplierPricingType:last').attr('name', 'supplierPricingType['+supplierRowCount+']').attr("id", "supplierPricingType" + supplierRowCount);
+    $("#supplierTable").find('#supplierPrice:last').attr('name', 'supplierPrice['+supplierRowCount+']').attr("id", "supplierPrice" + supplierRowCount);
+
+    $('#supplierTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
+    $('#supplierTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
+
+    supplierRowCount++;
   });
 
   // Find and remove selected table rows
@@ -1009,7 +1108,7 @@ $(function () {
     e.preventDefault();
     $('#spinnerLoading').show();
     $.ajax({
-      url: 'php/productCustomers.php',
+      url: 'php/productCustomerSupplier.php',
       type: 'POST',
       data: $(this).serialize(),
       success: function(data) {
@@ -1026,10 +1125,22 @@ $(function () {
   });
 
   $('#bulkPriceByState').on('click', function() {
+    $('#bulkTargetType').val('customer');
+    $('#bulkPricingTypeGroup, #bulkSellingPriceGroup').show();
+    $('#bulkPurchasingPricingTypeGroup, #bulkPurchasingPriceGroup').hide();
     $('#bulkState').val(null).trigger('change');
     $('#bulkGrade').val('').trigger('change');
     $('#bulkPricingType').val('Standard');
     $('#bulkSellingPrice').val(0);
+    $('#bulkPriceByStateModal').modal('show');
+  });
+
+  $('#bulkPriceByStateSupplier').on('click', function() {
+    $('#bulkTargetType').val('supplier');
+    $('#bulkPricingTypeGroup, #bulkSellingPriceGroup').hide();
+    $('#bulkPurchasingPricingTypeGroup, #bulkPurchasingPriceGroup').show();
+    $('#bulkState').val(null).trigger('change');
+    $('#bulkGrade').val('').trigger('change');
     $('#bulkPurchasingPricingType').val('Standard');
     $('#bulkPurchasingPrice').val(0);
     $('#bulkPriceByStateModal').modal('show');
@@ -1042,30 +1153,43 @@ $(function () {
       return;
     }
     var selectedGrade = $('#bulkGrade').val();
-    var pricingType = $('#bulkPricingType').val();
-    var sellingPrice = $('#bulkSellingPrice').val();
-    var purchasingPricingType = $('#bulkPurchasingPricingType').val();
-    var purchasingPrice = $('#bulkPurchasingPrice').val();
+    var targetType = $('#bulkTargetType').val();
     var updated = 0;
 
-    $('#customerTable tr.details').each(function() {
-      var $row = $(this);
-      var $customerSelect = $row.find('select[id^="customers"]');
-      var customerState = $customerSelect.find('option:selected').data('state');
-      var rowGrade = $row.find('select[id^="customerGrade"]').val();
-      var stateMatch = selectedStates.indexOf(String(customerState)) !== -1;
-      var gradeMatch = selectedGrade === '' || String(rowGrade) === String(selectedGrade);
-      if (stateMatch && gradeMatch) {
-        $row.find('select[id^="customerPricingType"]').val(pricingType);
-        $row.find('input[id^="customerPrice"]').val(sellingPrice);
-        $row.find('select[id^="customerPurchasingPricingType"]').val(purchasingPricingType);
-        $row.find('input[id^="customerPurchasingPrice"]').val(purchasingPrice);
-        updated++;
-      }
-    });
+    if (targetType === 'customer') {
+      var pricingType = $('#bulkPricingType').val();
+      var sellingPrice = $('#bulkSellingPrice').val();
+      $('#customerTable tr.details').each(function() {
+        var $row = $(this);
+        var customerState = $row.find('select[id^="customers"]').find('option:selected').data('state');
+        var rowGrade = $row.find('select[id^="customerGrade"]').val();
+        var stateMatch = selectedStates.indexOf(String(customerState)) !== -1;
+        var gradeMatch = selectedGrade === '' || String(rowGrade) === String(selectedGrade);
+        if (stateMatch && gradeMatch) {
+          $row.find('select[id^="customerPricingType"]').val(pricingType);
+          $row.find('input[id^="customerPrice"]').val(sellingPrice);
+          updated++;
+        }
+      });
+    } else {
+      var purchasingPricingType = $('#bulkPurchasingPricingType').val();
+      var purchasingPrice = $('#bulkPurchasingPrice').val();
+      $('#supplierTable tr.details').each(function() {
+        var $row = $(this);
+        var supplierState = $row.find('select[id^="suppliers"]').find('option:selected').data('state');
+        var rowGrade = $row.find('select[id^="supplierGrade"]').val();
+        var stateMatch = selectedStates.indexOf(String(supplierState)) !== -1;
+        var gradeMatch = selectedGrade === '' || String(rowGrade) === String(selectedGrade);
+        if (stateMatch && gradeMatch) {
+          $row.find('select[id^="supplierPricingType"]').val(purchasingPricingType);
+          $row.find('input[id^="supplierPrice"]').val(purchasingPrice);
+          updated++;
+        }
+      });
+    }
 
     $('#bulkPriceByStateModal').modal('hide');
-    toastr["success"](updated + " customer(s) updated.", "Success:");
+    toastr["success"](updated + " row(s) updated.", "Success:");
   });
 });
 
@@ -1237,11 +1361,16 @@ function edit(id){
 function openCustomers(id) {
   $('#spinnerLoading').show();
   $('#customerTable').html('');
+  $('#supplierTable').html('');
   customerRowCount = 0;
+  supplierRowCount = 0;
   $('#customersForm').find('#customerProductId').val(id);
+  // Reset to customers tab
+  $('#tabCustomersLink').tab('show');
   $.post('php/getProduct.php', {userID: id}, function(data) {
     var obj = JSON.parse(data);
     if (obj.status === 'success') {
+      // Load customers
       var items = obj.message.productCustomers;
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
@@ -1252,6 +1381,7 @@ function openCustomers(id) {
         $("#customerTable").find('#remove:last').attr("id", "remove" + customerRowCount);
         $("#customerTable").find('#no:last').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(item.no);
         $("#customerTable").find('#customerProductId:last').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount).val(item.id);
+        $("#customerTable").find('#customerRowType:last').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
         $("#customerTable").find('#customers:last').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).val(item.customer_id).select2({
           allowClear: true, placeholder: "Please Select", dropdownParent: $('#customersModal')
         });
@@ -1260,13 +1390,38 @@ function openCustomers(id) {
         });
         $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount).val(item.pricing_type || 'Standard');
         $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount).val(item.price || 0);
-        $("#customerTable").find('#customerPurchasingPricingType:last').attr('name', 'customerPurchasingPricingType['+customerRowCount+']').attr("id", "customerPurchasingPricingType" + customerRowCount).val(item.purchasing_pricing_type || 'Standard');
-        $("#customerTable").find('#customerPurchasingPrice:last').attr('name', 'customerPurchasingPrice['+customerRowCount+']').attr("id", "customerPurchasingPrice" + customerRowCount).val(item.purchasing_price || 0);
 
         $('#customerTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
         $('#customerTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
 
         customerRowCount++;
+      }
+
+      // Load suppliers
+      var supplierItems = obj.message.productSuppliers;
+      for (var j = 0; j < supplierItems.length; j++) {
+        var sItem = supplierItems[j];
+        var $sContents = $("#supplierDetail").clone();
+        $("#supplierTable").append($sContents.html());
+
+        $("#supplierTable").find('.details:last').attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
+        $("#supplierTable").find('#removeSupplier:last').attr("id", "removeSupplier" + supplierRowCount);
+        $("#supplierTable").find('#supplierNo:last').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(sItem.no);
+        $("#supplierTable").find('#supplierProductId:last').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount).val(sItem.id);
+        $("#supplierTable").find('#supplierRowType:last').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
+        $("#supplierTable").find('#suppliers:last').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).val(sItem.supplier_id).select2({
+          allowClear: true, placeholder: "Please Select", dropdownParent: $('#customersModal')
+        });
+        $("#supplierTable").find('#supplierGrade:last').attr('name', 'supplierGrade['+supplierRowCount+']').attr("id", "supplierGrade" + supplierRowCount).val(sItem.grade_id || '').select2({
+          allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
+        });
+        $("#supplierTable").find('#supplierPricingType:last').attr('name', 'supplierPricingType['+supplierRowCount+']').attr("id", "supplierPricingType" + supplierRowCount).val(sItem.purchasing_pricing_type || 'Standard');
+        $("#supplierTable").find('#supplierPrice:last').attr('name', 'supplierPrice['+supplierRowCount+']').attr("id", "supplierPrice" + supplierRowCount).val(sItem.purchasing_price || 0);
+
+        $('#supplierTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
+        $('#supplierTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
+
+        supplierRowCount++;
       }
     } else {
       toastr["error"](obj.message, "Failed:");

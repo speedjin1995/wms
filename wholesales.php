@@ -311,7 +311,8 @@ else{
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
-                  <th><?=$languageArray['created_datetime_code'][$language]?></th>
+                  <th><?=$languageArray['start_time_code'][$language]?></th>
+                  <th><?=$languageArray['end_time_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
@@ -748,7 +749,8 @@ $(function () {
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'security_bills' },
-      { data: 'created_datetime' },
+      { data: 'start_time' },
+      { data: 'end_time' },
       { data: 'parent' },
       { data: 'customer_supplier' },
       { data: 'vehicle_no' },
@@ -916,7 +918,8 @@ $(function () {
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'security_bills' },
-        { data: 'created_datetime' },
+        { data: 'start_time' },
+        { data: 'end_time' },
         { data: 'parent' },
         { data: 'customer_supplier' },
         { data: 'vehicle_no' },
@@ -1484,11 +1487,16 @@ $(function () {
     var gradeName = $(this).find('option:selected').data('name');
     var productId = $(this).closest('tr').find('select[id^="product"]').val();
     var customerId = $('#extendModal').find('#customer').val();
+    var supplierId = $('#extendModal').find('#supplier').val();
     var status = $('#extendModal').find('#status').val();
     $(this).closest('tr').find('input[name*="[grade]"]').val(gradeName);
 
     if (allowPrice == 'Y' && productId && status){
-      calculatePrice(productId, status, customerId, gradeId, $(this));
+      if (status == 'RECEIVING' || status == 'INCOMING'){
+        calculatePrice(productId, status, supplierId, gradeId, $(this));
+      }else{
+        calculatePrice(productId, status, customerId, gradeId, $(this));
+      }
     }
   });
 
@@ -1604,7 +1612,11 @@ $(function () {
     var status = $('#extendModal').find('#status').val();
 
     if (allowPrice == 'Y' && productId && status){
-      calculatePrice(productId, status, customerId, grade, $(this));
+      if (status == 'RECEIVING' || status == 'INCOMING'){
+        calculatePrice(productId, status, supplierId, gradeId, $(this));
+      }else{
+        calculatePrice(productId, status, customerId, gradeId, $(this));
+      }
     }
   });
 
@@ -2081,8 +2093,8 @@ function edit(id) {
         $('#extendModal').find('#otherVehicleNo').val('');
       }
       $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
-      if (obj.message.created_datetime) {
-        $('#startTimePicker').datetimepicker('date', moment(obj.message.created_datetime, 'YYYY-MM-DD HH:mm:ss'));
+      if (obj.message.start_time) {
+        $('#startTimePicker').datetimepicker('date', moment(obj.message.start_time, 'YYYY-MM-DD HH:mm:ss'));
       } else {
         $('#startTimePicker').datetimepicker('clear');
       }
