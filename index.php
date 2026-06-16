@@ -139,7 +139,8 @@ else{
       width: 100%;
       height: 100%;
       background-color: rgba(16, 16, 16, 0.5);
-      z-index: 5;
+      z-index: 99999;
+      pointer-events: all;
     }
 
     @-webkit-keyframes uil-ring-anim {
