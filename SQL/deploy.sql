@@ -1573,6 +1573,8 @@ DELIMITER ;
 -- 15/06/2026 --
 ALTER TABLE `wholesales` ADD `start_time` DATETIME NOT NULL AFTER `created_by`;
 
+UPDATE `wholesales` SET start_time = created_datetime;
+
 ALTER TABLE `wholesales_log` ADD `start_time` DATETIME NOT NULL AFTER `created_by`;
 
 DELIMITER $$
