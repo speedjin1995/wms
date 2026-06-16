@@ -606,7 +606,7 @@ to get the desired effect
               <i class="nav-icon fas fa-calculator"></i>
               <p><?=$languageArray['accounting_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
-            <ul class="nav nav-treeview" style="display: none;">
+            <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a href="#paymentVoucher" data-file="paymentVoucher.php" class="nav-link link">
                   <i class="nav-icon fas fa-file-invoice-dollar"></i>

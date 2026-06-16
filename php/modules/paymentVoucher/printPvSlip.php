@@ -1,7 +1,7 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 session_start();
 require_once '../../db_connect.php';
@@ -12,7 +12,11 @@ if(isset($_POST['pvId'])){
     $company = $_SESSION['customer'];
     $pvId = $_POST['pvId'];
     $paymentVoucherNo = null;
-    
+
+    // Language
+    $language = $_SESSION['language'];
+    $languageArray = $_SESSION['languageArray'];
+
     // Check if payment voucher exists
     if (empty($pvId)) {
         echo json_encode(array(
@@ -56,9 +60,9 @@ if(isset($_POST['pvId'])){
 
             // Format date to Malay month and year
             $malayMonths = array(
-                1 => 'JANUARI', 2 => 'FEBRUARI', 3 => 'MAC', 4 => 'APRIL',
-                5 => 'MEI', 6 => 'JUN', 7 => 'JULAI', 8 => 'OGOS',
-                9 => 'SEPTEMBER', 10 => 'OKTOBER', 11 => 'NOVEMBER', 12 => 'DISEMBER'
+                1 => $languageArray['january_code'][$language], 2 => $languageArray['february_code'][$language], 3 => $languageArray['march_code'][$language], 4 => $languageArray['april_code'][$language],
+                5 => $languageArray['may_code'][$language], 6 => $languageArray['june_code'][$language], 7 => $languageArray['july_code'][$language], 8 => $languageArray['august_code'][$language],
+                9 => $languageArray['september_code'][$language], 10 => $languageArray['october_code'][$language], 11 => $languageArray['november_code'][$language], 12 => $languageArray['december_code'][$language]
             );
             $month = date('n', strtotime($row['voucher_date']));
             $year = date('Y', strtotime($row['voucher_date']));
@@ -173,6 +177,9 @@ if(isset($_POST['pvId'])){
                         width: 200px;
                         margin-top: 50px;
                     }
+                    .text-caps {
+                        text-transform: uppercase;
+                    }
                 </style>
             </head>
             <body>
@@ -182,26 +189,26 @@ if(isset($_POST['pvId'])){
                     <p>TEL: '.$compphone.'</p>
                 </div>
                 
-                <div class="title">BAUCER BAYARAN</div>
+                <div class="title text-caps">'.$languageArray['payment_voucher_code'][$language].'</div>
                 
                 <div class="info-row">
                     <div class="info-item">
-                        <span class="info-label">NAMA :</span>
+                        <span class="info-label text-caps">'.$languageArray['name_code'][$language].' :</span>
                         <span class="info-value">'.$supplierName.'</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">TARIKH :</span>
+                        <span class="info-label text-caps">'.$languageArray['date_code'][$language].' :</span>
                         <span class="info-value">'.$voucherDate.'</span>
                     </div>
                 </div>
                 
                 <div class="info-row">
                     <div class="info-item">
-                        <span class="info-label">NO AKAUN :</span>
+                        <span class="info-label text-caps">'.$languageArray['account_no_code'][$language].' :</span>
                         <span class="info-value">'.$invoiceNo.'</span>
                     </div>
                     <div class="info-item" style="visibility: hidden;">
-                        <span class="info-label">TARIKH :</span>
+                        <span class="info-label text-caps">'.$languageArray['date_code'][$language].' :</span>
                         <span class="info-value">'.$voucherDate.'</span>
                     </div>
                 </div>
@@ -209,11 +216,11 @@ if(isset($_POST['pvId'])){
                 <table>
                     <thead>
                         <tr>
-                            <th>BIL</th>
-                            <th>PERKARA</th>
-                            <th>UNIT (UNIT/KG)</th>
-                            <th>HARGA (RM)</th>
-                            <th>JUMLAH (RM)</th>
+                            <th class="text-caps">'.$languageArray['number_short_code'][$language].'</th>
+                            <th class="text-caps">'.$languageArray['item_code'][$language].'</th>
+                            <th class="text-caps">'.$languageArray['unit_code'][$language].'/KG</th>
+                            <th class="text-caps">'.$languageArray['price_code'][$language].' (RM)</th>
+                            <th class="text-caps">'.$languageArray['total_code'][$language].' (RM)</th>
                         </tr>
                     </thead>
                     <tbody>';
@@ -222,7 +229,7 @@ if(isset($_POST['pvId'])){
             $message .= '
                 <tr>
                     <td class="text-center">'.$bil.'</td>
-                    <td class="text-left">BTS '.$formatVoucherDate.'</td>
+                    <td class="text-left">'.$formatVoucherDate.'</td>
                     <td>'.number_format($totalNettWeight, 2).'</td>
                     <td class="text-center">RM'.number_format($unitPrice, 2).'</td>
                     <td class="text-center">RM'.number_format($totalAmount, 2).'</td>
@@ -234,15 +241,15 @@ if(isset($_POST['pvId'])){
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-left" style="border-right:none"><strong>NO AKAUN BANK : '.$accountNo.'</strong></td>
-                            <td class="text-right" style="border-left:none"><strong>JUMLAH (RM)</strong></td>
+                            <td colspan="3" class="text-left text-caps" style="border-right:none"><strong>'.$languageArray['bank_account_no_code'][$language].' : '.$accountNo.'</strong></td>
+                            <td class="text-right text-caps" style="border-left:none"><strong>'.$languageArray['total_code'][$language].' (RM)</strong></td>
                             <td class="text-center"><strong>RM'.number_format($finalAmount, 2).'</strong></td>
                         </tr>
                     </tfoot>
                 </table>
                 
                 <div class="signature">
-                    <p>DITERIMA OLEH :</p>
+                    <p class="text-caps">'.$languageArray['received_by_code'][$language].' :</p>
                     <div class="signature-line"></div>
                 </div>
             </body>
