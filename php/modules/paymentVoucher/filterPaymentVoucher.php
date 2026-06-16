@@ -118,7 +118,7 @@ while($r = mysqli_fetch_assoc($empRecords)){
         "supplier_name"     => $r['supplier_name'],
         "voucher_date"      => ($r['pv_voucher_date'] != null
                                     ? date('d/m/Y', strtotime($r['pv_voucher_date']))
-                                    : date('d/m/Y', strtotime($r['latest_date']))),
+                                    : null),
         "voucher_no"        => $r['voucher_no'] ?? '-',
         "invoice_no"        => $r['invoice_no'] ?? '-',
         "final_amount"=> ($r['final_amount'] ? number_format($r['final_amount'], 2) : '0.00'),

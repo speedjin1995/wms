@@ -343,6 +343,9 @@ $(function() {
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }
+          if (row.pv_id) {
+            buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm"><i class="fas fa-print"></i></button>';
+          }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             if (row.pv_id) {
               buttons += '<button type="button" onclick="deactivate(\'' + row.pv_id + '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
@@ -393,6 +396,9 @@ $(function() {
             var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            }
+            if (row.pv_id) {
+              buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm"><i class="fas fa-print"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               if (row.pv_id) {
@@ -567,5 +573,27 @@ function deactivate(pvId) {
   $('#cancelId').val(pvId);
   $('#cancelReason').val('');
   $('#cancelModal').modal('show');
+}
+
+function print(pvId){
+  $.post('php/modules/paymentVoucher/printPvSlip.php', {pvId: pvId}, function(data){
+    var obj = JSON.parse(data);
+
+    if(obj.status === 'success'){
+      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+      printWindow.document.write(obj.message);
+      printWindow.document.close();
+      setTimeout(function(){
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    }
+    else if(obj.status === 'failed'){
+      toastr["error"](obj.message, "Failed:");
+    }
+    else{
+      toastr["error"]("Something wrong when activate", "Failed:");
+    }
+  });
 }
 </script>
