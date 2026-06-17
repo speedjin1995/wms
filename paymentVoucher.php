@@ -162,8 +162,8 @@ $languageArray = $_SESSION['languageArray'];
                   <th><?=$languageArray['invoice_no_code'][$language]?></th>
                   <th><?=$languageArray['total_nett_weight_code'][$language]?> (KG)</th>
                   <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
-                  <th><?=$languageArray['nett_amount_code'][$language]?> (RM)</th>
-                  <th><?=$languageArray['tax_amount_code'][$language]?> (RM)</th>
+                  <!-- <th><?=$languageArray['nett_amount_code'][$language]?> (RM)</th> -->
+                  <!-- <th><?=$languageArray['tax_amount_code'][$language]?> (RM)</th> -->
                   <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
@@ -227,7 +227,7 @@ $languageArray = $_SESSION['languageArray'];
                 <input type="number" step="0.01" class="form-control" id="unitPrice" name="unitPrice" value="0" required>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['tax_code'][$language]?> (%)</label>
                 <input type="number" step="0.01" class="form-control" id="taxRate" name="tax" value="0">
@@ -239,16 +239,12 @@ $languageArray = $_SESSION['languageArray'];
                 <input type="text" class="form-control" id="totalNettWeight" name="totalNettWeight" readonly>
               </div>
             </div>
-          </div>
-
-          <div class="row mb-3">
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['total_amount_code'][$language]?> (RM)</label>
                 <input type="text" class="form-control" id="totalAmount" name="totalAmount" readonly>
               </div>
             </div>
-  
           </div>
 
           <h6><?=$languageArray['weighing_details_code'][$language]?></h6>
@@ -261,8 +257,8 @@ $languageArray = $_SESSION['languageArray'];
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
                   <th><?=$languageArray['nett_weight_code'][$language]?> (KG)</th>
                   <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
-                  <th><?=$languageArray['nett_amount_code'][$language]?> (RM)</th>
-                  <th><?=$languageArray['tax_amount_code'][$language]?> (RM)</th>
+                  <th style="display:none"><?=$languageArray['nett_amount_code'][$language]?> (RM)</th>
+                  <th style="display:none"><?=$languageArray['tax_amount_code'][$language]?> (RM)</th>
                   <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
                 </tr>
               </thead>
@@ -272,8 +268,8 @@ $languageArray = $_SESSION['languageArray'];
                   <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
                   <td id="footTotalNett">0.00</td>
                   <td></td>
-                  <td id="footTotalNettAmt">0.00</td>
-                  <td id="footTotalTaxAmt">0.00</td>
+                  <!-- <td id="footTotalNettAmt">0.00</td>
+                  <td id="footTotalTaxAmt">0.00</td> -->
                   <td id="footTotalPrice">0.00</td>
                 </tr>
               </tfoot>
@@ -404,8 +400,8 @@ $(function() {
       { data: 'invoice_no' },
       { data: 'total_nett_weight' },
       { data: 'unit_price' },
-      { data: 'nett_amount' },
-      { data: 'tax_amount' },
+      // { data: 'nett_amount' },
+      // { data: 'tax_amount' },
       { data: 'final_amount' },
       {
         data: 'id',
@@ -468,8 +464,8 @@ $(function() {
         { data: 'invoice_no' },
         { data: 'total_nett_weight' },
         { data: 'unit_price' },
-        { data: 'nett_amount' },
-        { data: 'tax_amount' },
+        // { data: 'nett_amount' },
+        // { data: 'tax_amount' },
         { data: 'final_amount' },
         {
           data: 'id',
@@ -644,8 +640,8 @@ function openPv(entityId, pvId) {
             '<td>' + item.vehicle_no + '</td>' +
             '<td class="item-nett">' + item.nett + '</td>' +
             '<td class="item-unit-price">' + item.unit_price + '</td>' +
-            '<td class="item-nett-amt">' + item.nett_amount + '</td>' +
-            '<td class="item-tax-amt">0.00</td>' +
+            '<td class="item-nett-amt" style="display:none">' + item.nett_amount + '</td>' +
+            '<td class="item-tax-amt" style="display:none">0.00</td>' +
             '<td class="item-total-price">0.00</td>' +
           '</tr>'
         );

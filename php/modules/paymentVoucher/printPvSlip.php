@@ -334,8 +334,8 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                             <td class="text-center">'.$languageArray['serial_no_code'][$language].'</td>
                             <td class="text-center">'.$languageArray['nett_weight_code'][$language].' (KG)</td>
                             <td class="text-center">'.$languageArray['price_code'][$language].' (RM)</td>
-                            <td class="text-center">'.$languageArray['amount_code'][$language].' (RM)</td>
-                            <td class="text-center">'.$languageArray['tax_amount_code'][$language].' (RM)</td>
+                            <!--td class="text-center">'.$languageArray['amount_code'][$language].' (RM)</td-->
+                            <!--td class="text-center">'.$languageArray['tax_amount_code'][$language].' (RM)</td-->
                             <td class="text-center">'.$languageArray['total_amount_code'][$language].' (RM)</td>
                         </tr>
 
@@ -343,16 +343,16 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                 foreach ($pvItems as $item) {
                     $amount = $unitPrice * $item['nett'];
                     $taxAmount = $amount * ($tax / 100);
-                    $totalAmount = $amount + $taxAmount;
+                    $totalItemAmount = $amount + $taxAmount;
 
                     $message .= '<tr>
                             <td>'.$item['date'].'</td>
                             <td class="text-center">'.$item['serial_no'].'</td>
                             <td class="text-center">'.number_format($item['nett'], 2).'</td>
                             <td class="text-center">'.number_format($unitPrice, 2).'</td>
-                            <td class="text-center">'.number_format($amount, 2).'</td>
-                            <td class="text-center">'.number_format($taxAmount, 2).'</td>
-                            <td class="text-right">'.number_format($totalAmount, 2).'</td>
+                            <!--td class="text-center">'.number_format($amount, 2).'</td-->
+                            <!--td class="text-center">'.number_format($taxAmount, 2).'</td-->
+                            <td class="text-center">'.number_format($totalItemAmount, 2).'</td>
                         </tr>';
                 }
 
@@ -362,9 +362,9 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                             <td><b>Total</b></td>
                             <td class="text-center border-top">'.number_format($totalNettWeight, 2).'</td>
                             <td class="text-center border-top"></td>
-                            <td class="text-center border-top">'.number_format($totalNettAmount, 2).'</td>
-                            <td class="text-center border-top">'.number_format($totalTaxAmount, 2).'</td>
-                            <td class="text-right border-top">'.number_format($totalAmount, 2).'</td>
+                            <!--td class="text-center border-top">'.number_format($totalNettAmount, 2).'</td-->
+                            <!--td class="text-center border-top">'.number_format($totalTaxAmount, 2).'</td-->
+                            <td class="text-center border-top">'.number_format($totalAmount, 2).'</td>
                         </tr>
                     </table>
 
