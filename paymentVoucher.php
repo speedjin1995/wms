@@ -289,6 +289,32 @@ $languageArray = $_SESSION['languageArray'];
   </div>
 </div>
 
+<!-- Print Modal -->
+<div class="modal fade" id="printModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-gray-dark color-palette">
+        <h4 class="modal-title"><?=$languageArray['print_code'][$language]?></h4>
+        <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="printPvId">
+        <div class="form-group">
+          <label><?=$languageArray['select_slip_type_code'][$language]?></label>
+          <select class="form-control" id="printSlipType">
+            <option value="pv"><?=$languageArray['payment_voucher_code'][$language]?></option>
+            <option value="statement"><?=$languageArray['statement_code'][$language]?></option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+        <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-success" id="confirmPrint"><?=$languageArray['print_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Cancel Modal -->
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog">
@@ -526,6 +552,25 @@ $(function() {
     });
   });
 
+  $('#confirmPrint').on('click', function() {
+    var pvId = $('#printPvId').val();
+    var slipType = $('#printSlipType').val();
+    $('#printModal').modal('hide');
+    $('#spinnerLoading').show();
+    $.post('php/modules/paymentVoucher/printPvSlip.php', {pvId: pvId, slipType: slipType}, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+        printWindow.document.write(obj.message);
+        printWindow.document.close();
+        setTimeout(function() { printWindow.print(); printWindow.close(); }, 500);
+      } else {
+        toastr['error'](obj.message, 'Failed:');
+      }
+      $('#spinnerLoading').hide();
+    });
+  });
+
   // Cancel form
   $('#cancelForm').on('submit', function(e) {
     e.preventDefault();
@@ -652,24 +697,8 @@ function deactivate(pvId) {
 }
 
 function print(pvId){
-  $.post('php/modules/paymentVoucher/printPvSlip.php', {pvId: pvId}, function(data){
-    var obj = JSON.parse(data);
-
-    if(obj.status === 'success'){
-      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-      printWindow.document.write(obj.message);
-      printWindow.document.close();
-      setTimeout(function(){
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something wrong when activate", "Failed:");
-    }
-  });
+  $('#printPvId').val(pvId);
+  $('#printSlipType').val('pv');
+  $('#printModal').modal('show');
 }
 </script>
