@@ -160,7 +160,11 @@ $languageArray = $_SESSION['languageArray'];
                   <th><?=$languageArray['voucher_no_code'][$language]?></th>
                   <th><?=$languageArray['name_code'][$language]?></th>
                   <th><?=$languageArray['invoice_no_code'][$language]?></th>
-                  <th><?=$languageArray['total_amount_code'][$language]?> (RM)</th>
+                  <th><?=$languageArray['total_nett_weight_code'][$language]?> (KG)</th>
+                  <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
+                  <th><?=$languageArray['nett_amount_code'][$language]?> (RM)</th>
+                  <th><?=$languageArray['tax_amount_code'][$language]?> (RM)</th>
+                  <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -187,6 +191,8 @@ $languageArray = $_SESSION['languageArray'];
           <input type="hidden" id="deductionAmount" name="deductionAmount" value="0">
           <input type="hidden" id="additionAmount" name="additionAmount" value="0">
           <input type="hidden" id="finalAmount" name="finalAmount" value="0">
+          <input type="hidden" id="totalNettAmount" name="totalNettAmount" value="0">
+          <input type="hidden" id="totalTaxAmount" name="totalTaxAmount" value="0">
 
           <div class="row mb-3">
             <div class="col-md-4">
@@ -209,7 +215,7 @@ $languageArray = $_SESSION['languageArray'];
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['invoice_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo" readonly placeholder="Auto Generated">
+                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo" placeholder="Optional">
               </div>
             </div>
           </div>
@@ -370,6 +376,10 @@ $(function() {
       { data: 'voucher_no' },
       { data: 'entity_name' },
       { data: 'invoice_no' },
+      { data: 'total_nett_weight' },
+      { data: 'unit_price' },
+      { data: 'nett_amount' },
+      { data: 'tax_amount' },
       { data: 'final_amount' },
       {
         data: 'id',
@@ -430,6 +440,10 @@ $(function() {
         { data: 'voucher_no' },
         { data: 'entity_name' },
         { data: 'invoice_no' },
+        { data: 'total_nett_weight' },
+        { data: 'unit_price' },
+        { data: 'nett_amount' },
+        { data: 'tax_amount' },
         { data: 'final_amount' },
         {
           data: 'id',
@@ -540,6 +554,8 @@ function openPv(entityId, pvId) {
   $('#unitPrice').val(0);
   $('#taxRate').val(0);
   $('#totalNettWeight').val('');
+  $('#nettAmount').val('');
+  $('#taxAmount').val('');
   $('#totalAmount').val('');
   $('#finalAmount').val(0);
   $('#deductionAmount').val(0);
@@ -565,6 +581,8 @@ function openPv(entityId, pvId) {
         $('#unitPrice').val(pv.unit_price || 0);
         $('#taxRate').val(pv.tax || 0);
         $('#totalAmount').val(pv.total_amount || 0);
+        $('#nettAmount').val(pv.nett_amount || 0);
+        $('#taxAmount').val(pv.tax_amount || 0);
         $('#finalAmount').val(pv.final_amount || 0);
         $('#deductionAmount').val(pv.deduction_amount || 0);
         $('#additionAmount').val(pv.addition_amount || 0);
@@ -619,7 +637,9 @@ function recalculate() {
 
   $('#footTotalNett').text(totalNett.toFixed(2));
   $('#footTotalNettAmt').text(totalNettAmt.toFixed(2));
+  $('#totalNettAmount').val(totalNettAmt.toFixed(2));
   $('#footTotalTaxAmt').text(totalTaxAmt.toFixed(2));
+  $('#totalTaxAmount').val(totalTaxAmt.toFixed(2));
   $('#footTotalPrice').text(totalPrice.toFixed(2));
   $('#totalAmount').val(totalPrice.toFixed(2));
   $('#finalAmount').val(totalPrice.toFixed(2));

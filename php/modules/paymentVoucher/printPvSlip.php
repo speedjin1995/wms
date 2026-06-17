@@ -73,7 +73,7 @@ if(isset($_POST['pvId'])){
             
             $accountNo = $row['account_no'] ?? '';
             $unitPrice = floatval($row['unit_price']);
-            $totalNettWeight = floatval($row['total_nett_weight']);
+            $totalNettWeight = floatval(str_replace(',', '', $row['total_nett_weight']));
             $totalAmount = floatval(str_replace('RM ', '', $row['total_amount']));
             $totalDeductions = floatval($row['deduction_amount']);
             $totalAdditions = floatval($row['addition_amount']);
@@ -207,12 +207,12 @@ if(isset($_POST['pvId'])){
                 
                 <div class="info-row">
                     <div class="info-item">
-                        <span class="info-label text-caps">'.$languageArray['account_no_code'][$language].' :</span>
-                        <span class="info-value">'.$invoiceNo.'</span>
+                        <span class="info-label text-caps">'.$languageArray['voucher_no_code'][$language].' :</span>
+                        <span class="info-value">'.$paymentVoucherNo.'</span>
                     </div>
-                    <div class="info-item" style="visibility: hidden;">
-                        <span class="info-label text-caps">'.$languageArray['date_code'][$language].' :</span>
-                        <span class="info-value">'.$voucherDate.'</span>
+                    <div class="info-item">
+                        <span class="info-label text-caps">'.$languageArray['invoice_no_code'][$language].' :</span>
+                        <span class="info-value">'.$invoiceNo.'</span>
                     </div>
                 </div>
                 
