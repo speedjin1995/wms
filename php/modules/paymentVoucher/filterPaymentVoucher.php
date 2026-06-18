@@ -129,6 +129,9 @@ if ($isIncoming) {
                 MAX(pv.voucher_date) as pv_voucher_date,
                 MAX(pv.invoice_no) as invoice_no,
                 MAX(pv.final_amount) as final_amount,
+                MAX(pv.nett_amount) as nett_amount,
+                MAX(pv.tax_amount) as tax_amount,
+                MAX(pv.unit_price) as unit_price,
                 SUM(CAST(w.total_weight AS DECIMAL(10,2))) as total_nett_weight
              FROM wholesales w
              INNER JOIN supplies s ON CAST(w.supplier AS UNSIGNED) = s.id
@@ -151,6 +154,9 @@ if ($isIncoming) {
                 MAX(pv.voucher_date) as pv_voucher_date,
                 MAX(pv.invoice_no) as invoice_no,
                 MAX(pv.final_amount) as final_amount,
+                MAX(pv.nett_amount) as nett_amount,
+                MAX(pv.tax_amount) as tax_amount,
+                MAX(pv.unit_price) as unit_price,
                 SUM(CAST(w.total_weight AS DECIMAL(10,2))) as total_nett_weight
              FROM wholesales w
              INNER JOIN customers c ON CAST(w.customer AS UNSIGNED) = c.id
@@ -174,6 +180,9 @@ while($r = mysqli_fetch_assoc($empRecords)){
         "voucher_no" => $r['voucher_no'] ?? '-',
         "invoice_no" => $r['invoice_no'] ?? '-',
         "final_amount" => ($r['final_amount'] ? number_format($r['final_amount'], 2) : '0.00'),
+        "nett_amount" => ($r['nett_amount'] ? number_format($r['nett_amount'], 2) : '0.00'),
+        "tax_amount" => ($r['tax_amount'] ? number_format($r['tax_amount'], 2) : '0.00'),
+        "unit_price" => ($r['unit_price'] ? number_format($r['unit_price'], 2) : '0.00'),
         "total_nett_weight" => number_format($r['total_nett_weight'], 2),
         "pv_id" => $r['pv_id'] ?? '',
     );

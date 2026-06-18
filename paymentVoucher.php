@@ -85,7 +85,7 @@ $languageArray = $_SESSION['languageArray'];
                   </select>
                 </div>
               </div>
-              <div class="col-3" id="viewCustomerFilter">
+              <div class="col-3" id="viewCustomerFilter" style="display:none">
                 <div class="form-group">
                   <label><?=$languageArray['customer_code'][$language]?></label>
                   <select class="form-control select2" id="customerFilter">
@@ -160,7 +160,11 @@ $languageArray = $_SESSION['languageArray'];
                   <th><?=$languageArray['voucher_no_code'][$language]?></th>
                   <th><?=$languageArray['name_code'][$language]?></th>
                   <th><?=$languageArray['invoice_no_code'][$language]?></th>
-                  <th><?=$languageArray['total_amount_code'][$language]?> (RM)</th>
+                  <th><?=$languageArray['total_nett_weight_code'][$language]?> (KG)</th>
+                  <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
+                  <!-- <th><?=$languageArray['nett_amount_code'][$language]?> (RM)</th> -->
+                  <!-- <th><?=$languageArray['tax_amount_code'][$language]?> (RM)</th> -->
+                  <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -187,6 +191,8 @@ $languageArray = $_SESSION['languageArray'];
           <input type="hidden" id="deductionAmount" name="deductionAmount" value="0">
           <input type="hidden" id="additionAmount" name="additionAmount" value="0">
           <input type="hidden" id="finalAmount" name="finalAmount" value="0">
+          <input type="hidden" id="totalNettAmount" name="totalNettAmount" value="0">
+          <input type="hidden" id="totalTaxAmount" name="totalTaxAmount" value="0">
 
           <div class="row mb-3">
             <div class="col-md-4">
@@ -209,7 +215,7 @@ $languageArray = $_SESSION['languageArray'];
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['invoice_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo" readonly placeholder="Auto Generated">
+                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo" placeholder="Optional">
               </div>
             </div>
           </div>
@@ -221,7 +227,7 @@ $languageArray = $_SESSION['languageArray'];
                 <input type="number" step="0.01" class="form-control" id="unitPrice" name="unitPrice" value="0" required>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['tax_code'][$language]?> (%)</label>
                 <input type="number" step="0.01" class="form-control" id="taxRate" name="tax" value="0">
@@ -233,16 +239,12 @@ $languageArray = $_SESSION['languageArray'];
                 <input type="text" class="form-control" id="totalNettWeight" name="totalNettWeight" readonly>
               </div>
             </div>
-          </div>
-
-          <div class="row mb-3">
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['total_amount_code'][$language]?> (RM)</label>
                 <input type="text" class="form-control" id="totalAmount" name="totalAmount" readonly>
               </div>
             </div>
-  
           </div>
 
           <h6><?=$languageArray['weighing_details_code'][$language]?></h6>
@@ -251,23 +253,24 @@ $languageArray = $_SESSION['languageArray'];
               <thead class="bg-primary text-white">
                 <tr>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
+                  <th><?=$languageArray['date_code'][$language]?></th>
                   <th><?=$languageArray['name_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
                   <th><?=$languageArray['nett_weight_code'][$language]?> (KG)</th>
                   <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
-                  <th><?=$languageArray['nett_amount_code'][$language]?> (RM)</th>
-                  <th><?=$languageArray['tax_amount_code'][$language]?> (RM)</th>
+                  <th style="display:none"><?=$languageArray['nett_amount_code'][$language]?> (RM)</th>
+                  <th style="display:none"><?=$languageArray['tax_amount_code'][$language]?> (RM)</th>
                   <th><?=$languageArray['total_price_code'][$language]?> (RM)</th>
                 </tr>
               </thead>
               <tbody id="pvItemsBody"></tbody>
               <tfoot>
                 <tr class="font-weight-bold">
-                  <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                  <td colspan="4" class="text-right"><?=$languageArray['total_code'][$language]?></td>
                   <td id="footTotalNett">0.00</td>
                   <td></td>
-                  <td id="footTotalNettAmt">0.00</td>
-                  <td id="footTotalTaxAmt">0.00</td>
+                  <!-- <td id="footTotalNettAmt">0.00</td>
+                  <td id="footTotalTaxAmt">0.00</td> -->
                   <td id="footTotalPrice">0.00</td>
                 </tr>
               </tfoot>
@@ -279,6 +282,32 @@ $languageArray = $_SESSION['languageArray'];
           <button type="submit" class="btn btn-success"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Print Modal -->
+<div class="modal fade" id="printModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-gray-dark color-palette">
+        <h4 class="modal-title"><?=$languageArray['print_code'][$language]?></h4>
+        <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="printPvId">
+        <div class="form-group">
+          <label><?=$languageArray['select_slip_type_code'][$language]?></label>
+          <select class="form-control" id="printSlipType">
+            <option value="pv"><?=$languageArray['payment_voucher_code'][$language]?></option>
+            <option value="statement"><?=$languageArray['statement_code'][$language]?></option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+        <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-success" id="confirmPrint"><?=$languageArray['print_code'][$language]?></button>
+      </div>
     </div>
   </div>
 </div>
@@ -370,6 +399,10 @@ $(function() {
       { data: 'voucher_no' },
       { data: 'entity_name' },
       { data: 'invoice_no' },
+      { data: 'total_nett_weight' },
+      { data: 'unit_price' },
+      // { data: 'nett_amount' },
+      // { data: 'tax_amount' },
       { data: 'final_amount' },
       {
         data: 'id',
@@ -430,6 +463,10 @@ $(function() {
         { data: 'voucher_no' },
         { data: 'entity_name' },
         { data: 'invoice_no' },
+        { data: 'total_nett_weight' },
+        { data: 'unit_price' },
+        // { data: 'nett_amount' },
+        // { data: 'tax_amount' },
         { data: 'final_amount' },
         {
           data: 'id',
@@ -461,10 +498,10 @@ $(function() {
     if (status == 'RECEIVING'){
       $('#viewCustomerFilter').hide();
       $('#viewCustomerParentFilter').hide();
-      $('#viewSupplierFilter').show();
+      $('#viewSupplierFilter').hide();
       $('#viewSupplierParentFilter').show();
     }else{
-      $('#viewCustomerFilter').show();
+      $('#viewCustomerFilter').hide();
       $('#viewCustomerParentFilter').show();
       $('#viewSupplierFilter').hide();
       $('#viewSupplierParentFilter').hide();
@@ -512,6 +549,25 @@ $(function() {
     });
   });
 
+  $('#confirmPrint').on('click', function() {
+    var pvId = $('#printPvId').val();
+    var slipType = $('#printSlipType').val();
+    $('#printModal').modal('hide');
+    $('#spinnerLoading').show();
+    $.post('php/modules/paymentVoucher/printPvSlip.php', {pvId: pvId, slipType: slipType}, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+        printWindow.document.write(obj.message);
+        printWindow.document.close();
+        setTimeout(function() { printWindow.print(); printWindow.close(); }, 500);
+      } else {
+        toastr['error'](obj.message, 'Failed:');
+      }
+      $('#spinnerLoading').hide();
+    });
+  });
+
   // Cancel form
   $('#cancelForm').on('submit', function(e) {
     e.preventDefault();
@@ -540,6 +596,8 @@ function openPv(entityId, pvId) {
   $('#unitPrice').val(0);
   $('#taxRate').val(0);
   $('#totalNettWeight').val('');
+  $('#nettAmount').val('');
+  $('#taxAmount').val('');
   $('#totalAmount').val('');
   $('#finalAmount').val(0);
   $('#deductionAmount').val(0);
@@ -565,6 +623,8 @@ function openPv(entityId, pvId) {
         $('#unitPrice').val(pv.unit_price || 0);
         $('#taxRate').val(pv.tax || 0);
         $('#totalAmount').val(pv.total_amount || 0);
+        $('#nettAmount').val(pv.nett_amount || 0);
+        $('#taxAmount').val(pv.tax_amount || 0);
         $('#finalAmount').val(pv.final_amount || 0);
         $('#deductionAmount').val(pv.deduction_amount || 0);
         $('#additionAmount').val(pv.addition_amount || 0);
@@ -577,12 +637,13 @@ function openPv(entityId, pvId) {
         $('#pvItemsBody').append(
           '<tr data-id="' + item.id + '" data-nett="' + item.nett_raw + '">' +
             '<td>' + item.serial_no + '</td>' +
+            '<td>' + item.start_time + '</td>' +
             '<td>' + item.supplier_name + '</td>' +
             '<td>' + item.vehicle_no + '</td>' +
             '<td class="item-nett">' + item.nett + '</td>' +
             '<td class="item-unit-price">' + item.unit_price + '</td>' +
-            '<td class="item-nett-amt">' + item.nett_amount + '</td>' +
-            '<td class="item-tax-amt">0.00</td>' +
+            '<td class="item-nett-amt" style="display:none">' + item.nett_amount + '</td>' +
+            '<td class="item-tax-amt" style="display:none">0.00</td>' +
             '<td class="item-total-price">0.00</td>' +
           '</tr>'
         );
@@ -619,7 +680,9 @@ function recalculate() {
 
   $('#footTotalNett').text(totalNett.toFixed(2));
   $('#footTotalNettAmt').text(totalNettAmt.toFixed(2));
+  $('#totalNettAmount').val(totalNettAmt.toFixed(2));
   $('#footTotalTaxAmt').text(totalTaxAmt.toFixed(2));
+  $('#totalTaxAmount').val(totalTaxAmt.toFixed(2));
   $('#footTotalPrice').text(totalPrice.toFixed(2));
   $('#totalAmount').val(totalPrice.toFixed(2));
   $('#finalAmount').val(totalPrice.toFixed(2));
@@ -632,24 +695,8 @@ function deactivate(pvId) {
 }
 
 function print(pvId){
-  $.post('php/modules/paymentVoucher/printPvSlip.php', {pvId: pvId}, function(data){
-    var obj = JSON.parse(data);
-
-    if(obj.status === 'success'){
-      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-      printWindow.document.write(obj.message);
-      printWindow.document.close();
-      setTimeout(function(){
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something wrong when activate", "Failed:");
-    }
-  });
+  $('#printPvId').val(pvId);
+  $('#printSlipType').val('pv');
+  $('#printModal').modal('show');
 }
 </script>

@@ -87,6 +87,16 @@ if (isset($_POST['entityId']) && $_POST['entityId'] != null && $_POST['entityId'
         $totalNett = filter_input(INPUT_POST, 'totalNettWeight', FILTER_SANITIZE_STRING);
     }
 
+    $totalNettAmount = '0';
+    if (isset($_POST['totalNettAmount']) && $_POST['totalNettAmount'] != null && $_POST['totalNettAmount'] != '') {
+        $totalNettAmount = filter_input(INPUT_POST, 'totalNettAmount', FILTER_SANITIZE_STRING);
+    }
+    
+    $totalTaxAmount = '0';
+    if (isset($_POST['totalTaxAmount']) && $_POST['totalTaxAmount'] != null && $_POST['totalTaxAmount'] != '') {
+        $totalTaxAmount = filter_input(INPUT_POST, 'totalTaxAmount', FILTER_SANITIZE_STRING);
+    }
+
     $totalAmount = '0';
     if (isset($_POST['totalAmount']) && $_POST['totalAmount'] != null && $_POST['totalAmount'] != '') {
         $totalAmount = filter_input(INPUT_POST, 'totalAmount', FILTER_SANITIZE_STRING);
@@ -128,8 +138,8 @@ if (isset($_POST['entityId']) && $_POST['entityId'] != null && $_POST['entityId'
         $pvId = filter_input(INPUT_POST, 'pvId', FILTER_SANITIZE_NUMBER_INT);
 
         // Update PV header
-        if ($update_stmt = $db->prepare("UPDATE payment_vouchers SET voucher_date=?, invoice_no=?, unit_price=?, tax=?, total_nett_weight=?, total_amount=?, deduction_amount=?, addition_amount=?, final_amount=?, deduction_details=?, addition_details=?, modified_by=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssssss', $voucherDate, $invoiceNo, $unitPrice, $tax, $totalNett, $totalAmount, $deductionAmount, $additionAmount, $finalAmount, $deductionDetails, $additionDetails, $userID, $pvId);
+        if ($update_stmt = $db->prepare("UPDATE payment_vouchers SET voucher_date=?, invoice_no=?, unit_price=?, tax=?, total_nett_weight=?, nett_amount=?, tax_amount=?, total_amount=?, deduction_amount=?, addition_amount=?, final_amount=?, deduction_details=?, addition_details=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssssssss', $voucherDate, $invoiceNo, $unitPrice, $tax, $totalNett, $totalNettAmount, $totalTaxAmount, $totalAmount, $deductionAmount, $additionAmount, $finalAmount, $deductionDetails, $additionDetails, $userID, $pvId);
 
             if (!$update_stmt->execute()) {
                 echo json_encode(['status' => 'failed', 'message' => $update_stmt->error]);
@@ -139,10 +149,9 @@ if (isset($_POST['entityId']) && $_POST['entityId'] != null && $_POST['entityId'
         }
     } else {
         $voucherNo = generateVoucherNo($db, $company);
-        $invoiceNo = generateInvoiceNo($db, $company);
 
-        if ($insert_stmt = $db->prepare("INSERT INTO payment_vouchers (entity_id, status, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, company, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
-            $insert_stmt->bind_param('ssssssssssssssss', $entityId, $transactionStatus, $voucherNo, $voucherDate, $invoiceNo, $unitPrice, $tax, $totalNett, $totalAmount, $deductionAmount, $additionAmount, $finalAmount, $deductionDetails, $additionDetails, $company, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO payment_vouchers (entity_id, status, voucher_no, voucher_date, invoice_no, unit_price, tax, total_nett_weight, nett_amount, tax_amount, total_amount, deduction_amount, addition_amount, final_amount, deduction_details, addition_details, company, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+            $insert_stmt->bind_param('ssssssssssssssssss', $entityId, $transactionStatus, $voucherNo, $voucherDate, $invoiceNo, $unitPrice, $tax, $totalNett, $totalNettAmount, $totalTaxAmount, $totalAmount, $deductionAmount, $additionAmount, $finalAmount, $deductionDetails, $additionDetails, $company, $userID);
 
             if (!$insert_stmt->execute()) {
                 echo json_encode(['status' => 'failed', 'message' => $insert_stmt->error]);
