@@ -94,6 +94,7 @@ while ($row = $result->fetch_assoc()) {
     $items[] = [
         'id' => $row['id'],
         'serial_no' => $row['serial_no'],
+        'start_time' => $row['start_time'],
         'supplier_id' => $row['supplier'],
         'supplier_name' => $isIncoming
             ? searchSupplierNameById($row['supplier'], $row['other_supplier'] ?? '', $db)

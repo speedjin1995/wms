@@ -85,7 +85,7 @@ $languageArray = $_SESSION['languageArray'];
                   </select>
                 </div>
               </div>
-              <div class="col-3" id="viewCustomerFilter">
+              <div class="col-3" id="viewCustomerFilter" style="display:none">
                 <div class="form-group">
                   <label><?=$languageArray['customer_code'][$language]?></label>
                   <select class="form-control select2" id="customerFilter">
@@ -253,6 +253,7 @@ $languageArray = $_SESSION['languageArray'];
               <thead class="bg-primary text-white">
                 <tr>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
+                  <th><?=$languageArray['date_code'][$language]?></th>
                   <th><?=$languageArray['name_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
                   <th><?=$languageArray['nett_weight_code'][$language]?> (KG)</th>
@@ -265,7 +266,7 @@ $languageArray = $_SESSION['languageArray'];
               <tbody id="pvItemsBody"></tbody>
               <tfoot>
                 <tr class="font-weight-bold">
-                  <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                  <td colspan="4" class="text-right"><?=$languageArray['total_code'][$language]?></td>
                   <td id="footTotalNett">0.00</td>
                   <td></td>
                   <!-- <td id="footTotalNettAmt">0.00</td>
@@ -497,10 +498,10 @@ $(function() {
     if (status == 'RECEIVING'){
       $('#viewCustomerFilter').hide();
       $('#viewCustomerParentFilter').hide();
-      $('#viewSupplierFilter').show();
+      $('#viewSupplierFilter').hide();
       $('#viewSupplierParentFilter').show();
     }else{
-      $('#viewCustomerFilter').show();
+      $('#viewCustomerFilter').hide();
       $('#viewCustomerParentFilter').show();
       $('#viewSupplierFilter').hide();
       $('#viewSupplierParentFilter').hide();
@@ -636,6 +637,7 @@ function openPv(entityId, pvId) {
         $('#pvItemsBody').append(
           '<tr data-id="' + item.id + '" data-nett="' + item.nett_raw + '">' +
             '<td>' + item.serial_no + '</td>' +
+            '<td>' + item.start_time + '</td>' +
             '<td>' + item.supplier_name + '</td>' +
             '<td>' + item.vehicle_no + '</td>' +
             '<td class="item-nett">' + item.nett + '</td>' +
