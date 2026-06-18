@@ -280,7 +280,7 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                     <meta charset="UTF-8">
                     <style>
                         @media print {
-                            @page { size: A4; margin: 15mm; }
+                            @page { size: A4; margin: 5mm; }
                         }
                         body { font-family: "Times New Roman", serif; font-size: 14px; margin: 20px; padding: 0; }
                         .page-header { text-align: center; font-size: 13px; line-height: 1.3; margin-bottom: 20px; }
