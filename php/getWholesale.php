@@ -83,7 +83,7 @@ if(isset($_POST['userID'])){
                         }
 
                         $totalWeight += floatval($weight['net']);
-                        $totalPrice += floatval($weight['price']);
+                        $totalPrice += floatval($weight['total']);
                         $weightDetailsOut[] = $weight;
                     }
                     $weightDetails = $weightDetailsOut;
@@ -98,12 +98,12 @@ if(isset($_POST['userID'])){
                 if (isset($row['reject_details']) && !empty($row['reject_details'])){
                     $rejectDetails = json_decode($row['reject_details'], true);
 
-                    foreach ($weightDetails as $weight){
-                        $totalReject += floatval($weight['net']);
+                    foreach ($rejectDetails as $reject){
+                        $totalReject += floatval($reject['net']);
                     }
                 }
 
-                $message['totalPrice'] = $totalReject;
+                $message['totalReject'] = $totalReject;
                 $message['rejectDetails'] = $rejectDetails;
             }
             
