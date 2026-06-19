@@ -1032,17 +1032,38 @@ $(function () {
         }
         // Validate weight detail rows
         var weightRowError = false;
+        var nettWeightError = false;
         $('#weightDetailsTable tr').each(function() {
           var product = $(this).find('select[name*="[product]"]').val();
           var grade = $(this).find('select[name*="[grade_id]"]').val();
           var gross = parseFloat($(this).find('input[name*="[gross]"]').val());
+          var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
           if (!product || !grade || isNaN(gross) || gross <= 0) {
             weightRowError = true;
             return false;
           }
+          if (nettWeight < 0) {
+            nettWeightError = true;
+            return false;
+          }
         });
+
+        if ($('#rejectDetailsTable tr').length > 0) {
+          $('#rejectDetailsTable tr').each(function() {
+            var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
+            if (nettWeight < 0) {
+              nettWeightError = true;
+              return false;
+            }
+          });
+        }
+        
         if (weightRowError) {
           toastr["error"]("Please fill in Product, Grade and Gross for all weight detail rows.", "Validation Error:");
+          return false;
+        }
+        if (nettWeightError) {
+          toastr["error"]("Nett weight cannot be negative. Please check your gross and tare values.", "Validation Error:");
           return false;
         }
         $('#spinnerLoading').show();
@@ -1504,7 +1525,13 @@ $(function () {
     // Retrieve the input's attributes
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
+
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
 
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
@@ -1513,8 +1540,14 @@ $(function () {
     // Retrieve the input's attributes
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
 
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
+    
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
@@ -1623,14 +1656,28 @@ $(function () {
   $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
+
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
+
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="tare"]', function(){
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
+
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
+    
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
@@ -1744,12 +1791,10 @@ function updateWeights(){
 
   if(tareWeight == 0){
     actualWeight = currentWeight - reduceWeight;
-    actualWeight = Math.abs(actualWeight);
     $('#actualWeight').val(actualWeight.toFixed(2));
   }
   else{
     actualWeight = tareWeight - currentWeight - reduceWeight;
-    actualWeight = Math.abs(actualWeight);
     $('#actualWeight').val(actualWeight.toFixed(2));
   }
 
