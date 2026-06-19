@@ -1698,3 +1698,239 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PAY` BEFORE UPDATE ON `payment_vouchers` FOR 
 END
 $$
 DELIMITER ;
+
+-- 19/06/2026 --
+ALTER TABLE `products` ADD `created_by` INT(11) NULL AFTER `state`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` INT(11) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `products_log` (
+  `id` int(10) NOT NULL,
+  `product_id` int(10) NOT NULL,
+  `product_code` text DEFAULT NULL,
+  `product_name` text NOT NULL,
+  `product_sn` varchar(30) DEFAULT NULL,
+  `batch_no` varchar(30) DEFAULT NULL,
+  `parts_no` varchar(30) DEFAULT NULL,
+  `uom` int(5) DEFAULT NULL,
+  `remark` text DEFAULT NULL,
+  `pricing_type` varchar(10) DEFAULT NULL,
+  `price` text DEFAULT '0.00',
+  `purchasing_pricing_type` varchar(10) DEFAULT NULL,
+  `purchasing_price` text DEFAULT '0.00',
+  `weight` varchar(10) DEFAULT NULL,
+  `customer` int(5) NOT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `range_set` int(1) NOT NULL DEFAULT 0,
+  `ok_weight` varchar(100) DEFAULT NULL,
+  `ok_weight_unit` int(11) DEFAULT NULL,
+  `lo_weight` varchar(100) DEFAULT NULL,
+  `lo_weight_unit` int(11) DEFAULT NULL,
+  `hi_weight` varchar(100) DEFAULT NULL,
+  `hi_weight_unit` int(11) DEFAULT NULL,
+  `packaging` int(11) DEFAULT NULL,
+  `category` int(11) DEFAULT NULL,
+  `product_image` text DEFAULT NULL,
+  `state` text DEFAULT NULL,
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` int(11) DEFAULT NULL,
+  `event_date` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `products_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `products_log` MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCTS` AFTER INSERT ON `products` FOR EACH ROW INSERT INTO products_log (
+    product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, purchasing_pricing_type, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTS` BEFORE UPDATE ON `products` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into products_log table
+    INSERT INTO products_log (
+      product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, purchasing_pricing_type, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `product_grades` ADD `created_by` INT(11) NULL AFTER `purchasing_price`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` INT(11) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `product_grades_log` (
+  `id` int(11) NOT NULL,
+  `product_grade_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade_id` int(11) NOT NULL,
+  `pricing_type` varchar(10) DEFAULT NULL,
+  `price` varchar(100) DEFAULT NULL,
+  `purchasing_pricing_type` varchar(10) DEFAULT NULL,
+  `purchasing_price` varchar(100) DEFAULT NULL,
+  `deleted` int(1) DEFAULT 0,
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` int(11) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `product_grades_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `product_grades_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCT_GRADES` AFTER INSERT ON `product_grades` FOR EACH ROW INSERT INTO product_grades_log (
+    product_grade_id, product_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price, deleted, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_id, NEW.grade_id, NEW.pricing_type, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.deleted, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_GRADES` BEFORE UPDATE ON `product_grades` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Skip if bulk soft-delete flag is set
+    IF @skip_grade_log IS NULL THEN
+      -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+      IF NEW.deleted = 1 THEN
+          SET action_value = 3;
+      ELSE
+          SET action_value = 2;
+      END IF;
+
+      -- Insert into product_grades_log table
+      INSERT INTO product_grades_log (
+        product_grade_id, product_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price, deleted, action_id, action_by, event_date
+      ) 
+      VALUES (
+          NEW.id, NEW.product_id, NEW.grade_id, NEW.pricing_type, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.deleted, action_value, NEW.modified_by, NEW.modified_datetime
+      );
+    END IF;
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `product_customers` ADD `created_by` INT(11) NULL AFTER `purchasing_price`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` INT(11) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `product_customers_log` (
+  `id` int(11) NOT NULL,
+  `product_customer_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `grade_id` int(11) DEFAULT NULL,
+  `pricing_type` varchar(10) DEFAULT NULL,
+  `price` varchar(100) DEFAULT NULL,
+  `purchasing_pricing_type` varchar(10) DEFAULT NULL,
+  `purchasing_price` varchar(100) DEFAULT NULL,
+  `deleted` int(1) DEFAULT 0,
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` int(11) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `product_customers_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `product_customers_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCT_CUSTOMERS` AFTER INSERT ON `product_customers` FOR EACH ROW INSERT INTO product_customers_log (
+    product_customer_id, product_id, customer_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price, deleted, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_id, NEW.customer_id, NEW.grade_id, NEW.pricing_type, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.deleted, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_CUSTOMERS` BEFORE UPDATE ON `product_customers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Skip if bulk soft-delete flag is set
+    IF @skip_customer_log IS NULL THEN
+      -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+      IF NEW.deleted = 1 THEN
+          SET action_value = 3;
+      ELSE
+          SET action_value = 2;
+      END IF;
+
+      -- Insert into product_customers_log table
+      INSERT INTO product_customers_log (
+        product_customer_id, product_id, customer_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price, deleted, action_id, action_by, event_date
+      ) 
+      VALUES (
+          NEW.id, NEW.product_id, NEW.customer_id, NEW.grade_id, NEW.pricing_type, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.deleted, action_value, NEW.modified_by, NEW.modified_datetime
+      );
+    END IF;
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `product_suppliers` ADD `created_by` INT(11) NULL AFTER `purchasing_price`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` INT(11) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `product_suppliers_log` (
+  `id` int(11) NOT NULL,
+  `product_supplier_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `supplier_id` int(11) NOT NULL,
+  `grade_id` int(11) DEFAULT NULL,
+  `purchasing_pricing_type` varchar(10) DEFAULT NULL,
+  `purchasing_price` varchar(100) DEFAULT NULL,
+  `deleted` int(1) DEFAULT 0,
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` int(11) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `product_suppliers_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `product_suppliers_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCT_SUPPLIERS` AFTER INSERT ON `product_suppliers` FOR EACH ROW INSERT INTO product_suppliers_log (
+    product_supplier_id, product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_price, deleted, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_id, NEW.supplier_id, NEW.grade_id, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.deleted, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_SUPPLIERS` BEFORE UPDATE ON `product_suppliers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Skip if bulk soft-delete flag is set
+    IF @skip_supplier_log IS NULL THEN
+        -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+        IF NEW.deleted = 1 THEN
+            SET action_value = 3;
+        ELSE
+            SET action_value = 2;
+        END IF;
+
+        -- Insert into product_suppliers_log table
+        INSERT INTO product_suppliers_log (
+          product_supplier_id, product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_price, deleted, action_id, action_by, event_date
+        ) 
+        VALUES (
+            NEW.id, NEW.product_id, NEW.supplier_id, NEW.grade_id, NEW.purchasing_pricing_type, NEW.purchasing_price, NEW.deleted, action_value, NEW.modified_by, NEW.modified_datetime
+        );
+    END IF;
+END
+$$
+DELIMITER ;
