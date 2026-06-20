@@ -354,21 +354,21 @@ $(function () {
         .column(8, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalWeight = api
         .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalReject = api
         .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       $(api.column(8).footer()).html(totalItem);
@@ -458,21 +458,21 @@ $(function () {
           .column(8, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalWeight = api
           .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalReject = api
           .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         $(api.column(8).footer()).html(totalItem);
