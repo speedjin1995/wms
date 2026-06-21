@@ -632,6 +632,12 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#states" data-file="states.php" class="nav-link link">
+                      <i class="nav-icon fas fa-map-marker-alt"></i>
+                      <p>'.$languageArray['states_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#units" data-file="units.php" class="nav-link link">
                       <i class="nav-icon fas fa-balance-scale"></i>
                       <p>'.$languageArray['units_code'][$language].'</p>
