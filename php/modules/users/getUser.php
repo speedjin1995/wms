@@ -25,6 +25,7 @@ if(isset($_POST['userID'])){
                 $message['id'] = $row['id'];
                 $message['username'] = $row['username'];
                 $message['name'] = $row['name'];
+                $message['email'] = $row['email'] ?? '';
                 $message['role_code'] = $row['role_code'];
                 $message['allow_add'] = $row['allow_add'];
                 $message['allow_edit'] = $row['allow_edit'];
