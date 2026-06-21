@@ -54,9 +54,9 @@ else{
 				</div>
 
 				<div class="form-group">
-					<label for="userEmailAddress">Email Address</label>
-					<input type="email" class="form-control" id="userEmailAddress" name="userEmailAddress" value="<?= htmlspecialchars($userEmail) ?>" placeholder="Enter email address" autocomplete="email">
-					<small class="form-text text-muted">Used for password reset. Leave blank to remove.</small>
+					<label for="userEmailAddress"><?=$languageArray['email_address_code'][$language]?></label>
+					<input type="email" class="form-control" id="userEmailAddress" name="userEmailAddress" value="<?= htmlspecialchars($userEmail) ?>" placeholder="<?=$languageArray['enter_email_code'][$language]?>" autocomplete="email">
+					<small class="form-text text-muted"><?=$languageArray['used_for_password_reset_code'][$language]?></small>
 				</div>
 				
 				<div class="form-group">

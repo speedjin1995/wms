@@ -88,9 +88,9 @@
             <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_full_name_code'][$language]?>" required>
           </div>
           <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" class="form-control" name="email" id="email" placeholder="Enter email address">
-            <small class="form-text text-muted">Used for password reset.</small>
+            <label for="email"><?=$languageArray['email_address_code'][$language]?></label>
+            <input type="email" class="form-control" name="email" id="email" placeholder="<?=$languageArray['enter_email_code'][$language]?>">
+            <small class="form-text text-muted"><?=$languageArray['used_for_password_reset_code'][$language]?></small>
           </div>
           <div class="form-group">
 						<label><?=$languageArray['role_code'][$language]?> *</label>
