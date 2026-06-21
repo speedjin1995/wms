@@ -88,6 +88,11 @@
             <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_full_name_code'][$language]?>" required>
           </div>
           <div class="form-group">
+            <label for="email"><?=$languageArray['email_address_code'][$language]?></label>
+            <input type="email" class="form-control" name="email" id="email" placeholder="<?=$languageArray['enter_email_code'][$language]?>">
+            <small class="form-text text-muted"><?=$languageArray['used_for_password_reset_code'][$language]?></small>
+          </div>
+          <div class="form-group">
 						<label><?=$languageArray['role_code'][$language]?> *</label>
 						<select class="form-control" id="userRole" name="userRole" required>
               <option select="selected" value=""><?=$languageArray['please_select_code'][$language]?></option>
@@ -208,6 +213,7 @@ $(function () {
     $('#addModal').find('#id').val("");
     $('#addModal').find('#username').val("");
     $('#addModal').find('#name').val("");
+    $('#addModal').find('#email').val("");
     $('#addModal').find('#userRole').val("");
     $('#addModal').find('#allowAdd').val("Y");
     $('#addModal').find('#allowEdit').val("Y");
@@ -240,6 +246,7 @@ function edit(id){
       $('#addModal').find('#id').val(obj.message.id);
       $('#addModal').find('#username').val(obj.message.username);
       $('#addModal').find('#name').val(obj.message.name);
+      $('#addModal').find('#email').val(obj.message.email);
       $('#addModal').find('#userRole').val(obj.message.role_code);
       $('#addModal').find('#allowAdd').val(obj.message.allow_add);
       $('#addModal').find('#allowEdit').val(obj.message.allow_edit);
