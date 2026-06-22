@@ -1,7 +1,9 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
+
+$userID = $_SESSION['userID'];
 
 if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $code = filter_input(INPUT_POST, 'code', FILTER_SANITIZE_STRING);
@@ -26,6 +28,7 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $billingPhone = null;
     $billingFax = null;
     $billingPic = null;
+    $currency = null;
     $isManual = 'N';
 
     if(isset($_POST['reg_no']) && $_POST['reg_no'] != null && $_POST['reg_no'] != ''){
@@ -104,9 +107,13 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         $billingPic = filter_input(INPUT_POST, 'billingPic', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['currency']) && $_POST['currency'] != null && $_POST['currency'] != ''){
+        $currency = filter_input(INPUT_POST, 'currency', FILTER_SANITIZE_STRING);
+    }
+
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, fax=?, pic=?, parent=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, is_manual=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $isManual, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, fax=?, pic=?, parent=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, currency=?, is_manual=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $isManual, $userID, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -131,8 +138,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, fax, pic, customer, parent, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $company, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic);
+        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, fax, pic, customer, parent, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, currency, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $company, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $userID);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

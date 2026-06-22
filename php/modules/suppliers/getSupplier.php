@@ -1,5 +1,5 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
@@ -45,6 +45,7 @@ if(isset($_POST['userID'])){
                 $message['billing_phone'] = $row['billing_phone'];
                 $message['billing_fax'] = $row['billing_fax'];
                 $message['billing_pic'] = $row['billing_pic'];
+                $message['currency'] = $row['currency'];
             }
             
             echo json_encode(

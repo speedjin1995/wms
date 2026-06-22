@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $user = $_SESSION['userID'];
@@ -43,8 +43,8 @@ if (!empty($data)) {
         $unitRow = mysqli_fetch_assoc($unitDetail);
 
         if(empty($unitRow)){
-            if ($insert_stmt = $db->prepare("INSERT INTO supplies (parent, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, supplier_phone, pic, fax, customer, billing_phone, billing_pic, billing_fax) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                $insert_stmt->bind_param('ssssssssssssssssssssss', $Parent, $SupplierCode, $RegistrationNo, $SupplierName, $Address, $Address2, $Address3, $Address4, $State, $BillingName, $BillingAddress, $BillingAddress2, $BillingAddress3, $BillingAddress4, $BillingState, $Phone, $PIC, $Fax, $company, $BillingPhone, $BillingPIC, $BillingFax);
+            if ($insert_stmt = $db->prepare("INSERT INTO supplies (parent, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, supplier_phone, pic, fax, customer, billing_phone, billing_pic, billing_fax, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('sssssssssssssssssssssss', $Parent, $SupplierCode, $RegistrationNo, $SupplierName, $Address, $Address2, $Address3, $Address4, $State, $BillingName, $BillingAddress, $BillingAddress2, $BillingAddress3, $BillingAddress4, $BillingState, $Phone, $PIC, $Fax, $company, $BillingPhone, $BillingPIC, $BillingFax, $user);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            

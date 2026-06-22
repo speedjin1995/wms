@@ -1,8 +1,8 @@
 <?php
 session_start();
 ## Database configuration
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 
 ## Read value
 $draw = $_POST['draw'];
