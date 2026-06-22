@@ -725,6 +725,16 @@ to get the desired effect
                     </a>
                   </li>';
                 }
+
+                if (in_array('basket', $_SESSION['products'])){
+                  echo '
+                  <li class="nav-item">
+                    <a href="#binType" data-file="binType.php" class="nav-link link">
+                      <i class="nav-icon fas fa-dumpster"></i>
+                      <p>'.$languageArray['bin_types_code'][$language].'</p>
+                    </a>
+                  </li>';
+                }
                 echo '
                 </ul>
               </li>';
