@@ -3,6 +3,7 @@ require_once '../../db_connect.php';
 
 session_start();
 
+$userID = $_SESSION['userID'];
 $del  = "1";
 $type = "";
 
@@ -14,8 +15,8 @@ if(isset($_POST['userID'])){
     if($type == 'MULTI'){
         $ids = is_array($_POST['userID']) ? implode(",", $_POST['userID']) : $_POST['userID'];
 
-        if($stmt = $db->prepare("UPDATE currency SET deleted=? WHERE id IN ($ids)")){
-            $stmt->bind_param('s', $del);
+        if($stmt = $db->prepare("UPDATE currency SET deleted=?, modified_by=? WHERE id IN ($ids)")){
+            $stmt->bind_param('ss', $del, $userID);
 
             if($stmt->execute()){
                 $stmt->close(); $db->close();
@@ -29,8 +30,8 @@ if(isset($_POST['userID'])){
     } else {
         $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-        if($stmt = $db->prepare("UPDATE currency SET deleted=? WHERE id=?")){
-            $stmt->bind_param('ss', $del, $id);
+        if($stmt = $db->prepare("UPDATE currency SET deleted=?, modified_by=? WHERE id=?")){
+            $stmt->bind_param('sss', $del, $userID, $id);
 
             if($stmt->execute()){
                 $stmt->close(); $db->close();
