@@ -640,7 +640,7 @@ to get the desired effect
                   <li class="nav-item">
                     <a href="#currencies" data-file="currencies.php" class="nav-link link">
                       <i class="nav-icon fas fa-dollar-sign"></i>
-                      <p>'.$languageArray['currencies_code'][$language].'</p>
+                      <p>'.$languageArray['currency_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">

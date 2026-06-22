@@ -23,7 +23,7 @@ else{
     <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0 text-dark"><?=$languageArray['currencies_code'][$language]?></h1>
+            <h1 class="m-0 text-dark"><?=$languageArray['currency_code'][$language]?></h1>
           </div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
