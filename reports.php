@@ -225,12 +225,14 @@ else{
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
                   <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                     <th colspan="8"><?=$languageArray['total_code'][$language]?></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -337,6 +339,7 @@ $(function () {
       { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
+      { data: 'remark' },
       // { 
       //   data: 'id',
       //   render: function ( data, type, row ) {
@@ -351,21 +354,21 @@ $(function () {
         .column(8, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalWeight = api
         .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalReject = api
         .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       $(api.column(8).footer()).html(totalItem);
@@ -440,6 +443,7 @@ $(function () {
         { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
+        { data: 'remark' },
         // { 
         //   data: 'id',
         //   render: function ( data, type, row ) {
@@ -454,21 +458,21 @@ $(function () {
           .column(8, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalWeight = api
           .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalReject = api
           .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         $(api.column(8).footer()).html(totalItem);

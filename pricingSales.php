@@ -30,6 +30,7 @@ else{
         }
     }
   }
+  
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
   $productGroup = array();
   $message = array();
@@ -46,7 +47,7 @@ else{
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.customer = '$company' AND p.category IS NOT NULL ORDER BY p.product_name ASC";
     }
-    $products = $db->query($productQuery);
+    $products = $db->query($productQuery);  
   } else {
     $products = $db->query("SELECT p.id, p.product_name, p.price, c.category_name, p.product_image, COALESCE(i.quantity, 0) AS stock, pk.packaging_name AS packaging_name, pk.is_by_weight AS by_weight FROM products p LEFT JOIN categories c ON p.category = c.id LEFT JOIN inventory i ON i.product_id = p.id AND i.status = 0 LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.deleted = '0' AND p.category IS NOT NULL ORDER BY p.product_name ASC");
   }

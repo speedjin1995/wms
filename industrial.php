@@ -175,8 +175,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
-                    <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+                    <option value="OUTGOING"><?=$languageArray['outgoing_code'][$language]?></option>
+                    <option value="INCOMING" selected><?=$languageArray['incoming_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -315,6 +315,7 @@ else{
                   <th><?=$languageArray['total_variance_code'][$language]?> (%)</th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['indicator_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -744,6 +745,7 @@ $(function () {
       { data: 'total_variance_perc' },
       { data: 'weighted_by' },
       { data: 'indicator' },
+      { data: 'remark' },
       <?php if ($secRemarksExists) { ?>
       { data: 'remarks2' },
       <?php }?>
@@ -910,8 +912,9 @@ $(function () {
         { data: 'total_variance_perc' },
         { data: 'weighted_by' },
         { data: 'indicator' },
+        { data: 'remark' },
         <?php if ($secRemarksExists) { ?>
-        { data: 'remarks2' },
+          { data: 'remarks2' },
         <?php }?>
         { 
           data: 'id',
@@ -1438,12 +1441,8 @@ $(function () {
       width: '100%'
     });
     
-    // gradeSelect.val(currentGrade).trigger('change');
+    gradeSelect.val(currentGrade).trigger('change');
     calculateVariance($(this).closest('tr'));
-
-    if (allowPrice == 'Y' && productId && status){
-      calculatePrice(productId, status, customerId, '', $(this));
-    }
   });
 
   $('#weightDetailsTable').on('change', 'select[id^="grade"]', function() {

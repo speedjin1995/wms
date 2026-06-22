@@ -168,6 +168,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "company"=>$row['company'],
     "weighted_by"=>searchUserNameById($row['weighted_by'], $db),
     "checked_by"=>($row['checked_by'] == 'JACKY' ? '' : $row['checked_by']),
+    'remark'=>$row['remark'] ?? '',
     'remarks2'=>$row['remarks2'] ?? ''
   );
 }

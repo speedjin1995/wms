@@ -84,8 +84,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
-                    <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+                    <option value="OUTGOING"><?=$languageArray['outgoing_code'][$language]?></option>
+                    <option value="INCOMING" selected><?=$languageArray['incoming_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -221,12 +221,14 @@ else{
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
                   <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                     <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
+                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -334,6 +336,7 @@ $(function () {
       { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
+      { data: 'remark' },
       // { 
       //   data: 'id',
       //   render: function ( data, type, row ) {
@@ -348,21 +351,21 @@ $(function () {
         .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalWeight = api
         .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalReject = api
         .column(11, { page: 'current' })
         .data()
         .reduce(function(a, b) {
-          return a + parseFloat(b || 0);
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       $(api.column(9).footer()).html(totalItem);
@@ -438,6 +441,7 @@ $(function () {
         { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
+        { data: 'remark' },
         // { 
         //   data: 'id',
         //   render: function ( data, type, row ) {
@@ -452,21 +456,21 @@ $(function () {
           .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalWeight = api
           .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalReject = api
           .column(11, { page: 'current' })
           .data()
           .reduce(function(a, b) {
-            return a + parseFloat(b || 0);
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         $(api.column(9).footer()).html(totalItem);
@@ -497,11 +501,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/exportIndustry.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/exportIndustry.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
@@ -529,11 +533,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/exportPdfIndustry.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/exportPdfIndustry.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }

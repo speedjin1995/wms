@@ -55,7 +55,7 @@ else{
       $stateJson = json_encode(array_values($filterStates));
       $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
     }
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";    
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";
     $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
@@ -320,6 +320,7 @@ else{
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -753,6 +754,7 @@ $(function () {
       { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
+      { data: 'remark' },
       <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
       <?php }?>
@@ -921,6 +923,7 @@ $(function () {
         { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
+        { data: 'remark' },
         <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
         <?php }?>
@@ -1024,17 +1027,38 @@ $(function () {
         }
         // Validate weight detail rows
         var weightRowError = false;
+        var nettWeightError = false;
         $('#weightDetailsTable tr').each(function() {
           var product = $(this).find('select[name*="[product]"]').val();
           var grade = $(this).find('select[name*="[grade_id]"]').val();
           var gross = parseFloat($(this).find('input[name*="[gross]"]').val());
+          var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
           if (!product || !grade || isNaN(gross) || gross <= 0) {
             weightRowError = true;
             return false;
           }
+          if (nettWeight < 0) {
+            nettWeightError = true;
+            return false;
+          }
         });
+
+        if ($('#rejectDetailsTable tr').length > 0) {
+          $('#rejectDetailsTable tr').each(function() {
+            var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
+            if (nettWeight < 0) {
+              nettWeightError = true;
+              return false;
+            }
+          });
+        }
+        
         if (weightRowError) {
           toastr["error"]("Please fill in Product, Grade and Gross for all weight detail rows.", "Validation Error:");
+          return false;
+        }
+        if (nettWeightError) {
+          toastr["error"]("Nett weight cannot be negative. Please check your gross and tare values.", "Validation Error:");
           return false;
         }
         $('#spinnerLoading').show();
@@ -1493,7 +1517,13 @@ $(function () {
     // Retrieve the input's attributes
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
+
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
 
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
@@ -1502,7 +1532,13 @@ $(function () {
     // Retrieve the input's attributes
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
+
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
 
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
@@ -1608,14 +1644,28 @@ $(function () {
   $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
+
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
+
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
   $("#rejectDetailsTable").on('change', 'input[id^="tare"]', function(){
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
-    var nettWeight = Math.abs(gross - tare);
+    var nettWeight = gross - tare;
+
+    if (nettWeight < 0){
+      // $(this).val(0);
+      alert("Nett Weight cannot be negative value");
+      // return;
+    }
+    
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
@@ -1729,12 +1779,10 @@ function updateWeights(){
 
   if(tareWeight == 0){
     actualWeight = currentWeight - reduceWeight;
-    actualWeight = Math.abs(actualWeight);
     $('#actualWeight').val(actualWeight.toFixed(2));
   }
   else{
     actualWeight = tareWeight - currentWeight - reduceWeight;
-    actualWeight = Math.abs(actualWeight);
     $('#actualWeight').val(actualWeight.toFixed(2));
   }
 
