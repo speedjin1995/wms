@@ -48,6 +48,7 @@ if(isset($_POST['userID'])){
                 $message['remark'] = $row['remark'];
                 $message['remarks2'] = $row['remarks2'];
                 $message['created_datetime'] = $row['created_datetime'];
+                $message['start_time'] = $row['start_time'];
                 $message['end_time'] = $row['end_time'];
                 $message['records_type'] = $row['records_type'];
                 
