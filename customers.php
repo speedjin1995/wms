@@ -18,8 +18,10 @@ else{
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
 
   if ($role != 'SADMIN'){
+    $currencies = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '$company' ORDER BY currency ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '$company' ORDER BY customer_name ASC");
   }else{
+    $currencies = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
   }
 
@@ -364,6 +366,17 @@ else{
                       <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
                     </div>
                   </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['currency_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="currency" name="currency">
+                        <option selected="selected">-</option>
+                        <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
+                          <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -624,6 +637,7 @@ $(function () {
     $('#addModal').find('#billingPhone').val("");
     $('#addModal').find('#billingFax').val("");
     $('#addModal').find('#billingPic').val("");
+    $('#addModal').find('#currency').val("").trigger('change');
     $('#addModal').find('#parent').val("").trigger('change');
     $('#addModal').modal('show');
     
@@ -841,6 +855,7 @@ function edit(id){
           $('#addModal').find('#billingPhone').val(obj.message.billing_phone);
           $('#addModal').find('#billingFax').val(obj.message.billing_fax);
           $('#addModal').find('#billingPic').val(obj.message.billing_pic);
+          $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
           $('#addModal').modal('show');

@@ -1989,15 +1989,16 @@ $$
 DELIMITER ;
 
 ALTER TABLE `currency` CHANGE `id` `id` INT(5) NOT NULL AUTO_INCREMENT;
-
+ALTER TABLE `currency` CHANGE `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `currency` CHANGE `rate` `rate` VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '1';
 ALTER TABLE `currency` ADD `customer` INT(11) NOT NULL AFTER `rate`, ADD `created_by` VARCHAR(50) NULL AFTER `customer`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
 
 CREATE TABLE `currency_log` (
   `id` int(11) NOT NULL,
   `currency_id` int(11) NOT NULL,
   `currency` varchar(50) DEFAULT NULL,
-  `description` text NOT NULL,
-  `rate` varchar(10) NOT NULL DEFAULT '1',
+  `description` text DEFAULT NULL,
+  `rate` varchar(10) DEFAULT NULL DEFAULT '1',
   `customer` int(11) NOT NULL,
   `action_id` int(1) NOT NULL,
   `action_by` varchar(50) DEFAULT NULL,
@@ -2038,3 +2039,5 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_CURRENCY` BEFORE UPDATE ON `currency` FOR EAC
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `customers` ADD `currency` INT(11) NULL AFTER `billing_fax`;

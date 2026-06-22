@@ -34,6 +34,7 @@ if(isset($_POST['userID'])){
                 $message['billing_phone']    = $row['billing_phone'];
                 $message['billing_fax']      = $row['billing_fax'];
                 $message['billing_pic']      = $row['billing_pic'];
+                $message['currency']         = $row['currency'];
                 $message['customer_phone']   = $row['customer_phone'];
                 $message['pic']              = $row['pic'];
                 $message['fax']              = $row['fax'];

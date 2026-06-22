@@ -22,6 +22,7 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $billingPhone = null;
     $billingFax = null;
     $billingPic = null;
+    $currency = null;
     $phone = null;
     $fax = null;
     $email = null;
@@ -88,6 +89,10 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         $billingPic = filter_input(INPUT_POST, 'billingPic', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['currency']) && $_POST['currency'] != null && $_POST['currency'] != ''){
+        $currency = filter_input(INPUT_POST, 'currency', FILTER_SANITIZE_STRING);
+    }
+
     if(isset($_POST['phone']) && $_POST['phone'] != null && $_POST['phone'] != ''){
         $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
     }
@@ -105,8 +110,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, customer_phone=?, pic=?, fax=?, parent=?, is_manual=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $phone, $email, $fax, $parent, $isManual, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, currency=?, customer_phone=?, pic=?, fax=?, parent=?, is_manual=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $phone, $email, $fax, $parent, $isManual, $_POST['id']);
             
             if (! $update_stmt->execute()) {
                 echo json_encode(array("status"=> "failed", "message"=> $update_stmt->error));
@@ -117,8 +122,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
             }
         }
     } else {
-        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, customer_phone, pic, fax, parent, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $phone, $email, $fax, $parent, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, currency, customer_phone, pic, fax, parent, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $phone, $email, $fax, $parent, $company);
             
             if (! $insert_stmt->execute()) {
                 echo json_encode(array("status"=> "failed", "message"=> $insert_stmt->error));
