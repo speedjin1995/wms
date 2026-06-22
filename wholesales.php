@@ -310,7 +310,7 @@ else{
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
                   <!-- <th><?=$languageArray['sec_bill_no_code'][$language]?></th> -->
-                  <th><?=$languageArray['created_datetime_code'][$language]?></th>
+                  <th><?=$languageArray['start_time_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
@@ -744,7 +744,7 @@ $(function () {
       { data: 'serial_no' },
       { data: 'po_no' },
       // { data: 'security_bills' },
-      { data: 'created_datetime' },
+      { data: 'start_time' },
       { data: 'parent' },
       { data: 'customer_supplier' },
       { data: 'vehicle_no' },
@@ -913,7 +913,7 @@ $(function () {
         { data: 'serial_no' },
         { data: 'po_no' },
         // { data: 'security_bills' },
-        { data: 'created_datetime' },
+        { data: 'start_time' },
         { data: 'parent' },
         { data: 'customer_supplier' },
         { data: 'vehicle_no' },
@@ -2133,8 +2133,8 @@ function edit(id) {
         $('#extendModal').find('#otherDriver').val('');
       }
 
-      if (obj.message.created_datetime) {
-        $('#startTimePicker').datetimepicker('date', moment(obj.message.created_datetime, 'YYYY-MM-DD HH:mm:ss'));
+      if (obj.message.start_time) {
+        $('#startTimePicker').datetimepicker('date', moment(obj.message.start_time, 'YYYY-MM-DD HH:mm:ss'));
       } else {
         $('#startTimePicker').datetimepicker('clear');
       }
