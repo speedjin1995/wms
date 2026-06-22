@@ -25,6 +25,7 @@ else{
   $allowPhoto = 'N';
   $allowPrice = 'N';
   $allowInvoice = 'N';
+  $userLocationId = null;
   $filterStates = [];
   if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
     // Query to get daily setup states
@@ -47,6 +48,7 @@ else{
     $allowAdd = $row['allow_add'];
     $allowEdit = $row['allow_edit'];
     $allowDelete = $row['allow_delete'];
+    $userLocationId = $row['location'];
   }
 
   if ($role != 'SADMIN'){
@@ -75,6 +77,7 @@ else{
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
+    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
 
     // Company Detail 
     $companyDetail = searchCompanyById($company, $db);
@@ -103,6 +106,7 @@ else{
     $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
+    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
@@ -468,6 +472,17 @@ else{
                 </select>
               </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label><?=$languageArray['locations_code'][$language]?></label>
+                <select class="form-control select2" id="location" name="location">
+                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                  <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
+                    <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="row">
@@ -651,6 +666,7 @@ var rejectCount = 0;
 var allowPhoto = '<?=$allowPhoto?>';
 var allowPrice = '<?=$allowPrice?>';
 var allowInvoice = '<?=$allowInvoice?>';
+var userLocation = '<?=$userLocationId?>';
 
 $(function () {
   $('#uomhidden').hide();
@@ -1993,6 +2009,7 @@ function newEntry(){
   $('#extendModal').find('#supplier').val("").trigger('change');
   $('#extendModal').find('#vehicle').val("").trigger('change');
   $('#extendModal').find('#driver').val("").trigger('change');
+  $('#extendModal').find('#location').val(userLocation).trigger('change');
   $('#extendModal').find('#startTime').val("");
   $('#startTimePicker').datetimepicker('date', moment());
   $('#endTimePicker').datetimepicker('clear');
@@ -2069,6 +2086,7 @@ function edit(id) {
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
       $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
+      $('#extendModal').find('#location').val(obj.message.location).trigger('change');
       $('#extendModal').find('#remarks').val(obj.message.remark);
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
       $('#extendModal').find('#bulkUnitPrice').val('');
