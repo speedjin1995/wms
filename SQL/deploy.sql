@@ -2041,3 +2041,74 @@ $$
 DELIMITER ;
 
 ALTER TABLE `customers` ADD `currency` INT(11) NULL AFTER `billing_fax`;
+
+ALTER TABLE `customers` ADD `created_by` VARCHAR(50) NULL AFTER `pending_bins`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `customers_log` (
+  `id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `customer_code` varchar(10) DEFAULT NULL,
+  `reg_no` text DEFAULT NULL,
+  `customer_name` text DEFAULT NULL,
+  `customer_address` text DEFAULT NULL,
+  `customer_address2` text DEFAULT NULL,
+  `customer_address3` text DEFAULT NULL,
+  `customer_address4` text DEFAULT NULL,
+  `states` int(5) DEFAULT NULL,
+  `customer_phone` varchar(15) DEFAULT NULL,
+  `pic` varchar(30) DEFAULT NULL,
+  `fax` varchar(100) DEFAULT NULL,
+  `billing_name` varchar(100) DEFAULT NULL,
+  `billing_address` text DEFAULT NULL,
+  `billing_address2` text DEFAULT NULL,
+  `billing_address3` text DEFAULT NULL,
+  `billing_address4` text DEFAULT NULL,
+  `billing_state` int(5) DEFAULT NULL,
+  `billing_pic` varchar(50) DEFAULT NULL,
+  `billing_phone` varchar(50) DEFAULT NULL,
+  `billing_fax` varchar(50) DEFAULT NULL,
+  `currency` int(11) DEFAULT NULL,
+  `parent` int(11) DEFAULT NULL,
+  `customer` int(5) DEFAULT NULL,
+  `is_manual` varchar(1) DEFAULT NULL,
+  `pending_bins` int(11) DEFAULT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `customers_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `customers_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CUSTOMER` AFTER INSERT ON `customers` FOR EACH ROW INSERT INTO customers_log (
+    customer_id, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.customer_code, NEW.reg_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CUSTOMER` BEFORE UPDATE ON `customers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into customers_log table
+    INSERT INTO customers_log (
+      customer_id, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.customer_code, NEW.reg_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
