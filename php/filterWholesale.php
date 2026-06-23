@@ -66,6 +66,10 @@ if($_POST['weightedBy'] != null && $_POST['weightedBy'] != '' && $_POST['weighte
   $searchQuery .= " and wholesales.weighted_by = '".$_POST['weightedBy']."'";
 }
 
+if($_POST['category'] != null && $_POST['category'] != '' && $_POST['category'] != '-'){
+  $searchQuery .= " and wholesales.category = '".$_POST['category']."'";
+}
+
 if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
   if ($_POST['status'] == 'active'){
     $searchQuery .= " and wholesales.deleted = '0'";

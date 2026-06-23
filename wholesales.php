@@ -57,7 +57,10 @@ else{
       $stateJson = json_encode(array_values($filterStates));
       $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
     }
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";    $productCheck = $db->query($productQuery);
+    $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
+    $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";    
+    $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
     }
@@ -91,6 +94,8 @@ else{
     $allowPrice = $companyDetail['include_price'];
     $allowInvoice = $companyDetail['include_invoice'];
   } else {
+    $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
+    $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -245,6 +250,18 @@ else{
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
                       <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label><?=$languageArray['category_code'][$language]?></label>
+                  <select class="form-control select2" id="categoryFilter" name="categoryFilter">
+                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php while($rowCategory=mysqli_fetch_assoc($categories)){ ?>
+                      <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -487,6 +504,17 @@ else{
                 </select>
               </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label><?=$languageArray['category_code'][$language]?></label>
+                <select class="form-control select2" id="category" name="category">
+                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                  <?php while($rowCategory=mysqli_fetch_assoc($categories2)){ ?>
+                    <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="row">
@@ -713,6 +741,7 @@ $(function () {
   var transactionStatusI = $('#transactionStatusFilter').val();
   var statusI = $('#statusFilter').val();
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+  var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
   var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
@@ -737,6 +766,7 @@ $(function () {
         transactionStatus: transactionStatusI,
         status: statusI,
         product: productI,
+        category: categoryI,
         customer: customerNoI,
         supplier: supplierNoI,
         vehicle: vehicleNoI,
@@ -878,6 +908,7 @@ $(function () {
     var transactionStatusI = $('#transactionStatusFilter').val();
     var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
@@ -906,6 +937,7 @@ $(function () {
           transactionStatus: transactionStatusI,
           status: statusI,
           product: productI,
+          category: categoryI,
           customer: customerNoI,
           supplier: supplierNoI,
           vehicle: vehicleNoI,
@@ -1271,6 +1303,34 @@ $(function () {
     }
   });
 
+  $('#category').on('change', function() {
+    var selectedCategory = $(this).val();
+    $('#weightDetailsTable select[name*="[product]"], #rejectDetailsTable select[name*="[product]"]').each(function() {
+        var select = $(this);
+        select.select2('destroy');
+        
+        if (!select.data('original-options')) {
+            select.data('original-options', select.html());
+        }
+        select.html(select.data('original-options'));
+        
+        if (selectedCategory) {
+            select.find('option').each(function() {
+                if ($(this).val() && $(this).data('category') != selectedCategory) {
+                    $(this).remove();
+                }
+            });
+        }
+        
+        select.select2({
+            allowClear: true,
+            placeholder: "Please Select",
+            dropdownParent: $('#extendModal .modal-body'),
+            width: '100%'
+        });
+    });
+  });
+
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
     if(status == "DISPATCH" || status == 'STOCK-BAL'){
@@ -1413,7 +1473,7 @@ $(function () {
           <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
             <option value="" selected disabled>Select Product</option>
             <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
-              <option value="<?=$rowProduct['id'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
+              <option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
             <?php } ?>
           </select>
         </td>
@@ -1450,6 +1510,18 @@ $(function () {
       </tr>
     `;
     $('#weightDetailsTable').append(row);
+
+    var newSelect = $('#weightDetailsTable').find(`select[name="weightDetails[${idx}][product]"]`);
+    newSelect.data('original-options', newSelect.html());
+    var selectedCategory = $('#category').val();
+    if (selectedCategory) {
+        newSelect.find('option').each(function() {
+            if ($(this).val() && $(this).data('category') != selectedCategory) {
+                $(this).remove();
+            }
+        });
+    }
+
     $('.select2').select2({
       allowClear: true,
       placeholder: "Please Select",
@@ -1826,6 +1898,8 @@ function format (row) {
     <div class="col-6">
       <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
       <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
+      <p><strong>Category:</strong> ${row.category_name || ''}</p>
+      <p><strong>Location:</strong> ${row.location_name || ''}</p>
       <p><strong>Total Item:</strong> ${row.totalItems}</p>
       <p><strong>Total Weight:</strong> ${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'}</p>
       <p><strong>Total Reject:</strong> ${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'}</p>
@@ -1969,35 +2043,6 @@ function format (row) {
   `;
   
   return returnString;
-  // return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
-  // '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
-  // '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
-  // '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
-  // '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
-  // '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
-  // '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
-  // '</p></div><div class="col-md-3"><p>Package: '+row.packages+
-  // '</p></div></div><div class="row"><div class="col-md-3">'+
-  // '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
-  // '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
-  // '</p></div><div class="col-md-3 money"><p>Unit Price: '+row.unitPrice+
-  // '</p></div></div><div class="row"><div class="col-md-3">'+
-  // '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
-  // '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
-  // '</p></div><div class="col-md-3 money"><p>Total Weight: '+row.totalPrice+
-  // '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
-  // '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
-  // '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  // '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  // ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
-  // ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  // ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  // ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
-  // '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
-  // '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
-  // '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
-  // '</p></div></div>';
-  // ;
 }
 
 function formatNormal (row) {
@@ -2033,6 +2078,7 @@ function formatNormal (row) {
 function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
+  $('#extendModal').find('#category').val("").trigger('change');
   $('#extendModal').find('#status').val("DISPATCH").trigger('change');
   $('#extendModal').find('#doPoNo').val("");
   $('#extendModal').find('#securityBillNo').val("");
@@ -2120,6 +2166,7 @@ function edit(id) {
     if(obj.status === 'success'){
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#serialNo').val(obj.message.serial_no);
+      $('#extendModal').find('#category').val(obj.message.category).trigger('change');
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
@@ -2182,7 +2229,7 @@ function edit(id) {
                 <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
                   <option value="" selected disabled>Select Product</option>
                   <?php while($rowProduct=mysqli_fetch_assoc($products4)){ ?>
-                    <option value="<?=$rowProduct['id'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
+                    <option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
                   <?php } ?>
                 </select>
               </td>
@@ -2214,6 +2261,18 @@ function edit(id) {
             </tr>
           `;
           tbody.append(row);
+          
+          // Store original options and filter by selected category
+          var newProductSelect = tbody.find(`select[name="weightDetails[${idx}][product]"]`);
+          newProductSelect.data('original-options', newProductSelect.html());
+          var selectedCategory = $('#category').val();
+          if (selectedCategory) {
+              newProductSelect.find('option').each(function() {
+                  if ($(this).val() && $(this).data('category') != selectedCategory) {
+                      $(this).remove();
+                  }
+              });
+          }
           
           // Filter grades by product
           var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade_id]"]`);
