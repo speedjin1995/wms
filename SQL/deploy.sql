@@ -2242,3 +2242,51 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_BIN_TYPE` BEFORE UPDATE ON `bin_type` FOR EAC
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `categories` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `categories_log` (
+  `id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `category_name` varchar(100) DEFAULT NULL,
+  `module` varchar(50) DEFAULT NULL,
+  `customer` int(11) NOT NULL,
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `categories_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `categories_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CATEGORY` AFTER INSERT ON `categories` FOR EACH ROW INSERT INTO categories_log (
+    category_id, category_name, module, customer, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.category_name, NEW.module, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CATEGORY` BEFORE UPDATE ON `categories` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into categories_log table
+    INSERT INTO categories_log (
+      category_id, category_name, module, customer, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.category_name, NEW.module, NEW.customer, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;

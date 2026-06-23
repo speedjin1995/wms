@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $user = $_SESSION['userID'];
@@ -23,8 +23,8 @@ if (!empty($data)) {
         $row = mysqli_fetch_assoc($categoryDetail);
 
         if(empty($row)){
-            if ($insert_stmt = $db->prepare("INSERT INTO categories (category_name, customer, module) VALUES (?, ?, ?)")) {
-                $insert_stmt->bind_param('sss', $CategoryName, $company, $module);
+            if ($insert_stmt = $db->prepare("INSERT INTO categories (category_name, customer, module, created_by) VALUES (?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('ssss', $CategoryName, $company, $module, $user);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            

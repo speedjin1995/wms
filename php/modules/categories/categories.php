@@ -1,7 +1,9 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
+
+$user = $_SESSION['userID'];
 
 if(isset($_POST['categoryName'], $_POST['company'], $_POST['module'])){
     $categoryName = filter_input(INPUT_POST, 'categoryName', FILTER_SANITIZE_STRING);
@@ -9,8 +11,8 @@ if(isset($_POST['categoryName'], $_POST['company'], $_POST['module'])){
     $module = filter_input(INPUT_POST, 'module', FILTER_SANITIZE_STRING);
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE categories SET category_name=?, module=? WHERE id=?")) {
-            $update_stmt->bind_param('sss', $categoryName, $module, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE categories SET category_name=?, module=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('ssss', $categoryName, $module, $user, $_POST['id']);
 
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -35,8 +37,8 @@ if(isset($_POST['categoryName'], $_POST['company'], $_POST['module'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO categories (category_name, module, customer) VALUES (?, ?, ?)")) {
-            $insert_stmt->bind_param('sss', $categoryName, $module, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO categories (category_name, module, customer, created_by) VALUES (?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssss', $categoryName, $module, $company, $user);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

@@ -1,9 +1,8 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-session_start();
 ## Database configuration
-require_once 'db_connect.php';
+require_once '../../db_connect.php';
+
+session_start();
 
 ## Read value
 $draw = $_POST['draw'];
@@ -20,11 +19,7 @@ $user = $_SESSION['userID'];
 $role = $_SESSION['role'];
 $module = $_SESSION['module'];
 
-if ($module == 'processing'){
-  $searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module IN ('".$module."', 'wholesale')";
-}else{
-  $searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module = '".$module."'";
-}
+$searchQuery = " WHERE 1=1 AND categories.deleted = 0 AND module IN ('processing', 'wholesale')";
 
 if ($role != 'SADMIN'){
   $searchQuery .= " AND categories.customer = '".$company."'";
