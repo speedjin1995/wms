@@ -1939,3 +1939,17 @@ DELIMITER ;
 ALTER TABLE `users` ADD `email` VARCHAR(255) NULL AFTER `salt`;
 ALTER TABLE `users` ADD `reset_token` VARCHAR(100) NULL AFTER `email`;
 ALTER TABLE `users` ADD `reset_expires` DATETIME NULL AFTER `reset_token`;
+
+-- 24/06/2026 --
+CREATE TABLE `serial_running_no` (
+  `id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  `module` varchar(100) NOT NULL,
+  `transaction_status` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `value` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `serial_running_no` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `serial_running_no` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
