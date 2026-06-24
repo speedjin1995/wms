@@ -9,12 +9,17 @@ if(!isset($_SESSION['userID'])){
 	$id = $_SESSION['userID'];
 }
 
-if(isset($_POST['userName'], $_POST['userEmail'])){
+if(isset($_POST['userName'], $_POST['userEmail'], $_POST['language'])){
 	$name = filter_input(INPUT_POST, 'userName', FILTER_SANITIZE_STRING);
 	$username = filter_input(INPUT_POST, 'userEmail', FILTER_SANITIZE_STRING);
+	$language = filter_input(INPUT_POST, 'language', FILTER_SANITIZE_STRING);
+	$email = filter_input(INPUT_POST, 'userEmailAddress', FILTER_SANITIZE_EMAIL);
+	$email = ($email === '' || $email === false) ? null : $email;
 	
-	if ($stmt2 = $db->prepare("UPDATE users SET name=?, username=? WHERE id=?")) {
-		$stmt2->bind_param('sss', $name, $username, $id);
+	$_SESSION['language'] = $language;
+	
+	if ($stmt2 = $db->prepare("UPDATE users SET name=?, username=?, languages=?, email=? WHERE id=?")) {
+		$stmt2->bind_param('ssssi', $name, $username, $language, $email, $id);
 		
 		if($stmt2->execute()){
 			$stmt2->close();
@@ -23,7 +28,7 @@ if(isset($_POST['userName'], $_POST['userEmail'])){
 			echo json_encode(
 				array(
 					"status"=> "success", 
-					"message"=> "Your Name / Username is updated successfully!" 
+					"message"=> "Your profile has been updated successfully!" 
 				)
 			);
 		} else{

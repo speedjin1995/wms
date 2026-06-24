@@ -8,8 +8,33 @@ if(!isset($_SESSION['userID'])){
   echo 'window.location.href = "login.html";</script>';
 }
 else{
+  $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
-  $states = $db->query("SELECT * FROM states");
+  $role = $_SESSION['role'];
+  $products = $_SESSION['products'];
+  $includeInvoice = 'N';
+  $states = $db->query("SELECT * FROM states ORDER BY states ASC");
+  $states2 = $db->query("SELECT * FROM states ORDER BY states ASC");
+  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+
+  if ($role != 'SADMIN'){
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '$company' ORDER BY customer_name ASC");
+  }else{
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
+  }
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
+
+  $includeInvoice = 'N';
+  if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
+    $company_stmt->bind_param("i", $company);
+    $company_stmt->execute();
+    $company_result = $company_stmt->get_result();
+    $rowCompany = mysqli_fetch_assoc($company_result);
+    $includeInvoice = $rowCompany['include_invoice'];
+  }
 }
 ?>
 
@@ -17,7 +42,7 @@ else{
     <div class="container-fluid">
         <div class="row mb-2">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark">Customers</h1>
+				<h1 class="m-0 text-dark"><?=$languageArray['customers_code'][$language]?></h1>
 			</div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -32,15 +57,32 @@ else{
 				<div class="card">
 					<div class="card-header">
               <div class="row">
-                  <div class="col-5"></div>
+                  <div class="col-4"></div>
                   <div class="col-2">
+                    <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
+                      <?=$languageArray['delete_customer_code'][$language]?>
+                    </button>
+                  </div>
+                  <div class="col-2">
+                    <a href="template/Customer_Template.xlsx" download>
+                      <button type="button" class="btn btn-block bg-gradient-info btn-sm">
+                        <?=$languageArray['download_template_code'][$language]?>
+                      </button>
+                    </a>
+                  </div>
+                  <div class="col-2">
+                    <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
+                      <?=$languageArray['upload_excel_code'][$language]?>
+                    </button>
+                  </div>
+                  <!-- <div class="col-2">
                       <input type="file" id="fileInput" accept=".xlsx, .xls" />
                   </div>
                   <div class="col-2">
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
-                  </div>                            
-                  <div class="col-3">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers">Add Customers</button>
+                  </div>                             -->
+                  <div class="col-2">
+                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
                   </div>
               </div>
           </div>
@@ -48,13 +90,16 @@ else{
 						<table id="customerTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
-                  <th>Code</th>
-                  <th>Reg No.</th>
-									<th>Name</th>
-									<th>Address</th>
-									<th>Phone</th>
-									<th>PIC</th>
-									<th>Actions</th>
+                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+                  <th><?=$languageArray['customer_code_code'][$language]?></th>
+                  <th><?=$languageArray['reg_no_code'][$language]?></th>
+                  <th><?=$languageArray['parent_code'][$language]?></th>
+									<th><?=$languageArray['customer_name_code'][$language]?></th>
+									<th><?=$languageArray['address_code'][$language]?></th>
+									<th><?=$languageArray['phone_code'][$language]?></th>
+									<th><?=$languageArray['pic_code'][$language]?></th>
+									<th><?=$languageArray['pending_bins_code'][$language]?></th>
+								<th width="15%"><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
 						</table>
@@ -65,70 +110,267 @@ else{
 	</div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
+<div class="modal fade" id="uploadModal">
+  <div class="modal-dialog" style="max-width: 90vw">
+    <div class="modal-content">
+      <form role="form" id="uploadForm">
+          <div class="modal-header">
+            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="card-body">
+              <input type="file" id="fileInput">
+              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
+              <div id="previewTable" style="overflow: auto;"></div>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-success" id="uploadCustomer"><?=$languageArray['submit_code'][$language]?></button>
+          </div>
+      </form>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="errorModal" style="display:none">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form role="form" id="uploadForm">
+          <div class="modal-header">
+            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="form-group">
+                <ol id="errorList" class="text-danger mt-2" style="padding-left: 20px;"></ol>
+              </div>
+            </div>
+          </div>
+      </form>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+
 <div class="modal fade" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <form role="form" id="customerForm">
-            <div class="modal-header">
-              <h4 class="modal-title">Add Customers</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <div class="modal-header bg-gray-dark color-palette">
+              <h4 class="modal-title"><?=$languageArray['add_customers_code'][$language]?></h4>
+              <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              <div class="card-body">
-                <div class="form-group">
-                  <input type="hidden" class="form-control" id="id" name="id">
-                </div>
-                <div class="form-group">
-                  <label for="code">Customer Code *</label>
-                  <input type="text" class="form-control" name="code" id="code" placeholder="Enter Customer Code" maxlength="10" required>
-                </div>
-                <div class="form-group">
-                  <label for="name">Reg No. </label>
-                  <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="Enter Registration No">
-                </div>
-                <div class="form-group">
-                  <label for="name">Customer Name *</label>
-                  <input type="text" class="form-control" name="name" id="name" placeholder="Enter Customer Name" required>
-                </div>
-                <div class="form-group"> 
-                  <label for="address">Address </label>
-                  <input type="text" class="form-control" name="address" id="address" placeholder="Enter  Address">
-                <div class="form-group"> 
-                  <label for="address">Address 2</label>
-                  <input type="text" class="form-control" name="address2" id="address2" placeholder="Enter  Address">
-                </div>
-                <div class="form-group"> 
-                  <label for="address">Address 3</label>
-                  <input type="text" class="form-control" name="address3" id="address3" placeholder="Enter  Address">
-                </div>
-                <div class="form-group"> 
-                  <label for="address">Address 4</label>
-                  <input type="text" class="form-control" name="address4" id="address4" placeholder="Enter  Address">
-                </div>
-                <div class="form-group">
-                  <label>States</label>
-                  <select class="form-control" style="width: 100%;" id="states" name="states">
-                    <option selected="selected">-</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="phone">Phone </label>
-                  <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
-                </div>
-                <div class="form-group"> 
-                  <label for="email">PIC </label>
-                  <input type="text" class="form-control" id="email" name="email" placeholder="Enter your PIC">
+              <input type="hidden" id="id" name="id">
+
+              <!-- Company (SADMIN only) -->
+              <div class="row" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
+                    <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+                      <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                        <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
                 </div>
               </div>
+
+              <!-- Row 1: Code, Reg No, Parent -->
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label><?=$languageArray['customer_code_code'][$language]?> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_customer_code_code'][$language]?>" maxlength="10" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label><?=$languageArray['reg_no_code'][$language]?></label>
+                    <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="<?=$languageArray['enter_reg_no_code'][$language]?>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label><?=$languageArray['parent_code'][$language]?></label>
+                    <select class="form-control select2" style="width:100%;" id="parent" name="parent">
+                      <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
+                        <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 2: Name -->
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label><?=$languageArray['customer_name_code'][$language]?> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_customer_name_code'][$language]?>" required>
+                  </div>
+                </div>
+              </div>
+
+              <hr>
+
+              <!-- Row 3: Address 1 & 2 -->
+              <p class="font-weight-bold mb-2"><?=$languageArray['delivery_address_code'][$language]?></p>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label><?=$languageArray['address_code'][$language]?></label>
+                    <input type="text" class="form-control" name="address" id="address" placeholder="<?=$languageArray['enter_address_code'][$language]?>">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label><?=$languageArray['address_code'][$language]?> 2</label>
+                    <input type="text" class="form-control" name="address2" id="address2" placeholder="<?=$languageArray['enter_address_code'][$language]?> 2">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 5: Address 3, 4, State -->
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['address_code'][$language]?> 3</label>
+                    <input type="text" class="form-control" name="address3" id="address3" placeholder="<?=$languageArray['enter_address_code'][$language]?> 3">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['address_code'][$language]?> 4</label>
+                    <input type="text" class="form-control" name="address4" id="address4" placeholder="<?=$languageArray['enter_address_code'][$language]?> 4">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['states_code'][$language]?></label>
+                    <select class="form-control select2" style="width:100%;" id="states" name="states">
+                      <option selected="selected">-</option>
+                      <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
+                        <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 3: Phone, Fax, PIC -->
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['phone_code'][$language]?></label>
+                    <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['fax_code'][$language]?></label>
+                    <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label><?=$languageArray['pic_code'][$language]?></label>
+                    <input type="text" class="form-control" id="email" name="email" placeholder="PIC">
+                  </div>
+                </div>
+              </div>
+
+              <hr>
+
+              <!-- Row 6: Billing Address -->
+              <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
+                <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_name_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingName" id="billingName" placeholder="<?=$languageArray['billing_name_code'][$language]?>">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 1">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?> 2</label>
+                      <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 2">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?> 3</label>
+                      <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 3">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_address_code'][$language]?> 4</label>
+                      <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 4">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_state_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
+                        <option selected="selected">-</option>
+                        <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
+                          <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_fax_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['billing_pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
             </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember">Submit</button>
+            <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -137,193 +379,500 @@ else{
     <!-- /.modal-dialog -->
 </div>
 
+<!-- Bin Modal -->
+<div class="modal fade" id="binModal">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
+      <form id="binForm">
+        <div class="modal-header" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border:none;">
+          <div>
+            <h5 class="modal-title font-weight-bold mb-0" style="color:#1a1a2e;"><i class="fas fa-shopping-basket mr-2"></i><?=$languageArray['manage_bins_code'][$language]?></h5>
+            <small style="color:#1a1a2e;"><span id="binCustomerName"></span></small>
+          </div>
+          <button type="button" class="close" style="color:#1a1a2e;" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body" style="background:#f8f9fa; color:#333;">
+          <input type="hidden" id="binCustomerId" name="binCustomerId">
+
+          <!-- Pending count banner -->
+          <div class="text-center mb-4">
+            <div style="display:inline-block; background:#fff; border-radius:12px; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+              <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#666;"><?=$languageArray['current_pending_bins_code'][$language]?></div>
+              <div id="binCurrent" style="font-size:2.5rem; font-weight:700; color:#fda085; line-height:1.1;">0</div>
+              <div style="font-size:0.85rem; color:#666;"><?=$languageArray['bins_code'][$language]?></div>
+            </div>
+          </div>
+
+          <!-- IN / OUT toggle -->
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['actions_code'][$language]?></label>
+            <div class="d-flex" style="gap:10px;">
+              <div class="flex-fill">
+                <input type="radio" name="binType" id="binTypeOut" value="OUT" class="d-none" checked>
+                <label for="binTypeOut" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
+                  <i class="fas fa-arrow-up text-warning mr-1"></i> <?=$languageArray['bin_out_code'][$language]?>
+                  <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_takes_bins_code'][$language]?></div>
+                </label>
+              </div>
+              <div class="flex-fill">
+                <input type="radio" name="binType" id="binTypeIn" value="IN" class="d-none">
+                <label for="binTypeIn" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
+                  <i class="fas fa-arrow-down text-success mr-1"></i> <?=$languageArray['bin_in_code'][$language]?>
+                  <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_returns_bins_code'][$language]?></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['quantity_code'][$language]?> <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="binQty" name="binQty" min="1" placeholder="e.g. 5" style="border-radius:8px; font-size:0.9rem; height:48px;">
+          </div>
+
+          <div class="form-group mb-0">
+            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['remark_code'][$language]?></label>
+            <input type="text" class="form-control" id="binRemark" name="binRemark" placeholder="Optional note..." style="border-radius:8px;">
+          </div>
+        </div>
+        <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
+          <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px;"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-warning" name="submit" id="submitBin" style="border-radius:8px; min-width:90px; font-weight:600;"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.bin-type-btn { background:#fff; text-align:center; font-weight:600; }
+input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
+</style>
+
+<!-- Bin History Modal -->
+<div class="modal fade" id="binHistoryModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); border:none;">
+        <div>
+          <h5 class="modal-title font-weight-bold mb-0" style="color:#1a1a2e;"><i class="fas fa-history mr-2"></i><?=$languageArray['bin_history_code'][$language]?></h5>
+          <small style="color:#1a1a2e;"><span id="binHistoryCustomerName"></span></small>
+        </div>
+        <button type="button" class="close" style="color:#1a1a2e;" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body" style="background:#f0f2f5; color:#333; max-height:65vh; overflow-y:auto; padding:16px;">
+        <div id="binHistoryList"><div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin"></i></div></div>
+        <div id="binHistoryPager" class="d-flex justify-content-between align-items-center mt-2"></div>
+      </div>
+      <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
+        <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px; font-size:0.9rem;"><?=$languageArray['close_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<script src="plugins/jquery-validation/jquery.validate.min.js"></script>
+<!-- Bootstrap -->
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- AdminLTE -->
+<script src="dist/js/adminlte.js"></script>
+<!-- OPTIONAL SCRIPTS -->
+<script src="plugins/select2/js/select2.full.min.js"></script>
+<script src="plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+<script src="plugins/moment/moment.min.js"></script>
+<script src="plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="plugins/toastr/toastr.min.js"></script>
+<script src="plugins/daterangepicker/daterangepicker.js"></script>
+<script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+<script src="plugins/chart.js/Chart.min.js"></script>
+<script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script>
+
+var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
+
 $(function () {
-    $("#customerTable").DataTable({
-        "responsive": true,
-        "autoWidth": false,
-        'processing': true,
-        'serverSide': true,
-        'serverMethod': 'post',
-        'ajax': {
-          'url':'php/loadCustomers.php'
-        },
-        'columns': [
-          { data: 'customer_code' },
-          { data: 'reg_no' },
-          { data: 'customer_name' },
-          { data: 'customer_address' },
-          { data: 'customer_phone' },
-          { data: 'pic' },
-          { 
-            data: 'deleted',
-            render: function (data, type, row) {
-              if (data == 0) {
-                return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-              } 
-              else{
-                return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
-              }
-            }
-          }
-        ],
-        "rowCallback": function( row, data, index ) {
-
-            //$('td', row).css('background-color', '#E6E6FA');
-        },        
-    });
-    
-    $.validator.setDefaults({
-        submitHandler: function () {
-            $('#spinnerLoading').show();
-            $.post('php/customers.php', $('#customerForm').serialize(), function(data){
-                var obj = JSON.parse(data); 
-                
-                if(obj.status === 'success'){
-                  $('#addModal').modal('hide');
-                  toastr["success"](obj.message, "Success:");
-                  $('#customerTable').DataTable().ajax.reload();
-                  $('#spinnerLoading').hide();
-                }
-                else if(obj.status === 'failed'){
-                  toastr["error"](obj.message, "Failed:");
-                  $('#spinnerLoading').hide();
-                }
-                else{
-                  toastr["error"]("Something wrong when edit", "Failed:");
-                  $('#spinnerLoading').hide();
-                }
-            });
-        }
-    });
-
-    $('#addCustomers').on('click', function(){
-      $('#addModal').find('#id').val("");
-      $('#addModal').find('#code').val("");
-      $('#addModal').find('#reg_no').val("");
-      $('#addModal').find('#name').val("");
-      $('#addModal').find('#address').val("");
-      $('#addModal').find('#address2').val("");
-      $('#addModal').find('#address3').val("");
-      $('#addModal').find('#address4').val("");
-      $('#addModal').find('#states').val("");
-      $('#addModal').find('#phone').val("");
-      $('#addModal').find('#email').val("");
-      $('#addModal').modal('show');
-      
-      $('#customerForm').validate({
-          errorElement: 'span',
-          errorPlacement: function (error, element) {
-              error.addClass('invalid-feedback');
-              element.closest('.form-group').append(error);
-          },
-          highlight: function (element, errorClass, validClass) {
-              $(element).addClass('is-invalid');
-          },
-          unhighlight: function (element, errorClass, validClass) {
-              $(element).removeClass('is-invalid');
-          }
-      });
-    });
-
-  document.getElementById('fileInput').addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function (e) {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-
-      const sheetName = workbook.SheetNames[1];
-      const sheet = workbook.Sheets[sheetName];
-      jsonData = XLSX.utils.sheet_to_json(sheet);
-      console.log(jsonData);
-    };
-    reader.readAsArrayBuffer(file);
+  $('#selectAllCheckbox').on('change', function() {
+    var checkboxes = $('#customerTable tbody input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
-  $('#importExcelbtn').on('click', function(){
-        jsonData.forEach(function(row) {
-            $.ajax({
-                url: 'php/importExcelCustomer.php',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(row),
-                success: function(response) {
-                    debugger;
-                    var obj = JSON.parse(response); 
-                    
-                    if(obj.status === 'success'){
-                        $('#addModal').modal('hide');
-                        toastr["success"](obj.message, "Success:");
-                        $('#customerTable').DataTable().ajax.reload();
-                        $('#spinnerLoading').hide();
-                    }
-                    else if(obj.status === 'failed'){
-                        toastr["error"](obj.message, "Failed:");
-                        $('#spinnerLoading').hide();
-                    }
-                    else{
-                        toastr["error"]("Something wrong when import", "Failed:");
-                        $('#spinnerLoading').hide();
-                    }
-                },
-                error: function(error) {
-                    toastr["error"](obj.message, "Failed:");
-                    $('#spinnerLoading').hide();
-                }
-            })
-        })
+  $('.select2').each(function() {
+    $(this).select2({
+        allowClear: true,
+        placeholder: "Please Select",
+        // Conditionally set dropdownParent based on the element’s location
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
     });
+  });
+
+  $("#customerTable").DataTable({
+    "responsive": true,
+    "autoWidth": false,
+    'processing': true,
+    'serverSide': true,
+    'serverMethod': 'post',
+    'ajax': {
+      'url':'php/modules/customers/loadCustomers.php',
+    },
+    'columns': [
+      {
+        // Add a checkbox with a unique ID for each row
+        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        className: 'select-checkbox',
+        orderable: false,
+        render: function (data, type, row) {
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+        }
+      },
+      { data: 'customer_code' },
+      { data: 'reg_no' },
+      { data: 'parent' },
+      { data: 'customer_name' },
+      { data: 'customer_address' },
+      { data: 'customer_phone' },
+      { data: 'pic' },
+      { data: 'pending_bins' },
+      { 
+        data: 'deleted',
+        render: function (data, type, row) {
+          if (data == 0) {
+            return '<div style="display:flex;gap:4px;">'
+              + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
+              + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\', ' + row.pending_bins + ')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
+                          + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
+              + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+              + '</div>';
+          } else {
+            return '<button onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+          }
+        }
+      }
+    ],
+    "rowCallback": function( row, data, index ) {
+      if (data.is_manual == 'Y') {
+        $(row).css('background-color', '#f8d7da');
+      }
+    },        
+  });
+  
+  $.validator.setDefaults({
+    submitHandler: function () {
+      if ($('#addModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/customers.php', $('#customerForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#addModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#customerTable').DataTable().ajax.reload();
+            $.get('php/modules/customers/getCustomers.php', function(customers) {
+              $('#parent').empty().append('<option value="">Please Select</option>');
+              customers.forEach(function(customer) {
+                $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
+              });
+            });
+          } else if (obj.status === 'failed') {
+            toastr["error"](obj.message, "Failed:");
+          } else {
+            toastr["error"]("Something wrong when edit", "Failed:");
+          }
+          $('#spinnerLoading').hide();
+        });
+      } else if ($('#binModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/updateBin.php', $('#binForm').serialize(), function(data) {
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#binModal').modal('hide');
+            toastr['success'](obj.message, 'Success:');
+            $('#binModal').find('#binCurrent').text(obj.pending_bins);
+            $('#customerTable').DataTable().ajax.reload();
+          } else {
+            toastr['error'](obj.message, 'Failed:');
+          }
+          $('#spinnerLoading').hide();
+        });
+      }
+    }
+  });
+
+  $('#addCustomers').on('click', function(){
+    $('#addModal').find('#id').val("");
+    $('#addModal').find('#code').val("");
+    $('#addModal').find('#reg_no').val("");
+    $('#addModal').find('#name').val("");
+    $('#addModal').find('#address').val("");
+    $('#addModal').find('#address2').val("");
+    $('#addModal').find('#address3').val("");
+    $('#addModal').find('#address4').val("");
+    $('#addModal').find('#states').val("").trigger('change');
+    $('#addModal').find('#phone').val("");
+    $('#addModal').find('#fax').val("");
+    $('#addModal').find('#email').val("");
+    $('#addModal').find('#billingName').val("");
+    $('#addModal').find('#billingAddress').val("");
+    $('#addModal').find('#billingAddress2').val("");
+    $('#addModal').find('#billingAddress3').val("");
+    $('#addModal').find('#billingAddress4').val("");
+    $('#addModal').find('#billingStates').val("").trigger('change');
+    $('#addModal').find('#billingPhone').val("");
+    $('#addModal').find('#billingFax').val("");
+    $('#addModal').find('#billingPic').val("");
+    $('#addModal').find('#parent').val("").trigger('change');
+    $('#addModal').modal('show');
+    
+    $('#customerForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
+    });
+  });
+
+  $('#uploadExcel').on('click', function(){
+    $('#uploadModal').modal('show');
+
+    $('#uploadForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
+    });
+  });
+
+  $('#uploadModal').find('#previewButton').on('click', function(){
+    var fileInput = document.getElementById('fileInput');
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+        var data = e.target.result;
+        // Process data and display preview
+        displayPreview(data);
+    };
+
+    reader.readAsBinaryString(file);
+  });
+
+  $('#uploadCustomer').on('click', function(){
+    $('#spinnerLoading').show();
+    var formData = $('#uploadForm').serializeArray();
+    var data = [];
+    var rowIndex = -1;
+    formData.forEach(function(field) {
+    var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
+    if (match) {
+      var fieldName = match[1];
+      var index = parseInt(match[2], 10);
+      if (index !== rowIndex) {
+      rowIndex = index;
+      data.push({});
+      }
+      data[index][fieldName] = field.value;
+    }
+    });
+
+    // Send the JSON array to the server
+    $.ajax({
+        url: 'php/modules/customers/uploadCustomer.php',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            var obj = JSON.parse(response);
+            if (obj.status === 'success') {
+              $('#spinnerLoading').hide();
+              $('#uploadModal').modal('hide');
+              $('#customerTable').DataTable().ajax.reload();
+            } 
+            else if (obj.status === 'failed') {
+              $('#spinnerLoading').hide();
+            } 
+            else if (obj.status === 'error') {
+              $('#spinnerLoading').hide();
+              $('#uploadModal').modal('hide');
+              $('#errorModal').find('#errorList').empty();
+              var errorMessage = obj.message;
+              for (var i = 0; i < errorMessage.length; i++) {
+                $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);                            
+              }
+              $('#errorModal').modal('show');
+            } 
+            else {
+              $('#spinnerLoading').hide();
+            }
+        }
+    });
+  });
+
+  $('#multiDeactivate').on('click', function () {
+    $('#spinnerLoading').show();
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#customerTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0) {
+      if (confirm('Are you sure you want to cancel these items?')) {
+          $.post('php/modules/customers/deleteCustomer.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+              var obj = JSON.parse(data);
+              
+              if(obj.status === 'success'){
+                $('#customerTable').DataTable().ajax.reload();
+                $('#spinnerLoading').hide();
+              }
+              else if(obj.status === 'failed'){
+                $('#spinnerLoading').hide();
+              }
+              else{
+                $('#spinnerLoading').hide();
+              }
+          });
+      }
+
+      $('#spinnerLoading').hide();
+    } 
+    else {
+        // Optionally, you can display a message or take another action if no IDs are selected
+        alert("Please select at least one customer to delete.");
+        $('#spinnerLoading').hide();
+    }     
+  });
 });
 
+function displayPreview(data) {
+  // Parse the Excel data
+  var workbook = XLSX.read(data, { type: 'binary' });
+
+  // Get the first sheet
+  var sheetName = workbook.SheetNames[0];
+  var sheet = workbook.Sheets[sheetName];
+
+  // Convert the sheet to an array of objects
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 20 });
+
+  // Get the headers
+  var headers = Object.keys(jsonData[0] || {});
+
+  // Ensure we handle cases where there may be less than 20 columns
+  while (headers.length < 20) {
+      headers.push(''); // Adding empty headers to reach 20 columns
+  }
+
+  // Create HTML table headers
+  var htmlTable = '<table style="width:20%;"><thead><tr>';
+  headers.forEach(function(header) {
+      htmlTable += '<th>' + header + '</th>';
+  });
+  htmlTable += '</tr></thead><tbody>';
+
+  // Iterate over the data and create table rows
+  for (var i = 0; i < jsonData.length; i++) {
+      htmlTable += '<tr>';
+      var rowData = jsonData[i];
+
+      for (var j = 0; j < 20 && j < headers.length; j++) {
+          var cellData = rowData[headers[j]];
+          var formattedData = cellData;
+
+          // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
+          if (typeof cellData === 'number' && cellData > 0) {
+              var excelDate = XLSX.SSF.parse_date_code(cellData);
+          }
+
+          htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
+      }
+      htmlTable += '</tr>';
+  }
+
+  htmlTable += '</tbody></table>';
+
+  var previewTable = document.getElementById('previewTable');
+  previewTable.innerHTML = htmlTable;
+}
+
 function edit(id){
-    $('#spinnerLoading').show();
-    $.post('php/getCustomer.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
-        
-        if(obj.status === 'success'){
-            $('#addModal').find('#id').val(obj.message.id);
-            $('#addModal').find('#code').val(obj.message.customer_code);
-            $('#addModal').find('#reg_no').val(obj.message.reg_no);
-            $('#addModal').find('#name').val(obj.message.customer_name);
-            $('#addModal').find('#address').val(obj.message.customer_address);
-            $('#addModal').find('#address2').val(obj.message.customer_address2);
-            $('#addModal').find('#address3').val(obj.message.customer_address3);
-            $('#addModal').find('#address4').val(obj.message.customer_address4);
-            $('#addModal').find('#states').val(obj.message.states);
-            $('#addModal').find('#phone').val(obj.message.customer_phone);
-            $('#addModal').find('#email').val(obj.message.pic);
-            $('#addModal').modal('show');
-            
-            $('#customerForm').validate({
-                errorElement: 'span',
-                errorPlacement: function (error, element) {
-                    error.addClass('invalid-feedback');
-                    element.closest('.form-group').append(error);
-                },
-                highlight: function (element, errorClass, validClass) {
-                    $(element).addClass('is-invalid');
-                },
-                unhighlight: function (element, errorClass, validClass) {
-                    $(element).removeClass('is-invalid');
-                }
-            });
-        }
-        else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-        }
-        else{
-            toastr["error"]("Something wrong when activate", "Failed:");
-        }
-        $('#spinnerLoading').hide();
-    });
+  $('#spinnerLoading').show();
+  $.post('php/modules/customers/getCustomer.php', {userID: id}, function(data){
+      var obj = JSON.parse(data);
+      
+      if(obj.status === 'success'){
+          $('#addModal').find('#id').val(obj.message.id);
+          $('#addModal').find('#code').val(obj.message.customer_code);
+          $('#addModal').find('#reg_no').val(obj.message.reg_no);
+          $('#addModal').find('#name').val(obj.message.customer_name);
+          $('#addModal').find('#address').val(obj.message.customer_address);
+          $('#addModal').find('#address2').val(obj.message.customer_address2);
+          $('#addModal').find('#address3').val(obj.message.customer_address3);
+          $('#addModal').find('#address4').val(obj.message.customer_address4);
+          $('#addModal').find('#states').val(obj.message.states).trigger('change');
+          $('#addModal').find('#phone').val(obj.message.customer_phone);
+          $('#addModal').find('#fax').val(obj.message.fax);
+          $('#addModal').find('#email').val(obj.message.pic);
+          $('#addModal').find('#billingName').val(obj.message.billing_name);
+          $('#addModal').find('#billingAddress').val(obj.message.billing_address);
+          $('#addModal').find('#billingAddress2').val(obj.message.billing_address2);
+          $('#addModal').find('#billingAddress3').val(obj.message.billing_address3);
+          $('#addModal').find('#billingAddress4').val(obj.message.billing_address4);
+          $('#addModal').find('#billingStates').val(obj.message.billing_state).trigger('change');
+          $('#addModal').find('#billingPhone').val(obj.message.billing_phone);
+          $('#addModal').find('#billingFax').val(obj.message.billing_fax);
+          $('#addModal').find('#billingPic').val(obj.message.billing_pic);
+          $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+          $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
+          $('#addModal').modal('show');
+          
+          $('#customerForm').validate({
+              errorElement: 'span',
+              errorPlacement: function (error, element) {
+                  error.addClass('invalid-feedback');
+                  element.closest('.form-group').append(error);
+              },
+              highlight: function (element, errorClass, validClass) {
+                  $(element).addClass('is-invalid');
+              },
+              unhighlight: function (element, errorClass, validClass) {
+                  $(element).removeClass('is-invalid');
+              }
+          });
+      }
+      else if(obj.status === 'failed'){
+          toastr["error"](obj.message, "Failed:");
+      }
+      else{
+          toastr["error"]("Something wrong when activate", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+  });
 }
 
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/deleteCustomer.php', {userID: id}, function(data){
+    $.post('php/modules/customers/deleteCustomer.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
@@ -346,7 +895,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/reactivateCustomer.php', {userID: id}, function(data){
+    $.post('php/modules/customers/reactivateCustomer.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
@@ -364,5 +913,103 @@ function reactivate(id){
         }
     });
   }
+}
+
+function openBinModal(id, name, pendingBins) {
+  $('#binModal').find('#binCustomerId').val(id);
+  $('#binModal').find('#binCustomerName').text(name);
+  $('#binModal').find('#binCurrent').text(pendingBins);
+  $('#binModal').find('#binQty').val('');
+  $('input[name="binType"][value="OUT"]').prop('checked', true);
+  $('#binModal').find('#binRemark').val('');
+  $('#binModal').modal('show');
+
+  $('#binForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+    }
+  });
+}
+
+function openBinHistory(id, name) {
+  $('#binHistoryModal').find('#binHistoryCustomerName').text(name);
+  $('#binHistoryList').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>');
+  $('#binHistoryPager').html('');
+  $('#binHistoryModal').modal('show');
+
+  $.post('php/modules/customers/getBinHistory.php', {
+    draw: 1, start: 0, length: 1000,
+    order: [{column: 0, dir: 'desc'}],
+    columns: [{data: 'created_at'}],
+    search: {value: ''},
+    customer_id: id
+  }, function(data) {
+    var obj = JSON.parse(data);
+    var rows = obj.aaData;
+    if (!rows || rows.length === 0) {
+      $('#binHistoryList').html('<div class="text-center text-muted py-5"><i class="fas fa-inbox fa-2x mb-2"></i><div>No records found</div></div>');
+      return;
+    }
+    var perPage = 5;
+    var currentPage = 1;
+    var totalPages = Math.ceil(rows.length / perPage);
+
+    function renderCards(page) {
+      var start = (page - 1) * perPage;
+      var pageRows = rows.slice(start, start + perPage);
+      var html = '';
+      pageRows.forEach(function(r) {
+        var isOut = r.type === 'OUT';
+        var icon       = isOut ? 'fa-arrow-up' : 'fa-arrow-down';
+        var iconClass  = isOut ? 'text-warning' : 'text-success';
+        var badgeClass = isOut ? 'badge-warning' : 'badge-success';
+        var label      = isOut ? 'OUT' : 'IN';
+        html += '<div class="card mb-2 border-0 shadow-sm">';
+        html +=   '<div class="card-body py-2 px-3 d-flex align-items-center">';
+        html +=     '<div class="mr-3"><i class="fas ' + icon + ' fa-lg ' + iconClass + '"></i></div>';
+        html +=     '<div class="flex-fill">';
+        html +=       '<div class="d-flex justify-content-between align-items-center">';
+        html +=         '<span class="font-weight-bold"><span class="badge ' + badgeClass + ' mr-1">' + label + '</span>' + r.qty + ' baskets</span>';
+        html +=         '<small class="text-muted">' + r.created_at + '</small>';
+        html +=       '</div>';
+        html +=       '<small class="text-muted"><i class="fas fa-user mr-1"></i>' + (r.user_name || '-');
+        if (r.remark) html += ' &middot; <i class="fas fa-comment mr-1"></i>' + r.remark;
+        html +=       '</small>';
+        html +=     '</div>';
+        html +=   '</div>';
+        html += '</div>';
+      });
+      $('#binHistoryList').html(html);
+
+      // Pagination controls
+      var pager = '<small class="text-muted">Showing ' + (start + 1) + '-' + Math.min(start + perPage, rows.length) + ' of ' + rows.length + '</small>';
+      pager += '<ul class="pagination pagination-sm mb-0">';
+      pager += '<li class="page-item ' + (page === 1 ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page - 1) + '">&laquo;</a></li>';
+      for (var i = 1; i <= totalPages; i++) {
+        pager += '<li class="page-item ' + (i === page ? 'active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+      }
+      pager += '<li class="page-item ' + (page === totalPages ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page + 1) + '">&raquo;</a></li>';
+      pager += '</ul>';
+      $('#binHistoryPager').html(pager);
+    }
+
+    renderCards(currentPage);
+
+    $('#binHistoryPager').off('click').on('click', 'a.page-link', function(e) {
+      e.preventDefault();
+      var page = parseInt($(this).data('page'));
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderCards(currentPage);
+    });
+  });
 }
 </script>

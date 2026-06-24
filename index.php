@@ -8,18 +8,43 @@ if(!isset($_SESSION['userID'])){
   echo 'window.location.href = "login.html";</script>';
 }
 else{
+  $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
+  $module = $_SESSION['module'] ?? '';
+  $packages = $_SESSION['packages'] ?? [];
+  $products = $_SESSION['products'] ?? [];
+  $enableDailySales = $_SESSION['enableDailySales'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
 	$result = $stmt->get_result();
   $role = 'NORMAL';
   $name = '';
+  $username = '';
 	
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
     $name = $row['name'];
+    $username = $row['username'];
   }
+
+  // Language
+  $language = $_SESSION['language'];
+
+  // Load message resource
+  if (in_array('P', $packages, true)) {
+    $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
+  }else{
+    $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
+  }
+  
+  $languageArray = Array();
+
+  while($row=mysqli_fetch_assoc($message_resource)){
+    $languageArray[$row['message_key_code']] = array("en"=>$row['en'],"zh"=>$row['zh'],"my"=>$row['my'],"ne"=>$row['ne'], "ja"=>$row['ja']);
+  }
+
+  $_SESSION['languageArray'] = $languageArray;
 }
 ?>
 
@@ -32,7 +57,7 @@ else{
 
   <title>WMS</title>
 
-  <link rel="icon" href="assets/logo.png" type="image">
+  <link rel="icon" href="assets/wms-logo-white-site-icon.png" type="image">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <!-- IonIcons -->
@@ -73,18 +98,18 @@ else{
       cursor: pointer
     }
   
-    .table-striped > tbody > tr{
-      background-color: #14a2b8; 
+    /* .table-striped > tbody > tr{
+      background-color: #007bff; 
       color:white;
     }
 
     .table-striped > tbody > tr:nth-of-type(odd){
       background-color: #14a2b8; 
       color:white;
-    }
+    } */
 
     thead {
-      background-color: #00528c; 
+      background-color: #007bff; 
       color:white;
     }
   
@@ -114,7 +139,8 @@ else{
       width: 100%;
       height: 100%;
       background-color: rgba(16, 16, 16, 0.5);
-      z-index: 5;
+      z-index: 99999;
+      pointer-events: all;
     }
 
     @-webkit-keyframes uil-ring-anim {
@@ -309,28 +335,49 @@ to get the desired effect
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars" style="color: #457ba1;"></i></a>
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars bg-success" style="background: #003392 !important;"></i></a>
+      </li>
+    </ul>
+    
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" style="background-color: #f4f4f4; border-radius: 50%; padding: 8px; margin-right: 15px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-user" style="font-size: 16px; color: #666;"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          <h6 class="dropdown-header"><?=$languageArray['welcome_code'][$language]?> <?=$username ?>!</h6>
+          <a href="#myprofile" data-file="myprofile.php" class="dropdown-item link">
+            <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> 
+            <span class="align-middle"><?=$languageArray['profile_code'][$language]?></span>
+          </a>
+          <a class="dropdown-item" href="php/logout.php">
+            <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> 
+            <span class="align-middle"><?=$languageArray['logout_code'][$language]?></span>
+          </a>
+        </div>
       </li>
     </ul>
   </nav>
+
   <!-- Main Sidebar Container -->
   <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #457ba1;">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #003392;">
     <!-- Brand Logo -->
-    <a href="#" class="brand-link logo-switch" style="line-height: 5;">
-      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs">
-      <img src="assets/logo_customer.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 40%;max-height: max-content;">
+    <a href="#" class="brand-link logo-switch" style="line-height: 3.5; border-bottom-color: #ffffff;">
+      <img src="assets/wms-logo-white-site-icon.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs" style="left: 15px; top: 15px; line-height: 5.5;">
+      <img src="assets/wms-logo-white-2.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 25%;max-height: max-content; left: 25px; top: 15px;">
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex" style="border-bottom-color: #fff;">
           <div class="image" style="align-self: center;">
             <img src="assets/user-avatar.png" class="img-circle elevation-2" alt="User Image">
           </div>
           <div class="info" style="white-space: nowrap;">
-            <p style="font-size:0.75rem; color:#E3E3E3; margin-bottom:0rem;">Welcome</p>
+            <p style="font-size:0.75rem; color:#E3E3E3; margin-bottom:0rem;"><?=$languageArray['welcome_code'][$language]?></p>
             <a href="#myprofile" data-file="myprofile.php" id="goToProfile" class="d-block"><?=$name ?></a>
           </div>
       </div>
@@ -346,25 +393,140 @@ to get the desired effect
               <p>Dashboard</p>
             </a>
           </li-->
+          <li class="nav-item">
+            <a href="home.php" class="nav-link link">
+              <i class="nav-icon fas fa-home"></i>
+              <p><?=$languageArray['home_code'][$language]?></p>
+            </a>
+          </li>
+          <?php if ($module == 'pricing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>Weighing<i class="fas fa-angle-left right"></i></p>
+              <p><?=$languageArray['pricing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
-              <!--li class="nav-item">
+              <li class="nav-item">
+                <a href="#pricingSales" data-file="pricingSales.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['sales_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#reportsPricingSales" data-file="reportsPricingSales.php" class="nav-link link">
+                  <i class="nav-icon fas fa-chart-bar"></i>
+                  <p><?=$languageArray['sales_report_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#pricingPurchase" data-file="pricingPurchase.php" class="nav-link link">
+                  <i class="nav-icon fas fa-truck"></i>
+                  <p><?=$languageArray['purchase_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#pricingInventory" data-file="pricingInventory.php" class="nav-link link">
+                  <i class="nav-icon fas fa-warehouse"></i>
+                  <p><?=$languageArray['inventory_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#repacking" data-file="repacking.php" class="nav-link link">
+                  <i class="nav-icon fas fa-box-open"></i>
+                  <p><?=$languageArray['repacking_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php if ($module == 'processing') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-cog"></i>
+              <p><?=$languageArray['processing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <li class="nav-item">
+                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['wholesales_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#grading" data-file="grading.php" class="nav-link link">
+                  <i class="nav-icon fas fa-clipboard-check"></i>
+                  <p><?=$languageArray['grading_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#packagingBatches" data-file="packagingBatches.php" class="nav-link link">
+                  <i class="nav-icon fas fa-box-open"></i>
+                  <p><?=$languageArray['batch_packaging_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php if ($module != 'pricing' && $module != 'processing' && $module != 'accounting' && $module != 'stocks') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p><?=$languageArray['weighing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <!-- <li class="nav-item">
                 <a href="#weighing" data-file="weightPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-balance-scale"></i>
                   <p>Weight Weighing</p>
                 </a>
-              </li-->
+              </li> -->
+              <?php if ($module == 'wholesale') { ?>
               <li class="nav-item">
-                <a href="#counting" data-file="countPage.php" class="nav-link link">
+                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
-                  <p>Count Weighing</p>
+                  <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
               </li>
-              <!--li class="nav-item">
+              <?php } ?>
+              <?php if ($module == 'weighing') { ?>
+              <li class="nav-item">
+                <a href="#weighbridges" data-file="weighbridges.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['weighbridge_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
+              <?php if ($module == 'industrial') { ?>
+              <li class="nav-item">
+                <a href="#industrial" data-file="industrial.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['industrial_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
+              <?php if ($module == 'packing') { ?>
+              <li class="nav-item">
+                <a href="#packing" data-file="packing.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['packing_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
+              <?php if ($module == 'pricing') { ?>
+              <li class="nav-item">
+                <a href="#pricing" data-file="pricing.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p><?=$languageArray['pricing_code'][$language]?></p>
+                </a>
+              </li>
+              <?php } ?>
+              <!-- <li class="nav-item">
+                <a href="#counting" data-file="countPage.php" class="nav-link link">
+                  <i class="nav-icon fas fa-cubes"></i>
+                  <p>Weighing Records</p>
+                </a>
+              </li> -->
+              <!-- <li class="nav-item">
                 <a href="#batching" data-file="batchPage.php" class="nav-link link">
                   <i class="nav-icon fas fa-file-alt"></i>
                   <p>Batch Weighing</p>
@@ -375,53 +537,183 @@ to get the desired effect
                   <i class="nav-icon fas fa-dollar-sign"></i>
                   <p>Price Weighing</p>
                 </a>
-              </li-->
+              </li> -->
             </ul>
           </li>
+          <?php } ?>
+          <?php if ($module == 'wholesale') { ?>
           <li class="nav-item">
             <a href="#reports" data-file="reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
-              <p>Reports</p>
+              <p><?=$languageArray['reports_code'][$language]?></p>
             </a>
           </li>
-          <?php 
-              if($role == "ADMIN"){
-                echo '<li class="nav-item">
-                <a href="#users" data-file="users.php" class="nav-link link">
-                  <i class="nav-icon fas fa-user"></i>
-                  <p>Staffs</p>
+          <?php } ?>
+          <?php if ($module == 'weighing') { ?>
+          <li class="nav-item">
+            <a href="#reportsWb" data-file="reportsWb.php" class="nav-link link">
+              <i class="nav-icon fas fa-th"></i>
+              <p><?=$languageArray['reports_code'][$language]?></p>
+            </a>
+          </li>
+          <?php } ?>
+          <?php if ($module == 'industrial') { ?>
+          <li class="nav-item">
+            <a href="#reportsIndustry" data-file="reportsIndustry.php" class="nav-link link">
+              <i class="nav-icon fas fa-th"></i>
+              <p><?=$languageArray['reports_code'][$language]?></p>
+            </a>
+          </li>
+          <?php } ?>
+          <?php if ($module == 'packing') { ?>
+          <li class="nav-item">
+            <a href="#reportsPacking" data-file="reportsPacking.php" class="nav-link link">
+              <i class="nav-icon fas fa-cubes"></i>
+              <p><?=$languageArray['reports_code'][$language]?></p>
+            </a>
+          </li>
+          <?php } ?>
+          <?php if ($module == 'stocks') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-bar"></i>
+              <p><?=$languageArray['stock_management'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none;">
+              <li class="nav-item">
+                <a href="#stockDashboard" data-file="stockDashboard.php" class="nav-link link">
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p><?=$languageArray['dashboard_code'][$language]?></p>
                 </a>
               </li>
-              <li class="nav-item has-treeview">
+              <li class="nav-item">
+                <a href="#stockTransfer" data-file="stockTransfer.php" class="nav-link link">
+                  <i class="nav-icon fas fa-exchange-alt"></i>
+                  <p><?=$languageArray['stock_transfer_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#loadingOrders" data-file="loadingOrders.php" class="nav-link link">
+                  <i class="nav-icon fas fa-truck-loading"></i>
+                  <p><?=$languageArray['loading_orders_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php if ($module == 'accounting') { ?>
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-calculator"></i>
+              <p><?=$languageArray['accounting_code'][$language]?><i class="fas fa-angle-left right"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#paymentVoucher" data-file="paymentVoucher.php" class="nav-link link">
+                  <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                  <p><?=$languageArray['payment_voucher_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <?php } ?>
+          <?php 
+              if($role == "ADMIN" || $role == "SADMIN" || $role == "MANAGER"){
+                echo '<li class="nav-item has-treeview">
                 <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-database"></i>
-                  <p>Master Data<i class="fas fa-angle-left right"></i></p>
+                  <p>'.$languageArray['master_data_code'][$language].'<i class="fas fa-angle-left right"></i></p>
                 </a>
                 <ul class="nav nav-treeview" style="display: none;">
-                   <li class="nav-item">
+                  <li class="nav-item">
+                    <a href="#translations" data-file="translations.php" class="nav-link link">
+                      <i class="nav-icon fas fa-language"></i>
+                      <p>'.$languageArray['translations_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#units" data-file="units.php" class="nav-link link">
                       <i class="nav-icon fas fa-balance-scale"></i>
-                      <p>Units</p>
+                      <p>'.$languageArray['units_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#categories" data-file="categories.php" class="nav-link link">
+                      <i class="nav-icon fas fa-tags"></i>
+                      <p>'.$languageArray['category_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#packaging" data-file="packaging.php" class="nav-link link">
+                      <i class="nav-icon fas fa-box"></i>
+                      <p>'.$languageArray['packaging_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#customer" data-file="customers.php" class="nav-link link">
+                      <i class="nav-icon fas fa-users"></i>
+                      <p>'.$languageArray['customer_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#supplier" data-file="suppliers.php" class="nav-link link">
                       <i class="nav-icon fas fa-file-alt"></i>
-                      <p>Supplier</p>
+                      <p>'.$languageArray['supplier_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#products" data-file="products.php" class="nav-link link">
                       <i class="nav-icon fas fa-shopping-cart"></i>
-                      <p>Products</p>
+                      <p>'.$languageArray['products_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#drivers" data-file="drivers.php" class="nav-link link">
+                      <i class="nav-icon fas fa-id-card"></i>
+                      <p>'.$languageArray['drivers_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#vehicles" data-file="vehicles.php" class="nav-link link">
+                      <i class="nav-icon fas fa-truck"></i>
+                      <p>'.$languageArray['vehicles_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <!--li class="nav-item">
+                    <a href="#transporters" data-file="transporters.php" class="nav-link link">
+                      <i class="nav-icon fas fa-shipping-fast"></i>
+                      <p>'.$languageArray['transporters_code'][$language].'</p>
+                    </a>
+                  </li-->
+                  <li class="nav-item">
+                    <a href="#grades" data-file="grades.php" class="nav-link link">
+                      <i class="nav-icon fas fa-star"></i>
+                      <p>'.$languageArray['grades_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#locations" data-file="locations.php" class="nav-link link">
-                      <i class="nav-icon fas fa-shopping-bag"></i>
-                      <p>Location</p>
+                      <i class="nav-icon fas fa-map-marker-alt"></i>
+                      <p>'.$languageArray['locations_code'][$language].'</p>
                     </a>
                   </li>
+                  ';
+                if ($module == 'processing') {
+                  echo '
+                  <li class="nav-item">
+                    <a href="#shipmentTypes" data-file="shipmentTypes.php" class="nav-link link">
+                      <i class="nav-icon fas fa-shipping-fast"></i>
+                      <p>'.$languageArray['shipment_types_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#productionLines" data-file="productionLines.php" class="nav-link link">
+                      <i class="nav-icon fas fa-industry"></i>
+                      <p>'.$languageArray['production_lines_code'][$language].'</p>
+                    </a>
+                  </li>';
+                }
+                echo '
                 </ul>
               </li>';
               }
@@ -429,39 +721,55 @@ to get the desired effect
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-cogs"></i>
-              <p>Settings<i class="fas fa-angle-left right"></i></p>
+              <p><?=$languageArray['settings_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
         
             <ul class="nav nav-treeview" style="display: none;">
               <?php 
-                if($role == "ADMIN"){
+                if($role == "ADMIN" || $role == "SADMIN"){
                   echo '<li class="nav-item">
-                  <a href="#company" data-file="company.php" class="nav-link link">
-                    <i class="nav-icon fas fa-building"></i>
-                    <p>Company Profile</p>
-                  </a>
-                </li>';
+                          <a href="#company" data-file="company.php" class="nav-link link">
+                            <i class="nav-icon fas fa-building"></i>
+                            <p>'.$languageArray['company_profile_code'][$language].'</p>
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a href="#users" data-file="users.php" class="nav-link link">
+                            <i class="nav-icon fas fa-user"></i>
+                            <p>'.$languageArray['staffs_code'][$language].'</p>
+                          </a>
+                        </li>';
+
+                  if ($enableDailySales == 'Y'){
+                    echo '
+                        <li class="nav-item">
+                          <a href="#dailySalesSetup" data-file="dailySalesSetup.php" class="nav-link link">
+                            <i class="nav-icon fas fa-calendar-check"></i>
+                            <p>'.$languageArray['daily_sales_setup_code'][$language].'</p>
+                          </a>
+                        </li>';
+                  }
                 }
               ?>
 
               <li class="nav-item">
                 <a href="#setup" data-file="setup.php" class="nav-link link">
-                  <i class="nav-icon fas fa-user-cog"></i>
-                  <p>Port Setup</p>
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p><?=$languageArray['indicator_setup_code'][$language]?></p>
                 </a>
               </li>
 
               <li class="nav-item">
                 <a href="#myprofile" data-file="myprofile.php" class="nav-link link">
                   <i class="nav-icon fas fa-id-badge"></i>
-                  <p>Profile</p>
+                  <p><?=$languageArray['profile_code'][$language]?></p>
                 </a>
               </li>
           
               <li class="nav-item">
                 <a href="#changepassword" data-file="changePassword.php" class="nav-link link">
                   <i class="nav-icon fas fa-key"></i>
-                  <p>Change Password</p>
+                  <p><?=$languageArray['change_password_code'][$language]?></p>
                 </a>
               </li>
             </ul>
@@ -469,7 +777,7 @@ to get the desired effect
           <li class="nav-item">
             <a href="php/logout.php" class="nav-link">
               <i class="nav-icon fas fa-sign-out-alt"></i>
-              <p>Logout</p>
+              <p><?=$languageArray['logout_code'][$language]?></p>
             </a>
           </li>
         </ul>
@@ -550,10 +858,22 @@ $(function () {
   }
   
   $('#sideMenu').on('click', '.link', function(){
-      $('#spinnerLoading').hide();
+      $('#spinnerLoading').show();
       var files = $(this).attr('data-file');
       $('#sideMenu').find('.active').removeClass('active');
       $(this).addClass('active');
+      
+      $.get(files, function(data) {
+        $('#mainContents').html(data);
+        $('#spinnerLoading').hide();
+      });
+  });
+
+  // Handle dropdown links
+  $('.dropdown-menu').on('click', '.link', function(){
+      $('#spinnerLoading').show();
+      var files = $(this).attr('data-file');
+      $('#sideMenu').find('.active').removeClass('active');
       
       $.get(files, function(data) {
         $('#mainContents').html(data);
@@ -573,10 +893,30 @@ $(function () {
       });
   });
   
-  $("a[href='#counting']").click();
+  if(window.location.hash) {
+    $("a[href='" + window.location.hash + "']").click();
+  } else {
+    <?php if ($module == 'wholesale') { ?>
+    $("a[href='#wholesales']").click();
+    <?php } else if ($module == 'weighing') { ?>
+    $("a[href='#weighbridges']").click();
+    <?php } else if ($module == 'industrial') { ?>
+    $("a[href='#industrial']").click();
+    <?php } else if ($module == 'packing') { ?>
+    $("a[href='#packing']").click();
+    <?php } else if ($module == 'pricing') { ?>
+    $("a[href='#pricingSales']").click();
+    <?php } else if ($module == 'processing') { ?>
+    $("a[href='#wholesales']").click();
+    <?php } else if ($module == 'accounting') { ?>
+    $("a[href='#paymentVoucher']").click();
+    <?php } else if ($module == 'stocks') { ?>
+    $("a[href='#stockDashboard']").click();
+    <?php } else { ?>
+    window.location.href = 'home.php';
+    <?php } ?>
+  }
 });
-
-
 
 // Function to convert between units
 function convertUnits(value, fromUnit, toUnit) {

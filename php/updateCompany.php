@@ -1,12 +1,33 @@
 <?php
 require_once 'db_connect.php';
 
-if(isset($_POST['name'], $_POST['address'])){
+if(isset($_POST['id'], $_POST['regNo'], $_POST['name'], $_POST['address1'])){
+	$regNo = filter_input(INPUT_POST, 'regNo', FILTER_SANITIZE_STRING);
 	$name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-	$address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_STRING);
+	$address = filter_input(INPUT_POST, 'address1', FILTER_SANITIZE_STRING);
+	$address2 = null;
+	$address3 = null;
+	$address4 = null;
 	$phone = null;
 	$email = null;
-	$id = '1';
+	$fax = null;
+	$bankerName = null;
+	$bankAccountNo = null;
+	$bankSwiftCode = null;
+	$photoUploadMode = 'local';
+	$id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
+
+	if($_POST['address2'] != null && $_POST['address2'] != ""){
+		$address2 = filter_input(INPUT_POST, 'address2', FILTER_SANITIZE_STRING);
+	}
+
+	if($_POST['address3'] != null && $_POST['address3'] != ""){
+		$address3 = filter_input(INPUT_POST, 'address3', FILTER_SANITIZE_STRING);
+	}
+
+	if($_POST['address4'] != null && $_POST['address4'] != ""){
+		$address4 = filter_input(INPUT_POST, 'address4', FILTER_SANITIZE_STRING);
+	}
 
 	if($_POST['phone'] != null && $_POST['phone'] != ""){
 		$phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
@@ -16,8 +37,44 @@ if(isset($_POST['name'], $_POST['address'])){
 		$email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_STRING);
 	}
 
-	if ($stmt2 = $db->prepare("UPDATE companies SET name=?, address=?, phone=?, email=? WHERE id=?")) {
-		$stmt2->bind_param('sssss', $name, $address, $phone, $email, $id);
+	if($_POST['fax'] != null && $_POST['fax'] != ""){
+		$fax = filter_input(INPUT_POST, 'fax', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['bankerName'] != null && $_POST['bankerName'] != ""){
+		$bankerName = filter_input(INPUT_POST, 'bankerName', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['bankAccountNo'] != null && $_POST['bankAccountNo'] != ""){
+		$bankAccountNo = filter_input(INPUT_POST, 'bankAccountNo', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['bankSwiftCode'] != null && $_POST['bankSwiftCode'] != ""){
+		$bankSwiftCode = filter_input(INPUT_POST, 'bankSwiftCode', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['includePrice'] != null && $_POST['includePrice'] != ""){
+		$includePrice = filter_input(INPUT_POST, 'includePrice', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['includePhoto'] != null && $_POST['includePhoto'] != ""){
+		$includePhoto = filter_input(INPUT_POST, 'includePhoto', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['includeBarcode'] != null && $_POST['includeBarcode'] != ""){
+		$includeBarcode = filter_input(INPUT_POST, 'includeBarcode', FILTER_SANITIZE_STRING);
+	} 
+
+	if($_POST['includeSecRemark'] != null && $_POST['includeSecRemark'] != ""){
+		$includeSecRemark = filter_input(INPUT_POST, 'includeSecRemark', FILTER_SANITIZE_STRING);
+	}
+
+	if(isset($_POST['photoUploadMode']) && $_POST['photoUploadMode'] != ""){
+		$photoUploadMode = filter_input(INPUT_POST, 'photoUploadMode', FILTER_SANITIZE_STRING);
+	}
+	
+	if ($stmt2 = $db->prepare("UPDATE companies SET reg_no=?, name=?, address=?, address2=?, address3=?, address4=?, phone=?, email=?, fax=?, banker_name=?, bank_acct_no=?, bank_swift_code=?, include_price=?, include_photo=?, include_barcode=?, include_sec_remark=?, photo_upload_mode=? WHERE id=?")) {
+		$stmt2->bind_param('ssssssssssssssssss', $regNo, $name, $address, $address2, $address3, $address4, $phone, $email, $fax, $bankerName, $bankAccountNo, $bankSwiftCode, $includePrice, $includePhoto, $includeBarcode, $includeSecRemark, $photoUploadMode, $id);
 		
 		if($stmt2->execute()){
 			$stmt2->close();

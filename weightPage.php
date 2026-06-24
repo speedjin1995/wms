@@ -436,7 +436,7 @@ else{
                   <div class="form-group col-md-12">
                     <label>Incoming - G.W *
                     <?php 
-                      if($role == "ADMIN"){         
+                      if($role == "ADMIN" || $role == "SADMIN"){         
                         echo '<span style="padding-left: 60px;"><input type="checkbox" class="form-check-input" id="manual" name="manual" value="0"/>Manual</span>';
                       }
                     ?>
@@ -480,7 +480,7 @@ else{
                   <div class="form-group col-md-12">
                       <label>Incoming - G.W *
                       <?php 
-                        if($role == "ADMIN"){         
+                        if($role == "ADMIN" || $role == "SADMIN"){         
                           echo '<span style="padding-left: 60px;"><input type="checkbox" class="form-check-input" id="manual" name="manual" value="0"/>Manual</span>';
                         }
                       ?>
@@ -676,7 +676,7 @@ $(function () {
     else {
       // Open this row
       <?php 
-        if($role == "ADMIN"){
+        if($role == "ADMIN" || $role == "SADMIN"){
           echo 'row.child( format(row.data()) ).show();tr.addClass("shown");';
         }
         else{
@@ -1045,7 +1045,7 @@ $(function () {
   });
   
   <?php 
-    if($role == "ADMIN"){
+    if($role == "ADMIN" || $role == "SADMIN"){
       echo "$('#manual').on('click', function(){
         if($(this).is(':checked')){
           $(this).val(1);

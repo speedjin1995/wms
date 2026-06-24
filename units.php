@@ -1,9 +1,16 @@
+<?php
+  session_start();
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
+?>
 
 <div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Units</h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['units_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -27,9 +34,9 @@
             <table id="supplierTable" class="table table-bordered table-striped">
               <thead>
                 <tr>
-                  <th>No.</th>
-                  <th>Units</th>
-                  <th>Actions</th>
+                  <th><?=$languageArray['number_short_code'][$language]?></th>
+                  <th><?=$languageArray['units_code'][$language]?></th>
+                  <th><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
             </table>
@@ -45,7 +52,7 @@
       <div class="modal-content">
         <form role="form" id="supplierForm">
             <div class="modal-header">
-              <h4 class="modal-title">Add Units</h4>
+              <h4 class="modal-title"><?=$languageArray['add_units_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -56,14 +63,14 @@
                   <input type="hidden" class="form-control" id="id" name="id">
                 </div>
                 <div class="form-group">
-                  <label for="name">Units *</label>
-                  <input type="text" class="form-control" name="code" id="code" placeholder="Enter Units" required>
+                  <label for="name"><?=$languageArray['units_code'][$language]?> *</label>
+                  <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_units_code'][$language]?>" required>
                 </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember">Submit</button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>

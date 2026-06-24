@@ -5,42 +5,321 @@ session_start();
 
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
+    $type = null;
 
-    if ($update_stmt = $db->prepare("SELECT * FROM products WHERE id=?")) {
-        $update_stmt->bind_param('s', $id);
-        
-        // Execute the prepared query.
-        if (! $update_stmt->execute()) {
+    if(isset($_POST['type']) && $_POST['type'] != null && $_POST['type'] != ''){
+        $type = filter_input(INPUT_POST, 'type', FILTER_SANITIZE_STRING);
+    }
+
+    if ($type == 'getPrice'){
+        if (!isset($_POST['status']) || $_POST['status'] == null || $_POST['status'] == ''){
             echo json_encode(
                 array(
                     "status" => "failed",
-                    "message" => "Something went wrong"
-                )); 
+                    "message" => "Missing status"
+                ));
+            exit();
+        }else{
+            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_STRING);
         }
-        else{
-            $result = $update_stmt->get_result();
-            $message = array();
-            
-            while ($row = $result->fetch_assoc()) {
-                $message['id'] = $row['id'];
-                $message['product_code'] = $row['product_code'];
-                $message['product_name'] = $row['product_name'];
-                $message['product_sn'] = $row['product_sn'];
-                $message['batch_no'] = $row['batch_no'];
-                $message['parts_no'] = $row['parts_no'];
-                $message['uom'] = $row['uom'];
-                $message['remark'] = $row['remark'];
-                $message['price'] = $row['price'];
-                $message['weight'] = $row['weight'];
+
+        $customerID = null;
+        $grade = null;
+        
+        if(isset($_POST['customerID']) && $_POST['customerID'] != null && $_POST['customerID'] != ''){
+            $customerID = filter_input(INPUT_POST, 'customerID', FILTER_SANITIZE_STRING);
+        }
+
+        if(isset($_POST['grade']) && $_POST['grade'] != null && $_POST['grade'] != ''){
+            $grade = filter_input(INPUT_POST, 'grade', FILTER_SANITIZE_STRING);
+        }
+
+        // Final Pricing Detail
+        $resultPricingType = null;
+        $resultPrice = 0;
+
+        // Product Pricing Detail
+        $productPricingType = null;
+        $productPrice = 0;
+
+        $product_stmt = $db->prepare("SELECT * FROM products WHERE id=?");
+        $product_stmt->bind_param('s', $id);
+        $product_stmt->execute();
+        $product_result = $product_stmt->get_result();
+        if ($product_result->num_rows > 0) {
+            while ($row = $product_result->fetch_assoc()) {
+                if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                    $productPricingType = $row['purchasing_pricing_type'];
+                    $productPrice = $row['purchasing_price'];
+                }else{
+                    $productPricingType = $row['pricing_type'];
+                    $productPrice = $row['price'];
+                }
+
             }
-            
+        }else{
+            echo json_encode(
+                array(
+                    "status" => "failed",
+                    "message" => "Cannot find product"
+                ));
+        }
+
+        if (!empty($customerID)){
+            $pricingType = null;
+            $price = 0;
+            $result = null;
+
+            $isSupplier = ($status == 'RECEIVING' || $status == 'INCOMING');
+
+            // If grade provided, try match with grade first
+            if (!empty($grade)) {
+                if ($isSupplier) {
+                    $productCustomerStmt = $db->prepare("SELECT * FROM product_suppliers WHERE product_id=? AND supplier_id=? AND grade_id=? AND deleted=0");
+                } else {
+                    $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND grade_id=? AND deleted=0");
+                }
+                $productCustomerStmt->bind_param('sss', $id, $customerID, $grade);
+                $productCustomerStmt->execute();
+                $result = $productCustomerStmt->get_result();
+            }
+
+            if (!empty($result) && $result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    if ($isSupplier) {
+                        $pricingType = $row['purchasing_pricing_type'];
+                        $price = $row['purchasing_price'];
+                    } else {
+                        $pricingType = $row['pricing_type'];
+                        $price = $row['price'];
+                    }
+                }
+
+                if ($pricingType == 'Standard'){
+                    $resultPricingType = $productPricingType;
+                    $resultPrice = $productPrice;
+                } else {
+                    $resultPricingType = $pricingType;
+                    $resultPrice = $price;
+                }
+
+                echo json_encode(array("status" => "success", "message" => ['pricingType' => $resultPricingType, 'price' => $resultPrice]));
+            } else {
+                // If no customer specific pricing, check product_grade first
+                if (!empty($grade)){
+                    $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND deleted=0");
+                    $productGradeStmt->bind_param('ss', $id, $grade);
+                    $productGradeStmt->execute();
+                    $productGradeResult = $productGradeStmt->get_result();
+                    if ($productGradeResult->num_rows > 0) {
+                        // If grade has pricing
+                        while ($row = $productGradeResult->fetch_assoc()) {
+                            if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                                $pricingType = $row['purchasing_pricing_type'];
+                                $price = $row['purchasing_price'];
+                            }else{
+                                $pricingType = $row['pricing_type'];
+                                $price = $row['price'];
+                            }
+                        }
+
+                        // If pricing type is Standard then need to take product price
+                        if ($pricingType == 'Standard'){
+                            $resultPricingType = $productPricingType;
+                            $resultPrice = $productPrice;
+                        }else{
+                            $resultPricingType = $pricingType;
+                            $resultPrice = $price;
+                        }
+                    }else{
+                        $resultPricingType = $productPricingType;
+                        $resultPrice = $productPrice;
+                    }
+                }
+                echo json_encode(array("status" => "success", "message" => ['pricingType' => $resultPricingType, 'price' => $resultPrice]));
+            }
+        } else if (empty($customerID) && !empty($grade)){
+            $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND deleted=0");
+            $productGradeStmt->bind_param('ss', $id, $grade);
+            $productGradeStmt->execute();
+            $productGradeResult = $productGradeStmt->get_result();
+            if ($productGradeResult->num_rows > 0) {
+                // If grade has pricing
+                while ($row = $productGradeResult->fetch_assoc()) {
+                    if ($status == 'RECEIVING' || $status == 'INCOMING'){
+                        $pricingType = $row['purchasing_pricing_type'];
+                        $price = $row['purchasing_price'];
+                    }else{
+                        $pricingType = $row['pricing_type'];
+                        $price = $row['price'];
+                    }
+                }
+
+                // If pricing type is Standard then need to take product price
+                if ($pricingType == 'Standard'){
+                    $resultPricingType = $productPricingType;
+                    $resultPrice = $productPrice;
+                }else{
+                    $resultPricingType = $pricingType;
+                    $resultPrice = $price;
+                }
+
+                $pricingDetail = [
+                    'pricingType' => $resultPricingType,
+                    'price' => $resultPrice,
+                ];
+
+                echo json_encode(
+                    array(
+                        "status" => "success",
+                        "message" => $pricingDetail
+                    ));
+            }else{
+                // If grade no pricing, take product pricing
+                $pricingDetail = [
+                    'pricingType' => $productPricingType,
+                    'price' => $productPrice,
+                ];
+
+                echo json_encode(
+                    array(
+                        "status" => "success",
+                        "message" => $pricingDetail
+                    ));
+            }
+        } else {
+            $pricingDetail = [
+                'pricingType' => $productPricingType,
+                'price' => $productPrice,
+            ];
+
             echo json_encode(
                 array(
                     "status" => "success",
-                    "message" => $message
-                ));   
+                    "message" => $pricingDetail
+                ));
+        }
+    }else{
+        if ($update_stmt = $db->prepare("SELECT p.*, u.units AS uom_name, pk.packaging_name FROM products p LEFT JOIN units u ON p.uom = u.id LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.id=?")) {
+            $update_stmt->bind_param('s', $id);
+            
+            // Execute the prepared query.
+            if (! $update_stmt->execute()) {
+                echo json_encode(
+                    array(
+                        "status" => "failed",
+                        "message" => "Something went wrong"
+                    )); 
+            }
+            else{
+                $result = $update_stmt->get_result();
+                $message = array();
+                
+                while ($row = $result->fetch_assoc()) {
+                    $message['id'] = $row['id'];
+                    $message['product_code'] = $row['product_code'];
+                    $message['product_name'] = $row['product_name'];
+                    $message['product_sn'] = $row['product_sn'];
+                    $message['batch_no'] = $row['batch_no'];
+                    $message['parts_no'] = $row['parts_no'];
+                    $message['uom'] = $row['uom'];
+                    $message['remark'] = $row['remark'];
+                    $message['pricing_type'] = $row['pricing_type'];
+                    $message['price'] = $row['price'];
+                    $message['purchasing_price'] = $row['purchasing_price'];
+                    $message['weight'] = $row['weight'];
+                    $message['customer'] = $row['customer'];
+                    $message['range_set'] = $row['range_set'];
+                    $message['ok_weight'] = $row['ok_weight'];
+                    $message['ok_weight_unit'] = $row['ok_weight_unit'];
+                    $message['lo_weight'] = $row['lo_weight'];
+                    $message['lo_weight_unit'] = $row['lo_weight_unit'];
+                    $message['hi_weight'] = $row['hi_weight'];
+                    $message['hi_weight_unit'] = $row['hi_weight_unit'];
+                    $message['packaging'] = $row['packaging'];
+                    $message['category'] = $row['category'];
+                    $message['product_image'] = $row['product_image'];
+                    $message['uom_name'] = $row['uom_name'];
+                    $message['packaging_name'] = $row['packaging_name'];
+                    $message['state'] = json_decode($row['state'], true);
+                    
+                    // retrieve product customers
+                    $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
+                    $empRecords = mysqli_query($db, $empQuery);
+                    $productCustomers = array();
+                    $productCustomerCount = 1;
+
+                    while($row2 = mysqli_fetch_assoc($empRecords)) {
+                        $productCustomers[] = array(
+                            "no" => $productCustomerCount,
+                            "id" => $row2['id'],
+                            "product_id" => $row2['product_id'],
+                            "customer_id" => $row2['customer_id'],
+                            "grade_id" => $row2['grade_id'],
+                            "pricing_type" => $row2['pricing_type'],
+                            "price" => $row2['price'],
+                            "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
+                            "purchasing_price" => $row2['purchasing_price']
+                        );
+                        $productCustomerCount++;
+                    }
+
+                    $message['productCustomers'] = $productCustomers;
+
+                    // retrieve product suppliers
+                    $empQuery = "SELECT * FROM product_suppliers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
+                    $empRecords = mysqli_query($db, $empQuery);
+                    $productSuppliers = array();
+                    $productSupplierCount = 1;
+
+                    while($row2 = mysqli_fetch_assoc($empRecords)) {
+                        $productSuppliers[] = array(
+                            "no" => $productSupplierCount,
+                            "id" => $row2['id'],
+                            "product_id" => $row2['product_id'],
+                            "supplier_id" => $row2['supplier_id'],
+                            "grade_id" => $row2['grade_id'],
+                            "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
+                            "purchasing_price" => $row2['purchasing_price']
+                        );
+                        $productSupplierCount++;
+                    }
+
+                    $message['productSuppliers'] = $productSuppliers;
+
+                    // retrieve product grades
+                    $empQuery = "SELECT * FROM product_grades WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
+                    $empRecords = mysqli_query($db, $empQuery);
+                    $productGrades = array();
+                    $productGradeCount = 1;
+
+                    while($row2 = mysqli_fetch_assoc($empRecords)) {
+                        $productGrades[] = array(
+                            "no" => $productGradeCount,
+                            "id" => $row2['id'],
+                            "product_id" => $row2['product_id'],
+                            "grade_id" => $row2['grade_id'],
+                            "pricing_type" => $row2['pricing_type'],
+                            "price" => $row2['price'],
+                            "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
+                            "purchasing_price" => $row2['purchasing_price']
+                        );
+                        $productGradeCount++;
+                    }
+                    $message['productGrades'] = $productGrades;
+                }
+                
+                echo json_encode(
+                    array(
+                        "status" => "success",
+                        "message" => $message
+                    ));   
+            }
         }
     }
+
+
+    
 }
 else{
     echo json_encode(
