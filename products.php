@@ -588,7 +588,7 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
+      <input type="number" step="0.01" min="0" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
       <button class="btn btn-success" id="remove" style="background-color: #f06548;">
@@ -628,7 +628,7 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
+      <input type="number" step="0.01" min="0" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
     </td>
     <td class="d-flex" style="text-align:center">
       <button class="btn btn-success" id="removeSupplier" style="background-color: #f06548;">
