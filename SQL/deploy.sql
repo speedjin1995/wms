@@ -1974,6 +1974,7 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR
 END
 $$
 DELIMITER ;
+
 -- 24/06/2026 --
 CREATE TABLE `serial_running_no` (
   `id` int(11) NOT NULL,
@@ -1987,3 +1988,58 @@ CREATE TABLE `serial_running_no` (
 ALTER TABLE `serial_running_no` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `serial_running_no` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO serial_running_no
+(
+    company_id,
+    module,
+    transaction_status,
+    name,
+    value
+)
+WITH ranked AS (
+    SELECT
+        company,
+        records_type,
+        status,
+        serial_no,
+        CAST(RIGHT(serial_no, 4) AS UNSIGNED) AS running_no,
+        ROW_NUMBER() OVER (
+            PARTITION BY company, records_type, status
+            ORDER BY serial_no DESC
+        ) AS rn
+    FROM wholesales
+    WHERE serial_no IS NOT NULL
+      AND serial_no <> ''
+      AND created_datetime >= '2026-01-01'
+      AND deleted = '0'
+)
+SELECT
+    company,
+    records_type,
+    status,
+    CASE
+        WHEN status = 'RECEIVING' THEN 'P'
+        WHEN status = 'DISPATCH' THEN 'S'
+        WHEN status = 'NITROGEN' THEN 'N'
+        WHEN status = 'REJECT' THEN 'REJ'
+        WHEN status = 'STOCK-BAL' THEN 'SB'
+        WHEN status = 'INCOMING' AND records_type = 'industrial' THEN 'I'
+        WHEN status = 'OUTGOING' AND records_type = 'industrial' THEN 'O'
+    END AS name,
+    running_no + 1 AS value
+FROM ranked
+WHERE rn = 1
+ORDER BY
+    CASE status
+        WHEN 'RECEIVING' THEN 1
+        WHEN 'DISPATCH' THEN 2
+        WHEN 'INCOMING' THEN 3
+        WHEN 'OUTGOING' THEN 4
+        WHEN 'NITROGEN' THEN 5
+        WHEN 'REJECT' THEN 6
+        WHEN 'STOCK-BAL' THEN 7
+        ELSE 99
+    END,
+    company,
+    records_type;
