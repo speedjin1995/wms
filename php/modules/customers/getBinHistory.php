@@ -9,9 +9,10 @@ if (!isset($_SESSION['userID'])) {
 }
 
 $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_SANITIZE_NUMBER_INT);
+$bin_type_id = filter_input(INPUT_POST, 'bin_type_id', FILTER_SANITIZE_NUMBER_INT);
 
-if (!$customer_id) {
-    echo json_encode(array("status" => "failed", "message" => "Missing customer ID"));
+if (!$customer_id || !$bin_type_id) {
+    echo json_encode(array("status" => "failed", "message" => "Missing parameters"));
     exit;
 }
 
@@ -20,13 +21,13 @@ $row        = $_POST['start'];
 $rowperpage = $_POST['length'];
 $columnSortOrder = $_POST['order'][0]['dir'];
 
-$sel = mysqli_query($db, "SELECT count(*) as allcount FROM customer_bin_logs WHERE customer_id = '$customer_id'");
+$sel = mysqli_query($db, "SELECT count(*) as allcount FROM customer_bin_logs WHERE customer_id = '$customer_id' AND bin_type = '$bin_type_id'");
 $totalRecords = mysqli_fetch_assoc($sel)['allcount'];
 
 $query = "SELECT l.*, u.name as user_name 
           FROM customer_bin_logs l 
           LEFT JOIN users u ON u.id = l.created_by 
-          WHERE l.customer_id = '$customer_id' 
+          WHERE l.customer_id = '$customer_id' AND l.bin_type = '$bin_type_id'
           ORDER BY l.created_at $columnSortOrder 
           LIMIT $row, $rowperpage";
 
