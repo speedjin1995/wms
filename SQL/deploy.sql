@@ -2339,3 +2339,53 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_CATEGORY` BEFORE UPDATE ON `categories` FOR E
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `drivers` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `drivers_log` (
+  `id` int(11) NOT NULL,
+  `driver_id` int(11) NOT NULL,
+  `driver_code` varchar(10) DEFAULT NULL,
+  `driver_name` varchar(30) NOT NULL,
+  `driver_ic` varchar(30) DEFAULT NULL,
+  `customer` int(10) DEFAULT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `drivers_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `drivers_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_DRIVER` AFTER INSERT ON `drivers` FOR EACH ROW INSERT INTO drivers_log (
+    driver_id, driver_code, driver_name, driver_ic, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.driver_code, NEW.driver_name, NEW.driver_ic, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_DRIVER` BEFORE UPDATE ON `drivers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into drivers_log table
+    INSERT INTO drivers_log (
+      driver_id, driver_code, driver_name, driver_ic, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.driver_code, NEW.driver_name, NEW.driver_ic, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;

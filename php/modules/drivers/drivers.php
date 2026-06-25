@@ -1,17 +1,18 @@
 <?php
-require_once "db_connect.php";
+require_once "../../db_connect.php";
 
 session_start();
 
 if(isset($_POST['driverName'], $_POST['driverIC'], $_POST['company'])){
+    $user = $_SESSION['userID'];
     $driverName = filter_input(INPUT_POST, 'driverName', FILTER_SANITIZE_STRING);
     $driverIC = filter_input(INPUT_POST, 'driverIC', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
     $isManual = 'N';
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE drivers SET driver_name=?, driver_ic=?, is_manual=? WHERE id=?")) {
-            $update_stmt->bind_param('ssss', $driverName, $driverIC, $isManual, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE drivers SET driver_name=?, driver_ic=?, is_manual=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sssss', $driverName, $driverIC, $isManual, $user, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -36,8 +37,8 @@ if(isset($_POST['driverName'], $_POST['driverIC'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO drivers (driver_name, driver_ic, customer) VALUES (?, ?, ?)")) {
-            $insert_stmt->bind_param('sss', $driverName, $driverIC, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO drivers (driver_name, driver_ic, customer, created_by) VALUES (?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssss', $driverName, $driverIC, $company, $user);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
