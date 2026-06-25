@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $user = $_SESSION['userID'];
@@ -24,8 +24,8 @@ if (!empty($data)) {
         $unitRow = mysqli_fetch_assoc($unitDetail);
 
         if(empty($unitRow)){
-            if ($insert_stmt = $db->prepare("INSERT INTO vehicles (veh_number, vehicle_weight, driver, customer) VALUES (?, ?, ?, ?)")) {
-                $insert_stmt->bind_param('ssss', $VehicleNumber, $VehicleWeight, $DriverId, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO vehicles (veh_number, vehicle_weight, driver, customer, created_by) VALUES (?, ?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('sssss', $VehicleNumber, $VehicleWeight, $DriverId, $company, $user);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            

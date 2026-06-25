@@ -2389,3 +2389,55 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_DRIVER` BEFORE UPDATE ON `drivers` FOR EACH R
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `vehicles` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `vehicles_log` (
+  `id` int(11) NOT NULL,
+  `vehicle_id` int(11) NOT NULL,
+  `veh_number` varchar(10) NOT NULL,
+  `vehicle_weight` varchar(50) DEFAULT NULL,
+  `driver` int(10) DEFAULT NULL,
+  `attandence_1` varchar(50) DEFAULT NULL,
+  `attandence_2` varchar(50) DEFAULT NULL,
+  `customer` int(10) DEFAULT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `vehicles_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `vehicles_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_VEH` AFTER INSERT ON `vehicles` FOR EACH ROW INSERT INTO vehicles_log (
+    vehicle_id, veh_number, vehicle_weight, driver, attandence_1, attandence_2, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.veh_number, NEW.vehicle_weight, NEW.driver, NEW.attandence_1, NEW.attandence_2, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_VEH` BEFORE UPDATE ON `vehicles` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into vehicles_log table
+    INSERT INTO vehicles_log (
+      vehicle_id, veh_number, vehicle_weight, driver, attandence_1, attandence_2, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.veh_number, NEW.vehicle_weight, NEW.driver, NEW.attandence_1, NEW.attandence_2, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
