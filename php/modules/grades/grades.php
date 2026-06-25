@@ -1,16 +1,17 @@
 <?php
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 
 session_start();
 
 if(isset($_POST['unit'], $_POST['company'])){
+    $user = $_SESSION['userID'];
     $unit = filter_input(INPUT_POST, 'unit', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
     $isManual = 'N';
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE grades SET units=?, is_manual=? WHERE id=?")) {
-            $update_stmt->bind_param('sss', $unit, $isManual, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE grades SET units=?, is_manual=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('ssss', $unit, $isManual, $user, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -35,8 +36,8 @@ if(isset($_POST['unit'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO grades (units, customer) VALUES (?, ?)")) {
-            $insert_stmt->bind_param('ss', $unit, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO grades (units, customer, created_by) VALUES (?, ?, ?)")) {
+            $insert_stmt->bind_param('sss', $unit, $company, $user);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

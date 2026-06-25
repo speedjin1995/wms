@@ -2441,3 +2441,52 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_VEH` BEFORE UPDATE ON `vehicles` FOR EACH ROW
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `grades` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `grades_log` (
+  `id` int(11) NOT NULL,
+  `grade_id` int(11) NOT NULL,
+  `units` varchar(15) NOT NULL,
+  `customer` int(5) NOT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `grades_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `grades_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_GRADE` AFTER INSERT ON `grades` FOR EACH ROW INSERT INTO grades_log (
+    grade_id, units, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.units, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_GRADE` BEFORE UPDATE ON `grades` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into grades_log table
+    INSERT INTO grades_log (
+      grade_id, units, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.units, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+

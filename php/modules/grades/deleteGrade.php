@@ -1,9 +1,10 @@
 <?php
-require_once 'db_connect.php';
+require_once '../../db_connect.php';
 
 session_start();
 
 if(isset($_POST['userID'])){
+	$user = $_SESSION['userID'];
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 	$del = "1";
 	$type = "";
@@ -19,8 +20,8 @@ if(isset($_POST['userID'])){
 			$ids = $_POST['userID'];
 		}
 
-		if ($stmt2 = $db->prepare("UPDATE grades SET deleted=? WHERE id IN ($ids)")) {
-			$stmt2->bind_param('s', $del);
+		if ($stmt2 = $db->prepare("UPDATE grades SET deleted=?, modified_by=? WHERE id IN ($ids)")) {
+			$stmt2->bind_param('ss', $del, $user);
 			
 			if($stmt2->execute()){
 				$stmt2->close();
@@ -50,8 +51,8 @@ if(isset($_POST['userID'])){
 			);
 		}
 	}else{
-		if ($stmt2 = $db->prepare("UPDATE grades SET deleted=? WHERE id=?")) {
-			$stmt2->bind_param('ss', $del , $id);
+		if ($stmt2 = $db->prepare("UPDATE grades SET deleted=?, modified_by=? WHERE id=?")) {
+			$stmt2->bind_param('sss', $del, $user, $id);
 			
 			if($stmt2->execute()){
 				$stmt2->close();
