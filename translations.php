@@ -128,7 +128,7 @@ $(function () {
     'serverMethod': 'post',
     'order': [[ 1, 'asc' ]],
     'ajax': {
-      'url':'php/loadTranslations.php'
+      'url':'php/modules/translations/loadTranslations.php'
     },
     'columns': [
       { data: 'counter' },
@@ -149,7 +149,7 @@ $(function () {
   
   $.validator.setDefaults({
     submitHandler: function () {
-      $.post('php/translations.php', $('#translationForm').serialize(), function(data){
+      $.post('php/modules/translations/translations.php', $('#translationForm').serialize(), function(data){
         var obj = JSON.parse(data); 
         
         if(obj.status === 'success'){
@@ -194,7 +194,7 @@ $(function () {
 });
 
 function edit(id){
-  $.post('php/getTranslation.php', {messageId: id}, function(data){
+  $.post('php/modules/translations/getTranslation.php', {messageId: id}, function(data){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
@@ -233,7 +233,7 @@ function edit(id){
 
 function deactivate(id){
   if (confirm('Are you sure you want to delete this item?')) {
-    $.post('php/deleteMessage.php', {messageId: id}, function(data){
+    $.post('php/modules/translations/deleteMessage.php', {messageId: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){

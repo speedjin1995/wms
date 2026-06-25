@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "db_connect.php";
+require_once '../../db_connect.php';
 $db->set_charset("utf8mb4");
 
 if(isset($_POST['company'], $_POST['keyCode'], $_POST['englishDecs'], $_POST['chineseDecs'], $_POST['malayDecs'], $_POST['tamilDecs'], $_POST['japaneseDecs'])){
