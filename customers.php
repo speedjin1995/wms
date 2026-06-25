@@ -64,7 +64,16 @@ else{
 				<div class="card">
 					<div class="card-header">
               <div class="row">
-                  <div class="col-4"></div>
+                  <div class="col-2"></div>
+                  <?php if (in_array('basket', $_SESSION['products'])) { ?>
+                  <div class="col-2">
+                    <a href="php/modules/customers/exportBinReport.php" target="_blank">
+                      <button type="button" class="btn btn-block bg-gradient-primary btn-sm">
+                        <?=$languageArray['export_bin_report_code'][$language]?>
+                      </button>
+                    </a>
+                  </div>
+                  <?php } ?>
                   <div class="col-2">
                     <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
                       <?=$languageArray['delete_customer_code'][$language]?>
@@ -82,12 +91,6 @@ else{
                       <?=$languageArray['upload_excel_code'][$language]?>
                     </button>
                   </div>
-                  <!-- <div class="col-2">
-                      <input type="file" id="fileInput" accept=".xlsx, .xls" />
-                  </div>
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
-                  </div>                             -->
                   <div class="col-2">
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
                   </div>
@@ -556,7 +559,6 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 
 var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
 var binTypeNames = <?= json_encode(array_column($binTypesArr, 'bin_type', 'id')) ?>;
-
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
