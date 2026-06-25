@@ -66,6 +66,26 @@ if($_POST['weightedBy'] != null && $_POST['weightedBy'] != '' && $_POST['weighte
   $searchQuery .= " and wholesales.weighted_by = '".$_POST['weightedBy']."'";
 }
 
+if($_POST['category'] != null && $_POST['category'] != '' && $_POST['category'] != '-'){
+  // Get product ids in this category first
+  $catProductIds = [];
+  $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND deleted = '0'");
+  $catStmt->bind_param('s', $_POST['category']);
+  $catStmt->execute();
+  $catResult = $catStmt->get_result();
+  while ($catRow = $catResult->fetch_assoc()) {
+    $catProductIds[] = $catRow['id'];
+  }
+  $catStmt->close();
+
+  if (count($catProductIds) > 0) {
+    $likeConditions = array_map(fn($id) => "wholesales.weight_details LIKE '%\"product\":\"".$id."\"%'", $catProductIds);
+    $searchQuery .= " AND (" . implode(' OR ', $likeConditions) . ")";
+  } else {
+    $searchQuery .= " AND 1=0";
+  }
+}
+
 if($_POST['status'] != null && $_POST['status'] != '' && $_POST['status'] != '-'){
   if ($_POST['status'] == 'active'){
     $searchQuery .= " and wholesales.deleted = '0'";

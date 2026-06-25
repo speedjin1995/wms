@@ -34,6 +34,7 @@ if(isset($_POST['userID'])){
                 $message['product'] = $row['product'];
                 $message['package'] = $row['package'];
                 $message['location'] = $row['location'];
+                $message['location_name'] = searchLocationById($row['location'], $db);
                 $message['vehicle_no'] = $row['vehicle_no'];
                 $message['other_vehicle'] = checkMasterDataVehicle($row['vehicle_no'], $row['company'], $db);
                 $message['driver'] = $row['driver'];
@@ -52,6 +53,8 @@ if(isset($_POST['userID'])){
                 $message['start_time'] = $row['start_time'];
                 $message['end_time'] = $row['end_time'];
                 $message['records_type'] = $row['records_type'];
+                $message['category'] = $row['category'];
+                $message['category_name'] = searchCategoryById($row['category'], $db);
                 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
