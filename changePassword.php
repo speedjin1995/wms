@@ -28,7 +28,7 @@ else{
 
 <section class="content">
     <div class="card">
-        <form role="form" id="passwordForm">
+        <form role="form" id="passwordForm" class="custom-content-form">
             <div class="card-body">
                 <div class="form-group">
                     <label for="oldPassword"><?=$languageArray['old_password_code'][$language]?> *</label>
@@ -47,7 +47,7 @@ else{
             </div>
             
             <div class="card-footer">
-                <button type="submit" class="btn btn-success" name="submit"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
+                <button type="submit" class="btn btn-success custom-add-btn" name="submit"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
             </div>
         </form>
     </div>

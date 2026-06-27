@@ -276,7 +276,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -292,13 +292,13 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['wholesales_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['wholesales_code'][$language]?></div>
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
@@ -348,10 +348,10 @@ else{
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="extendForm">
+      <form role="form" id="extendForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -616,8 +616,8 @@ else{
         </div>
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-add-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -627,10 +627,10 @@ else{
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="cancelForm">
+      <form role="form" id="cancelForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>

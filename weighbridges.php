@@ -200,7 +200,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -215,7 +215,7 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['weighbridge_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['weighbridge_code'][$language]?></div>
               <!-- <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
               </div>
@@ -224,7 +224,7 @@ else{
               </div> -->
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
@@ -260,10 +260,10 @@ else{
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="extendForm">
+      <form role="form" id="extendForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -282,13 +282,13 @@ else{
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_id_code'][$language]?> *</label>
+                    <label><?=$languageArray['transaction_id_code'][$language]?> *</label>
                     <input type="text" class="form-control form-control" id="transactionId" name="transactionId" readonly>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_date_code'][$language]?> *</label>
+                    <label><?=$languageArray['transaction_date_code'][$language]?> *</label>
                     <div class="input-group input-group date" id="transactionDateTimePicker" data-target-input="nearest">
                       <input type="text" class="form-control datetimepicker-input" data-target="#transactionDateTimePicker" id="transactionDate" name="transactionDate"/>
                       <div class="input-group-append" data-target="#transactionDateTimePicker" data-toggle="datetimepicker">
@@ -299,7 +299,7 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_status_code'][$language]?></label>
+                    <label><?=$languageArray['transaction_status_code'][$language]?></label>
                     <select class="form-control form-control" id="transactionStatus" name="transactionStatus">
                       <option value="Dispatch" selected><?=$languageArray['dispatch_code'][$language]?></option>
                       <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
@@ -310,19 +310,19 @@ else{
                 </div>
                 <div class="col-md-4" id="purchaseOrderDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['po_no_code'][$language]?></label>
+                    <label><?=$languageArray['po_no_code'][$language]?></label>
                     <input type="text" class="form-control form-control" id="poNo" name="poNo">
                   </div>
                 </div>
                 <div class="col-md-4" id="deliveryOrderDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['do_no_code'][$language]?></label>
+                    <label><?=$languageArray['do_no_code'][$language]?></label>
                     <input type="text" class="form-control form-control" id="doNo" name="doNo">
                   </div>
                 </div>
                 <div class="col-md-4" id="customerDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['customer_code'][$language]?></label>
+                    <label><?=$languageArray['customer_code'][$language]?></label>
                     <select class="form-control form-control select2" id="customer" name="customer">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
@@ -333,7 +333,7 @@ else{
                 </div>
                 <div class="col-md-4" id="supplierDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['supplier_code'][$language]?></label>
+                    <label><?=$languageArray['supplier_code'][$language]?></label>
                     <select class="form-control form-control select2" id="supplier" name="supplier">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
@@ -344,7 +344,7 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['product_code'][$language]?></label>
+                    <label><?=$languageArray['product_code'][$language]?></label>
                     <select class="form-control form-control select2" id="product" name="product">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowProduct3=mysqli_fetch_assoc($products2)){ ?>
@@ -355,7 +355,7 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['vehicle_no_code'][$language]?></label>
+                    <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                     <select class="form-control form-control select2" id="vehicle" name="vehicle">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
@@ -376,7 +376,7 @@ else{
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['incoming_weight_code'][$language]?></label>
+                    <label><?=$languageArray['incoming_weight_code'][$language]?></label>
                     <div class="input-group input-group">
                       <input type="number" class="form-control" id="grossIncoming" name="grossIncoming" placeholder="0" required>
                       <div class="input-group-text">KG</div>
@@ -386,7 +386,7 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_weight_code'][$language]?></label>
+                    <label><?=$languageArray['outgoing_weight_code'][$language]?></label>
                     <div class="input-group input-group">
                       <input type="number" class="form-control" id="tareOutgoing" name="tareOutgoing" placeholder="0">
                       <div class="input-group-text">KG</div>
@@ -396,7 +396,7 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['nett_weight_code'][$language]?></label>
+                    <label><?=$languageArray['nett_weight_code'][$language]?></label>
                     <div class="input-group input-group">
                       <input type="number" class="form-control" id="nettWeight" name="nettWeight" placeholder="0" readonly>
                       <div class="input-group-text">KG</div>
@@ -406,7 +406,7 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['incoming_date_code'][$language]?></label>
+                    <label><?=$languageArray['incoming_date_code'][$language]?></label>
                     <div class="input-group input-group date" id="grossIncomingDatePicker" data-target-input="nearest">
                       <input type="text" class="form-control datetimepicker-input" data-target="#grossIncomingDatePicker" id="grossIncomingDate" name="grossIncomingDate">
                       <div class="input-group-append" data-target="#grossIncomingDatePicker" data-toggle="datetimepicker">
@@ -418,7 +418,7 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_date_code'][$language]?></label>
+                    <label><?=$languageArray['outgoing_date_code'][$language]?></label>
                     <div class="input-group input-group date" id="tareOutgoingDatePicker" data-target-input="nearest">
                       <input type="text" class="form-control datetimepicker-input" data-target="#tareOutgoingDatePicker" id="tareOutgoingDate" name="tareOutgoingDate">
                       <div class="input-group-append" data-target="#tareOutgoingDatePicker" data-toggle="datetimepicker">
@@ -433,8 +433,8 @@ else{
         </div><!-- /.modal-body -->
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-add-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -444,10 +444,10 @@ else{
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="cancelForm">
+      <form role="form" id="cancelForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -463,7 +463,7 @@ else{
           </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>

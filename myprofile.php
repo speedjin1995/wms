@@ -39,7 +39,7 @@ else{
 
 <section class="content" style="min-height:700px;">
 	<div class="card">
-		<form role="form" id="profileForm" novalidate="novalidate">
+		<form role="form" id="profileForm" class="custom-content-form" novalidate="novalidate">
 			<div class="card-body">
 				<div class="form-group">
 					<label for="name"><?=$languageArray['full_name_code'][$language]?> *</label>
@@ -64,7 +64,7 @@ else{
 			</div>
 			
 			<div class="card-footer">
-				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
+				<button class="btn btn-success custom-add-btn" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</form>
 	</div>

@@ -717,7 +717,8 @@ else{
       max-width: 20%;
     }
 
-    .modal-content .custom-model-extend-form .modal-footer, #profileForm .card-outline .card-footer {
+    .modal-content .custom-model-extend-form .modal-footer, #profileForm .card-outline .card-footer, 
+    .custom-content-form .card-footer {
       background: #324C75 !important;
       border: unset;
       padding: 20px 25px;
@@ -897,6 +898,35 @@ else{
       flex-direction: row !important;
     }
 
+    .table-bordered td .row {
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+
+    .table-bordered td .row p {
+      margin-bottom: 15px;
+    }
+
+    .table-bordered td hr {
+      margin-top: 15px !important;
+      margin-bottom: 25px !important;
+    }
+
+    .table-bordered td h3 {
+      font-size: 120%;
+      text-decoration: underline;
+      line-height: 23px;
+      letter-spacing: 0.75px;
+      font-weight: bolder;
+      color: #2f333e;
+      margin-bottom: 15px;
+    }
+
+    .table-bordered td .row.mb-2 {
+      justify-content: end;
+      margin-bottom: 15px !important;
+    }
+
     #weightTable_wrapper .row:last-child, #translationTable_wrapper .row:last-child, #supplierTable_wrapper .row:last-child,
     #categoryTable_wrapper .row:last-child, #packagingTable_wrapper .row:last-child, #customerTable_wrapper .row:last-child,
     #productTable_wrapper .row:last-child, #driverTable_wrapper .row:last-child, #vehicleTable_wrapper .row:last-child,
@@ -1066,7 +1096,7 @@ else{
       padding: 20px 25px;
     }
 
-    .modal-content .custom-model-extend-form .modal-body hr {
+    .modal-content .custom-model-extend-form .modal-body hr, .content .card .card-body hr {
       border-top: 1px solid #243958;
       margin-top: 25px;
       margin-bottom: 45px;
@@ -1076,12 +1106,13 @@ else{
       margin-bottom: 0px !important;
     }
 
-    .modal-content .custom-model-extend-form .modal-body h5 {
+    .modal-content .custom-model-extend-form .modal-body h5, .content .card .card-body h5 {
       font-size: 20px;
       line-height: 25px;
       letter-spacing: 0.75px;
       font-weight: 700;
       color: #243958;
+      margin-bottom: 25px;
     }
 
     .modal-content .custom-model-extend-form .modal-body p {

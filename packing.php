@@ -230,10 +230,11 @@ else{
                   </select>
                 </div>
               </div>
-
-              <div class="col-3"></div>
+            </div>
+            <div class="row">
+              <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
