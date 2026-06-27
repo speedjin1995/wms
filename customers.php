@@ -615,16 +615,21 @@ $(function () {
             return '<span class="text-muted">—</span>';
           }
 
-          var keys = Object.keys(map);
+          var keys = Object.keys(map).filter(function(k) { return map[k] > 0; });
           if (keys.length === 0) return '<span class="text-muted">—</span>';
 
-          var html = '<div style="display:flex;flex-direction:column;gap:3px;">';
+          var html = '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
           keys.forEach(function(typeId) {
             var count = map[typeId];
             var label = binTypeNames[typeId] || 'Type ' + typeId;
-            var badge = count > 0 ? 'background:#fff3cd;color:#856404;' : 'background:#f8f9fa;color:#6c757d;';
-            html += '<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;padding:2px 7px;border-radius:20px;' + badge + 'font-weight:600;white-space:nowrap;">';
-            html += '<span>' + label + '</span><span style="background:rgba(0,0,0,0.08);border-radius:10px;padding:0 5px;">' + count + '</span>';
+            html += '<span style="'
+              + 'display:inline-flex;align-items:center;gap:5px;'
+              + 'background:linear-gradient(135deg,#f6d365,#fda085);'
+              + 'color:#7a3e00;font-size:0.75rem;font-weight:700;'
+              + 'padding:3px 8px 3px 10px;border-radius:20px;'
+              + 'box-shadow:0 1px 3px rgba(253,160,133,0.4);white-space:nowrap;">';
+            html +=   '<span>' + label + '</span>';
+            html +=   '<span style="background:rgba(0,0,0,0.15);border-radius:20px;padding:1px 6px;font-size:0.85em;">' + count + '</span>';
             html += '</span>';
           });
           html += '</div>';
