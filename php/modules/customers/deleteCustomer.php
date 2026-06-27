@@ -4,6 +4,7 @@ require_once '../../db_connect.php';
 session_start();
 
 if(isset($_POST['userID'])){
+    $userID = $_SESSION['userID'];
     $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
     $del = "1";
     $type = "";
@@ -19,8 +20,8 @@ if(isset($_POST['userID'])){
             $ids = $_POST['userID'];
         }
 
-        if ($stmt2 = $db->prepare("UPDATE customers SET deleted=? WHERE id IN ($ids)")) {
-            $stmt2->bind_param('s', $del);
+        if ($stmt2 = $db->prepare("UPDATE customers SET deleted=?, modified_by=? WHERE id IN ($ids)")) {
+            $stmt2->bind_param('ss', $del, $userID);
             if ($stmt2->execute()) {
                 $stmt2->close();
                 $db->close();
@@ -32,8 +33,8 @@ if(isset($_POST['userID'])){
             echo json_encode(array("status"=> "failed", "message"=> "Something went wrong"));
         }
     } else {
-        if ($stmt2 = $db->prepare("UPDATE customers SET deleted=? WHERE id=?")) {
-            $stmt2->bind_param('ss', $del, $id);
+        if ($stmt2 = $db->prepare("UPDATE customers SET deleted=?, modified_by=? WHERE id=?")) {
+            $stmt2->bind_param('sss', $del, $userID, $id);
             if ($stmt2->execute()) {
                 $stmt2->close();
                 $db->close();

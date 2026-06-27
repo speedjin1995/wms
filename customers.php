@@ -18,14 +18,21 @@ else{
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
 
   if ($role != 'SADMIN'){
+    $currencies = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '$company' ORDER BY currency ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '$company' ORDER BY customer_name ASC");
   }else{
+    $currencies = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
   }
 
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
+
+  // Bin types for the bin modal dropdown
+  $binTypesResult = $db->query("SELECT id, bin_type FROM bin_type WHERE deleted = 0 AND customer = '$company' ORDER BY bin_type ASC");
+  $binTypesArr = [];
+  while ($btRow = $binTypesResult->fetch_assoc()) { $binTypesArr[] = $btRow; }
 
   $includeInvoice = 'N';
   if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
@@ -57,7 +64,18 @@ else{
 				<div class="card">
 					<div class="card-header">
               <div class="row">
+                  <?php if (in_array('basket', $_SESSION['products'])) { ?>
+                  <div class="col-2"></div>
+                  <div class="col-2">
+                    <a href="php/modules/customers/exportBinReport.php" target="_blank">
+                      <button type="button" class="btn btn-block bg-gradient-primary btn-sm">
+                        <?=$languageArray['export_bin_report_code'][$language]?>
+                      </button>
+                    </a>
+                  </div>
+                  <?php } else { ?>
                   <div class="col-4"></div>
+                  <?php }?>
                   <div class="col-2">
                     <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
                       <?=$languageArray['delete_customer_code'][$language]?>
@@ -75,12 +93,6 @@ else{
                       <?=$languageArray['upload_excel_code'][$language]?>
                     </button>
                   </div>
-                  <!-- <div class="col-2">
-                      <input type="file" id="fileInput" accept=".xlsx, .xls" />
-                  </div>
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
-                  </div>                             -->
                   <div class="col-2">
                       <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
                   </div>
@@ -364,6 +376,17 @@ else{
                       <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
                     </div>
                   </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['currency_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="currency" name="currency">
+                        <option selected="selected">-</option>
+                        <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
+                          <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -393,46 +416,72 @@ else{
         </div>
         <div class="modal-body" style="background:#f8f9fa; color:#333;">
           <input type="hidden" id="binCustomerId" name="binCustomerId">
+          <input type="hidden" id="binTypeId" name="binTypeId">
 
-          <!-- Pending count banner -->
-          <div class="text-center mb-4">
-            <div style="display:inline-block; background:#fff; border-radius:12px; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-              <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#666;"><?=$languageArray['current_pending_bins_code'][$language]?></div>
-              <div id="binCurrent" style="font-size:2.5rem; font-weight:700; color:#fda085; line-height:1.1;">0</div>
-              <div style="font-size:0.85rem; color:#666;"><?=$languageArray['bins_code'][$language]?></div>
-            </div>
+          <!-- Bin Type dropdown -->
+          <div class="form-group">
+            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;">Bin Type <span class="text-danger">*</span></label>
+            <select class="form-control" id="binTypeSelect" style="border-radius:8px; height:48px;">
+              <option value="">Select Bin Type</option>
+              <?php foreach ($binTypesArr as $bt): ?>
+                <option value="<?= $bt['id'] ?>"><?= htmlspecialchars($bt['bin_type']) ?></option>
+              <?php endforeach; ?>
+            </select>
           </div>
 
-          <!-- IN / OUT toggle -->
-          <div class="form-group">
-            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['actions_code'][$language]?></label>
-            <div class="d-flex" style="gap:10px;">
-              <div class="flex-fill">
-                <input type="radio" name="binType" id="binTypeOut" value="OUT" class="d-none" checked>
-                <label for="binTypeOut" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
-                  <i class="fas fa-arrow-up text-warning mr-1"></i> <?=$languageArray['bin_out_code'][$language]?>
-                  <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_takes_bins_code'][$language]?></div>
-                </label>
-              </div>
-              <div class="flex-fill">
-                <input type="radio" name="binType" id="binTypeIn" value="IN" class="d-none">
-                <label for="binTypeIn" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
-                  <i class="fas fa-arrow-down text-success mr-1"></i> <?=$languageArray['bin_in_code'][$language]?>
-                  <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_returns_bins_code'][$language]?></div>
-                </label>
+          <!-- Everything below hidden until bin type selected -->
+          <div id="binDetails" style="display:none;">
+
+            <!-- Loading skeleton -->
+            <div id="binLoadingSkeleton" class="text-center mb-4" style="display:none;">
+              <div style="display:inline-block; background:#fff; border-radius:12px; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <div style="height:12px; width:120px; background:#e9ecef; border-radius:4px; margin:0 auto 8px;"></div>
+                <div style="height:40px; width:60px; background:#e9ecef; border-radius:4px; margin:0 auto 8px;"></div>
+                <div style="height:10px; width:40px; background:#e9ecef; border-radius:4px; margin:0 auto;"></div>
               </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['quantity_code'][$language]?> <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="binQty" name="binQty" min="1" placeholder="e.g. 5" style="border-radius:8px; font-size:0.9rem; height:48px;">
-          </div>
+            <!-- Pending count banner -->
+            <div class="text-center mb-4" id="binPendingCard">
+              <div style="display:inline-block; background:#fff; border-radius:12px; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#666;"><?=$languageArray['current_pending_bins_code'][$language]?></div>
+                <div id="binCurrent" style="font-size:2.5rem; font-weight:700; color:#fda085; line-height:1.1;">0</div>
+                <div style="font-size:0.85rem; color:#666;"><?=$languageArray['bins_code'][$language]?></div>
+              </div>
+            </div>
 
-          <div class="form-group mb-0">
-            <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['remark_code'][$language]?></label>
-            <input type="text" class="form-control" id="binRemark" name="binRemark" placeholder="Optional note..." style="border-radius:8px;">
-          </div>
+            <!-- IN / OUT toggle -->
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['actions_code'][$language]?></label>
+              <div class="d-flex" style="gap:10px;">
+                <div class="flex-fill">
+                  <input type="radio" name="binAction" id="binActionOut" value="OUT" class="d-none" checked>
+                  <label for="binActionOut" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
+                    <i class="fas fa-arrow-up text-warning mr-1"></i> <?=$languageArray['bin_out_code'][$language]?>
+                    <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_takes_bins_code'][$language]?></div>
+                  </label>
+                </div>
+                <div class="flex-fill">
+                  <input type="radio" name="binAction" id="binActionIn" value="IN" class="d-none">
+                  <label for="binActionIn" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
+                    <i class="fas fa-arrow-down text-success mr-1"></i> <?=$languageArray['bin_in_code'][$language]?>
+                    <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_returns_bins_code'][$language]?></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['quantity_code'][$language]?> <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="binQty" name="binQty" min="1" placeholder="e.g. 5" style="border-radius:8px; font-size:0.9rem; height:48px;">
+            </div>
+
+            <div class="form-group mb-0">
+              <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['remark_code'][$language]?></label>
+              <input type="text" class="form-control" id="binRemark" name="binRemark" placeholder="Optional note..." style="border-radius:8px;">
+            </div>
+
+          </div><!-- /#binDetails -->
         </div>
         <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
           <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px;"><?=$languageArray['close_code'][$language]?></button>
@@ -446,6 +495,7 @@ else{
 <style>
 .bin-type-btn { background:#fff; text-align:center; font-weight:600; }
 input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
+#binDetails { transition: none; }
 </style>
 
 <!-- Bin History Modal -->
@@ -459,9 +509,24 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
         </div>
         <button type="button" class="close" style="color:#1a1a2e;" data-dismiss="modal"><span>&times;</span></button>
       </div>
-      <div class="modal-body" style="background:#f0f2f5; color:#333; max-height:65vh; overflow-y:auto; padding:16px;">
-        <div id="binHistoryList"><div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin"></i></div></div>
-        <div id="binHistoryPager" class="d-flex justify-content-between align-items-center mt-2"></div>
+      <div class="modal-body" style="background:#f0f2f5; color:#333; padding:16px;">
+        <div class="form-group mb-3">
+          <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;">Bin Type <span class="text-danger">*</span></label>
+          <select class="form-control" id="binHistoryTypeSelect" style="border-radius:8px; height:48px;">
+            <option value="">Select Bin Type</option>
+            <?php foreach ($binTypesArr as $bt): ?>
+              <option value="<?= $bt['id'] ?>"><?= htmlspecialchars($bt['bin_type']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div id="binHistoryContent" style="display:none; max-height:55vh; overflow-y:auto;">
+          <div id="binHistoryList"></div>
+          <div id="binHistoryPager" class="d-flex justify-content-between align-items-center mt-2"></div>
+        </div>
+        <div id="binHistoryPrompt" class="text-center text-muted py-5">
+          <i class="fas fa-hand-point-up fa-2x mb-2"></i>
+          <div>Select a bin type to view history</div>
+        </div>
       </div>
       <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
         <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px; font-size:0.9rem;"><?=$languageArray['close_code'][$language]?></button>
@@ -495,6 +560,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 <script>
 
 var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
+var binTypeNames = <?= json_encode(array_column($binTypesArr, 'bin_type', 'id')) ?>;
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
@@ -537,14 +603,46 @@ $(function () {
       { data: 'customer_address' },
       { data: 'customer_phone' },
       { data: 'pic' },
-      { data: 'pending_bins' },
+      {
+        data: 'pending_bins',
+        render: function (data) {
+          if (!data) return '<span class="text-muted">—</span>';
+
+          var map = {};
+          try { map = (typeof data === 'string') ? JSON.parse(data) : data; } catch(e) {}
+
+          if (typeof map !== 'object' || Array.isArray(map)) {
+            return '<span class="text-muted">—</span>';
+          }
+
+          var keys = Object.keys(map).filter(function(k) { return map[k] > 0; });
+          if (keys.length === 0) return '<span class="text-muted">—</span>';
+
+          var html = '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
+          keys.forEach(function(typeId) {
+            var count = map[typeId];
+            var label = binTypeNames[typeId] || 'Type ' + typeId;
+            html += '<span style="'
+              + 'display:inline-flex;align-items:center;gap:5px;'
+              + 'background:linear-gradient(135deg,#f6d365,#fda085);'
+              + 'color:#7a3e00;font-size:0.75rem;font-weight:700;'
+              + 'padding:3px 8px 3px 10px;border-radius:20px;'
+              + 'box-shadow:0 1px 3px rgba(253,160,133,0.4);white-space:nowrap;">';
+            html +=   '<span>' + label + '</span>';
+            html +=   '<span style="background:rgba(0,0,0,0.15);border-radius:20px;padding:1px 6px;font-size:0.85em;">' + count + '</span>';
+            html += '</span>';
+          });
+          html += '</div>';
+          return html;
+        }
+      },
       { 
         data: 'deleted',
         render: function (data, type, row) {
           if (data == 0) {
             return '<div style="display:flex;gap:4px;">'
               + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
-              + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\', ' + row.pending_bins + ')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
+              + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
                           + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
               + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
               + '</div>';
@@ -624,6 +722,7 @@ $(function () {
     $('#addModal').find('#billingPhone').val("");
     $('#addModal').find('#billingFax').val("");
     $('#addModal').find('#billingPic').val("");
+    $('#addModal').find('#currency').val("").trigger('change');
     $('#addModal').find('#parent').val("").trigger('change');
     $('#addModal').modal('show');
     
@@ -841,6 +940,7 @@ function edit(id){
           $('#addModal').find('#billingPhone').val(obj.message.billing_phone);
           $('#addModal').find('#billingFax').val(obj.message.billing_fax);
           $('#addModal').find('#billingPic').val(obj.message.billing_pic);
+          $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
           $('#addModal').modal('show');
@@ -915,13 +1015,16 @@ function reactivate(id){
   }
 }
 
-function openBinModal(id, name, pendingBins) {
+function openBinModal(id, name) {
   $('#binModal').find('#binCustomerId').val(id);
   $('#binModal').find('#binCustomerName').text(name);
-  $('#binModal').find('#binCurrent').text(pendingBins);
+  $('#binModal').find('#binTypeId').val('');
+  $('#binModal').find('#binTypeSelect').val('');
   $('#binModal').find('#binQty').val('');
-  $('input[name="binType"][value="OUT"]').prop('checked', true);
   $('#binModal').find('#binRemark').val('');
+  $('input[name="binAction"][value="OUT"]').prop('checked', true);
+  $('#binDetails').hide();
+  $('#binCurrent').text('0');
   $('#binModal').modal('show');
 
   $('#binForm').validate({
@@ -935,29 +1038,88 @@ function openBinModal(id, name, pendingBins) {
     },
     unhighlight: function (element, errorClass, validClass) {
         $(element).removeClass('is-invalid');
+    },
+    rules: {
+      binTypeId:  { required: true },
+      binQty:     { required: true, min: 1 }
     }
   });
 }
 
+$('#binTypeSelect').on('change', function() {
+  var typeId = $(this).val();
+  var customerId = $('#binCustomerId').val();
+  $('#binTypeId').val(typeId);
+  $('#binQty').val('');
+  $('#binRemark').val('');
+  $('input[name="binAction"][value="OUT"]').prop('checked', true);
+
+  if (!typeId) {
+    $('#binDetails').slideUp(150);
+    return;
+  }
+
+  // Show skeleton, hide pending card while loading
+  $('#binLoadingSkeleton').show();
+  $('#binPendingCard').hide();
+  if (!$('#binDetails').is(':visible')) {
+    $('#binDetails').slideDown(200);
+  }
+
+  $.post('php/modules/customers/getBinPending.php', { customer_id: customerId, bin_type_id: typeId }, function(data) {
+    var obj = JSON.parse(data);
+    var count = (obj.status === 'success') ? obj.pending_bins : 0;
+    $('#binCurrent').text(count);
+    $('#binLoadingSkeleton').hide();
+    $('#binPendingCard').show();
+  }).fail(function() {
+    $('#binCurrent').text('0');
+    $('#binLoadingSkeleton').hide();
+    $('#binPendingCard').show();
+  });
+});
+
 function openBinHistory(id, name) {
   $('#binHistoryModal').find('#binHistoryCustomerName').text(name);
+  $('#binHistoryModal').find('#binHistoryTypeSelect').val('');
+  $('#binHistoryContent').hide();
+  $('#binHistoryPrompt').show();
+  $('#binHistoryList').html('');
+  $('#binHistoryPager').html('');
+  $('#binHistoryModal').data('customerId', id).modal('show');
+}
+
+$('#binHistoryTypeSelect').on('change', function() {
+  var typeId = $(this).val();
+  var customerId = $('#binHistoryModal').data('customerId');
+
+  if (!typeId) {
+    $('#binHistoryContent').hide();
+    $('#binHistoryPrompt').show();
+    return;
+  }
+
+  $('#binHistoryPrompt').hide();
+  $('#binHistoryContent').show();
   $('#binHistoryList').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>');
   $('#binHistoryPager').html('');
-  $('#binHistoryModal').modal('show');
 
   $.post('php/modules/customers/getBinHistory.php', {
     draw: 1, start: 0, length: 1000,
     order: [{column: 0, dir: 'desc'}],
     columns: [{data: 'created_at'}],
     search: {value: ''},
-    customer_id: id
+    customer_id: customerId,
+    bin_type_id: typeId
   }, function(data) {
     var obj = JSON.parse(data);
     var rows = obj.aaData;
+
     if (!rows || rows.length === 0) {
       $('#binHistoryList').html('<div class="text-center text-muted py-5"><i class="fas fa-inbox fa-2x mb-2"></i><div>No records found</div></div>');
       return;
     }
+
     var perPage = 5;
     var currentPage = 1;
     var totalPages = Math.ceil(rows.length / perPage);
@@ -989,7 +1151,6 @@ function openBinHistory(id, name) {
       });
       $('#binHistoryList').html(html);
 
-      // Pagination controls
       var pager = '<small class="text-muted">Showing ' + (start + 1) + '-' + Math.min(start + perPage, rows.length) + ' of ' + rows.length + '</small>';
       pager += '<ul class="pagination pagination-sm mb-0">';
       pager += '<li class="page-item ' + (page === 1 ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page - 1) + '">&laquo;</a></li>';
@@ -1011,5 +1172,5 @@ function openBinHistory(id, name) {
       renderCards(currentPage);
     });
   });
-}
+});
 </script>

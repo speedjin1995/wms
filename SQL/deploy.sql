@@ -1974,6 +1974,7 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR
 END
 $$
 DELIMITER ;
+
 -- 24/06/2026 --
 CREATE TABLE `serial_running_no` (
   `id` int(11) NOT NULL,
@@ -1987,3 +1988,562 @@ CREATE TABLE `serial_running_no` (
 ALTER TABLE `serial_running_no` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `serial_running_no` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- 25/06/2026 --
+ALTER TABLE `states` ADD `customer` INT(11) NOT NULL AFTER `states`, ADD `created_by` VARCHAR(50) NOT NULL AFTER `customer`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`, ADD `deleted` INT(1) NOT NULL DEFAULT '0' AFTER `modified_datetime`;
+
+CREATE TABLE `states_log` (
+  `id` int(11) NOT NULL,
+  `state_id` int(11) NOT NULL,
+  `states` varchar(50) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `states_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `states_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_STATES` AFTER INSERT ON `states` FOR EACH ROW INSERT INTO states_log (
+    state_id, states, customer, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.states, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_STATES` BEFORE UPDATE ON `states` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into states_log table
+    INSERT INTO states_log (
+      state_id, states, customer, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.states, NEW.customer, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `currency` CHANGE `id` `id` INT(5) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `currency` CHANGE `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `currency` CHANGE `rate` `rate` VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '1';
+ALTER TABLE `currency` ADD `customer` INT(11) NOT NULL AFTER `rate`, ADD `created_by` VARCHAR(50) NULL AFTER `customer`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `currency_log` (
+  `id` int(11) NOT NULL,
+  `currency_id` int(11) NOT NULL,
+  `currency` varchar(50) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `rate` varchar(10) DEFAULT NULL DEFAULT '1',
+  `customer` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `currency_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `currency_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CURRENCY` AFTER INSERT ON `currency` FOR EACH ROW INSERT INTO currency_log (
+    currency_id, currency, description, rate, customer, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.currency, NEW.description, NEW.rate, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CURRENCY` BEFORE UPDATE ON `currency` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into currency_log table
+    INSERT INTO currency_log (
+      currency_id, currency, description, rate, customer, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.currency, NEW.description, NEW.rate, NEW.customer, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `customers` ADD `currency` INT(11) NULL AFTER `billing_fax`;
+
+ALTER TABLE `customers` ADD `created_by` VARCHAR(50) NULL AFTER `pending_bins`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `customers_log` (
+  `id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `customer_code` varchar(10) DEFAULT NULL,
+  `reg_no` text DEFAULT NULL,
+  `customer_name` text DEFAULT NULL,
+  `customer_address` text DEFAULT NULL,
+  `customer_address2` text DEFAULT NULL,
+  `customer_address3` text DEFAULT NULL,
+  `customer_address4` text DEFAULT NULL,
+  `states` int(5) DEFAULT NULL,
+  `customer_phone` varchar(15) DEFAULT NULL,
+  `pic` varchar(30) DEFAULT NULL,
+  `fax` varchar(100) DEFAULT NULL,
+  `billing_name` varchar(100) DEFAULT NULL,
+  `billing_address` text DEFAULT NULL,
+  `billing_address2` text DEFAULT NULL,
+  `billing_address3` text DEFAULT NULL,
+  `billing_address4` text DEFAULT NULL,
+  `billing_state` int(5) DEFAULT NULL,
+  `billing_pic` varchar(50) DEFAULT NULL,
+  `billing_phone` varchar(50) DEFAULT NULL,
+  `billing_fax` varchar(50) DEFAULT NULL,
+  `currency` int(11) DEFAULT NULL,
+  `parent` int(11) DEFAULT NULL,
+  `customer` int(5) DEFAULT NULL,
+  `is_manual` varchar(1) DEFAULT NULL,
+  `pending_bins` int(11) DEFAULT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `customers_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `customers_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CUSTOMER` AFTER INSERT ON `customers` FOR EACH ROW INSERT INTO customers_log (
+    customer_id, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.customer_code, NEW.reg_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CUSTOMER` BEFORE UPDATE ON `customers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into customers_log table
+    INSERT INTO customers_log (
+      customer_id, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.customer_code, NEW.reg_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `supplies` ADD `currency` INT(11) NULL AFTER `billing_fax`;
+
+ALTER TABLE `supplies` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `supplies_log` (
+  `id` int(10) NOT NULL,
+  `supplier_id` int(10) NOT NULL,
+  `supplier_code` varchar(10) DEFAULT NULL,
+  `reg_no` text DEFAULT NULL,
+  `supplier_name` text NOT NULL,
+  `supplier_address` text DEFAULT NULL,
+  `supplier_address2` text DEFAULT NULL,
+  `supplier_address3` text DEFAULT NULL,
+  `supplier_address4` text DEFAULT NULL,
+  `states` int(5) DEFAULT NULL,
+  `supplier_phone` varchar(15) DEFAULT NULL,
+  `pic` varchar(30) DEFAULT NULL,
+  `fax` varchar(100) DEFAULT NULL,
+  `billing_name` varchar(100) DEFAULT NULL,
+  `billing_address` text DEFAULT NULL,
+  `billing_address2` text DEFAULT NULL,
+  `billing_address3` text DEFAULT NULL,
+  `billing_address4` text DEFAULT NULL,
+  `billing_state` int(5) DEFAULT NULL,
+  `billing_pic` varchar(50) DEFAULT NULL,
+  `billing_phone` varchar(50) DEFAULT NULL,
+  `billing_fax` varchar(50) DEFAULT NULL,
+  `currency` int(11) DEFAULT NULL,
+  `parent` int(11) DEFAULT NULL,
+  `customer` int(5) NOT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `action_id` int(1) NOT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+ALTER TABLE `supplies_log` ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `supplies_log` MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_SUPPLIER` AFTER INSERT ON `supplies` FOR EACH ROW INSERT INTO supplies_log (
+    supplier_id, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_pic, billing_phone, billing_fax, currency, parent, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.supplier_code, NEW.reg_no, NEW.supplier_name, NEW.supplier_address, NEW.supplier_address2, NEW.supplier_address3, NEW.supplier_address4, NEW.states, NEW.supplier_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.billing_state, NEW.billing_pic, NEW.billing_phone, NEW.billing_fax, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_SUPPLIER` BEFORE UPDATE ON `supplies` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into supplies_log table
+    INSERT INTO supplies_log (
+      supplier_id, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_pic, billing_phone, billing_fax, currency, parent, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.supplier_code, NEW.reg_no, NEW.supplier_name, NEW.supplier_address, NEW.supplier_address2, NEW.supplier_address3, NEW.supplier_address4, NEW.states, NEW.supplier_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.billing_state, NEW.billing_pic, NEW.billing_phone, NEW.billing_fax, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+CREATE TABLE `bin_type` (
+  `id` int(11) NOT NULL,
+  `bin_type` varchar(100) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `created_by` varchar(50) DEFAULT NULL,
+  `created_datetime` datetime DEFAULT current_timestamp(),
+  `modified_by` varchar(50) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `bin_type` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `bin_type` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `bin_type_log` (
+  `id` int(11) NOT NULL,
+  `bin_type_id` int(11) NOT NULL,
+  `bin_type` varchar(100) NOT NULL,
+  `customer` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `bin_type_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `bin_type_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_BIN_TYPE` AFTER INSERT ON `bin_type` FOR EACH ROW INSERT INTO bin_type_log (
+    bin_type_id, bin_type, customer, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.bin_type, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_BIN_TYPE` BEFORE UPDATE ON `bin_type` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into bin_type_log table
+    INSERT INTO bin_type_log (
+      bin_type_id, bin_type, customer, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.bin_type, NEW.customer, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `categories` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `categories_log` (
+  `id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `category_name` varchar(100) DEFAULT NULL,
+  `module` varchar(50) DEFAULT NULL,
+  `customer` int(11) NOT NULL,
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `categories_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `categories_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CATEGORY` AFTER INSERT ON `categories` FOR EACH ROW INSERT INTO categories_log (
+    category_id, category_name, module, customer, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.category_name, NEW.module, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CATEGORY` BEFORE UPDATE ON `categories` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into categories_log table
+    INSERT INTO categories_log (
+      category_id, category_name, module, customer, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.category_name, NEW.module, NEW.customer, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `drivers` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `drivers_log` (
+  `id` int(11) NOT NULL,
+  `driver_id` int(11) NOT NULL,
+  `driver_code` varchar(10) DEFAULT NULL,
+  `driver_name` varchar(30) NOT NULL,
+  `driver_ic` varchar(30) DEFAULT NULL,
+  `customer` int(10) DEFAULT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `drivers_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `drivers_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_DRIVER` AFTER INSERT ON `drivers` FOR EACH ROW INSERT INTO drivers_log (
+    driver_id, driver_code, driver_name, driver_ic, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.driver_code, NEW.driver_name, NEW.driver_ic, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_DRIVER` BEFORE UPDATE ON `drivers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into drivers_log table
+    INSERT INTO drivers_log (
+      driver_id, driver_code, driver_name, driver_ic, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.driver_code, NEW.driver_name, NEW.driver_ic, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `vehicles` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `vehicles_log` (
+  `id` int(11) NOT NULL,
+  `vehicle_id` int(11) NOT NULL,
+  `veh_number` varchar(10) NOT NULL,
+  `vehicle_weight` varchar(50) DEFAULT NULL,
+  `driver` int(10) DEFAULT NULL,
+  `attandence_1` varchar(50) DEFAULT NULL,
+  `attandence_2` varchar(50) DEFAULT NULL,
+  `customer` int(10) DEFAULT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `vehicles_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `vehicles_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_VEH` AFTER INSERT ON `vehicles` FOR EACH ROW INSERT INTO vehicles_log (
+    vehicle_id, veh_number, vehicle_weight, driver, attandence_1, attandence_2, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.veh_number, NEW.vehicle_weight, NEW.driver, NEW.attandence_1, NEW.attandence_2, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_VEH` BEFORE UPDATE ON `vehicles` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into vehicles_log table
+    INSERT INTO vehicles_log (
+      vehicle_id, veh_number, vehicle_weight, driver, attandence_1, attandence_2, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.veh_number, NEW.vehicle_weight, NEW.driver, NEW.attandence_1, NEW.attandence_2, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `grades` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `grades_log` (
+  `id` int(11) NOT NULL,
+  `grade_id` int(11) NOT NULL,
+  `units` varchar(15) NOT NULL,
+  `customer` int(5) NOT NULL,
+  `is_manual` varchar(1) NOT NULL DEFAULT 'N',
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `grades_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `grades_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_GRADE` AFTER INSERT ON `grades` FOR EACH ROW INSERT INTO grades_log (
+    grade_id, units, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.units, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_GRADE` BEFORE UPDATE ON `grades` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into grades_log table
+    INSERT INTO grades_log (
+      grade_id, units, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.units, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `packaging` ADD `created_by` VARCHAR(50) NULL AFTER `deleted`, ADD `created_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_by`, ADD `modified_by` VARCHAR(50) NULL AFTER `created_datetime`, ADD `modified_datetime` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `modified_by`;
+
+CREATE TABLE `packaging_log` (
+  `id` int(11) NOT NULL,
+  `packaging_id` int(11) NOT NULL,
+  `packaging_name` varchar(100) NOT NULL,
+  `packaging_type` varchar(30) NOT NULL DEFAULT 'original',
+  `weight` varchar(100) DEFAULT NULL,
+  `is_by_weight` varchar(3) NOT NULL DEFAULT 'N',
+  `customer` int(11) NOT NULL,
+  `action_id` int(1) DEFAULT NULL,
+  `action_by` varchar(50) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `packaging_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `packaging_log`  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PACKAGING` AFTER INSERT ON `packaging` FOR EACH ROW INSERT INTO packaging_log (
+    packaging_id, packaging_name, packaging_type, weight, is_by_weight, customer, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.packaging_name, NEW.packaging_type, NEW.weight, NEW.is_by_weight, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING` BEFORE UPDATE ON `packaging` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into packaging_log table
+    INSERT INTO packaging_log (
+      packaging_id, packaging_name, packaging_type, weight, is_by_weight, customer, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.packaging_name, NEW.packaging_type, NEW.weight, NEW.is_by_weight, NEW.customer, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `customers` MODIFY `pending_bins` TEXT DEFAULT NULL;
+
+ALTER TABLE `customers_log` MODIFY `pending_bins` TEXT DEFAULT NULL;
+
+ALTER TABLE `customer_bin_logs` ADD `bin_type` INT(11) DEFAULT NULL;
+
+ALTER TABLE `companies` ADD `allow_manual_post` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_invoice`;

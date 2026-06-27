@@ -4,6 +4,7 @@ require_once '../../db_connect.php';
 session_start();
 
 if(isset($_POST['packagingName'],$_POST['company'],$_POST['packagingType'],$_POST['packagingByWeight'])){
+    $userID = $_SESSION['userID'];
     $packagingName = filter_input(INPUT_POST, 'packagingName', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
     $packagingType = filter_input(INPUT_POST, 'packagingType', FILTER_SANITIZE_STRING);
@@ -15,8 +16,8 @@ if(isset($_POST['packagingName'],$_POST['company'],$_POST['packagingType'],$_POS
 	}
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE packaging SET packaging_name=?, packaging_type=?, weight=?, is_by_weight=? WHERE id=?")) {
-            $update_stmt->bind_param('sssss', $packagingName, $packagingType, $packagingWeight, $packagingByWeight, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE packaging SET packaging_name=?, packaging_type=?, weight=?, is_by_weight=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssss', $packagingName, $packagingType, $packagingWeight, $packagingByWeight, $userID, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -41,8 +42,8 @@ if(isset($_POST['packagingName'],$_POST['company'],$_POST['packagingType'],$_POS
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, weight, is_by_weight, customer) VALUES (?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssss', $packagingName, $packagingType, $packagingWeight, $packagingByWeight, $company);
+        if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, weight, is_by_weight, customer, created_by) VALUES (?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssss', $packagingName, $packagingType, $packagingWeight, $packagingByWeight, $company, $userID);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
