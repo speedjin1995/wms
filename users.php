@@ -21,9 +21,9 @@
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['users_code'][$language]?></h1>
+        <h1><?=$languageArray['users_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -38,9 +38,9 @@
         <div class="card">
           <div class="card-header">
             <div class="row">
-              <div class="col-6"></div>
-              <div class="col-6">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addMembers"><?=$languageArray['add_members_code'][$language]?></button>
+              <div class="col-9"></div>
+              <div class="col-3">
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" id="addMembers"><?=$languageArray['add_members_code'][$language]?></button>
               </div>
             </div>
           </div>
@@ -69,10 +69,10 @@
 <div class="modal fade" id="addModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="memberForm">
+      <form role="form" id="memberForm" class="custom-model-extend-form">
         <div class="modal-header">
           <h4 class="modal-title"><?=$languageArray['add_members_code'][$language]?></h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -130,8 +130,8 @@
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+          <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -171,7 +171,7 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="row"><div class="col-4"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-4"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ],

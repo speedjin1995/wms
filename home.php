@@ -37,7 +37,7 @@ if(!isset($_SESSION['userID'])){
         
         <title>WMS</title>
         
-        <link rel="icon" href="assets/wms-logo-site-icon.png" type="image">
+        <link rel="icon" href="assets/mun-meng-site-logo.png" type="image">
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
         <!-- IonIcons -->
@@ -69,9 +69,8 @@ if(!isset($_SESSION['userID'])){
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                min-height: 100vh;
                 /*background: url('assets/modules-bg.jpeg');*/
-                background: url('assets/module-bg.jpeg');
+                background: url('assets/dashboard-background.jpg');
                 /*background: url('assets/modules-bg.jpg');*/
                 background-repeat: no-repeat;
                 background-size: cover;
@@ -107,7 +106,7 @@ if(!isset($_SESSION['userID'])){
             .modules-box-list .modules-box:hover {
                 cursor: pointer;
                 transform: translateY(-10px);
-                box-shadow: 5px -5px 0px 2.5px rgba(0, 51, 146, 1);
+                box-shadow: 5px -5px 0px 2.5px #3fb84e;
             }
 
             .modules-box-list .modules-box .modules-img {
@@ -121,17 +120,16 @@ if(!isset($_SESSION['userID'])){
                 font-size: 25px;
                 line-height: 30px;
                 font-weight: 700;
+                color: #2f333e;
             }
 
-            .company-name {
-                /*position: absolute;
-                top: 15%;*/
-                width: 100%;
+            .company-name h1 {
                 text-align: center;
-                font-size: 32px;
+                font-size: 40px;
+                line-height: 45px;
+                letter-spacing: 0.75px;
                 font-weight: 700;
-                letter-spacing: 1.5px;
-                color: #1f2d3d;
+                color: #fff;
                 margin-bottom: 35px;
             }
         </style>

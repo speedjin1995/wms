@@ -100,9 +100,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['packing_code'][$language]?></h1>
+        <h1><?=$languageArray['packing_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -247,7 +247,7 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header categories-card-header">
             <div class="row">
               <div class="col-10"></div>
               <!-- <div class="col-2">

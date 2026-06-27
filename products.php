@@ -46,9 +46,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-      <div class="row mb-2">
+      <div>
     <div class="col-sm-6">
-      <h1 class="m-0 text-dark"><?=$languageArray['products_code'][$language]?></h1>
+      <h1><?=$languageArray['products_code'][$language]?></h1>
     </div><!-- /.col -->
       </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -60,23 +60,23 @@ else{
       <div class="row">
     <div class="col-12">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header categories-card-header">
           <div class="row">
-            <div class="col-4"></div>
-            <div class="col-2">
-              <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
+            <div class="col-3"></div>
+            <div class="col-3">
+              <button type="button" id="multiDeactivate" class="btn btn-block btn-sm custom-delete-btn">
                 <?=$languageArray['delete_product_code'][$language]?>
               </button>
             </div>
-            <div class="col-2">
+            <div class="col-3">
               <a href="template/Product_Template.xlsx" download>
-                <button type="button" class="btn btn-block bg-gradient-info btn-sm">
+                <button type="button" class="btn btn-block btn-sm custom-download-btn">
                   <?=$languageArray['download_template_code'][$language]?>
                 </button>
               </a>
             </div>
-            <div class="col-2">
-              <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
+            <div class="col-3">
+              <button type="button" id="uploadExcel" class="btn btn-block btn-sm custom-add-btn">
                 <?=$languageArray['upload_excel_code'][$language]?>
               </button>
             </div>
@@ -86,8 +86,8 @@ else{
             <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
             </div>                             -->
-            <div class="col-2">
-              <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProducts"><?=$languageArray['add_products_code'][$language]?></button>
+            <div class="col-3">
+              <button type="button" class="btn btn-block btn-sm custom-search-btn" id="addProducts"><?=$languageArray['add_products_code'][$language]?></button>
             </div>
           </div>
         </div>
@@ -115,23 +115,23 @@ else{
 <div class="modal fade" id="uploadModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="uploadForm">
+      <form role="form" id="uploadForm" class="custom-model-extend-form">
           <div class="modal-header">
             <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
             <div class="card-body">
-              <input type="file" id="fileInput">
-              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
+              <input type="file" id="fileInput" class="custom-upload-input">
+              <button type="button" id="previewButton" class="custom-preview-data-btn"><?=$languageArray['preview_data_code'][$language]?></button>
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadProduct"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-success custom-save-btn" id="uploadProduct"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -143,10 +143,10 @@ else{
 <div class="modal fade" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="uploadForm">
+      <form role="form" id="uploadForm" class="custom-model-extend-form">
           <div class="modal-header">
             <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -167,10 +167,10 @@ else{
 <div class="modal fade" id="addModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="productForm">
+      <form role="form" id="productForm" class="custom-model-extend-form">
         <div class="modal-header bg-gradient-dark">
-          <h5 class="modal-title text-white"><i class="fas fa-box mr-2"></i><?=$languageArray['add_products_code'][$language]?></h5>
-          <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+          <h5 class="modal-title text-white"><i class="fas fa-box"></i><?=$languageArray['add_products_code'][$language]?></h5>
+          <button type="button" class="close custom-close-btn-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body" style="max-height:75vh; overflow-y:auto; background:#f4f6f9;">
           <input type="hidden" id="id" name="id">
@@ -178,7 +178,7 @@ else{
           <!-- Company (SADMIN only) -->
           <div <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
             <div class="card card-outline card-primary mb-3">
-              <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-building mr-1"></i><?=$languageArray['company_code'][$language]?></h6></div>
+              <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-building"></i><?=$languageArray['company_code'][$language]?></h6></div>
               <div class="card-body py-2">
                 <select class="form-control select2" style="width:100%;" id="company" name="company" required>
                   <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
@@ -191,7 +191,7 @@ else{
 
           <!-- Product Info -->
           <div class="card card-outline card-primary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i><?=$languageArray['product_information_code'][$language]?></h6></div>
+            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle"></i><?=$languageArray['product_information_code'][$language]?></h6></div>
             <div class="card-body py-3">
               <div class="row">
                 <div class="col-md-4">
@@ -295,27 +295,27 @@ else{
 
           <!-- Product Image -->
           <div class="card card-outline card-secondary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image mr-1"></i><?=$languageArray['product_image_code'][$language]?></h6></div>
+            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image"></i><?=$languageArray['product_image_code'][$language]?></h6></div>
             <div class="card-body py-3">
               <div class="row align-items-center">
                 <div class="col-md-6">
-                  <div id="productImageDropzone" style="border:2px dashed #adb5bd; border-radius:6px; padding:24px; text-align:center; cursor:pointer; background:#fff;">
-                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                    <p class="mb-1 text-muted"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
-                    <p class="mb-1 text-muted"><?=$languageArray['file_format_max_size_code'][$language]?></p>
+                  <div id="productImageDropzone" style="border: 2px dashed #2f333e; border-radius: 5px; padding: 25px; text-align: center; cursor: pointer; background: #fff;">
+                    <i class="fas fa-cloud-upload-alt fa-2x" style="color: #2f333e; margin-bottom: 15px;"></i>
+                    <p style="font-size: 16px; line-height: 24px; color: #2f333e; margin-bottom: 0px !important;"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
+                    <p style="font-size: 16px; line-height: 24px; color: #2f333e; margin-bottom: 0px !important;"><?=$languageArray['file_format_max_size_code'][$language]?></p>
                     <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
                   </div>
                 </div>
                 <div class="col-md-6 text-center">
                   <div id="productImagePreview" style="display:none;">
-                    <img id="productImageThumb" src="" style="max-height:160px; max-width:100%; border-radius:6px; border:1px solid #dee2e6; object-fit:contain;">
-                    <div class="mt-2">
+                    <img id="productImageThumb" src="" style="max-height: 175px; max-width: 100%; border-radius: 5px; object-fit: contain; margin-bottom: 15px;">
+                    <div class="custom-remove-btn">
                       <button type="button" id="removeProductImage" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
                     </div>
                   </div>
-                  <div id="productImagePlaceholder" style="color:#adb5bd;">
-                    <i class="fas fa-image fa-3x"></i>
-                    <p class="mt-1 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
+                  <div id="productImagePlaceholder" style="color: #2f333e;">
+                    <i class="fas fa-image fa-3x" style="margin-bottom: 5px;"></i>
+                    <p style="font-size: 16px; line-height: 24px; color: #2f333e; margin-bottom: 0px !important;"><?=$languageArray['no_image_selected_code'][$language]?></p>
                   </div>
                 </div>
               </div>
@@ -325,22 +325,22 @@ else{
           <!-- Ranges Set -->
           <div class="card card-outline card-warning mb-3">
             <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0 text-danger font-weight-bold"><i class="fas fa-sliders-h mr-1"></i><?=$languageArray['ranges_set_code'][$language]?></h6>
+              <h6 class="mb-0"><i class="fas fa-sliders-h" style="margin-right: 5px;"></i><?=$languageArray['ranges_set_code'][$language]?></h6>
               <div class="ml-auto d-flex align-items-center">
                 <input type="hidden" name="rangeSet" id="rangeSet" value="0">
-                <div id="rangeSetToggle" style="cursor:pointer; display:inline-flex; align-items:center; background:#ccc; border-radius:30px; width:110px; height:34px; position:relative; transition:background 0.3s;">
-                  <div id="rangeSetKnob" style="position:absolute; width:30px; height:30px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left 0.3s; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.3);">
-                    <i id="rangeSetIcon" class="fas fa-times text-danger"></i>
+                <div id="rangeSetToggle" style="cursor: pointer; display: inline-flex; align-items: center; background: #64748B; border-radius: 30px; width: 110px; height: 34px; position: relative; transition: background 0.3s;">
+                  <div id="rangeSetKnob" style="position: absolute; width: 30px; height: 30px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: left 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                    <i id="rangeSetIcon" class="fas fa-times" style="color: #EF4444;"></i>
                   </div>
-                  <span id="rangeSetLabel" style="position:absolute; right:10px; font-size:11px; font-weight:600; color:#fff; letter-spacing:0.5px;"><?=$languageArray['disable_code'][$language]?></span>
+                  <span id="rangeSetLabel" style="position: absolute; top: 7px; right: 20px; font-size: 12px; line-height: 20px; letter-spacing: 0.75px; font-weight: 700; color: #fff; left: auto;"><?=$languageArray['disable_code'][$language]?></span>
                 </div>
               </div>
             </div>
             <div id="rangeWeightFields" class="card-body py-3" style="display:none;">
-              <div class="row align-items-center mb-2">
+              <div class="row align-items-center" style="margin-bottom: 20px;">
                 <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['ok_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="okWeight" name="okWeight" placeholder="0.000" style="background:rgba(40,167,69,0.25); color:#155724; border:1px solid #28a745;">
+                  <input type="number" step="any" class="form-control" id="okWeight" name="okWeight" placeholder="0.000" style="background: rgba(63, 184, 78, 0.25);">
                 </div>
                 <div class="col-md-3">
                   <select class="form-control" id="okWeightUnit" name="okWeightUnit">
@@ -348,7 +348,7 @@ else{
                   </select>
                 </div>
               </div>
-              <div class="row align-items-center mb-2">
+              <div class="row align-items-center" style="margin-bottom: 20px;">
                 <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['lo_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
                   <input type="number" step="any" class="form-control font-weight-bold" id="loWeight" name="loWeight" placeholder="0.000" style="background:rgba(255,193,7,0.25); color:#856404; border:1px solid #ffc107;">
@@ -359,7 +359,7 @@ else{
                   </select>
                 </div>
               </div>
-              <div class="row align-items-center">
+              <div class="row align-items-center" style="margin-bottom: 20px;">
                 <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['hi_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
                   <input type="number" step="any" class="form-control font-weight-bold" id="hiWeight" name="hiWeight" placeholder="0.000" style="background:rgba(220,53,69,0.2); color:#721c24; border:1px solid #dc3545;">
@@ -377,7 +377,7 @@ else{
           <div class="card card-outline card-info mb-0">
             <div class="card-header py-2 d-flex align-items-center justify-content-between">
               <h6 class="mb-0"><i class="fas fa-layer-group mr-1"></i><?=$languageArray['grades_code'][$language]?></h6>
-              <button type="button" class="btn btn-info btn-sm add-grade ml-auto"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+              <button type="button" class="btn btn-info btn-sm custom-download-btn" style="margin-left: auto;"><i class="fas fa-plus"></i><?=$languageArray['add_grade_code'][$language]?></button>
             </div>
             <div class="card-body p-2">
               <table class="table table-sm table-bordered mb-0">
@@ -399,8 +399,8 @@ else{
 
         </div>
         <div class="modal-footer justify-content-end">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+          <button type="button" class="btn btn-secondary custom-delete-btn" data-dismiss="modal"><i class="fas fa-times"></i><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-add-btn" name="submit" id="submitMember"><i class="fas fa-save"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -411,11 +411,11 @@ else{
 <div class="modal fade" id="customersModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="customersForm">
+      <form role="form" id="customersForm" class="custom-model-extend-form">
         <input type="hidden" id="customerProductId" name="product_id">
         <div class="modal-header bg-gradient-success">
           <h5 class="modal-title text-white"><i class="fas fa-users mr-2"></i><?=$languageArray['customers_code'][$language]?></h5>
-          <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+          <button type="button" class="close custom-close-btn-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body p-2">
           <ul class="nav nav-tabs mb-2" id="customerSupplierTabs">
@@ -478,7 +478,7 @@ else{
     <div class="modal-content">
       <div class="modal-header bg-gradient-warning">
         <h5 class="modal-title text-white"><i class="fas fa-tags mr-2"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></h5>
-        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="close custom-close-btn-icon" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="bulkTargetType" value="customer">
@@ -729,7 +729,7 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="openCustomers('+data+')" class="btn btn-info btn-sm"><i class="fas fa-users"></i></button></div><div class="col-3"><button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="row"><div class="col-2"><button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-2"><button type="button" onclick="openCustomers('+data+')" class="btn btn-info btn-sm custom-users-icon-btn"><i class="fas fa-users"></i></button></div><div class="col-2"><button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ],
@@ -1434,10 +1434,10 @@ function openCustomers(id) {
 function setRangeSet(val) {
   var enabled = val == 1;
   $('#rangeSet').val(enabled ? 1 : 0);
-  $('#rangeSetToggle').css('background', enabled ? '#28a745' : '#ccc');
+  $('#rangeSetToggle').css('background', enabled ? '#475569' : '#64748B');
   $('#rangeSetKnob').css('left', enabled ? '75px' : '1px');
-  $('#rangeSetIcon').attr('class', enabled ? 'fas fa-check text-success' : 'fas fa-times text-danger');
-  $('#rangeSetLabel').text(enabled ? 'Enable' : 'Disable').css('right', enabled ? 'auto' : '8px').css('left', enabled ? '8px' : 'auto');
+  $('#rangeSetIcon').attr('class', enabled ? 'fas fa-check text-success' : 'fas fa-times');
+  $('#rangeSetLabel').text(enabled ? 'Enable' : 'Disable').css('right', enabled ? 'auto' : '20px').css('left', enabled ? '20px' : 'auto');
   $('#rangeWeightFields').toggle(enabled);
 }
 

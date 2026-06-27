@@ -21,9 +21,9 @@ else{
 
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div>
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark"><?=$languageArray['locations_code'][$language]?></h1>
+                <h1><?=$languageArray['locations_code'][$language]?></h1>
             </div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -34,28 +34,28 @@ else{
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header categories-card-header">
                         <div class="row">
-                            <div class="col-4"></div>
-                            <div class="col-2">
-                                <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
+                            <div class="col-3"></div>
+                            <div class="col-3">
+                                <button type="button" id="multiDeactivate" class="btn btn-block btn-sm custom-delete-btn">
                                 <?=$languageArray['delete_location_code'][$language]?>
                                 </button>
                             </div>                  
-                            <div class="col-2">
+                            <div class="col-3">
                                 <a href="template/Location_Template.xlsx" download>
-                                <button type="button" class="btn btn-block bg-gradient-info btn-sm">
+                                <button type="button" class="btn btn-block btn-sm custom-download-btn">
                                     <?=$languageArray['download_template_code'][$language]?>
                                 </button>
                                 </a>
                             </div>
-                            <div class="col-2">
-                                <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
+                            <div class="col-3">
+                                <button type="button" id="uploadExcel" class="btn btn-block btn-sm custom-add-btn">
                                 <?=$languageArray['upload_excel_code'][$language]?>
                                 </button>
                             </div>
-                            <div class="col-2">
-                                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addLocation"><?=$languageArray['add_location_code'][$language]?></button>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="addLocation"><?=$languageArray['add_location_code'][$language]?></button>
                             </div>
                         </div>
                     </div>
@@ -79,23 +79,23 @@ else{
 <div class="modal fade" id="uploadModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="uploadForm">
+      <form role="form" id="uploadForm" class="custom-model-extend-form">
           <div class="modal-header">
             <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
             <div class="card-body">
-              <input type="file" id="fileInput">
-              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
+              <input type="file" id="fileInput" class="custom-upload-input">
+              <button type="button" id="previewButton" class="custom-preview-data-btn"><?=$languageArray['preview_data_code'][$language]?></button>
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadLocation"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-success custom-save-btn" id="uploadLocation"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -107,10 +107,10 @@ else{
 <div class="modal fade" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="uploadForm">
+      <form role="form" id="uploadForm" class="custom-model-extend-form">
           <div class="modal-header">
             <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -131,10 +131,10 @@ else{
 <div class="modal fade" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="locationForm">
+        <form role="form" id="locationForm" class="custom-model-extend-form">
             <div class="modal-header">
               <h4 class="modal-title"><?=$languageArray['add_location_code'][$language]?></h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
@@ -158,8 +158,8 @@ else{
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
+              <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary custom-save-btn" name="submit"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -207,7 +207,7 @@ $(function () {
                 data: 'deleted',
                 render: function (data, type, row) {
                 if (data == 0) {
-                    return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+                    return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
                 } 
                 else{
                     return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';

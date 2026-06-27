@@ -17,9 +17,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Translations</h1>
+        <h1>Translations</h1>
       </div>
     </div>
   </div>
@@ -32,9 +32,9 @@ else{
         <div class="card">
           <div class="card-header">
             <div class="row">
-              <div class="col-9"><h5 class="card-title mb-0">Translation Records</h5></div>
+              <div class="col-9"><h5 class="card-title custom-card-header-title">Translation Records</h5></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="addTranslation">Add Translation</button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" id="addTranslation">Add Translation</button>
               </div>
             </div>
           </div>
@@ -63,10 +63,10 @@ else{
 <div class="modal fade" id="translationModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="translationForm">
+      <form role="form" id="translationForm" class="custom-model-extend-form">
         <div class="modal-header">
           <h4 class="modal-title">Add Translation</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -108,8 +108,8 @@ else{
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="submitTranslation">Submit</button>
+          <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary custom-save-btn" id="submitTranslation">Submit</button>
         </div>
       </form>
     </div>
@@ -141,7 +141,7 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-5"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-5"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="row"><div class="col-5"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-5"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ]

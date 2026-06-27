@@ -44,9 +44,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['reports_code'][$language]?></h1>
+        <h1><?=$languageArray['reports_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -178,7 +178,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -195,10 +195,10 @@ else{
             <div class="row">
               <div class="col-6"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>
           </div>

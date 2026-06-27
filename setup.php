@@ -40,9 +40,9 @@ else{
 
 <section class="content-header">
 	<div class="container-fluid">
-		<div class="row mb-2">
+		<div>
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><?=$languageArray['setup_code'][$language]?></h1>
+				<h1><?=$languageArray['setup_code'][$language]?></h1>
 			</div>
 		</div>
 	</div>

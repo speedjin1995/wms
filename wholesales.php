@@ -140,9 +140,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['wholesales_code'][$language]?></h1>
+        <h1><?=$languageArray['wholesales_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->

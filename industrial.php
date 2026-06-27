@@ -135,9 +135,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['pulp_and_paste_code'][$language]?></h1>
+        <h1><?=$languageArray['pulp_and_paste_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -270,7 +270,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -285,14 +285,14 @@ else{
       <div class="col-lg-12">
         <div class="card card-info">
           <div class="card-header">
-            <div class="row">
-              <div class="col-10"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
+            <div class="row custom-card-header-row">
+              <div class="col-10 custom-card-header-title"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
@@ -341,10 +341,10 @@ else{
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="extendForm">
-        <div class="modal-header bg-gray-dark color-palette">
+      <form role="form" id="extendForm" class="custom-model-extend-form">
+        <div class="modal-header color-palette">
           <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -354,13 +354,19 @@ else{
           <input type="hidden" class="form-control" id="recordType" name="recordType" value="industrial">
           
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="form-group">
                 <label><?=$languageArray['serial_no_code'][$language]?> *</label>
                 <input type="text" class="form-control" id="serialNo" name="serialNo" readonly>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label><?=$languageArray['do_po_no_code'][$language]?></label>
+                <input type="text" class="form-control" id="doPoNo" name="doPoNo">
+              </div>
+            </div>
+            <div class="col-md-6">
               <div class="form-group">
                 <label><?=$languageArray['start_time_code'][$language]?> *</label>
                 <div class="input-group date" id="startTimePicker" data-target-input="nearest">
@@ -371,7 +377,7 @@ else{
                 </div>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="form-group">
                 <label><?=$languageArray['end_time_code'][$language]?></label>
                 <div class="input-group date" id="endTimePicker" data-target-input="nearest">
@@ -380,27 +386,6 @@ else{
                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['status_code'][$language]?> *</label>
-                <select class="form-control" id="status" name="status" required>
-                  <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
-                  <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['do_po_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="doPoNo" name="doPoNo">
-              </div>
-            </div>
-            <div class="col-md-4" id="securityBillDiv" style="display:none">
-              <div class="form-group">
-                <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
               </div>
             </div>
             <div class="col-md-4" id="customerDiv">
@@ -441,6 +426,15 @@ else{
             </div>
             <div class="col-md-4">
               <div class="form-group">
+                <label><?=$languageArray['status_code'][$language]?> *</label>
+                <select class="form-control" id="status" name="status" required>
+                  <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
+                  <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
                 <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                 <select class="form-control select2" id="vehicle" name="vehicle">
                   <option value="" selected disabled hidden>Please Select</option>
@@ -449,6 +443,12 @@ else{
                     <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="securityBillDiv" style="display:none">
+              <div class="form-group">
+                <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
+                <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
               </div>
             </div>
             <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
@@ -591,6 +591,7 @@ else{
                   <th id="totalRejectPrice">0.00</th>
                   <?php } ?>
                   <th></th>
+                  <th></th>
                   <?php if($allowPhoto == 'Y') { ?>
                   <th></th>
                   <?php } ?>
@@ -601,8 +602,8 @@ else{
         </div>
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-save-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
