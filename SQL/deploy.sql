@@ -2541,6 +2541,9 @@ $$
 DELIMITER ;
 
 ALTER TABLE `customers` MODIFY `pending_bins` TEXT DEFAULT NULL;
+
 ALTER TABLE `customers_log` MODIFY `pending_bins` TEXT DEFAULT NULL;
 
 ALTER TABLE `customer_bin_logs` ADD `bin_type` INT(11) DEFAULT NULL;
+
+ALTER TABLE `companies` ADD `allow_manual_post` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_invoice`;
