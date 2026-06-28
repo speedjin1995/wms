@@ -149,7 +149,12 @@ $languageArray = $_SESSION['languageArray'];
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['payment_voucher_code'][$language]?></div>
+              <div class="col-9"><?=$languageArray['payment_voucher_code'][$language]?></div>
+              <div class="col-3">
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPvReport">
+                  <i class="fas fa-file-export"></i> Export
+                </button>
+              </div>
             </div>
           </div>
           <div class="card-body">
@@ -490,6 +495,30 @@ $(function() {
           }
         }
       ]
+    });
+  });
+
+  $('#exportPvReport').on('click', function() {
+    var fields = {
+      fromDate: $('#fromDate').val(),
+      toDate: $('#toDate').val(),
+      transactionStatus: $('#transactionStatusFilter').val(),
+      supplierId: $('#supplierFilter').val() || '',
+      parentSupplierId: $('#parentSupplierFilter').val() || '',
+      customerId: $('#customerFilter').val() || '',
+      parentCustomerId: $('#parentCustomerFilter').val() || ''
+    };
+    $('#spinnerLoading').show();
+    $.post('php/modules/paymentVoucher/exportPvReport.php', fields, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+        printWindow.document.write(obj.message);
+        printWindow.document.close();
+      } else {
+        toastr['error'](obj.message, 'Failed:');
+      }
+      $('#spinnerLoading').hide();
     });
   });
 
