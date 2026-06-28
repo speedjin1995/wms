@@ -265,10 +265,32 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                             $nett = floatval($wRow['total_weight']);
                         }
 
+                        // Get distinct categories from weight_details
+                        $productIds = [];
+                        foreach ($weightDetails as $wd) {
+                            if (!empty($wd['product'])) $productIds[] = intval($wd['product']);
+                        }
+                        $productIds = array_unique($productIds);
+                        $categoryNames = [];
+                        if (!empty($productIds)) {
+                            $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+                            $types = str_repeat('i', count($productIds));
+                            if ($catStmt = $db->prepare("SELECT DISTINCT c.category_name FROM products p JOIN categories c ON p.category = c.id WHERE p.id IN ($placeholders) AND p.deleted=0")) {
+                                $catStmt->bind_param($types, ...$productIds);
+                                $catStmt->execute();
+                                $catResult = $catStmt->get_result();
+                                while ($catRow = $catResult->fetch_assoc()) {
+                                    $categoryNames[] = $catRow['category_name'];
+                                }
+                                $catStmt->close();
+                            }
+                        }
+
                         $pvItems[] = [
                             'date' => date('d/m/Y', strtotime($wRow['start_time'])),
                             'serial_no' => $wRow['serial_no'],
                             'nett' => $nett,
+                            'categories' => implode(', ', $categoryNames),
                         ];
                     }
                     $wStmt->close();
@@ -377,6 +399,7 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                             <tr class="table-border">
                                 <th class="text-left">'.$languageArray['date_code'][$language].'</th>
                                 <th class="text-center">'.$languageArray['serial_no_code'][$language].'</th>
+                                <th class="text-center">'.$languageArray['category_code'][$language].'</th>
                                 <th class="text-center">'.$languageArray['nett_weight_code'][$language].' (KG)</th>
                                 <th class="text-center">'.$languageArray['price_code'][$language].' (RM)</th>
                                 <th class="text-center">'.$languageArray['total_amount_code'][$language].' (RM)</th>
@@ -392,6 +415,7 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                     $message .= '<tr>
                             <td>'.$item['date'].'</td>
                             <td class="text-center">'.$item['serial_no'].'</td>
+                            <td class="text-center">'.$item['categories'].'</td>
                             <td class="text-center">'.number_format($item['nett'], 2).'</td>
                             <td class="text-center">'.number_format($unitPrice, 2).'</td>
                             <td class="text-center">'.number_format($totalItemAmount, 2).'</td>
@@ -402,6 +426,7 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                         <tr>
                             <td></td>
                             <td><b>Total</b></td>
+                            <td></td>
                             <td class="text-center border-top">'.number_format($totalNettWeight, 2).'</td>
                             <td class="text-center border-top"></td>
                             <td class="text-center border-top">'.number_format($totalAmount, 2).'</td>
