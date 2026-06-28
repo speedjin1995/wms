@@ -278,46 +278,90 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                 <html>
                 <head>
                     <meta charset="UTF-8">
-                    <style>
-                        @media print {
-                            @page { size: A4; margin: 5mm; }
+                    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+                    <script>
+                        class HideFooterHandler extends Paged.Handler {
+                            constructor(chunker, polisher, caller) {
+                                super(chunker, polisher, caller);
+                            }
+                            afterRendered(pages) {
+                                var allFooters = document.querySelectorAll(".pagedjs_margin-bottom-center .pagedjs_margin-content");
+                                allFooters.forEach(function(el, i) {
+                                    if (i < allFooters.length - 1) {
+                                        el.style.visibility = "hidden";
+                                    }
+                                });
+                            }
                         }
-                        body { font-family: "Times New Roman", serif; font-size: 14px; margin: 20px; padding: 0; }
-                        .page-header { text-align: center; font-size: 13px; line-height: 1.3; margin-bottom: 20px; }
-                        .page-header h2 { margin: 0 0 5px 0; font-size: 18px; }
-                        .divider { border-bottom: 1px solid #000; margin: 10px 0; }
-                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                        td { padding: 4px 8px; font-size: 13px; border: none; }
-                        .table-border td { border-top: 1px solid #000; border-bottom: 1px solid #000; }
+                        Paged.registerHandlers(HideFooterHandler);
+                    </script>
+                    <style>
+                        @page {
+                            size: A4;
+                            margin: 55mm 10mm 65mm 10mm;
+                            @top-center { content: element(pageHeader); width: 190mm; }
+                            @bottom-center { content: element(pageFooter); width: 190mm; }
+                        }
+                        body { font-family: "Times New Roman", serif; font-size: 13px; margin: 0; padding: 0; }
+                        #pageHeader { position: running(pageHeader); width: 100%; text-align: center; font-size: 12px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+                        #pageFooter { position: running(pageFooter); width: 100%; font-size: 12px; border-top: 1px solid #000; padding-top: 6px; }
+                        .first-header { text-align: center; font-size: 13px; line-height: 1.3; margin-bottom: 10px; }
+                        .first-header h2 { margin: 0 0 4px 0; font-size: 18px; }
+                        .divider { border-bottom: 1px solid #000; margin: 8px 0; }
+                        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                        td, th { padding: 3px 6px; font-size: 12px; border: none; }
+                        .table-border th { border-top: 1px solid #000; border-bottom: 1px solid #000; }
                         .border-top { border-top: 1px solid #000 !important; }
                         .border-bottom { border-bottom: 1px solid #000 !important; }
                         .text-right { text-align: right; }
                         .text-center { text-align: center; }
-                        .footer-signatures { display: flex; justify-content: space-between; border-top: 1px solid #000; margin-top: 30px; padding-top: 10px; }
+                        .text-left { text-align: left; }
+                        .footer-signatures { display: flex; justify-content: space-between; margin-top: 15px; }
                         .footer-signatures > div { width: 45%; text-align: center; }
-                        .signature-line { border-top: 1px solid #000; width: 200px; margin: 50px auto 0 auto; }
+                        .signature-line { border-top: 1px solid #000; width: 180px; margin: 60px auto 0 auto; }
                         .text-caps { text-transform: uppercase; }
                     </style>
+
                 </head>
                 <body>
-                    <div class="page-header">
-                        <h2>'.$compname.'</h2>
-                        ('.$compreg.')<br>
-                        '.$compaddress1.'<br>
-                        '.(!empty($compaddress2) ? $compaddress2.'<br>' : '').'
-                        '.(!empty($compaddress3) ? $compaddress3.'<br>' : '').'
-                        '.(!empty($compaddress4) ? $compaddress4.'<br>' : '').' 
-                        Tel: '.$compphone.'
-                        <div style="margin-top: 15px; font-weight: bold; font-size: 18px;">
-                            <span class="text-caps">'.$languageArray['statement_code'][$language].'</span><br>
-                            <span class="text-caps" style="font-weight: normal; font-size: 14px;">'.$languageArray['for_the_month_of_code'][$language].' '.$formatVoucherDate.'</span>
+                    <div id="pageHeader">
+                        <div style="text-align:center; font-size:13px; line-height:1.4;">
+                            <strong style="font-size:16px;">'.$compname.'</strong><br>
+                            ('.$compreg.')<br>
+                            '.$compaddress1.(!empty($compaddress2) ? '<br>'.$compaddress2 : '').(!empty($compaddress3) ? '<br>'.$compaddress3 : '').(!empty($compaddress4) ? '<br>'.$compaddress4 : '').'<br>
+                            Tel: '.$compphone.'<br>
+                            <strong style="font-size:15px; text-transform:uppercase;">'.$languageArray['statement_code'][$language].'</strong><br>
+                            <span style="font-size:12px; text-transform:uppercase;">'.$languageArray['for_the_month_of_code'][$language].' '.$formatVoucherDate.'</span>
                         </div>
-                        <div class="divider"></div>
+                    </div>
+
+                    <div id="pageFooter">
+                        <table style="margin:0;">
+                            <tr>
+                                <td>'.$languageArray['payment_date_code'][$language].':</td>
+                                <td class="border-bottom" style="width:180px;"></td>
+                                <td></td>
+                                <td>'.$languageArray['net_amount_code'][$language].' (RM):</td>
+                                <td class="text-right border-bottom" style="width:130px;">'.number_format($finalAmount, 2).'</td>
+                            </tr>
+                        </table>
+                        <div class="footer-signatures">
+                            <div>
+                                <p style="margin:0;">'.$compname.'</p>
+                                <div class="signature-line"></div>
+                                <p style="margin-top:4px;">'.$languageArray['authorised_signature_code'][$language].'</p>
+                            </div>
+                            <div>
+                                <p style="margin:0;">'.$languageArray['kindly_acknowledge_receipt_code'][$language].'</p>
+                                <div class="signature-line"></div>
+                                <p style="margin-top:4px;">'.$languageArray['received_by_code'][$language].'</p>
+                            </div>
+                        </div>
                     </div>
 
                     <table>
                         <tr>
-                            <td style="width:60%; font-weight:bold; font-size:16px;">'.$entityName.'</td>
+                            <td style="width:60%; font-weight:bold; font-size:15px;">'.$entityName.'</td>
                             <td style="width:20%;">'.$languageArray['invoice_no_code'][$language].':</td>
                             <td style="width:20%;">'.$invoiceNo.'</td>
                         </tr>
@@ -329,16 +373,16 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                     </table>
 
                     <table>
-                        <tr class="table-border">
-                            <td>'.$languageArray['date_code'][$language].'</td>
-                            <td class="text-center">'.$languageArray['serial_no_code'][$language].'</td>
-                            <td class="text-center">'.$languageArray['nett_weight_code'][$language].' (KG)</td>
-                            <td class="text-center">'.$languageArray['price_code'][$language].' (RM)</td>
-                            <!--td class="text-center">'.$languageArray['amount_code'][$language].' (RM)</td-->
-                            <!--td class="text-center">'.$languageArray['tax_amount_code'][$language].' (RM)</td-->
-                            <td class="text-center">'.$languageArray['total_amount_code'][$language].' (RM)</td>
-                        </tr>
-
+                        <thead>
+                            <tr class="table-border">
+                                <th class="text-left">'.$languageArray['date_code'][$language].'</th>
+                                <th class="text-center">'.$languageArray['serial_no_code'][$language].'</th>
+                                <th class="text-center">'.$languageArray['nett_weight_code'][$language].' (KG)</th>
+                                <th class="text-center">'.$languageArray['price_code'][$language].' (RM)</th>
+                                <th class="text-center">'.$languageArray['total_amount_code'][$language].' (RM)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 ';
                 foreach ($pvItems as $item) {
                     $amount = $unitPrice * $item['nett'];
@@ -350,8 +394,6 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                             <td class="text-center">'.$item['serial_no'].'</td>
                             <td class="text-center">'.number_format($item['nett'], 2).'</td>
                             <td class="text-center">'.number_format($unitPrice, 2).'</td>
-                            <!--td class="text-center">'.number_format($amount, 2).'</td-->
-                            <!--td class="text-center">'.number_format($taxAmount, 2).'</td-->
                             <td class="text-center">'.number_format($totalItemAmount, 2).'</td>
                         </tr>';
                 }
@@ -362,36 +404,10 @@ if(isset($_POST['pvId'], $_POST['slipType'])){
                             <td><b>Total</b></td>
                             <td class="text-center border-top">'.number_format($totalNettWeight, 2).'</td>
                             <td class="text-center border-top"></td>
-                            <!--td class="text-center border-top">'.number_format($totalNettAmount, 2).'</td-->
-                            <!--td class="text-center border-top">'.number_format($totalTaxAmount, 2).'</td-->
                             <td class="text-center border-top">'.number_format($totalAmount, 2).'</td>
                         </tr>
+                        </tbody>
                     </table>
-
-                    <div style="position:fixed; bottom:0; left:0; right:0; padding: 0 15mm;">
-                        <table>
-                            <tr>
-                                <td>'.$languageArray['payment_date_code'][$language].':</td>
-                                <td class="border-bottom" style="width: 200px;"></td>
-                                <td></td>
-                                <td>'.$languageArray['net_amount_code'][$language].' (RM):</td>
-                                <td class="text-right border-bottom" style="width: 150px;">'.number_format($finalAmount, 2).'</td>
-                            </tr>
-                        </table>
-
-                        <div class="footer-signatures">
-                            <div>
-                                <p style="padding-bottom: 30px;">'.$compname.'</p>
-                                <div class="signature-line"></div>
-                                <p style="margin-top: 5px;">'.$languageArray['authorised_signature_code'][$language].'</p>
-                            </div>
-                            <div>
-                                <p style="padding-bottom: 30px;">'.$languageArray['kindly_acknowledge_receipt_code'][$language].'</p>
-                                <div class="signature-line"></div>
-                                <p style="margin-top: 5px;">'.$languageArray['received_by_code'][$language].'</p>
-                            </div>
-                        </div>
-                    </div>
                 </body>
                 </html>';
             }

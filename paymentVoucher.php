@@ -570,7 +570,19 @@ $(function() {
         var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
         printWindow.document.write(obj.message);
         printWindow.document.close();
-        setTimeout(function() { printWindow.print(); printWindow.close(); }, 500);
+        // Poll until pagedjs finishes rendering
+        var pollCount = 0;
+        var poll = setInterval(function() {
+          pollCount++;
+          var rendered = printWindow.document.querySelector('.pagedjs_pages');
+          if (rendered || pollCount > 60) {
+            clearInterval(poll);
+            setTimeout(function() {
+              printWindow.print();
+              printWindow.close();
+            }, 300);
+          }
+        }, 200);
       } else {
         toastr['error'](obj.message, 'Failed:');
       }
