@@ -127,9 +127,9 @@ if (isset($_POST['entityId']) && $_POST['entityId'] != null && $_POST['entityId'
         $additionDetails = filter_input(INPUT_POST, 'additionDetails', FILTER_SANITIZE_STRING);
     }
 
-    $wholesaleIds = $_POST['wholesaleIds'] ?? [];
+    $wholesales = $_POST['wholesales'] ?? [];
 
-    if (empty($wholesaleIds)) {
+    if (empty($wholesales)) {
         echo json_encode(['status' => 'failed', 'message' => 'No records selected']);
         exit;
     }
@@ -165,10 +165,12 @@ if (isset($_POST['entityId']) && $_POST['entityId'] != null && $_POST['entityId'
         }
     }
 
-    // Link selected wholesales records and update unit_price
-    foreach ($wholesaleIds as $wId) {
-        if ($linkStmt = $db->prepare("UPDATE wholesales SET pv_id = ?, modified_by=? WHERE id = ?")) {
-            $linkStmt->bind_param('sss', $pvId, $userID, $wId);
+    // Link wholesale records and save per-row unit price
+    foreach ($wholesales as $item) {
+        $wId = filter_var($item['id'], FILTER_SANITIZE_NUMBER_INT);
+        $wPrice = filter_var($item['pv_unit_price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+        if ($linkStmt = $db->prepare("UPDATE wholesales SET pv_id=?, pv_unit_price=?, modified_by=? WHERE id=?")) {
+            $linkStmt->bind_param('ssss', $pvId, $wPrice, $userID, $wId);
             $linkStmt->execute();
             $linkStmt->close();
         }

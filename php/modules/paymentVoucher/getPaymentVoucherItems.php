@@ -87,9 +87,30 @@ while ($row = $result->fetch_assoc()) {
     if ($nett == 0) $nett = floatval($row['total_weight']);
     if ($gross == 0) $gross = floatval($row['total_weight']);
 
-    $unitPrice = floatval($row['unit_price'] ?? 0);
+    $unitPrice = floatval($row['pv_unit_price'] ?? 0);
     $nettAmt = $unitPrice * $nett;
     $totalNett += $nett;
+
+    // Get distinct categories from weight_details
+    $productIds = [];
+    foreach ($weightDetails as $wd) {
+        if (!empty($wd['product'])) $productIds[] = intval($wd['product']);
+    }
+    $productIds = array_unique($productIds);
+    $categoryNames = [];
+    if (!empty($productIds)) {
+        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+        $types = str_repeat('i', count($productIds));
+        if ($catStmt = $db->prepare("SELECT DISTINCT c.category_name FROM products p JOIN categories c ON p.category = c.id WHERE p.id IN ($placeholders) AND p.deleted=0")) {
+            $catStmt->bind_param($types, ...$productIds);
+            $catStmt->execute();
+            $catResult = $catStmt->get_result();
+            while ($catRow = $catResult->fetch_assoc()) {
+                $categoryNames[] = $catRow['category_name'];
+            }
+            $catStmt->close();
+        }
+    }
 
     $items[] = [
         'id' => $row['id'],
@@ -104,7 +125,9 @@ while ($row = $result->fetch_assoc()) {
         'nett' => number_format($nett, 2),
         'nett_raw' => $nett,
         'unit_price' => number_format($unitPrice, 2),
+        'pv_unit_price_raw' => $unitPrice,
         'nett_amount' => number_format($nettAmt, 2),
+        'categories' => implode(', ', $categoryNames),
         'pv_id' => $row['pv_id'],
     ];
 }
