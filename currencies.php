@@ -56,7 +56,7 @@ else{
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['currency_code'][$language]?></th>
                   <th><?=$languageArray['description_code'][$language]?></th>
-                  <th><?=$languageArray['rate_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['rate_code'][$language]?></th> -->
 									<th><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
@@ -99,7 +99,7 @@ else{
                   <label for="description"><?=$languageArray['description_code'][$language]?></label>
                   <textarea class="form-control" name="description" id="description" rows="3" placeholder="<?=$languageArray['enter_currency_description_code'][$language]?>"></textarea>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="display:none">
                   <label for="rate"><?=$languageArray['rate_code'][$language]?></label>
                   <input type="text" class="form-control" name="rate" id="rate" placeholder="<?=$languageArray['enter_currency_rate_code'][$language]?>" value="1">
                 </div>
@@ -166,7 +166,7 @@ $(function () {
       },
       { data: 'currency' },
       { data: 'description' },
-      { data: 'rate' },
+      // { data: 'rate' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
