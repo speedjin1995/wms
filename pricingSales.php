@@ -80,16 +80,42 @@ else{
 ?>
 
 <style>
-  .content-wrapper { padding:0 !important; }
-  #sales-wrap { display:flex; height:calc(100vh - 57px); overflow:hidden; }
-  #sales-left  { flex:1; overflow:hidden; display:flex; flex-direction:column; border-right:1px solid #e5e7eb; }
-  #sales-right { width:480px; flex-shrink:0; overflow:hidden; display:flex; flex-direction:column; }
+  .content-wrapper {
+    padding: 0 !important;
+  }
 
-  #sales-wrap { font-family: 'Source Sans Pro', sans-serif; font-size:0.9rem; }
-  #sales-wrap *:not(.fas):not(.far):not(.fab):not(.fal):not([class*='fa-']) { font-family: 'Source Sans Pro', sans-serif; font-size:0.9rem; }
+  #sales-wrap {
+    display: flex;
+    height: calc(100vh - 57px);
+    overflow: hidden;
+  }
+
+  #sales-left {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #dee2e6;
+  }
+
+  #sales-right {
+    width: 480px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #sales-wrap {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+
+  #sales-wrap *:not(.fas):not(.far):not(.fab):not(.fal):not([class*='fa-']) {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
   
   #sales-wrap h1 {
-    font-size: 35px !important;
+    font-size: 35px;
     line-height: 40px;
     letter-spacing: 0.75px;
     font-weight: 700 !important;
@@ -118,7 +144,7 @@ else{
     margin-right: 15px;
     padding: 5px 15px;
     color: #fff;
-    font-size: 16px !important;
+    font-size: 16px;
     line-height: 24px;
     letter-spacing: 0.75px;
     font-weight: 700;
@@ -141,7 +167,7 @@ else{
     border: 1px solid #243958;
     border-radius: 5px;
     background: #fff;
-    font-size: 15px !important;
+    font-size: 15px;
     line-height: 23px;
     letter-spacing: 0.75px;
     font-weight: 400;
@@ -150,7 +176,7 @@ else{
 
   .search-wrap .input-group-text {
     flex-shrink: 0;
-    font-size: 15px !important;
+    font-size: 15px;
     background: #fff;
     color: #2f333e;
     border: unset;
@@ -162,7 +188,7 @@ else{
     border: unset;
     flex: 1;
     min-width: 0;
-    font-size: 15px !important;
+    font-size: 15px;
     line-height: 23px;
     letter-spacing: 0.75px;
     font-weight: 400;
@@ -220,7 +246,7 @@ else{
     right: 10px;
     background: #EF4444;
     color: #fff;
-    font-size: 12px !important;
+    font-size: 12px;
     line-height: 20px;
     letter-spacing: 0.75px;
     font-weight: 700;
@@ -245,7 +271,7 @@ else{
     align-items: center;
     justify-content: center;
     color: #2f333e;
-    font-size: 15px !important;
+    font-size: 15px;
     line-height: 23px;
     letter-spacing: 0.75px;
     font-weight: 400;
@@ -256,7 +282,7 @@ else{
   }
 
   .product-card .product-name {
-    font-size: 16px !important;
+    font-size: 16px;
     line-height: 24px;
     letter-spacing: 0.75px;
     font-weight: 700;
@@ -265,13 +291,52 @@ else{
   }
 
   .product-card .product-price {
-    font-size: 15px !important;
+    font-size: 15px;
     line-height: 23px;
     letter-spacing: 0.75px;
     font-weight: 400;
     color: #2f333e;
     margin-bottom: 0px;
+  }
 
+  .custom-modal-content .card {
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, .5);
+    margin-bottom: 20px;
+    border-radius: 5px;
+  }
+
+  .custom-modal-content .card .card-body {
+    background: #3fb84e;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px 25px;
+  }
+
+  .custom-modal-content .card .card-body h2 {
+    font-size: 25px;
+    line-height: 30px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    margin-bottom: 0px;
+  }
+
+  .custom-refresh-btn {
+    background: #FFC000;
+    color: #2f333e;
+    padding: 5px 15px;
+    font-size: 15px;
+    line-height: 23px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    border: 1px solid #FFC000;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    box-shadow: unset !important;
+  }
+
+  .custom-refresh-btn:hover {
+    background: #FFDE21;
+    color: #2f333e;
   }
 
   .pagination-wrap {
@@ -280,33 +345,186 @@ else{
     margin-top: 25px;
   }
 
-  .pagination {
-    
+  .pagination-wrap .pagination {
+    margin-bottom: 0px;
+  }
+
+  .pagination-wrap .pagination .page-item .page-link {
+    border: 1px solid #dee2e6;
+    padding: 5px 15px;
+    color: #2f333e;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    border-radius: 1px;
+  }
+
+  .pagination-wrap .pagination .page-item:first-child .page-link {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+
+  .pagination-wrap .pagination .page-item:last-child .page-link {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .pagination-wrap .pagination .page-item.disabled .page-link {
+    color: rgba(47, 51, 62, .5);
+  }
+
+  .pagination-wrap .pagination .page-item:hover .page-link, .pagination-wrap .pagination .page-item.active .page-link {
+    background: #243958;
+    color: #fff;
+  }
+
+  .order-header {
+    background: #3fb84e;
+    color: #fff;
+    font-size: 18px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 25px;
   }
   
-  .pagination .page-link { font-size:0.82rem; padding:4px 11px; color:#2563eb; border-color:#e5e7eb; }
-  .pagination .page-item.active .page-link { background:#2563eb; border-color:#2563eb; color:#fff; }
-  .pagination .page-item.disabled .page-link { color:#d1d5db; }
+  .order-table-wrap {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .order-table thead th {
+    background-color: #243958;
+    color: #fff;
+    border: 1px solid #dee2e6;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle !important;
+    padding: 10px !important;
+  }
 
-  .order-header { background:#2563eb; color:#fff; font-size:1rem; font-weight:700; flex-shrink:0; display:flex; align-items:center; gap:10px; }
-  .order-table-wrap { flex:1; overflow-y:auto; }
-  .order-table { width:100%; border-collapse:collapse; }
-  .order-table thead th { font-size:0.9rem; color:#6b7280; font-weight:600; border-bottom:1px solid #f3f4f6; background:#fff; }
-  .order-table tbody td { font-size:0.9rem; border-bottom:1px solid #f9fafb; vertical-align:middle; color:#111827; }
-  .order-table .item-name { font-weight:600; }
-  .del-btn { background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer; padding:0 4px; }
+  .order-table tbody tr:nth-child(odd) {
+    background: #f4f4f4;
+  }
 
-  .order-summary { border-top:1px solid #f3f4f6; flex-shrink:0; }
-  .summary-row   { display:flex; justify-content:space-between; font-size:0.9rem; color:#6b7280; }
-  .summary-total { display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700; color:#2563eb; }
-  .order-footer  { flex-shrink:0; }
-  .order-footer label { font-size:0.9rem; font-weight:600; color:#374151; }
-  .order-footer select { border-radius:8px; font-size:0.9rem; border-color:#e5e7eb; }
-  .btn-cancel { flex:1; border:1.5px solid #ef4444; color:#ef4444; background:#fff; border-radius:8px; font-weight:600; font-size:0.88rem; transition:background 0.15s; }
-  .btn-cancel:hover { background:#fef2f2; }
-  .btn-submit { flex:1; background:#94a3b8; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88rem; display:flex; align-items:center; justify-content:center; gap:6px; transition:background 0.15s; }
-  .btn-submit.ready { background:#2563eb; }
-  .btn-submit.ready:hover { background:#1d4ed8; }
+  .order-table tbody tr:nth-child(even) {
+    background: #fff;
+  }
+  
+  .order-table tbody td {
+    border: 1px solid #dee2e6;
+    padding: 10px !important;
+    font-size: 15px;
+    line-height: 23px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    color: #2f333e;
+  }
+  
+  .order-table .item-name {
+    font-weight: 700;
+  }
+
+  .order-summary {
+    flex-shrink: 0;
+    padding: 25px;
+  }
+
+  .summary-row   {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    line-height: 23px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    color: #fff;
+  }
+
+  .summary-row:not(:last-child) {
+    margin-bottom: 15px;
+  }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    line-height: 23px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  .order-footer  {
+    flex-shrink: 0;
+    padding-left: 25px;
+    padding-right: 25px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* .order-footer label { font-size:0.9rem; font-weight:600; color:#374151; }
+  .order-footer select { border-radius:8px; font-size:0.9rem; border-color:#e5e7eb; } */
+
+  .btn-cancel {
+    background: #EF4444;
+    color: #fff;
+    padding: 5px 15px;
+    font-size: 15px;
+    line-height: 23px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    border: unset;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-cancel:hover {
+    background: #DC2626;
+    color: #fff;
+  }
+
+  .btn-submit {
+    background: #10B981;
+    color: #fff;
+    padding: 5px 15px;
+    font-size: 15px;
+    line-height: 23px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    border: unset;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    opacity: .5;
+  }
+
+  .btn-submit.ready {
+    opacity: 1;
+  }
+
+  .btn-submit.ready:hover {
+    background: #059669;
+  }
 </style>
 
 <div id="sales-wrap">
@@ -390,7 +608,7 @@ else{
     <form role="form" id="saleForm">
 
       <!-- Order Header -->
-      <div class="order-header px-4 py-3">
+      <div class="order-header">
         <i class="fas fa-shopping-cart"></i>
         <?=$languageArray['your_orders_code'][$language]?>
       </div>
@@ -402,11 +620,11 @@ else{
         <table class="order-table">
           <thead>
             <tr>
-              <th class="px-3 py-3"><?=$languageArray['item_code'][$language]?></th>
-              <th class="px-3 py-3"><?=$languageArray['price_code'][$language]?>/<?=$languageArray['uom_code'][$language]?></th>
-              <th class="px-3 py-3"><?=$languageArray['weight_code'][$language]?></th>
-              <th class="px-3 py-3"><?=$languageArray['total_code'][$language]?></th>
-              <th class="px-3 py-3"></th>
+              <th><?=$languageArray['item_code'][$language]?></th>
+              <th><?=$languageArray['price_code'][$language]?>/<?=$languageArray['uom_code'][$language]?></th>
+              <th><?=$languageArray['weight_code'][$language]?></th>
+              <th><?=$languageArray['total_code'][$language]?></th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="TableId"></tbody>
@@ -414,8 +632,8 @@ else{
       </div>
 
       <!-- Order Summary -->
-      <div class="order-summary px-4 pt-3 pb-0">
-        <div class="summary-row mb-2">
+      <div class="order-summary">
+        <div class="summary-row">
           <span><?=$languageArray['sub_total_code'][$language]?> (RM)</span>
           <span>
             <input
@@ -424,11 +642,11 @@ else{
               step="0.01"
               value="0.00"
               readonly
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right; background:#f9fafb;"
+              style="width: 100px; border: 1px solid #dee2e6; border-radius: 5px; padding: 5px; font-size: 15px; line-height: 23px; letter-spacing: 0.75px; font-weight: 400; text-align: right; background: #fff; color: #2f333e;"
             >
           </span>
         </div>
-        <div class="summary-row mb-2">
+        <div class="summary-row">
           <span><?=$languageArray['discount_code'][$language]?> (RM)</span>
           <span>
             <input
@@ -437,11 +655,11 @@ else{
               id="totalDiscount"
               step="0.01"
               value="0.00"
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
+              style="width: 100px; border: 1px solid #dee2e6; border-radius: 5px; padding: 5px; font-size: 15px; line-height: 23px; letter-spacing: 0.75px; font-weight: 400; text-align: right; background: #fff; color: #2f333e;"
             >
           </span>
         </div>
-        <div class="summary-row mb-2">
+        <div class="summary-row">
           <span><?=$languageArray['tax_code'][$language]?> (%)</span>
           <span>
             <input
@@ -450,7 +668,7 @@ else{
               id="taxRate"
               step="0.01"
               value="0.00"
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
+              style="width: 100px; border: 1px solid #dee2e6; border-radius: 5px; padding: 5px; font-size: 15px; line-height: 23px; letter-spacing: 0.75px; font-weight: 400; text-align: right; background: #fff; color: #2f333e;"
             >
           </span>
         </div>
@@ -463,7 +681,7 @@ else{
               step="0.01"
               value="0.00"
               readonly
-              style="width:70px; border:1px solid #2563eb; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right; background:#eff6ff; color:#2563eb; font-weight:700;"
+              style="width: 100px; border: 1px solid #2563eb; border-radius: 5px; padding: 5px; font-size: 15px; line-height: 23px; letter-spacing: 0.75px; font-weight: 400; text-align: right; background: #eff6ff; color: #2563eb;"
             >
           </span>
         </div>
@@ -473,7 +691,7 @@ else{
       </div>
 
       <!-- Order Footer -->
-      <div class="order-footer px-4 pt-2 pb-4">
+      <div class="order-footer">
 
         <!-- Company (SADMIN only) -->
         <?php if ($role == 'SADMIN') { ?>
@@ -491,11 +709,11 @@ else{
         </div>
         <?php } ?>
 
-        <div class="d-flex" style="gap:10px;">
-          <button type="button" class="btn-cancel py-2" id="cancelSales">
-            <i class="fas fa-times mr-1"></i> <?=$languageArray['cancel_code'][$language]?>
+        <div class="d-flex" style="gap: 15px;">
+          <button type="button" class="btn-cancel" id="cancelSales">
+            <i class="fas fa-times"></i> <?=$languageArray['cancel_code'][$language]?>
           </button>
-          <button type="submit" class="btn-submit py-2" id="submitSales" name="submitsales">
+          <button type="submit" class="btn-submit" id="submitSales" name="submitsales">
             <i class="fas fa-shopping-cart"></i> <?=$languageArray['submit_code'][$language]?>
           </button>
         </div>
@@ -512,21 +730,21 @@ else{
 <!-- Weight Input Modal -->
 <div class="modal fade" id="weightModal">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content custom-modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><?=$languageArray['enter_quantity_code'][$language]?></h5>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="close custom-close-btn-icon" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
-        <div class="card mb-3" style="background:#2563eb;" id="displayIndicatorWeight">
+        <div class="card" id="displayIndicatorWeight">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                <h2 class="text-white mb-0"><span id="indicatorWeight">0</span> KG</h2>
+                <h2><span id="indicatorWeight">0</span> KG</h2>
               </div>
               <div>
-                <span class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center" style="width:45px;height:45px;">
-                  <i class="fas fa-weight-hanging text-info"></i>
+                <span class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background: #fff; color: #2f333e;">
+                  <i class="fas fa-weight-hanging" style="color: #2f333e;"></i>
                 </span>
               </div>
             </div>
@@ -537,15 +755,15 @@ else{
           <div class="input-group">
             <input type="number" class="form-control" id="quantity" step="0.01" min="0.01" placeholder="<?=$languageArray['enter_quantity_code'][$language]?>">
             <div class="input-group-append" id="displayWeightCapture">
-              <button class="btn" id="weightCapture" type="button" style="background:#2563eb;color:white;"><i class="fas fa-sync"></i></button>
+              <button class="btn custom-refresh-btn" id="weightCapture" type="button"><i class="fas fa-sync"></i></button>
             </div>
           </div>
           <input type="hidden" id="productId">
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
-        <button type="button" class="btn btn-primary" id="weightConfirm"><?=$languageArray['save_code'][$language]?></button>
+        <button type="button" class="btn btn-danger custom-delete-btn" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-primary custom-add-btn" id="weightConfirm"><?=$languageArray['save_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -554,13 +772,13 @@ else{
 <!-- Payment Modal -->
 <div class="modal fade" id="paymentModal" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
+    <div class="modal-content custom-modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-money-bill-wave mr-2"></i><?=$languageArray['payments_code'][$language]?></h5>
+        <h5 class="modal-title" style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-money-bill-wave"></i><?=$languageArray['payments_code'][$language]?></h5>
       </div>
       <div class="modal-body">
-        <div class="card bg-success mb-3">
-          <div class="card-body py-2">
+        <div class="card">
+          <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <small class="text-white-50"><?=$languageArray['total_amount_code'][$language]?></small>
@@ -589,12 +807,12 @@ else{
           <tbody id="paymentTable"></tbody>
         </table>
 
-        <button type="button" class="btn btn-primary btn-sm" id="addPaymentBtn"><i class="fas fa-plus"></i> <?=$languageArray['add_payments_code'][$language]?></button>
+        <button type="button" class="btn btn-primary btn-sm custom-add-btn" id="addPaymentBtn"><i class="fas fa-plus"></i> <?=$languageArray['add_payments_code'][$language]?></button>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="cancelPaymentBtn"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-danger custom-delete-btn" id="cancelPaymentBtn"><?=$languageArray['cancel_code'][$language]?></button>
         <input type="hidden" id="totalPaidAmount" name="totalPaidAmount" value="0.00">
-        <button type="button" class="btn btn-success" id="confirmPaymentBtn" disabled><i class="fas fa-check"></i> <?=$languageArray['save_code'][$language]?></button>
+        <button type="button" class="btn btn-success custom-add-btn" id="confirmPaymentBtn" disabled><i class="fas fa-check"></i> <?=$languageArray['save_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -614,7 +832,7 @@ else{
       <input type="number" class="form-control form-control-sm" id="payAmount" name="payAmount" step="0.01" min="0.01" placeholder="Amount">
     </td>
     <td>
-      <button type="button" class="btn btn-danger btn-sm" id="remove"><i class="fas fa-times"></i></button>
+      <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" id="remove"><i class="fas fa-times"></i></button>
     </td>
   </tr>
 </script>
@@ -878,18 +1096,18 @@ function addOrderRow(id, name, price, uomLabel, weight, stock) {
 
   var html =
     '<tr class="order-row" id="row_' + id + '" data-id="' + id + '" data-price="' + price + '" data-total="' + total + '" data-stock="' + (parseFloat(stock) || 0) + '">' +
-      '<td class="item-name px-3 py-2">' + name + '<input type="hidden" name="items[' + size + ']" value="' + id + '"></td>' +
-      '<td class="px-3 py-2">' +
+      '<td class="item-name">' + name + '<input type="hidden" name="items[' + size + ']" value="' + id + '"></td>' +
+      '<td>' +
         priceDisplay +
         '<input type="hidden" name="itemPrice[' + size + ']" value="' + price + '">' +
       '</td>' +
-      '<td class="px-3 py-2">' +
+      '<td>' +
         '<input type="number" class="wt-input" id="wt_' + id + '" name="itemWeight[' + size + ']" value="' + weight + '" step="0.01" min="0.01"' +
         ' style="width:80px; border:1px solid #e5e7eb; border-radius:6px; padding:3px 6px; font-size:0.85rem; text-align:center;"' +
         ' onchange="updateWeight(' + id + ')">' +
       '</td>' +
-      '<td id="tot_' + id + '" class="px-3 py-2">' + total + '<input type="hidden" name="totalPrice[' + size + ']" id="tp_' + id + '" value="' + total + '"></td>' +
-      '<td class="px-3 py-2"><button type="button" class="del-btn" onclick="removeRow(' + id + ')"><i class="fas fa-trash-alt"></i></button></td>' +
+      '<td id="tot_' + id + '">' + total + '<input type="hidden" name="totalPrice[' + size + ']" id="tp_' + id + '" value="' + total + '"></td>' +
+      '<td><button type="button" class="del-btn custom-trash-icon-btn" onclick="removeRow(' + id + ')"><i class="fas fa-trash-alt"></i></button></td>' +
     '</tr>';
 
   $('#TableId').append(html);

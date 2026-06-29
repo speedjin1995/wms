@@ -44,9 +44,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['reports_code'][$language]?></h1>
+        <h1><?=$languageArray['reports_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -61,7 +61,7 @@ else{
         <div class="card">
           <div class="card-body">
             <div class="row">
-              <div class="form-group col-3">
+              <div class="form-group col-4">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
@@ -70,7 +70,7 @@ else{
                 </div>
               </div>
 
-              <div class="form-group col-3">
+              <div class="form-group col-4">
                 <label><?=$languageArray['to_date_code'][$language]?>:</label>
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
@@ -80,7 +80,7 @@ else{
                 </div>
               </div>
 
-              <div class="form-group col-3">
+              <div class="form-group col-4">
                 <label><?=$languageArray['receipt_no_code'][$language]?></label>
                 <input type="text" id="receiptNoFilter" name="receiptNoFilter" class="form-control" placeholder="<?=$languageArray['receipt_no_code'][$language]?>">
               </div>
@@ -89,7 +89,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -104,7 +104,9 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-6"><?=$languageArray['sales_code'][$language]?></div>
+              <div class="col-6">
+                <h5 class="card-title custom-card-header-title"><?=$languageArray['sales_code'][$language]?></h5>
+              </div>
               <!-- <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
@@ -223,7 +225,7 @@ else{
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-secondary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -307,12 +309,12 @@ $(function () {
           return `
             <div class="row">
               <div class="col-3">
-                <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm">
+                <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm custom-users-icon-btn">
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
               <div class="col-3">
-                <button type="button" id="deactivate${data}" onclick="deactivate(${data})" class="btn btn-danger btn-sm">
+                <button type="button" id="deactivate${data}" onclick="deactivate(${data})" class="btn btn-danger btn-sm custom-trash-icon-btn">
                 <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -372,12 +374,12 @@ $(function () {
             return `
               <div class="row">
                 <div class="col-3">
-                  <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm">
+                  <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm custom-users-icon-btn">
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
                 <div class="col-3">
-                  <button type="button" id="deactivate${data}" onclick="deactivate(${data})" class="btn btn-danger btn-sm">
+                  <button type="button" id="deactivate${data}" onclick="deactivate(${data})" class="btn btn-danger btn-sm custom-trash-icon-btn">
                   <i class="fas fa-trash"></i>
                   </button>
                 </div>

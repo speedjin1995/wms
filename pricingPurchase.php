@@ -35,9 +35,9 @@ if ($role != 'SADMIN') {
 
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div>
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark"><?=$languageArray['purchase_code'][$language]?></h1>
+                <h1><?=$languageArray['purchase_code'][$language]?></h1>
             </div>
         </div>
     </div>
@@ -45,51 +45,47 @@ if ($role != 'SADMIN') {
 
 <div class="content">
     <div class="container-fluid">
-
-        <!-- Filter Card -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="form-group col-md-3">
-                                <label><?=$languageArray['from_date_code'][$language]?>:</label>
-                                <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input"
-                                        data-target="#fromDatePicker" id="fromDate">
-                                    <div class="input-group-append" data-target="#fromDatePicker"
-                                        data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label><?=$languageArray['to_date_code'][$language]?>:</label>
-                                <div class="input-group date" id="toDatePicker" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input"
-                                        data-target="#toDatePicker" id="toDate">
-                                    <div class="input-group-append" data-target="#toDatePicker"
-                                        data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-3">
-                                <label><?=$languageArray['purchase_no_code'][$language]?></label>
-                                <input type="text" id="purchaseNoFilter" name="purchaseNoFilter" class="form-control"
-                                    placeholder="<?=$languageArray['purchase_no_code'][$language]?>">
-                            </div>
-                            <div class="col-md-3 d-flex align-items-end">
-                                <button type="button" class="btn btn-block bg-gradient-warning btn-sm mb-3"
-                                    id="filterSearch">
-                                    <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
-                                </button>
-                            </div>
-                        </div>
+      <!-- Filter Card -->
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label><?=$languageArray['from_date_code'][$language]?>:</label>
+                  <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate">
+                    <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                     </div>
+                  </div>
                 </div>
+                <div class="form-group col-md-4">
+                  <label><?=$languageArray['to_date_code'][$language]?>:</label>
+                  <div class="input-group date" id="toDatePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate">
+                    <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-4">
+                  <label><?=$languageArray['purchase_no_code'][$language]?></label>
+                  <input type="text" id="purchaseNoFilter" name="purchaseNoFilter" class="form-control" placeholder="<?=$languageArray['purchase_no_code'][$language]?>">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-9"></div>
+                <div class="col-md-3 d-flex align-items-end">
+                  <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
+                    <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
 
         <!-- DataTable Card -->
         <div class="row">
@@ -97,10 +93,10 @@ if ($role != 'SADMIN') {
                 <div class="card card-info">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-10"><?=$languageArray['purchase_code'][$language]?></div>
+                            <div class="col-10 custom-card-header-title"><?=$languageArray['purchase_code'][$language]?></div>
                             <?php if($allowAdd == 'Y'): ?>
                             <div class="col-2">
-                                <button type="button" class="btn btn-block bg-gradient-success btn-sm"
+                                <button type="button" class="btn btn-block btn-sm custom-add-btn"
                                     onclick="newEntry()">
                                     <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
                                 </button>
@@ -132,10 +128,10 @@ if ($role != 'SADMIN') {
 <div class="modal fade" id="purchaseModal">
     <div class="modal-dialog modal-xl" style="max-width:90%;">
         <div class="modal-content">
-            <form role="form" id="purchaseForm">
+            <form role="form" id="purchaseForm" class="custom-model-extend-form">
                 <div class="modal-header bg-gray-dark color-palette">
                     <h4 class="modal-title" id="modalTitle"><?=$languageArray['add_new_code'][$language]?></h4>
-                    <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal">
+                    <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
                 </div>
@@ -146,7 +142,7 @@ if ($role != 'SADMIN') {
                     <!-- Purchase Info -->
                     <div class="card card-outline card-primary mb-3 shadow-sm">
                         <div class="card-header py-2">
-                            <h6 class="card-title mb-0"><i class="fas fa-file-invoice mr-2"></i><?=$languageArray['purchase_code'][$language]?> Info</h6>
+                            <h6 class="card-title mb-0"><i class="fas fa-file-invoice"></i><?=$languageArray['purchase_code'][$language]?> Info</h6>
                         </div>
                         <div class="card-body pt-3">
                             <div class="row">
@@ -163,8 +159,8 @@ if ($role != 'SADMIN') {
                     <!-- Items -->
                     <div class="card card-outline card-warning mb-3 shadow-sm">
                         <div class="card-header py-2 d-flex justify-content-between align-items-center w-100">
-                            <h6 class="card-title mb-0"><i class="fas fa-boxes mr-2"></i><?=$languageArray['item_code'][$language]?></h6>
-                            <button type="button" class="btn btn-success btn-sm ml-auto" id="addItemRow">
+                            <h6 class="card-title mb-0"><i class="fas fa-boxes"></i><?=$languageArray['item_code'][$language]?></h6>
+                            <button type="button" class="btn btn-success btn-sm ml-auto custom-search-btn" id="addItemRow">
                               <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
                             </button>
                         </div>
@@ -193,9 +189,9 @@ if ($role != 'SADMIN') {
 
                 </div>
 
-                <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-                    <button type="submit" class="btn btn-primary" id="saveBtn"><?=$languageArray['save_code'][$language]?></button>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-secondary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+                    <button type="submit" class="btn btn-primary custom-add-btn" id="saveBtn"><?=$languageArray['save_code'][$language]?></button>
                 </div>
             </form>
         </div>
@@ -208,10 +204,10 @@ if ($role != 'SADMIN') {
     <div class="modal-content">
 
       <div class="modal-header bg-info color-palette">
-        <h5 class="modal-title text-white">
-          <i class="fas fa-file-invoice mr-2"></i><?=$languageArray['purchase_code'][$language]?> - <span id="v_purchase_no"></span>
+        <h5 class="modal-title custom-card-header-title">
+          <i class="fas fa-file-invoice"></i><?=$languageArray['purchase_code'][$language]?> - <span id="v_purchase_no"></span>
         </h5>
-        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="close custom-close-btn-icon" data-dismiss="modal"><span>&times;</span></button>
       </div>
 
       <div class="modal-body">
@@ -219,7 +215,7 @@ if ($role != 'SADMIN') {
         <!-- Items Card -->
         <div class="card card-outline card-warning shadow-sm mb-3">
           <div class="card-header py-2">
-            <h6 class="card-title mb-0"><i class="fas fa-boxes mr-2"></i><?=$languageArray['item_code'][$language]?></h6>
+            <h6 class="card-title mb-0"><i class="fas fa-boxes"></i><?=$languageArray['item_code'][$language]?></h6>
           </div>
           <div class="card-body p-0">
             <table class="table table-bordered table-striped mb-0">
@@ -278,8 +274,8 @@ if ($role != 'SADMIN') {
     <td>
       <input type="text" class="form-control form-control-sm text-right" id="itemTotal" name="itemTotal" readonly value="0.00">
     </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-sm btn-danger" id="remove" style="background-color: #f06548;">
+    <td style="text-align:center">
+      <button class="btn btn-sm btn-danger custom-trash-icon-btn" id="remove" style="background-color: #f06548;">
           <i class="fa fa-times"></i>
       </button>
     </td>
@@ -363,7 +359,7 @@ $(function() {
             //     btns += '<button type="button" onclick="edit(' + data + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             // }
             if (allowDelete) {
-                btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
             }
             btns += '</div>';
             return btns;
@@ -416,14 +412,14 @@ $(function() {
             orderable: false,
             render: function(data) {
               var btns = `<div class="d-flex flex-nowrap" style="gap:4px;">
-                <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm">
+                <button type="button" id="view${data}" onclick="view(${data})" class="btn btn-info btn-sm custom-users-icon-btn">
                   <i class="fas fa-eye"></i>
                 </button>`;
               if (allowEdit) {
-                  btns += '<button type="button" onclick="edit(' + data + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+                  btns += '<button type="button" onclick="edit(' + data + ')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
               }
               if (allowDelete) {
-                  btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                  btns += '<button type="button" onclick="deactivate(' + data + ')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
               }
               btns += '</div>';
               return btns;

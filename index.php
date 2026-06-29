@@ -732,7 +732,7 @@ else{
     }
 
     .modal-content .custom-model-extend-form .modal-footer, #profileForm .card-outline .card-footer, 
-    .custom-content-form .card-footer, .custom-modal-content .modal-footer {
+    .custom-content-form .card-footer, .custom-modal-content .modal-footer, .custom-repacking-form .card-footer {
       background: #324C75 !important;
       border: unset;
       padding: 20px 25px;
@@ -969,7 +969,7 @@ else{
     #categoryTable_wrapper .row:last-child, #packagingTable_wrapper .row:last-child, #customerTable_wrapper .row:last-child,
     #productTable_wrapper .row:last-child, #driverTable_wrapper .row:last-child, #vehicleTable_wrapper .row:last-child,
     #gradeTable_wrapper .row:last-child, #locationTable_wrapper .row:last-child, #memberTable_wrapper .row:last-child,
-    #transferTable_wrapper .row:last-child {
+    #transferTable_wrapper .row:last-child, #purchaseTable_wrapper .row:last-child, #inventoryTable_wrapper .row:last-child {
       flex-direction: column;
     }
 
@@ -984,7 +984,9 @@ else{
     #gradeTable_wrapper .row:last-child .col-md-5, #gradeTable_wrapper .row:last-child .col-md-7,
     #locationTable_wrapper .row:last-child .col-md-5, #locationTable_wrapper .row:last-child .col-md-7,
     #memberTable_wrapper .row:last-child .col-md-5, #memberTable_wrapper .row:last-child .col-md-7,
-    #transferTable_wrapper .row:last-child .col-md-5, #transferTable_wrapper .row:last-child .col-md-7 {
+    #transferTable_wrapper .row:last-child .col-md-5, #transferTable_wrapper .row:last-child .col-md-7,
+    #purchaseTable_wrapper .row:last-child .col-md-5, #purchaseTable_wrapper .row:last-child .col-md-7,
+    #inventoryTable_wrapper .row:last-child .col-md-5, #inventoryTable_wrapper .row:last-child .col-md-7 {
       max-width: 100%;
     }
 
@@ -994,7 +996,8 @@ else{
     #productTable_wrapper .row:last-child .dataTables_info, #driverTable_wrapper .row:last-child .dataTables_info,
     #vehicleTable_wrapper .row:last-child .dataTables_info, #gradeTable_wrapper .row:last-child .dataTables_info,
     #locationTable_wrapper .row:last-child .dataTables_info, #memberTable_wrapper .row:last-child .dataTables_info,
-    #transferTable_wrapper .row:last-child .dataTables_info {
+    #transferTable_wrapper .row:last-child .dataTables_info, #purchaseTable_wrapper .row:last-child .dataTables_info,
+    #inventoryTable_wrapper .row:last-child .dataTables_info {
       font-size: 16px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -1015,7 +1018,9 @@ else{
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination,
-    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination {
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination {
       margin-bottom: 0px;
       border-radius: 5px;
     }
@@ -1032,7 +1037,9 @@ else{
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
-    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
+    #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
+    #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
       border: 1px solid #dee2e6;
       padding: 10px;
       color: #2f333e;
@@ -1055,6 +1062,8 @@ else{
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
+    #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
+    #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
@@ -1067,7 +1076,9 @@ else{
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
-    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
+    #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
+    #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
       background: #243958;
       color: #fff;
     }
@@ -1084,7 +1095,9 @@ else{
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
-    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
+    #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
+    #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
       color: rgba(47, 51, 62, .5);
     }
 
@@ -1100,7 +1113,9 @@ else{
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
-    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
+    #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
+    #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
     }
@@ -1117,14 +1132,16 @@ else{
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
-    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
+    #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
+    #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
     }
 
     #extendModal, #translationModal, #supplierTable_wrapper, #categoryTable_wrapper, #packagingTable_wrapper, 
     #customerTable_wrapper, #productTable_wrapper, #driverTable_wrapper, #vehicleTable_wrapper, #gradeTable_wrapper,
-    #locationTable_wrapper, #memberTable_wrapper, #transferTable_wrapper {
+    #locationTable_wrapper, #memberTable_wrapper, #transferTable_wrapper, #purchaseTable_wrapper, #inventoryTable_wrapper {
       padding-right: 0px !important;
     }
 
@@ -1243,21 +1260,22 @@ else{
       color: #fff !important;
     }
 
-    .modal-content .custom-model-extend-form .modal-body .card-outline {
+    .modal-content .custom-model-extend-form .modal-body .card-outline, .custom-repacking-form .card-outline {
       border: unset;
       margin-bottom: 25px !important;
       border-radius: 5px;
       box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, .5);
     }
 
-    .modal-content .custom-model-extend-form .modal-body .card-outline .card-header {
+    .modal-content .custom-model-extend-form .modal-body .card-outline .card-header, .custom-repacking-form .card-outline .card-header {
       background: #3fb84e !important;
       color: #fff;
       padding-top: 10px !important;
       padding-bottom: 10px !important;
     }
 
-    .modal-content .custom-model-extend-form .modal-body .card-outline .card-header h6 {
+    .modal-content .custom-model-extend-form .modal-body .card-outline .card-header h6,
+    .custom-repacking-form .card-outline .card-header h6 {
       font-size: 18px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -1265,6 +1283,10 @@ else{
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .custom-repacking-form .card-outline .card-header h6 {
+      margin-bottom: 0px;
     }
 
     .modal-content .custom-model-extend-form .modal-body .card-outline .card-body {
@@ -1393,6 +1415,28 @@ else{
     .custom-preview-data-btn:hover {
       background: #FFDE21;
       color: #2f333e;
+    }
+
+    .custom-activate {
+      background: #10B981;
+      color: #fff;
+      padding: 5px 15px;
+      font-size: 15px;
+      line-height: 23px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      border-radius: 5px;
+    }
+
+    .custom-inactivate {
+      background: #EF4444;
+      color: #fff;
+      padding: 5px 15px;
+      font-size: 15px;
+      line-height: 23px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      border-radius: 5px;
     }
 
     .main-footer {
