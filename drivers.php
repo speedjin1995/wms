@@ -102,7 +102,7 @@ else{
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
-          <div class="modal-footer justify-content-between">
+          <div class="modal-footer">
             <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
             <button type="button" class="btn btn-success custom-save-btn" id="uploadDriver"><?=$languageArray['submit_code'][$language]?></button>
           </div>
@@ -170,7 +170,7 @@ else{
                 </div>
               </div>
             </div>
-            <div class="modal-footer justify-content-between">
+            <div class="modal-footer">
               <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
               <button type="submit" class="btn btn-primary custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
@@ -248,7 +248,7 @@ $(function () {
             return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
           } 
           else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm custom-reject-icon-btn">Reactivate</button>';
           }
         }
       }

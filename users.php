@@ -129,7 +129,7 @@
             </select>
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
+        <div class="modal-footer">
           <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn btn-primary custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
         </div>

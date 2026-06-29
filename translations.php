@@ -107,7 +107,7 @@ else{
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
+        <div class="modal-footer">
           <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal">Close</button>
           <button type="submit" class="btn btn-primary custom-save-btn" id="submitTranslation">Submit</button>
         </div>

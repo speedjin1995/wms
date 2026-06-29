@@ -62,9 +62,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['loading_orders_code'][$language]?></h1>
+        <h1><?=$languageArray['loading_orders_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -122,7 +122,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -138,10 +138,10 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['loading_orders_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['loading_orders_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
@@ -169,10 +169,10 @@ else{
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="extendForm" novalidate>
+      <form role="form" id="extendForm" novalidate class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -223,13 +223,13 @@ else{
           <hr>
           <div class="card card-outline card-primary">
             <div class="card-header">
-                <h5 class="card-title mb-0">
+                <h6 class="mb-0">
                     <?=$languageArray['weight_details_code'][$language]?>
-                </h5>
+                </h6>
             </div>
 
             <div class="card-body">
-              <div class="row mb-3">
+              <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
                     <label><?=$languageArray['batch_no_code'][$language]?> *</label>
@@ -291,8 +291,8 @@ else{
         </div>
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-add-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -302,10 +302,10 @@ else{
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="cancelForm">
+      <form role="form" id="cancelForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -321,8 +321,8 @@ else{
           </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success custom-add-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -408,11 +408,11 @@ $(function () {
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
           }
           // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
@@ -494,11 +494,11 @@ $(function () {
           render: function ( data, type, row ) {
             var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
             }
             // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
             return buttons;
@@ -699,7 +699,7 @@ function buildItemRow(item, idx) {
     '<td><input type="time" class="form-control" name="items[' + idx + '][loading_time]" value="' + (item.loading_time || '') + '"></td>' +
     '<td><select class="form-control" name="items[' + idx + '][customer_id]" style="width:100%"><option value="">Select Customer</option>' + customerOptions + '</select></td>' +
     '<td><input type="text" class="form-control" name="items[' + idx + '][remarks]" value="' + (item.remarks || '') + '" placeholder="Remark"></td>' +
-    '<td><button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button></td>' +
+    '<td><button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button></td>' +
   '</tr>';
 }
 

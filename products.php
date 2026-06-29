@@ -129,7 +129,7 @@ else{
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
-          <div class="modal-footer justify-content-between">
+          <div class="modal-footer">
             <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
             <button type="button" class="btn btn-success custom-save-btn" id="uploadProduct"><?=$languageArray['submit_code'][$language]?></button>
           </div>
@@ -398,7 +398,7 @@ else{
           </div>
 
         </div>
-        <div class="modal-footer justify-content-end">
+        <div class="modal-footer">
           <button type="button" class="btn btn-secondary custom-delete-btn" data-dismiss="modal"><i class="fas fa-times"></i><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn btn-primary custom-add-btn" name="submit" id="submitMember"><i class="fas fa-save"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
@@ -417,18 +417,18 @@ else{
           <h5 class="modal-title text-white"><i class="fas fa-users mr-2"></i><?=$languageArray['customers_code'][$language]?></h5>
           <button type="button" class="close custom-close-btn-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body p-2">
-          <ul class="nav nav-tabs mb-2" id="customerSupplierTabs">
+        <div class="modal-body">
+          <ul class="nav nav-tabs" id="customerSupplierTabs">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tabCustomers" id="tabCustomersLink"><?=$languageArray['customers_code'][$language]?></a></li>
             <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tabSuppliers" id="tabSuppliersLink"><?=$languageArray['supplier_code'][$language]?></a></li>
           </ul>
           <div class="tab-content">
             <div class="tab-pane fade show active" id="tabCustomers">
-              <div class="mb-2 text-right">
-                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
-                <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+              <div class="custom-tab-content">
+                <button type="button" class="btn btn-warning btn-sm custom-search-btn" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                <button type="button" class="btn btn-success btn-sm add-customer custom-add-btn"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
               </div>
-              <table class="table table-sm table-bordered mb-0">
+              <table class="table table-sm">
                 <thead class="thead-light">
                   <tr>
                     <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
@@ -443,11 +443,11 @@ else{
               </table>
             </div>
             <div class="tab-pane fade" id="tabSuppliers">
-              <div class="mb-2 text-right">
-                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
-                <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
+              <div class="custom-tab-content">
+                <button type="button" class="btn btn-warning btn-sm custom-search-btn" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                <button type="button" class="btn btn-success btn-sm add-supplier custom-add-btn"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
               </div>
-              <table class="table table-sm table-bordered mb-0">
+              <table class="table table-sm">
                 <thead class="thead-light">
                   <tr>
                     <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
@@ -463,9 +463,9 @@ else{
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="submitCustomers"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary custom-delete-btn" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-add-btn" id="submitCustomers"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -475,9 +475,9 @@ else{
 <!-- Bulk Price by State Modal -->
 <div class="modal fade" id="bulkPriceByStateModal">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-gradient-warning">
-        <h5 class="modal-title text-white"><i class="fas fa-tags mr-2"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></h5>
+    <div class="modal-content custom-modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-tags mr-2"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></h5>
         <button type="button" class="close custom-close-btn-icon" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
@@ -527,9 +527,9 @@ else{
           <input type="number" class="form-control" id="bulkPurchasingPrice" placeholder="0.00" value="0">
         </div>
       </div>
-      <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-        <button type="button" class="btn btn-warning" id="bulkPriceByStateSave"><?=$languageArray['save_code'][$language]?></button>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-warning custom-add-btn" id="bulkPriceByStateSave"><?=$languageArray['save_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -590,8 +590,8 @@ else{
     <td>
       <input type="number" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
     </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+    <td>
+      <button class="btn btn-success custom-trash-icon-btn" id="remove">
           <i class="fa fa-times"></i>
       </button>
     </td>
@@ -630,8 +630,8 @@ else{
     <td>
       <input type="number" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
     </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="removeSupplier" style="background-color: #f06548;">
+    <td>
+      <button class="btn btn-success custom-trash-icon-btn" id="removeSupplier">
           <i class="fa fa-times"></i>
       </button>
     </td>
@@ -671,8 +671,8 @@ else{
     <td>
       <input type="number" class="form-control" id="gradePurchasingPrice" name="gradePurchasingPrice" style="background-color:white;" value="0">
     </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+    <td>
+      <button class="btn btn-success custom-trash-icon-btn" id="remove">
           <i class="fa fa-times"></i>
       </button>
     </td>

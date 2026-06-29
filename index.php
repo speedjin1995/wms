@@ -700,7 +700,21 @@ else{
       box-shadow: unset !important;
     }
 
-    .custom-search-btn:hover, .custom-preview-btn:hover, .custom-upload-file-form .custom-file-label:hover:after {
+    .custom-reject-icon-btn {
+      background: #FFC000 !important;
+      color: #fff !important;
+      padding: 10px;
+      font-size: 12px;
+      line-height: normal;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      border: unset !important;
+      border-radius: 5px;
+      box-shadow: unset !important;
+    }
+
+    .custom-search-btn:hover, .custom-preview-btn:hover, .custom-upload-file-form .custom-file-label:hover:after, 
+    .custom-reject-icon-btn:hover {
       background: #FFDE21 !important;
       color: #2f333e !important;
     }
@@ -718,12 +732,13 @@ else{
     }
 
     .modal-content .custom-model-extend-form .modal-footer, #profileForm .card-outline .card-footer, 
-    .custom-content-form .card-footer {
+    .custom-content-form .card-footer, .custom-modal-content .modal-footer {
       background: #324C75 !important;
       border: unset;
       padding: 20px 25px;
       border-bottom-left-radius: 5px;
       border-bottom-right-radius: 5px;
+      justify-content: space-between;
     }
 
     .custom-card-header-row {
@@ -768,6 +783,7 @@ else{
       border: unset !important;
       border-radius: 5px;
       box-shadow: unset !important;
+      margin: 0px;
     }
 
     .custom-upload-btn {
@@ -827,19 +843,21 @@ else{
       width: 250px;
     }
 
-    .table-bordered {
+    .table, .table-bordered {
       border: 1px solid #3fb84e;
       color: #2f333e !important;
       margin-bottom: 25px;
     }
 
     thead, .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead,
-    .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead th {
+    .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead th,
+    .table .thead-light th {
       background-color: #3fb84e;
       color: #fff;
     }
 
-    thead th, .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead th {
+    thead th, .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead th,
+    .table .thead-light th {
       border-top: 1px solid #dee2e6 !important;
       border-bottom: 1px solid #dee2e6 !important;
       border-left: 1px solid #fff !important;
@@ -849,6 +867,19 @@ else{
       letter-spacing: 0.75px;
       font-weight: 700;
       text-align: center;
+      vertical-align: middle !important;
+      padding: 10px !important;
+    }
+
+    tfoot th {
+      border-top: 1px solid #dee2e6 !important;
+      border-bottom: 1px solid #dee2e6 !important;
+      border-left: 1px solid #fff !important;
+      border-right: 1px solid #fff !important;
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
       vertical-align: middle !important;
       padding: 10px !important;
     }
@@ -867,24 +898,26 @@ else{
     }
 
     thead th:first-child, 
-    .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead:first-child {
+    .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead:first-child,
+    tfoot th:first-child, .table .thead-light th:first-child {
       border-left: 1px solid #dee2e6 !important;
     }
 
     thead th:last-child,
-    .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead:last-child {
+    .modal-content .custom-model-extend-form .modal-body .card-outline .card-body .table-bordered thead:last-child,
+    tfoot th:last-child, .table .thead-light th:last-child {
       border-right: 1px solid #dee2e6 !important;
     }
 
-    tbody tr.odd {
-      background: #dee2e6;
+    tbody tr.odd, .table #customerTable .details:nth-child(odd) {
+      background: #f4f4f4;
     }
 
-    tbody tr.even {
+    tbody tr.even, .table #customerTable .details:nth-child(even) {
       background: #fff;
     }
 
-    tbody td, .table-bordered td {
+    tbody td, .table-bordered tbody td, .table #customerTable td {
       border: 1px solid #dee2e6 !important;
       padding: 10px !important;
       font-size: 15px;
@@ -927,10 +960,16 @@ else{
       margin-bottom: 15px !important;
     }
 
+    tfoot {
+      background-color: #243958;
+      color: #fff;
+    }
+
     #weightTable_wrapper .row:last-child, #translationTable_wrapper .row:last-child, #supplierTable_wrapper .row:last-child,
     #categoryTable_wrapper .row:last-child, #packagingTable_wrapper .row:last-child, #customerTable_wrapper .row:last-child,
     #productTable_wrapper .row:last-child, #driverTable_wrapper .row:last-child, #vehicleTable_wrapper .row:last-child,
-    #gradeTable_wrapper .row:last-child, #locationTable_wrapper .row:last-child, #memberTable_wrapper .row:last-child {
+    #gradeTable_wrapper .row:last-child, #locationTable_wrapper .row:last-child, #memberTable_wrapper .row:last-child,
+    #transferTable_wrapper .row:last-child {
       flex-direction: column;
     }
 
@@ -944,7 +983,8 @@ else{
     #vehicleTable_wrapper .row:last-child .col-md-5, #vehicleTable_wrapper .row:last-child .col-md-7,
     #gradeTable_wrapper .row:last-child .col-md-5, #gradeTable_wrapper .row:last-child .col-md-7,
     #locationTable_wrapper .row:last-child .col-md-5, #locationTable_wrapper .row:last-child .col-md-7,
-    #memberTable_wrapper .row:last-child .col-md-5, #memberTable_wrapper .row:last-child .col-md-7 {
+    #memberTable_wrapper .row:last-child .col-md-5, #memberTable_wrapper .row:last-child .col-md-7,
+    #transferTable_wrapper .row:last-child .col-md-5, #transferTable_wrapper .row:last-child .col-md-7 {
       max-width: 100%;
     }
 
@@ -953,7 +993,8 @@ else{
     #packagingTable_wrapper .row:last-child .dataTables_info, #customerTable_wrapper .row:last-child .dataTables_info, 
     #productTable_wrapper .row:last-child .dataTables_info, #driverTable_wrapper .row:last-child .dataTables_info,
     #vehicleTable_wrapper .row:last-child .dataTables_info, #gradeTable_wrapper .row:last-child .dataTables_info,
-    #locationTable_wrapper .row:last-child .dataTables_info, #memberTable_wrapper .row:last-child .dataTables_info {
+    #locationTable_wrapper .row:last-child .dataTables_info, #memberTable_wrapper .row:last-child .dataTables_info,
+    #transferTable_wrapper .row:last-child .dataTables_info {
       font-size: 16px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -973,7 +1014,8 @@ else{
     #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination,
-    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination {
+    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination {
       margin-bottom: 0px;
       border-radius: 5px;
     }
@@ -989,7 +1031,8 @@ else{
     #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
-    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
+    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
       border: 1px solid #dee2e6;
       padding: 10px;
       color: #2f333e;
@@ -1011,6 +1054,7 @@ else{
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
@@ -1022,7 +1066,8 @@ else{
     #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
-    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
+    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
       background: #243958;
       color: #fff;
     }
@@ -1038,7 +1083,8 @@ else{
     #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
-    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
+    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
       color: rgba(47, 51, 62, .5);
     }
 
@@ -1053,7 +1099,8 @@ else{
     #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
-    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
+    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
     }
@@ -1069,14 +1116,15 @@ else{
     #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
-    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
+    #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
+    #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
     }
 
     #extendModal, #translationModal, #supplierTable_wrapper, #categoryTable_wrapper, #packagingTable_wrapper, 
     #customerTable_wrapper, #productTable_wrapper, #driverTable_wrapper, #vehicleTable_wrapper, #gradeTable_wrapper,
-    #locationTable_wrapper, #memberTable_wrapper {
+    #locationTable_wrapper, #memberTable_wrapper, #transferTable_wrapper {
       padding-right: 0px !important;
     }
 
@@ -1154,6 +1202,7 @@ else{
       border: unset !important;
       border-radius: 5px;
       box-shadow: unset !important;
+      margin: 0px;
     }
 
     .custom-delete-btn, .custom-add-btn {
@@ -1226,6 +1275,64 @@ else{
       margin-top: 0px;
       margin-left: 0px;
       margin-right: 0px;
+    }
+
+    .modal-content .custom-model-extend-form .modal-body .card-outline .badge-secondary {
+      color: #fff;
+      background-color: #2f333e;
+      padding: 5px 15px;
+      font-size: 15px;
+      line-height: 23px;
+      letter-spacing: 0.75px;
+      margin-left: 0px !important;
+      border-radius: 5px;
+    }
+
+    .modal-content .custom-model-extend-form .modal-body .custom-card-outline-small {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 15px;
+      line-height: 23px;
+      letter-spacing: 0.75px;
+      font-weight: 400;
+      color: #2f333e;
+    }
+
+    .custom-model-extend-form .modal-body .nav-tabs {
+      border: unset;
+      margin-bottom: 25px;
+    }
+
+    .custom-model-extend-form .modal-body .nav-tabs .nav-item .nav-link {
+      margin: 0px;
+      border: 1px solid #2f333e;
+      border-radius: 5px;
+      margin-right: 15px;
+      padding: 5px 15px;
+      color: #2f333e;
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+    }
+
+    .custom-model-extend-form .modal-body .nav-tabs .nav-item:last-child .nav-link {
+      margin-right: 0px;
+    }
+
+    .custom-model-extend-form .modal-body .nav-tabs .nav-item .nav-link:hover,
+    .custom-model-extend-form .modal-body .nav-tabs .nav-item .nav-link.active {
+      background: #2f333e;
+      color: #fff;
+    }
+
+    .custom-model-extend-form .modal-body .tab-content .custom-tab-content {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 15px;
     }
 
     .custom-download-btn {

@@ -432,7 +432,7 @@ else{
           </div><!-- /.card Weighing Details -->
         </div><!-- /.modal-body -->
 
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+        <div class="modal-footer">
           <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn btn-primary custom-add-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
@@ -462,9 +462,9 @@ else{
             <input type="hidden" class="form-control" id="id" name="id">
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+        <div class="modal-footer">
           <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+          <button type="submit" class="btn btn-success custom-add-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -577,11 +577,11 @@ $(function () {
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn btn-warning btn-sm custom-users-icon-btn"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;

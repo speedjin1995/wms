@@ -127,7 +127,7 @@ else{
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
-          <div class="modal-footer justify-content-between">
+          <div class="modal-footer">
             <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
             <button type="button" class="btn btn-success custom-save-btn" id="uploadCustomer"><?=$languageArray['submit_code'][$language]?></button>
           </div>
@@ -368,7 +368,7 @@ else{
               </div>
               
             </div>
-            <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+            <div class="modal-footer">
               <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
               <button type="submit" class="btn btn-primary custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
@@ -434,7 +434,7 @@ else{
             <input type="text" class="form-control" id="binRemark" name="binRemark" placeholder="Optional note..." style="border-radius:8px;">
           </div>
         </div>
-        <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
+        <div class="modal-footer">
           <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px;"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn btn-warning" name="submit" id="submitBin" style="border-radius:8px; min-width:90px; font-weight:600;"><?=$languageArray['submit_code'][$language]?></button>
         </div>
@@ -463,7 +463,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
         <div id="binHistoryList"><div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin"></i></div></div>
         <div id="binHistoryPager" class="d-flex justify-content-between align-items-center mt-2"></div>
       </div>
-      <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
+      <div class="modal-footer">
         <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px; font-size:0.9rem;"><?=$languageArray['close_code'][$language]?></button>
       </div>
     </div>

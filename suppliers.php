@@ -117,7 +117,7 @@ else{
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
-          <div class="modal-footer justify-content-between">
+          <div class="modal-footer">
             <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
             <button type="button" class="btn btn-success custom-save-btn" id="uploadSupplier"><?=$languageArray['submit_code'][$language]?></button>
           </div>
@@ -357,7 +357,7 @@ else{
                 </div>
               </div>
             </div>
-            <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+            <div class="modal-footer">
               <button type="button" class="btn btn-danger custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
               <button type="submit" class="btn btn-primary custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
@@ -435,7 +435,7 @@ $(function () {
       { 
           data: 'id',
           render: function ( data, type, row ) {
-              return '<div class="row"><div class="col-4"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-4"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
+              return '<div class="row"><div class="col-5"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-5"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
           }
       }
     ],

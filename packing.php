@@ -255,7 +255,7 @@ else{
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
               <div class="col-2" style="visibility: hidden;">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
             </div>
           </div>
@@ -414,7 +414,7 @@ else{
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
+            <button type="button" class="btn btn-success btn-sm custom-add-btn" id="addWeightBtn">
               <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
             </button>
           </div>
@@ -509,8 +509,8 @@ else{
         </div>
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-save-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -539,8 +539,8 @@ else{
           </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success custom-save-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -649,12 +649,12 @@ $(function () {
           /*if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }*/
-          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm custom-reject-icon-btn"><i class="fas fa-print"></i></button>';
           if(allowInvoice == 'Y' && row.status == 'SALES'){
-            buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
+            buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm custom-users-icon-btn"><i class="fas fa-file-invoice"></i></button>';
           }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
@@ -814,12 +814,12 @@ $(function () {
             /*if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }*/
-            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm custom-reject-icon-btn"><i class="fas fa-print"></i></button>';
             if(allowInvoice == 'Y' && row.status == 'SALES'){
-              buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
+              buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm custom-users-icon-btn"><i class="fas fa-file-invoice"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
             return buttons;
@@ -988,7 +988,7 @@ $(function () {
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            return '<div class="d-flex flex-nowrap" style="gap:4px;"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+            return '<div class="d-flex flex-nowrap" style="gap:4px;"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm custom-reject-icon-btn"><i class="fas fa-print"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div>';
           }
         }
       ],
@@ -1208,12 +1208,12 @@ $(function () {
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
           <span id="photoStatus${idx}"></span>
         </td>
         <td>
-          <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+          <button type="button" class="btn btn-warning btn-sm custom-reject-icon-btn" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
+          <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -1591,7 +1591,7 @@ function format (row) {
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
               ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
               <td>${detail.time}</td>
-              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
+              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm custom-pencil-icon-btn" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
 
@@ -1728,9 +1728,9 @@ function formatNormal (row) {
   '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
   '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
   '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  '</p></div><div class="col-md-3"><div class="row"><div class="col-4"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  ')"><i class="fas fa-pen"></i></button></div><div class="col-4"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  ')"><i class="fas fa-print"></i></button></div><div class="col-4"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
+  '</p></div><div class="col-md-3"><div class="row"><div class="col-4"><button type="button" class="btn btn-warning btn-sm custom-reject-icon-btn" onclick="edit('+row.id+
+  ')"><i class="fas fa-pen"></i></button></div><div class="col-4"><button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="print('+row.id+
+  ')"><i class="fas fa-print"></i></button></div><div class="col-4"><button type="button" class="btn btn-success btn-sm custom-pencil-icon-btn" onclick="portrait('+row.id+
   ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
   '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
   '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
@@ -1863,13 +1863,13 @@ function edit(id) {
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm custom-pencil-icon-btn" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
                 <span id="photoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-warning btn-sm custom-reject-icon-btn" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;
@@ -1943,13 +1943,13 @@ function edit(id) {
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
+                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm custom-pencil-icon-btn" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
                 <span id="rejectPhotoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-success btn-sm custom-pencil-icon-btn" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
+                <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;
@@ -2029,7 +2029,7 @@ function rejectRow(button) {
     }
   });
   
-  row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
+  row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm custom-pencil-icon-btn" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
   
   $('#rejectDetailsTable').append(row);
@@ -2068,7 +2068,7 @@ function acceptRow(button) {
     }
   });
   
-  row.find('button[onclick*="acceptRow"]').replaceWith('<button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>');
+  row.find('button[onclick*="acceptRow"]').replaceWith('<button type="button" class="btn btn-warning btn-sm custom-reject-icon-btn" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>');
   row.find('button[onclick*="removeRejectDetail"]').attr('onclick', 'removeWeightDetail(this)');
   
   $('#weightDetailsTable').append(row);

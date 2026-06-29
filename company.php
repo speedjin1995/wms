@@ -269,7 +269,7 @@ else{
 						</div>
 					</div>
 				</div>
-				<div class="row mt-3">
+				<div class="row">
 					<div class="col-md-4" style="<?=($role != 'SADMIN') ? 'display:none' : ''?>">
 						<div class="card bg-light mb-0">
 							<div class="card-body p-3 d-flex align-items-center justify-content-between">

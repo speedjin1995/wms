@@ -44,9 +44,9 @@ else{
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['stock_transfer_code'][$language]?></h1>
+        <h1><?=$languageArray['stock_transfer_code'][$language]?></h1>
       </div>
     </div>
   </div>
@@ -84,7 +84,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -101,10 +101,10 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['stock_transfer_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['stock_transfer_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()">
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()">
                   <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
                 </button>
               </div>
@@ -136,17 +136,17 @@ else{
 <div class="modal fade" id="transferModal">
   <div class="modal-dialog" style="max-width: 95%;">
     <div class="modal-content">
-      <form role="form" id="transferForm">
+      <form role="form" id="transferForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['stock_transfer_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal">
             <span>&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <input type="hidden" class="form-control" id="id" name="id">
 
-          <div class="row mb-3">
+          <div class="row">
             <div class="col-md-6">
               <div class="form-group">
                 <label><?=$languageArray['batch_code'][$language]?> A *</label>
@@ -171,7 +171,7 @@ else{
             </div>
           </div>
 
-          <div class="row mb-3">
+          <div class="row">
             <div class="col-md-12">
               <div class="form-group">
                 <label><?=$languageArray['remark_code'][$language]?></label>
@@ -187,10 +187,10 @@ else{
               <div class="card card-outline card-primary">
                 <div class="card-header">
                   <h6 class="mb-0"><?=$languageArray['batch_code'][$language]?> A: <span id="batchALabel"></span>
-                    <span class="badge badge-secondary ml-2" id="batchACount">0</span>
+                    <span class="badge badge-secondary" id="batchACount">0</span>
                   </h6>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body">
                   <table class="table table-bordered table-sm mb-0">
                     <thead class="bg-primary text-white">
                       <tr>
@@ -213,10 +213,10 @@ else{
               <div class="card card-outline card-success">
                 <div class="card-header">
                   <h6 class="mb-0"><?=$languageArray['batch_code'][$language]?> B: <span id="batchBLabel"></span>
-                    <span class="badge badge-secondary ml-2" id="batchBCount">0</span>
+                    <span class="badge badge-secondary" id="batchBCount">0</span>
                   </h6>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body">
                   <table class="table table-bordered table-sm mb-0">
                     <thead class="bg-success text-white">
                       <tr>
@@ -235,12 +235,12 @@ else{
             </div>
           </div>
 
-          <small class="text-muted"><i class="fas fa-info-circle"></i> <?=$languageArray['drag_rows_hint_code'][$language]?></small>
+          <small class="custom-card-outline-small"><i class="fas fa-info-circle"></i> <?=$languageArray['drag_rows_hint_code'][$language]?></small>
         </div>
 
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="saveTransferBtn"><?=$languageArray['save_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success custom-add-btn" id="saveTransferBtn"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -251,10 +251,10 @@ else{
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form role="form" id="cancelForm">
+      <form role="form" id="cancelForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><i class="fas fa-undo"></i> <?=$languageArray['undo_stock_transfer_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
           <div class="form-group">
@@ -264,8 +264,8 @@ else{
           <input type="hidden" id="cancelId" name="id">
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-danger"><?=$languageArray['submit_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-danger custom-save-btn"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -333,7 +333,7 @@ $(function () {
       { data: 'id', class: 'action-button', render: function(data) {
           var btn = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           <?php if($allowDelete == 'Y'){ ?>
-            btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-undo"></i></button>';
+            btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-undo"></i></button>';
           <?php } ?>
           btn += '</div>';
           return btn;
@@ -374,7 +374,7 @@ $(function () {
         { data: 'id', class: 'action-button', render: function(data) {
             var btn = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             <?php if($allowDelete == 'Y'){ ?>
-            btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-undo"></i></button>';
+            btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-undo"></i></button>';
             <?php } ?>
             btn += '</div>';
             return btn;
@@ -487,8 +487,8 @@ function loadBatchItems(batchId, tableSelector, side) {
 
 function buildTransferRow(item, side) {
   var arrow = side === 'A'
-    ? '<button type="button" class="btn btn-sm btn-warning btn-transfer" onclick="moveRow(this, \'B\')"><i class="fas fa-arrow-right"></i></button>'
-    : '<button type="button" class="btn btn-sm btn-warning btn-transfer" onclick="moveRow(this, \'A\')"><i class="fas fa-arrow-left"></i></button>';
+    ? '<button type="button" class="btn btn-sm btn-warning btn-transfer custom-reject-icon-btn" onclick="moveRow(this, \'B\')"><i class="fas fa-arrow-right"></i></button>'
+    : '<button type="button" class="btn btn-sm btn-warning btn-transfer custom-reject-icon-btn" onclick="moveRow(this, \'A\')"><i class="fas fa-arrow-left"></i></button>';
 
   return $('<tr>')
     .attr('draggable', 'true')
@@ -508,8 +508,8 @@ function moveRow(btn, targetSide) {
 
   // Update arrow button direction
   var newArrow = targetSide === 'A'
-    ? '<button type="button" class="btn btn-sm btn-warning btn-transfer" onclick="moveRow(this, \'B\')"><i class="fas fa-arrow-right"></i></button>'
-    : '<button type="button" class="btn btn-sm btn-warning btn-transfer" onclick="moveRow(this, \'A\')"><i class="fas fa-arrow-left"></i></button>';
+    ? '<button type="button" class="btn btn-sm btn-warning btn-transfer custom-reject-icon-btn" onclick="moveRow(this, \'B\')"><i class="fas fa-arrow-right"></i></button>'
+    : '<button type="button" class="btn btn-sm btn-warning btn-transfer custom-reject-icon-btn" onclick="moveRow(this, \'A\')"><i class="fas fa-arrow-left"></i></button>';
   tr.find('td:last').html(newArrow);
 
   target.append(tr);
@@ -543,8 +543,8 @@ function initDragDrop() {
     if (dragSrc && $(dragSrc).closest('.transfer-zone')[0] !== this) {
       var targetSide = $(this).data('side');
       var newArrow = targetSide === 'A'
-        ? '<button type="button" class="btn btn-sm btn-warning btn-transfer" onclick="moveRow(this, \'B\')"><i class="fas fa-arrow-right"></i></button>'
-        : '<button type="button" class="btn btn-sm btn-warning btn-transfer" onclick="moveRow(this, \'A\')"><i class="fas fa-arrow-left"></i></button>';
+        ? '<button type="button" class="btn btn-sm btn-warning btn-transfer custom-reject-icon-btn" onclick="moveRow(this, \'B\')"><i class="fas fa-arrow-right"></i></button>'
+        : '<button type="button" class="btn btn-sm btn-warning btn-transfer custom-reject-icon-btn" onclick="moveRow(this, \'A\')"><i class="fas fa-arrow-left"></i></button>';
       $(dragSrc).find('td:last').html(newArrow);
       $(this).append(dragSrc);
       updateCounts();

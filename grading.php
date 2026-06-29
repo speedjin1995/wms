@@ -151,7 +151,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -167,10 +167,10 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['grading_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['grading_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
@@ -199,10 +199,10 @@ else{
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="extendForm">
+      <form role="form" id="extendForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -276,7 +276,7 @@ else{
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
             <div class="d-flex align-items-center gap-2">
-              <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
+              <button type="button" class="btn btn-success btn-sm custom-add-btn" id="addWeightBtn">
                 <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
               </button>
             </div>
@@ -319,7 +319,7 @@ else{
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="mb-0"><?=$languageArray['reject_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-danger btn-sm" id="addRejectWeightBtn">
+            <button type="button" class="btn btn-danger btn-sm custom-delete-btn" id="addRejectWeightBtn">
               <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
             </button>
           </div>
@@ -359,9 +359,9 @@ else{
           </div>
         </div>
 
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary custom-add-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -371,10 +371,10 @@ else{
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
-      <form role="form" id="cancelForm">
+      <form role="form" id="cancelForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -389,9 +389,9 @@ else{
             <input type="hidden" class="form-control" id="id" name="id">
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success custom-add-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -481,11 +481,11 @@ $(function () {
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
           }
           // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
@@ -698,11 +698,11 @@ $(function () {
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
           <span id="photoStatus${idx}"></span>
         </td>
         <td>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+          <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -836,11 +836,11 @@ $(function () {
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="">
           <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
           <span id="rejectPhotoStatus${idx}"></span>
         </td>
         <td>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+          <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -970,7 +970,7 @@ function format (row) {
               <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
               <td>${detail.weighing_time}</td>
-              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
+              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm custom-pencil-icon-btn" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
 
@@ -1027,7 +1027,7 @@ function format (row) {
               <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
               <td>${detail.weighing_time}</td>
-              ${allowPhoto == 'Y' ? '<td>' + (detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
+              ${allowPhoto == 'Y' ? '<td>' + (detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn btn-success btn-sm custom-pencil-icon-btn" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
             </tr>`;
 
@@ -1144,12 +1144,12 @@ function edit(id) {
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photo_path || ''}">
                 <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                ${detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn btn-success btn-sm custom-pencil-icon-btn" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
                 <span id="photoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;
@@ -1226,12 +1226,12 @@ function edit(id) {
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photo_path || ''}">
                 <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                ${detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn btn-success btn-sm custom-pencil-icon-btn" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                <button type="button" class="btn btn-info btn-sm custom-users-icon-btn" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
                 <span id="rejectPhotoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-danger btn-sm custom-trash-icon-btn" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;
