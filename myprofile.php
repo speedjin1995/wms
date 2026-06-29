@@ -15,11 +15,13 @@ else{
 	$result = $stmt->get_result();
     $fullName = '';
     $userName = '';
+    $userEmail = '';
     $language = 'en';
 	
 	if(($row = $result->fetch_assoc()) !== null){
         $fullName = $row['name'];
         $userName = $row['username'];
+        $userEmail = $row['email'] ?? '';
         $language = $row['languages'];
     }
 
@@ -47,8 +49,14 @@ else{
 				</div>
 				
 				<div class="form-group">
-					<label for="name"><?=$languageArray['username_code'][$language]?> *</label>
+					<label for="userEmailAddress"><?=$languageArray['username_code'][$language]?> *</label>
 					<input type="text" class="form-control" id="userEmail" name="userEmail" value="<?=$userName ?>" placeholder="<?=$languageArray['enter_username_code'][$language]?>" readonly="">
+				</div>
+
+				<div class="form-group">
+					<label for="userEmailAddress"><?=$languageArray['email_address_code'][$language]?></label>
+					<input type="email" class="form-control" id="userEmailAddress" name="userEmailAddress" value="<?= htmlspecialchars($userEmail) ?>" placeholder="<?=$languageArray['enter_email_code'][$language]?>" autocomplete="email">
+					<small class="form-text text-muted"><?=$languageArray['used_for_password_reset_code'][$language]?></small>
 				</div>
 				
 				<div class="form-group">

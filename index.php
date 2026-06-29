@@ -1741,6 +1741,18 @@ to get the desired effect
                     </a>
                   </li>
                   <li class="nav-item">
+                    <a href="#states" data-file="states.php" class="nav-link link">
+                      <i class="nav-icon fas fa-map-marker-alt"></i>
+                      <p>'.$languageArray['states_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#currencies" data-file="currencies.php" class="nav-link link">
+                      <i class="nav-icon fas fa-dollar-sign"></i>
+                      <p>'.$languageArray['currency_code'][$language].'</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
                     <a href="#units" data-file="units.php" class="nav-link link">
                       <i class="nav-icon fas fa-balance-scale"></i>
                       <p>'.$languageArray['units_code'][$language].'</p>
@@ -1819,6 +1831,16 @@ to get the desired effect
                     <a href="#productionLines" data-file="productionLines.php" class="nav-link link">
                       <i class="nav-icon fas fa-industry"></i>
                       <p>'.$languageArray['production_lines_code'][$language].'</p>
+                    </a>
+                  </li>';
+                }
+
+                if (in_array('basket', $_SESSION['products'])){
+                  echo '
+                  <li class="nav-item">
+                    <a href="#binType" data-file="binType.php" class="nav-link link">
+                      <i class="nav-icon fas fa-dumpster"></i>
+                      <p>'.$languageArray['bin_types_code'][$language].'</p>
                     </a>
                   </li>';
                 }

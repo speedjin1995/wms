@@ -39,6 +39,26 @@ if(isset($_GET['product']) && $_GET['product'] != null && $_GET['product'] != ''
     $searchQuery .= " AND wholesales.product = '".mysqli_real_escape_string($db, $_GET['product'])."'";
 }
 
+if(isset($_GET['category']) && $_GET['category'] != null && $_GET['category'] != '' && $_GET['category'] != '-'){
+  // Get product ids in this category first
+  $catProductIds = [];
+  $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND deleted = '0'");
+  $catStmt->bind_param('s', $_GET['category']);
+  $catStmt->execute();
+  $catResult = $catStmt->get_result();
+  while ($catRow = $catResult->fetch_assoc()) {
+    $catProductIds[] = $catRow['id'];
+  }
+  $catStmt->close();
+
+  if (count($catProductIds) > 0) {
+    $likeConditions = array_map(fn($id) => "wholesales.weight_details LIKE '%\"product\":\"".$id."\"%'", $catProductIds);
+    $searchQuery .= " AND (" . implode(' OR ', $likeConditions) . ")";
+  } else {
+    $searchQuery .= " AND 1=0";
+  }
+}
+
 if(isset($_GET['customer']) && $_GET['customer'] != null && $_GET['customer'] != '' && $_GET['customer'] != '-'){
     $searchQuery .= " AND wholesales.customer = '".mysqli_real_escape_string($db, $_GET['customer'])."'";
 }

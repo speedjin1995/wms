@@ -1,22 +1,28 @@
 <?php
+// ini_set('display_errors', '1');
+// ini_set('display_startup_errors', '1');
+// error_reporting(E_ALL);
 require_once "db_connect.php";
 session_start();
 
 if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
+    $userID = $_SESSION['userID'];
     $productId = filter_input(INPUT_POST, 'product_id', FILTER_SANITIZE_STRING);
-
-    // Soft-delete all existing product_customers for this product
-    if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted='1' WHERE product_id=?")) {
-        $delete_stmt->bind_param('s', $productId);
-        if (!$delete_stmt->execute()) {
-            echo json_encode(["status" => "failed", "message" => $delete_stmt->error]);
-            exit();
-        }
-        $delete_stmt->close();
-    }
 
     // Re-insert customer rows
     if (isset($_POST['no']) && count($_POST['no']) > 0) {
+        // Soft-delete all existing product_customers for this product
+        $db->query("SET @skip_customer_log = 1");
+        if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted='1', modified_by=? WHERE product_id=? AND deleted='0'")) {
+            $delete_stmt->bind_param('ss', $userID, $productId);
+            if (!$delete_stmt->execute()) {
+                echo json_encode(["status" => "failed", "message" => $delete_stmt->error]);
+                exit();
+            }
+            $delete_stmt->close();
+        }
+        $db->query("SET @skip_customer_log = NULL");
+
         $no = $_POST['no'];
         $customers = (array)$_POST['customers'];
         $customerProductId = (array)$_POST['customerProductId'];
@@ -32,33 +38,45 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
 
             if (isset($customerProductId[$key]) && $customerProductId[$key] != '') {
                 $cProductId = $customerProductId[$key];
-                if ($stmt = $db->prepare("UPDATE product_customers SET product_id=?, customer_id=?, grade_id=?, pricing_type=?, price=?, deleted='0' WHERE id=?")) {
-                    $stmt->bind_param('ssssss', $productId, $customerId, $cGradeId, $cPricingType, $cPrice, $cProductId);
+                if ($stmt = $db->prepare("UPDATE product_customers SET product_id=?, customer_id=?, grade_id=?, pricing_type=?, price=?, deleted='0', modified_by=? WHERE id=?")) {
+                    $stmt->bind_param('sssssss', $productId, $customerId, $cGradeId, $cPricingType, $cPrice, $userID, $cProductId);
                     $stmt->execute();
                     $stmt->close();
                 }
             } else {
-                if ($stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, grade_id, pricing_type, price) VALUES (?, ?, ?, ?, ?)")) {
-                    $stmt->bind_param('sssss', $productId, $customerId, $cGradeId, $cPricingType, $cPrice);
+                if ($stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, grade_id, pricing_type, price, created_by) VALUES (?, ?, ?, ?, ?, ?)")) {
+                    $stmt->bind_param('ssssss', $productId, $customerId, $cGradeId, $cPricingType, $cPrice, $userID);
                     $stmt->execute();
                     $stmt->close();
                 }
             }
         }
-    }
-
-    // Soft-delete all existing product_suppliers for this product
-    if ($delete_stmt = $db->prepare("UPDATE product_suppliers SET deleted='1' WHERE product_id=?")) {
-        $delete_stmt->bind_param('s', $productId);
-        if (!$delete_stmt->execute()) {
-            echo json_encode(["status" => "failed", "message" => $delete_stmt->error]);
-            exit();
+    }else{
+        // Soft-delete all existing product_customers for this product
+        if ($delete_stmt = $db->prepare("UPDATE product_customers SET deleted='1', modified_by=? WHERE product_id=? AND deleted='0'")) {
+            $delete_stmt->bind_param('ss', $userID, $productId);
+            if (!$delete_stmt->execute()) {
+                echo json_encode(["status" => "failed", "message" => $delete_stmt->error]);
+                exit();
+            }
+            $delete_stmt->close();
         }
-        $delete_stmt->close();
     }
 
     // Re-insert supplier rows
     if (isset($_POST['supplierNo']) && count($_POST['supplierNo']) > 0) {
+        // Soft-delete all existing product_suppliers for this product (suppress trigger log)
+        $db->query("SET @skip_supplier_log = 1");
+        if ($delete_stmt = $db->prepare("UPDATE product_suppliers SET deleted='1', modified_by=? WHERE product_id=? AND deleted='0'")) {
+            $delete_stmt->bind_param('ss', $userID, $productId);
+            if (!$delete_stmt->execute()) {
+                echo json_encode(["status" => "failed", "message" => $delete_stmt->error]);
+                exit();
+            }
+            $delete_stmt->close();
+        }
+        $db->query("SET @skip_supplier_log = NULL");
+
         $supplierNo = $_POST['supplierNo'];
         $suppliers = (array)$_POST['suppliers'];
         $supplierProductId = (array)$_POST['supplierProductId'];
@@ -74,18 +92,27 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
 
             if (isset($supplierProductId[$key]) && $supplierProductId[$key] != '') {
                 $sProductId = $supplierProductId[$key];
-                if ($stmt = $db->prepare("UPDATE product_suppliers SET product_id=?, supplier_id=?, grade_id=?, purchasing_pricing_type=?, purchasing_price=?, deleted='0' WHERE id=?")) {
-                    $stmt->bind_param('ssssss', $productId, $supplierId, $sGradeId, $sPricingType, $sPrice, $sProductId);
+                if ($stmt = $db->prepare("UPDATE product_suppliers SET product_id=?, supplier_id=?, grade_id=?, purchasing_pricing_type=?, purchasing_price=?, deleted='0', modified_by=? WHERE id=?")) {
+                    $stmt->bind_param('sssssss', $productId, $supplierId, $sGradeId, $sPricingType, $sPrice, $userID, $sProductId);
                     $stmt->execute();
                     $stmt->close();
                 }
             } else {
-                if ($stmt = $db->prepare("INSERT INTO product_suppliers (product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_price) VALUES (?, ?, ?, ?, ?)")) {
-                    $stmt->bind_param('sssss', $productId, $supplierId, $sGradeId, $sPricingType, $sPrice);
+                if ($stmt = $db->prepare("INSERT INTO product_suppliers (product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?)")) {
+                    $stmt->bind_param('ssssss', $productId, $supplierId, $sGradeId, $sPricingType, $sPrice, $userID);
                     $stmt->execute();
                     $stmt->close();
                 }
             }
+        }
+    }else{
+        if ($delete_stmt = $db->prepare("UPDATE product_suppliers SET deleted='1', modified_by=? WHERE product_id=? AND deleted='0'")) {
+            $delete_stmt->bind_param('ss', $userID, $productId);
+            if (!$delete_stmt->execute()) {
+                echo json_encode(["status" => "failed", "message" => $delete_stmt->error]);
+                exit();
+            }
+            $delete_stmt->close();
         }
     }
 

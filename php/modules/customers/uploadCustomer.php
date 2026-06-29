@@ -40,8 +40,8 @@ if (!empty($data)) {
         $unitRow = mysqli_fetch_assoc($unitDetail);
 
         if (empty($unitRow)) {
-            if ($insert_stmt = $db->prepare("INSERT INTO customers (parent, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_pic, billing_fax, customer_phone, pic, fax, customer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                $insert_stmt->bind_param('ssssssssssssssssssssss', $Parent, $CustomerCode, $RegistrationNo, $CustomerName, $Address, $Address2, $Address3, $Address4, $State, $BillingName, $BillingAddress, $BillingAddress2, $BillingAddress3, $BillingAddress4, $BillingState, $BillingPhone, $BillingPIC, $BillingFax, $Phone, $PIC, $Fax, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO customers (parent, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_pic, billing_fax, customer_phone, pic, fax, customer, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('sssssssssssssssssssssss', $Parent, $CustomerCode, $RegistrationNo, $CustomerName, $Address, $Address2, $Address3, $Address4, $State, $BillingName, $BillingAddress, $BillingAddress2, $BillingAddress3, $BillingAddress4, $BillingState, $BillingPhone, $BillingPIC, $BillingFax, $Phone, $PIC, $Fax, $company, $user);
                 $insert_stmt->execute();
                 $insert_stmt->close();
             }

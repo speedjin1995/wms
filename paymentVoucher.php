@@ -149,7 +149,12 @@ $languageArray = $_SESSION['languageArray'];
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['payment_voucher_code'][$language]?></div>
+              <div class="col-9"><?=$languageArray['payment_voucher_code'][$language]?></div>
+              <div class="col-3">
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPvReport">
+                  <i class="fas fa-file-export"></i> Export
+                </button>
+              </div>
             </div>
           </div>
           <div class="card-body">
@@ -256,6 +261,7 @@ $languageArray = $_SESSION['languageArray'];
                   <th><?=$languageArray['date_code'][$language]?></th>
                   <th><?=$languageArray['name_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
+                  <th><?=$languageArray['category_code'][$language]?></th>
                   <th><?=$languageArray['nett_weight_code'][$language]?> (KG)</th>
                   <th><?=$languageArray['unit_price_code'][$language]?> (RM)</th>
                   <th style="display:none"><?=$languageArray['nett_amount_code'][$language]?> (RM)</th>
@@ -266,7 +272,7 @@ $languageArray = $_SESSION['languageArray'];
               <tbody id="pvItemsBody"></tbody>
               <tfoot>
                 <tr class="font-weight-bold">
-                  <td colspan="4" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                  <td colspan="5" class="text-right"><?=$languageArray['total_code'][$language]?></td>
                   <td id="footTotalNett">0.00</td>
                   <td></td>
                   <!-- <td id="footTotalNettAmt">0.00</td>
@@ -492,6 +498,30 @@ $(function() {
     });
   });
 
+  $('#exportPvReport').on('click', function() {
+    var fields = {
+      fromDate: $('#fromDate').val(),
+      toDate: $('#toDate').val(),
+      transactionStatus: $('#transactionStatusFilter').val(),
+      supplierId: $('#supplierFilter').val() || '',
+      parentSupplierId: $('#parentSupplierFilter').val() || '',
+      customerId: $('#customerFilter').val() || '',
+      parentCustomerId: $('#parentCustomerFilter').val() || ''
+    };
+    $('#spinnerLoading').show();
+    $.post('php/modules/paymentVoucher/exportPvReport.php', fields, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+        printWindow.document.write(obj.message);
+        printWindow.document.close();
+      } else {
+        toastr['error'](obj.message, 'Failed:');
+      }
+      $('#spinnerLoading').hide();
+    });
+  });
+
   $('#transactionStatusFilter').on('change', function() {
     var status = $(this).val();
 
@@ -508,21 +538,30 @@ $(function() {
     }
   });
 
-  $('#pvModal').on('input', '#unitPrice, #taxRate', function() {
+  $('#pvModal').on('input', '#unitPrice', function() {
+    var price = $(this).val();
+    $('#pvItemsBody .item-unit-price').val(price);
+    recalculate();
+  });
+
+  $('#pvModal').on('input', '#taxRate', function() {
     recalculate();
   });
 
   // Form submit
   $('#pvForm').on('submit', function(e) {
     e.preventDefault();
-    var wholesaleIds = [];
-    $('#pvItemsBody tr').each(function() { wholesaleIds.push($(this).data('id')); });
-    if (!wholesaleIds.length) { toastr['error']('No records loaded.', 'Error:'); return; }
+    var wholesales = [];
+    $('#pvItemsBody tr').each(function() {
+      wholesales.push({ id: $(this).data('id'), unit_price: $(this).find('.item-unit-price').val() });
+    });
+    if (!wholesales.length) { toastr['error']('No records loaded.', 'Error:'); return; }
 
     $('#spinnerLoading').show();
     var formData = new FormData($('#pvForm')[0]);
-    wholesaleIds.forEach(function(id, i) {
-      formData.append('wholesaleIds[' + i + ']', id);
+    wholesales.forEach(function(item, i) {
+      formData.append('wholesales[' + i + '][id]', item.id);
+      formData.append('wholesales[' + i + '][pv_unit_price]', item.unit_price);
     });
     formData.append('transactionStatus', $('#transactionStatusFilter').val());
     $.ajax({
@@ -560,7 +599,19 @@ $(function() {
         var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
         printWindow.document.write(obj.message);
         printWindow.document.close();
-        setTimeout(function() { printWindow.print(); printWindow.close(); }, 500);
+        // Poll until pagedjs finishes rendering
+        var pollCount = 0;
+        var poll = setInterval(function() {
+          pollCount++;
+          var rendered = printWindow.document.querySelector('.pagedjs_pages');
+          if (rendered || pollCount > 60) {
+            clearInterval(poll);
+            setTimeout(function() {
+              printWindow.print();
+              printWindow.close();
+            }, 300);
+          }
+        }, 200);
       } else {
         toastr['error'](obj.message, 'Failed:');
       }
@@ -640,8 +691,9 @@ function openPv(entityId, pvId) {
             '<td>' + item.start_time + '</td>' +
             '<td>' + item.supplier_name + '</td>' +
             '<td>' + item.vehicle_no + '</td>' +
+            '<td>' + item.categories + '</td>' +
             '<td class="item-nett">' + item.nett + '</td>' +
-            '<td class="item-unit-price">' + item.unit_price + '</td>' +
+            '<td><input type="number" step="0.01" min="0" class="form-control form-control-sm item-unit-price" value="' + item.unit_price + '" onchange="recalculate()"></td>' +
             '<td class="item-nett-amt" style="display:none">' + item.nett_amount + '</td>' +
             '<td class="item-tax-amt" style="display:none">0.00</td>' +
             '<td class="item-total-price">0.00</td>' +
@@ -663,11 +715,11 @@ function recalculate() {
 
   $('#pvItemsBody tr').each(function() {
     var nett = parseFloat($(this).data('nett')) || 0;
-    var nettAmt = unitPrice * nett;
+    var rowPrice = parseFloat($(this).find('.item-unit-price').val());
+    var rowUnitPrice = isNaN(rowPrice) ? unitPrice : rowPrice;
+    var nettAmt = rowUnitPrice * nett;
     var taxAmt = nettAmt * (tax / 100);
     var total = nettAmt + taxAmt;
-
-    $(this).find('.item-unit-price').text(unitPrice.toFixed(2));
     $(this).find('.item-nett-amt').text(nettAmt.toFixed(2));
     $(this).find('.item-tax-amt').text(taxAmt.toFixed(2));
     $(this).find('.item-total-price').text(total.toFixed(2));

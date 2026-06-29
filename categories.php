@@ -224,7 +224,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-      'url':'php/loadCategory.php',
+      'url':'php/modules/categories/loadCategory.php',
     },
     'columns': [
       {
@@ -240,12 +240,7 @@ $(function () {
       { 
         data: 'deleted',
         render: function (data, type, row) {
-          if (data == 0) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
-          } 
-          else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm custom-reject-icon-btn">Reactivate</button>';
-          }
+          return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ],
@@ -259,7 +254,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/categories.php', $('#categoryForm').serialize(), function(data){
+          $.post('php/modules/categories/categories.php', $('#categoryForm').serialize(), function(data){
               var obj = JSON.parse(data); 
               
               if(obj.status === 'success'){
@@ -352,7 +347,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/uploadCategory.php',
+        url: 'php/modules/categories/uploadCategory.php',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -395,7 +390,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/deleteCategory.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+          $.post('php/modules/categories/deleteCategory.php', {userID: selectedIds, type: 'MULTI'}, function(data){
               var obj = JSON.parse(data);
               
               if(obj.status === 'success'){
@@ -419,56 +414,6 @@ $(function () {
         $('#spinnerLoading').hide();
     }     
   });
-
-  // document.getElementById('fileInput').addEventListener('change', function (e) {
-  //   const file = e.target.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = function (e) {
-  //     const data = new Uint8Array(e.target.result);
-  //     const workbook = XLSX.read(data, { type: 'array' });
-
-  //     const sheetName = workbook.SheetNames[1];
-  //     const sheet = workbook.Sheets[sheetName];
-  //     jsonData = XLSX.utils.sheet_to_json(sheet);
-  //     console.log(jsonData);
-  //   };
-  //   reader.readAsArrayBuffer(file);
-  // });
-
-  // $('#importExcelbtn').on('click', function(){
-  //     jsonData.forEach(function(row) {
-  //         $.ajax({
-  //             url: 'php/importExcelCustomer.php',
-  //             type: 'POST',
-  //             contentType: 'application/json',
-  //             data: JSON.stringify(row),
-  //             success: function(response) {
-  //                 debugger;
-  //                 var obj = JSON.parse(response); 
-                  
-  //                 if(obj.status === 'success'){
-  //                     $('#addModal').modal('hide');
-  //                     toastr["success"](obj.message, "Success:");
-  //                     $('#customerTable').DataTable().ajax.reload();
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else if(obj.status === 'failed'){
-  //                     toastr["error"](obj.message, "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //                 else{
-  //                     toastr["error"]("Something wrong when import", "Failed:");
-  //                     $('#spinnerLoading').hide();
-  //                 }
-  //             },
-  //             error: function(error) {
-  //                 toastr["error"](obj.message, "Failed:");
-  //                 $('#spinnerLoading').hide();
-  //             }
-  //         })
-  //     })
-  // });
 });
 
 function displayPreview(data) {
@@ -524,7 +469,7 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getCategory.php', {userID: id}, function(data){
+  $.post('php/modules/categories/getCategory.php', {userID: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){
@@ -560,30 +505,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/deleteCategory.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
-        
-        if(obj.status === 'success'){
-            toastr["success"](obj.message, "Success:");
-            $('#categoryTable').DataTable().ajax.reload();
-            $('#spinnerLoading').hide();
-        }
-        else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-            $('#spinnerLoading').hide();
-        }
-        else{
-            toastr["error"]("Something wrong when activate", "Failed:");
-            $('#spinnerLoading').hide();
-        }
-    });
-  }
-}
-
-function reactivate(id){
-  if (confirm('Are you sure you want to reactivate this items?')) {
-    $('#spinnerLoading').show();
-    $.post('php/reactivateCategory.php', {userID: id}, function(data){
+    $.post('php/modules/categories/deleteCategory.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
