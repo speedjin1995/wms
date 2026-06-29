@@ -24,8 +24,8 @@ if (!empty($data)) {
         $row = mysqli_fetch_assoc($categoryDetail);
 
         if(empty($row)){
-            if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, weight, is_by_weight, customer) VALUES (?, ?, ?, ?, ?)")) {
-                $insert_stmt->bind_param('sssss', $PackagingName, $PackagingType, $PackagingWeight, $ByWeight, $company);
+            if ($insert_stmt = $db->prepare("INSERT INTO packaging (packaging_name, packaging_type, weight, is_by_weight, customer, created_by) VALUES (?, ?, ?, ?, ?, ?)")) {
+                $insert_stmt->bind_param('ssssss', $PackagingName, $PackagingType, $PackagingWeight, $ByWeight, $company, $user);
                 $insert_stmt->execute();
                 $unitId = $insert_stmt->insert_id; // Get the inserted unit ID
                 $insert_stmt->close();            

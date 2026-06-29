@@ -33,8 +33,9 @@ function arrangeByGrade($weighingDetails) {
     return ['arranged' => $arranged, 'earliest_time' => $earliest_time, 'latest_time' => $latest_time];
 }
 
-if(isset($_POST['userID'])){
+if(isset($_POST['userID'], $_POST['withPhoto'])){
     $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
+    $withPhoto = filter_input(INPUT_POST, 'withPhoto', FILTER_SANITIZE_STRING);
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);
@@ -348,7 +349,26 @@ if(isset($_POST['userID'])){
 
                     <div class="container-fluid">
                         <div class="grade-section page-content">'.$weightDetails.'</div>
-                    </div>
+                    </div>';
+
+                if ($withPhoto == 'Y') {
+                    $photoItems = array_filter($weighingDetails ?? [], fn($d) => !empty($d['photoPath']));
+                    if (!empty($photoItems)) {
+                        $message .= '<div class="page-break"><h3 style="font-size:14px;margin-bottom:10px;">Photos</h3><div class="row">';
+                        foreach ($photoItems as $item) {
+                            $photoSrc = 'php/viewPhoto.php?file=' . urlencode($item['photoPath']) . '&type=photo';
+                            $label = 'Product: ' . searchProductNameById($item['product'], $db) . ', Grade: ' . searchGradeNameById($item['grade_id'], $db);
+                            $message .= '
+                                <div class="col-4" style="margin-bottom:10px;text-align:center;">
+                                    <img src="'.$photoSrc.'" style="width:100%;height:auto;border:1px solid #ccc;">
+                                    <div style="font-size:12px;margin-top:4px;">'.htmlspecialchars($label).'</div>
+                                </div>';
+                        }
+                        $message .= '</div></div>';
+                    }
+                }
+
+                $message .= '
                 </body>
                 </html>';
 

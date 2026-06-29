@@ -18,8 +18,8 @@ else{
   $states = $db->query("SELECT * FROM states ORDER BY states ASC");
 
   if ($role != 'SADMIN'){
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 AND customer = '".$company."' ORDER BY customer_name ASC");
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 AND customer = '".$company."' ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT c.*, s.states AS state_name FROM customers c LEFT JOIN states s ON c.states = s.id WHERE c.deleted = 0 AND c.customer = '".$company."' ORDER BY c.customer_name ASC");
+    $suppliers = $db->query("SELECT sp.*, s.states AS state_name FROM supplies sp LEFT JOIN states s ON sp.states = s.id WHERE sp.deleted = 0 AND sp.customer = '".$company."' ORDER BY sp.supplier_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $gradesBulk = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
@@ -28,8 +28,8 @@ else{
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 AND customer = '".$company."' ORDER BY packaging_name ASC");
   }
   else{
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = 0 ORDER BY customer_name ASC");
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT c.*, s.states AS state_name FROM customers c LEFT JOIN states s ON c.states = s.id WHERE c.deleted = 0 ORDER BY c.customer_name ASC");
+    $suppliers = $db->query("SELECT sp.*, s.states AS state_name FROM supplies sp LEFT JOIN states s ON sp.states = s.id WHERE sp.deleted = 0 ORDER BY sp.supplier_name ASC");
     $grades = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $grades2 = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $gradesBulk = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
@@ -433,7 +433,8 @@ else{
                   <tr>
                     <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
                     <th><?=$languageArray['customer_code'][$language]?></th>
-                    <th><?=$languageArray['grade_code'][$language]?></th>
+                    <th width="12%"><?=$languageArray['states_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['grade_code'][$language]?></th>
                     <th><?=$languageArray['pricing_type_code'][$language]?></th>
                     <th><?=$languageArray['selling_price_code'][$language]?></th>
                     <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
@@ -452,7 +453,8 @@ else{
                   <tr>
                     <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
                     <th><?=$languageArray['supplier_code'][$language]?></th>
-                    <th><?=$languageArray['grade_code'][$language]?></th>
+                    <th width="12%"><?=$languageArray['states_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['grade_code'][$language]?></th>
                     <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
                     <th><?=$languageArray['purchasing_price_code'][$language]?></th>
                     <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
@@ -489,7 +491,7 @@ else{
               $statesBulk = $db->query("SELECT * FROM states ORDER BY states ASC");
               while($rowStateBulk = mysqli_fetch_assoc($statesBulk)){
             ?>
-              <option value="<?=$rowStateBulk['id']?>"><?=$rowStateBulk['states']?></option>
+              <option value="<?=$rowStateBulk['states']?>"><?=$rowStateBulk['states']?></option>
             <?php } ?>
           </select>
         </div>
@@ -566,14 +568,17 @@ else{
       <input type="hidden" id="customerRowType" name="customerRowType" value="customer">
     </td>
     <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="customers" name="customers">
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="customers" name="customers" data-placeholder="Please Select">
         <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
-          <option value="<?=$rowCustomer['id'] ?>" data-state="<?=$rowCustomer['states']?>"><?=$rowCustomer['customer_name']?></option>
+          <option value="<?=$rowCustomer['id'] ?>" data-state="<?=$rowCustomer['state_name']?>"><?=$rowCustomer['customer_name']?></option>
         <?php } ?>
       </select>
     </td>
     <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="customerGrade" name="customerGrade">
+      <input type="text" class="form-control customer-state-display" readonly style="background-color:#e9ecef;">
+    </td>
+    <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="customerGrade" name="customerGrade" data-placeholder="-">
         <option value="">-</option>
         <?php while($gradeListRow=mysqli_fetch_assoc($grades2)){ ?>
           <option value="<?=$gradeListRow['id']?>"><?=$gradeListRow['units']?></option>
@@ -588,7 +593,7 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
+      <input type="number" step="0.01" min="0" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
     </td>
     <td>
       <button class="btn btn-success custom-trash-icon-btn" id="remove">
@@ -606,14 +611,17 @@ else{
       <input type="hidden" id="supplierRowType" name="supplierRowType" value="supplier">
     </td>
     <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="suppliers" name="suppliers">
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="suppliers" name="suppliers" data-placeholder="Please Select">
         <?php while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
-          <option value="<?=$rowSupplier['id'] ?>" data-state="<?=$rowSupplier['states']?>"><?=$rowSupplier['supplier_name']?></option>
+          <option value="<?=$rowSupplier['id'] ?>" data-state="<?=$rowSupplier['state_name']?>"><?=$rowSupplier['supplier_name']?></option>
         <?php } ?>
       </select>
     </td>
     <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="supplierGrade" name="supplierGrade">
+      <input type="text" class="form-control supplier-state-display" readonly style="background-color:#e9ecef;">
+    </td>
+    <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="supplierGrade" name="supplierGrade" data-placeholder="-">
         <option value="">-</option>
         <?php while($gradeSupRow=mysqli_fetch_assoc($gradesSupplier)){ ?>
           <option value="<?=$gradeSupRow['id']?>"><?=$gradeSupRow['units']?></option>
@@ -628,7 +636,7 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
+      <input type="number" step="0.01" min="0" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
     </td>
     <td>
       <button class="btn btn-success custom-trash-icon-btn" id="removeSupplier">
@@ -1010,6 +1018,11 @@ $(function () {
     $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount);
     $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount);
 
+    $("#customerTable").find('#customers' + customerRowCount).on('change', function() {
+      var state = $(this).find('option:selected').data('state') || '';
+      $(this).closest('tr').find('.customer-state-display').val(state);
+    }).trigger('change');
+
     $('#customerTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
     $('#customerTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
 
@@ -1047,6 +1060,11 @@ $(function () {
     });
     $("#supplierTable").find('#supplierPricingType:last').attr('name', 'supplierPricingType['+supplierRowCount+']').attr("id", "supplierPricingType" + supplierRowCount);
     $("#supplierTable").find('#supplierPrice:last').attr('name', 'supplierPrice['+supplierRowCount+']').attr("id", "supplierPrice" + supplierRowCount);
+
+    $("#supplierTable").find('#suppliers' + supplierRowCount).on('change', function() {
+      var state = $(this).find('option:selected').data('state') || '';
+      $(this).closest('tr').find('.supplier-state-display').val(state);
+    }).trigger('change');
 
     $('#supplierTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
     $('#supplierTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
@@ -1384,7 +1402,12 @@ function openCustomers(id) {
         $("#customerTable").find('#customerRowType:last').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
         $("#customerTable").find('#customers:last').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).val(item.customer_id).select2({
           allowClear: true, placeholder: "Please Select", dropdownParent: $('#customersModal')
+        }).on('change', function() {
+          var state = $(this).find('option:selected').data('state') || '';
+          $(this).closest('tr').find('.customer-state-display').val(state);
         });
+        var customerStateVal = $("#customerTable").find('#customers' + customerRowCount).find('option:selected').data('state') || '';
+        $("#customerTable").find('.details:last .customer-state-display').val(customerStateVal);
         $("#customerTable").find('#customerGrade:last').attr('name', 'customerGrade['+customerRowCount+']').attr("id", "customerGrade" + customerRowCount).val(item.grade_id || '').select2({
           allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
         });
@@ -1411,7 +1434,12 @@ function openCustomers(id) {
         $("#supplierTable").find('#supplierRowType:last').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
         $("#supplierTable").find('#suppliers:last').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).val(sItem.supplier_id).select2({
           allowClear: true, placeholder: "Please Select", dropdownParent: $('#customersModal')
+        }).on('change', function() {
+          var state = $(this).find('option:selected').data('state') || '';
+          $(this).closest('tr').find('.supplier-state-display').val(state);
         });
+        var supplierStateVal = $("#supplierTable").find('#suppliers' + supplierRowCount).find('option:selected').data('state') || '';
+        $("#supplierTable").find('.details:last .supplier-state-display').val(supplierStateVal);
         $("#supplierTable").find('#supplierGrade:last').attr('name', 'supplierGrade['+supplierRowCount+']').attr("id", "supplierGrade" + supplierRowCount).val(sItem.grade_id || '').select2({
           allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
         });
