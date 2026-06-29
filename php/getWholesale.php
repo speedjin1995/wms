@@ -77,6 +77,7 @@ if(isset($_POST['userID'])){
                     $weightDetailsOut = [];
                     foreach ($weightDetails as $weight){
                         $weight['product_name'] = searchProductNameById($weight['product'], $db);
+                        $weight['currency_name'] = searchCurrencyNameById($weight['currency'], $db);
 
                         // Backward compatibility: if grade_id is missing, lookup by grade name
                         if (empty($weight['grade_id']) && !empty($weight['grade'])) {
@@ -100,10 +101,15 @@ if(isset($_POST['userID'])){
                 $rejectDetails = array();
                 if (isset($row['reject_details']) && !empty($row['reject_details'])){
                     $rejectDetails = json_decode($row['reject_details'], true);
+                    $rejectDetailsOut = [];
 
                     foreach ($rejectDetails as $reject){
+                        $reject['currency_name'] = searchCurrencyNameById($reject['currency'], $db);
+
                         $totalReject += floatval($reject['net']);
+                        $rejectDetailsOut[] = $reject;
                     }
+                    $rejectDetails = $rejectDetailsOut;
                 }
 
                 $message['totalReject'] = $totalReject;

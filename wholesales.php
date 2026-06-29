@@ -2043,7 +2043,7 @@ function format (row) {
             <th>Gross</th>
             <th>Tare</th>
             <th>Net</th>
-            ${allowPrice == 'Y' ? '<th>Price</th><th>Total</th>' : ''}            
+            ${allowPrice == 'Y' ? '<th>Currency</th><th>Price</th><th>Total</th>' : ''}            
             <th>Time</th>
             ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
@@ -2064,7 +2064,7 @@ function format (row) {
               <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+              ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td>' + parseFloat(detail.price).toFixed(2) + '</td><td>' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
               <td>${detail.time}</td>
               ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
@@ -2084,7 +2084,7 @@ function format (row) {
           <th>${totalWeightGross.toFixed(2)}</th>
           <th>${totalWeightTare.toFixed(2)}</th>
           <th>${totalWeightNet.toFixed(2)}</th>
-          ${allowPrice == 'Y' ? '<th></th><th>RM ' + totalWeightPrice.toFixed(2) + '</th>' : ''}
+          ${allowPrice == 'Y' ? '<th></th><th></th><th>' + totalWeightPrice.toFixed(2) + '</th>' : ''}
           <th></th>
           ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
@@ -2102,7 +2102,7 @@ function format (row) {
             <th>Gross</th>
             <th>Tare</th>
             <th>Net</th>
-            ${allowPrice == 'Y' ? '<th>Price</th><th>Total</th>' : ''}
+            ${allowPrice == 'Y' ? '<th>Currency</th><th>Price</th><th>Total</th>' : ''}
             <th>Time</th>
             ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
           </tr>
@@ -2123,7 +2123,7 @@ function format (row) {
               <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
               <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              ${allowPrice == 'Y' ? '<td>RM ' + parseFloat(detail.price).toFixed(2) + '</td><td>RM ' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+              ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td>' + parseFloat(detail.price).toFixed(2) + '</td><td>' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
               <td>${detail.time}</td>
               ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
             returnString += `
@@ -2143,7 +2143,7 @@ function format (row) {
           <th>${totalRejectGross.toFixed(2)}</th>
           <th>${totalRejectTare.toFixed(2)}</th>
           <th>${totalRejectNet.toFixed(2)}</th>
-          ${allowPrice == 'Y' ? '<th></th><th>RM ' + totalRejectPrice.toFixed(2) + '</th>' : ''}
+          ${allowPrice == 'Y' ? '<th></th><th></th><th>' + totalRejectPrice.toFixed(2) + '</th>' : ''}
           <th></th>
           ${allowPhoto == 'Y' ? '<th></th>' : ''}
         </tr>
