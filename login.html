@@ -1,241 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Synctronix | Log in</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <title>Synctronix | Log in</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-  <!-- icheck bootstrap -->
-  <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    
+    <!-- Theme style -->
+    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    
+    <style>
+      .brand-panel {
+        position: relative;
+        background: url(assets/login-background.jpg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center right;
+      }
+      
+      .brand-panel-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+      }
 
-  <style>
-    .brand-panel {
-      background: url(assets/module-bg.jpeg) center / cover no-repeat;
-      position: relative;
-      background-image: url("assets/module-bg.jpeg") !important;
-      background-size: cover !important;
-      background-position: center !important;
-    }
-    .brand-panel-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-    }
-    .pw-wrap { position: relative; }
-    .pw-wrap .form-control { padding-right: 44px; }
-    .pw-toggle {
-      position: absolute; right: 12px; top: 50%;
-      transform: translateY(-50%);
-      background: none; border: none;
-      cursor: pointer; color: #6c757d;
-      font-size: 1rem; padding: 0;
-    }
-    .pw-toggle:focus { outline: 2px solid #007bff; border-radius: 4px; }
-    .form-footer {
-      position: absolute;
-      bottom: 1.5rem; left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 12px;
-      line-height: 20px;
-      letter-spacing: 0.75px;
-      font-weight: 400;
-      color: #2f333e !important;
-    }
+      .pw-wrap {
+        position: relative;
+      }
 
-    .form-control {
-      padding: 5px 10px;
-      border: 1px solid #243958;
-      border-radius: 5px;
-      font-size: 15px;
-      line-height: 23px;
-      letter-spacing: 0.75px;
-      font-weight: 400;
-      color: #2f333e;
-      box-shadow: unset;
-    }
+      .pw-wrap .form-control {
+        padding-right: 44px;
+      }
 
-    .form-control:focus {
-      color: #2f333e;
-      border-color: #3fb84e !important;
-      box-shadow: unset;
-    }
+      .pw-toggle {
+        position: absolute; right: 12px; top: 50%;
+        transform: translateY(-50%);
+        background: none; border: none;
+        cursor: pointer; color: #6c757d;
+        font-size: 1rem; padding: 0;
+      }
 
-    .custom-sign-btn {
-      background: #3fb84e;
-      color: #fff;
-      padding: 10px 25px;
-      font-size: 16px;
-      line-height: 24px;
-      letter-spacing: 0.75px;
-      font-weight: 700;
-      border: unset;
-      border-radius: 5px;
-      box-shadow: unset;
-      width: 100%;
-    }
+      .pw-toggle:focus {
+        outline: 2px solid #007bff;
+        border-radius: 4px;
+      }
 
-    .custom-sign-btn:hover {
-      background: #243958;
-    }
+      .form-footer {
+        position: absolute;
+        bottom: 1.5rem; left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 12px;
+        line-height: 20px;
+        letter-spacing: 0.75px;
+        font-weight: 400;
+        color: #2f333e !important;
+      }
 
-    .custom-forgot-link {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-    }
+      .form-control {
+        padding: 5px 10px;
+        border: 1px solid #243958;
+        border-radius: 5px;
+        font-size: 15px;
+        line-height: 23px;
+        letter-spacing: 0.75px;
+        font-weight: 400;
+        color: #2f333e;
+        box-shadow: unset;
+      }
 
-    .custom-forgot-link .small {
-      font-size: 15px;
-      line-height: 23px;
-      letter-spacing: 0.75px;
-      font-weight: 400;
-      color: #243958;
-    }
+      .form-control:focus {
+        color: #2f333e;
+        border-color: #3fb84e !important;
+        box-shadow: unset;
+      }
 
-    .custom-forgot-link .small:hover {
-      color: #3fb84e;
-    }
-  </style>
-</head>
+      .custom-sign-btn {
+        background: #3fb84e;
+        color: #fff;
+        padding: 10px 25px;
+        font-size: 16px;
+        line-height: 24px;
+        letter-spacing: 0.75px;
+        font-weight: 700;
+        border: unset;
+        border-radius: 5px;
+        box-shadow: unset;
+        width: 100%;
+      }
 
-<body class="hold-transition">
+      .custom-sign-btn:hover {
+        background: #243958;
+      }
 
-  <div class="d-flex" style="min-height:100vh; height:100vh;">
+      .custom-forgot-link {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+      }
 
-    <!-- Left: Brand Panel (desktop only) -->
-    <div class="brand-panel d-none d-lg-flex col-lg-6 p-0 flex-column align-items-center justify-content-center"
-         style="background-image:url('assets/module-bg.jpeg');background-size:cover;background-position:center;">
-      <div class="brand-panel-overlay"></div>
-      <div class="position-relative text-center text-white px-5">
-        <img src="assets/mun-meng-white-logo.png" alt="Mun Mung Logo" class="d-block mx-auto mb-4" style="max-height:30vh;width:auto;">
-        <p style="font-size: 20px; line-height: 25px; letter-spacing: 0.75px; font-weight: 700; margin-bottom: 0px;">Enterprise-grade weighing operations,<br>built for speed, accuracy, and compliance.</p>
-      </div>
-    </div>
+      .custom-forgot-link .small {
+        font-size: 15px;
+        line-height: 23px;
+        letter-spacing: 0.75px;
+        font-weight: 400;
+        color: #243958;
+      }
 
-    <!-- Right: Form Panel -->
-    <div class="col-lg-6 col-12 bg-white d-flex align-items-center justify-content-center px-4 px-md-5 position-relative" style="min-height:100vh;">
-      <div class="w-100" style="max-width:440px;">
+      .custom-forgot-link .small:hover {
+        color: #3fb84e;
+      }
+    </style>
+  </head>
 
-        <!-- Heading -->
-        <p style="font-size: 12px; line-height: 20px; letter-spacing: 0.75px; font-weight: 700; text-transform: uppercase; color: #3fb84e; margin-bottom: 5px;">Synctronix WMS</p>
-        <h2 style="font-size: 35px; line-height: 40px; letter-spacing: 0.75px; font-weight: 700; color: #243958; margin-bottom: 5px;">Sign in to WMS</h2>
-        <p style="font-size: 16px; line-height: 24px; letter-spacing: 0.75px; font-weight: 400; color: #2f333e; margin-bottom: 25px;">Enter your credentials to access your account.</p>
-
-        <!-- Error alert -->
-        <div class="alert alert-danger d-none" id="loginError" role="alert" aria-live="polite"></div>
-
-        <!-- Reset success alert -->
-        <div class="alert alert-success d-none" id="resetSuccess" role="alert" aria-live="polite">
-          Password reset successful. Please sign in with your new password.
+  <body class="hold-transition">
+    <div class="d-flex" style="min-height: 100vh; height: 100vh;">
+      <!-- Left: Brand Panel (desktop only) -->
+      <div class="brand-panel d-none d-lg-flex col-lg-6 p-0 flex-column align-items-center justify-content-center">
+        <div class="brand-panel-overlay"></div>
+        
+        <div class="position-relative text-center text-white px-5">
+          <img src="assets/mun-meng-white-logo.png" alt="Mun Mung Logo" class="d-block mx-auto mb-4" style="max-height: 30vh; width: auto;">
+          <p style="font-size: 20px; line-height: 25px; letter-spacing: 0.75px; font-weight: 700; margin-bottom: 0px;">Enterprise-grade weighing operations,<br>built for speed, accuracy, and compliance.</p>
         </div>
+      </div>
 
-        <form action="php/login.php" method="post">
-
-          <!-- Username -->
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label for="userEmail" style="font-size: 16px; line-height: 24px; letter-spacing: 0.75px; font-weight: 700; color: #243958;">Username</label>
-            <input
-              type="text"
-              class="form-control form-control-lg"
-              id="userEmail"
-              name="userEmail"
-              placeholder="Enter your username"
-              autocomplete="username"
-              autofocus
-              required
-            >
+      <!-- Right: Form Panel -->
+      <div class="col-lg-6 col-12 d-flex align-items-center justify-content-center px-4 px-md-5 position-relative" style="min-height: 100vh;">
+        <div class="w-100" style="max-width:440px;">
+          <!-- Heading -->
+          <p style="font-size: 12px; line-height: 20px; letter-spacing: 0.75px; font-weight: 700; text-transform: uppercase; color: #3fb84e; margin-bottom: 5px;">Synctronix WMS</p>
+          <h2 style="font-size: 35px; line-height: 40px; letter-spacing: 0.75px; font-weight: 700; color: #243958; margin-bottom: 5px;">Sign in to WMS</h2>
+          <p style="font-size: 16px; line-height: 24px; letter-spacing: 0.75px; font-weight: 400; color: #2f333e; margin-bottom: 25px;">Enter your credentials to access your account.</p>
+          
+          <!-- Error alert -->
+          <div class="alert alert-danger d-none" id="loginError" role="alert" aria-live="polite"></div>
+          
+          <!-- Reset success alert -->
+          <div class="alert alert-success d-none" id="resetSuccess" role="alert" aria-live="polite">
+            Password reset successful. Please sign in with your new password.
           </div>
-
-          <!-- Password -->
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label for="userPassword" style="font-size: 16px; line-height: 24px; letter-spacing: 0.75px; font-weight: 700; color: #243958;">Password</label>
-            <div class="pw-wrap">
-              <input
-                type="password"
-                class="form-control form-control-lg"
-                id="userPassword"
-                name="userPassword"
-                placeholder="Enter your password"
-                autocomplete="current-password"
-                required
-              >
-              <button type="button" class="pw-toggle" id="togglePw" aria-label="Toggle password visibility">
-                <i class="fas fa-eye" id="pwIcon"></i>
-              </button>
+          
+          <form action="php/login.php" method="post">
+            <!-- Username -->
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="userEmail" style="font-size: 16px; line-height: 24px; letter-spacing: 0.75px; font-weight: 700; color: #243958;">Username</label>
+              <input type="text" class="form-control form-control-lg" id="userEmail" name="userEmail" placeholder="Enter your username" autocomplete="username" autofocus required>
             </div>
+
+            <!-- Password -->
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="userPassword" style="font-size: 16px; line-height: 24px; letter-spacing: 0.75px; font-weight: 700; color: #243958;">Password</label>
+              <div class="pw-wrap">
+                <input type="password" class="form-control form-control-lg" id="userPassword" name="userPassword" placeholder="Enter your password" autocomplete="current-password" required>
+                <button type="button" class="pw-toggle" id="togglePw" aria-label="Toggle password visibility">
+                  <i class="fas fa-eye" id="pwIcon"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- <div class="icheck-primary mb-3">
+              <input type="checkbox" id="remember">
+              <label for="remember">Remember Me</label>
+            </div> -->
+            
+            <button type="submit" class="btn btn-primary custom-sign-btn">Sign In</button>
+          </form>
+
+          <div class="custom-forgot-link">
+            <a href="forgot-password.php" class="small">Forgot your password?</a>
           </div>
 
-          <!-- <div class="icheck-primary mb-3">
-            <input type="checkbox" id="remember">
-            <label for="remember">Remember Me</label>
+          <!-- <div class="text-center mt-2">
+            <a href="register.html" class="small">Register a new membership</a>
           </div> -->
 
-          <button type="submit" class="btn btn-primary custom-sign-btn">
-            Sign In
-          </button>
+          <!-- <div class="social-auth-links text-center mt-3">
+            <p>- OR -</p>
+            <a href="#" class="btn btn-block btn-primary">
+              <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
+            </a>
+            <a href="#" class="btn btn-block btn-danger">
+              <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
+            </a>
+          </div> -->
 
-        </form>
-
-        <div class="custom-forgot-link">
-          <a href="forgot-password.php" class="small">Forgot your password?</a>
+          <p class="form-footer mb-0">&copy; Synctronix. All Rights Reserved.<span class="d-block">v1.0 &middot; Production</span></p>
         </div>
-
-        <!-- <div class="text-center mt-2">
-          <a href="register.html" class="small">Register a new membership</a>
-        </div> -->
-
-        <!-- <div class="social-auth-links text-center mt-3">
-          <p>- OR -</p>
-          <a href="#" class="btn btn-block btn-primary">
-            <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
-          </a>
-          <a href="#" class="btn btn-block btn-danger">
-            <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
-          </a>
-        </div> -->
-
-        <p class="form-footer text-muted small mb-0">
-          &copy; Synctronix. All rights reserved.
-          <span class="d-block" style="font-size:.75rem;">v1.0 &middot; Production</span>
-        </p>
-
       </div>
     </div>
 
-  </div>
+    <!-- jQuery -->
+    <script src="plugins/jquery/jquery.min.js"></script>
+    
+    <!-- Bootstrap 4 -->
+    <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AdminLTE App -->
+    <script src="dist/js/adminlte.min.js"></script>
 
-  <!-- jQuery -->
-  <script src="plugins/jquery/jquery.min.js"></script>
-  <!-- Bootstrap 4 -->
-  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <!-- AdminLTE App -->
-  <script src="dist/js/adminlte.min.js"></script>
-
-  <script>
-    if (new URLSearchParams(window.location.search).get('reset') === '1') {
-      document.getElementById('resetSuccess').classList.remove('d-none');
-    }
-
-    document.getElementById('togglePw').addEventListener('click', function () {
-      var input = document.getElementById('userPassword');
-      var icon  = document.getElementById('pwIcon');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-      } else {
-        input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    <script>
+      if (new URLSearchParams(window.location.search).get('reset') === '1') {
+        document.getElementById('resetSuccess').classList.remove('d-none');
       }
-    });
-  </script>
 
-</body>
+      document.getElementById('togglePw').addEventListener('click', function () {
+        var input = document.getElementById('userPassword');
+        var icon  = document.getElementById('pwIcon');
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+    </script>
+  </body>
 </html>
