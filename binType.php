@@ -21,9 +21,9 @@ else{
 
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div>
           <div class="col-sm-6">
-            <h1 class="m-0 text-dark"><?=$languageArray['bin_types_code'][$language]?></h1>
+            <h1><?=$languageArray['bin_types_code'][$language]?></h1>
           </div><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -40,12 +40,12 @@ else{
             <div class="row">
                 <div class="col-8"></div>
                 <div class="col-2">
-                  <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
+                  <button type="button" id="multiDeactivate" class="btn btn-block btn-sm custom-delete-btn">
                     <?=$languageArray['delete_bin_types_code'][$language]?>
                   </button>
                 </div>
                 <div class="col-2">
-                    <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addBinType"><?=$languageArray['add_bin_types_code'][$language]?></button>
+                    <button type="button" class="btn btn-block btn-sm custom-add-btn" id="addBinType"><?=$languageArray['add_bin_types_code'][$language]?></button>
                 </div>
             </div>
           </div>
@@ -69,10 +69,10 @@ else{
 <div class="modal fade" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="binTypeForm">
+        <form role="form" id="binTypeForm" class="custom-model-extend-form">
             <div class="modal-header">
               <h4 class="modal-title" id="modalTitle"><?=$languageArray['add_bin_types_code'][$language]?></h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button type="button" class="close custom-close-btn-icon" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
@@ -96,8 +96,8 @@ else{
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
+              <button type="button" class="btn btn-danger custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-primary custom-add-btn" name="submit"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -159,7 +159,7 @@ $(function () {
       { 
         data: 'deleted',
         render: function (data, type, row) {
-          return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ],
