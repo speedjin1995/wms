@@ -4,32 +4,31 @@ require_once 'php/lookup.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if (!isset($_SESSION['userID'])) {
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
   $module = $_SESSION['module'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
-	$stmt->bind_param('s', $user);
-	$stmt->execute();
-	$result = $stmt->get_result();
+  $stmt->bind_param('s', $user);
+  $stmt->execute();
+  $result = $stmt->get_result();
   $role = 'NORMAL';
-	$allowAdd = 'N';
-	$allowEdit = 'N';
+  $allowAdd = 'N';
+  $allowEdit = 'N';
   $allowDelete = 'N';
   $allowPhoto = 'N';
 
-	if(($row = $result->fetch_assoc()) !== null){
+  if (($row = $result->fetch_assoc()) !== null) {
     $role = $row['role_code'];
     $allowAdd = $row['allow_add'];
     $allowEdit = $row['allow_edit'];
     $allowDelete = $row['allow_delete'];
   }
 
-  if ($role != 'SADMIN'){
+  if ($role != 'SADMIN') {
     $batches = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' AND company='$company' ORDER BY packaging_date DESC");
     $batches2 = $db->query("SELECT * FROM packaging_batches WHERE deleted='0' AND status != 'completed' AND company='$company' ORDER BY packaging_date DESC");
   } else {
@@ -54,14 +53,13 @@ else{
 
 <div class="content">
   <div class="container-fluid">
-
     <!-- Filter -->
     <div class="row">
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
             <div class="row">
-              <div class="form-group col-3">
+              <div class="form-group col-6">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
@@ -70,7 +68,7 @@ else{
                   </div>
                 </div>
               </div>
-              <div class="form-group col-3">
+              <div class="form-group col-6">
                 <label><?=$languageArray['to_date_code'][$language]?>:</label>
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
@@ -128,7 +126,6 @@ else{
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -273,11 +270,26 @@ else{
 </div>
 
 <style>
-.transfer-zone { min-height: 80px; }
-.transfer-zone tr { cursor: grab; }
-.transfer-zone tr.dragging { opacity: 0.4; }
-.transfer-zone tr.drag-over { border-top: 2px solid #007bff; }
-.transfer-zone tr td .btn-transfer { padding: 1px 6px; font-size: 11px; }
+  .transfer-zone {
+    min-height: 80px;
+  }
+
+  .transfer-zone tr {
+    cursor: grab;
+  }
+
+  .transfer-zone tr.dragging {
+    opacity: 0.4;
+  }
+  
+  .transfer-zone tr.drag-over {
+    border-top: 2px solid #007bff;
+  }
+  
+  .transfer-zone tr td .btn-transfer {
+    padding: 1px 6px;
+    font-size: 11px;
+  }
 </style>
 
 <script>
