@@ -970,7 +970,7 @@ else{
     #productTable_wrapper .row:last-child, #driverTable_wrapper .row:last-child, #vehicleTable_wrapper .row:last-child,
     #gradeTable_wrapper .row:last-child, #locationTable_wrapper .row:last-child, #memberTable_wrapper .row:last-child,
     #transferTable_wrapper .row:last-child, #purchaseTable_wrapper .row:last-child, #inventoryTable_wrapper .row:last-child,
-    #binTypeTable_wrapper .row:last-child {
+    #binTypeTable_wrapper .row:last-child, #pvTable_wrapper .row:last-child {
       flex-direction: column;
     }
 
@@ -988,7 +988,8 @@ else{
     #transferTable_wrapper .row:last-child .col-md-5, #transferTable_wrapper .row:last-child .col-md-7,
     #purchaseTable_wrapper .row:last-child .col-md-5, #purchaseTable_wrapper .row:last-child .col-md-7,
     #inventoryTable_wrapper .row:last-child .col-md-5, #inventoryTable_wrapper .row:last-child .col-md-7,
-    #binTypeTable_wrapper .row:last-child .col-md-5, #binTypeTable_wrapper .row:last-child .col-md-7 {
+    #binTypeTable_wrapper .row:last-child .col-md-5, #binTypeTable_wrapper .row:last-child .col-md-7,
+    #pvTable_wrapper .row:last-child .col-md-5, #pvTable_wrapper .row:last-child .col-md-7 {
       max-width: 100%;
     }
 
@@ -999,7 +1000,8 @@ else{
     #vehicleTable_wrapper .row:last-child .dataTables_info, #gradeTable_wrapper .row:last-child .dataTables_info,
     #locationTable_wrapper .row:last-child .dataTables_info, #memberTable_wrapper .row:last-child .dataTables_info,
     #transferTable_wrapper .row:last-child .dataTables_info, #purchaseTable_wrapper .row:last-child .dataTables_info,
-    #inventoryTable_wrapper .row:last-child .dataTables_info , #binTypeTable_wrapper .row:last-child .dataTables_info {
+    #inventoryTable_wrapper .row:last-child .dataTables_info , #binTypeTable_wrapper .row:last-child .dataTables_info,
+    #pvTable_wrapper .row:last-child .dataTables_info {
       font-size: 16px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -1023,7 +1025,8 @@ else{
     #transferTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination,
-    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination {
+    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    #pvTable_wrapper .row:last-child .dataTables_paginate .pagination {
       margin-bottom: 0px;
       border-radius: 5px;
     }
@@ -1043,7 +1046,8 @@ else{
     #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
-    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
+    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
+    #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
       border: 1px solid #dee2e6;
       padding: 10px;
       color: #2f333e;
@@ -1069,6 +1073,7 @@ else{
     #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
+    #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
@@ -1084,7 +1089,8 @@ else{
     #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
-    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
+    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
+    #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
       background: #243958;
       color: #fff;
     }
@@ -1104,7 +1110,8 @@ else{
     #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
-    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
+    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
+    #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
       color: rgba(47, 51, 62, .5);
     }
 
@@ -1123,7 +1130,8 @@ else{
     #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
-    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
+    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
+    #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
     }
@@ -1143,7 +1151,8 @@ else{
     #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #purchaseTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
-    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
+    #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
+    #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
     }
@@ -1151,7 +1160,7 @@ else{
     #extendModal, #translationModal, #supplierTable_wrapper, #categoryTable_wrapper, #packagingTable_wrapper, 
     #customerTable_wrapper, #productTable_wrapper, #driverTable_wrapper, #vehicleTable_wrapper, #gradeTable_wrapper,
     #locationTable_wrapper, #memberTable_wrapper, #transferTable_wrapper, #purchaseTable_wrapper, #inventoryTable_wrapper,
-    #binTypeTable_wrapper {
+    #binTypeTable_wrapper, #pvTable_wrapper {
       padding-right: 0px !important;
     }
 

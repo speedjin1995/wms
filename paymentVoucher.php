@@ -285,8 +285,8 @@ $languageArray = $_SESSION['languageArray'];
           </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success"><?=$languageArray['save_code'][$language]?></button>
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-success custom-add-btn"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -296,7 +296,7 @@ $languageArray = $_SESSION['languageArray'];
 <!-- Print Modal -->
 <div class="modal fade" id="printModal">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content custom-modal-content">
       <div class="modal-header bg-gray-dark color-palette">
         <h4 class="modal-title"><?=$languageArray['print_code'][$language]?></h4>
         <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
@@ -417,14 +417,14 @@ $(function() {
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
           }
           if (row.pv_id) {
-            buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm custom-users-icon-btn"><i class="fas fa-print"></i></button>';
           }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             if (row.pv_id) {
-              buttons += '<button type="button" onclick="deactivate(\'' + row.pv_id + '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              buttons += '<button type="button" onclick="deactivate(\'' + row.pv_id + '\')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
             }
           }
           buttons += '</div>';
@@ -481,14 +481,14 @@ $(function() {
           render: function ( data, type, row ) {
             var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              buttons += '<button type="button" onclick="openPv(\'' + row.parent_id + '\',\'' + row.pv_id + '\')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
             }
             if (row.pv_id) {
-              buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm"><i class="fas fa-print"></i></button>';
+              buttons += '<button type="button" onclick="print(\'' + row.pv_id + '\')" class="btn btn-info btn-sm custom-users-icon-btn"><i class="fas fa-print"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               if (row.pv_id) {
-                buttons += '<button type="button" onclick="deactivate(\'' + row.pv_id + '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                buttons += '<button type="button" onclick="deactivate(\'' + row.pv_id + '\')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
               }
             }
             buttons += '</div>';
