@@ -41,9 +41,9 @@ $languageArray = $_SESSION['languageArray'];
 
 <div class="content-header">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div>
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['payment_voucher_code'][$language]?></h1>
+        <h1><?=$languageArray['payment_voucher_code'][$language]?></h1>
       </div>
     </div>
   </div>
@@ -51,7 +51,6 @@ $languageArray = $_SESSION['languageArray'];
 
 <div class="content">
   <div class="container-fluid">
-
     <!-- Filters -->
     <div class="row">
       <div class="col-lg-12">
@@ -133,7 +132,7 @@ $languageArray = $_SESSION['languageArray'];
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="filterSearch">
                   <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
                 </button>
               </div>
@@ -149,9 +148,11 @@ $languageArray = $_SESSION['languageArray'];
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-9"><?=$languageArray['payment_voucher_code'][$language]?></div>
+              <div class="col-9">
+                <h5 class="card-title custom-card-header-title"><?=$languageArray['payment_voucher_code'][$language]?></h5>
+              </div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPvReport">
+                <button type="button" class="btn btn-block btn-sm custom-search-btn" id="exportPvReport">
                   <i class="fas fa-file-export"></i> Export
                 </button>
               </div>
@@ -183,12 +184,12 @@ $languageArray = $_SESSION['languageArray'];
 
 <!-- Payment Voucher Modal -->
 <div class="modal fade" id="pvModal">
-  <div class="modal-dialog" style="max-width:95%;">
+  <div class="modal-dialog" style="max-width: 95%;">
     <div class="modal-content">
-      <form id="pvForm">
+      <form id="pvForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['payment_voucher_details_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="pvId" name="pvId">
@@ -199,7 +200,7 @@ $languageArray = $_SESSION['languageArray'];
           <input type="hidden" id="totalNettAmount" name="totalNettAmount" value="0">
           <input type="hidden" id="totalTaxAmount" name="totalTaxAmount" value="0">
 
-          <div class="row mb-3">
+          <div class="row">
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['voucher_date_code'][$language]?> *</label>
@@ -225,7 +226,7 @@ $languageArray = $_SESSION['languageArray'];
             </div>
           </div>
 
-          <div class="row mb-3">
+          <div class="row">
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['unit_price_code'][$language]?> (RM) *</label>
@@ -311,8 +312,8 @@ $languageArray = $_SESSION['languageArray'];
         </div>
       </div>
       <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-        <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-        <button type="button" class="btn btn-success" id="confirmPrint"><?=$languageArray['print_code'][$language]?></button>
+        <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-success custom-add-btn" id="confirmPrint"><?=$languageArray['print_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -322,10 +323,10 @@ $languageArray = $_SESSION['languageArray'];
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="cancelForm">
+      <form id="cancelForm" class="custom-model-extend-form">
         <div class="modal-header bg-gray-dark color-palette">
           <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+          <button type="button" class="close custom-close-btn-icon color-palette" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
           <div class="form-group">
@@ -334,9 +335,9 @@ $languageArray = $_SESSION['languageArray'];
           </div>
           <input type="hidden" id="cancelId" name="id">
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-danger"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-primary custom-delete-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-danger custom-add-btn"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
