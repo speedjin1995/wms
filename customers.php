@@ -65,10 +65,10 @@ else{
 					<div class="card-header categories-card-header">
               <div class="row">
                   <?php if (in_array('basket', $_SESSION['products'])) { ?>
-                  <div class="col-2"></div>
+                  <div class="col-1"></div>
                   <div class="col-2">
                     <a href="php/modules/customers/exportBinReport.php" target="_blank">
-                      <button type="button" class="btn btn-block bg-gradient-primary btn-sm">
+                      <button type="button" class="btn btn-block btn-sm custom-export-btn">
                         <?=$languageArray['export_bin_report_code'][$language]?>
                       </button>
                     </a>
@@ -77,7 +77,7 @@ else{
                   <div class="col-4"></div>
                   <?php }?>
                   <div class="col-2">
-                    <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
+                    <button type="button" id="multiDeactivate" class="btn btn-block btn-sm custom-delete-btn">
                       <?=$languageArray['delete_customer_code'][$language]?>
                     </button>
                   </div>
@@ -94,7 +94,7 @@ else{
                     </button>
                   </div>
                   <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
+                      <button type="button" class="btn btn-block btn-sm custom-search-btn" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
                   </div>
               </div>
           </div>

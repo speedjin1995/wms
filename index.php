@@ -970,7 +970,8 @@ else{
     #productTable_wrapper .row:last-child, #driverTable_wrapper .row:last-child, #vehicleTable_wrapper .row:last-child,
     #gradeTable_wrapper .row:last-child, #locationTable_wrapper .row:last-child, #memberTable_wrapper .row:last-child,
     #transferTable_wrapper .row:last-child, #purchaseTable_wrapper .row:last-child, #inventoryTable_wrapper .row:last-child,
-    #binTypeTable_wrapper .row:last-child, #pvTable_wrapper .row:last-child, #stateTable_wrapper .row:last-child {
+    #binTypeTable_wrapper .row:last-child, #pvTable_wrapper .row:last-child, #stateTable_wrapper .row:last-child,
+    #currencyTable_wrapper .row:last-child {
       flex-direction: column;
     }
 
@@ -990,7 +991,8 @@ else{
     #inventoryTable_wrapper .row:last-child .col-md-5, #inventoryTable_wrapper .row:last-child .col-md-7,
     #binTypeTable_wrapper .row:last-child .col-md-5, #binTypeTable_wrapper .row:last-child .col-md-7,
     #pvTable_wrapper .row:last-child .col-md-5, #pvTable_wrapper .row:last-child .col-md-7,
-    #stateTable_wrapper .row:last-child .col-md-5, #stateTable_wrapper .row:last-child .col-md-7 {
+    #stateTable_wrapper .row:last-child .col-md-5, #stateTable_wrapper .row:last-child .col-md-7,
+    #currencyTable_wrapper .row:last-child .col-md-5, #currencyTable_wrapper .row:last-child .col-md-7 {
       max-width: 100%;
     }
 
@@ -1002,7 +1004,8 @@ else{
     #locationTable_wrapper .row:last-child .dataTables_info, #memberTable_wrapper .row:last-child .dataTables_info,
     #transferTable_wrapper .row:last-child .dataTables_info, #purchaseTable_wrapper .row:last-child .dataTables_info,
     #inventoryTable_wrapper .row:last-child .dataTables_info , #binTypeTable_wrapper .row:last-child .dataTables_info,
-    #pvTable_wrapper .row:last-child .dataTables_info, #stateTable_wrapper .row:last-child .dataTables_info {
+    #pvTable_wrapper .row:last-child .dataTables_info, #stateTable_wrapper .row:last-child .dataTables_info,
+    #currencyTable_wrapper .row:last-child .dataTables_info {
       font-size: 16px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -1028,7 +1031,8 @@ else{
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination,
     #pvTable_wrapper .row:last-child .dataTables_paginate .pagination,
-    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination {
+    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination {
       margin-bottom: 0px;
       border-radius: 5px;
     }
@@ -1050,7 +1054,8 @@ else{
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
     #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
-    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
+    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link,
+    #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link {
       border: 1px solid #dee2e6;
       padding: 10px;
       color: #2f333e;
@@ -1078,6 +1083,7 @@ else{
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
+    #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active .page-link,
     #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
@@ -1095,7 +1101,8 @@ else{
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
     #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
-    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
+    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover,
+    #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item .page-link:hover {
       background: #243958;
       color: #fff;
     }
@@ -1117,7 +1124,8 @@ else{
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
     #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
-    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
+    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link,
+    #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled .page-link {
       color: rgba(47, 51, 62, .5);
     }
 
@@ -1138,7 +1146,8 @@ else{
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
     #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
-    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
+    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link,
+    #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:first-child .page-link {
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
     }
@@ -1160,7 +1169,8 @@ else{
     #inventoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #binTypeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
     #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
-    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
+    #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link,
+    #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item:last-child .page-link {
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
     }
@@ -1168,7 +1178,7 @@ else{
     #extendModal, #translationModal, #supplierTable_wrapper, #categoryTable_wrapper, #packagingTable_wrapper, 
     #customerTable_wrapper, #productTable_wrapper, #driverTable_wrapper, #vehicleTable_wrapper, #gradeTable_wrapper,
     #locationTable_wrapper, #memberTable_wrapper, #transferTable_wrapper, #purchaseTable_wrapper, #inventoryTable_wrapper,
-    #binTypeTable_wrapper, #pvTable_wrapper, #stateTable_wrapper {
+    #binTypeTable_wrapper, #pvTable_wrapper, #stateTable_wrapper, #currencyTable_wrapper {
       padding-right: 0px !important;
     }
 
@@ -1249,6 +1259,20 @@ else{
       margin: 0px;
     }
 
+    .custom-export-btn {
+      background: #4F46E5 !important;
+      color: #fff !important;
+      padding: 5px 15px;
+      font-size: 15px;
+      line-height: 23px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      border: unset !important;
+      border-radius: 5px;
+      box-shadow: unset !important;
+      margin: 0px;
+    }
+
     .custom-delete-btn, .custom-add-btn {
       display: flex;
       justify-content: center;
@@ -1284,6 +1308,11 @@ else{
     .modal-content .custom-model-extend-form .modal-footer .custom-close-btn:hover, .custom-trash-icon-btn:hover,
     .custom-delete-btn:hover, .custom-remove-btn #removeProductImage:hover {
       background: #DC2626 !important;
+      color: #fff !important;
+    }
+
+    .custom-export-btn:hover {
+      background: #4338CA !important;
       color: #fff !important;
     }
 
