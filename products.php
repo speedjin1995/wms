@@ -377,7 +377,7 @@ else{
           <div class="card card-outline card-info mb-0">
             <div class="card-header py-2 d-flex align-items-center justify-content-between">
               <h6 class="mb-0"><i class="fas fa-layer-group mr-1"></i><?=$languageArray['grades_code'][$language]?></h6>
-              <button type="button" class="btn btn-info btn-sm custom-download-btn" style="margin-left: auto;"><i class="fas fa-plus"></i><?=$languageArray['add_grade_code'][$language]?></button>
+              <button type="button" class="btn btn-info btn-sm custom-download-btn add-grade" style="margin-left: auto;"><i class="fas fa-plus"></i><?=$languageArray['add_grade_code'][$language]?></button>
             </div>
             <div class="card-body p-2">
               <table class="table table-sm table-bordered mb-0">
