@@ -2581,3 +2581,26 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR
 END
 $$
 DELIMITER ;
+
+-- 29/06/2026 --
+INSERT INTO currency (
+    currency,
+    description,
+    rate,
+    customer
+)
+SELECT
+    'MYR',
+    'Malaysian Ringgit',
+    '1',
+    c.id
+FROM companies c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM currency cur
+    WHERE cur.customer = c.id
+      AND cur.currency = 'MYR'
+      AND cur.deleted = 0
+)
+AND c.deleted = 0
+;

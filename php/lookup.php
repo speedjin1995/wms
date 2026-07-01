@@ -399,3 +399,21 @@ function searchPackagingNameById($value, $db) {
 
     return $id;
 }
+
+function searchCurrencyNameById($value, $db) {
+    $id = '';
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM currency WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['currency'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}

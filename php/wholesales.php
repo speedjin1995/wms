@@ -188,6 +188,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'time' => $weightDetail['time'] ?? '',
                 'grade' => $weightDetail['grade'] ?? '',
                 'grade_id' => $weightDetail['grade_id'] ?? '',
+                'currency' => $weightDetail['currency'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
@@ -237,6 +238,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'fixedfloat' => $rejectDetail['fixedfloat'] ?? '',
                 'time' => $rejectDetail['time'] ?? '',
                 'grade' => $rejectDetail['grade'] ?? '',
+                'currency' => $rejectDetail['currency'] ?? '',
                 'isedit' => $rejectDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['rejectPhotoFiles']['name'][$key]) && $_FILES['rejectPhotoFiles']['error'][$key] === UPLOAD_ERR_OK) {
