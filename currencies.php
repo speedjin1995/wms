@@ -170,7 +170,11 @@ $(function () {
       { 
         data: 'deleted',
         render: function (data, type, row) {
-          return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          if (row.currency == 'MYR') {
+            return '';
+          }else{
+            return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          }
         }
       }
     ],
