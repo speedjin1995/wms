@@ -65,7 +65,7 @@ else{
 					<div class="card-header categories-card-header">
               <div class="row">
                   <?php if (in_array('basket', $_SESSION['products'])) { ?>
-                  <div class="col-1"></div>
+                  <div class="col-2"></div>
                   <div class="col-2">
                     <a href="php/modules/customers/exportBinReport.php" target="_blank">
                       <button type="button" class="btn btn-block btn-sm custom-export-btn">
@@ -81,14 +81,14 @@ else{
                       <?=$languageArray['delete_customer_code'][$language]?>
                     </button>
                   </div>
-                  <div class="col-3">
+                  <div class="col-2">
                     <a href="template/Customer_Template.xlsx" download>
                       <button type="button" class="btn btn-block btn-sm custom-download-btn">
                         <?=$languageArray['download_template_code'][$language]?>
                       </button>
                     </a>
                   </div>
-                  <div class="col-3">
+                  <div class="col-2">
                     <button type="button" id="uploadExcel" class="btn btn-block btn-sm custom-add-btn">
                       <?=$languageArray['upload_excel_code'][$language]?>
                     </button>
