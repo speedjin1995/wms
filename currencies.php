@@ -19,6 +19,12 @@ else{
 }
 ?>
 
+<style>
+.star-default { font-size: 1.4rem; cursor: pointer; color: #ccc; display: block; text-align: center; }
+.star-default.active { color: #f5a623; }
+.star-default:hover { color: #f5a623; }
+</style>
+
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -53,7 +59,8 @@ else{
 						<table id="currencyTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
-                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+                  <th style="width:40px"><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+                  <th style="width:40px"><?=$languageArray['default_code'][$language]?></th>
                   <th><?=$languageArray['currency_code'][$language]?></th>
                   <th><?=$languageArray['description_code'][$language]?></th>
                   <!-- <th><?=$languageArray['rate_code'][$language]?></th> -->
@@ -161,7 +168,16 @@ $(function () {
         className: 'select-checkbox',
         orderable: false,
         render: function (data, type, row) {
-            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'">';
+        }
+      },
+      {
+        data: 'is_default',
+        orderable: false,
+        render: function (data, type, row) {
+            var starClass = data == '1' ? 'star-default active' : 'star-default';
+            var starTitle = data == '1' ? 'Default Currency' : 'Set as Default';
+            return '<span class="'+starClass+'" onclick="toggleDefault('+row.id+')" title="'+starTitle+'">★</span>';
         }
       },
       { data: 'currency' },
@@ -170,11 +186,7 @@ $(function () {
       { 
         data: 'deleted',
         render: function (data, type, row) {
-          if (row.currency == 'MYR') {
-            return '';
-          }else{
-            return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-          }
+          return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
         }
       }
     ],
@@ -324,5 +336,17 @@ function deactivate(id){
         }
     });
   }
+}
+
+function toggleDefault(id) {
+  $.post('php/modules/currencies/setDefaultCurrency.php', { id: id }, function(data) {
+    var obj = JSON.parse(data);
+    if (obj.status === 'success') {
+      toastr["success"](obj.message, "Success:");
+      $('#currencyTable').DataTable().ajax.reload();
+    } else {
+      toastr["error"](obj.message, "Failed:");
+    }
+  });
 }
 </script>

@@ -2604,3 +2604,39 @@ WHERE NOT EXISTS (
 )
 AND c.deleted = 0
 ;
+
+-- 03/07/2026 --
+ALTER TABLE `currency` ADD `is_default` INT(1) NULL DEFAULT '0' AFTER `rate`;
+
+ALTER TABLE `currency_log` ADD `is_default` INT(1) NULL DEFAULT '0' AFTER `rate`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CURRENCY` AFTER INSERT ON `currency` FOR EACH ROW INSERT INTO currency_log (
+    currency_id, currency, description, rate, is_default, customer, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.currency, NEW.description, NEW.rate, NEW.is_default, NEW.customer, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CURRENCY` BEFORE UPDATE ON `currency` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into currency_log table
+    INSERT INTO currency_log (
+      currency_id, currency, description, rate, is_default, customer, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.currency, NEW.description, NEW.rate, NEW.is_default, NEW.customer, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
