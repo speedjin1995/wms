@@ -41,6 +41,7 @@ while($row = mysqli_fetch_assoc($empRecords)){
         "currency"    => $row['currency'],
         "description" => $row['description'],
         "rate"        => $row['rate'],
+        "is_default"  => $row['is_default'],
         "deleted"     => $row['deleted']
     );
 }

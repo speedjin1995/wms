@@ -20,6 +20,7 @@ if(isset($_POST['userID'])){
                 $message['currency']    = $row['currency'];
                 $message['description'] = $row['description'];
                 $message['rate']        = $row['rate'];
+                $message['is_default']  = $row['is_default'];
                 $message['customer']    = $row['customer'];
             }
 

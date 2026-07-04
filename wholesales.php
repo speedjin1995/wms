@@ -130,7 +130,18 @@ else{
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
-  
+
+  // Default Currency
+  $defaultCurrencyId = null;
+  if ($curreny_stmt = $db->prepare("SELECT * FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1")) {
+    $curreny_stmt->bind_param('s', $company);
+    $curreny_stmt->execute();
+    $curreny_result = $curreny_stmt->get_result();
+    while ($curreny_row = $curreny_result->fetch_assoc()) {
+      $defaultCurrencyId = $curreny_row['id'];
+    }
+  }
+
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
@@ -589,6 +600,7 @@ else{
                   <th id="totalWeightNet">0.00</th>
                   <?php if($allowPrice == 'Y') { ?>
                   <th></th>
+                  <th></th>
                   <th id="totalWeightPrice">0.00</th>
                   <?php } ?>
                   <th></th>
@@ -640,6 +652,7 @@ else{
                   <th id="totalRejectTare">0.00</th>
                   <th id="totalRejectNet">0.00</th>
                   <?php if($allowPrice == 'Y') { ?>
+                  <th></th>
                   <th></th>
                   <th id="totalRejectPrice">0.00</th>
                   <?php } ?>
@@ -1414,7 +1427,7 @@ $(function () {
   });
 
   function applyCustomerCurrency(currencyId) {
-    if (!currencyId) currencyId = $('#weightDetailsTable').find('select[name*="[currency]"] option').filter(function() { return $(this).data('currency') === 'MYR'; }).first().val();
+    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
     if (!currencyId) return;
     $('#weightDetailsTable tr.details, #rejectDetailsTable tr.details').each(function() {
       $(this).find('select[name*="[currency]"]').val(currencyId).trigger('change');
@@ -1534,7 +1547,7 @@ $(function () {
     var currencyId = status === 'RECEIVING' || status === 'INCOMING'
       ? $('#extendModal').find('#supplier option:selected').data('currency')
       : $('#extendModal').find('#customer option:selected').data('currency');
-    if (!currencyId) currencyId = $(`#rejectDetailsTable`).find(`select[name="rejectDetails[${idx}][currency]"] option`).filter(function() { return $(this).data('currency') === 'MYR'; }).first().val();
+    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
     if (currencyId) {
       $(`#rejectDetailsTable`).find(`select[name="rejectDetails[${idx}][currency]"]`).val(currencyId).trigger('change');
     }
@@ -1634,7 +1647,7 @@ $(function () {
     var currencyId = status === 'RECEIVING' || status === 'INCOMING'
       ? $('#extendModal').find('#supplier option:selected').data('currency')
       : $('#extendModal').find('#customer option:selected').data('currency');
-    if (!currencyId) currencyId = $(`#weightDetailsTable`).find(`select[name="weightDetails[${idx}][currency]"] option`).filter(function() { return $(this).data('currency') === 'MYR'; }).first().val();
+    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
     if (currencyId) {
       $(`#weightDetailsTable`).find(`select[name="weightDetails[${idx}][currency]"]`).val(currencyId).trigger('change');
     }
@@ -1773,7 +1786,7 @@ $(function () {
     $('#weightDetailsTable tr').each(function() {
       totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
     });
-    $('#totalWeightPrice').text('RM ' + totalPrice.toFixed(2));
+    $('#totalWeightPrice').text(totalPrice.toFixed(2));
   });
 
   $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
@@ -1898,7 +1911,7 @@ $(function () {
     $('#rejectDetailsTable tr').each(function() {
       totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
     });
-    $('#totalRejectPrice').text('RM ' + totalPrice.toFixed(2));
+    $('#totalRejectPrice').text(totalPrice.toFixed(2));
   });
 
   // Show tick when file is selected
@@ -2427,7 +2440,7 @@ function edit(id) {
         $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightTare').text(totalTare.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightNet').text(totalNet.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightPrice').text('RM' + totalPrice .toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightPrice').text(totalPrice .toFixed(2));
       }
       
       // Populate reject details table
@@ -2504,7 +2517,7 @@ function edit(id) {
         $('#rejectDetailsFooter').find('#totalRejectGross').text(totalRejectGross.toFixed(2));
         $('#rejectDetailsFooter').find('#totalRejectTare').text(totalRejectTare.toFixed(2));
         $('#rejectDetailsFooter').find('#totalRejectNet').text(totalRejectNet.toFixed(2));
-        $('#rejectDetailsFooter').find('#totalRejectPrice').text('RM' + totalRejectPrice.toFixed(2));
+        $('#rejectDetailsFooter').find('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
       }
 
       $('.select2').each(function() {
@@ -2692,7 +2705,7 @@ function updateTotals() {
   $('#totalWeightGross').text(totalGross.toFixed(2));
   $('#totalWeightTare').text(totalTare.toFixed(2));
   $('#totalWeightNet').text(totalNet.toFixed(2));
-  $('#totalWeightPrice').text('RM' + totalPrice.toFixed(2));
+  $('#totalWeightPrice').text(totalPrice.toFixed(2));
   
   var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0;
   $('#rejectDetailsTable tr').each(function() {
@@ -2704,7 +2717,7 @@ function updateTotals() {
   $('#totalRejectGross').text(totalRejectGross.toFixed(2));
   $('#totalRejectTare').text(totalRejectTare.toFixed(2));
   $('#totalRejectNet').text(totalRejectNet.toFixed(2));
-  $('#totalRejectPrice').text('RM' + totalRejectPrice.toFixed(2));
+  $('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
 }
 
 function deactivate(id) {
