@@ -344,20 +344,22 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
+                  <th><?=$languageArray['machine_nickname_code'][$language]?></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
+                  <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
                   <th><?=$languageArray['start_time_code'][$language]?></th>
                   <th><?=$languageArray['end_time_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-                  <th><?=$languageArray['driver_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['driver_code'][$language]?></th> -->
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['checked_by_code'][$language]?></th> -->
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -827,20 +829,22 @@ $(function () {
       } 
     },
     'columns': [
+      { data: 'indicator' },
       { data: 'serial_no' },
       { data: 'po_no' },
+      { data: 'location' },
       { data: 'security_bills' },
       { data: 'start_time' },
       { data: 'end_time' },
       { data: 'parent' },
       { data: 'customer_supplier' },
       { data: 'vehicle_no' },
-      { data: 'driver' },
+      // { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
       { data: 'total_reject' },
       { data: 'weighted_by' },
-      { data: 'checked_by' },
+      // { data: 'checked_by' },
       <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
       <?php }?>
@@ -998,20 +1002,22 @@ $(function () {
         } 
       },
       'columns': [
+        { data: 'indicator' },
         { data: 'serial_no' },
         { data: 'po_no' },
+        { data: 'location' },
         { data: 'security_bills' },
         { data: 'start_time' },
         { data: 'end_time' },
         { data: 'parent' },
         { data: 'customer_supplier' },
         { data: 'vehicle_no' },
-        { data: 'driver' },
+        // { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
         { data: 'total_reject' },
         { data: 'weighted_by' },
-        { data: 'checked_by' },
+        // { data: 'checked_by' },
         <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
         <?php }?>
