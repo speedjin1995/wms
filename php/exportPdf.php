@@ -117,7 +117,14 @@ try {
         'margin_left' => 5,
         'margin_right' => 5,
         'margin_top' => 5,
-        'margin_bottom' => 5
+        'margin_bottom' => 5,
+        'fontDir' => [__DIR__ . '/../vendor/mpdf/mpdf/ttfonts/'],
+        'fontdata' => [
+            'sunexta' => [
+                'R' => 'Sun-ExtA.ttf',
+            ],
+        ],
+        'default_font' => 'sunexta',
     ];
     $mpdf = new Mpdf($mpdfConfig);
 
