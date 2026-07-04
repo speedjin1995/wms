@@ -148,6 +148,7 @@ if ($query->num_rows > 0) {
         $totalRejectWeight = 0;
         $totalPrice = 0;
         $actualPrice = 0;
+        $currency = '';
         // gradeWeights keyed as "product_name|grade"
         $gradeWeights = [];
 
@@ -162,6 +163,7 @@ if ($query->num_rows > 0) {
                     $totalWeight += floatval($detail['gross'] ?? 0);
                     $totalBinWeight += floatval($detail['tare'] ?? 0);
                     $totalRejectWeight += floatval($detail['reject'] ?? 0);
+                    if (empty($currency) && !empty($detail['currency'])) $currency = searchCurrencyNameById($detail['currency'], $db);
                     if ($detail['fixedfloat'] == 'fixed') {
                         $totalPrice += floatval($detail['price'] ?? 0);
                         $actualPrice += floatval($detail['price'] ?? 0);
@@ -196,6 +198,7 @@ if ($query->num_rows > 0) {
             'actualWeight' => $actualWeight,
             'totalPrice' => $totalPrice,
             'actualPrice' => $actualPrice,
+            'currency' => $currency,
             'vehicle_no' => $row['vehicle_no'],
             'driver' => $row['driver'],
             'checked_by' => $row['checked_by'],
@@ -250,6 +253,7 @@ if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'ST
 }
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
 if ($allowPrice == 'Y') {
+    $trailingHeaders[] = 'Currency';
     $trailingHeaders[] = 'Total Price (RM)';
     $trailingHeaders[] = 'Actual Price (RM)';
 }
@@ -341,6 +345,7 @@ if (!empty($allRows)) {
         $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['total_reject']);
         $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['actualWeight']);
         if ($allowPrice == 'Y') {
+            $lineData[] = $rowData['currency'];
             $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['totalPrice']);
             $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['actualPrice']);
         }
@@ -353,11 +358,11 @@ if (!empty($allRows)) {
     }
 
     // Subtotal row
-    $subtotalData = ['SUBTOTAL', '', '', '', ''];
+    $subtotalData = ['', '', '', '', ''];
     if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
         $subtotalData[] = '';
     }
-    $subtotalData[] = '';
+    $subtotalData[] = 'SUBTOTAL';
 
     foreach ($productGradeColumns as $product => $grades) {
         foreach ($grades as $grade) {
@@ -370,8 +375,9 @@ if (!empty($allRows)) {
     $subtotalData[] = floatval($subtotals['total_reject']);
     $subtotalData[] = floatval($subtotals['actualWeight']);
     if ($allowPrice == 'Y') {
-        $subtotalData[] = floatval($subtotals['totalPrice']);
-        $subtotalData[] = floatval($subtotals['actualPrice']);
+        $subtotalData[] = '';
+        // $subtotalData[] = floatval($subtotals['totalPrice']);
+        // $subtotalData[] = floatval($subtotals['actualPrice']);
     }
     array_push($subtotalData, '', '', '');
 
