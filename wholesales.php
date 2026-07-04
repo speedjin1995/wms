@@ -130,7 +130,18 @@ else{
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
   $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
-  
+
+  // Default Currency
+  $defaultCurrencyId = null;
+  if ($curreny_stmt = $db->prepare("SELECT * FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1")) {
+    $curreny_stmt->bind_param('s', $company);
+    $curreny_stmt->execute();
+    $curreny_result = $curreny_stmt->get_result();
+    while ($curreny_row = $curreny_result->fetch_assoc()) {
+      $defaultCurrencyId = $curreny_row['id'];
+    }
+  }
+
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
@@ -1415,7 +1426,7 @@ $(function () {
   });
 
   function applyCustomerCurrency(currencyId) {
-    if (!currencyId) currencyId = $('#weightDetailsTable').find('select[name*="[currency]"] option').filter(function() { return $(this).data('currency') === 'MYR'; }).first().val();
+    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
     if (!currencyId) return;
     $('#weightDetailsTable tr.details, #rejectDetailsTable tr.details').each(function() {
       $(this).find('select[name*="[currency]"]').val(currencyId).trigger('change');
@@ -1535,7 +1546,7 @@ $(function () {
     var currencyId = status === 'RECEIVING' || status === 'INCOMING'
       ? $('#extendModal').find('#supplier option:selected').data('currency')
       : $('#extendModal').find('#customer option:selected').data('currency');
-    if (!currencyId) currencyId = $(`#rejectDetailsTable`).find(`select[name="rejectDetails[${idx}][currency]"] option`).filter(function() { return $(this).data('currency') === 'MYR'; }).first().val();
+    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
     if (currencyId) {
       $(`#rejectDetailsTable`).find(`select[name="rejectDetails[${idx}][currency]"]`).val(currencyId).trigger('change');
     }
@@ -1635,7 +1646,7 @@ $(function () {
     var currencyId = status === 'RECEIVING' || status === 'INCOMING'
       ? $('#extendModal').find('#supplier option:selected').data('currency')
       : $('#extendModal').find('#customer option:selected').data('currency');
-    if (!currencyId) currencyId = $(`#weightDetailsTable`).find(`select[name="weightDetails[${idx}][currency]"] option`).filter(function() { return $(this).data('currency') === 'MYR'; }).first().val();
+    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
     if (currencyId) {
       $(`#weightDetailsTable`).find(`select[name="weightDetails[${idx}][currency]"]`).val(currencyId).trigger('change');
     }
