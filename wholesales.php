@@ -589,6 +589,7 @@ else{
                   <th id="totalWeightNet">0.00</th>
                   <?php if($allowPrice == 'Y') { ?>
                   <th></th>
+                  <th></th>
                   <th id="totalWeightPrice">0.00</th>
                   <?php } ?>
                   <th></th>
@@ -640,6 +641,7 @@ else{
                   <th id="totalRejectTare">0.00</th>
                   <th id="totalRejectNet">0.00</th>
                   <?php if($allowPrice == 'Y') { ?>
+                  <th></th>
                   <th></th>
                   <th id="totalRejectPrice">0.00</th>
                   <?php } ?>
@@ -1773,7 +1775,7 @@ $(function () {
     $('#weightDetailsTable tr').each(function() {
       totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
     });
-    $('#totalWeightPrice').text('RM ' + totalPrice.toFixed(2));
+    $('#totalWeightPrice').text(totalPrice.toFixed(2));
   });
 
   $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
@@ -1898,7 +1900,7 @@ $(function () {
     $('#rejectDetailsTable tr').each(function() {
       totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
     });
-    $('#totalRejectPrice').text('RM ' + totalPrice.toFixed(2));
+    $('#totalRejectPrice').text(totalPrice.toFixed(2));
   });
 
   // Show tick when file is selected
@@ -2427,7 +2429,7 @@ function edit(id) {
         $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightTare').text(totalTare.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightNet').text(totalNet.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightPrice').text('RM' + totalPrice .toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightPrice').text(totalPrice .toFixed(2));
       }
       
       // Populate reject details table
@@ -2504,7 +2506,7 @@ function edit(id) {
         $('#rejectDetailsFooter').find('#totalRejectGross').text(totalRejectGross.toFixed(2));
         $('#rejectDetailsFooter').find('#totalRejectTare').text(totalRejectTare.toFixed(2));
         $('#rejectDetailsFooter').find('#totalRejectNet').text(totalRejectNet.toFixed(2));
-        $('#rejectDetailsFooter').find('#totalRejectPrice').text('RM' + totalRejectPrice.toFixed(2));
+        $('#rejectDetailsFooter').find('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
       }
 
       $('.select2').each(function() {
@@ -2692,7 +2694,7 @@ function updateTotals() {
   $('#totalWeightGross').text(totalGross.toFixed(2));
   $('#totalWeightTare').text(totalTare.toFixed(2));
   $('#totalWeightNet').text(totalNet.toFixed(2));
-  $('#totalWeightPrice').text('RM' + totalPrice.toFixed(2));
+  $('#totalWeightPrice').text(totalPrice.toFixed(2));
   
   var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0;
   $('#rejectDetailsTable tr').each(function() {
@@ -2704,7 +2706,7 @@ function updateTotals() {
   $('#totalRejectGross').text(totalRejectGross.toFixed(2));
   $('#totalRejectTare').text(totalRejectTare.toFixed(2));
   $('#totalRejectNet').text(totalRejectNet.toFixed(2));
-  $('#totalRejectPrice').text('RM' + totalRejectPrice.toFixed(2));
+  $('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
 }
 
 function deactivate(id) {

@@ -148,6 +148,7 @@ if ($query->num_rows > 0) {
         $totalRejectWeight = 0;
         $totalPrice = 0;
         $actualPrice = 0;
+        $currency = '';
         // gradeWeights keyed as "product_name|grade"
         $gradeWeights = [];
 
@@ -162,6 +163,7 @@ if ($query->num_rows > 0) {
                     $totalWeight += floatval($detail['gross'] ?? 0);
                     $totalBinWeight += floatval($detail['tare'] ?? 0);
                     $totalRejectWeight += floatval($detail['reject'] ?? 0);
+                    if (empty($currency) && !empty($detail['currency'])) $currency = searchCurrencyNameById($detail['currency'], $db);
                     if ($detail['fixedfloat'] == 'fixed') {
                         $totalPrice += floatval($detail['price'] ?? 0);
                         $actualPrice += floatval($detail['price'] ?? 0);
@@ -196,6 +198,7 @@ if ($query->num_rows > 0) {
             'actualWeight' => $actualWeight,
             'totalPrice' => $totalPrice,
             'actualPrice' => $actualPrice,
+            'currency' => $currency,
             'vehicle_no' => $row['vehicle_no'],
             'driver' => $row['driver'],
             'checked_by' => $row['checked_by'],
@@ -250,6 +253,7 @@ if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'ST
 }
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
 if ($allowPrice == 'Y') {
+    $trailingHeaders[] = 'Currency';
     $trailingHeaders[] = 'Total Price (RM)';
     $trailingHeaders[] = 'Actual Price (RM)';
 }
@@ -308,6 +312,9 @@ foreach ($trailingHeaders as $header) {
 $totalCols = $colIndex - 1;
 $rowIndex = 3; // data starts at row 3
 
+// Track numeric column indices (1-based) for number formatting
+$numericColIndices = [];
+
 if (!empty($allRows)) {
     foreach ($allRows as $rowData) {
         $lineData = [
@@ -328,51 +335,62 @@ if (!empty($allRows)) {
 
         foreach ($productGradeColumns as $product => $grades) {
             foreach ($grades as $grade) {
-                $lineData[] = number_format(($rowData['gradeWeights'][$product.'|'.$grade] ?? 0), 2);
+                $numericColIndices[] = count($lineData) + 1;
+                $lineData[] = floatval($rowData['gradeWeights'][$product.'|'.$grade] ?? 0);
             }
         }
 
-        $lineData[] = number_format($rowData['totalWeight'], 2);
-        $lineData[] = number_format($rowData['totalBinWeight'], 2);
-        $lineData[] = number_format($rowData['total_reject'], 2);
-        $lineData[] = number_format($rowData['actualWeight'], 2);
+        $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['totalWeight']);
+        $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['totalBinWeight']);
+        $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['total_reject']);
+        $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['actualWeight']);
         if ($allowPrice == 'Y') {
-            $lineData[] = number_format($rowData['totalPrice'], 2);
-            $lineData[] = number_format($rowData['actualPrice'], 2);
+            $lineData[] = $rowData['currency'];
+            $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['totalPrice']);
+            $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['actualPrice']);
         }
 
         array_push($lineData, $rowData['vehicle_no'], $rowData['driver'], $rowData['weighted_by'], $rowData['checked_by'], $rowData['remark']);
 
-        array_walk($lineData, 'filterData');
+        $numericColIndices = array_unique($numericColIndices);
         $sheet->fromArray($lineData, NULL, 'A'.$rowIndex);
         $rowIndex++;
     }
 
     // Subtotal row
-    $subtotalData = ['SUBTOTAL', '', '', '', ''];
+    $subtotalData = ['', '', '', '', ''];
     if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
         $subtotalData[] = '';
     }
-    $subtotalData[] = '';
+    $subtotalData[] = 'SUBTOTAL';
 
     foreach ($productGradeColumns as $product => $grades) {
         foreach ($grades as $grade) {
-            $subtotalData[] = number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2);
+            $subtotalData[] = floatval($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0);
         }
     }
 
-    $subtotalData[] = number_format($subtotals['totalWeight'], 2);
-    $subtotalData[] = number_format($subtotals['totalBinWeight'], 2);
-    $subtotalData[] = number_format($subtotals['total_reject'], 2);
-    $subtotalData[] = number_format($subtotals['actualWeight'], 2);
+    $subtotalData[] = floatval($subtotals['totalWeight']);
+    $subtotalData[] = floatval($subtotals['totalBinWeight']);
+    $subtotalData[] = floatval($subtotals['total_reject']);
+    $subtotalData[] = floatval($subtotals['actualWeight']);
     if ($allowPrice == 'Y') {
-        $subtotalData[] = number_format($subtotals['totalPrice'], 2);
-        $subtotalData[] = number_format($subtotals['actualPrice'], 2);
+        $subtotalData[] = '';
+        // $subtotalData[] = floatval($subtotals['totalPrice']);
+        // $subtotalData[] = floatval($subtotals['actualPrice']);
     }
     array_push($subtotalData, '', '', '');
 
     $sheet->fromArray($subtotalData, NULL, 'A'.$rowIndex);
     $sheet->getStyle('A'.$rowIndex.':'.colLetter($totalCols).$rowIndex)->getFont()->setBold(true);
+
+    // Apply #,##0.00 number format to all numeric columns (data rows + subtotal)
+    foreach ($numericColIndices as $ci) {
+        $cl = colLetter($ci);
+        $sheet->getStyle($cl.'3:'.$cl.$rowIndex)
+              ->getNumberFormat()
+              ->setFormatCode('#,##0.00');
+    }
 } else {
     $sheet->setCellValue('A3', 'No records found...');
 }
