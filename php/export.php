@@ -166,9 +166,13 @@ if ($query->num_rows > 0) {
                     $totalWeight += floatval($detail['gross'] ?? 0);
                     $totalBinWeight += floatval($detail['tare'] ?? 0);
                     $totalRejectWeight += floatval($detail['reject'] ?? 0);
-                    if (empty($currency) && !empty($detail['currency'])) $currency = searchCurrencyNameById($detail['currency'], $db);
+                    if (empty($currency) && !empty($detail['currency'])) {
+                        $currency = searchCurrencyNameById($detail['currency'], $db);
+                    }
                     $detailCurrencyName = !empty($detail['currency']) ? searchCurrencyNameById($detail['currency'], $db) : 'MYR';
-                    if (empty($detailCurrencyName)) $detailCurrencyName = 'MYR';
+                    if (empty($detailCurrencyName)) {
+                        $detailCurrencyName = 'MYR';
+                    }
                     $gradeKey = $product.'|'.$grade;
                     if ($detail['fixedfloat'] == 'fixed') {
                         $detailTotal = floatval($detail['price'] ?? 0);
@@ -181,11 +185,17 @@ if ($query->num_rows > 0) {
                         $totalPrice += $detailTotal;
                         $actualPrice += $detailActual;
                     }
-                    if (!isset($gradePrice[$gradeKey][$detailCurrencyName])) $gradePrice[$gradeKey][$detailCurrencyName] = 0;
-                    if (!isset($gradeActualPrice[$gradeKey][$detailCurrencyName])) $gradeActualPrice[$gradeKey][$detailCurrencyName] = 0;
+                    if (!isset($gradePrice[$gradeKey][$detailCurrencyName])) {
+                        $gradePrice[$gradeKey][$detailCurrencyName] = 0;
+                    }
+                    if (!isset($gradeActualPrice[$gradeKey][$detailCurrencyName])) {
+                        $gradeActualPrice[$gradeKey][$detailCurrencyName] = 0;
+                    }
                     $gradePrice[$gradeKey][$detailCurrencyName] += $detailTotal;
                     $gradeActualPrice[$gradeKey][$detailCurrencyName] += $detailActual;
-                    if (!isset($currencyTotals[$detailCurrencyName])) $currencyTotals[$detailCurrencyName] = ['totalPrice' => 0, 'actualPrice' => 0];
+                    if (!isset($currencyTotals[$detailCurrencyName])) {
+                        $currencyTotals[$detailCurrencyName] = ['totalPrice' => 0, 'actualPrice' => 0];
+                    }
                     $currencyTotals[$detailCurrencyName]['totalPrice'] += $detailTotal;
                     $currencyTotals[$detailCurrencyName]['actualPrice'] += $detailActual;
                 }
@@ -247,17 +257,23 @@ foreach ($allRows as $rowData) {
             if (!isset($subtotals['gradeWeights'][$key])) $subtotals['gradeWeights'][$key] = 0;
             $subtotals['gradeWeights'][$key] += ($rowData['gradeWeights'][$key] ?? 0);
             foreach (($rowData['gradePrice'][$key] ?? []) as $cur => $amt) {
-                if (!isset($subtotalGradePrice[$key][$cur])) $subtotalGradePrice[$key][$cur] = 0;
+                if (!isset($subtotalGradePrice[$key][$cur])) {
+                    $subtotalGradePrice[$key][$cur] = 0;
+                }
                 $subtotalGradePrice[$key][$cur] += $amt;
             }
             foreach (($rowData['gradeActualPrice'][$key] ?? []) as $cur => $amt) {
-                if (!isset($subtotalGradeActualPrice[$key][$cur])) $subtotalGradeActualPrice[$key][$cur] = 0;
+                if (!isset($subtotalGradeActualPrice[$key][$cur])) {
+                    $subtotalGradeActualPrice[$key][$cur] = 0;
+                }
                 $subtotalGradeActualPrice[$key][$cur] += $amt;
             }
         }
     }
     foreach (($rowData['currencyTotals'] ?? []) as $cur => $totals) {
-        if (!isset($subtotalCurrencyTotals[$cur])) $subtotalCurrencyTotals[$cur] = ['totalPrice' => 0, 'actualPrice' => 0];
+        if (!isset($subtotalCurrencyTotals[$cur])) {
+            $subtotalCurrencyTotals[$cur] = ['totalPrice' => 0, 'actualPrice' => 0];
+        }
         $subtotalCurrencyTotals[$cur]['totalPrice'] += $totals['totalPrice'];
         $subtotalCurrencyTotals[$cur]['actualPrice'] += $totals['actualPrice'];
     }
