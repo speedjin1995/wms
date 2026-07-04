@@ -376,8 +376,8 @@ if (!empty($allRows)) {
     $subtotalData[] = floatval($subtotals['actualWeight']);
     if ($allowPrice == 'Y') {
         $subtotalData[] = '';
-        // $subtotalData[] = floatval($subtotals['totalPrice']);
-        // $subtotalData[] = floatval($subtotals['actualPrice']);
+        $subtotalData[] = floatval($subtotals['totalPrice']);
+        $subtotalData[] = floatval($subtotals['actualPrice']);
     }
     array_push($subtotalData, '', '', '');
 
