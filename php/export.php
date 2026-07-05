@@ -38,6 +38,8 @@ $fileName = "Report_" . date('Y-m-d') . ".xlsx";
 // Build search query
 $searchQuery = "";
 
+$fromDate = '';
+$toDate = '';
 if(isset($_GET['fromDate']) && $_GET['fromDate'] != null && $_GET['fromDate'] != ''){
     $dateTime = DateTime::createFromFormat('d/m/Y', $_GET['fromDate']);
     $fromDate = $dateTime->format('d/m/Y');
@@ -320,49 +322,55 @@ $borderStyle = [
 
 $colIndex = 1;
 
-// Row 2 only: fixed headers
+// Row 3 only: fixed headers
 foreach ($fixedHeaders as $header) {
     $cl = colLetter($colIndex);
-    $sheet->setCellValue($cl.'2', $header);
-    $sheet->getStyle($cl.'2')->applyFromArray($borderStyle);
-    $sheet->getStyle($cl.'2')->getFont()->setBold(true);
+    $sheet->setCellValue($cl.'3', $header);
+    $sheet->getStyle($cl.'3')->applyFromArray($borderStyle);
+    $sheet->getStyle($cl.'3')->getFont()->setBold(true);
     $colIndex++;
 }
 
-// Row 1: product name merged across grades (centered+bold); Row 2: grade labels
+// Row 2: product name merged across grades (centered+bold); Row 3: grade labels
 foreach ($productGradeColumns as $product => $grades) {
     $gradeCount  = count($grades);
     $startLetter = colLetter($colIndex);
     $endLetter   = colLetter($colIndex + $gradeCount - 1);
 
-    $sheet->setCellValue($startLetter.'1', $product);
+    $sheet->setCellValue($startLetter.'2', $product);
     if ($gradeCount > 1) {
-        $sheet->mergeCells($startLetter.'1:'.$endLetter.'1');
+        $sheet->mergeCells($startLetter.'2:'.$endLetter.'2');
     }
-    $sheet->getStyle($startLetter.'1:'.$endLetter.'1')->applyFromArray($borderStyle);
-    $sheet->getStyle($startLetter.'1:'.$endLetter.'1')->getFont()->setBold(true);
-    $sheet->getStyle($startLetter.'1:'.$endLetter.'1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle($startLetter.'2:'.$endLetter.'2')->applyFromArray($borderStyle);
+    $sheet->getStyle($startLetter.'2:'.$endLetter.'2')->getFont()->setBold(true);
+    $sheet->getStyle($startLetter.'2:'.$endLetter.'2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
     foreach ($grades as $grade) {
         $cl = colLetter($colIndex);
-        $sheet->setCellValue($cl.'2', $grade);
-        $sheet->getStyle($cl.'2')->applyFromArray($borderStyle);
-        $sheet->getStyle($cl.'2')->getFont()->setBold(true);
+        $sheet->setCellValue($cl.'3', $grade);
+        $sheet->getStyle($cl.'3')->applyFromArray($borderStyle);
+        $sheet->getStyle($cl.'3')->getFont()->setBold(true);
         $colIndex++;
     }
 }
 
-// Row 2 only: trailing headers
+// Row 3 only: trailing headers
 foreach ($trailingHeaders as $header) {
     $cl = colLetter($colIndex);
-    $sheet->setCellValue($cl.'2', $header);
-    $sheet->getStyle($cl.'2')->applyFromArray($borderStyle);
-    $sheet->getStyle($cl.'2')->getFont()->setBold(true);
+    $sheet->setCellValue($cl.'3', $header);
+    $sheet->getStyle($cl.'3')->applyFromArray($borderStyle);
+    $sheet->getStyle($cl.'3')->getFont()->setBold(true);
     $colIndex++;
 }
 
 $totalCols = $colIndex - 1;
-$rowIndex = 3; // data starts at row 3
+$rowIndex = 4; // data starts at row 4
+
+// Row 1: date range header (merged across all columns)
+$dateRangeText = 'Date: ' . ($fromDate ?: '-') . ' to ' . ($toDate ?: '-');
+$sheet->setCellValue('A1', $dateRangeText);
+$sheet->getStyle('A1')->getFont()->setBold(true);
+$sheet->mergeCells('A1:' . colLetter($totalCols) . '1');
 
 // Track numeric column indices (1-based) for number formatting
 $numericColIndices = [];
@@ -445,7 +453,7 @@ if (!empty($allRows)) {
             foreach ($productGradeColumns as $product => $grades) {
                 foreach ($grades as $grade) {
                     $key = $product.'|'.$grade;
-                    $totalPriceData[] = floatval($subtotalGradePrice[$key][$cur] ?? 0);
+                    $totalPriceData[] = floatval($subtotalGradeActualPrice[$key][$cur] ?? 0);
                 }
             }
             // trailing: totalWeight, totalBinWeight, reject, actualWeight
@@ -467,7 +475,7 @@ if (!empty($allRows)) {
     // Apply #,##0.00 number format to all numeric columns (data rows + subtotal)
     foreach ($numericColIndices as $ci) {
         $cl = colLetter($ci);
-        $sheet->getStyle($cl.'3:'.$cl.$rowIndex)
+        $sheet->getStyle($cl.'4:'.$cl.$rowIndex)
               ->getNumberFormat()
               ->setFormatCode('#,##0.00');
     }

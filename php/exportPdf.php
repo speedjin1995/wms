@@ -467,7 +467,7 @@ try {
                                     foreach ($productGradeColumns as $product => $grades) {
                                         foreach ($grades as $grade) {
                                             $key = $product.'|'.$grade;
-                                            $html .= '<td>'.number_format($subtotalGradePrice[$key][$cur] ?? 0, 2).'</td>';
+                                            $html .= '<td>'.number_format($subtotalGradeActualPrice[$key][$cur] ?? 0, 2).'</td>';
                                         }
                                     }
                                     $html .= '<td></td><td></td><td></td><td></td>';
