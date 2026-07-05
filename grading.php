@@ -965,7 +965,7 @@ function format (row) {
         returnString += `
             <tr>
               <td>${detail.product_name}</td>
-              <td>${detail.to_grade}</td>
+              <td>${detail.to_grade_unit}</td>
               <td>${parseFloat(detail.gross_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
@@ -1022,7 +1022,7 @@ function format (row) {
         returnString += `
             <tr>
               <td>${detail.product_name}</td>
-              <td>${detail.to_grade}</td>
+              <td>${detail.to_grade_unit}</td>
               <td>${parseFloat(detail.gross_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
