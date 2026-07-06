@@ -11,6 +11,16 @@ $allowPrice = 'N';
 $companyDetail = searchCompanyById($company, $db);
 $allowPrice = $companyDetail['include_price'];
 
+$defaultCurrency = 'MYR';
+$defCurrStmt = $db->prepare("SELECT currency FROM currency WHERE customer = ? AND is_default = 1 AND deleted = 0 LIMIT 1");
+$defCurrStmt->bind_param('s', $company);
+$defCurrStmt->execute();
+$defCurrResult = $defCurrStmt->get_result();
+if ($defCurrRow = $defCurrResult->fetch_assoc()) {
+    $defaultCurrency = $defCurrRow['currency'];
+}
+$defCurrStmt->close();
+
 // PDF file name for download
 $fileName = "Report_" . date('Y-m-d') . ".pdf";
 
@@ -166,9 +176,9 @@ try {
                         if (empty($currency) && !empty($detail['currency'])) {
                             $currency = searchCurrencyNameById($detail['currency'], $db);
                         }
-                        $detailCurrencyName = !empty($detail['currency']) ? searchCurrencyNameById($detail['currency'], $db) : 'MYR';
+                        $detailCurrencyName = !empty($detail['currency']) ? searchCurrencyNameById($detail['currency'], $db) : $defaultCurrency;
                         if (empty($detailCurrencyName)) {
-                            $detailCurrencyName = 'MYR';
+                            $detailCurrencyName = $defaultCurrency;
                         }
                         $gradeKey = $product.'|'.$grade;
                         if ($detail['fixedfloat'] == 'fixed') {
@@ -308,7 +318,7 @@ try {
             $content .= '<td>'.number_format($rowData['total_reject'], 2).'</td>';
             $content .= '<td>'.number_format($rowData['actualWeight'], 2).'</td>';
             if ($allowPrice == 'Y') {
-                $content .= '<td>'.$rowData['currency'].'</td>';
+                $content .= '<td>'.(!empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency).'</td>';
                 $content .= '<td>'.number_format($rowData['totalPrice'], 2).'</td>';
                 $content .= '<td>'.number_format($rowData['actualPrice'], 2).'</td>';
             }
