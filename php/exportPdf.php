@@ -446,7 +446,7 @@ try {
                     </tbody>
                     <tfoot>
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
-                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '7' : '6').'">SUBTOTAL</td>';
+                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '8' : '7').'">SUBTOTAL</td>';
                             foreach ($productGradeColumns as $product => $grades) {
                                 foreach ($grades as $grade) {
                                     $html .= '<td>'.number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2).'</td>';
@@ -463,7 +463,7 @@ try {
                             }
                             $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
                             if ($allowPrice == 'Y') {
-                                $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 7 : 6;
+                                $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 8 : 7;
                                 foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
                                     $html .= '<tr style="font-weight: bold; background-color: #e8f4e8;">';
                                     $html .= '<td colspan="'.$fixedColCount2.'">TOTAL PRICE ('.$cur.')</td>';
