@@ -131,6 +131,17 @@ if($isMulti == 'Y'){
     $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
 }
 
+// Fetch default currency for this company
+$defaultCurrency = 'MYR';
+$defCurrStmt = $db->prepare("SELECT currency FROM currency WHERE customer = ? AND is_default = 1 AND deleted = 0 LIMIT 1");
+$defCurrStmt->bind_param('s', $company);
+$defCurrStmt->execute();
+$defCurrResult = $defCurrStmt->get_result();
+if ($defCurrRow = $defCurrResult->fetch_assoc()) {
+    $defaultCurrency = $defCurrRow['currency'];
+}
+$defCurrStmt->close();
+
 // $productGradeColumns[ product_name ] = [ grade, ... ]
 $productGradeColumns = [];
 $allRows = [];
@@ -171,9 +182,9 @@ if ($query->num_rows > 0) {
                     if (empty($currency) && !empty($detail['currency'])) {
                         $currency = searchCurrencyNameById($detail['currency'], $db);
                     }
-                    $detailCurrencyName = !empty($detail['currency']) ? searchCurrencyNameById($detail['currency'], $db) : 'MYR';
+                    $detailCurrencyName = !empty($detail['currency']) ? searchCurrencyNameById($detail['currency'], $db) : $defaultCurrency;
                     if (empty($detailCurrencyName)) {
-                        $detailCurrencyName = 'MYR';
+                        $detailCurrencyName = $defaultCurrency;
                     }
                     $gradeKey = $product.'|'.$grade;
                     if ($detail['fixedfloat'] == 'fixed') {
@@ -332,6 +343,8 @@ foreach ($fixedHeaders as $header) {
     $colIndex++;
 }
 
+$gradeStartColIndex = $colIndex; // remember where grade columns begin
+
 // Row 2: product name merged across grades (centered+bold); Row 3: grade labels
 foreach ($productGradeColumns as $product => $grades) {
     $gradeCount  = count($grades);
@@ -407,7 +420,7 @@ if (!empty($allRows)) {
         $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['total_reject']);
         $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['actualWeight']);
         if ($allowPrice == 'Y') {
-            $lineData[] = $rowData['currency'];
+            $lineData[] = !empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency;
             $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['totalPrice']);
             $numericColIndices[] = count($lineData) + 1; $lineData[] = floatval($rowData['actualPrice']);
         }
@@ -419,31 +432,39 @@ if (!empty($allRows)) {
         $rowIndex++;
     }
 
-    // Subtotal row
+    // Subtotal row — use SUM formulas for all numeric columns
+    $dataStartRow = 4;
+    $dataEndRow   = $rowIndex - 1;
+
     $subtotalData = ['', '', '', '', '', ''];
-    if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
+    if ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
         $subtotalData[] = '';
     }
     $subtotalData[] = 'SUBTOTAL';
+    $sheet->fromArray($subtotalData, NULL, 'A'.$rowIndex);
+
+    // Reset to grade start column and write SUM formulas
+    $colIndex = $gradeStartColIndex;
 
     foreach ($productGradeColumns as $product => $grades) {
         foreach ($grades as $grade) {
-            $subtotalData[] = floatval($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0);
+            $cl = colLetter($colIndex);
+            $sheet->setCellValue($cl.$rowIndex, '=SUM('.$cl.$dataStartRow.':'.$cl.$dataEndRow.')');
+            $colIndex++;
         }
     }
 
-    $subtotalData[] = floatval($subtotals['totalWeight']);
-    $subtotalData[] = floatval($subtotals['totalBinWeight']);
-    $subtotalData[] = floatval($subtotals['total_reject']);
-    $subtotalData[] = floatval($subtotals['actualWeight']);
-    if ($allowPrice == 'Y') {
-        $subtotalData[] = '';
-        // $subtotalData[] = floatval($subtotals['totalPrice']);
-        // $subtotalData[] = floatval($subtotals['actualPrice']);
-    }
-    array_push($subtotalData, '', '', '');
+    $totalWeightCol    = colLetter($colIndex);   $sheet->setCellValue($totalWeightCol.$rowIndex,    '=SUM('.$totalWeightCol.$dataStartRow.':'.$totalWeightCol.$dataEndRow.')');    $colIndex++;
+    $totalBinCol       = colLetter($colIndex);   $sheet->setCellValue($totalBinCol.$rowIndex,       '=SUM('.$totalBinCol.$dataStartRow.':'.$totalBinCol.$dataEndRow.')');          $colIndex++;
+    $rejectCol         = colLetter($colIndex);   $sheet->setCellValue($rejectCol.$rowIndex,         '=SUM('.$rejectCol.$dataStartRow.':'.$rejectCol.$dataEndRow.')');              $colIndex++;
+    $actualWeightCol   = colLetter($colIndex);   $sheet->setCellValue($actualWeightCol.$rowIndex,   '=SUM('.$actualWeightCol.$dataStartRow.':'.$actualWeightCol.$dataEndRow.')');  $colIndex++;
 
-    $sheet->fromArray($subtotalData, NULL, 'A'.$rowIndex);
+    if ($allowPrice == 'Y') {
+        $colIndex++; // skip Currency column
+        // $totalPriceCol  = colLetter($colIndex);  $sheet->setCellValue($totalPriceCol.$rowIndex,  '=SUM('.$totalPriceCol.$dataStartRow.':'.$totalPriceCol.$dataEndRow.')');   $colIndex++;
+        // $actualPriceCol = colLetter($colIndex);  $sheet->setCellValue($actualPriceCol.$rowIndex, '=SUM('.$actualPriceCol.$dataStartRow.':'.$actualPriceCol.$dataEndRow.')'); $colIndex++;
+    }
+
     $sheet->getStyle('A'.$rowIndex.':'.colLetter($totalCols).$rowIndex)->getFont()->setBold(true);
     $rowIndex++;
 
@@ -452,24 +473,25 @@ if (!empty($allRows)) {
         foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
             $totalPriceData = array_fill(0, count($fixedHeaders) - 1, '');
             $totalPriceData[] = 'TOTAL PRICE ('.$cur.')';
+            $sheet->fromArray($totalPriceData, NULL, 'A'.$rowIndex);
+
+            // Grade price SUM formulas (per currency — use PHP value since SUMIF by currency not trivial)
+            $ci = $gradeStartColIndex;
             foreach ($productGradeColumns as $product => $grades) {
                 foreach ($grades as $grade) {
                     $key = $product.'|'.$grade;
-                    $totalPriceData[] = floatval($subtotalGradeActualPrice[$key][$cur] ?? 0);
+                    $cl  = colLetter($ci);
+                    $sheet->setCellValue($cl.$rowIndex, floatval($subtotalGradePrice[$key][$cur] ?? 0));
+                    $ci++;
                 }
             }
-            // trailing: totalWeight, totalBinWeight, reject, actualWeight
-            $totalPriceData[] = '';
-            $totalPriceData[] = '';
-            $totalPriceData[] = '';
-            $totalPriceData[] = '';
-            $totalPriceData[] = '';
-            // currency, totalPrice, actualPrice
-            $totalPriceData[] = $cur;
-            $totalPriceData[] = floatval($curTotals['totalPrice']);
-            $totalPriceData[] = floatval($curTotals['actualPrice']);
-            array_push($totalPriceData, '', '', '', '', '');
-            $sheet->fromArray($totalPriceData, NULL, 'A'.$rowIndex);
+
+            // trailing weight cols blank, then currency + SUM formulas for totalPrice/actualPrice
+            $ci += 4; // skip totalWeight, totalBinWeight, reject, actualWeight
+            $sheet->setCellValue(colLetter($ci).$rowIndex, $cur); $ci++;
+            $sheet->setCellValue(colLetter($ci).$rowIndex, floatval($curTotals['totalPrice']));  $ci++;
+            $sheet->setCellValue(colLetter($ci).$rowIndex, floatval($curTotals['actualPrice']));
+
             $sheet->getStyle('A'.$rowIndex.':'.colLetter($totalCols).$rowIndex)->getFont()->setBold(true);
             $rowIndex++;
         }
