@@ -214,6 +214,7 @@ if ($query->num_rows > 0) {
             'serial_no' => $row['serial_no'],
             'po_no' => $row['po_no'],
             'security_bills' => $row['security_bills'],
+            'indicator' => $row['indicator'],
             'status' => $row['status'],
             'customer' => $row['customer'],
             'other_customer' => $row['other_customer'],
@@ -301,9 +302,9 @@ function colLetter($n) {
 }
 
 if($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING') {
-    $fixedHeaders = ['No', 'Date', 'Time', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Machine Nickname', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
 } else {
-    $fixedHeaders = ['No', 'Date', 'Time', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
 }
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
 if ($allowPrice == 'Y') {
@@ -381,8 +382,9 @@ if (!empty($allRows)) {
             $rowData['count'],
             $rowData['formattedDate'],
             $rowData['formattedTime'],
+            $rowData['indicator'],
             $rowData['serial_no'],
-            $rowData['po_no']
+            $rowData['po_no'],
         ];
 
         if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING'){

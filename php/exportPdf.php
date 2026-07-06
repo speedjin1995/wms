@@ -205,6 +205,7 @@ try {
                 'count' => $count,
                 'formattedDate' => $formattedDate,
                 'formattedTime' => $formattedTime,
+                'indicator' => $row['indicator'],
                 'serial_no' => $row['serial_no'],
                 'security_bills' => $row['security_bills'],
                 'po_no' => $row['po_no'],
@@ -290,6 +291,7 @@ try {
             $content .= '<td>'.$rowData['count'].'</td>';
             $content .= '<td>'.$rowData['formattedDate'].'</td>';
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
+            $content .= '<td>'.$rowData['indicator'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
             $content .= '<td>'.$rowData['po_no'].'</td>';
             if ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
@@ -398,7 +400,7 @@ try {
                             foreach ($productGradeColumns as $product => $grades) { 
                                 $totalGradeCols += count($grades); 
                             }
-                            $trailingCount = ($allowPrice == 'Y') ? 12 : 9;
+                            $trailingCount = ($allowPrice == 'Y') ? 13 : 10;
                             $totalColCount = $fixedColCount + $totalGradeCols + $trailingCount;
                             $html .= '<th colspan="'.$fixedColCount.'" style="background-color:#f0f0f0;"></th>';
                             foreach ($productGradeColumns as $product => $grades) {
@@ -409,6 +411,7 @@ try {
                             <th>No</th>
                             <th>Date</th>
                             <th>Time</th>
+                            <th>Machine Nickname</th>
                             <th>Weigh Slip No.</th>
                             <th>'.($status == 'DISPATCH' || $status == 'STOCK-BAL' || $status == 'OUTGOING' ? 'Delivery' : 'Purchase').' No.</th>';
                             if ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
