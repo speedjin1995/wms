@@ -420,7 +420,7 @@ if (!empty($allRows)) {
     }
 
     // Subtotal row
-    $subtotalData = ['', '', '', '', ''];
+    $subtotalData = ['', '', '', '', '', ''];
     if($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
         $subtotalData[] = '';
     }
@@ -459,6 +459,7 @@ if (!empty($allRows)) {
                 }
             }
             // trailing: totalWeight, totalBinWeight, reject, actualWeight
+            $totalPriceData[] = '';
             $totalPriceData[] = '';
             $totalPriceData[] = '';
             $totalPriceData[] = '';
