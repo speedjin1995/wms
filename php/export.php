@@ -271,7 +271,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
             foreach ($sheetProductGradeColumns as $product => $grades) {
                 foreach ($grades as $grade) {
                     $key = $product . '|' . $grade;
-                    $sheet->setCellValue(colLetter($ci) . $rowIndex, floatval($subtotalGradePrice[$key][$cur] ?? 0));
+                    $sheet->setCellValue(colLetter($ci) . $rowIndex, floatval($subtotalGradeActualPrice[$key][$cur] ?? 0));
                     $ci++;
                 }
             }
