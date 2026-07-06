@@ -69,6 +69,7 @@ if(!isset($_SESSION['userID'])){
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
+                min-height: 100vh;
                 /*background: url('assets/modules-bg.jpeg');*/
                 background: url('assets/dashboard-background.jpg');
                 /*background: url('assets/modules-bg.jpg');*/
