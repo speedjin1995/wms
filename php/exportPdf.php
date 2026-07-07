@@ -95,6 +95,10 @@ if(isset($_GET['weightedBy']) && $_GET['weightedBy'] != null && $_GET['weightedB
   $searchQuery .= " and wholesales.weighted_by = '".mysqli_real_escape_string($db, $_GET['weightedBy'])."'";
 }
 
+if(isset($_GET['location']) && $_GET['location'] != null && $_GET['location'] != '' && $_GET['location'] != '-'){
+  $searchQuery .= " and wholesales.location = '".mysqli_real_escape_string($db, $_GET['location'])."'";
+}
+
 if($_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
   if ($_GET['status'] == 'active'){
     $searchQuery .= " and wholesales.deleted = '0'";
