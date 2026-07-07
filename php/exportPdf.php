@@ -220,6 +220,7 @@ try {
                 'formattedDate' => $formattedDate,
                 'formattedTime' => $formattedTime,
                 'indicator' => $row['indicator'],
+                'location'  => (!empty($row['location']) ? (searchLocationById($row['location'], $db) ?: 'Unknown') : 'Unknown'),
                 'serial_no' => $row['serial_no'],
                 'security_bills' => $row['security_bills'],
                 'po_no' => $row['po_no'],
@@ -305,6 +306,7 @@ try {
             $content .= '<td>'.$rowData['count'].'</td>';
             $content .= '<td>'.$rowData['formattedDate'].'</td>';
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
+            $content .= '<td>'.$rowData['location'].'</td>';
             $content .= '<td>'.$rowData['indicator'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
             $content .= '<td>'.$rowData['po_no'].'</td>';
@@ -409,12 +411,12 @@ try {
                     <thead>
                         <tr>';
                             // Row 1: fixed cols blank, product names spanning grades, trailing cols blank
-                            $fixedColCount = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 7 : 6;
+                            $fixedColCount = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
                             $totalGradeCols = 0;
                             foreach ($productGradeColumns as $product => $grades) { 
                                 $totalGradeCols += count($grades); 
                             }
-                            $trailingCount = ($allowPrice == 'Y') ? 13 : 10;
+                            $trailingCount = ($allowPrice == 'Y') ? 14 : 11;
                             $totalColCount = $fixedColCount + $totalGradeCols + $trailingCount;
                             $html .= '<th colspan="'.$fixedColCount.'" style="background-color:#f0f0f0;"></th>';
                             foreach ($productGradeColumns as $product => $grades) {
@@ -425,6 +427,7 @@ try {
                             <th>No</th>
                             <th>Date</th>
                             <th>Time</th>
+                            <th>Location</th>
                             <th>Machine Nickname</th>
                             <th>Weigh Slip No.</th>
                             <th>'.($status == 'DISPATCH' || $status == 'STOCK-BAL' || $status == 'OUTGOING' ? 'Delivery' : 'Purchase').' No.</th>';
@@ -460,7 +463,7 @@ try {
                     </tbody>
                     <tfoot>
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
-                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '8' : '7').'">SUBTOTAL</td>';
+                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '9' : '8').'">SUBTOTAL</td>';
                             foreach ($productGradeColumns as $product => $grades) {
                                 foreach ($grades as $grade) {
                                     $html .= '<td>'.number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2).'</td>';
@@ -477,7 +480,7 @@ try {
                             }
                             $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
                             if ($allowPrice == 'Y') {
-                                $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 8 : 7;
+                                $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
                                 foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
                                     $html .= '<tr style="font-weight: bold; background-color: #e8f4e8;">';
                                     $html .= '<td colspan="'.$fixedColCount2.'">TOTAL PRICE ('.$cur.')</td>';
