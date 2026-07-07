@@ -164,6 +164,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
             $rowData['count'],
             $rowData['formattedDate'],
             $rowData['formattedTime'],
+            (!empty($rowData['location']) ? (searchLocationById($rowData['location'], $db) ?: 'Unknown') : 'Unknown'),
             $rowData['indicator'],
             $rowData['serial_no'],
             $rowData['po_no'],
@@ -219,7 +220,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
     $dataStartRow = 4;
     $dataEndRow   = $rowIndex - 1;
 
-    $subtotalData = ['', '', '', '', '', ''];
+    $subtotalData = ['', '', '', '', '', '', ''];
     if ($transactionStatus == 'RECEIVING' || $transactionStatus == 'INCOMING') {
         $subtotalData[] = '';
     }
@@ -539,9 +540,9 @@ unset($grades);
 $transactionStatus = $_GET['transactionStatus'] ?? '';
 
 if ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $transactionStatus == 'OUTGOING') {
-    $fixedHeaders = ['No', 'Date', 'Time', 'Machine Nickname', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
 } else {
-    $fixedHeaders = ['No', 'Date', 'Time', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
 }
 
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
