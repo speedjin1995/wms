@@ -369,6 +369,10 @@ if (!empty($_GET['weightedBy']) && $_GET['weightedBy'] != '-') {
     $searchQuery .= " AND wholesales.weighted_by = '" . mysqli_real_escape_string($db, $_GET['weightedBy']) . "'";
 }
 
+if (!empty($_GET['location']) && $_GET['location'] != '-') {
+    $searchQuery .= " AND wholesales.location = '" . mysqli_real_escape_string($db, $_GET['location']) . "'";
+}
+
 if (!empty($_GET['status']) && $_GET['status'] != '-') {
     if ($_GET['status'] == 'active') {
         $searchQuery .= " AND wholesales.deleted = '0'";
@@ -513,6 +517,7 @@ if ($query->num_rows > 0) {
             'totalPrice'     => $totalPrice,
             'actualPrice'    => $actualPrice,
             'currency'       => $currency,
+            'location'       => $row['location'],
             'vehicle_no'     => $row['vehicle_no'],
             'driver'         => $row['driver'],
             'checked_by'     => $row['checked_by'],
@@ -567,11 +572,13 @@ writeSheet($allSheet, $allRows, $productGradeColumns, $fixedHeaders, $trailingHe
 // Per-machine sheets
 $machineGroups = [];
 foreach ($allRows as $rowData) {
-    $machineName = !empty($rowData['indicator']) ? $rowData['indicator'] : 'Unknown';
-    $machineGroups[$machineName][] = $rowData;
+    $locationName = !empty($rowData['location'])
+        ? (searchLocationById($rowData['location'], $db) ?: 'Unknown')
+        : 'Unknown';
+    $machineGroups[$locationName][] = $rowData;
 }
 
-foreach ($machineGroups as $machineName => $machineRows) {
+foreach ($machineGroups as $locationName => $machineRows) {
     $machineProductGradeColumns = [];
     foreach ($machineRows as $rowData) {
         foreach ($rowData['gradeWeights'] as $key => $weight) {
@@ -591,7 +598,7 @@ foreach ($machineGroups as $machineName => $machineRows) {
     }
     unset($grades);
 
-    $sheetTitle = substr(preg_replace('#[\\/:*?\[\]]#', '_', $machineName), 0, 31);
+    $sheetTitle = substr(preg_replace('#[\\/:*?\[\]]#', '_', $locationName), 0, 31);
     if (empty(trim($sheetTitle))) {
         $sheetTitle = 'Unknown';
     }
