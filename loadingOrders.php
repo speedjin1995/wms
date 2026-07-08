@@ -606,6 +606,7 @@ $(function () {
               product_id:              item.product_id,
               product_name:            item.product_name,
               grade:                   item.grade,
+              grade_name:              item.grade_name,
               packaging_size:          item.packaging_size,
               packaging_size_name:     item.packaging_size_name,
               units_per_box:           item.units_per_box,
