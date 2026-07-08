@@ -55,6 +55,8 @@ else{
     $packagings = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings2 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' AND customer = '$company' ORDER BY shipment_type ASC");
 
     // Company Detail 
     $companyDetail = searchCompanyById($company, $db);
@@ -80,6 +82,8 @@ else{
     $packagings = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings2 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' ORDER BY shipment_type ASC");
 
     $allowPhoto = 'Y';
   }
@@ -386,6 +390,59 @@ else{
   </div>
 </div>
 
+<div class="modal fade" id="shipmentModal">
+  <div class="modal-dialog" style="max-width: 60%">
+    <div class="modal-content">
+      <form role="form" id="shipmentForm" novalidate>
+        <div class="modal-header bg-gray-dark color-palette">
+          <h4 class="modal-title"><?=$languageArray['shipment_code'][$language]?></h4>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="shipmentBatchId" name="shipmentBatchId">
+          <div class="form-group">
+            <label><?=$languageArray['loading_date_code'][$language]?> *</label>
+            <div class="input-group date" id="shipmentLoadingDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#shipmentLoadingDatePicker" id="shipmentLoadingDate" name="shipmentLoadingDate" required/>
+              <div class="input-group-append" data-target="#shipmentLoadingDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['customer_code'][$language]?> *</label>
+            <select class="form-control select2" id="shipmentCustomer" name="shipmentCustomer" required>
+              <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowCustomer = mysqli_fetch_assoc($customers)){ ?>
+                <option value="<?=$rowCustomer['id']?>"><?=$rowCustomer['customer_name']?></option>
+              <?php } ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['shipment_types_code'][$language]?> *</label>
+            <select class="form-control select2" id="shipmentType" name="shipmentType" required>
+              <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowShipment = mysqli_fetch_assoc($shipmentTypes)){ ?>
+                <option value="<?=$rowShipment['id']?>"><?=$rowShipment['shipment_type']?></option>
+              <?php } ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['remark_code'][$language]?></label>
+            <textarea class="form-control" id="shipmentRemark" name="shipmentRemark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-info"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
     <div class="modal-content">
@@ -498,6 +555,9 @@ $(function () {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }
           buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          if(row.status !== 'completed') {
+            buttons += '<button type="button" id="shipment'+data+'" onclick="openShipmentModal('+data+')" class="btn btn-info btn-sm"><i class="fas fa-shipping-fast"></i></button>';
+          }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
           }
@@ -584,6 +644,9 @@ $(function () {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
             buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            if(row.status !== 'completed') {
+              buttons += '<button type="button" id="shipment'+data+'" onclick="openShipmentModal('+data+')" class="btn btn-info btn-sm"><i class="fas fa-shipping-fast"></i></button>';
+            }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
             }
@@ -641,6 +704,40 @@ $(function () {
             toastr["error"]("Something wrong when saving", "Failed:");
             $('#spinnerLoading').hide();
           }
+        });
+      }else if($('#shipmentModal').hasClass('show')){
+        $('#spinnerLoading').show();
+        var loadingDate = $('#shipmentLoadingDate').val();
+        var customerId  = $('#shipmentCustomer').val();
+        var postData = {
+          loadingDate:  loadingDate,
+          shipmentType: $('#shipmentType').val(),
+          remarks:      $('#shipmentRemark').val()
+        };
+        $.each(shipmentBatchItems, function(i, item) {
+          postData['items[' + i + '][packaging_batch_item_id]'] = item.id;
+          postData['items[' + i + '][packaging_batch_id]']      = item.packaging_batch_id;
+          postData['items[' + i + '][customer_id]']             = customerId;
+          postData['items[' + i + '][product_id]']              = item.product_id;
+          postData['items[' + i + '][grade]']                   = item.grade;
+          postData['items[' + i + '][packaging_size]']          = item.packaging_size;
+          postData['items[' + i + '][units_per_box]']           = item.units_per_box;
+          postData['items[' + i + '][weight]']                  = item.weight;
+          postData['items[' + i + '][loading_time]']            = moment().format('HH:mm');
+          postData['items[' + i + '][remarks]']                  = $('#shipmentRemark').val();
+        });
+        $.post('php/modules/loading/loadingOrder.php', postData, function(data){
+          var obj = JSON.parse(data);
+          if(obj.status === 'success'){
+            $('#shipmentModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#weightTable').DataTable().ajax.reload();
+          } else if(obj.status === 'failed'){
+            toastr["error"](obj.message, "Failed:");
+          } else {
+            toastr["error"]("Something went wrong", "Failed:");
+          }
+          $('#spinnerLoading').hide();
         });
       }else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
@@ -823,7 +920,7 @@ $(function () {
   });
 
   // Fix scroll when nested modal opens
-  $('#bulkAddModal').on('show.bs.modal', function() {
+  $('#bulkAddModal, #shipmentModal').on('show.bs.modal', function() {
     $('body').addClass('modal-open');
   }).on('hidden.bs.modal', function() {
     $('body').addClass('modal-open');
@@ -1419,5 +1516,57 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   });
 }
+var shipmentBatchItems = [];
 
+function openShipmentModal(id) {
+  shipmentBatchItems = [];
+  $('#shipmentBatchId').val(id);
+  $('#shipmentCustomer').val('').trigger('change');
+  $('#shipmentType').val('').trigger('change');
+  $('#shipmentRemark').val('');
+  $('#shipmentLoadingDate').val('');
+
+  $('#spinnerLoading').show();
+  $.post('php/modules/loading/getPackagingBatchItems.php', { batch_id: id }, function(data) {
+    var obj = JSON.parse(data);
+    $('#spinnerLoading').hide();
+    if (obj.status === 'success') {
+      if (obj.items.length === 0) {
+        toastr["error"]("No pending items found in this batch.", "Failed:");
+        return;
+      }
+      shipmentBatchItems = obj.items;
+      $('#shipmentModal').modal('show');
+      $('#shipmentLoadingDatePicker').datetimepicker({
+        icons: { time: 'far fa-clock' },
+        format: 'DD/MM/YYYY HH:mm',
+        defaultDate: moment()
+      });
+      ['#shipmentCustomer','#shipmentType'].forEach(function(sel) {
+        $(sel).select2({ 
+          allowClear: true, 
+          placeholder: 'Please Select', 
+          dropdownParent: $('#shipmentModal .modal-body'), 
+          width: '100%' 
+        });
+      });
+
+      $('#shipmentForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
+      });
+    } else {
+      toastr["error"](obj.message, "Failed:");
+    }
+  });
+}
 </script>
