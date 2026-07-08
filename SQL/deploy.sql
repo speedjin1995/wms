@@ -2640,3 +2640,8 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_CURRENCY` BEFORE UPDATE ON `currency` FOR EAC
 END
 $$
 DELIMITER ;
+
+-- 08/07/2026 --
+ALTER TABLE `packaging_batch_items` ADD `gross` VARCHAR(100) NOT NULL DEFAULT '0.00' AFTER `units_per_box`;
+
+ALTER TABLE `packaging_batch_items` ADD `tare` VARCHAR(100) NOT NULL DEFAULT '0.00' AFTER `weight`;

@@ -295,6 +295,8 @@ else{
                   <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
                   <th><?=$languageArray['packaging_size_code'][$language]?></th>
                   <th><?=$languageArray['unit_per_box_code'][$language]?></th>
+                  <th><?=$languageArray['gross_code'][$language]?></th>
+                  <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['weight_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
                   <?php if($allowPhoto == 'Y') { ?>
@@ -605,6 +607,11 @@ $(function () {
           if (!$(this).find('select[name*="[product]"]').val()) { errorMsg = 'Row ' + rowNum + ': Product is required.'; valid = false; return false; }
           if (!$(this).find('select[name*="[grade]"]').val()) { errorMsg = 'Row ' + rowNum + ': Grade is required.'; valid = false; return false; }
           if (!$(this).find('select[name*="[packaging_size]"]').val()) { errorMsg = 'Row ' + rowNum + ': Packaging size is required.'; valid = false; return false; }
+          var gross = parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+          if (gross <= 0) { errorMsg = 'Row ' + rowNum + ': Gross must be greater than 0.'; valid = false; return false; }
+          var net = parseFloat($(this).find('input[name*="[weight]"]').val() || 0);
+          if (net < 0) { errorMsg = 'Row ' + rowNum + ': Net weight cannot be negative.'; valid = false; return false; }
+          if (net === 0) { errorMsg = 'Row ' + rowNum + ': Net weight is 0. Check gross and tare values.'; valid = false; return false; }
         });
         if (!valid) { toastr["error"](errorMsg, "Validation Error:"); return; }
         $('#spinnerLoading').show();
@@ -695,7 +702,9 @@ $(function () {
           </select>
         </td>
         <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="0" min="1" required></td>
-        <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="0.00" min="0.01" required></td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" min="0.01" required></td>
+        <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="0.00" readonly></td>
         <td>
           <input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}" required/>
         </td>
@@ -718,6 +727,14 @@ $(function () {
       dropdownParent: $('#extendModal .modal-body'),
       width: '100%'
     });
+  });
+
+  $('#weightDetailsTable').on('input', 'input[id^="gross"], input[id^="tare"]', function() {
+    var row = $(this).closest('tr');
+    var gross = parseFloat(row.find('input[id^="gross"]').val()) || 0;
+    var tare  = parseFloat(row.find('input[id^="tare"]').val()) || 0;
+    var net   = gross - tare;
+    row.find('input[id^="weight"]').val(net.toFixed(2));
   });
 
   $('#weightDetailsTable').on('change', 'select[name*="[category]"]', function() {
@@ -791,11 +808,12 @@ $(function () {
     gradeSelect.val(currentGrade).trigger('change');
   });
 
-  // Auto-fill weight from selected packaging size
+  // Auto-fill gross from selected packaging size
   $('#weightDetailsTable').on('change', 'select[name*="[packaging_size]"]', function() {
     var weight = $(this).find('option:selected').data('weight');
     if (weight) {
-      $(this).closest('tr').find('input[name*="[weight]"]').val(parseFloat(weight).toFixed(2));
+      var row = $(this).closest('tr');
+      row.find('input[name*="[gross]"]').val(parseFloat(weight).toFixed(2)).trigger('input');
     }
   });
 
@@ -913,7 +931,9 @@ $(function () {
             </select>
           </td>
           <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="${unitPerBox}" min="1" required></td>
-          <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="${parseFloat(weight).toFixed(2)}" min="0.01" required></td>
+          <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="${parseFloat(weight).toFixed(2)}" min="0.01" required></td>
+          <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+          <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="${parseFloat(weight).toFixed(2)}" readonly></td>
           <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${time}" required/></td>
           <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
             <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
@@ -1153,7 +1173,9 @@ function edit(id) {
                 </select>
               </td>
               <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" value="${detail.units_per_box || 0}" step="1" min="1" required></td>
-              <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" value="${(parseFloat(detail.weight)||0).toFixed(2)}" step="0.01" min="0.01" required></td>
+              <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" min="0.01" required></td>
+              <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
+              <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" value="${(parseFloat(detail.weight)||0).toFixed(2)}" step="0.01" readonly></td>
               <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${timeVal}" required></td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photo_path || ''}">
