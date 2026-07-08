@@ -145,9 +145,13 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['locations_code'][$language]?></label>
                   <select class="form-control select2" id="locationFilter" name="locationFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
-                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+                    <option value="" disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php
+                    $firstLocation = null;
+                    while($rowLocation=mysqli_fetch_assoc($locations)){ 
+                      if(!$firstLocation) $firstLocation = $rowLocation;
+                    ?>
+                      <option value="<?=$rowLocation['id'] ?>" <?= $firstLocation && $rowLocation['id'] == $firstLocation['id'] ? 'selected' : '' ?>><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
