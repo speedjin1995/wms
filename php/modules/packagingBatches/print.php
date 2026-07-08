@@ -44,6 +44,9 @@ if(isset($_POST['userID'])) {
     $companyEmail = htmlspecialchars($company['email'] ?? '');
     $companyAddress = htmlspecialchars($companyAddress);
 
+    // Get customer
+    $customerName = searchCustomerNameById($batch['customer'], '', $db);
+
     // Fetch batch items
     $itemsStmt = $db->prepare("SELECT pbi.*, p.product_name, g.units as grade_name, pkg.packaging_name, pkg.weight as pkg_weight FROM packaging_batch_items pbi LEFT JOIN products p ON pbi.product_id = p.id LEFT JOIN grades g ON pbi.grade = g.id LEFT JOIN packaging pkg ON pbi.packaging_size = pkg.id WHERE pbi.packaging_batch_id = ? AND pbi.deleted = 0");
     $itemsStmt->bind_param('s', $id);
@@ -128,6 +131,7 @@ if(isset($_POST['userID'])) {
                 <h2>'.$languageArray['packing_list_code'][$language].'</h2>
                 <p>'.$languageArray['batch_no_code'][$language].': <span>' . htmlspecialchars($batch['batch_no'] ?? '') . '</span></p>
                 <p>'.$languageArray['date_code'][$language].': <span>' . $batchDate . '</span></p>
+                <p>'.$languageArray['locations_code'][$language].': <span>' . htmlspecialchars($batch['locations'] ?? '') . '</span></p>
                 <p>'.$languageArray['customer_code'][$language].': <span>' . htmlspecialchars($batch['locations'] ?? '') . '</span></p>
             </div>
 
@@ -140,7 +144,7 @@ if(isset($_POST['userID'])) {
                     <th>'.$languageArray['description_code'][$language].'</th>
                     <th>'.$languageArray['pack_weight_code'][$language].' (kg)</th>
                     <th>'.$languageArray['qty_per_box_code'][$language].'</th>
-                    <th>'.$languageArray['no_of_boxes_code'][$language].'</th>
+                    <th>'.$languageArray['total_weight_code'][$language].'</th>
                 </tr>
                 </thead>
                 <tbody>' . $tableRows . '</tbody>
