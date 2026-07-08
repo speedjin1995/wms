@@ -2179,8 +2179,8 @@ function edit(id) {
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="${parseFloat(detail.gross).toFixed(2)}"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="${parseFloat(detail.tare).toFixed(2)}"></td>
               <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="${parseFloat(detail.net).toFixed(2)}" readonly></td>
-              <td><input type="hidden" class="form-control" id="variance${idx}" name="weightDetails[${idx}][variance]" value="${detail.variance}">${isNaN(parseFloat(detail.variance)) ? '' : parseFloat(detail.variance).toFixed(2)}</td>
-              <td><input type="hidden" class="form-control" id="variancePerc${idx}" name="weightDetails[${idx}][variancePerc]" value="${detail.varPerc}">${isNaN(parseFloat(detail.varPerc)) ? '' : parseFloat(detail.varPerc).toFixed(2)}</td>
+              <td><input type="number" class="form-control" id="variance${idx}" name="weightDetails[${idx}][variance]" step="0.01" value="${isNaN(parseFloat(detail.variance)) ? '0.00' : parseFloat(detail.variance).toFixed(2)}" readonly></td>
+              <td><input type="number" class="form-control" id="variancePerc${idx}" name="weightDetails[${idx}][variancePerc]" step="0.01" value="${isNaN(parseFloat(detail.varPerc)) ? '0.00' : parseFloat(detail.varPerc).toFixed(2)}" readonly></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${parseFloat(detail.price).toFixed(2)}"></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${parseFloat(detail.total).toFixed(2)}" readonly></td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
@@ -2268,7 +2268,7 @@ function edit(id) {
               </td-->
               <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="${parseFloat(detail.gross).toFixed(2)}"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="${parseFloat(detail.tare).toFixed(2)}"></td>
-              <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="${parseFloat(detail.net).toFixed(2)}"></td>
+              <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="${parseFloat(detail.net).toFixed(2)}" readonly></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
