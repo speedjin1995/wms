@@ -398,6 +398,33 @@ else{
   </div>
 </div>
 
+<div class="modal fade" id="printOptionsModal" tabindex="-1">
+  <div class="modal-dialog" style="max-width:500px;">
+    <div class="modal-content">
+      <form id="printOptionsForm">
+        <div class="modal-header bg-gray-dark color-palette">
+          <h5 class="modal-title"><?=$languageArray['print_options_code'][$language]?></h5>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="printID" name="userID">
+          <div class="form-group mb-0">
+            <label><?=$languageArray['print_with_photo_code'][$language]?></label>
+            <select class="form-control" id="printWithPhoto" name="withPhoto">
+              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary"><?=$languageArray['print_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
 // Values
 var weightCount = 0;
@@ -483,7 +510,7 @@ $(function () {
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }
-          // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
           }
@@ -569,7 +596,7 @@ $(function () {
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
-            // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
             }
@@ -630,6 +657,34 @@ $(function () {
             toastr["error"]("Something wrong when delete", "Failed:");
           }
           $('#spinnerLoading').hide();
+        });
+      }else if ($('#printOptionsModal').hasClass('show')){
+        $('#printOptionsModal').modal('hide');
+        $.post('php/modules/grading/print.php', $('#printOptionsForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+          if(obj.status === 'success') {
+            var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+            printWindow.document.write(obj.message);
+            printWindow.document.close();
+            var pollCount = 0;
+            var poll = setInterval(function() {
+              pollCount++;
+              var rendered = printWindow.document.querySelector('.pagedjs_pages');
+              if (rendered || pollCount > 60) {
+                clearInterval(poll);
+                setTimeout(function() {
+                  printWindow.print();
+                  printWindow.close();
+                }, 300);
+              }
+            }, 200);
+          }
+          else if(obj.status === 'failed'){
+            alert(obj.message);
+          }
+          else{
+            alert("Something wrong when printing");
+          }
         });
       }
     }
@@ -1375,22 +1430,20 @@ function deactivate(id) {
 }
 
 function print(id) {
-  $.post('php/print.php', {userID: id}, function(data){
-    var obj = JSON.parse(data);
-    if(obj.status === 'success') {
-      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-      printWindow.document.write(obj.message);
-      printWindow.document.close();
-      setTimeout(function(){
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    }
-    else if(obj.status === 'failed'){
-      alert(obj.message);
-    }
-    else{
-      alert("Something wrong when activate");
+  $('#printID').val(id);
+  $('#printOptionsModal').modal('show');
+
+  $('#printOptionsForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
     }
   });
 }
