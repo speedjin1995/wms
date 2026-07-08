@@ -1073,7 +1073,7 @@ function format (row) {
     returnString += `
       <tr>
         <td>${d.product_name}</td>
-        <td>${d.grade}</td>
+        <td>${d.grade_name}</td>
         <td>${d.packaging_size_name}</td>
         <td>${d.units_per_box}</td>
         <td>${parseFloat(d.weight).toFixed(2)}</td>
