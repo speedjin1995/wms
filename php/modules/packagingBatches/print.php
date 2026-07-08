@@ -45,7 +45,7 @@ if(isset($_POST['userID'])) {
     $companyAddress = htmlspecialchars($companyAddress);
 
     // Get customer
-    $customerName = searchCustomerNameById($batch['customer'], '', $db);
+    //$customerName = searchCustomerNameById($batch['customer'], '', $db);
 
     // Fetch batch items
     $itemsStmt = $db->prepare("SELECT pbi.*, p.product_name, g.units as grade_name, pkg.packaging_name, pkg.weight as pkg_weight FROM packaging_batch_items pbi LEFT JOIN products p ON pbi.product_id = p.id LEFT JOIN grades g ON pbi.grade = g.id LEFT JOIN packaging pkg ON pbi.packaging_size = pkg.id WHERE pbi.packaging_batch_id = ? AND pbi.deleted = 0");
@@ -132,7 +132,6 @@ if(isset($_POST['userID'])) {
                 <p>'.$languageArray['batch_no_code'][$language].': <span>' . htmlspecialchars($batch['batch_no'] ?? '') . '</span></p>
                 <p>'.$languageArray['date_code'][$language].': <span>' . $batchDate . '</span></p>
                 <p>'.$languageArray['locations_code'][$language].': <span>' . htmlspecialchars($batch['locations'] ?? '') . '</span></p>
-                <p>'.$languageArray['customer_code'][$language].': <span>' . htmlspecialchars($batch['locations'] ?? '') . '</span></p>
             </div>
 
             <hr class="divider">
