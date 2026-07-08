@@ -52,13 +52,16 @@ if(isset($_POST['userID'])) {
     $itemsStmt->bind_param('s', $id);
     $itemsStmt->execute();
     $itemsResult = $itemsStmt->get_result();
+    $totalWeight = 0;
 
     $items = [];
     while($item = $itemsResult->fetch_assoc()) {
         $items[] = $item;
+        $totalWeight += floatval($item['weight'] ?? 0);
     }
 
     $totalBoxes = count($items);
+
 
     // Build table rows
     $tableRows = '';
@@ -153,6 +156,7 @@ if(isset($_POST['userID'])) {
 
             <div class="summary">
                 <span>'.$languageArray['total_boxes_code'][$language].':</span> ' . $totalBoxes . '
+                <span>'.$languageArray['total_weight_code'][$language].':</span> ' . $totalWeight . '
             </div>
 
             <hr class="divider" style="margin-top:12px;">
