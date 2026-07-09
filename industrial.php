@@ -1321,7 +1321,7 @@ $(function () {
           <!--input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="REJ"-->
         </td>
         <td>
-          <select class="form-control select2" id="product_name${idx}" name="rejectDetails[${idx}][product_name]">
+          <select class="form-control select2" id="reject_product_name${idx}" name="rejectDetails[${idx}][product_name]">
             <option value="" selected disabled>Select Product</option>
             <?php while($rowProduct=mysqli_fetch_assoc($products4)){ ?>
               <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
@@ -1384,7 +1384,7 @@ $(function () {
           <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="NO">
         </td>
         <td>
-          <select class="form-control select2" id="product_name${idx}" name="weightDetails[${idx}][product_name]">
+          <select class="form-control select2" id="weighing_product_name${idx}" name="weightDetails[${idx}][product_name]">
             <option value="" selected disabled>Select Product</option>
             <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
               <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
