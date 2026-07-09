@@ -72,7 +72,7 @@ if(isset($_POST['userID'])) {
         $tableRows .= '<tr>';
         $tableRows .= '<td style="text-align:center;">' . ($i + 1) . '</td>';
         $tableRows .= '<td>' . htmlspecialchars($item['product_name'] ?? '') . ' - ' . htmlspecialchars($item['grade_name'] ?? '') . '</td>';
-        $tableRows .= '<td style="text-align:center;">' . number_format(floatval($item['pkg_weight'] ?? 0), 0) . ' kg</td>';
+        $tableRows .= '<td style="text-align:center;">' . ($item['pkg_weight'] !== null ? number_format(floatval($item['pkg_weight']), 0) . ' kg' : '') . '</td>';
         $tableRows .= '<td style="text-align:center;">' . intval($item['units_per_box'] ?? 0) . '</td>';
         $tableRows .= '<td style="text-align:center;">' . number_format(floatval($item['weight'] ?? 0), 2) . '</td>';
         $tableRows .= '</tr>';
