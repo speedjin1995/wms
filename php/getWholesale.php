@@ -33,6 +33,8 @@ if(isset($_POST['userID'])){
                 $message['supplier'] = $row['supplier'];
                 $message['product'] = $row['product'];
                 $message['package'] = $row['package'];
+                $message['location'] = $row['location'];
+                $message['location_name'] = searchLocationById($row['location'], $db);
                 $message['vehicle_no'] = $row['vehicle_no'];
                 $message['other_vehicle'] = checkMasterDataVehicle($row['vehicle_no'], $row['company'], $db);
                 $message['driver'] = $row['driver'];
@@ -51,6 +53,8 @@ if(isset($_POST['userID'])){
                 $message['start_time'] = $row['start_time'];
                 $message['end_time'] = $row['end_time'];
                 $message['records_type'] = $row['records_type'];
+                $message['category'] = $row['category'];
+                $message['category_name'] = searchCategoryById($row['category'], $db);
                 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
@@ -73,6 +77,7 @@ if(isset($_POST['userID'])){
                     $weightDetailsOut = [];
                     foreach ($weightDetails as $weight){
                         $weight['product_name'] = searchProductNameById($weight['product'], $db);
+                        $weight['currency_name'] = searchCurrencyNameById($weight['currency'], $db);
 
                         // Backward compatibility: if grade_id is missing, lookup by grade name
                         if (empty($weight['grade_id']) && !empty($weight['grade'])) {
@@ -82,7 +87,7 @@ if(isset($_POST['userID'])){
                         }
 
                         $totalWeight += floatval($weight['net']);
-                        $totalPrice += floatval($weight['price']);
+                        $totalPrice += floatval($weight['total']);
                         $weightDetailsOut[] = $weight;
                     }
                     $weightDetails = $weightDetailsOut;
@@ -96,13 +101,18 @@ if(isset($_POST['userID'])){
                 $rejectDetails = array();
                 if (isset($row['reject_details']) && !empty($row['reject_details'])){
                     $rejectDetails = json_decode($row['reject_details'], true);
+                    $rejectDetailsOut = [];
 
-                    foreach ($weightDetails as $weight){
-                        $totalReject += floatval($weight['net']);
+                    foreach ($rejectDetails as $reject){
+                        $reject['currency_name'] = searchCurrencyNameById($reject['currency'], $db);
+
+                        $totalReject += floatval($reject['net']);
+                        $rejectDetailsOut[] = $reject;
                     }
+                    $rejectDetails = $rejectDetailsOut;
                 }
 
-                $message['totalPrice'] = $totalReject;
+                $message['totalReject'] = $totalReject;
                 $message['rejectDetails'] = $rejectDetails;
             }
             

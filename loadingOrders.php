@@ -606,6 +606,7 @@ $(function () {
               product_id:              item.product_id,
               product_name:            item.product_name,
               grade:                   item.grade,
+              grade_name:              item.grade_name,
               packaging_size:          item.packaging_size,
               packaging_size_name:     item.packaging_size_name,
               units_per_box:           item.units_per_box,
@@ -663,7 +664,7 @@ function format (row) {
         <tr>
           <td>${d.batch_no || ''}</td>
           <td>${d.product_name}</td>
-          <td>${d.grade}</td>
+          <td>${d.grade_name}</td>
           <td>${d.packaging_size_name}</td>
           <td>${d.units_per_box}</td>
           <td>${d.customer_name || ''}</td>
@@ -694,7 +695,7 @@ function buildItemRow(item, idx) {
     '<input type="hidden" name="items[' + idx + '][units_per_box]" value="' + item.units_per_box + '">' +
     '<td>' + (item.batch_no || '') + '</td>' +
     '<td>' + (item.product_name || '') + '</td>' +
-    '<td>' + (item.grade || '') + '</td>' +
+    '<td>' + (item.grade_name || '') + '</td>' +
     '<td>' + (item.packaging_size_name || '') + '</td>' +
     '<td><input type="time" class="form-control" name="items[' + idx + '][loading_time]" value="' + (item.loading_time || '') + '"></td>' +
     '<td><select class="form-control" name="items[' + idx + '][customer_id]" style="width:100%"><option value="">Select Customer</option>' + customerOptions + '</select></td>' +
@@ -783,6 +784,7 @@ function edit(id) {
             product_id:              item.product_id,
             product_name:            item.product_name,
             grade:                   item.grade,
+            grade_name:                   item.grade_name,
             packaging_size:          item.packaging_size,
             packaging_size_name:     item.packaging_size_name,
             units_per_box:           item.units_per_box,

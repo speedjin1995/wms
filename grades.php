@@ -222,7 +222,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-      'url':'php/loadGrades.php',
+      'url':'php/modules/grades/loadGrades.php',
     },
     'columns': [
       {
@@ -257,7 +257,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/grades.php', $('#gradeForm').serialize(), function(data){
+          $.post('php/modules/grades/grades.php', $('#gradeForm').serialize(), function(data){
               var obj = JSON.parse(data); 
               
               if(obj.status === 'success'){
@@ -350,7 +350,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/uploadGrade.php',
+        url: 'php/modules/grades/uploadGrade.php',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -393,7 +393,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/deleteGrade.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+          $.post('php/modules/grades/deleteGrade.php', {userID: selectedIds, type: 'MULTI'}, function(data){
               var obj = JSON.parse(data);
               
               if(obj.status === 'success'){
@@ -417,56 +417,6 @@ $(function () {
         $('#spinnerLoading').hide();
     }     
   });
-
-  // document.getElementById('fileInput').addEventListener('change', function (e) {
-  //   const file = e.target.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = function (e) {
-  //     const data = new Uint8Array(e.target.result);
-  //     const workbook = XLSX.read(data, { type: 'array' });
-
-  //     const sheetName = workbook.SheetNames[1];
-  //     const sheet = workbook.Sheets[sheetName];
-  //     jsonData = XLSX.utils.sheet_to_json(sheet);
-  //     console.log(jsonData);
-  //   };
-  //   reader.readAsArrayBuffer(file);
-  // });
-
-  // $('#importExcelbtn').on('click', function(){
-  //       jsonData.forEach(function(row) {
-  //           $.ajax({
-  //               url: 'php/importExcelCustomer.php',
-  //               type: 'POST',
-  //               contentType: 'application/json',
-  //               data: JSON.stringify(row),
-  //               success: function(response) {
-  //                   debugger;
-  //                   var obj = JSON.parse(response); 
-                    
-  //                   if(obj.status === 'success'){
-  //                       $('#addModal').modal('hide');
-  //                       toastr["success"](obj.message, "Success:");
-  //                       $('#customerTable').DataTable().ajax.reload();
-  //                       $('#spinnerLoading').hide();
-  //                   }
-  //                   else if(obj.status === 'failed'){
-  //                       toastr["error"](obj.message, "Failed:");
-  //                       $('#spinnerLoading').hide();
-  //                   }
-  //                   else{
-  //                       toastr["error"]("Something wrong when import", "Failed:");
-  //                       $('#spinnerLoading').hide();
-  //                   }
-  //               },
-  //               error: function(error) {
-  //                   toastr["error"](obj.message, "Failed:");
-  //                   $('#spinnerLoading').hide();
-  //               }
-  //           })
-  //       })
-  //   });
 });
 
 function displayPreview(data) {
@@ -527,7 +477,7 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getGrade.php', {userID: id}, function(data){
+  $.post('php/modules/grades/getGrade.php', {userID: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){
@@ -563,7 +513,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/deleteGrade.php', {userID: id}, function(data){
+    $.post('php/modules/grades/deleteGrade.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
@@ -586,7 +536,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/reactivateGrade.php', {userID: id}, function(data){
+    $.post('php/modules/grades/reactivateGrade.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){

@@ -33,8 +33,9 @@ function arrangeByGrade($weighingDetails) {
     return ['arranged' => $arranged, 'earliest_time' => $earliest_time, 'latest_time' => $latest_time];
 }
 
-if(isset($_POST['userID'])){
+if(isset($_POST['userID'], $_POST['withPhoto'])){
     $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
+    $withPhoto = filter_input(INPUT_POST, 'withPhoto', FILTER_SANITIZE_STRING);
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);
@@ -71,6 +72,42 @@ if(isset($_POST['userID'])){
                     }
                 }
                 
+                // Pre-build reject HTML and append as last slot in the flow
+                if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) && $wholesale['reject_details'] != '[]') {
+                    $rejectDetails = json_decode($wholesale['reject_details'], true);
+                    $rejectGross = $rejectTare = $rejectNet = $rejectPrice = $rejectUnitPrice = 0;
+                    $rejectPricingType = null;
+                    $rejectHtml = '<table class="grade-table">';
+                    $rejectHtml .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
+                    $rejectHtml .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+                    for ($i = 0; $i < 10; $i++) {
+                        if ($i < count($rejectDetails)) {
+                            $item = $rejectDetails[$i];
+                            $gross = floatval($item['gross'] ?? 0);
+                            $tare = floatval($item['tare'] ?? 0);
+                            $net = floatval($item['net'] ?? 0);
+                            $price = floatval($item['price'] ?? 0);
+                            $rejectUnitPrice = $price;
+                            $rejectPricingType = $item['fixedfloat'];
+                            $rejectPrice += ($rejectPricingType == 'fixed') ? $price : $net * $price;
+                        } else { $gross = $tare = $net = ''; }
+                        $rejectGross += $gross != '' ? $gross : 0;
+                        $rejectTare += $tare != '' ? $tare : 0;
+                        $rejectNet += $net != '' ? $net : 0;
+                        $rejectHtml .= '<tr><td>'.($i+1).'</td><td>'.($gross != '' ? number_format($gross,2).' kg' : '').'</td><td>'.($tare != '' ? number_format($tare,2).' kg' : '').'</td><td>'.($net != '' ? number_format($net,2).' kg' : '').'</td></tr>';
+                    }
+                    $rejectHtml .= '<tr style="font-weight:bold;"><td style="border-right:none;">T</td><td style="border-left:none;border-right:none;">'.number_format($rejectGross,2).' kg</td><td style="border-left:none;border-right:none;">'.number_format($rejectTare,2).' kg</td><td style="border-left:none;">'.number_format($rejectNet,2).' kg</td></tr>';
+                    if ($companyDetail['include_price'] == 'Y') {
+                        $rejectHtml .= '<tr><td colspan="2">Unit Price</td><td colspan="2">RM '.number_format($rejectUnitPrice,2).'</td></tr>';
+                        $rejectHtml .= '<tr><td colspan="2">Total Price</td><td colspan="2">RM '.number_format($rejectPrice,2).(!empty($rejectPricingType) && $rejectPricingType !== 'null' ? ' ('.$rejectPricingType.')' : '').'</td></tr>';
+                    } else {
+                        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td colspan="2" style="border:none;">Unit Price</td><td colspan="2" style="border:none;">RM 0.00</td></tr>';
+                        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td colspan="2" style="border:none;">Total Price</td><td colspan="2" style="border:none;">RM 0.00</td></tr>';
+                    }
+                    $rejectHtml .= '</table>';
+                    $expandedGrades[] = ['html' => $rejectHtml];
+                }
+
                 $totalExpandedGrades = count($expandedGrades);
                 $rowsNeeded = ceil($totalExpandedGrades / 3);
                 
@@ -87,12 +124,18 @@ if(isset($_POST['userID'])){
                         $gradeIndex = $row * 3 + $col;
                         if($gradeIndex < $totalExpandedGrades) {
                             $gradeData = $expandedGrades[$gradeIndex];
+
+                            $weightDetails .= '<div class="col-4">';
+                            if (isset($gradeData['html'])) {
+                                $weightDetails .= $gradeData['html'];
+                                $weightDetails .= '</div>';
+                                continue;
+                            }
+
                             $key = $gradeData['key'];
                             $items = $gradeData['items'];
                             $product = searchProductNameById(explode(' - ', $key)[0], $db);
                             $grade = explode(' - ', $key)[1];
-                            
-                            $weightDetails .= '<div class="col-4">';
                             $weightDetails .= '<table class="grade-table">';
                             $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">'.$product.' GRADE : ' . $grade . '</td></tr>';
                             $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
@@ -131,7 +174,7 @@ if(isset($_POST['userID'])){
                                 $totalGross += $gross != '' ? $gross : 0;
                                 $totalTare += $tare != '' ? $tare : 0;
                                 $totalNet += $net != '' ? $net : 0;
-                                
+
                                 $weightDetails .= '<tr>';
                                 $weightDetails .= '<td>' . ($i + 1) . '</td>';
                                 $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 2) . ' kg' : '') . '</td>';
@@ -174,94 +217,10 @@ if(isset($_POST['userID'])){
                     $weightDetails .= '</div>';
                 }
                 
-                // Add reject table as the last table
-                if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) && $wholesale['reject_details'] != '[]') {
-                    $rejectDetails = json_decode($wholesale['reject_details'], true);
-                    $lastRowCols = $totalExpandedGrades % 3;
-                    if($lastRowCols == 0) $lastRowCols = 3;
-                    $weightDetails .= '<div class="row">';
-                    $weightDetails .= '<div class="col-4">';
-                    $weightDetails .= '<table class="grade-table">';
-                    $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-                    $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-                    
-                    $rejectGross = 0;
-                    $rejectTare = 0;
-                    $rejectNet = 0;
-                    $rejectPrice = 0;
-                    $rejectUnitPrice = 0;
-                    $rejectPricingType = null;
-
-                    for($i = 0; $i < 10; $i++) {
-                        if($i < count($rejectDetails)) {
-                            $item = $rejectDetails[$i];
-                            $gross = floatval($item['gross'] ?? 0);
-                            $tare = floatval($item['tare'] ?? 0);
-                            $net = floatval($item['net'] ?? 0);
-                            $price = floatval($item['price'] ?? 0);
-                            $rejectUnitPrice = floatval($item['price'] ?? 0);
-                            $rejectPricingType = $item['fixedfloat'];
-                            
-                            if ($rejectPricingType == 'fixed') {
-                                $rejectPrice += $price ?? 0;
-                            } else {
-                                $rejectPrice += $net * ($price ?? 0);
-                            }
-                        } else {
-                            $gross = $tare = $net = '';
-                        }
-                        
-                        $rejectGross += $gross != '' ? $gross : 0;
-                        $rejectTare += $tare != '' ? $tare : 0;
-                        $rejectNet += $net != '' ? $net : 0;
-                        
-                        $weightDetails .= '<tr>';
-                        $weightDetails .= '<td>' . ($i + 1) . '</td>';
-                        $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 2) . ' kg' : '') . '</td>';
-                        $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 2) . ' kg' : '') . '</td>';
-                        $weightDetails .= '<td>' . ($net != '' ? number_format($net, 2) . ' kg' : '') . '</td>';
-                        $weightDetails .= '</tr>';
-                    }
-                    
-                    $weightDetails .= '<tr style="font-weight: bold;">';
-                    $weightDetails .= '<td style="border-right: none;">T</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectGross, 2) . ' kg</td>';
-                    $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($rejectTare, 2) . ' kg</td>';
-                    $weightDetails .= '<td style="border-left: none;">' . number_format($rejectNet, 2) . ' kg</td>';
-                    $weightDetails .= '</tr>';
-
-                    if ($companyDetail['include_price'] == 'Y'){
-                        $weightDetails .= '<tr>';
-                        $weightDetails .= '<td colspan="2">Unit Price</td>';
-                        $weightDetails .= '<td colspan="2">RM ' . number_format($rejectUnitPrice, 2) . '</td>';
-                        $weightDetails .= '</tr><tr>';
-                        $weightDetails .= '<td colspan="2">Total Price</td>';
-                        $weightDetails .= '<td colspan="2">RM ' . number_format($rejectPrice, 2) . (!empty($rejectPricingType) && $rejectPricingType !== 'null' ? ' (' . $rejectPricingType . ')' : '') . '</td>';
-                        $weightDetails .= '</tr>';
-                    }else{
-                        // Hidden rows to ensure formatting is fine
-                        $weightDetails .= '<tr style="visibility: hidden; border: none;">';
-                        $weightDetails .= '<td colspan="2" style="border: none;">Unit Price</td>';
-                        $weightDetails .= '<td colspan="2" style="border: none;">RM ' . number_format($unitPrice, 2) . '</td>';
-                        $weightDetails .= '</tr><tr style="visibility: hidden; border: none;">';
-                        $weightDetails .= '<td colspan="2" style="border: none;">Total Price</td>';
-                        $weightDetails .= '<td colspan="2" style="border: none;">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td>';
-                        $weightDetails .= '</tr>';
-                    }
-                    
-                    $weightDetails .= '</table>';
-                    $weightDetails .= '</div>';
-                    $weightDetails .= '</div>';
-                }
-
-                if ($wholesale['status'] == 'DISPATCH') {
-                    $status = 'Dispatch';
-                } else if ($wholesale['status'] == 'RECEIVING') {
-                    $status = 'Receiving';
-                } else if ($wholesale['status'] == 'STOCK-BAL') {
+                if ($wholesale['status'] == 'STOCK-BAL'){
                     $status = 'Stock Balance';
-                } else {
-                    $status = 'Unknown';
+                }else{
+                    $status = ucwords(strtolower($wholesale['status']));
                 }
 
             $message = '
@@ -313,7 +272,7 @@ if(isset($_POST['userID'])){
                         /* Paged.js styles */
                         @page {
                             size: A4;
-                            margin: 90mm 5mm 20mm 5mm;
+                            margin: 90mm 5mm 5mm 5mm;
                             @top-left {
                                 content: element(running-header);
                             }
@@ -390,7 +349,26 @@ if(isset($_POST['userID'])){
 
                     <div class="container-fluid">
                         <div class="grade-section page-content">'.$weightDetails.'</div>
-                    </div>
+                    </div>';
+
+                if ($withPhoto == 'Y') {
+                    $photoItems = array_filter($weighingDetails ?? [], fn($d) => !empty($d['photoPath']));
+                    if (!empty($photoItems)) {
+                        $message .= '<div class="page-break"><h3 style="font-size:14px;margin-bottom:10px;">Photos</h3><div class="row">';
+                        foreach ($photoItems as $item) {
+                            $photoSrc = 'php/viewPhoto.php?file=' . urlencode($item['photoPath']) . '&type=photo';
+                            $label = 'Product: ' . searchProductNameById($item['product'], $db) . ', Grade: ' . searchGradeNameById($item['grade_id'], $db);
+                            $message .= '
+                                <div class="col-4" style="margin-bottom:10px;text-align:center;">
+                                    <img src="'.$photoSrc.'" style="width:100%;height:auto;border:1px solid #ccc;">
+                                    <div style="font-size:12px;margin-top:4px;">'.htmlspecialchars($label).'</div>
+                                </div>';
+                        }
+                        $message .= '</div></div>';
+                    }
+                }
+
+                $message .= '
                 </body>
                 </html>';
 

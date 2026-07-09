@@ -11,6 +11,16 @@ $allowPrice = 'N';
 $companyDetail = searchCompanyById($company, $db);
 $allowPrice = $companyDetail['include_price'];
 
+$defaultCurrency = 'MYR';
+$defCurrStmt = $db->prepare("SELECT currency FROM currency WHERE customer = ? AND is_default = 1 AND deleted = 0 LIMIT 1");
+$defCurrStmt->bind_param('s', $company);
+$defCurrStmt->execute();
+$defCurrResult = $defCurrStmt->get_result();
+if ($defCurrRow = $defCurrResult->fetch_assoc()) {
+    $defaultCurrency = $defCurrRow['currency'];
+}
+$defCurrStmt->close();
+
 // PDF file name for download
 $fileName = "Report_" . date('Y-m-d') . ".pdf";
 
@@ -39,6 +49,26 @@ if(isset($_GET['product']) && $_GET['product'] != null && $_GET['product'] != ''
     $searchQuery .= " AND wholesales.product = '".mysqli_real_escape_string($db, $_GET['product'])."'";
 }
 
+if(isset($_GET['category']) && $_GET['category'] != null && $_GET['category'] != '' && $_GET['category'] != '-'){
+  // Get product ids in this category first
+  $catProductIds = [];
+  $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND deleted = '0'");
+  $catStmt->bind_param('s', $_GET['category']);
+  $catStmt->execute();
+  $catResult = $catStmt->get_result();
+  while ($catRow = $catResult->fetch_assoc()) {
+    $catProductIds[] = $catRow['id'];
+  }
+  $catStmt->close();
+
+  if (count($catProductIds) > 0) {
+    $likeConditions = array_map(fn($id) => "wholesales.weight_details LIKE '%\"product\":\"".$id."\"%'", $catProductIds);
+    $searchQuery .= " AND (" . implode(' OR ', $likeConditions) . ")";
+  } else {
+    $searchQuery .= " AND 1=0";
+  }
+}
+
 if(isset($_GET['customer']) && $_GET['customer'] != null && $_GET['customer'] != '' && $_GET['customer'] != '-'){
     $searchQuery .= " AND wholesales.customer = '".mysqli_real_escape_string($db, $_GET['customer'])."'";
 }
@@ -63,6 +93,10 @@ if(isset($_GET['checkedBy']) && $_GET['checkedBy'] != null && $_GET['checkedBy']
 
 if(isset($_GET['weightedBy']) && $_GET['weightedBy'] != null && $_GET['weightedBy'] != '' && $_GET['weightedBy'] != '-'){
   $searchQuery .= " and wholesales.weighted_by = '".mysqli_real_escape_string($db, $_GET['weightedBy'])."'";
+}
+
+if(isset($_GET['location']) && $_GET['location'] != null && $_GET['location'] != '' && $_GET['location'] != '-'){
+  $searchQuery .= " and wholesales.location = '".mysqli_real_escape_string($db, $_GET['location'])."'";
 }
 
 if($_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
@@ -97,7 +131,14 @@ try {
         'margin_left' => 5,
         'margin_right' => 5,
         'margin_top' => 5,
-        'margin_bottom' => 5
+        'margin_bottom' => 5,
+        'fontDir' => [__DIR__ . '/../vendor/mpdf/mpdf/ttfonts/'],
+        'fontdata' => [
+            'sunexta' => [
+                'R' => 'Sun-ExtA.ttf',
+            ],
+        ],
+        'default_font' => 'sunexta',
     ];
     $mpdf = new Mpdf($mpdfConfig);
 
@@ -119,7 +160,11 @@ try {
             $totalRejectWeight = 0;
             $totalPrice = 0;
             $actualPrice = 0;
+            $currency = '';
             $gradeWeights = [];
+            $gradePrice = [];
+            $gradeActualPrice = [];
+            $currencyTotals = [];
 
             foreach ($arrangedDetails as $product => $grades) {
                 foreach ($grades as $grade => $details) {
@@ -132,13 +177,37 @@ try {
                         $totalWeight += floatval($detail['gross'] ?? 0);
                         $totalBinWeight += floatval($detail['tare'] ?? 0);
                         $totalRejectWeight += floatval($detail['reject'] ?? 0);
-                        if ($detail['fixedfloat'] == 'fixed') {
-                            $totalPrice += floatval($detail['price'] ?? 0);
-                            $actualPrice += floatval($detail['price'] ?? 0);
-                        } else {
-                            $totalPrice += floatval($detail['gross'] ?? 0) * floatval($detail['price'] ?? 0);
-                            $actualPrice += (floatval($detail['net'] ?? 0) - floatval($detail['reject'] ?? 0)) * floatval($detail['price'] ?? 0);
+                        if (empty($currency) && !empty($detail['currency'])) {
+                            $currency = searchCurrencyNameById($detail['currency'], $db);
                         }
+                        $detailCurrencyName = !empty($detail['currency']) ? searchCurrencyNameById($detail['currency'], $db) : $defaultCurrency;
+                        if (empty($detailCurrencyName)) {
+                            $detailCurrencyName = $defaultCurrency;
+                        }
+                        $gradeKey = $product.'|'.$grade;
+                        if ($detail['fixedfloat'] == 'fixed') {
+                            $detailTotal = floatval($detail['price'] ?? 0);
+                            $detailActual = floatval($detail['price'] ?? 0);
+                        } else {
+                            $detailTotal = floatval($detail['gross'] ?? 0) * floatval($detail['price'] ?? 0);
+                            $detailActual = (floatval($detail['net'] ?? 0) - floatval($detail['reject'] ?? 0)) * floatval($detail['price'] ?? 0);
+                        }
+                        $totalPrice += $detailTotal;
+                        $actualPrice += $detailActual;
+                        if (!isset($gradePrice[$gradeKey][$detailCurrencyName])) {
+                            $gradePrice[$gradeKey][$detailCurrencyName] = 0;
+                        }
+                        if (!isset($gradeActualPrice[$gradeKey][$detailCurrencyName])) {
+                            $gradeActualPrice[$gradeKey][$detailCurrencyName] = 0;
+                        }
+
+                        $gradePrice[$gradeKey][$detailCurrencyName] += $detailTotal;
+                        $gradeActualPrice[$gradeKey][$detailCurrencyName] += $detailActual;
+                        if (!isset($currencyTotals[$detailCurrencyName])) {
+                            $currencyTotals[$detailCurrencyName] = ['totalPrice' => 0, 'actualPrice' => 0];
+                        }
+                        $currencyTotals[$detailCurrencyName]['totalPrice'] += $detailTotal;
+                        $currencyTotals[$detailCurrencyName]['actualPrice'] += $detailActual;
                     }
                     $gradeWeights[$product.'|'.$grade] = $gradeNettWeight;
                 }
@@ -150,6 +219,8 @@ try {
                 'count' => $count,
                 'formattedDate' => $formattedDate,
                 'formattedTime' => $formattedTime,
+                'indicator' => $row['indicator'],
+                'location'  => (!empty($row['location']) ? (searchLocationById($row['location'], $db) ?: 'Unknown') : 'Unknown'),
                 'serial_no' => $row['serial_no'],
                 'security_bills' => $row['security_bills'],
                 'po_no' => $row['po_no'],
@@ -160,12 +231,16 @@ try {
                 'other_supplier' => $row['other_supplier'],
                 'product' => searchProductNameById($row['product'], $db),
                 'gradeWeights' => $gradeWeights,
+                'gradePrice' => $gradePrice,
+                'gradeActualPrice' => $gradeActualPrice,
+                'currencyTotals' => $currencyTotals,
                 'totalWeight' => $totalWeight,
                 'totalBinWeight' => $totalBinWeight,
                 'total_reject' => $totalRejectWeight,
                 'actualWeight' => $actualWeight,
                 'totalPrice' => $totalPrice,
                 'actualPrice' => $actualPrice,
+                'currency' => $currency,
                 'vehicle_no' => $row['vehicle_no'],
                 'driver' => $row['driver'],
                 'checked_by' => $row['checked_by'],
@@ -184,13 +259,37 @@ try {
 
     // Calculate subtotals
     $subtotals = ['gradeWeights' => [], 'totalWeight' => 0, 'totalBinWeight' => 0, 'total_reject' => 0, 'actualWeight' => 0, 'totalPrice' => 0, 'actualPrice' => 0];
+    $subtotalGradePrice = [];
+    $subtotalGradeActualPrice = [];
+    $subtotalCurrencyTotals = [];
     foreach ($allRows as $rowData) {
         foreach ($productGradeColumns as $product => $grades) {
             foreach ($grades as $grade) {
                 $key = $product.'|'.$grade;
-                if (!isset($subtotals['gradeWeights'][$key])) $subtotals['gradeWeights'][$key] = 0;
+                if (!isset($subtotals['gradeWeights'][$key])) {
+                    $subtotals['gradeWeights'][$key] = 0;
+                }
                 $subtotals['gradeWeights'][$key] += ($rowData['gradeWeights'][$key] ?? 0);
+                foreach (($rowData['gradePrice'][$key] ?? []) as $cur => $amt) {
+                    if (!isset($subtotalGradePrice[$key][$cur])) {
+                        $subtotalGradePrice[$key][$cur] = 0;
+                    }
+                    $subtotalGradePrice[$key][$cur] += $amt;
+                }
+                foreach (($rowData['gradeActualPrice'][$key] ?? []) as $cur => $amt) {
+                    if (!isset($subtotalGradeActualPrice[$key][$cur])) {
+                        $subtotalGradeActualPrice[$key][$cur] = 0;
+                    }
+                    $subtotalGradeActualPrice[$key][$cur] += $amt;
+                }
             }
+        }
+        foreach (($rowData['currencyTotals'] ?? []) as $cur => $totals) {
+            if (!isset($subtotalCurrencyTotals[$cur])) {
+                $subtotalCurrencyTotals[$cur] = ['totalPrice' => 0, 'actualPrice' => 0];
+            }
+            $subtotalCurrencyTotals[$cur]['totalPrice'] += $totals['totalPrice'];
+            $subtotalCurrencyTotals[$cur]['actualPrice'] += $totals['actualPrice'];
         }
         $subtotals['totalWeight'] += $rowData['totalWeight'];
         $subtotals['totalBinWeight'] += $rowData['totalBinWeight'];
@@ -207,6 +306,8 @@ try {
             $content .= '<td>'.$rowData['count'].'</td>';
             $content .= '<td>'.$rowData['formattedDate'].'</td>';
             $content .= '<td>'.$rowData['formattedTime'].'</td>';
+            $content .= '<td>'.$rowData['location'].'</td>';
+            $content .= '<td>'.$rowData['indicator'].'</td>';
             $content .= '<td>'.$rowData['serial_no'].'</td>';
             $content .= '<td>'.$rowData['po_no'].'</td>';
             // if ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
@@ -223,6 +324,7 @@ try {
             $content .= '<td>'.number_format($rowData['total_reject'], 2).'</td>';
             $content .= '<td>'.number_format($rowData['actualWeight'], 2).'</td>';
             if ($allowPrice == 'Y') {
+                $content .= '<td>'.(!empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency).'</td>';
                 $content .= '<td>'.number_format($rowData['totalPrice'], 2).'</td>';
                 $content .= '<td>'.number_format($rowData['actualPrice'], 2).'</td>';
             }
@@ -310,22 +412,25 @@ try {
                 <table class="table table-bordered">
                     <thead>
                         <tr>';
-                            // Row 1: blank for fixed cols, product names spanning grades, blank for trailing cols
-                            $fixedColCount = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 6 : 6;
-                            $html .= '<th colspan="'.$fixedColCount.'"></th>';
+                            // Row 1: fixed cols blank, product names spanning grades, trailing cols blank
+                            $fixedColCount = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
+                            $totalGradeCols = 0;
+                            foreach ($productGradeColumns as $product => $grades) { 
+                                $totalGradeCols += count($grades); 
+                            }
+                            $trailingCount = ($allowPrice == 'Y') ? 14 : 11;
+                            $totalColCount = $fixedColCount + $totalGradeCols + $trailingCount;
+                            $html .= '<th colspan="'.$fixedColCount.'" style="background-color:#f0f0f0;"></th>';
                             foreach ($productGradeColumns as $product => $grades) {
                                 $html .= '<th colspan="'.count($grades).'" style="text-align:center; font-weight:bold;">'.htmlspecialchars($product).'</th>';
                             }
-
-                            $trailingCount = ($allowPrice == 'Y') ? 10 : 8;
-                            if ($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'OUTGOING'){
-                                $trailingCount++;
-                            }
-                            $html .= '<th colspan="'.$trailingCount.'"></th>';
+                            $html .= '<th colspan="'.$trailingCount.'" style="background-color:#f0f0f0;"></th>';
                             $html .= '</tr><tr>
                             <th>No</th>
                             <th>Date</th>
                             <th>Time</th>
+                            <th>Location</th>
+                            <th>Machine Nickname</th>
                             <th>Weigh Slip No.</th>
                             <th>'.($status == 'DISPATCH' || $status == 'STOCK-BAL' || $status == 'OUTGOING' ? 'Delivery' : 'Purchase').' No.</th>';
                             // if ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
@@ -344,7 +449,7 @@ try {
                             <th>Reject Weight</th>
                             <th>Actual Weight</th>';
                             if ($allowPrice == 'Y') {
-                                $html .= '<th>Total Price (RM)</th><th>Actual Price (RM)</th>';
+                                $html .= '<th>Currency</th><th>Total Price (RM)</th><th>Actual Price (RM)</th>';
                             }
                             $html .= '<th>Vehicle No.</th>';
 
@@ -363,7 +468,7 @@ try {
                     </tbody>
                     <tfoot>
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
-                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '6' : '6').'">SUBTOTAL</td>';
+                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '9' : '8').'">SUBTOTAL</td>';
                             foreach ($productGradeColumns as $product => $grades) {
                                 foreach ($grades as $grade) {
                                     $html .= '<td>'.number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2).'</td>';
@@ -376,14 +481,28 @@ try {
                             <td>'.number_format($subtotals['total_reject'], 2).'</td>
                             <td>'.number_format($subtotals['actualWeight'], 2).'</td>';
                             if ($allowPrice == 'Y') {
-                                $html .= '<td>'.number_format($subtotals['totalPrice'], 2).'</td><td>'.number_format($subtotals['actualPrice'], 2).'</td>';
+                                $html .= '<td></td><td></td><td></td>';
+                            }
+                            $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
+                            if ($allowPrice == 'Y') {
+                                $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
+                                foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
+                                    $html .= '<tr style="font-weight: bold; background-color: #e8f4e8;">';
+                                    $html .= '<td colspan="'.$fixedColCount2.'">TOTAL PRICE ('.$cur.')</td>';
+                                    foreach ($productGradeColumns as $product => $grades) {
+                                        foreach ($grades as $grade) {
+                                            $key = $product.'|'.$grade;
+                                            $html .= '<td>'.number_format($subtotalGradeActualPrice[$key][$cur] ?? 0, 2).'</td>';
+                                        }
+                                    }
+                                    $html .= '<td></td><td></td><td></td><td></td>';
+                                    $html .= '<td>'.$cur.'</td>';
+                                    $html .= '<td>'.number_format($curTotals['totalPrice'], 2).'</td>';
+                                    $html .= '<td>'.number_format($curTotals['actualPrice'], 2).'</td>';
+                                    $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
+                                }
                             }
                             $html .= '
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
                     </tfoot>
                 </table>
             </div>

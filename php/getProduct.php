@@ -255,6 +255,7 @@ if(isset($_POST['userID'])){
                             "id" => $row2['id'],
                             "product_id" => $row2['product_id'],
                             "customer_id" => $row2['customer_id'],
+                            "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
                             "price" => $row2['price'],
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
@@ -264,6 +265,27 @@ if(isset($_POST['userID'])){
                     }
 
                     $message['productCustomers'] = $productCustomers;
+
+                    // retrieve product suppliers
+                    $empQuery = "SELECT * FROM product_suppliers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
+                    $empRecords = mysqli_query($db, $empQuery);
+                    $productSuppliers = array();
+                    $productSupplierCount = 1;
+
+                    while($row2 = mysqli_fetch_assoc($empRecords)) {
+                        $productSuppliers[] = array(
+                            "no" => $productSupplierCount,
+                            "id" => $row2['id'],
+                            "product_id" => $row2['product_id'],
+                            "supplier_id" => $row2['supplier_id'],
+                            "grade_id" => $row2['grade_id'],
+                            "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
+                            "purchasing_price" => $row2['purchasing_price']
+                        );
+                        $productSupplierCount++;
+                    }
+
+                    $message['productSuppliers'] = $productSuppliers;
 
                     // retrieve product grades
                     $empQuery = "SELECT * FROM product_grades WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";

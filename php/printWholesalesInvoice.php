@@ -191,7 +191,7 @@ if(isset($_GET['id'])){
                             .header-inner { display: inline-flex; align-items: center; gap: 15px; }
                             .logo img { width: 110px; height: auto; }
                             .company-info { text-align: left; }
-                            .company-cn { font-size: 32px; font-weight: bold; color: #2a6e2a; letter-spacing: 8px; }
+                            .company-cn { font-size: 32px; font-weight: bold; color: black; letter-spacing: 8px; }
                             .company-en { font-size: 18px; font-weight: bold; margin: 2px 0; }
                             .company-addr { font-size: 13px; }
                             .company-contact { font-size: 13px; }

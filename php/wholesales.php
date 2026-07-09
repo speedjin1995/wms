@@ -48,9 +48,11 @@ if(isset($_POST['status'], $_POST['startTime'])){
     $indicator = 'web';
 	$recordType = 'wholesales';
     $serialNo = null;
+    $location = null;
     $remarks = null;
     $remarks2 = null;
 	$isManual = 'Y';
+    $category = null;
 
     $startDateTimeObj = DateTime::createFromFormat('d/m/Y H:i', $startTime);
     $startDateTime = $startDateTimeObj->format("d/m/Y 00:00:00");
@@ -202,12 +204,20 @@ if(isset($_POST['status'], $_POST['startTime'])){
         }
 	}
 
+    if(isset($_POST['location']) && $_POST['location'] != null && $_POST['location'] != ''){
+		$location = $_POST['location'];
+	}
+
     if(isset($_POST['remarks']) && $_POST['remarks'] != null && $_POST['remarks'] != ''){
 		$remarks = $_POST['remarks'];
 	}
 
     if(isset($_POST['remarks2']) && $_POST['remarks2'] != null && $_POST['remarks2'] != ''){
 		$remarks2 = $_POST['remarks2'];
+	}
+
+    if(isset($_POST['category']) && $_POST['category'] != null && $_POST['category'] != ''){
+		$category = $_POST['category'];
 	}
 
     if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
@@ -233,6 +243,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'time' => $weightDetail['time'] ?? '',
                 'grade' => $weightDetail['grade'] ?? '',
                 'grade_id' => $weightDetail['grade_id'] ?? '',
+                'currency' => $weightDetail['currency'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
@@ -282,6 +293,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'fixedfloat' => $rejectDetail['fixedfloat'] ?? '',
                 'time' => $rejectDetail['time'] ?? '',
                 'grade' => $rejectDetail['grade'] ?? '',
+                'currency' => $rejectDetail['currency'] ?? '',
                 'isedit' => $rejectDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['rejectPhotoFiles']['name'][$key]) && $_FILES['rejectPhotoFiles']['error'][$key] === UPLOAD_ERR_OK) {
@@ -403,10 +415,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
             }
         }
 
-        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, start_time=?, end_time=?, modified_by=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, category=?, start_time=?, end_time=?, modified_by=?, location=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $update_stmt->bind_param('ssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $startDateTime3, $endDateTime, $userID, $_POST['id']);
+            $update_stmt->bind_param('ssssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $startDateTime3, $endDateTime, $userID, $location, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -457,10 +469,27 @@ if(isset($_POST['status'], $_POST['startTime'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, start_time, created_by, end_time, company, weighted_by, indicator, records_type) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+        $checkStmt = $db->prepare("SELECT COUNT(*) FROM wholesales WHERE serial_no = ? AND company = ? AND deleted = '0'");
+        $checkStmt->bind_param('ss', $serialNo, $company);
+        $checkStmt->execute();
+        $checkStmt->bind_result($serialExists);
+        $checkStmt->fetch();
+        $checkStmt->close();
+
+        if ($serialExists > 0) {
+            echo json_encode(
+                array(
+                    "status" => "failed", 
+                    "message" => "Serial No. '$serialNo' already exists."
+                )
+            );
+            exit;
+        }
+
+        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, category, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $insert_stmt->bind_param('sssssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $startDateTime3, $userID, $endDateTime, $company, $userID, $indicator, $recordType);
+            $insert_stmt->bind_param('sssssssssssssssssssssssssss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
@@ -486,7 +515,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                     }
                 }
 
-                if(!isset($post['doPoNo']) || $post['doPoNo'] == null || $post['doPoNo'] == ''){
+                if(!isset($_POST['doPoNo']) || $_POST['doPoNo'] == null || $_POST['doPoNo'] == ''){
 					$curval = $curval + 1;
 					$curval = strval($curval);
 					$stmtUS = $db->prepare("UPDATE running_no_setup SET value = ? WHERE module = ? AND company_id = ? AND transaction_status = ?");

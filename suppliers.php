@@ -16,8 +16,10 @@ else{
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
 
   if ($role != 'SADMIN'){
+    $currencies = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '$company' ORDER BY currency ASC");
     $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 AND customer = '$company' ORDER BY supplier_name ASC");
   }else{
+    $currencies = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '$company' ORDER BY currency ASC");
     $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = 0 ORDER BY supplier_name ASC");
   }
 
@@ -289,7 +291,7 @@ else{
               <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
                 <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
                 <div class="row">
-                  <div class="col-md-6">
+                  <div class="col-md-12">
                     <div class="form-group">
                       <label>Billing Name</label>
                       <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
@@ -354,6 +356,17 @@ else{
                       <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
                     </div>
                   </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label><?=$languageArray['currency_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="currency" name="currency">
+                        <option selected="selected">-</option>
+                        <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
+                          <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -413,7 +426,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-        'url':'php/loadSupplier.php'
+        'url':'php/modules/suppliers/loadSupplier.php'
     },
     'columns': [
       {
@@ -449,7 +462,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           //$('#spinnerLoading').show();
-          $.post('php/suppliers.php', $('#supplierForm').serialize(), function(data){
+          $.post('php/modules/suppliers/suppliers.php', $('#supplierForm').serialize(), function(data){
               var obj = JSON.parse(data); 
               
               if(obj.status === 'success'){
@@ -457,7 +470,7 @@ $(function () {
                 toastr["success"](obj.message, "Success:");
                 $('#supplierTable').DataTable().ajax.reload();
                 // Refresh the parent dropdown
-                $.get('php/getSuppliers.php', function(data) {
+                $.get('php/modules/suppliers/getSuppliers.php', function(data) {
                   var suppliers = JSON.parse(data);
                   $('#parent').empty().append('<option value="">Please Select</option>');
                   suppliers.forEach(function(supplier) {
@@ -500,6 +513,7 @@ $(function () {
       $('#addModal').find('#billingPhone').val("");
       $('#addModal').find('#billingFax').val("");
       $('#addModal').find('#billingPic').val("");
+      $('#addModal').find('#currency').val("").trigger('change');
       $('#addModal').find('#parent').val("").trigger('change');
       $('#addModal').modal('show');
       
@@ -571,7 +585,7 @@ $('#uploadSupplier').on('click', function(){
 
   // Send the JSON array to the server
   $.ajax({
-      url: 'php/uploadSupplier.php',
+      url: 'php/modules/suppliers/uploadSupplier.php',
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(data),
@@ -614,7 +628,7 @@ $('#multiDeactivate').on('click', function () {
 
   if (selectedIds.length > 0) {
     if (confirm('Are you sure you want to cancel these items?')) {
-        $.post('php/deleteSupplier.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+        $.post('php/modules/suppliers/deleteSupplier.php', {userID: selectedIds, type: 'MULTI'}, function(data){
             var obj = JSON.parse(data);
             
             if(obj.status === 'success'){
@@ -691,7 +705,7 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getSupplier.php', {userID: id}, function(data){
+  $.post('php/modules/suppliers/getSupplier.php', {userID: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){
@@ -716,6 +730,7 @@ function edit(id){
           $('#addModal').find('#billingPhone').val(obj.message.billing_phone);
           $('#addModal').find('#billingFax').val(obj.message.billing_fax);
           $('#addModal').find('#billingPic').val(obj.message.billing_pic);
+          $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
           $('#addModal').modal('show');
@@ -749,7 +764,7 @@ function edit(id){
 function deactivate(id){
     if (confirm('Are you sure you want to delete this items?')) {
         //$('#spinnerLoading').show();
-        $.post('php/deleteSupplier.php', {userID: id}, function(data){
+        $.post('php/modules/suppliers/deleteSupplier.php', {userID: id}, function(data){
             var obj = JSON.parse(data);
             
             if(obj.status === 'success'){
@@ -772,7 +787,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     //$('#spinnerLoading').show();
-    $.post('php/reactivateSupplier.php', {userID: id}, function(data){
+    $.post('php/modules/suppliers/reactivateSupplier.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){

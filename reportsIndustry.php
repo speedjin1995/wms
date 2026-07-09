@@ -173,6 +173,8 @@ else{
                   </select>
                 </div>
               </div-->
+              
+              <input type="hidden" id="categoryFilter" name="categoryFilter">
             </div>
 
             <div class="row">
@@ -280,6 +282,7 @@ $(function () {
   var transactionStatusI = $('#transactionStatusFilter').val();
   var statusI = $('#statusFilter').val();
   var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+  var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
   var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
   var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
   var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
@@ -304,6 +307,7 @@ $(function () {
         transactionStatus: transactionStatusI,
         status: statusI,
         product: productI,
+        category: categoryI,
         customer: customerNoI,
         supplier: supplierNoI,
         vehicle: vehicleNoI,
@@ -381,6 +385,7 @@ $(function () {
     var transactionStatusI = $('#transactionStatusFilter').val();
     var statusI = $('#statusFilter').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
     var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
     var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
     var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
@@ -409,6 +414,7 @@ $(function () {
           transactionStatus: transactionStatusI,
           status: statusI,
           product: productI,
+          category: categoryI,
           customer: customerNoI,
           supplier: supplierNoI,
           vehicle: vehicleNoI,

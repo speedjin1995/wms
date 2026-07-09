@@ -92,7 +92,7 @@ if(!isset($_SESSION['userID'])){
             }
 
             .modules-box-list a {
-                width: 500px;
+                width: 400px;
             }
 
             .modules-box-list .modules-box {
@@ -216,6 +216,30 @@ if(!isset($_SESSION['userID'])){
                     <div class="modules-box modules-box-2">
                         <img src="assets/packaging-icon.png" alt="Processing" class="modules-img">
                         <div class="modules-txt"><?=$languageArray['processing_code'][$language]?></div>
+                    </div>
+                </a>
+                <a href="php/setModule.php?module=accounting"
+                    <?php 
+                        if (!in_array('accounting', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-2">
+                        <img src="assets/accounting-icon.png" alt="Accounting" class="modules-img">
+                        <div class="modules-txt"><?=$languageArray['accounting_code'][$language]?></div>
+                    </div>
+                </a>
+                <a href="php/setModule.php?module=stocks"
+                    <?php 
+                        if (!in_array('stocks', $_SESSION['products'], false)) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-2">
+                        <img src="assets/stocks-icon.png" alt="Stocks" class="modules-img">
+                        <div class="modules-txt"><?=$languageArray['stock_management'][$language]?></div>
                     </div>
                 </a>
                 <a href="php/logout.php">
