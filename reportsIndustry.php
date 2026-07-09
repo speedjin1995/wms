@@ -26,13 +26,14 @@ else{
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
-
+    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
+    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
   }
 
   // Language
@@ -147,6 +148,18 @@ else{
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
                       <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label><?=$languageArray['locations_code'][$language]?></label>
+                  <select class="form-control select2" id="locationFilter" name="locationFilter">
+                    <option value="" selected>-</option>
+                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
+                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -289,6 +302,7 @@ $(function () {
   var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+  var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -314,6 +328,7 @@ $(function () {
         otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
         weightedBy: weightedByI,
+        location: locationI,
         recordType: 'industrial'
       } 
     },
@@ -392,7 +407,7 @@ $(function () {
     var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
 
@@ -421,6 +436,7 @@ $(function () {
           otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
           weightedBy: weightedByI,
+          location: locationI,
           recordType: 'industrial'
         } 
       },
