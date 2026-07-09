@@ -44,29 +44,64 @@ if(isset($_POST['userID'])) {
     $companyEmail = htmlspecialchars($company['email'] ?? '');
     $companyAddress = htmlspecialchars($companyAddress);
 
+    // Get customer
+    //$customerName = searchCustomerNameById($batch['customer'], '', $db);
+
     // Fetch batch items
     $itemsStmt = $db->prepare("SELECT pbi.*, p.product_name, g.units as grade_name, pkg.packaging_name, pkg.weight as pkg_weight FROM packaging_batch_items pbi LEFT JOIN products p ON pbi.product_id = p.id LEFT JOIN grades g ON pbi.grade = g.id LEFT JOIN packaging pkg ON pbi.packaging_size = pkg.id WHERE pbi.packaging_batch_id = ? AND pbi.deleted = 0");
     $itemsStmt->bind_param('s', $id);
     $itemsStmt->execute();
     $itemsResult = $itemsStmt->get_result();
+    $totalWeight = 0;
 
     $items = [];
     while($item = $itemsResult->fetch_assoc()) {
         $items[] = $item;
+        $totalWeight += floatval($item['weight'] ?? 0);
     }
 
     $totalBoxes = count($items);
 
     // Build table rows
     $tableRows = '';
+    $packagingBatchItemIds = [];
     foreach($items as $i => $item) {
+        // Push into packagingBatchItemIds $item['id']
+        $packagingBatchItemIds[] = $item['id'];
+
         $tableRows .= '<tr>';
         $tableRows .= '<td style="text-align:center;">' . ($i + 1) . '</td>';
         $tableRows .= '<td>' . htmlspecialchars($item['product_name'] ?? '') . ' - ' . htmlspecialchars($item['grade_name'] ?? '') . '</td>';
-        $tableRows .= '<td style="text-align:center;">' . number_format(floatval($item['pkg_weight'] ?? 0), 0) . ' kg</td>';
+        $tableRows .= '<td style="text-align:center;">' . ($item['pkg_weight'] !== null ? number_format(floatval($item['pkg_weight']), 0) . ' kg' : '') . '</td>';
         $tableRows .= '<td style="text-align:center;">' . intval($item['units_per_box'] ?? 0) . '</td>';
         $tableRows .= '<td style="text-align:center;">' . number_format(floatval($item['weight'] ?? 0), 2) . '</td>';
         $tableRows .= '</tr>';
+    }
+
+    // Query in customer_id in loading_order_items to see if the $packagingBatchItemIds exist
+    $loadingOrderItemsStmt = $db->prepare("SELECT customer_id FROM loading_order_items WHERE packaging_batch_item_id IN (" . implode(',', array_fill(0, count($packagingBatchItemIds), '?')) . ")"); 
+
+    if($loadingOrderItemsStmt) {
+        $loadingOrderItemsStmt->bind_param(str_repeat('s', count($packagingBatchItemIds)), ...$packagingBatchItemIds);
+        $loadingOrderItemsStmt->execute();
+        $loadingOrderItemsResult = $loadingOrderItemsStmt->get_result();
+
+        $customerIds = [];
+        while($row = $loadingOrderItemsResult->fetch_assoc()) {
+            $customerIds[] = $row['customer_id'];
+        }
+
+        // Get distinct customer ids
+        $customerIds = array_unique($customerIds);
+
+        // Get customer names
+        $customerNames = [];
+        foreach($customerIds as $customerId) {
+            $customerNames[] = searchCustomerNameById($customerId, '', $db);
+        }
+
+        // Implode customer names
+        $customerName = implode(', ', $customerNames);
     }
 
     $batchDate = !empty($batch['packaging_date']) ? date('d/m/Y', strtotime($batch['packaging_date'])) : '';
@@ -128,7 +163,8 @@ if(isset($_POST['userID'])) {
                 <h2>'.$languageArray['packing_list_code'][$language].'</h2>
                 <p>'.$languageArray['batch_no_code'][$language].': <span>' . htmlspecialchars($batch['batch_no'] ?? '') . '</span></p>
                 <p>'.$languageArray['date_code'][$language].': <span>' . $batchDate . '</span></p>
-                <p>'.$languageArray['customer_code'][$language].': <span>' . htmlspecialchars($batch['locations'] ?? '') . '</span></p>
+                <p>'.$languageArray['locations_code'][$language].': <span>' . htmlspecialchars($batch['locations'] ?? '') . '</span></p>
+                <p>'.$languageArray['customer_code'][$language].': <span>' . htmlspecialchars($customerName ?? '') . '</span></p>
             </div>
 
             <hr class="divider">
@@ -140,7 +176,7 @@ if(isset($_POST['userID'])) {
                     <th>'.$languageArray['description_code'][$language].'</th>
                     <th>'.$languageArray['pack_weight_code'][$language].' (kg)</th>
                     <th>'.$languageArray['qty_per_box_code'][$language].'</th>
-                    <th>'.$languageArray['no_of_boxes_code'][$language].'</th>
+                    <th>'.$languageArray['total_weight_code'][$language].'</th>
                 </tr>
                 </thead>
                 <tbody>' . $tableRows . '</tbody>
@@ -149,7 +185,8 @@ if(isset($_POST['userID'])) {
             <hr class="divider">
 
             <div class="summary">
-                <span>'.$languageArray['total_boxes_code'][$language].':</span> ' . $totalBoxes . '
+                <p>'.$languageArray['total_boxes_code'][$language].': ' . $totalBoxes . '</p>
+                <p>'.$languageArray['total_weight_code'][$language].': ' . $totalWeight . '</p>
             </div>
 
             <hr class="divider" style="margin-top:12px;">
