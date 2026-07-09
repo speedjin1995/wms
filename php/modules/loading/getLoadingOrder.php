@@ -50,6 +50,7 @@ while ($item = $itemResult->fetch_assoc()) {
         'product_id'              => $item['product_id'],
         'product_name'            => searchProductNameById($item['product_id'], $db),
         'grade'                   => $item['grade'],
+        'grade_name'              => searchGradeNameById($item['grade'], $db),
         'packaging_size'          => $item['packaging_size'],
         'packaging_size_name'     => searchPackagingNameById($item['packaging_size'], $db),
         'units_per_box'           => $item['units_per_box'],

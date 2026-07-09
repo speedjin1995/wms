@@ -65,6 +65,8 @@ else{
     $products = $db->query($productQuery);
     $products2 = $db->query($productQuery);
     $products3 = $db->query($productQuery);
+    $products4 = $db->query($productQuery);
+    $products5 = $db->query($productQuery);
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
@@ -94,6 +96,8 @@ else{
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $products4 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+    $products5 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
@@ -1314,14 +1318,20 @@ $(function () {
           <input type="hidden" id="isedit${idx}" name="rejectDetails[${idx}][isedit]" value="N">
           <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="0.00">
           <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="YES">
-          <input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="REJECT (拒收)">
           <!--input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="REJ"-->
         </td>
-        <td>REJECT (拒收)</td>
+        <td>
+          <select class="form-control select2" id="product_name${idx}" name="rejectDetails[${idx}][product_name]">
+            <option value="" selected disabled>Select Product</option>
+            <?php while($rowProduct=mysqli_fetch_assoc($products4)){ ?>
+              <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+            <?php } ?>
+          </select>
+        </td>
         <!--td>REJ</td-->
         <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00"></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00" readonly>
         </td>
@@ -1344,6 +1354,12 @@ $(function () {
       </tr>
     `;
     $('#rejectDetailsTable').append(row);
+    $('.select2').select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
   });
 
   $('#addWeightBtn').on('click', function() {
@@ -2145,7 +2161,14 @@ function edit(id) {
                 <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="${detail.reject}">
                 <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="${detail.isRejected}">
               </td>
-              <td><input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
+              <td>
+                <select class="form-control select2" id="weighing_product_name${idx}" name="weightDetails[${idx}][product_name]">
+                  <option value="" disabled>Select Product</option>
+                  <?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?>
+                    <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+                  <?php } ?>
+                </select>
+              </td>
               <!--td>
                 <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]">
                   <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
@@ -2153,11 +2176,11 @@ function edit(id) {
                   <?php } ?>
                 </select>
               </td-->
-              <td><input type="hidden" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="net${idx}" name="weightDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" class="form-control" id="variance${idx}" name="weightDetails[${idx}][variance]" value="${detail.variance}">${parseFloat(detail.variance ?? 0).toFixed(2)}</td>
-              <td><input type="hidden" class="form-control" id="variancePerc${idx}" name="weightDetails[${idx}][variancePerc]" value="${detail.varPerc}">${parseFloat(detail.varPerc ?? 0).toFixed(2)}</td>
+              <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="${parseFloat(detail.gross).toFixed(2)}"></td>
+              <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="${parseFloat(detail.tare).toFixed(2)}"></td>
+              <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="${parseFloat(detail.net).toFixed(2)}" readonly></td>
+              <td><input type="number" class="form-control" id="variance${idx}" name="weightDetails[${idx}][variance]" step="0.01" value="${isNaN(parseFloat(detail.variance)) ? '0.00' : parseFloat(detail.variance).toFixed(2)}" readonly></td>
+              <td><input type="number" class="form-control" id="variancePerc${idx}" name="weightDetails[${idx}][variancePerc]" step="0.01" value="${isNaN(parseFloat(detail.varPerc)) ? '0.00' : parseFloat(detail.varPerc).toFixed(2)}" readonly></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${parseFloat(detail.price).toFixed(2)}"></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${parseFloat(detail.total).toFixed(2)}" readonly></td>
               <td><input type="hidden" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
@@ -2175,6 +2198,9 @@ function edit(id) {
             </tr>
           `;
           tbody.append(row);
+
+          // Set the selected value for the product dropdown
+          tbody.find(`select[name="weightDetails[${idx}][product_name]"]`).val(detail.product_name);
           
           // Filter grades by product
           var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade]"]`);
@@ -2229,13 +2255,20 @@ function edit(id) {
                 <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="${detail.reject}">
                 <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="${detail.isRejected}">
               </td>
-              <td><input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
               <td>
-                <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="${detail.grade}">${detail.grade}
+                <select class="form-control select2" id="reject_product_name${idx}" name="rejectDetails[${idx}][product_name]">
+                  <option value="" disabled>Select Product</option>
+                  <?php while($rowProduct=mysqli_fetch_assoc($products5)){ ?>
+                    <option value="<?=$rowProduct['product_name'] ?>" data-id="<?=$rowProduct['id'] ?>"><?=$rowProduct['product_name'] ?></option>
+                  <?php } ?>
+                </select>
               </td>
-              <td><input type="hidden" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${detail.gross}">${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${detail.tare}">${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
+              <!--td>
+                <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="${detail.grade}">${detail.grade}
+              </td-->
+              <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="${parseFloat(detail.gross).toFixed(2)}"></td>
+              <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="${parseFloat(detail.tare).toFixed(2)}"></td>
+              <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="${parseFloat(detail.net).toFixed(2)}" readonly></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${parseFloat(detail.price).toFixed(2)}</td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${parseFloat(detail.total).toFixed(2)}</td>
               <td><input type="hidden" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}">${detail.time}</td>
@@ -2255,7 +2288,7 @@ function edit(id) {
           tbody.append(row);
           
           // Set the selected value for the grade dropdown
-          tbody.find(`select[name="rejectDetails[${idx}][grade]"]`).val(detail.grade);
+          tbody.find(`select[name="rejectDetails[${idx}][product_name]"]`).val(detail.product_name);
 
           totalRejectGross += parseFloat(detail.gross);
           totalRejectTare += parseFloat(detail.tare);
@@ -2277,20 +2310,29 @@ function edit(id) {
           dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
         });
       });
-      
+
       $('#extendModal').modal('show');
 
       $('#extendForm').validate({
         errorElement: 'span',
+        ignore: [],
         errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
+          error.addClass('invalid-feedback').css('display', 'block');
+          if (element.hasClass('select2') || element.next('.select2-container').length) {
+            error.insertAfter(element.next('.select2-container'));
+          } else {
+            element.closest('td').append(error);
+          }
         },
         highlight: function (element, errorClass, validClass) {
           $(element).addClass('is-invalid');
+          if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
+            $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
+          }
         },
         unhighlight: function (element, errorClass, validClass) {
           $(element).removeClass('is-invalid');
+          $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
         }
       });
     }
@@ -2328,27 +2370,7 @@ function rejectRow(button) {
     }
   });
 
-  // Hardcode product and grade to REJECT
-  row.find('input[name*="[product]"]').val('35');
-  row.find('input[name*="[product_name]"]').val('REJECT (拒收)');
-  row.find('input[name*="[product_desc]"]').val('REJ');
   row.find('input[name*="[isRejected]"]').val('YES');
-
-  // Replace product_name select/text with static display
-  var productCell = row.find('select[name*="[product_name]"]').closest('td');
-  if(productCell.length) {
-    productCell.find('select').select2('destroy').remove();
-    productCell.text('REJECT (拒收)');
-    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][product_name]', value:'REJECT (拒收)'}).appendTo(productCell);
-  }
-
-  // Replace grade select with static display
-  var gradeCell = row.find('select[name*="[grade]"]').closest('td');
-  if(gradeCell.length) {
-    gradeCell.find('select').select2('destroy').remove();
-    gradeCell.text('REJ');
-    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][grade]', value:'REJ'}).appendTo(gradeCell);
-  }
 
   row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');

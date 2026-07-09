@@ -139,9 +139,13 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['locations_code'][$language]?></label>
                   <select class="form-control select2" id="locationFilter" name="locationFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
-                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+                    <option value="" disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php 
+                    $firstLocation = null;
+                    while($rowLocation=mysqli_fetch_assoc($locations)){ 
+                      if(!$firstLocation) $firstLocation = $rowLocation;
+                    ?>
+                      <option value="<?=$rowLocation['id'] ?>" <?= $firstLocation && $rowLocation['id'] == $firstLocation['id'] ? 'selected' : '' ?>><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -167,10 +171,16 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['grading_code'][$language]?></div>
+              <div class="col-6"><?=$languageArray['grading_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-danger btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
@@ -180,6 +190,7 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
+                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['grading_no_code'][$language]?></th>
                   <th><?=$languageArray['category_code'][$language]?></th>
                   <th><?=$languageArray['locations_code'][$language]?></th>
@@ -473,6 +484,11 @@ $(function () {
     });
   });
 
+  $('#selectAllCheckbox').on('change', function() {
+    var checkboxes = $('#weightTable tbody input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+  });
+
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
   var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
@@ -497,6 +513,15 @@ $(function () {
       } 
     },
     'columns': [
+      {
+        // Add a checkbox with a unique ID for each row
+        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        className: 'select-checkbox',
+        orderable: false,
+        render: function (data, type, row) {
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+        }
+      },
       { data: 'grading_no' },
       { data: 'category' },
       { data: 'locations' },
@@ -583,6 +608,15 @@ $(function () {
         } 
       },
       'columns': [
+        {
+          // Add a checkbox with a unique ID for each row
+          data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+          className: 'select-checkbox',
+          orderable: false,
+          render: function (data, type, row) {
+              return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+          }
+        },
         { data: 'grading_no' },
         { data: 'category' },
         { data: 'locations' },
@@ -606,6 +640,46 @@ $(function () {
         }
       ],
     });
+  });
+
+  $('#exportExcel').on('click', function(){
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#weightTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0){
+      window.open("php/modules/grading/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=Y&ids="+selectedIds);
+    }else{
+      window.open("php/modules/grading/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=N");
+    }
+  });
+
+  $('#exportPdf').on('click', function(){
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#weightTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+        selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0){
+      window.open("php/modules/grading/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=Y&ids="+selectedIds);
+    }else{
+      window.open("php/modules/grading/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=N");
+    }
   });
 
   $.validator.setDefaults({
