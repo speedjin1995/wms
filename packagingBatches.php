@@ -911,9 +911,10 @@ $(function () {
 
   // Auto-fill gross from selected packaging size
   $('#weightDetailsTable').on('change', 'select[name*="[packaging_size]"]', function() {
+    var row = $(this).closest('tr');
+    var gross = parseFloat(row.find('input[name*="[gross]"]').val()) || 0;
     var weight = $(this).find('option:selected').data('weight');
-    if (weight) {
-      var row = $(this).closest('tr');
+    if (weight && !gross) {
       row.find('input[name*="[gross]"]').val(parseFloat(weight).toFixed(2)).trigger('input');
     }
   });
