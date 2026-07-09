@@ -80,6 +80,7 @@ else{
     $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
+    $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
 
     // Company Detail 
     $companyDetail = searchCompanyById($company, $db);
@@ -111,6 +112,7 @@ else{
     $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
+    $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
@@ -247,6 +249,18 @@ else{
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
                       <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label><?=$languageArray['locations_code'][$language]?></label>
+                  <select class="form-control select2" id="locationFilter" name="locationFilter">
+                    <option value="" selected>-</option>
+                    <?php while($rowLocation=mysqli_fetch_assoc($locations2)){ ?>
+                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -726,6 +740,7 @@ $(function () {
   var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+  var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -751,6 +766,7 @@ $(function () {
         otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
         weightedBy: weightedByI,
+        location: locationI,
         recordType: 'industrial'
       } 
     },
@@ -890,6 +906,7 @@ $(function () {
     var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -919,6 +936,7 @@ $(function () {
           otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
           weightedBy: weightedByI,
+          location: locationI,
           recordType: 'industrial'
         } 
       },
