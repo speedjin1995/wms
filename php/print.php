@@ -89,7 +89,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'])){
                             $price = floatval($item['price'] ?? 0);
                             $rejectUnitPrice = $price;
                             $rejectPricingType = $item['fixedfloat'];
-                            $rejectPrice += ($rejectPricingType == 'fixed') ? $price : $net * $price;
+                            $rejectPrice += (strtolower($rejectPricingType) == 'fixed') ? $price : $net * $price;
                         } else { $gross = $tare = $net = ''; }
                         $rejectGross += $gross != '' ? $gross : 0;
                         $rejectTare += $tare != '' ? $tare : 0;
@@ -113,6 +113,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'])){
                 
                 $totalCages = 0;
                 $totalCagesWeight = 0;
+                $grandTotalPrice = 0;
                 for($row = 0; $row < $rowsNeeded; $row++) {
                     if($row > 0 && $row % 2 == 0) {
                         $weightDetails .= '<div class="row mb-3 page-break">';
@@ -158,7 +159,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'])){
                                     $unitPrice = floatval($item['price'] ?? 0);
                                     $pricingType = $item['fixedfloat'];
 
-                                    if ($pricingType == 'fixed') {
+                                    if (strtolower($pricingType) == 'fixed') {
                                         $totalPrice += $price ?? 0;
                                     } else {
                                         $totalPrice += $net * ($price ?? 0);
@@ -209,6 +210,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'])){
                                 $weightDetails .= '</tr>';
                             }
                             
+                            $grandTotalPrice += $totalPrice;
                             $weightDetails .= '</table>';
                             $weightDetails .= '</div>';
                         }
@@ -332,6 +334,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'])){
                                 <div class="info-row"><span class="info-label">Actual Weight</span><span class="info-value">: '.number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2).' kg</span></div>
                                 <div class="info-row"><span class="info-label">Reject Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_reject'], 2).' kg</span></div>
                                 <div class="info-row"><span class="info-label">Total Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_weight'], 2).' kg</span></div>
+                                '.($companyDetail['include_price'] == 'Y' ? '<div class="info-row"><span class="info-label">Total Price</span><span class="info-value">: RM '.number_format($grandTotalPrice, 2).'</span></div>' : '').'
                                 <div class="info-row"><span class="info-label">Remark</span><span class="info-value">: '.$wholesale['remark'].'</span></div>
                             </div>
                             <div class="col-4">
