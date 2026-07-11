@@ -1789,20 +1789,22 @@ $(function () {
     $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
+  $("#weightDetailsTable").on('blur', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var pricingType = row.find('input[id^="fixedfloat"]').val();
-    var net = parseFloat(row.find('input[id^="net"]').val());
-    var total = 0;
+    var productId = row.find('select[id^="product"]').val();
+    var status = $('#extendModal').find('#status').val();
+    var customerId = $('#extendModal').find('#customer').val();
+    var supplierId = $('#extendModal').find('#supplier').val();
+    var gradeId = row.find('select[id^="grade"]').val();
 
-    if (pricingType == 'Float'){
-      total = price * net;
-    }else{
-      total = price;
+    if (productId && status) {
+      if (status == 'RECEIVING' || status == 'INCOMING') {
+        calculatePrice(productId, status, supplierId, gradeId, $(this), price);
+      } else {
+        calculatePrice(productId, status, customerId, gradeId, $(this), price);
+      }
     }
-
-    row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
 
   $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
@@ -2276,17 +2278,21 @@ function newEntry(){
   });
 }
 
-function calculatePrice(productId, status, customerId, currentGrade, element) {
+function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice) {
   if (productId){
     $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
         var pricingType = obj.message.pricingType;
-        var price = obj.message.price;
+        var existingPrice = element.closest('tr').find('input[id^="price"]').val();
+        var price = (overridePrice !== undefined) ? overridePrice : (existingPrice !== '' && parseFloat(existingPrice) > 0 ? parseFloat(existingPrice) : obj.message.price);
+        var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
+        var total = (pricingType == 'Float') ? price * net : price;
 
         element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
-        element.closest('tr').find('input[id^="price"]').val(price).trigger('change');
+        element.closest('tr').find('input[id^="price"]').val(price);
+        element.closest('tr').find('input[name*="[total]"]').val(total.toFixed(2)).trigger('change');
       }
       else if(obj.status === 'failed'){
         toastr["error"](obj.message, "Failed:");
