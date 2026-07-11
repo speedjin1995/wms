@@ -237,10 +237,9 @@ else{
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['machine_nickname_code'][$language]?></th>
+                  <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
                   <th><?=$languageArray['created_datetime_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
@@ -258,7 +257,6 @@ else{
               <tfoot>
                 <tr>
                     <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
-                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -355,10 +353,9 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
-      { data: 'indicator' },
+      { data: 'location' },
       { data: 'serial_no' },
       { data: 'po_no' },
-      { data: 'location' },
       { data: 'security_bills' },
       { data: 'created_datetime' },
       { data: 'parent' },
@@ -381,21 +378,21 @@ $(function () {
       var api = this.api();
 
       var totalItem = api
-        .column(9, { page: 'current' })
+        .column(8, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalWeight = api
-        .column(10, { page: 'current' })
+        .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalReject = api
-        .column(11, { page: 'current' })
+        .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
@@ -464,10 +461,9 @@ $(function () {
               return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
           }
         },
-        { data: 'indicator' },
+        { data: 'location' },
         { data: 'serial_no' },
         { data: 'po_no' },
-        { data: 'location' },
         { data: 'security_bills' },
         { data: 'created_datetime' },
         { data: 'parent' },
@@ -490,21 +486,21 @@ $(function () {
         var api = this.api();
 
         var totalItem = api
-          .column(9, { page: 'current' })
+          .column(8, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalWeight = api
-          .column(10, { page: 'current' })
+          .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalReject = api
-          .column(11, { page: 'current' })
+          .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));

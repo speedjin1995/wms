@@ -358,10 +358,9 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
-                  <th><?=$languageArray['machine_nickname_code'][$language]?></th>
+                  <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
                   <th><?=$languageArray['start_time_code'][$language]?></th>
                   <th><?=$languageArray['end_time_code'][$language]?></th>
@@ -845,10 +844,9 @@ $(function () {
       } 
     },
     'columns': [
-      { data: 'indicator' },
+      { data: 'location' },
       { data: 'serial_no' },
       { data: 'po_no' },
-      { data: 'location' },
       { data: 'security_bills' },
       { data: 'start_time' },
       { data: 'end_time' },
@@ -1020,10 +1018,9 @@ $(function () {
         } 
       },
       'columns': [
-        { data: 'indicator' },
+        { data: 'location' },
         { data: 'serial_no' },
         { data: 'po_no' },
-        { data: 'location' },
         { data: 'security_bills' },
         { data: 'start_time' },
         { data: 'end_time' },
