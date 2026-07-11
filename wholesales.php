@@ -206,8 +206,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                    <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="RECEIVING" selected><?=$languageArray['receiving_code'][$language]?></option>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
                   </select>
                 </div>
@@ -358,6 +358,7 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
+                  <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
@@ -366,12 +367,12 @@ else{
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-                  <th><?=$languageArray['driver_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['driver_code'][$language]?></th> -->
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['checked_by_code'][$language]?></th> -->
                   <?php if ($secRemarksExists) { ?>
                     <th><?=$languageArray['second_remarks_code'][$language]?></th>
                   <?php }?>
@@ -843,6 +844,7 @@ $(function () {
       } 
     },
     'columns': [
+      { data: 'location' },
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'security_bills' },
@@ -851,12 +853,12 @@ $(function () {
       { data: 'parent' },
       { data: 'customer_supplier' },
       { data: 'vehicle_no' },
-      { data: 'driver' },
+      // { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
       { data: 'total_reject' },
       { data: 'weighted_by' },
-      { data: 'checked_by' },
+      // { data: 'checked_by' },
       <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
       <?php }?>
@@ -1016,6 +1018,7 @@ $(function () {
         } 
       },
       'columns': [
+        { data: 'location' },
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'security_bills' },
@@ -1024,12 +1027,12 @@ $(function () {
         { data: 'parent' },
         { data: 'customer_supplier' },
         { data: 'vehicle_no' },
-        { data: 'driver' },
+        // { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
         { data: 'total_reject' },
         { data: 'weighted_by' },
-        { data: 'checked_by' },
+        // { data: 'checked_by' },
         <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
         <?php }?>
@@ -1783,20 +1786,22 @@ $(function () {
     $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
+  $("#weightDetailsTable").on('blur', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
-    var pricingType = row.find('input[id^="fixedfloat"]').val();
-    var net = parseFloat(row.find('input[id^="net"]').val());
-    var total = 0;
+    var productId = row.find('select[id^="product"]').val();
+    var status = $('#extendModal').find('#status').val();
+    var customerId = $('#extendModal').find('#customer').val();
+    var supplierId = $('#extendModal').find('#supplier').val();
+    var gradeId = row.find('select[id^="grade"]').val();
 
-    if (pricingType == 'Float'){
-      total = price * net;
-    }else{
-      total = price;
+    if (productId && status) {
+      if (status == 'RECEIVING' || status == 'INCOMING') {
+        calculatePrice(productId, status, supplierId, gradeId, $(this), price);
+      } else {
+        calculatePrice(productId, status, customerId, gradeId, $(this), price);
+      }
     }
-
-    row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
   });
 
   $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
@@ -2270,17 +2275,21 @@ function newEntry(){
   });
 }
 
-function calculatePrice(productId, status, customerId, currentGrade, element) {
+function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice) {
   if (productId){
     $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
         var pricingType = obj.message.pricingType;
-        var price = obj.message.price;
+        var existingPrice = element.closest('tr').find('input[id^="price"]').val();
+        var price = (overridePrice !== undefined) ? overridePrice : (existingPrice !== '' && parseFloat(existingPrice) > 0 ? parseFloat(existingPrice) : obj.message.price);
+        var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
+        var total = (pricingType == 'Float') ? price * net : price;
 
         element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
-        element.closest('tr').find('input[id^="price"]').val(price).trigger('change');
+        element.closest('tr').find('input[id^="price"]').val(price);
+        element.closest('tr').find('input[name*="[total]"]').val(total.toFixed(2)).trigger('change');
       }
       else if(obj.status === 'failed'){
         toastr["error"](obj.message, "Failed:");

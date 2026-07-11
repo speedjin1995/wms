@@ -87,8 +87,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                    <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="RECEIVING" selected><?=$languageArray['receiving_code'][$language]?></option>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
                   </select>
                 </div>
@@ -237,6 +237,7 @@ else{
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+                  <th><?=$languageArray['locations_code'][$language]?></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
@@ -244,19 +245,18 @@ else{
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-                  <th><?=$languageArray['driver_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['driver_code'][$language]?></th> -->
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <th><?=$languageArray['checked_by_code'][$language]?></th>
+                  <!-- <th><?=$languageArray['checked_by_code'][$language]?></th> -->
                   <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                     <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
-                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -353,6 +353,7 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
+      { data: 'location' },
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'security_bills' },
@@ -360,12 +361,12 @@ $(function () {
       { data: 'parent' },
       { data: 'customer_supplier' },
       { data: 'vehicle_no' },
-      { data: 'driver' },
+      // { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
       { data: 'total_reject' },
-      { data: 'weighted_by' },
-      { data: 'checked_by' },
+      { data: 'weighted_by' },      
+      // { data: 'checked_by' },
       // { 
       //   data: 'id',
       //   render: function ( data, type, row ) {
@@ -377,21 +378,21 @@ $(function () {
       var api = this.api();
 
       var totalItem = api
-        .column(9, { page: 'current' })
+        .column(8, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalWeight = api
-        .column(10, { page: 'current' })
+        .column(9, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
       var totalReject = api
-        .column(11, { page: 'current' })
+        .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
@@ -460,6 +461,7 @@ $(function () {
               return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
           }
         },
+        { data: 'location' },
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'security_bills' },
@@ -467,12 +469,12 @@ $(function () {
         { data: 'parent' },
         { data: 'customer_supplier' },
         { data: 'vehicle_no' },
-        { data: 'driver' },
+        // { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
         { data: 'total_reject' },
-        { data: 'weighted_by' },
-        { data: 'checked_by' },
+        { data: 'weighted_by' },      
+        // { data: 'checked_by' },
         // { 
         //   data: 'id',
         //   render: function ( data, type, row ) {
@@ -484,21 +486,21 @@ $(function () {
         var api = this.api();
 
         var totalItem = api
-          .column(9, { page: 'current' })
+          .column(8, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalWeight = api
-          .column(10, { page: 'current' })
+          .column(9, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
         var totalReject = api
-          .column(11, { page: 'current' })
+          .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
