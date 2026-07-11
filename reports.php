@@ -1,5 +1,6 @@
 <?php
 require_once 'php/db_connect.php';
+require_once 'php/lookup.php';
 
 session_start();
 
@@ -28,6 +29,10 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
+
+    // Company Detail 
+    $companyDetail = searchCompanyById($company, $db);
+    $allowPrice = $companyDetail['include_price'];
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -36,6 +41,8 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
+
+    $allowPrice = 'Y';
   }
 
   // Language
@@ -248,7 +255,11 @@ else{
                   <!-- <th><?=$languageArray['driver_code'][$language]?></th> -->
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
-                  <th><?=$languageArray['total_reject_code'][$language]?></th>
+                  <?php if($allowPrice == 'Y') { ?>
+                    <th><?=$languageArray['total_price_code'][$language]?></th>
+                  <?php } else { ?>
+                    <th><?=$languageArray['total_reject_code'][$language]?></th>
+                  <?php } ?>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <!-- <th><?=$languageArray['checked_by_code'][$language]?></th> -->
                   <!-- <th width="10%">Action</th> -->
@@ -272,6 +283,8 @@ else{
 </div>  
 
 <script>
+var allowPrice = '<?=$allowPrice?>';
+
 $(function () {
   const today = new Date();
   const tomorrow = new Date(today);
@@ -364,9 +377,9 @@ $(function () {
       // { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
-      { data: 'total_reject' },
-      { data: 'weighted_by' },      
-      // { data: 'checked_by' },
+      { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
+      { data: 'weighted_by' },
+      { data: 'checked_by' },
       // { 
       //   data: 'id',
       //   render: function ( data, type, row ) {
@@ -472,9 +485,9 @@ $(function () {
         // { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
-        { data: 'total_reject' },
-        { data: 'weighted_by' },      
-        // { data: 'checked_by' },
+        { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
+        { data: 'weighted_by' },
+        { data: 'checked_by' },
         // { 
         //   data: 'id',
         //   render: function ( data, type, row ) {
