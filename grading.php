@@ -139,9 +139,13 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['locations_code'][$language]?></label>
                   <select class="form-control select2" id="locationFilter" name="locationFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
-                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+                    <option value="" disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php 
+                    $firstLocation = null;
+                    while($rowLocation=mysqli_fetch_assoc($locations)){ 
+                      if(!$firstLocation) $firstLocation = $rowLocation;
+                    ?>
+                      <option value="<?=$rowLocation['id'] ?>" <?= $firstLocation && $rowLocation['id'] == $firstLocation['id'] ? 'selected' : '' ?>><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -167,10 +171,16 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10 custom-card-header-title"><?=$languageArray['grading_code'][$language]?></div>
+              <div class="col-6"><?=$languageArray['grading_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block btn-sm custom-add-btn" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-danger btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
@@ -180,6 +190,7 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
+                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['grading_no_code'][$language]?></th>
                   <th><?=$languageArray['category_code'][$language]?></th>
                   <th><?=$languageArray['locations_code'][$language]?></th>
@@ -398,6 +409,33 @@ else{
   </div>
 </div>
 
+<div class="modal fade" id="printOptionsModal" tabindex="-1">
+  <div class="modal-dialog" style="max-width:500px;">
+    <div class="modal-content">
+      <form id="printOptionsForm">
+        <div class="modal-header bg-gray-dark color-palette">
+          <h5 class="modal-title"><?=$languageArray['print_options_code'][$language]?></h5>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="printID" name="userID">
+          <div class="form-group mb-0">
+            <label><?=$languageArray['print_with_photo_code'][$language]?></label>
+            <select class="form-control" id="printWithPhoto" name="withPhoto">
+              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+          <button type="submit" class="btn btn-primary"><?=$languageArray['print_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
 // Values
 var weightCount = 0;
@@ -446,6 +484,11 @@ $(function () {
     });
   });
 
+  $('#selectAllCheckbox').on('change', function() {
+    var checkboxes = $('#weightTable tbody input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+  });
+
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
   var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
@@ -470,6 +513,15 @@ $(function () {
       } 
     },
     'columns': [
+      {
+        // Add a checkbox with a unique ID for each row
+        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        className: 'select-checkbox',
+        orderable: false,
+        render: function (data, type, row) {
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+        }
+      },
       { data: 'grading_no' },
       { data: 'category' },
       { data: 'locations' },
@@ -483,7 +535,7 @@ $(function () {
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
           }
-          // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
           }
@@ -556,6 +608,15 @@ $(function () {
         } 
       },
       'columns': [
+        {
+          // Add a checkbox with a unique ID for each row
+          data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+          className: 'select-checkbox',
+          orderable: false,
+          render: function (data, type, row) {
+              return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+          }
+        },
         { data: 'grading_no' },
         { data: 'category' },
         { data: 'locations' },
@@ -569,7 +630,7 @@ $(function () {
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
-            // buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
             }
@@ -579,6 +640,46 @@ $(function () {
         }
       ],
     });
+  });
+
+  $('#exportExcel').on('click', function(){
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#weightTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0){
+      window.open("php/modules/grading/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=Y&ids="+selectedIds);
+    }else{
+      window.open("php/modules/grading/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=N");
+    }
+  });
+
+  $('#exportPdf').on('click', function(){
+    var fromDateI = $('#fromDate').val();
+    var toDateI = $('#toDate').val();
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#weightTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+        selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0){
+      window.open("php/modules/grading/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=Y&ids="+selectedIds);
+    }else{
+      window.open("php/modules/grading/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&category="+categoryI+"&location="+locationI+"&isMulti=N");
+    }
   });
 
   $.validator.setDefaults({
@@ -630,6 +731,34 @@ $(function () {
             toastr["error"]("Something wrong when delete", "Failed:");
           }
           $('#spinnerLoading').hide();
+        });
+      }else if ($('#printOptionsModal').hasClass('show')){
+        $('#printOptionsModal').modal('hide');
+        $.post('php/modules/grading/print.php', $('#printOptionsForm').serialize(), function(data){
+          var obj = JSON.parse(data);
+          if(obj.status === 'success') {
+            var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+            printWindow.document.write(obj.message);
+            printWindow.document.close();
+            var pollCount = 0;
+            var poll = setInterval(function() {
+              pollCount++;
+              var rendered = printWindow.document.querySelector('.pagedjs_pages');
+              if (rendered || pollCount > 60) {
+                clearInterval(poll);
+                setTimeout(function() {
+                  printWindow.print();
+                  printWindow.close();
+                }, 300);
+              }
+            }, 200);
+          }
+          else if(obj.status === 'failed'){
+            alert(obj.message);
+          }
+          else{
+            alert("Something wrong when printing");
+          }
         });
       }
     }
@@ -965,7 +1094,7 @@ function format (row) {
         returnString += `
             <tr>
               <td>${detail.product_name}</td>
-              <td>${detail.to_grade}</td>
+              <td>${detail.to_grade_unit}</td>
               <td>${parseFloat(detail.gross_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
@@ -1022,7 +1151,7 @@ function format (row) {
         returnString += `
             <tr>
               <td>${detail.product_name}</td>
-              <td>${detail.to_grade}</td>
+              <td>${detail.to_grade_unit}</td>
               <td>${parseFloat(detail.gross_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.tare_weight).toFixed(2)}</td>
               <td>${parseFloat(detail.nett_weight).toFixed(2)}</td>
@@ -1375,22 +1504,20 @@ function deactivate(id) {
 }
 
 function print(id) {
-  $.post('php/print.php', {userID: id}, function(data){
-    var obj = JSON.parse(data);
-    if(obj.status === 'success') {
-      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-      printWindow.document.write(obj.message);
-      printWindow.document.close();
-      setTimeout(function(){
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    }
-    else if(obj.status === 'failed'){
-      alert(obj.message);
-    }
-    else{
-      alert("Something wrong when activate");
+  $('#printID').val(id);
+  $('#printOptionsModal').modal('show');
+
+  $('#printOptionsForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
     }
   });
 }

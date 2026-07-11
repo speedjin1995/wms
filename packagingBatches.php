@@ -55,6 +55,8 @@ else{
     $packagings = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings2 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' AND customer = '$company' ORDER BY shipment_type ASC");
 
     // Company Detail 
     $companyDetail = searchCompanyById($company, $db);
@@ -80,6 +82,8 @@ else{
     $packagings = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings2 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' ORDER BY shipment_type ASC");
 
     $allowPhoto = 'Y';
   }
@@ -141,9 +145,13 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['locations_code'][$language]?></label>
                   <select class="form-control select2" id="locationFilter" name="locationFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
-                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+                    <option value="" disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php
+                    $firstLocation = null;
+                    while($rowLocation=mysqli_fetch_assoc($locations)){ 
+                      if(!$firstLocation) $firstLocation = $rowLocation;
+                    ?>
+                      <option value="<?=$rowLocation['id'] ?>" <?= $firstLocation && $rowLocation['id'] == $firstLocation['id'] ? 'selected' : '' ?>><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -295,6 +303,8 @@ else{
                   <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
                   <th><?=$languageArray['packaging_size_code'][$language]?></th>
                   <th><?=$languageArray['unit_per_box_code'][$language]?></th>
+                  <th><?=$languageArray['gross_code'][$language]?></th>
+                  <th><?=$languageArray['tare_code'][$language]?></th>
                   <th><?=$languageArray['weight_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
                   <?php if($allowPhoto == 'Y') { ?>
@@ -381,6 +391,59 @@ else{
       </div>
     </div>
       </form>
+  </div>
+</div>
+
+<div class="modal fade" id="shipmentModal">
+  <div class="modal-dialog" style="max-width: 60%">
+    <div class="modal-content">
+      <form role="form" id="shipmentForm" novalidate>
+        <div class="modal-header bg-gray-dark color-palette">
+          <h4 class="modal-title"><?=$languageArray['shipment_code'][$language]?></h4>
+          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="shipmentBatchId" name="shipmentBatchId">
+          <div class="form-group">
+            <label><?=$languageArray['loading_date_code'][$language]?> *</label>
+            <div class="input-group date" id="shipmentLoadingDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#shipmentLoadingDatePicker" id="shipmentLoadingDate" name="shipmentLoadingDate" required/>
+              <div class="input-group-append" data-target="#shipmentLoadingDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['customer_code'][$language]?> *</label>
+            <select class="form-control select2" id="shipmentCustomer" name="shipmentCustomer" required>
+              <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowCustomer = mysqli_fetch_assoc($customers)){ ?>
+                <option value="<?=$rowCustomer['id']?>"><?=$rowCustomer['customer_name']?></option>
+              <?php } ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['shipment_types_code'][$language]?> *</label>
+            <select class="form-control select2" id="shipmentType" name="shipmentType" required>
+              <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowShipment = mysqli_fetch_assoc($shipmentTypes)){ ?>
+                <option value="<?=$rowShipment['id']?>"><?=$rowShipment['shipment_type']?></option>
+              <?php } ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><?=$languageArray['remark_code'][$language]?></label>
+            <textarea class="form-control" id="shipmentRemark" name="shipmentRemark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-info"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -495,7 +558,10 @@ $(function () {
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm custom-pencil-icon-btn"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm custom-reject-icon-btn"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          if(row.status !== 'completed') {
+            buttons += '<button type="button" id="shipment'+data+'" onclick="openShipmentModal('+data+')" class="btn btn-info btn-sm"><i class="fas fa-shipping-fast"></i></button>';
+          }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm custom-trash-icon-btn"><i class="fas fa-trash"></i></button>';
           }
@@ -582,6 +648,9 @@ $(function () {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
             buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            if(row.status !== 'completed') {
+              buttons += '<button type="button" id="shipment'+data+'" onclick="openShipmentModal('+data+')" class="btn btn-info btn-sm"><i class="fas fa-shipping-fast"></i></button>';
+            }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
             }
@@ -605,6 +674,11 @@ $(function () {
           if (!$(this).find('select[name*="[product]"]').val()) { errorMsg = 'Row ' + rowNum + ': Product is required.'; valid = false; return false; }
           if (!$(this).find('select[name*="[grade]"]').val()) { errorMsg = 'Row ' + rowNum + ': Grade is required.'; valid = false; return false; }
           if (!$(this).find('select[name*="[packaging_size]"]').val()) { errorMsg = 'Row ' + rowNum + ': Packaging size is required.'; valid = false; return false; }
+          var gross = parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+          if (gross <= 0) { errorMsg = 'Row ' + rowNum + ': Gross must be greater than 0.'; valid = false; return false; }
+          var net = parseFloat($(this).find('input[name*="[weight]"]').val() || 0);
+          if (net < 0) { errorMsg = 'Row ' + rowNum + ': Net weight cannot be negative.'; valid = false; return false; }
+          if (net === 0) { errorMsg = 'Row ' + rowNum + ': Net weight is 0. Check gross and tare values.'; valid = false; return false; }
         });
         if (!valid) { toastr["error"](errorMsg, "Validation Error:"); return; }
         $('#spinnerLoading').show();
@@ -634,6 +708,40 @@ $(function () {
             toastr["error"]("Something wrong when saving", "Failed:");
             $('#spinnerLoading').hide();
           }
+        });
+      }else if($('#shipmentModal').hasClass('show')){
+        $('#spinnerLoading').show();
+        var loadingDate = $('#shipmentLoadingDate').val();
+        var customerId  = $('#shipmentCustomer').val();
+        var postData = {
+          loadingDate:  loadingDate,
+          shipmentType: $('#shipmentType').val(),
+          remarks:      $('#shipmentRemark').val()
+        };
+        $.each(shipmentBatchItems, function(i, item) {
+          postData['items[' + i + '][packaging_batch_item_id]'] = item.id;
+          postData['items[' + i + '][packaging_batch_id]']      = item.packaging_batch_id;
+          postData['items[' + i + '][customer_id]']             = customerId;
+          postData['items[' + i + '][product_id]']              = item.product_id;
+          postData['items[' + i + '][grade]']                   = item.grade;
+          postData['items[' + i + '][packaging_size]']          = item.packaging_size;
+          postData['items[' + i + '][units_per_box]']           = item.units_per_box;
+          postData['items[' + i + '][weight]']                  = item.weight;
+          postData['items[' + i + '][loading_time]']            = moment().format('HH:mm');
+          postData['items[' + i + '][remarks]']                  = $('#shipmentRemark').val();
+        });
+        $.post('php/modules/loading/loadingOrder.php', postData, function(data){
+          var obj = JSON.parse(data);
+          if(obj.status === 'success'){
+            $('#shipmentModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#weightTable').DataTable().ajax.reload();
+          } else if(obj.status === 'failed'){
+            toastr["error"](obj.message, "Failed:");
+          } else {
+            toastr["error"]("Something went wrong", "Failed:");
+          }
+          $('#spinnerLoading').hide();
         });
       }else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
@@ -695,7 +803,9 @@ $(function () {
           </select>
         </td>
         <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="0" min="1" required></td>
-        <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="0.00" min="0.01" required></td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" min="0.01" required></td>
+        <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="0.00" readonly></td>
         <td>
           <input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}" required/>
         </td>
@@ -718,6 +828,14 @@ $(function () {
       dropdownParent: $('#extendModal .modal-body'),
       width: '100%'
     });
+  });
+
+  $('#weightDetailsTable').on('input', 'input[id^="gross"], input[id^="tare"]', function() {
+    var row = $(this).closest('tr');
+    var gross = parseFloat(row.find('input[id^="gross"]').val()) || 0;
+    var tare  = parseFloat(row.find('input[id^="tare"]').val()) || 0;
+    var net   = gross - tare;
+    row.find('input[id^="weight"]').val(net.toFixed(2));
   });
 
   $('#weightDetailsTable').on('change', 'select[name*="[category]"]', function() {
@@ -791,11 +909,13 @@ $(function () {
     gradeSelect.val(currentGrade).trigger('change');
   });
 
-  // Auto-fill weight from selected packaging size
+  // Auto-fill gross from selected packaging size
   $('#weightDetailsTable').on('change', 'select[name*="[packaging_size]"]', function() {
+    var row = $(this).closest('tr');
+    var gross = parseFloat(row.find('input[name*="[gross]"]').val()) || 0;
     var weight = $(this).find('option:selected').data('weight');
-    if (weight) {
-      $(this).closest('tr').find('input[name*="[weight]"]').val(parseFloat(weight).toFixed(2));
+    if (weight && !gross) {
+      row.find('input[name*="[gross]"]').val(parseFloat(weight).toFixed(2)).trigger('input');
     }
   });
 
@@ -805,7 +925,7 @@ $(function () {
   });
 
   // Fix scroll when nested modal opens
-  $('#bulkAddModal').on('show.bs.modal', function() {
+  $('#bulkAddModal, #shipmentModal').on('show.bs.modal', function() {
     $('body').addClass('modal-open');
   }).on('hidden.bs.modal', function() {
     $('body').addClass('modal-open');
@@ -913,7 +1033,9 @@ $(function () {
             </select>
           </td>
           <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="${unitPerBox}" min="1" required></td>
-          <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="${parseFloat(weight).toFixed(2)}" min="0.01" required></td>
+          <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="${parseFloat(weight).toFixed(2)}" min="0.01" required></td>
+          <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+          <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="${parseFloat(weight).toFixed(2)}" readonly></td>
           <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${time}" required/></td>
           <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
             <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
@@ -1053,7 +1175,7 @@ function format (row) {
     returnString += `
       <tr>
         <td>${d.product_name}</td>
-        <td>${d.grade}</td>
+        <td>${d.grade_name}</td>
         <td>${d.packaging_size_name}</td>
         <td>${d.units_per_box}</td>
         <td>${parseFloat(d.weight).toFixed(2)}</td>
@@ -1153,7 +1275,9 @@ function edit(id) {
                 </select>
               </td>
               <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" value="${detail.units_per_box || 0}" step="1" min="1" required></td>
-              <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" value="${(parseFloat(detail.weight)||0).toFixed(2)}" step="0.01" min="0.01" required></td>
+              <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" min="0.01" required></td>
+              <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
+              <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" value="${(parseFloat(detail.weight)||0).toFixed(2)}" step="0.01" readonly></td>
               <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${timeVal}" required></td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photo_path || ''}">
@@ -1397,5 +1521,57 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   });
 }
+var shipmentBatchItems = [];
 
+function openShipmentModal(id) {
+  shipmentBatchItems = [];
+  $('#shipmentBatchId').val(id);
+  $('#shipmentCustomer').val('').trigger('change');
+  $('#shipmentType').val('').trigger('change');
+  $('#shipmentRemark').val('');
+  $('#shipmentLoadingDate').val('');
+
+  $('#spinnerLoading').show();
+  $.post('php/modules/loading/getPackagingBatchItems.php', { batch_id: id }, function(data) {
+    var obj = JSON.parse(data);
+    $('#spinnerLoading').hide();
+    if (obj.status === 'success') {
+      if (obj.items.length === 0) {
+        toastr["error"]("No pending items found in this batch.", "Failed:");
+        return;
+      }
+      shipmentBatchItems = obj.items;
+      $('#shipmentModal').modal('show');
+      $('#shipmentLoadingDatePicker').datetimepicker({
+        icons: { time: 'far fa-clock' },
+        format: 'DD/MM/YYYY HH:mm',
+        defaultDate: moment()
+      });
+      ['#shipmentCustomer','#shipmentType'].forEach(function(sel) {
+        $(sel).select2({ 
+          allowClear: true, 
+          placeholder: 'Please Select', 
+          dropdownParent: $('#shipmentModal .modal-body'), 
+          width: '100%' 
+        });
+      });
+
+      $('#shipmentForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
+      });
+    } else {
+      toastr["error"](obj.message, "Failed:");
+    }
+  });
+}
 </script>

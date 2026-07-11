@@ -66,6 +66,10 @@ if($_POST['weightedBy'] != null && $_POST['weightedBy'] != '' && $_POST['weighte
   $searchQuery .= " and wholesales.weighted_by = '".$_POST['weightedBy']."'";
 }
 
+if($_POST['location'] != null && $_POST['location'] != '' && $_POST['location'] != '-'){
+  $searchQuery .= " and wholesales.location = '".$_POST['location']."'";
+}
+
 if($_POST['category'] != null && $_POST['category'] != '' && $_POST['category'] != '-'){
   // Get product ids in this category first
   $catProductIds = [];

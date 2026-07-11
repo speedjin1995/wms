@@ -81,6 +81,7 @@ else{
     $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
+    $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
     $currency = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
@@ -117,6 +118,7 @@ else{
     $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
+    $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
     $currency = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
@@ -281,6 +283,18 @@ else{
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowCategory=mysqli_fetch_assoc($categories)){ ?>
                       <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-3">
+                <div class="form-group">
+                  <label><?=$languageArray['locations_code'][$language]?></label>
+                  <select class="form-control select2" id="locationFilter" name="locationFilter">
+                    <option value="" selected>-</option>
+                    <?php while($rowLocation=mysqli_fetch_assoc($locations2)){ ?>
+                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -801,6 +815,7 @@ $(function () {
   var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+  var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -825,7 +840,8 @@ $(function () {
         vehicle: vehicleNoI,
         otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
-        weightedBy: weightedByI
+        weightedBy: weightedByI,
+        location: locationI
       } 
     },
     'columns': [
@@ -970,6 +986,7 @@ $(function () {
     var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -998,7 +1015,8 @@ $(function () {
           vehicle: vehicleNoI,
           otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
-          weightedBy: weightedByI
+          weightedBy: weightedByI,
+          location: locationI
         } 
       },
       'columns': [
