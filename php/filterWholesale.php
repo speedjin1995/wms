@@ -178,13 +178,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
         : $defaultCurrency;
       if (empty($curName)) $curName = $defaultCurrency;
 
-      if (strtolower($detail['fixedfloat'] ?? '') == 'fixed') {
-        $detailTotal = floatval($detail['price'] ?? 0);
-      } else {
-        $detailTotal = floatval($detail['gross'] ?? 0) * floatval($detail['price'] ?? 0);
-      }
-
-      $currencyTotals[$curName] = ($currencyTotals[$curName] ?? 0) + $detailTotal;
+      $currencyTotals[$curName] = ($currencyTotals[$curName] ?? 0) + floatval($detail['total'] ?? 0);
     }
   }
 
