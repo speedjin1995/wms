@@ -165,14 +165,14 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
                         foreach($data as $key => $weightDetail){
                             $time = date('Y-m-d') . ' ' . $weightDetail['time'];
                             if (isset($weightDetail['batchId']) && $weightDetail['batchId'] != null && $weightDetail['batchId'] != ''){
-                                if ($update_stmt2 = $db->prepare("UPDATE packaging_batch_items SET category_id=?, product_id=?, grade=?, packaging_size=?, units_per_box=?, gross=?, tare=?, weight=?, packing_time=?, photo_path=?, deleted='0' WHERE id=?")){
-                                    $update_stmt2->bind_param('sssssssssss', $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['unit_per_box'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['weight'], $time, $weightDetail['photoPath'], $weightDetail['batchId']);
+                                if ($update_stmt2 = $db->prepare("UPDATE packaging_batch_items SET category_id=?, product_id=?, grade=?, packaging_size=?, label=?, units_per_box=?, gross=?, tare=?, weight=?, packing_time=?, photo_path=?, deleted='0' WHERE id=?")){
+                                    $update_stmt2->bind_param('ssssssssssss', $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['label'], $weightDetail['unit_per_box'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['weight'], $time, $weightDetail['photoPath'], $weightDetail['batchId']);
                                     $update_stmt2->execute();
                                     $update_stmt2->close();
                                 }
                             }else{
-                                if ($insert_stmt2 = $db->prepare("INSERT INTO packaging_batch_items (packaging_batch_id, category_id, product_id, grade, packaging_size, units_per_box, gross, tare, weight, packing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
-                                    $insert_stmt2->bind_param('sssssssssss', $batchId, $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['unit_per_box'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['weight'], $time, $weightDetail['photoPath']);
+                                if ($insert_stmt2 = $db->prepare("INSERT INTO packaging_batch_items (packaging_batch_id, category_id, product_id, grade, packaging_size, label, units_per_box, gross, tare, weight, packing_time, photo_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                                    $insert_stmt2->bind_param('ssssssssssss', $batchId, $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['label'], $weightDetail['unit_per_box'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['weight'], $time, $weightDetail['photoPath']);
                                     $insert_stmt2->execute();
                                     $insert_stmt2->close();
                                 }
@@ -226,8 +226,8 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
                     $data = $_POST['weightDetails'];
                     foreach($data as $key => $weightDetail){
                         $time = date('Y-m-d') . ' ' . $weightDetail['time'];
-                        if ($insert_stmt2 = $db->prepare("INSERT INTO packaging_batch_items (packaging_batch_id, category_id, product_id, grade, packaging_size, units_per_box, gross, tare, weight, packing_time, photo_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')")){
-                            $insert_stmt2->bind_param('sssssssssss', $packagingBatchId, $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['unit_per_box'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['weight'], $time, $weightDetail['photoPath']);
+                        if ($insert_stmt2 = $db->prepare("INSERT INTO packaging_batch_items (packaging_batch_id, category_id, product_id, grade, packaging_size, label, units_per_box, gross, tare, weight, packing_time, photo_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')")){
+                            $insert_stmt2->bind_param('ssssssssssss', $packagingBatchId, $weightDetail['category'], $weightDetail['product'], $weightDetail['grade'], $weightDetail['packaging_size'], $weightDetail['label'], $weightDetail['unit_per_box'], $weightDetail['gross'], $weightDetail['tare'], $weightDetail['weight'], $time, $weightDetail['photoPath']);
                             $insert_stmt2->execute();
                             $insert_stmt2->close();
                         }

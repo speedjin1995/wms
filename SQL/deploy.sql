@@ -2645,3 +2645,6 @@ DELIMITER ;
 ALTER TABLE `packaging_batch_items` ADD `gross` VARCHAR(100) NOT NULL DEFAULT '0.00' AFTER `units_per_box`;
 
 ALTER TABLE `packaging_batch_items` ADD `tare` VARCHAR(100) NOT NULL DEFAULT '0.00' AFTER `weight`;
+
+-- 12/07/2026 --
+ALTER TABLE `packaging_batch_items` ADD `label` VARCHAR(100) NULL AFTER `packaging_size`;
