@@ -369,7 +369,7 @@ else{
                   <th><?=$languageArray['driver_code'][$language]?></th>
                   <th><?=$languageArray['total_item_code'][$language]?></th>
                   <th><?=$languageArray['total_weight_code'][$language]?></th>
-                  <th><?=$languageArray['total_reject_code'][$language]?></th>
+                  <th><?=$allowPrice == 'Y' ? 'Total Price' : $languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
                   <?php if ($secRemarksExists) { ?>
@@ -853,7 +853,7 @@ $(function () {
       { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
-      { data: 'total_reject' },
+      { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
       <?php if ($secRemarksExists) { ?>
@@ -1026,7 +1026,7 @@ $(function () {
         { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
-        { data: 'total_reject' },
+        { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
         <?php if ($secRemarksExists) { ?>
