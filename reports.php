@@ -403,16 +403,35 @@ $(function () {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
-      var totalReject = api
-        .column(11, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-          return a + parseFloat(String(b || 0).replace(/,/g, ''));
-        }, 0);
+      var totalReject;
+      if (allowPrice == 'Y') {
+        totalReject = api
+          .column(11, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+            String(b || '').split(/<br\s*\/?>/i).forEach(function(part) {
+              part = part.trim();
+              if (!part) return;
+              var tokens = part.split(' ');
+              var cur = tokens[0];
+              var amt = parseFloat((tokens[1] || '0').replace(/,/g, '')) || 0;
+              a[cur] = (a[cur] || 0) + amt;
+            });
+            return a;
+          }, {});
+        $(api.column(11).footer()).html(Object.entries(totalReject).map(function(e) { return e[0] + ' ' + e[1].toFixed(2); }).join('<br>') || '0.00');
+      } else {
+        totalReject = api
+          .column(11, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
+          }, 0);
+        $(api.column(11).footer()).html(totalReject.toFixed(2));
+      }
 
       $(api.column(9).footer()).html(totalItem);
       $(api.column(10).footer()).html(totalWeight.toFixed(2));
-      $(api.column(11).footer()).html(totalReject.toFixed(2));
     }
   });
 
@@ -510,16 +529,35 @@ $(function () {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
-        var totalReject = api
-          .column(11, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-            return a + parseFloat(String(b || 0).replace(/,/g, ''));
-          }, 0);
+        var totalReject;
+        if (allowPrice == 'Y') {
+          totalReject = api
+            .column(11, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+              String(b || '').split(/<br\s*\/?>/i).forEach(function(part) {
+                part = part.trim();
+                if (!part) return;
+                var tokens = part.split(' ');
+                var cur = tokens[0];
+                var amt = parseFloat((tokens[1] || '0').replace(/,/g, '')) || 0;
+                a[cur] = (a[cur] || 0) + amt;
+              });
+              return a;
+            }, {});
+          $(api.column(11).footer()).html(Object.entries(totalReject).map(function(e) { return e[0] + ' ' + e[1].toFixed(2); }).join('<br>') || '0.00');
+        } else {
+          totalReject = api
+            .column(11, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+              return a + parseFloat(String(b || 0).replace(/,/g, ''));
+            }, 0);
+          $(api.column(11).footer()).html(totalReject.toFixed(2));
+        }
 
         $(api.column(9).footer()).html(totalItem);
         $(api.column(10).footer()).html(totalWeight.toFixed(2));
-        $(api.column(11).footer()).html(totalReject.toFixed(2));
       }
     });
   });
