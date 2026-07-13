@@ -290,7 +290,7 @@ else{
                 <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
               </button>
               <button type="button" class="btn btn-info btn-sm ml-1" id="bulkAddBtn">
-                <i class="fas fa-layer-group"></i> Bulk Add
+                <i class="fas fa-layer-group"></i> <?=$languageArray['bulk_add_code'][$language]?>
               </button>
             </div>
           </div>
@@ -298,19 +298,20 @@ else{
             <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
               <thead>
                 <tr>
-                  <th width="15%"><?=$languageArray['category_code'][$language]?></th>
-                  <th width="15%"><?=$languageArray['product_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['category_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['product_code'][$language]?></th>
                   <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
                   <th><?=$languageArray['packaging_size_code'][$language]?></th>
-                  <th><?=$languageArray['unit_per_box_code'][$language]?></th>
-                  <th><?=$languageArray['gross_code'][$language]?></th>
-                  <th><?=$languageArray['tare_code'][$language]?></th>
-                  <th><?=$languageArray['weight_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['label_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['unit_per_box_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['gross_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['tare_code'][$language]?></th>
+                  <th width="8%"><?=$languageArray['weight_code'][$language]?></th>
                   <th><?=$languageArray['time_code'][$language]?></th>
                   <?php if($allowPhoto == 'Y') { ?>
                   <th><?=$languageArray['photo_code'][$language]?></th>
                   <?php } ?>
-                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
+                  <th width="5%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
               <tbody id="weightDetailsTable">
@@ -350,27 +351,27 @@ else{
           <select class="form-control select2" id="bulkCategory" required>
             <option value="" selected disabled>Select Category</option>
           </select>
-          <div class="invalid-feedback">Please select a category.</div>
+          <div class="invalid-feedback"><?=$languageArray['please_select_category_code'][$language]?></div>
         </div>
         <div class="form-group">
           <label><?=$languageArray['product_code'][$language]?> *</label>
           <select class="form-control select2" id="bulkProduct" required>
             <option value="" selected disabled>Select Product</option>
           </select>
-          <div class="invalid-feedback">Please select a product.</div>
+          <div class="invalid-feedback"><?=$languageArray['please_select_product_code'][$language]?></div>
         </div>
         <div class="form-group">
           <label><?=$languageArray['grade_code'][$language]?> *</label>
           <select class="form-control select2" id="bulkGrade" required>
           </select>
-          <div class="invalid-feedback">Please select a grade.</div>
+          <div class="invalid-feedback"><?=$languageArray['please_select_grade_code'][$language]?></div>
         </div>
         <div class="form-group">
           <label><?=$languageArray['packaging_size_code'][$language]?> *</label>
           <select class="form-control select2" id="bulkPackagingSize" required>
             <option value="" selected disabled>Select Packaging</option>
           </select>
-          <div class="invalid-feedback">Please select a packaging size.</div>
+          <div class="invalid-feedback"><?=$languageArray['please_select_packaging_size_code'][$language]?> </div>
         </div>
         <div class="form-group">
           <label><?=$languageArray['unit_per_box_code'][$language]?> *</label>
@@ -665,22 +666,61 @@ $(function () {
   $.validator.setDefaults({
     submitHandler: function () {
       if($('#extendModal').hasClass('show')){
-        // Validate select2 dropdowns in weight details rows
         var valid = true;
         var errorMsg = '';
         $('#weightDetailsTable tr').each(function(i) {
           var rowNum = i + 1;
-          if (!$(this).find('select[name*="[category]"]').val()) { errorMsg = 'Row ' + rowNum + ': Category is required.'; valid = false; return false; }
-          if (!$(this).find('select[name*="[product]"]').val()) { errorMsg = 'Row ' + rowNum + ': Product is required.'; valid = false; return false; }
-          if (!$(this).find('select[name*="[grade]"]').val()) { errorMsg = 'Row ' + rowNum + ': Grade is required.'; valid = false; return false; }
-          if (!$(this).find('select[name*="[packaging_size]"]').val()) { errorMsg = 'Row ' + rowNum + ': Packaging size is required.'; valid = false; return false; }
+
+          if (!$(this).find('select[name*="[category]"]').val()) {
+            errorMsg = 'Row ' + rowNum + ': Category is required.';
+            valid = false;
+            return false;
+          }
+
+          if (!$(this).find('select[name*="[product]"]').val()) {
+            errorMsg = 'Row ' + rowNum + ': Product is required.';
+            valid = false;
+            return false;
+          }
+
+          if (!$(this).find('select[name*="[grade]"]').val()) {
+            errorMsg = 'Row ' + rowNum + ': Grade is required.';
+            valid = false;
+            return false;
+          }
+
+          if (!$(this).find('select[name*="[packaging_size]"]').val()) {
+            errorMsg = 'Row ' + rowNum + ': Packaging size is required.';
+            valid = false;
+            return false;
+          }
+
           var gross = parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
-          if (gross <= 0) { errorMsg = 'Row ' + rowNum + ': Gross must be greater than 0.'; valid = false; return false; }
+          if (gross <= 0) {
+            errorMsg = 'Row ' + rowNum + ': Gross must be greater than 0.';
+            valid = false;
+            return false;
+          }
+
           var net = parseFloat($(this).find('input[name*="[weight]"]').val() || 0);
-          if (net < 0) { errorMsg = 'Row ' + rowNum + ': Net weight cannot be negative.'; valid = false; return false; }
-          if (net === 0) { errorMsg = 'Row ' + rowNum + ': Net weight is 0. Check gross and tare values.'; valid = false; return false; }
+          if (net < 0) {
+            errorMsg = 'Row ' + rowNum + ': Net weight cannot be negative.';
+            valid = false;
+            return false;
+          }
+
+          if (net === 0) {
+            errorMsg = 'Row ' + rowNum + ': Net weight is 0. Check gross and tare values.';
+            valid = false;
+            return false;
+          }
         });
-        if (!valid) { toastr["error"](errorMsg, "Validation Error:"); return; }
+
+        if (!valid) {
+          toastr["error"](errorMsg, "Validation Error:");
+          return;
+        }
+
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
@@ -695,11 +735,9 @@ $(function () {
               $('#extendModal').modal('hide');
               toastr["success"](obj.message, "Success:");
               $('#weightTable').DataTable().ajax.reload();
-            }
-            else if(obj.status === 'failed'){
+            } else if(obj.status === 'failed'){
               toastr["error"](obj.message, "Failed:");
-            }
-            else{
+            } else {
               toastr["error"]("Something wrong when edit", "Failed:");
             }
             $('#spinnerLoading').hide();
@@ -709,7 +747,7 @@ $(function () {
             $('#spinnerLoading').hide();
           }
         });
-      }else if($('#shipmentModal').hasClass('show')){
+      } else if($('#shipmentModal').hasClass('show')){
         $('#spinnerLoading').show();
         var loadingDate = $('#shipmentLoadingDate').val();
         var customerId  = $('#shipmentCustomer').val();
@@ -720,15 +758,15 @@ $(function () {
         };
         $.each(shipmentBatchItems, function(i, item) {
           postData['items[' + i + '][packaging_batch_item_id]'] = item.id;
-          postData['items[' + i + '][packaging_batch_id]']      = item.packaging_batch_id;
-          postData['items[' + i + '][customer_id]']             = customerId;
-          postData['items[' + i + '][product_id]']              = item.product_id;
-          postData['items[' + i + '][grade]']                   = item.grade;
-          postData['items[' + i + '][packaging_size]']          = item.packaging_size;
-          postData['items[' + i + '][units_per_box]']           = item.units_per_box;
-          postData['items[' + i + '][weight]']                  = item.weight;
-          postData['items[' + i + '][loading_time]']            = moment().format('HH:mm');
-          postData['items[' + i + '][remarks]']                  = $('#shipmentRemark').val();
+          postData['items[' + i + '][packaging_batch_id]'] = item.packaging_batch_id;
+          postData['items[' + i + '][customer_id]'] = customerId;
+          postData['items[' + i + '][product_id]'] = item.product_id;
+          postData['items[' + i + '][grade]'] = item.grade;
+          postData['items[' + i + '][packaging_size]'] = item.packaging_size;
+          postData['items[' + i + '][units_per_box]'] = item.units_per_box;
+          postData['items[' + i + '][weight]'] = item.weight;
+          postData['items[' + i + '][loading_time]'] = moment().format('HH:mm');
+          postData['items[' + i + '][remarks]'] = $('#shipmentRemark').val();
         });
         $.post('php/modules/loading/loadingOrder.php', postData, function(data){
           var obj = JSON.parse(data);
@@ -743,21 +781,17 @@ $(function () {
           }
           $('#spinnerLoading').hide();
         });
-      }else if($('#cancelModal').hasClass('show')){
+      } else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
         $.post('php/modules/packagingBatches/deletePackagingBatch.php', $('#cancelForm').serialize(), function(data){
           var obj = JSON.parse(data);
-
           if(obj.status === 'success'){
             $('#cancelModal').modal('hide');
             toastr["success"](obj.message, "Success:");
             $('#weightTable').DataTable().ajax.reload();
-            
-          }
-          else if(obj.status === 'failed'){
+          } else if(obj.status === 'failed'){
             toastr["error"](obj.message, "Failed:");
-          }
-          else{
+          } else {
             toastr["error"]("Something wrong when delete", "Failed:");
           }
           $('#spinnerLoading').hide();
@@ -765,6 +799,7 @@ $(function () {
       }
     }
   });
+
 
   $('#addWeightBtn').on('click', function() {
     var idx = weightCount++;
@@ -802,6 +837,7 @@ $(function () {
             <?php } ?>
           </select>
         </td>
+        <td><input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]"></td>
         <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="0" min="1" required></td>
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" min="0.01" required></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
@@ -990,9 +1026,14 @@ $(function () {
         el.closest('.form-group').find('.invalid-feedback').hide();
       }
     });
+
     if (!valid) return;
+
     var bulkNo = parseInt($('#bulkNo').val());
-    if (!bulkNo || bulkNo < 1) { alert('Please enter a valid bulk number.'); return; }
+    if (!bulkNo || bulkNo < 1) {
+      alert('Please enter a valid bulk number.');
+      return;
+    }
 
     var categoryVal = $('#bulkCategory').val();
     var categoryText = $('#bulkCategory option:selected').text();
@@ -1032,6 +1073,7 @@ $(function () {
               ${packagingOptions}
             </select>
           </td>
+          <td><input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]"></td>
           <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="${unitPerBox}" min="1" required></td>
           <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="${parseFloat(weight).toFixed(2)}" min="0.01" required></td>
           <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
@@ -1052,22 +1094,24 @@ $(function () {
 
       var tr = $('#weightDetailsTable tr:last');
 
-      // Set category and filter products
       var catSelect = tr.find(`select[name="weightDetails[${idx}][category]"]`);
       catSelect.val(categoryVal);
 
       var prodSelect = tr.find(`select[name="weightDetails[${idx}][product]"]`);
       prodSelect.data('original-options', prodSelect.html());
       prodSelect.find('option').each(function() {
-        if ($(this).val() && $(this).data('category') != categoryVal) { $(this).remove(); }
+        if ($(this).val() && $(this).data('category') != categoryVal) {
+          $(this).remove();
+        }
       });
       prodSelect.val(productVal);
 
-      // Filter and set grade
       var gradeSelect = tr.find(`select[name="weightDetails[${idx}][grade]"]`);
       gradeSelect.data('original-options', gradeSelect.html());
       gradeSelect.find('option').each(function() {
-        if ($(this).attr('data-product') && $(this).attr('data-product') != productVal) { $(this).remove(); }
+        if ($(this).attr('data-product') && $(this).attr('data-product') != productVal) {
+          $(this).remove();
+        }
       });
       gradeSelect.val(gradeVal);
 
@@ -1081,7 +1125,6 @@ $(function () {
       width: '100%'
     });
 
-    // Set values after Select2 init
     $('#weightDetailsTable tr').slice(-bulkNo).each(function(i) {
       var idx = weightCount - bulkNo + i;
       $(this).find(`select[name="weightDetails[${idx}][category]"]`).val(categoryVal).trigger('change.select2');
@@ -1274,6 +1317,7 @@ function edit(id) {
                   ${packagingOptions}
                 </select>
               </td>
+              <td><input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]" value="${detail.label}"></td>
               <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" value="${detail.units_per_box || 0}" step="1" min="1" required></td>
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" min="0.01" required></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>

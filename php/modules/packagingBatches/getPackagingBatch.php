@@ -52,6 +52,7 @@ if(isset($_POST['userID'])){
                             'grade_name' => searchGradeNameById($row2['grade'], $db),
                             'packaging_size' => $row2['packaging_size'],
                             'packaging_size_name' => searchPackagingNameById($row2['packaging_size'], $db),
+                            'label' => $row2['label'] ?? '',
                             'units_per_box' => $row2['units_per_box'],
                             'gross' => $row2['gross'],
                             'weight' => $row2['weight'],

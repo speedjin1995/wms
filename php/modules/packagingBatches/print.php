@@ -4,201 +4,253 @@ require_once '../../lookup.php';
 
 session_start();
 
-if(isset($_POST['userID'])) {
-    $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_NUMBER_INT);
-    // Language
-    $language = $_SESSION['language'];
+if (isset($_POST['userID'])) {
+    $id            = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_NUMBER_INT);
+    $language      = $_SESSION['language'];
     $languageArray = $_SESSION['languageArray'];
 
-
-    $stmt = $db->prepare("SELECT pb.*, l.locations, pl.production_line FROM packaging_batches pb LEFT JOIN locations l ON pb.location = l.id LEFT JOIN production_lines pl ON pb.production_line = pl.id WHERE pb.id = ?");
-    if(!$stmt) {
+    $stmt = $db->prepare("
+        SELECT pb.*, l.locations, pl.production_line
+        FROM packaging_batches pb
+        LEFT JOIN locations l ON pb.location = l.id
+        LEFT JOIN production_lines pl ON pb.production_line = pl.id
+        WHERE pb.id = ?
+    ");
+    if (!$stmt) {
         echo json_encode(["status" => "failed", "message" => "Query prepare failed"]);
         exit;
     }
     $stmt->bind_param('s', $id);
-    if(!$stmt->execute()) {
+    if (!$stmt->execute()) {
         echo json_encode(["status" => "failed", "message" => "Something went wrong when execute"]);
         exit;
     }
 
-    $result = $stmt->get_result();
-    $batch = $result->fetch_assoc();
-
-    if(!$batch) {
+    $batch = $stmt->get_result()->fetch_assoc();
+    if (!$batch) {
         echo json_encode(["status" => "failed", "message" => "Data Not Found"]);
         exit;
     }
 
     // Fetch company
-    $companyStmt = $db->prepare("SELECT name, reg_no, address, address2, address3, phone, email, company_logo FROM companies WHERE id = ?");
+    $companyStmt = $db->prepare("
+        SELECT name, reg_no, address, address2, address3, phone, email, company_logo
+        FROM companies
+        WHERE id = ?
+    ");
     $companyStmt->bind_param('s', $batch['company']);
     $companyStmt->execute();
     $company = $companyStmt->get_result()->fetch_assoc();
 
-    $logoSrc = !empty($company['company_logo']) ? 'php/viewPhoto.php?file=' . urlencode($company['company_logo']) . '&type=file_table' : '';
-    $companyAddress = implode(' ', array_filter([$company['address'], $company['address2'], $company['address3']]));
-    $companyName = htmlspecialchars($company['name'] ?? '');
-    $companyReg  = htmlspecialchars($company['reg_no'] ?? '');
+    $companyName  = htmlspecialchars($company['name']  ?? '');
     $companyPhone = htmlspecialchars($company['phone'] ?? '');
     $companyEmail = htmlspecialchars($company['email'] ?? '');
-    $companyAddress = htmlspecialchars($companyAddress);
-
-    // Get customer
-    //$customerName = searchCustomerNameById($batch['customer'], '', $db);
+    $addressLine1 = htmlspecialchars($company['address']  ?? '');
+    $addressLine2 = htmlspecialchars($company['address2'] ?? '');
+    $addressLine3 = htmlspecialchars($company['address3'] ?? '');
+    $logoSrc      = !empty($company['company_logo'])
+        ? 'php/viewPhoto.php?file=' . urlencode($company['company_logo']) . '&type=file_table'
+        : '';
 
     // Fetch batch items
-    $itemsStmt = $db->prepare("SELECT pbi.*, p.product_name, g.units as grade_name, pkg.packaging_name, pkg.weight as pkg_weight FROM packaging_batch_items pbi LEFT JOIN products p ON pbi.product_id = p.id LEFT JOIN grades g ON pbi.grade = g.id LEFT JOIN packaging pkg ON pbi.packaging_size = pkg.id WHERE pbi.packaging_batch_id = ? AND pbi.deleted = 0");
+    $itemsStmt = $db->prepare("
+        SELECT pbi.*,
+               p.product_name,
+               g.units AS grade_name,
+               pkg.packaging_name,
+               pkg.weight AS pkg_weight
+        FROM packaging_batch_items pbi
+        LEFT JOIN products p    ON pbi.product_id     = p.id
+        LEFT JOIN grades g      ON pbi.grade           = g.id
+        LEFT JOIN packaging pkg ON pbi.packaging_size  = pkg.id
+        WHERE pbi.packaging_batch_id = ?
+          AND pbi.deleted = 0
+    ");
     $itemsStmt->bind_param('s', $id);
     $itemsStmt->execute();
     $itemsResult = $itemsStmt->get_result();
-    $totalWeight = 0;
 
     $items = [];
-    while($item = $itemsResult->fetch_assoc()) {
+    while ($item = $itemsResult->fetch_assoc()) {
         $items[] = $item;
-        $totalWeight += floatval($item['weight'] ?? 0);
     }
 
     $totalBoxes = count($items);
 
     // Build table rows
-    $tableRows = '';
+    $tableRows             = '';
     $packagingBatchItemIds = [];
-    foreach($items as $i => $item) {
-        // Push into packagingBatchItemIds $item['id']
+    $totalNetWeight        = 0;
+
+    foreach ($items as $i => $item) {
         $packagingBatchItemIds[] = $item['id'];
 
-        $tableRows .= '<tr>';
-        $tableRows .= '<td style="text-align:center;">' . ($i + 1) . '</td>';
-        $tableRows .= '<td>' . htmlspecialchars($item['product_name'] ?? '') . ' - ' . htmlspecialchars($item['grade_name'] ?? '') . '</td>';
-        $tableRows .= '<td style="text-align:center;">' . ($item['pkg_weight'] !== null ? number_format(floatval($item['pkg_weight']), 0) . ' kg' : '') . '</td>';
-        $tableRows .= '<td style="text-align:center;">' . intval($item['units_per_box'] ?? 0) . '</td>';
-        $tableRows .= '<td style="text-align:center;">' . number_format(floatval($item['weight'] ?? 0), 2) . '</td>';
-        $tableRows .= '</tr>';
+        $boxPacking = trim(
+            ($item['packaging_name'] ?? '') . ' ' .
+            ($item['pkg_weight'] !== null ? number_format(floatval($item['pkg_weight']), 0) . 'kg' : '')
+        );
+
+        $no          = $i + 1;
+        $productName = htmlspecialchars($item['product_name'] ?? '');
+        $gradeName   = htmlspecialchars($item['grade_name']   ?? '');
+        $label       = htmlspecialchars($item['label']        ?? '');
+        $unitsPerBox = intval($item['units_per_box'] ?? 0);
+        $gross       = number_format(floatval($item['gross']  ?? 0), 2);
+        $tare        = number_format(floatval($item['tare']   ?? 0), 2);
+        $net         = number_format(floatval($item['weight'] ?? 0), 2);
+
+        $totalNetWeight += floatval($item['weight'] ?? 0);
+
+        $tableRows .= '
+            <tr>
+                <td style="text-align:center;">' . $no . '</td>
+                <td>' . $productName . '</td>
+                <td style="text-align:center;">' . $gradeName . '</td>
+                <td style="text-align:center;">' . htmlspecialchars($boxPacking) . '</td>
+                <td style="text-align:center;">' . $label . '</td>
+                <td style="text-align:center;">' . $unitsPerBox . '</td>
+                <td style="text-align:center;">' . $gross . '</td>
+                <td style="text-align:center;">' . $tare . '</td>
+                <td style="text-align:center;">' . $net . '</td>
+            </tr>';
     }
 
-    // Query in customer_id in loading_order_items to see if the $packagingBatchItemIds exist
-    $loadingOrderItemsStmt = $db->prepare("SELECT customer_id FROM loading_order_items WHERE packaging_batch_item_id IN (" . implode(',', array_fill(0, count($packagingBatchItemIds), '?')) . ")"); 
+    // Get customer from loading_order_items
+    $customerName = '';
+    if (!empty($packagingBatchItemIds)) {
+        $placeholders          = implode(',', array_fill(0, count($packagingBatchItemIds), '?'));
+        $loadingOrderItemsStmt = $db->prepare("
+            SELECT customer_id
+            FROM loading_order_items
+            WHERE packaging_batch_item_id IN ($placeholders)
+        ");
+        if ($loadingOrderItemsStmt) {
+            $loadingOrderItemsStmt->bind_param(
+                str_repeat('s', count($packagingBatchItemIds)),
+                ...$packagingBatchItemIds
+            );
+            $loadingOrderItemsStmt->execute();
+            $loadingOrderItemsResult = $loadingOrderItemsStmt->get_result();
 
-    if($loadingOrderItemsStmt) {
-        $loadingOrderItemsStmt->bind_param(str_repeat('s', count($packagingBatchItemIds)), ...$packagingBatchItemIds);
-        $loadingOrderItemsStmt->execute();
-        $loadingOrderItemsResult = $loadingOrderItemsStmt->get_result();
-
-        $customerIds = [];
-        while($row = $loadingOrderItemsResult->fetch_assoc()) {
-            $customerIds[] = $row['customer_id'];
+            $customerIds = [];
+            while ($row = $loadingOrderItemsResult->fetch_assoc()) {
+                $customerIds[] = $row['customer_id'];
+            }
+            $customerIds   = array_unique($customerIds);
+            $customerNames = [];
+            foreach ($customerIds as $customerId) {
+                $customerNames[] = searchCustomerNameById($customerId, '', $db);
+            }
+            $customerName = implode(', ', $customerNames);
         }
-
-        // Get distinct customer ids
-        $customerIds = array_unique($customerIds);
-
-        // Get customer names
-        $customerNames = [];
-        foreach($customerIds as $customerId) {
-            $customerNames[] = searchCustomerNameById($customerId, '', $db);
-        }
-
-        // Implode customer names
-        $customerName = implode(', ', $customerNames);
     }
 
-    $batchDate = !empty($batch['packaging_date']) ? date('d/m/Y', strtotime($batch['packaging_date'])) : '';
+    $batchDate  = !empty($batch['packaging_date']) ? date('d/m/Y', strtotime($batch['packaging_date'])) : '';
+    $weightedBy = searchUserNameById($batch['created_by'], $db);
+    $baseUrl    = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/wms/';
 
-    $message = '
-        <!DOCTYPE html>
-            <html lang="en">
-            <head>
-            <meta charset="UTF-8">
-            <base href="' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/wms/">
-            <title>Packing List</title>
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: Arial, sans-serif; font-size: 12px; color: #000; background: #fff; }
-                .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 15mm; }
-                .header { display: flex; align-items: flex-start; margin-bottom: 10px; }
-                .header img.logo { width: 80px; height: 80px; margin-right: 20px; flex-shrink: 0; }
-                .header-company { flex: 1; }
-                .header-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-                .header-company h1 { font-size: 18px; font-weight: bold; }
-                .header-company p { font-size: 11px; line-height: 1.7; }
-                .header-company a { color: #1a0dab; text-decoration: underline; }
-                .header-reg { font-size: 11px; text-align: right; white-space: nowrap; }
-                .divider { border: none; border-top: 1px solid #ccc; margin: 16px 0; }
-                .doc-info { margin: 18px 0; }
-                .doc-info h2 { font-size: 13px; font-weight: bold; margin-bottom: 10px; }
-                .doc-info p { font-size: 12px; margin-bottom: 6px; }
-                .doc-info p span { font-weight: bold; }
-                .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                .items-table th, .items-table td { border: 1px solid #000; padding: 6px 8px; font-size: 12px; }
-                .items-table th { font-weight: bold; text-align: center; }
-                .items-table td:nth-child(2) { text-align: left; }
-                .summary { margin-top: 20px; text-align: right; font-size: 12px; }
-                .summary span { font-weight: bold; margin-right: 20px; }
-                .signature-section { margin-top: 40px; text-align: right; }
-                .signature-section p { font-weight: bold; margin-bottom: 50px; }
-                .signature-line { display: inline-block; width: 180px; border-top: 1px solid #000; text-align: center; padding-top: 4px; margin-top: 25px; font-weight: bold; font-size: 12px; }
-                @media print { body { background: #fff; } .page { margin: 0; padding: 15mm; } @page { size: A4; margin: 0; } }
-            </style>
-            </head>
-            <body>
-            <div class="page">
-            <div class="header">
-                ' . ($logoSrc ? '<img class="logo" src="' . $logoSrc . '" alt="Logo">' : '') . '
-                <div class="header-company">
-                <div class="header-top">
-                    <h1>' . $companyName . '</h1>
-                    <div class="header-reg">' . $companyReg . '</div>
-                </div>
-                <p>' . $companyAddress . '</p>
+    $message = '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <base href="' . $baseUrl . '">
+    <title>Packing List</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 12px; color: #000; }
+
+        @page {
+            size: A4 portrait;
+            margin: 12mm;
+            @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 12px;
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+        .header-left { display: flex; align-items: flex-start; gap: 10px; }
+        .header-left h1 { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+        .header-left p { font-size: 12px; line-height: 1.7; }
+        .header-right { text-align: right; }
+        .header-right h2 { font-size: 18px; font-weight: bold; text-decoration: underline; margin-bottom: 6px; }
+        .header-right p { font-size: 12px; line-height: 1.8; }
+        .divider-dot { border: none; border-top: 2px dashed #000; margin: 8px 0; }
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 2px 0;
+            margin-bottom: 4px;
+        }
+        .items-table { width: 100%; border-collapse: collapse; }
+        .items-table th,
+        .items-table td { border: 1px solid #000; padding: 4px 6px; font-size: 11px; }
+        .items-table th { font-weight: bold; text-align: center; }
+        .items-table td:nth-child(2) { text-align: left; }
+        .items-table tfoot td { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            ' . ($logoSrc ? '<img src="' . $logoSrc . '" style="width:80px;height:auto;flex-shrink:0;">' : '') . '
+            <div>
+                <h1>' . $companyName . '</h1>
+                ' . ($addressLine1 ? '<p>' . $addressLine1 . '</p>' : '') . '
+                ' . ($addressLine2 ? '<p>' . $addressLine2 . '</p>' : '') . '
+                ' . ($addressLine3 ? '<p>' . $addressLine3 . '</p>' : '') . '
                 <p>PHONE : ' . $companyPhone . '</p>
-                <p>Email : <a href="mailto:' . $companyEmail . '">' . $companyEmail . '</a></p>
-                </div>
+                <p>Email : ' . $companyEmail . '</p>
             </div>
+        </div>
+        <div class="header-right">
+            <h2>Packing List</h2>
+            <p><strong>Batch No : ' . htmlspecialchars($batch['batch_no'] ?? '') . '</strong></p>
+            <p>Date : ' . $batchDate . '</p>
+        </div>
+    </div>
+    <hr class="divider-dot">
+    <div class="sub-header">
+        <span><strong>To Customer :</strong> &nbsp;' . htmlspecialchars($customerName ?? '') . '</span>
+        <span><strong>Location :</strong> ' . htmlspecialchars($batch['locations'] ?? '') . '.</span>
+        <span><strong>Line :</strong> ' . htmlspecialchars($batch['production_line'] ?? '') . '</span>
+        <span><strong>Weight By :</strong> ' . htmlspecialchars($weightedBy) . '</span>
+    </div>
 
-            <hr class="divider">
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Item Decription</th>
+                <th>Grade</th>
+                <th>Box / Packing</th>
+                <th>Label No</th>
+                <th>Pcs/Box<br>(kg)</th>
+                <th>Gross Weight</th>
+                <th>Tare Weight</th>
+                <th>Net Weight</th>
+            </tr>
+        </thead>
+        <tbody>' . $tableRows . '</tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" style="text-align:right;">Total Count :</td>
+                <td style="text-align:center;">' . $totalBoxes . '</td>
+                <td colspan="2" style="text-align:right;">Total Weight :</td>
+                <td style="text-align:center;">' . number_format($totalNetWeight, 2) . '</td>
+            </tr>
+        </tfoot>
+    </table>
 
-            <div class="doc-info">
-                <h2>'.$languageArray['packing_list_code'][$language].'</h2>
-                <p>'.$languageArray['batch_no_code'][$language].': <span>' . htmlspecialchars($batch['batch_no'] ?? '') . '</span></p>
-                <p>'.$languageArray['date_code'][$language].': <span>' . $batchDate . '</span></p>
-                <p>'.$languageArray['locations_code'][$language].': <span>' . htmlspecialchars($batch['locations'] ?? '') . '</span></p>
-                <p>'.$languageArray['customer_code'][$language].': <span>' . htmlspecialchars($customerName ?? '') . '</span></p>
-            </div>
-
-            <hr class="divider">
-
-            <table class="items-table">
-                <thead>
-                <tr>
-                    <th>'.$languageArray['number_short_code'][$language].'</th>
-                    <th>'.$languageArray['description_code'][$language].'</th>
-                    <th>'.$languageArray['pack_weight_code'][$language].' (kg)</th>
-                    <th>'.$languageArray['qty_per_box_code'][$language].'</th>
-                    <th>'.$languageArray['total_weight_code'][$language].'</th>
-                </tr>
-                </thead>
-                <tbody>' . $tableRows . '</tbody>
-            </table>
-
-            <hr class="divider">
-
-            <div class="summary">
-                <p>'.$languageArray['total_boxes_code'][$language].': ' . $totalBoxes . '</p>
-                <p>'.$languageArray['total_weight_code'][$language].': ' . $totalWeight . '</p>
-            </div>
-
-            <hr class="divider" style="margin-top:12px;">
-
-            <div class="signature-section">
-                <p>' . $companyName . '</p>
-                <div class="signature-line">'.$languageArray['authorised_signature_code'][$language].'</div>
-            </div>
-            </div>
-            </body>
-        </html>
-    ';
+</body>
+</html>';
 
     echo json_encode(["status" => "success", "message" => $message]);
 

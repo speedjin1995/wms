@@ -134,6 +134,15 @@ $empQuery = "select wholesales.* from wholesales LEFT JOIN customers c ON wholes
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
+$defaultCurrency = 'MYR';
+$defCurrStmt = $db->prepare("SELECT currency FROM currency WHERE customer = ? AND is_default = 1 AND deleted = 0 LIMIT 1");
+$defCurrStmt->bind_param('s', $company);
+$defCurrStmt->execute();
+if ($defCurrRow = $defCurrStmt->get_result()->fetch_assoc()) {
+    $defaultCurrency = $defCurrRow['currency'];
+}
+$defCurrStmt->close();
+
 while($row = mysqli_fetch_assoc($empRecords)) {
   if ($row['status'] == 'DISPATCH'){
     $customerSupplier = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
@@ -150,11 +159,12 @@ while($row = mysqli_fetch_assoc($empRecords)) {
   $totalNett = 0;
   $totalVariance = 0;
   $totalVariancePerc = 0;
+  $currencyTotals = [];
 
-  if(isset($_POST['recordType']) && $_POST['recordType'] == 'industrial'){
-    $weightDetails = json_decode($row['weight_details'], true);
-    if($weightDetails && count($weightDetails) > 0){
-      foreach($weightDetails as $detail){
+  $weightDetails = json_decode($row['weight_details'], true);
+  if ($weightDetails && count($weightDetails) > 0) {
+    if (isset($_POST['recordType']) && $_POST['recordType'] == 'industrial') {
+      foreach ($weightDetails as $detail) {
         $totalGross += floatval($detail['gross'] ?? 0);
         $totalTare += floatval($detail['tare'] ?? 0);
         $totalNett += floatval($detail['net'] ?? 0);
@@ -162,6 +172,23 @@ while($row = mysqli_fetch_assoc($empRecords)) {
         $totalVariancePerc += floatval($detail['varPerc'] ?? 0);
       }
     }
+    foreach ($weightDetails as $detail) {
+      $curName = !empty($detail['currency'])
+        ? searchCurrencyNameById($detail['currency'], $db)
+        : $defaultCurrency;
+      if (empty($curName)) $curName = $defaultCurrency;
+
+      $currencyTotals[$curName] = ($currencyTotals[$curName] ?? 0) + floatval($detail['total'] ?? 0);
+    }
+  }
+
+  $totalPriceFormatted = '';
+  if (!empty($currencyTotals)) {
+    $parts = [];
+    foreach ($currencyTotals as $cur => $amount) {
+      $parts[] = $cur . ' ' . number_format($amount, 2, '.', ',');
+    }
+    $totalPriceFormatted = implode('<br>', $parts);
   }
 
   $data[] = array( 
@@ -185,7 +212,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "total_variance"=>number_format($totalVariance, 2, '.', ','),
     "total_variance_perc"=>number_format($totalVariancePerc, 2, '.', ','),
     "total_reject"=>number_format($row['total_reject'], 2, '.', ','),
-    "total_price"=>number_format($row['total_price'], 2, '.', ','),
+    "total_price"=>$totalPriceFormatted,
     "remark"=>$row['remark'] ?? '',
     "created_datetime"=>$row['created_datetime'],
     "start_time"=>$row['start_time'],
