@@ -325,6 +325,7 @@ if(isset($_GET['id'])){
                                 <div class="footer-note">* Bank Swift Code: ' . $companyBankSwiftCode . '</div>
                                 <div class="footer-section-title">Remark :</div>
                                 <div class="footer-note">* Goods Sold Are Neither returnable nor refundable.</div>
+                                <div class="footer-note">* Goods are the buyer’s risk once they leave the packaging house.</div>
                                 <!--div class="footer-note">* We reserve the right to charge interest base on invoice date overdue bills at the rate of 2.5% per days and refer to payment Franz.</div-->
                                 <!--div class="footer-note">* If the remaining payment for 30 Days is not fully paid, We have the right to recover all of the above description of goods.</div-->
                                 <div class="footer-section-title">Notes :</div>
