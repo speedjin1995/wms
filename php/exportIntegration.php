@@ -149,6 +149,9 @@ function resolveValue($colMap, $row, $detail, $db, &$customerCache, &$supplierCa
         case 'currency_lookup':
             return searchCurrencyNameById($detail[$field] ?? '', $db);
 
+        case 'location_lookup':
+            return searchLocationById($row['location'], $db);
+
         case 'product_lookup':
             $productId = $detail['product'] ?? '';
             $product   = getProductById($productId, $db, $productCache);

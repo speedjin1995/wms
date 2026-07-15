@@ -273,8 +273,7 @@
             "field": "product_code"
         },
         "Location": {
-            "source": "static",
-            "value": ""
+            "source": "location_lookup"
         },
         "DetailDescription": {
             "source": "product_lookup",
