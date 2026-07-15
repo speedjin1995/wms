@@ -1,0 +1,76 @@
+{
+    "doc_type": "goods_received_note",
+    "label": "Goods Received Note",
+    "transaction": "RECEIVING",
+    "columns": {
+        "DocNo": {
+            "source": "wholesales",
+            "field": "serial_no"
+        },
+        "DocDate": {
+            "source": "wholesales",
+            "field": "created_datetime",
+            "format": "d/m/Y"
+        },
+        "CreditorCode": {
+            "source": "supplier_lookup",
+            "field": "supplier_code"
+        },
+        "CreditorName": {
+            "source": "supplier_lookup",
+            "field": "supplier_name"
+        },
+        "Ref": {
+            "source": "wholesales",
+            "field": "po_no"
+        },
+        "CurrencyCode": {
+            "source": "currency_lookup",
+            "field": "currency"
+        },
+        "CurrencyRate": {
+            "source": "static",
+            "value": "1"
+        },
+        "Remark1": {
+            "source": "wholesales",
+            "field": "remark"
+        },
+        "Remark2": {
+            "source": "wholesales",
+            "field": "remarks2"
+        },
+        "ItemCode": {
+            "source": "product_lookup",
+            "field": "product_code"
+        },
+        "DetailDescription": {
+            "source": "detail",
+            "field": "product_name"
+        },
+        "UOM": {
+            "source": "detail",
+            "field": "unit"
+        },
+        "Qty": {
+            "source": "computed",
+            "field": "net_minus_reject"
+        },
+        "UnitPrice": {
+            "source": "detail",
+            "field": "price"
+        },
+        "Discount": {
+            "source": "static",
+            "value": ""
+        },
+        "TaxType": {
+            "source": "static",
+            "value": ""
+        },
+        "SubTotal": {
+            "source": "detail",
+            "field": "total"
+        }
+    }
+}
