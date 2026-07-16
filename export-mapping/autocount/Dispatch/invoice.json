@@ -146,7 +146,7 @@
         },
         "CurrencyRate": {
             "source": "static",
-            "value": "1"
+            "value": ""
         },
         "Tax": {
             "source": "static",
@@ -197,8 +197,8 @@
             "value": ""
         },
         "ShipVia": {
-            "source": "wholesales",
-            "field": "vehicle_no"
+            "source": "static",
+            "field": ""
         },
         "ShipInfo": {
             "source": "static",
@@ -276,7 +276,7 @@
             "value": ""
         },
         "DetailDescription": {
-            "source": "detail",
+            "source": "product_lookup",
             "field": "product_name"
         },
         "FurtherDescription": {

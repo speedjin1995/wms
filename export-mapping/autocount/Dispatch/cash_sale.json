@@ -104,26 +104,6 @@
             "source": "static",
             "value": ""
         },
-        "Validity": {
-            "source": "static",
-            "value": ""
-        },
-        "DeliveryTerm": {
-            "source": "static",
-            "value": ""
-        },
-        "PaymentTerm": {
-            "source": "static",
-            "value": ""
-        },
-        "YourRef": {
-            "source": "static",
-            "value": ""
-        },
-        "CC": {
-            "source": "static",
-            "value": ""
-        },
         "Footer1Param": {
             "source": "static",
             "value": ""
@@ -166,9 +146,17 @@
         },
         "CurrencyRate": {
             "source": "static",
-            "value": "1"
+            "value": ""
         },
         "Tax": {
+            "source": "static",
+            "value": ""
+        },
+        "PostToStock": {
+            "source": "static",
+            "value": ""
+        },
+        "PostToGL": {
             "source": "static",
             "value": ""
         },
@@ -200,11 +188,11 @@
             "source": "static",
             "value": ""
         },
-        "ApprovalUserID": {
+        "RefDocNo": {
             "source": "static",
             "value": ""
         },
-        "RefDocNo": {
+        "MemberNo": {
             "source": "static",
             "value": ""
         },
@@ -213,6 +201,18 @@
             "field": "vehicle_no"
         },
         "ShipInfo": {
+            "source": "static",
+            "value": ""
+        },
+        "PaymentMode": {
+            "source": "static",
+            "value": ""
+        },
+        "CashPayment": {
+            "source": "static",
+            "value": ""
+        },
+        "CCApprovalCode": {
             "source": "static",
             "value": ""
         },
@@ -240,6 +240,10 @@
             "source": "static",
             "value": ""
         },
+        "TaxDocNo": {
+            "source": "static",
+            "value": ""
+        },
         "InclusiveTax": {
             "source": "static",
             "value": ""
@@ -256,11 +260,15 @@
             "source": "static",
             "value": ""
         },
-        "RoundingMethod": {
+        "TaxDate": {
             "source": "static",
             "value": ""
         },
         "IsRoundAdj": {
+            "source": "static",
+            "value": ""
+        },
+        "RoundingMethod": {
             "source": "static",
             "value": ""
         },
@@ -275,11 +283,23 @@
         "Location": {
             "source": "location_lookup"
         },
+        "BatchNo": {
+            "source": "static",
+            "value": ""
+        },
         "DetailDescription": {
-            "source": "detail",
+            "source": "product_lookup",
             "field": "product_name"
         },
         "FurtherDescription": {
+            "source": "static",
+            "value": ""
+        },
+        "YourPONo": {
+            "source": "static",
+            "value": ""
+        },
+        "YourPODate": {
             "source": "static",
             "value": ""
         },
@@ -303,6 +323,10 @@
             "source": "computed",
             "field": "net_minus_reject"
         },
+        "FOCQty": {
+            "source": "static",
+            "value": ""
+        },
         "UnitPrice": {
             "source": "detail",
             "field": "price"
@@ -323,6 +347,10 @@
             "source": "detail",
             "field": "total"
         },
+        "BonusPoint": {
+            "source": "static",
+            "value": ""
+        },
         "DetailTransferable": {
             "source": "static",
             "value": ""
@@ -339,11 +367,39 @@
             "source": "static",
             "value": ""
         },
+        "ForConsignment": {
+            "source": "static",
+            "value": ""
+        },
+        "AccNo": {
+            "source": "static",
+            "value": ""
+        },
+        "OurDONo": {
+            "source": "static",
+            "value": ""
+        },
+        "OurDODate": {
+            "source": "static",
+            "value": ""
+        },
+        "EstimatedDeliveryDate": {
+            "source": "static",
+            "value": ""
+        },
+        "DeliveryDate": {
+            "source": "static",
+            "value": ""
+        },
         "TaxableAmt": {
             "source": "static",
             "value": ""
         },
         "TaxAdjustment": {
+            "source": "static",
+            "value": ""
+        },
+        "TaxExportCountry": {
             "source": "static",
             "value": ""
         },
