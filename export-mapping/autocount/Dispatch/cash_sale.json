@@ -320,8 +320,8 @@
             "value": ""
         },
         "Qty": {
-            "source": "computed",
-            "field": "net_minus_reject"
+            "source": "detail",
+            "field": "net"
         },
         "FOCQty": {
             "source": "static",
