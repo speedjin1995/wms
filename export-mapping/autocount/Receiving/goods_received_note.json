@@ -24,6 +24,90 @@
             "source": "wholesales",
             "field": "po_no"
         },
+        "SupplierDONo": {
+            "source": "wholesales",
+            "value": "po_no"
+        },
+        "Description": {
+            "source": "static",
+            "value": ""
+        },
+        "DisplayTerm": {
+            "source": "static",
+            "value": ""
+        },
+        "PurchaseAgent": {
+            "source": "static",
+            "value": ""
+        },
+        "InvAddr1": {
+            "source": "supplier_lookup",
+            "field": "supplier_address"
+        },
+        "InvAddr2": {
+            "source": "supplier_lookup",
+            "field": "supplier_address2"
+        },
+        "InvAddr3": {
+            "source": "supplier_lookup",
+            "field": "supplier_address3"
+        },
+        "InvAddr4": {
+            "source": "supplier_lookup",
+            "field": "supplier_address4"
+        },
+        "Phone1": {
+            "source": "supplier_lookup",
+            "field": "supplier_phone"
+        },
+        "Fax1": {
+            "source": "supplier_lookup",
+            "field": "fax"
+        },
+        "Attention": {
+            "source": "supplier_lookup",
+            "field": "pic"
+        },
+        "BranchCode": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer1Param": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer1Amt": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer1TaxType": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer2Param": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer2Amt": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer2TaxType": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer3Param": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer3Amt": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer3TaxType": {
+            "source": "static",
+            "value": ""
+        },
         "CurrencyCode": {
             "source": "currency_lookup",
             "field": "currency"
@@ -31,6 +115,22 @@
         "CurrencyRate": {
             "source": "static",
             "value": "1"
+        },
+        "Tax": {
+            "source": "static",
+            "value": ""
+        },
+        "PostToStock": {
+            "source": "static",
+            "value": ""
+        },
+        "Transferable": {
+            "source": "static",
+            "value": ""
+        },
+        "Note": {
+            "source": "static",
+            "value": ""
         },
         "Remark1": {
             "source": "wholesales",
@@ -40,27 +140,138 @@
             "source": "wholesales",
             "field": "remarks2"
         },
+        "Remark3": {
+            "source": "static",
+            "value": ""
+        },
+        "Remark4": {
+            "source": "static",
+            "value": ""
+        },
+        "Cancelled": {
+            "source": "static",
+            "value": ""
+        },
+        "RefDocNo": {
+            "source": "static",
+            "value": ""
+        },
+        "ShipVia": {
+            "source": "static",
+            "field": ""
+        },
+        "ShipInfo": {
+            "source": "static",
+            "value": ""
+        },
+        "PurchaseLocation": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer1Tax": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer2Tax": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer3Tax": {
+            "source": "static",
+            "value": ""
+        },
+        "ToTaxCurrencyRate": {
+            "source": "static",
+            "value": ""
+        },
+        "CalcDiscountOnUnitPrice": {
+            "source": "static",
+            "value": ""
+        },
+        "InclusiveTax": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer1TaxRate": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer2TaxRate": {
+            "source": "static",
+            "value": ""
+        },
+        "Footer3TaxRate": {
+            "source": "static",
+            "value": ""
+        },
+        "RoundingMethod": {
+            "source": "static",
+            "value": ""
+        },
+        "Numbering": {
+            "source": "static",
+            "value": ""
+        },
         "ItemCode": {
             "source": "product_lookup",
             "field": "product_code"
         },
+        "Location": {
+            "source": "location_lookup"
+        },
+        "BatchNo": {
+            "source": "static",
+            "value": ""
+        },
         "DetailDescription": {
-            "source": "detail",
+            "source": "product_lookup",
             "field": "product_name"
+        },
+        "FurtherDescription": {
+            "source": "static",
+            "value": ""
+        },
+        "ProjNo": {
+            "source": "static",
+            "value": ""
+        },
+        "DeptNo": {
+            "source": "static",
+            "value": ""
+        },
+        "OurPONo": {
+            "source": "static",
+            "value": ""
+        },
+        "OurPODate": {
+            "source": "static",
+            "value": ""
         },
         "UOM": {
             "source": "detail",
             "field": "unit"
         },
+        "UserUOM": {
+            "source": "static",
+            "value": ""
+        },
         "Qty": {
-            "source": "computed",
-            "field": "net_minus_reject"
+            "source": "detail",
+            "field": "net"
+        },
+        "FOCQty": {
+            "source": "static",
+            "value": ""
         },
         "UnitPrice": {
             "source": "detail",
             "field": "price"
         },
         "Discount": {
+            "source": "static",
+            "value": ""
+        },
+        "DiscountAmt": {
             "source": "static",
             "value": ""
         },
@@ -71,6 +282,54 @@
         "SubTotal": {
             "source": "detail",
             "field": "total"
+        },
+        "DetailTransferable": {
+            "source": "static",
+            "value": ""
+        },
+        "PrintOut": {
+            "source": "static",
+            "value": ""
+        },
+        "CalcByPercent": {
+            "source": "static",
+            "value": ""
+        },
+        "AddToSubTotal": {
+            "source": "static",
+            "value": ""
+        },
+        "Duty": {
+            "source": "static",
+            "value": ""
+        },
+        "EstimatedDeliveryDate": {
+            "source": "static",
+            "value": ""
+        },
+        "DeliveryDate": {
+            "source": "static",
+            "value": ""
+        },
+        "CNAmt": {
+            "source": "static",
+            "value": ""
+        },
+        "TaxableAmt": {
+            "source": "static",
+            "value": ""
+        },
+        "TaxAdjustment": {
+            "source": "static",
+            "value": ""
+        },
+        "TaxRate": {
+            "source": "static",
+            "value": ""
+        },
+        "LocalTaxAdjustment": {
+            "source": "static",
+            "value": ""
         }
     }
 }
