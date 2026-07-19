@@ -1779,7 +1779,7 @@ $(function () {
     $('#totalWeightTare').text(totalTare.toFixed(2));
     $('#totalWeightNet').text(totalNet.toFixed(2));
 
-    $(this).closest('tr').find('input[id^="price"]').trigger("change");
+    $(this).closest('tr').find('input[id^="price"]').trigger("blur");
   });
 
   $("#weightDetailsTable").on('blur', 'input[id^="price"]', function(){
@@ -2273,6 +2273,8 @@ function newEntry(){
 
 function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice) {
   if (productId){
+    $('#spinnerLoading').show();
+
     $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
@@ -2295,8 +2297,6 @@ function calculatePrice(productId, status, customerId, currentGrade, element, ov
       }
       $('#spinnerLoading').hide();
     });
-  }else{
-
   }
 }
 
