@@ -447,6 +447,12 @@ to get the desired effect
             </a>
             <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
+                <a href="#processingDashboard" data-file="processingDashboard.php" class="nav-link link">
+                  <i class="nav-icon fas fa-tachometer-alt"></i>
+                  <p><?=$languageArray['dashboard_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
