@@ -15,10 +15,12 @@ if (!isset($_SESSION['userID'])) {
         $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
         $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
         $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
+        $productionLines = $db->query("SELECT * FROM production_lines WHERE deleted = '0' AND customers = '$company' ORDER BY production_line ASC");
     } else {
         $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
         $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
         $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
+        $productionLines = $db->query("SELECT * FROM production_lines WHERE deleted = '0' ORDER BY production_line ASC");
     }
 }
 ?>
@@ -235,36 +237,27 @@ if (!isset($_SESSION['userID'])) {
               <div class="stat-sub"><span id="grSessionCount">—</span> sessions &nbsp;|&nbsp; kg</div>
             </div>
           </div>
-          <div class="col-md-3 col-6 mb-3">
-            <div class="dash-stat-card" style="background:linear-gradient(135deg,#fd7e14,#e06c00);">
-              <div class="stat-label"><?=$languageArray['total_code'][$language]?> <?=$languageArray['reject_code'][$language]?> <?=$languageArray['weight_code'][$language]?></div>
-              <div class="stat-value" id="grTotalReject">—</div>
-              <div class="stat-sub">kg</div>
-            </div>
-          </div>
-          <div class="col-md-3 col-6 mb-3">
-            <div class="dash-stat-card" style="background:linear-gradient(135deg,#6c757d,#545b62);">
-              <div class="stat-label"><?=$languageArray['total_code'][$language]?> <?=$languageArray['gross_code'][$language]?></div>
-              <div class="stat-value" id="grTotalGross">—</div>
-              <div class="stat-sub">kg</div>
-            </div>
-          </div>
-          <div class="col-md-3 col-6 mb-3">
-            <div class="dash-stat-card" style="background:linear-gradient(135deg,#20c997,#17a589);">
-              <div class="stat-label"><?=$languageArray['total_code'][$language]?> <?=$languageArray['tare_code'][$language]?></div>
-              <div class="stat-value" id="grTotalTare">—</div>
-              <div class="stat-sub">kg</div>
-            </div>
-          </div>
         </div>
 
-        <!-- Grading Breakdown by Product -->
-        <div class="section-title"><?=$languageArray['net_code'][$language]?> <?=$languageArray['weight_code'][$language]?> by <?=$languageArray['processing_code'][$language]?> (kg)</div>
+        <!-- Grading Breakdown by Product + Grade -->
+        <div class="section-title"><?=$languageArray['net_code'][$language]?> <?=$languageArray['weight_code'][$language]?> by Product &amp; <?=$languageArray['grading_code'][$language]?></div>
         <div id="grProductBreakdown"><p class="text-muted">No data.</p></div>
       </div>
 
       <!-- ===== PACKAGING TAB ===== -->
       <div class="tab-pane fade" id="tabPackaging">
+        <!-- Packaging Filters -->
+        <div class="row mb-3">
+          <div class="form-group col-md-3 mb-0">
+            <label class="mb-1">Production Line</label>
+            <select class="form-control select2" id="pkgProductionLine">
+              <option value="">All</option>
+              <?php while ($row = mysqli_fetch_assoc($productionLines)) { ?>
+                <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['production_line']) ?></option>
+              <?php } ?>
+            </select>
+          </div>
+        </div>
         <!-- Packaging Summary Cards -->
         <div class="row mb-4">
           <div class="col-md-3 col-6 mb-3">
@@ -327,6 +320,10 @@ $(function () {
     loadWholesales();
   });
 
+  $('#pkgProductionLine').on('change', function () {
+    loadPackaging();
+  });
+
   // Load all on page ready
   loadAllDashboards();
 
@@ -348,6 +345,12 @@ function getDateParams() {
     toDate: $('#dashToDate').val(),
     location: $('#dashLocation').val() || ''
   };
+}
+
+function getPkgParams() {
+  return $.extend(getDateParams(), {
+    productionLine: $('#pkgProductionLine').val() || ''
+  });
 }
 
 function loadAllDashboards() {
@@ -471,21 +474,78 @@ function loadGrading() {
 
     var s = obj.summary;
     $('#grTotalNet').text(formatNum(s.total_net));
-    $('#grTotalReject').text(formatNum(s.total_reject));
-    $('#grTotalGross').text(formatNum(s.total_gross));
-    $('#grTotalTare').text(formatNum(s.total_tare));
     $('#grSessionCount').text(s.session_count || 0);
 
-    if (obj.productBreakdown.length > 0) {
-      $('#grProductBreakdown').html(renderBreakdown(obj.productBreakdown, '#6f42c1'));
-    } else {
+    var items = obj.productGradeBreakdown || [];
+    if (items.length === 0) {
       $('#grProductBreakdown').html('<p class="text-muted">No data.</p>');
+      return;
     }
+
+    // Group by product
+    var grouped = {};
+    var grandTotal = 0;
+    items.forEach(function (item) {
+      var p = item.product_name || '—';
+      if (!grouped[p]) grouped[p] = { total: 0, grades: [] };
+      grouped[p].total += parseFloat(item.total_weight) || 0;
+      grouped[p].grades.push(item);
+      grandTotal += parseFloat(item.total_weight) || 0;
+    });
+
+    var html = '';
+    var idx = 0;
+    Object.keys(grouped).forEach(function (product) {
+      var g = grouped[product];
+      var pct = grandTotal > 0 ? (g.total / grandTotal * 100).toFixed(1) : 0;
+      html += '<div class="card mb-2 shadow-sm">' +
+        '<div class="card-header py-2 px-3 gr-product-row" data-idx="' + idx + '" style="cursor:pointer;background:#f4f6f9;">' +
+          '<div class="d-flex justify-content-between align-items-center">' +
+            '<div>' +
+              '<i class="fas fa-chevron-right gr-chevron mr-2" style="font-size:11px;color:#6c757d;"></i>' +
+              '<strong>' + product + '</strong>' +
+            '</div>' +
+            '<div class="text-right">' +
+              '<span class="badge badge-secondary mr-2">' + pct + '%</span>' +
+              '<span class="font-weight-bold">' + formatNum(g.total) + ' kg</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-1">' +
+            '<div style="background:#dee2e6;border-radius:4px;height:6px;">' +
+              '<div style="width:' + pct + '%;background:#6f42c1;border-radius:4px;height:6px;"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="gr-grade-rows" id="gr-grades-' + idx + '" style="display:none;">' +
+          '<div class="card-body py-2 px-3">';
+
+      g.grades.forEach(function (grade) {
+        var gPct = g.total > 0 ? (parseFloat(grade.total_weight) / g.total * 100).toFixed(1) : 0;
+        html += '<div class="d-flex justify-content-between align-items-center py-1">' +
+          '<span class="text-muted" style="font-size:13px;"><i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + (grade.grade_name || '—') + '</span>' +
+          '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg <span class="text-muted">(' + gPct + '%)</span></span>' +
+        '</div>';
+      });
+
+      html += '</div></div></div>';
+      idx++;
+    });
+
+    $('#grProductBreakdown').html(html);
+
+    // Toggle expand
+    $('#grProductBreakdown').off('click', '.gr-product-row').on('click', '.gr-product-row', function () {
+      var i = $(this).data('idx');
+      var $grades = $('#gr-grades-' + i);
+      var $icon = $(this).find('.gr-chevron');
+      $grades.slideToggle(150);
+      $icon.toggleClass('fa-chevron-right fa-chevron-down');
+    });
   });
 }
 
 function loadPackaging() {
-  $.post('php/modules/packagingBatches/getDashboard.php', getDateParams(), function (data) {
+  $.post('php/modules/packagingBatches/getDashboard.php', getPkgParams(), function (data) {
     var obj = JSON.parse(data);
     if (obj.status !== 'success') return;
 
@@ -494,11 +554,63 @@ function loadPackaging() {
     $('#pkgTotalBoxes').text(s.total_boxes || 0);
     $('#pkgBatchCount').text(s.batch_count || 0);
 
-    if (obj.productBreakdown.length > 0) {
-      $('#pkgProductBreakdown').html(renderBreakdown(obj.productBreakdown, '#007bff'));
-    } else {
+    var items = obj.productBreakdown || [];
+    if (items.length === 0) {
       $('#pkgProductBreakdown').html('<p class="text-muted">No data.</p>');
+      return;
     }
+
+    var grandTotal = items.reduce(function(sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
+    var html = '';
+
+    items.forEach(function (item, idx) {
+      var pct = grandTotal > 0 ? (parseFloat(item.total_weight) / grandTotal * 100).toFixed(1) : 0;
+      html += '<div class="card mb-2 shadow-sm">' +
+        '<div class="card-header py-2 px-3 pkg-product-row" data-idx="' + idx + '" style="cursor:pointer;background:#f4f6f9;">' +
+          '<div class="d-flex justify-content-between align-items-center">' +
+            '<div>' +
+              '<i class="fas fa-chevron-right pkg-chevron mr-2" style="font-size:11px;color:#6c757d;"></i>' +
+              '<strong>' + item.product_name + '</strong>' +
+            '</div>' +
+            '<div class="text-right">' +
+              '<span class="badge badge-secondary mr-2">' + pct + '%</span>' +
+              '<span class="font-weight-bold">' + formatNum(item.total_weight) + ' kg</span>' +
+              '<span class="text-muted ml-2" style="font-size:12px;">(' + item.total_boxes + ' boxes)</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-1">' +
+            '<div style="background:#dee2e6;border-radius:4px;height:6px;">' +
+              '<div style="width:' + pct + '%;background:#007bff;border-radius:4px;height:6px;"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="pkg-grade-rows" id="pkg-grades-' + idx + '" style="display:none;">' +
+          '<div class="card-body py-2 px-3">';
+
+      (item.grades || []).forEach(function (grade) {
+        var gPct = item.total_weight > 0 ? (parseFloat(grade.total_weight) / item.total_weight * 100).toFixed(1) : 0;
+        html += '<div class="d-flex justify-content-between align-items-center py-1">' +
+          '<span class="text-muted" style="font-size:13px;">' +
+            '<i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + grade.grade_name +
+            ' <span class="badge badge-light border">' + grade.packaging_name + '</span>' +
+          '</span>' +
+          '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg' +
+            ' <span class="text-muted">(' + gPct + '%)</span>' +
+            ' &nbsp;|&nbsp; ' + grade.total_boxes + ' boxes' +
+          '</span>' +
+        '</div>';
+      });
+
+      html += '</div></div></div>';
+    });
+
+    $('#pkgProductBreakdown').html(html);
+
+    $('#pkgProductBreakdown').off('click', '.pkg-product-row').on('click', '.pkg-product-row', function () {
+      var i = $(this).data('idx');
+      $('#pkg-grades-' + i).slideToggle(150);
+      $(this).find('.pkg-chevron').toggleClass('fa-chevron-right fa-chevron-down');
+    });
   });
 }
 
