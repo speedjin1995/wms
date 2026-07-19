@@ -2281,7 +2281,7 @@ function calculatePrice(productId, status, customerId, currentGrade, element, ov
       if(obj.status === 'success'){
         var pricingType = obj.message.pricingType;
         var existingPrice = element.closest('tr').find('input[id^="price"]').val();
-        var price = (overridePrice !== undefined) ? overridePrice : (existingPrice !== '' && parseFloat(existingPrice) > 0 ? parseFloat(existingPrice) : obj.message.price);
+        var price = parseFloat((overridePrice !== undefined) ? overridePrice : (existingPrice !== '' && parseFloat(existingPrice) > 0 ? existingPrice : obj.message.price)) || 0;
         var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
         var total = (pricingType == 'Float') ? price * net : price;
 
