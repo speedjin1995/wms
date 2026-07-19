@@ -6,6 +6,7 @@ if (!isset($_SESSION['userID'])) {
     echo '<script>window.location.href = "login.html";</script>';
 } else {
     $user = $_SESSION['userID'];
+    $module = $_SESSION['module'] ?? '';
     $company = $_SESSION['customer'];
     $role = $_SESSION['role'];
     $language = $_SESSION['language'];
@@ -119,11 +120,14 @@ if (!isset($_SESSION['userID'])) {
 
     <!-- Tabs -->
     <ul class="nav nav-tabs" id="dashTabs">
+      <?php if (in_array($module, ['wholesale', 'processing'])) { ?>
       <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#tabWholesales">
           <i class="fas fa-cubes mr-1"></i> <?=$languageArray['wholesales_code'][$language]?>
         </a>
       </li>
+      <?php } ?>
+      <?php if ($module === 'processing') { ?>
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#tabGrading">
           <i class="fas fa-clipboard-check mr-1"></i> <?=$languageArray['grading_code'][$language]?>
@@ -134,6 +138,7 @@ if (!isset($_SESSION['userID'])) {
           <i class="fas fa-box-open mr-1"></i> <?=$languageArray['batch_packaging_code'][$language]?>
         </a>
       </li>
+      <?php } ?>
     </ul>
 
     <div class="tab-content" style="background:#fff; border:1px solid #dee2e6; border-top:none; border-radius:0 0 4px 4px; padding:20px;">
