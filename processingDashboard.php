@@ -286,421 +286,421 @@ if (!isset($_SESSION['userID'])) {
 </div>
 
 <script>
-$(function () {
-  var today = new Date();
+  var wsTrendChart = null;
 
-  $('#dashFromDatePicker').datetimepicker({ icons: { time: 'far fa-clock' }, format: 'DD/MM/YYYY', defaultDate: today });
-  $('#dashToDatePicker').datetimepicker({ icons: { time: 'far fa-clock' }, format: 'DD/MM/YYYY', defaultDate: today });
+  var wsSupplierData = [];
+  var wsSupplierCurrentPage = 0;
+  var wsCustomerData = [];
+  var wsCustomerCurrentPage = 0;
+  var WS_PAGE_SIZE = 10;
 
-  $('.select2').each(function () {
-    $(this).select2({ allowClear: true, placeholder: 'Please Select' });
-  });
+  $(function () {
+    var today = new Date();
 
-  // Toggle customer/supplier filter visibility based on type selection
-  $('#wsType').on('change', function () {
-    var val = $(this).val();
-    if (val === 'DISPATCH') {
-      $('#wsSupplierWrap').hide();
-      $('#wsCustomerWrap').show();
-      $('#wsSupplier').val('').trigger('change.select2');
-    } else if (val === 'RECEIVING') {
-      $('#wsCustomerWrap').hide();
-      $('#wsSupplierWrap').show();
-      $('#wsCustomer').val('').trigger('change.select2');
-    } else {
-      $('#wsSupplierWrap').hide();
-      $('#wsCustomerWrap').hide();
-      $('#wsSupplier').val('').trigger('change.select2');
-      $('#wsCustomer').val('').trigger('change.select2');
-    }
-    loadWholesales();
-  });
+    $('#dashFromDatePicker').datetimepicker({ icons: { time: 'far fa-clock' }, format: 'DD/MM/YYYY', defaultDate: today });
+    $('#dashToDatePicker').datetimepicker({ icons: { time: 'far fa-clock' }, format: 'DD/MM/YYYY', defaultDate: today });
 
-  $('#wsSupplier, #wsCustomer').on('change', function () {
-    loadWholesales();
-  });
+    $('.select2').each(function () {
+      $(this).select2({ allowClear: true, placeholder: 'Please Select' });
+    });
 
-  $('#pkgProductionLine').on('change', function () {
-    loadPackaging();
-  });
+    // Toggle customer/supplier filter visibility based on type selection
+    $('#wsType').on('change', function () {
+      var val = $(this).val();
+      if (val === 'DISPATCH') {
+        $('#wsSupplierWrap').hide();
+        $('#wsCustomerWrap').show();
+        $('#wsSupplier').val('').trigger('change.select2');
+      } else if (val === 'RECEIVING') {
+        $('#wsCustomerWrap').hide();
+        $('#wsSupplierWrap').show();
+        $('#wsCustomer').val('').trigger('change.select2');
+      } else {
+        $('#wsSupplierWrap').hide();
+        $('#wsCustomerWrap').hide();
+        $('#wsSupplier').val('').trigger('change.select2');
+        $('#wsCustomer').val('').trigger('change.select2');
+      }
+      loadWholesales();
+    });
 
-  // Load all on page ready
-  loadAllDashboards();
+    $('#wsSupplier, #wsCustomer').on('change', function () {
+      loadWholesales();
+    });
 
-  $('#dashSearch').on('click', function () {
+    $('#pkgProductionLine').on('change', function () {
+      loadPackaging();
+    });
+
+    $('#dashSearch').on('click', function () {
+      loadAllDashboards();
+    });
+
+    // Also reload when switching tabs if not yet loaded
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      var target = $(e.target).attr('href');
+      if (target === '#tabGrading') loadGrading();
+      if (target === '#tabPackaging') loadPackaging();
+    });
+
+    // Load all on page ready
     loadAllDashboards();
   });
 
-  // Also reload when switching tabs if not yet loaded
-  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    var target = $(e.target).attr('href');
-    if (target === '#tabGrading') loadGrading();
-    if (target === '#tabPackaging') loadPackaging();
-  });
-});
+  function getDateParams() {
+    return {
+      fromDate: $('#dashFromDate').val(),
+      toDate: $('#dashToDate').val(),
+      location: $('#dashLocation').val() || ''
+    };
+  }
 
-function getDateParams() {
-  return {
-    fromDate: $('#dashFromDate').val(),
-    toDate: $('#dashToDate').val(),
-    location: $('#dashLocation').val() || ''
-  };
-}
+  function getPkgParams() {
+    return $.extend(getDateParams(), {
+      productionLine: $('#pkgProductionLine').val() || ''
+    });
+  }
 
-function getPkgParams() {
-  return $.extend(getDateParams(), {
-    productionLine: $('#pkgProductionLine').val() || ''
-  });
-}
+  function loadAllDashboards() {
+    loadWholesales();
+    loadGrading();
+    loadPackaging();
+  }
 
-function loadAllDashboards() {
-  loadWholesales();
-  loadGrading();
-  loadPackaging();
-}
+  function loadWholesales() {
+    var params = $.extend(getDateParams(), {
+      status: $('#wsType').val(),
+      customer: $('#wsCustomer').val() || '',
+      supplier: $('#wsSupplier').val() || ''
+    });
 
-function loadWholesales() {
-  var params = $.extend(getDateParams(), {
-    status: $('#wsType').val(),
-    customer: $('#wsCustomer').val() || '',
-    supplier: $('#wsSupplier').val() || ''
-  });
+    $.post('php/modules/wholesales/getDashboard.php', params, function (data) {
+      var obj = JSON.parse(data);
+      if (obj.status !== 'success') return;
 
-  $.post('php/modules/wholesales/getDashboard.php', params, function (data) {
-    var obj = JSON.parse(data);
-    if (obj.status !== 'success') return;
+      var s = obj.summary;
+      var wsType = $('#wsType').val();
 
-    var s = obj.summary;
-    var wsType = $('#wsType').val();
+      // Update cards visibility
+      if (wsType === 'DISPATCH') {
+        $('#wsReceivingCard').hide();
+        $('#wsDispatchCard').show();
+      } else if (wsType === 'RECEIVING') {
+        $('#wsDispatchCard').hide();
+        $('#wsReceivingCard').show();
+      } else {
+        $('#wsReceivingCard').show();
+        $('#wsDispatchCard').show();
+      }
 
-    // Update cards visibility
-    if (wsType === 'DISPATCH') {
-      $('#wsReceivingCard').hide();
-      $('#wsDispatchCard').show();
-    } else if (wsType === 'RECEIVING') {
-      $('#wsDispatchCard').hide();
-      $('#wsReceivingCard').show();
-    } else {
-      $('#wsReceivingCard').show();
-      $('#wsDispatchCard').show();
-    }
+      $('#wsReceivingWeight').text(formatNum(s.receiving_weight));
+      $('#wsReceivingCount').text(s.receiving_count || 0);
+      $('#wsDispatchWeight').text(formatNum(s.dispatch_weight));
+      $('#wsDispatchCount').text(s.dispatch_count || 0);
 
-    $('#wsReceivingWeight').text(formatNum(s.receiving_weight));
-    $('#wsReceivingCount').text(s.receiving_count || 0);
-    $('#wsDispatchWeight').text(formatNum(s.dispatch_weight));
-    $('#wsDispatchCount').text(s.dispatch_count || 0);
+      // Volume trend chart
+      var trend = obj.volumeTrend || [];
+      var labels   = trend.map(function(d) { return d.date; });
+      var recvData = trend.map(function(d) { return d.receiving; });
+      var dispData = trend.map(function(d) { return d.dispatch; });
 
-    // Volume trend chart
-    var trend = obj.volumeTrend || [];
-    var labels   = trend.map(function(d) { return d.date; });
-    var recvData = trend.map(function(d) { return d.receiving; });
-    var dispData = trend.map(function(d) { return d.dispatch; });
-
-    if (wsTrendChart) {
-      wsTrendChart.data.labels = labels;
-      wsTrendChart.data.datasets[0].data = recvData;
-      wsTrendChart.data.datasets[1].data = dispData;
-      wsTrendChart.update();
-    } else {
-      var ctx = document.getElementById('wsTrendChart').getContext('2d');
-      wsTrendChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Receiving (kg)',
-              data: recvData,
-              backgroundColor: 'rgba(23,162,184,0.7)',
-              borderColor: '#17a2b8',
-              borderWidth: 1
-            },
-            {
-              label: 'Dispatch (kg)',
-              data: dispData,
-              backgroundColor: 'rgba(40,167,69,0.7)',
-              borderColor: '#28a745',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            xAxes: [{ gridLines: { display: false } }],
-            yAxes: [{ ticks: { beginAtZero: true } }]
+      if (wsTrendChart) {
+        wsTrendChart.data.labels = labels;
+        wsTrendChart.data.datasets[0].data = recvData;
+        wsTrendChart.data.datasets[1].data = dispData;
+        wsTrendChart.update();
+      } else {
+        var ctx = document.getElementById('wsTrendChart').getContext('2d');
+        wsTrendChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Receiving (kg)',
+                data: recvData,
+                backgroundColor: 'rgba(23,162,184,0.7)',
+                borderColor: '#17a2b8',
+                borderWidth: 1
+              },
+              {
+                label: 'Dispatch (kg)',
+                data: dispData,
+                backgroundColor: 'rgba(40,167,69,0.7)',
+                borderColor: '#28a745',
+                borderWidth: 1
+              }
+            ]
           },
-          legend: { position: 'top' },
-          tooltips: {
-            callbacks: {
-              label: function(item, data) {
-                return data.datasets[item.datasetIndex].label + ': ' +
-                  parseFloat(item.yLabel).toLocaleString('en-MY', { minimumFractionDigits: 2 }) + ' kg';
+          options: {
+            responsive: true,
+            scales: {
+              xAxes: [{ gridLines: { display: false } }],
+              yAxes: [{ ticks: { beginAtZero: true } }]
+            },
+            legend: { position: 'top' },
+            tooltips: {
+              callbacks: {
+                label: function(item, data) {
+                  return data.datasets[item.datasetIndex].label + ': ' +
+                    parseFloat(item.yLabel).toLocaleString('en-MY', { minimumFractionDigits: 2 }) + ' kg';
+                }
               }
             }
           }
-        }
-      });
-    }
+        });
+      }
 
-    // Supplier breakdown
-    if (wsType !== 'DISPATCH' && obj.supplierBreakdown.length > 0) {
-      $('#wsSupplierBreakdownWrap').show();
-      wsSupplierData = obj.supplierBreakdown;
-      wsSupplierCurrentPage = 0;
-      renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
-    } else {
-      $('#wsSupplierBreakdownWrap').hide();
-      wsSupplierData = [];
-    }
+      // Supplier breakdown
+      if (wsType !== 'DISPATCH' && obj.supplierBreakdown.length > 0) {
+        $('#wsSupplierBreakdownWrap').show();
+        wsSupplierData = obj.supplierBreakdown;
+        wsSupplierCurrentPage = 0;
+        renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
+      } else {
+        $('#wsSupplierBreakdownWrap').hide();
+        wsSupplierData = [];
+      }
 
-    // Customer breakdown
-    if (wsType !== 'RECEIVING' && obj.customerBreakdown.length > 0) {
-      $('#wsCustomerBreakdownWrap').show();
-      wsCustomerData = obj.customerBreakdown;
-      wsCustomerCurrentPage = 0;
-      renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
-    } else {
-      $('#wsCustomerBreakdownWrap').hide();
-      wsCustomerData = [];
-    }
-  });
-}
-
-function loadGrading() {
-  $.post('php/modules/grading/getDashboard.php', getDateParams(), function (data) {
-    var obj = JSON.parse(data);
-    if (obj.status !== 'success') return;
-
-    var s = obj.summary;
-    $('#grTotalNet').text(formatNum(s.total_net));
-    $('#grSessionCount').text(s.session_count || 0);
-
-    var items = obj.productGradeBreakdown || [];
-    if (items.length === 0) {
-      $('#grProductBreakdown').html('<p class="text-muted">No data.</p>');
-      return;
-    }
-
-    // Group by product
-    var grouped = {};
-    var grandTotal = 0;
-    items.forEach(function (item) {
-      var p = item.product_name || '—';
-      if (!grouped[p]) grouped[p] = { total: 0, grades: [] };
-      grouped[p].total += parseFloat(item.total_weight) || 0;
-      grouped[p].grades.push(item);
-      grandTotal += parseFloat(item.total_weight) || 0;
+      // Customer breakdown
+      if (wsType !== 'RECEIVING' && obj.customerBreakdown.length > 0) {
+        $('#wsCustomerBreakdownWrap').show();
+        wsCustomerData = obj.customerBreakdown;
+        wsCustomerCurrentPage = 0;
+        renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
+      } else {
+        $('#wsCustomerBreakdownWrap').hide();
+        wsCustomerData = [];
+      }
     });
-
-    var html = '';
-    var idx = 0;
-    Object.keys(grouped).forEach(function (product) {
-      var g = grouped[product];
-      var pct = grandTotal > 0 ? (g.total / grandTotal * 100).toFixed(1) : 0;
-      html += '<div class="card mb-2 shadow-sm">' +
-        '<div class="card-header py-2 px-3 gr-product-row" data-idx="' + idx + '" style="cursor:pointer;background:#f4f6f9;">' +
-          '<div class="d-flex justify-content-between align-items-center">' +
-            '<div>' +
-              '<i class="fas fa-chevron-right gr-chevron mr-2" style="font-size:11px;color:#6c757d;"></i>' +
-              '<strong>' + product + '</strong>' +
-            '</div>' +
-            '<div class="text-right">' +
-              '<span class="badge badge-secondary mr-2">' + pct + '%</span>' +
-              '<span class="font-weight-bold">' + formatNum(g.total) + ' kg</span>' +
-            '</div>' +
-          '</div>' +
-          '<div class="mt-1">' +
-            '<div style="background:#dee2e6;border-radius:4px;height:6px;">' +
-              '<div style="width:' + pct + '%;background:#6f42c1;border-radius:4px;height:6px;"></div>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="gr-grade-rows" id="gr-grades-' + idx + '" style="display:none;">' +
-          '<div class="card-body py-2 px-3">';
-
-      g.grades.forEach(function (grade) {
-        var gPct = g.total > 0 ? (parseFloat(grade.total_weight) / g.total * 100).toFixed(1) : 0;
-        html += '<div class="d-flex justify-content-between align-items-center py-1">' +
-          '<span class="text-muted" style="font-size:13px;"><i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + (grade.grade_name || '—') + '</span>' +
-          '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg <span class="text-muted">(' + gPct + '%)</span></span>' +
-        '</div>';
-      });
-
-      html += '</div></div></div>';
-      idx++;
-    });
-
-    $('#grProductBreakdown').html(html);
-
-    // Toggle expand
-    $('#grProductBreakdown').off('click', '.gr-product-row').on('click', '.gr-product-row', function () {
-      var i = $(this).data('idx');
-      var $grades = $('#gr-grades-' + i);
-      var $icon = $(this).find('.gr-chevron');
-      $grades.slideToggle(150);
-      $icon.toggleClass('fa-chevron-right fa-chevron-down');
-    });
-  });
-}
-
-function loadPackaging() {
-  $.post('php/modules/packagingBatches/getDashboard.php', getPkgParams(), function (data) {
-    var obj = JSON.parse(data);
-    if (obj.status !== 'success') return;
-
-    var s = obj.summary;
-    $('#pkgTotalWeight').text(formatNum(s.total_weight));
-    $('#pkgTotalBoxes').text(s.total_boxes || 0);
-    $('#pkgBatchCount').text(s.batch_count || 0);
-
-    var items = obj.productBreakdown || [];
-    if (items.length === 0) {
-      $('#pkgProductBreakdown').html('<p class="text-muted">No data.</p>');
-      return;
-    }
-
-    var grandTotal = items.reduce(function(sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
-    var html = '';
-
-    items.forEach(function (item, idx) {
-      var pct = grandTotal > 0 ? (parseFloat(item.total_weight) / grandTotal * 100).toFixed(1) : 0;
-      html += '<div class="card mb-2 shadow-sm">' +
-        '<div class="card-header py-2 px-3 pkg-product-row" data-idx="' + idx + '" style="cursor:pointer;background:#f4f6f9;">' +
-          '<div class="d-flex justify-content-between align-items-center">' +
-            '<div>' +
-              '<i class="fas fa-chevron-right pkg-chevron mr-2" style="font-size:11px;color:#6c757d;"></i>' +
-              '<strong>' + item.product_name + '</strong>' +
-            '</div>' +
-            '<div class="text-right">' +
-              '<span class="badge badge-secondary mr-2">' + pct + '%</span>' +
-              '<span class="font-weight-bold">' + formatNum(item.total_weight) + ' kg</span>' +
-              '<span class="text-muted ml-2" style="font-size:12px;">(' + item.total_boxes + ' boxes)</span>' +
-            '</div>' +
-          '</div>' +
-          '<div class="mt-1">' +
-            '<div style="background:#dee2e6;border-radius:4px;height:6px;">' +
-              '<div style="width:' + pct + '%;background:#007bff;border-radius:4px;height:6px;"></div>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="pkg-grade-rows" id="pkg-grades-' + idx + '" style="display:none;">' +
-          '<div class="card-body py-2 px-3">';
-
-      (item.grades || []).forEach(function (grade) {
-        var gPct = item.total_weight > 0 ? (parseFloat(grade.total_weight) / item.total_weight * 100).toFixed(1) : 0;
-        html += '<div class="d-flex justify-content-between align-items-center py-1">' +
-          '<span class="text-muted" style="font-size:13px;">' +
-            '<i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + grade.grade_name +
-            ' <span class="badge badge-light border">' + grade.packaging_name + '</span>' +
-          '</span>' +
-          '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg' +
-            ' <span class="text-muted">(' + gPct + '%)</span>' +
-            ' &nbsp;|&nbsp; ' + grade.total_boxes + ' boxes' +
-          '</span>' +
-        '</div>';
-      });
-
-      html += '</div></div></div>';
-    });
-
-    $('#pkgProductBreakdown').html(html);
-
-    $('#pkgProductBreakdown').off('click', '.pkg-product-row').on('click', '.pkg-product-row', function () {
-      var i = $(this).data('idx');
-      $('#pkg-grades-' + i).slideToggle(150);
-      $(this).find('.pkg-chevron').toggleClass('fa-chevron-right fa-chevron-down');
-    });
-  });
-}
-
-var wsTrendChart = null;
-
-var wsSupplierData = [];
-var wsSupplierCurrentPage = 0;
-var wsCustomerData = [];
-var wsCustomerCurrentPage = 0;
-var WS_PAGE_SIZE = 10;
-
-function wsSupplierPage(dir) {
-  var totalPages = Math.ceil(wsSupplierData.length / WS_PAGE_SIZE);
-  wsSupplierCurrentPage = Math.max(0, Math.min(wsSupplierCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
-}
-
-function wsCustomerPage(dir) {
-  var totalPages = Math.ceil(wsCustomerData.length / WS_PAGE_SIZE);
-  wsCustomerCurrentPage = Math.max(0, Math.min(wsCustomerCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
-}
-
-function renderPagedBreakdown(containerId, pagerId, pageInfoId, items, page, color) {
-  var totalPages = Math.ceil(items.length / WS_PAGE_SIZE);
-  var start = page * WS_PAGE_SIZE;
-  var pageItems = items.slice(start, start + WS_PAGE_SIZE);
-
-  var maxVal = Math.max.apply(null, items.map(function(i) { return parseFloat(i.total_weight) || 0; }));
-  var totalVal = items.reduce(function(sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
-
-  $('#' + containerId).html(renderBreakdownItems(pageItems, maxVal, totalVal, color));
-
-  if (totalPages > 1) {
-    $('#' + pagerId).show();
-    $('#' + pageInfoId).text((page + 1) + ' / ' + totalPages);
-    $('#' + pagerId + ' button:first').prop('disabled', page === 0);
-    $('#' + pagerId + ' button:last').prop('disabled', page >= totalPages - 1);
-  } else {
-    $('#' + pagerId).hide();
   }
-}
 
-function renderBreakdownItems(items, maxVal, totalVal, color) {
-  if (!items || items.length === 0) return '<p class="text-muted">No data.</p>';
-  var html = '';
-  items.forEach(function(item) {
-    var val = parseFloat(item.total_weight) || 0;
-    var pct = maxVal > 0 ? (val / maxVal * 100).toFixed(1) : 0;
-    var sharePct = totalVal > 0 ? (val / totalVal * 100).toFixed(0) : 0;
-    html += '<div class="breakdown-bar-wrap">' +
-      '<div class="breakdown-bar-label">' +
-        '<span>' + (item.name || 'Unknown') + '</span>' +
-        '<span>' + formatNum(val) + ' kg (' + sharePct + '%)</span>' +
-      '</div>' +
-      '<div class="breakdown-bar-track">' +
-        '<div class="breakdown-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div>' +
-      '</div>' +
-    '</div>';
-  });
-  return html;
-}
+  function loadGrading() {
+    $.post('php/modules/grading/getDashboard.php', getDateParams(), function (data) {
+      var obj = JSON.parse(data);
+      if (obj.status !== 'success') return;
 
-function renderBreakdown(items, color) {
-  if (!items || items.length === 0) return '<p class="text-muted">No data.</p>';
+      var s = obj.summary;
+      $('#grTotalNet').text(formatNum(s.total_net));
+      $('#grSessionCount').text(s.session_count || 0);
 
-  var maxVal = Math.max.apply(null, items.map(function (i) { return parseFloat(i.total_weight) || 0; }));
-  var totalVal = items.reduce(function (sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
-  var html = '';
+      var items = obj.productGradeBreakdown || [];
+      if (items.length === 0) {
+        $('#grProductBreakdown').html('<p class="text-muted">No data.</p>');
+        return;
+      }
 
-  items.forEach(function (item) {
-    var val = parseFloat(item.total_weight) || 0;
-    var pct = maxVal > 0 ? (val / maxVal * 100).toFixed(1) : 0;
-    var sharePct = totalVal > 0 ? (val / totalVal * 100).toFixed(0) : 0;
-    html += '<div class="breakdown-bar-wrap">' +
-      '<div class="breakdown-bar-label">' +
-        '<span>' + (item.name || 'Unknown') + '</span>' +
-        '<span>' + formatNum(val) + ' kg (' + sharePct + '%)</span>' +
-      '</div>' +
-      '<div class="breakdown-bar-track">' +
-        '<div class="breakdown-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div>' +
-      '</div>' +
-    '</div>';
-  });
+      // Group by product
+      var grouped = {};
+      var grandTotal = 0;
+      items.forEach(function (item) {
+        var p = item.product_name || '—';
+        if (!grouped[p]) grouped[p] = { total: 0, grades: [] };
+        grouped[p].total += parseFloat(item.total_weight) || 0;
+        grouped[p].grades.push(item);
+        grandTotal += parseFloat(item.total_weight) || 0;
+      });
 
-  return html;
-}
+      var html = '';
+      var idx = 0;
+      Object.keys(grouped).forEach(function (product) {
+        var g = grouped[product];
+        var pct = grandTotal > 0 ? (g.total / grandTotal * 100).toFixed(1) : 0;
+        html += '<div class="card mb-2 shadow-sm">' +
+          '<div class="card-header py-2 px-3 gr-product-row" data-idx="' + idx + '" style="cursor:pointer;background:#f4f6f9;">' +
+            '<div class="d-flex justify-content-between align-items-center">' +
+              '<div>' +
+                '<i class="fas fa-chevron-right gr-chevron mr-2" style="font-size:11px;color:#6c757d;"></i>' +
+                '<strong>' + product + '</strong>' +
+              '</div>' +
+              '<div class="text-right">' +
+                '<span class="badge badge-secondary mr-2">' + pct + '%</span>' +
+                '<span class="font-weight-bold">' + formatNum(g.total) + ' kg</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="mt-1">' +
+              '<div style="background:#dee2e6;border-radius:4px;height:6px;">' +
+                '<div style="width:' + pct + '%;background:#6f42c1;border-radius:4px;height:6px;"></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="gr-grade-rows" id="gr-grades-' + idx + '" style="display:none;">' +
+            '<div class="card-body py-2 px-3">';
 
-function formatNum(val) {
-  var n = parseFloat(val) || 0;
-  return n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+        g.grades.forEach(function (grade) {
+          var gPct = g.total > 0 ? (parseFloat(grade.total_weight) / g.total * 100).toFixed(1) : 0;
+          html += '<div class="d-flex justify-content-between align-items-center py-1">' +
+            '<span class="text-muted" style="font-size:13px;"><i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + (grade.grade_name || '—') + '</span>' +
+            '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg <span class="text-muted">(' + gPct + '%)</span></span>' +
+          '</div>';
+        });
+
+        html += '</div></div></div>';
+        idx++;
+      });
+
+      $('#grProductBreakdown').html(html);
+
+      // Toggle expand
+      $('#grProductBreakdown').off('click', '.gr-product-row').on('click', '.gr-product-row', function () {
+        var i = $(this).data('idx');
+        var $grades = $('#gr-grades-' + i);
+        var $icon = $(this).find('.gr-chevron');
+        $grades.slideToggle(150);
+        $icon.toggleClass('fa-chevron-right fa-chevron-down');
+      });
+    });
+  }
+
+  function loadPackaging() {
+    $.post('php/modules/packagingBatches/getDashboard.php', getPkgParams(), function (data) {
+      var obj = JSON.parse(data);
+      if (obj.status !== 'success') return;
+
+      var s = obj.summary;
+      $('#pkgTotalWeight').text(formatNum(s.total_weight));
+      $('#pkgTotalBoxes').text(s.total_boxes || 0);
+      $('#pkgBatchCount').text(s.batch_count || 0);
+
+      var items = obj.productBreakdown || [];
+      if (items.length === 0) {
+        $('#pkgProductBreakdown').html('<p class="text-muted">No data.</p>');
+        return;
+      }
+
+      var grandTotal = items.reduce(function(sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
+      var html = '';
+
+      items.forEach(function (item, idx) {
+        var pct = grandTotal > 0 ? (parseFloat(item.total_weight) / grandTotal * 100).toFixed(1) : 0;
+        html += '<div class="card mb-2 shadow-sm">' +
+          '<div class="card-header py-2 px-3 pkg-product-row" data-idx="' + idx + '" style="cursor:pointer;background:#f4f6f9;">' +
+            '<div class="d-flex justify-content-between align-items-center">' +
+              '<div>' +
+                '<i class="fas fa-chevron-right pkg-chevron mr-2" style="font-size:11px;color:#6c757d;"></i>' +
+                '<strong>' + item.product_name + '</strong>' +
+              '</div>' +
+              '<div class="text-right">' +
+                '<span class="badge badge-secondary mr-2">' + pct + '%</span>' +
+                '<span class="font-weight-bold">' + formatNum(item.total_weight) + ' kg</span>' +
+                '<span class="text-muted ml-2" style="font-size:12px;">(' + item.total_boxes + ' boxes)</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="mt-1">' +
+              '<div style="background:#dee2e6;border-radius:4px;height:6px;">' +
+                '<div style="width:' + pct + '%;background:#007bff;border-radius:4px;height:6px;"></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="pkg-grade-rows" id="pkg-grades-' + idx + '" style="display:none;">' +
+            '<div class="card-body py-2 px-3">';
+
+        (item.grades || []).forEach(function (grade) {
+          var gPct = item.total_weight > 0 ? (parseFloat(grade.total_weight) / item.total_weight * 100).toFixed(1) : 0;
+          html += '<div class="d-flex justify-content-between align-items-center py-1">' +
+            '<span class="text-muted" style="font-size:13px;">' +
+              '<i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + grade.grade_name +
+              ' <span class="badge badge-light border">' + grade.packaging_name + '</span>' +
+            '</span>' +
+            '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg' +
+              ' <span class="text-muted">(' + gPct + '%)</span>' +
+              ' &nbsp;|&nbsp; ' + grade.total_boxes + ' boxes' +
+            '</span>' +
+          '</div>';
+        });
+
+        html += '</div></div></div>';
+      });
+
+      $('#pkgProductBreakdown').html(html);
+
+      $('#pkgProductBreakdown').off('click', '.pkg-product-row').on('click', '.pkg-product-row', function () {
+        var i = $(this).data('idx');
+        $('#pkg-grades-' + i).slideToggle(150);
+        $(this).find('.pkg-chevron').toggleClass('fa-chevron-right fa-chevron-down');
+      });
+    });
+  }
+
+  function wsSupplierPage(dir) {
+    var totalPages = Math.ceil(wsSupplierData.length / WS_PAGE_SIZE);
+    wsSupplierCurrentPage = Math.max(0, Math.min(wsSupplierCurrentPage + dir, totalPages - 1));
+    renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
+  }
+
+  function wsCustomerPage(dir) {
+    var totalPages = Math.ceil(wsCustomerData.length / WS_PAGE_SIZE);
+    wsCustomerCurrentPage = Math.max(0, Math.min(wsCustomerCurrentPage + dir, totalPages - 1));
+    renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
+  }
+
+  function renderPagedBreakdown(containerId, pagerId, pageInfoId, items, page, color) {
+    var totalPages = Math.ceil(items.length / WS_PAGE_SIZE);
+    var start = page * WS_PAGE_SIZE;
+    var pageItems = items.slice(start, start + WS_PAGE_SIZE);
+
+    var maxVal = Math.max.apply(null, items.map(function(i) { return parseFloat(i.total_weight) || 0; }));
+    var totalVal = items.reduce(function(sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
+
+    $('#' + containerId).html(renderBreakdownItems(pageItems, maxVal, totalVal, color));
+
+    if (totalPages > 1) {
+      $('#' + pagerId).show();
+      $('#' + pageInfoId).text((page + 1) + ' / ' + totalPages);
+      $('#' + pagerId + ' button:first').prop('disabled', page === 0);
+      $('#' + pagerId + ' button:last').prop('disabled', page >= totalPages - 1);
+    } else {
+      $('#' + pagerId).hide();
+    }
+  }
+
+  function renderBreakdownItems(items, maxVal, totalVal, color) {
+    if (!items || items.length === 0) return '<p class="text-muted">No data.</p>';
+    var html = '';
+    items.forEach(function(item) {
+      var val = parseFloat(item.total_weight) || 0;
+      var pct = maxVal > 0 ? (val / maxVal * 100).toFixed(1) : 0;
+      var sharePct = totalVal > 0 ? (val / totalVal * 100).toFixed(0) : 0;
+      html += '<div class="breakdown-bar-wrap">' +
+        '<div class="breakdown-bar-label">' +
+          '<span>' + (item.name || 'Unknown') + '</span>' +
+          '<span>' + formatNum(val) + ' kg (' + sharePct + '%)</span>' +
+        '</div>' +
+        '<div class="breakdown-bar-track">' +
+          '<div class="breakdown-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div>' +
+        '</div>' +
+      '</div>';
+    });
+    return html;
+  }
+
+  function renderBreakdown(items, color) {
+    if (!items || items.length === 0) return '<p class="text-muted">No data.</p>';
+
+    var maxVal = Math.max.apply(null, items.map(function (i) { return parseFloat(i.total_weight) || 0; }));
+    var totalVal = items.reduce(function (sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
+    var html = '';
+
+    items.forEach(function (item) {
+      var val = parseFloat(item.total_weight) || 0;
+      var pct = maxVal > 0 ? (val / maxVal * 100).toFixed(1) : 0;
+      var sharePct = totalVal > 0 ? (val / totalVal * 100).toFixed(0) : 0;
+      html += '<div class="breakdown-bar-wrap">' +
+        '<div class="breakdown-bar-label">' +
+          '<span>' + (item.name || 'Unknown') + '</span>' +
+          '<span>' + formatNum(val) + ' kg (' + sharePct + '%)</span>' +
+        '</div>' +
+        '<div class="breakdown-bar-track">' +
+          '<div class="breakdown-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div>' +
+        '</div>' +
+      '</div>';
+    });
+
+    return html;
+  }
+
+  function formatNum(val) {
+    var n = parseFloat(val) || 0;
+    return n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
 </script>
