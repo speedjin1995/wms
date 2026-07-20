@@ -399,6 +399,14 @@ to get the desired effect
               <p><?=$languageArray['home_code'][$language]?></p>
             </a>
           </li>
+          <?php if ($module == 'wholesale' || $module == 'industrial' || $module == 'processing') { ?>
+          <li class="nav-item">
+            <a href="#dashboard" data-file="dashboard.php" class="nav-link link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p><?=$languageArray['dashboard_code'][$language]?></p>
+            </a>
+          </li>
+          <?php } ?>
           <?php if ($module == 'pricing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
@@ -447,12 +455,6 @@ to get the desired effect
             </a>
             <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
-                <a href="#dashboard" data-file="dashboard.php" class="nav-link link">
-                  <i class="nav-icon fas fa-tachometer-alt"></i>
-                  <p><?=$languageArray['dashboard_code'][$language]?></p>
-                </a>
-              </li>
-              <li class="nav-item">
                 <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
@@ -476,7 +478,7 @@ to get the desired effect
           <?php if ($module != 'pricing' && $module != 'processing' && $module != 'accounting' && $module != 'stocks') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <i class="nav-icon fas fa-weight"></i>
               <p><?=$languageArray['weighing_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
@@ -487,12 +489,6 @@ to get the desired effect
                 </a>
               </li> -->
               <?php if ($module == 'wholesale') { ?>
-              <li class="nav-item">
-                <a href="#dashboard" data-file="dashboard.php" class="nav-link link">
-                  <i class="nav-icon fas fa-tachometer-alt"></i>
-                  <p><?=$languageArray['dashboard_code'][$language]?></p>
-                </a>
-              </li>
               <li class="nav-item">
                 <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
@@ -512,7 +508,7 @@ to get the desired effect
               <li class="nav-item">
                 <a href="#industrial" data-file="industrial.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
-                  <p><?=$languageArray['industrial_code'][$language]?></p>
+                  <p><?=$languageArray['pulp_and_paste_code'][$language]?></p>
                 </a>
               </li>
               <?php } ?>
