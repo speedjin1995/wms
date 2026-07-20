@@ -11,6 +11,7 @@ if(!isset($_SESSION['userID'])){
 else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
+  $companyProducts = $_SESSION['products'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -98,7 +99,9 @@ else{
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                    <?php if (in_array('stocks', $companyProducts)) { ?>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                    <?php } ?>
                   </select>
                 </div>
               </div>
