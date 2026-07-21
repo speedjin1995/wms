@@ -399,7 +399,7 @@ to get the desired effect
               <p><?=$languageArray['home_code'][$language]?></p>
             </a>
           </li>
-          <?php if ($module == 'wholesale' || $module == 'industrial' || $module == 'processing') { ?>
+          <?php if ($module == 'dashboard') { ?>
           <li class="nav-item">
             <a href="#dashboard" data-file="dashboard.php" class="nav-link link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -407,7 +407,7 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
-          <?php if ($module == 'pricing') { ?>
+          <?php if ($module != 'dashboard' && $module == 'pricing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -447,7 +447,7 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module == 'processing') { ?>
+          <?php if ($module != 'dashboard' && $module == 'processing') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-cog"></i>
@@ -475,7 +475,7 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module != 'pricing' && $module != 'processing' && $module != 'accounting' && $module != 'stocks') { ?>
+          <?php if ($module != 'dashboard' && $module != 'pricing' && $module != 'processing' && $module != 'accounting' && $module != 'stocks') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-weight"></i>
@@ -549,7 +549,7 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module == 'wholesale') { ?>
+          <?php if ($module != 'dashboard' && $module == 'wholesale') { ?>
           <li class="nav-item">
             <a href="#reports" data-file="reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
@@ -557,7 +557,7 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
-          <?php if ($module == 'weighing') { ?>
+          <?php if ($module != 'dashboard' && $module == 'weighing') { ?>
           <li class="nav-item">
             <a href="#reportsWb" data-file="reportsWb.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
@@ -565,7 +565,7 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
-          <?php if ($module == 'industrial') { ?>
+          <?php if ($module != 'dashboard' && $module == 'industrial') { ?>
           <li class="nav-item">
             <a href="#reportsIndustry" data-file="reportsIndustry.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
@@ -573,7 +573,7 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
-          <?php if ($module == 'packing') { ?>
+          <?php if ($module != 'dashboard' && $module == 'packing') { ?>
           <li class="nav-item">
             <a href="#reportsPacking" data-file="reportsPacking.php" class="nav-link link">
               <i class="nav-icon fas fa-cubes"></i>
@@ -581,7 +581,7 @@ to get the desired effect
             </a>
           </li>
           <?php } ?>
-          <?php if ($module == 'stocks') { ?>
+          <?php if ($module != 'dashboard' && $module == 'stocks') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-chart-bar"></i>
@@ -609,7 +609,7 @@ to get the desired effect
             </ul>
           </li>
           <?php } ?>
-          <?php if ($module == 'accounting') { ?>
+          <?php if ($module != 'dashboard' && $module == 'accounting') { ?>
           <li class="nav-item has-treeview menu-open">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-calculator"></i>
@@ -626,7 +626,7 @@ to get the desired effect
           </li>
           <?php } ?>
           <?php 
-              if($role == "ADMIN" || $role == "SADMIN" || $role == "MANAGER"){
+              if($module != 'dashboard' && ($role == "ADMIN" || $role == "SADMIN" || $role == "MANAGER")){
                 echo '<li class="nav-item has-treeview">
                 <a href="#" class="nav-link">
                   <i class="nav-icon fas fa-database"></i>
@@ -942,6 +942,8 @@ $(function () {
     $("a[href='#paymentVoucher']").click();
     <?php } else if ($module == 'stocks') { ?>
     $("a[href='#stockDashboard']").click();
+    <?php } else if ($module == 'dashboard') { ?>
+    $("a[href='#dashboard']").click();
     <?php } else { ?>
     window.location.href = 'home.php';
     <?php } ?>

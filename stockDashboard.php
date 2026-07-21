@@ -231,7 +231,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
   <div class="sd-action-bar">
     <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap:12px;">
       <div>
-        <h2 class="sd-page-title"><?=$languageArray['dashboard_code'][$language]?></h2>
+        <h2 class="sd-page-title"><?=$languageArray['stock_balance_code'][$language]?></h2>
         <p class="sd-subtitle"><?=$languageArray['realtime_inventory_code'][$language]?></p>
       </div>
       <div class="d-flex align-items-center flex-wrap" style="gap:8px;">

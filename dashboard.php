@@ -7,6 +7,7 @@ if (!isset($_SESSION['userID'])) {
 } else {
     $user = $_SESSION['userID'];
     $module = $_SESSION['module'] ?? '';
+    $companyProducts = $_SESSION['products'] ?? [];
     $company = $_SESSION['customer'];
     $role = $_SESSION['role'];
     $language = $_SESSION['language'];
@@ -53,6 +54,25 @@ if (!isset($_SESSION['userID'])) {
     font-size: 12px;
     opacity: 0.75;
     margin-top: 4px;
+  }
+  /* Push right elements (pager, total) to far right in collapsible card headers */
+  .card-header.d-flex.justify-content-between > .d-flex.align-items-center:first-child {
+    flex: 1;
+  }
+  /* Uniform header height across all dashboard cards */
+  #tabWholesales .card-header {
+    min-height: 48px;
+  }
+  /* Compact pager so it doesn't inflate the card header */
+  #wsSupplierPager .btn,
+  #wsCustomerPager .btn {
+    padding: 1px 6px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  #wsSupplierPager small,
+  #wsCustomerPager small {
+    font-size: 11px;
   }
   .breakdown-bar-wrap { margin-bottom: 10px; }
   .breakdown-bar-label { font-size: 13px; margin-bottom: 2px; display: flex; justify-content: space-between; }
@@ -104,7 +124,6 @@ if (!isset($_SESSION['userID'])) {
             </div>
           </div>
 
-          <?php if ($module == 'wholesale' || $module == 'processing' || $module == 'industrial') { ?>
           <div class="form-group col-md-3 mb-0">
             <label class="mb-1"><?=$languageArray['locations_code'][$language]?></label>
             <select class="form-control select2" id="dashLocation">
@@ -114,7 +133,7 @@ if (!isset($_SESSION['userID'])) {
               <?php } ?>
             </select>
           </div>
-          <?php } ?>
+
           <div class="col-md-2 mb-0">
             <button type="button" class="btn btn-warning btn-block" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
@@ -127,21 +146,21 @@ if (!isset($_SESSION['userID'])) {
 
     <!-- Tabs -->
     <ul class="nav nav-tabs" id="dashTabs">
-      <?php if (in_array($module, ['wholesale', 'processing'])) { ?>
+      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
       <li class="nav-item">
-        <a class="nav-link <?= $module != 'wholesale' || $module != 'processing' ? '' : 'active' ?>" data-toggle="tab" href="#tabWholesales">
+        <a class="nav-link active" data-toggle="tab" href="#tabWholesales">
           <i class="fas fa-cubes mr-1"></i> <?=$languageArray['wholesales_code'][$language]?>
         </a>
       </li>
       <?php } ?>
-      <?php if ($module == 'industrial') { ?>
+      <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
       <li class="nav-item">
-        <a class="nav-link <?= !in_array($module, ['wholesale', 'processing']) ? 'active' : '' ?>" data-toggle="tab" href="#tabPulpPaste">
+        <a class="nav-link" data-toggle="tab" href="#tabPulpPaste">
           <i class="fas fa-blender mr-1"></i> <?=$languageArray['pulp_and_paste_code'][$language]?>
         </a>
       </li>
       <?php } ?>
-      <?php if ($module == 'processing') { ?>
+      <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#tabGrading">
           <i class="fas fa-clipboard-check mr-1"></i> <?=$languageArray['grading_code'][$language]?>
@@ -158,7 +177,7 @@ if (!isset($_SESSION['userID'])) {
     <div class="tab-content" style="background:#fff; border:1px solid #dee2e6; border-top:none; border-radius:0 0 4px 4px; padding:20px;">
 
       <!-- ===== WHOLESALES TAB ===== -->
-      <div class="tab-pane fade <?= $module == 'industrial' ? '' : 'show active' ?>" id="tabWholesales">
+      <div class="tab-pane fade show active" id="tabWholesales">
         <!-- Wholesales Filters -->
         <div class="row mb-3">
           <div class="form-group col-md-3 mb-0">
@@ -190,56 +209,155 @@ if (!isset($_SESSION['userID'])) {
         </div>
 
         <!-- Wholesales Summary Cards -->
-        <div class="row mb-4" id="wsCards">
+        <div class="row mb-4 align-items-stretch" id="wsCards">
           <div class="col-md-3 col-6 mb-3" id="wsReceivingCard">
-            <div class="dash-stat-card" style="background:linear-gradient(135deg,#17a2b8,#138496);">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#17a2b8,#138496);">
               <div class="stat-label"><?=$languageArray['receiving_code'][$language]?> — <?=$languageArray['total_weight_code'][$language]?></div>
               <div class="stat-value" id="wsReceivingWeight">—</div>
               <div class="stat-sub"><span id="wsReceivingCount">—</span> records &nbsp;|&nbsp; kg</div>
             </div>
           </div>
+          <div class="col-md-3 col-6 mb-3" id="wsReceivingValueCard">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#0d6efd,#0a58ca);">
+              <div class="stat-label"><?=$languageArray['receiving_code'][$language]?> — <?=$languageArray['total_value_code'][$language]?></div>
+              <div class="stat-value" id="wsReceivingValue">—</div>
+              <div class="stat-sub"><?=$languageArray['total_value_code'][$language]?></div>
+            </div>
+          </div>
           <div class="col-md-3 col-6 mb-3" id="wsDispatchCard">
-            <div class="dash-stat-card" style="background:linear-gradient(135deg,#28a745,#1e7e34);">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#28a745,#1e7e34);">
               <div class="stat-label"><?=$languageArray['dispatch_code'][$language]?> — <?=$languageArray['total_weight_code'][$language]?></div>
               <div class="stat-value" id="wsDispatchWeight">—</div>
               <div class="stat-sub"><span id="wsDispatchCount">—</span> records &nbsp;|&nbsp; kg</div>
             </div>
           </div>
+          <div class="col-md-3 col-6 mb-3" id="wsDispatchValueCard">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#fd7e14,#e55a00);">
+              <div class="stat-label"><?=$languageArray['dispatch_code'][$language]?> — <?=$languageArray['total_value_code'][$language]?></div>
+              <div class="stat-value" id="wsDispatchValue">—</div>
+              <div class="stat-sub"><?=$languageArray['total_value_code'][$language]?></div>
+            </div>
+          </div>
         </div>
 
         <!-- Wholesales Breakdowns -->
-        <div class="row">
+        <div class="row mt-3">
           <div class="col-md-6" id="wsSupplierBreakdownWrap">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</div>
-              <div id="wsSupplierPager" style="display:none;">
-                <button class="btn btn-sm btn-outline-secondary" id="wsSupplierPrev" onclick="wsSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
-                <small class="mx-2" id="wsSupplierPageInfo"></small>
-                <button class="btn btn-sm btn-outline-secondary" id="wsSupplierNext" onclick="wsSupplierPage(1)"><i class="fas fa-chevron-right"></i></button>
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="toggleCard('wsSupplierBody','wsSupplierChevron')">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chevron-down mr-2" id="wsSupplierChevron" style="font-size:11px;color:#6c757d;"></i>
+                  <div class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</div>
+                </div>
+                <div id="wsSupplierPager" style="display:none;">
+                  <button class="btn btn-sm btn-outline-secondary" id="wsSupplierPrev" onclick="event.stopPropagation();wsSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
+                  <small class="mx-2" id="wsSupplierPageInfo"></small>
+                  <button class="btn btn-sm btn-outline-secondary" id="wsSupplierNext" onclick="event.stopPropagation();wsSupplierPage(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+              </div>
+              <div class="card-body" id="wsSupplierBody">
+                <div id="wsSupplierBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
               </div>
             </div>
-            <div id="wsSupplierBreakdown"><p class="text-muted">No data.</p></div>
           </div>
           <div class="col-md-6" id="wsCustomerBreakdownWrap">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</div>
-              <div id="wsCustomerPager" style="display:none;">
-                <button class="btn btn-sm btn-outline-secondary" id="wsCustomerPrev" onclick="wsCustomerPage(-1)"><i class="fas fa-chevron-left"></i></button>
-                <small class="mx-2" id="wsCustomerPageInfo"></small>
-                <button class="btn btn-sm btn-outline-secondary" id="wsCustomerNext" onclick="wsCustomerPage(1)"><i class="fas fa-chevron-right"></i></button>
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="toggleCard('wsCustomerBody','wsCustomerChevron')">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chevron-down mr-2" id="wsCustomerChevron" style="font-size:11px;color:#6c757d;"></i>
+                  <div class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</div>
+                </div>
+                <div id="wsCustomerPager" style="display:none;">
+                  <button class="btn btn-sm btn-outline-secondary" id="wsCustomerPrev" onclick="event.stopPropagation();wsCustomerPage(-1)"><i class="fas fa-chevron-left"></i></button>
+                  <small class="mx-2" id="wsCustomerPageInfo"></small>
+                  <button class="btn btn-sm btn-outline-secondary" id="wsCustomerNext" onclick="event.stopPropagation();wsCustomerPage(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+              </div>
+              <div class="card-body" id="wsCustomerBody">
+                <div id="wsCustomerBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
               </div>
             </div>
-            <div id="wsCustomerBreakdown"><p class="text-muted">No data.</p></div>
           </div>
         </div>
 
-        <!-- Volume Trend Chart -->
-        <div class="card mt-3 mb-3">
-          <div class="card-header">
-            <div class="section-title mb-0">Volume Trending (kg)</div>
+        <!-- Grade Distribution -->
+        <div class="row mt-3">
+          <div class="col-md-6" id="wsGradeRecvWrap">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="toggleCard('wsGradeRecvBody','wsGradeRecvChevron')">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chevron-down mr-2" id="wsGradeRecvChevron" style="font-size:11px;color:#6c757d;"></i>
+                  <div class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></div>
+                </div>
+                <span class="text-muted" style="font-size:12px;" id="wsGradeRecvTotal"></span>
+              </div>
+              <div class="card-body" id="wsGradeRecvBody">
+                <div id="wsGradeRecvPills" class="mb-3" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                <div id="wsGradeRecvBars"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <canvas id="wsTrendChart" height="80"></canvas>
+          <div class="col-md-6" id="wsGradeDispWrap">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="toggleCard('wsGradeDispBody','wsGradeDispChevron')">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chevron-down mr-2" id="wsGradeDispChevron" style="font-size:11px;color:#6c757d;"></i>
+                  <div class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['dispatch_code'][$language]?></div>
+                </div>
+                <span class="text-muted" style="font-size:12px;" id="wsGradeDispTotal"></span>
+              </div>
+              <div class="card-body" id="wsGradeDispBody">
+                <div id="wsGradeDispPills" class="mb-3" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                <div id="wsGradeDispBars"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hourly Distribution -->
+        <div class="row mt-3" id="wsHourlyWrap">
+          <div class="col-md-6" id="wsHourlyRecvWrap">
+            <div class="card h-100">
+              <div class="card-header" style="cursor:pointer;" onclick="toggleCard('wsHourlyRecvBody','wsHourlyRecvChevron')">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chevron-down mr-2" id="wsHourlyRecvChevron" style="font-size:11px;color:#6c757d;"></i>
+                  <div class="section-title mb-0"><?=$languageArray['receiving_code'][$language]?> by Hour (kg)</div>
+                </div>
+              </div>
+              <div class="card-body" id="wsHourlyRecvBody">
+                <canvas id="wsHourlyRecvChart" height="120"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6" id="wsHourlyDispWrap">
+            <div class="card h-100">
+              <div class="card-header" style="cursor:pointer;" onclick="toggleCard('wsHourlyDispBody','wsHourlyDispChevron')">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chevron-down mr-2" id="wsHourlyDispChevron" style="font-size:11px;color:#6c757d;"></i>
+                  <div class="section-title mb-0"><?=$languageArray['dispatch_code'][$language]?> by Hour (kg)</div>
+                </div>
+              </div>
+              <div class="card-body" id="wsHourlyDispBody">
+                <canvas id="wsHourlyDispChart" height="120"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Volume Trend -->
+        <div class="row mt-3 mb-3" id="wsTrendWrap">
+          <div class="col-md-12">
+            <div class="card h-100">
+              <div class="card-header" style="cursor:pointer;" onclick="toggleCard('wsTrendBody','wsTrendChevron')">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chevron-down mr-2" id="wsTrendChevron" style="font-size:11px;color:#6c757d;"></i>
+                  <div class="section-title mb-0"><?=$languageArray['volume_trending_code'][$language]?></div>
+                </div>
+              </div>
+              <div class="card-body" id="wsTrendBody">
+                <canvas id="wsTrendChart" height="60"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -259,7 +377,7 @@ if (!isset($_SESSION['userID'])) {
 
         <!-- Grading Breakdown by Product + Grade -->
         <div class="section-title"><?=$languageArray['net_code'][$language]?> <?=$languageArray['weight_code'][$language]?> by Product &amp; <?=$languageArray['grading_code'][$language]?></div>
-        <div id="grProductBreakdown"><p class="text-muted">No data.</p></div>
+        <div id="grProductBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
       </div>
 
       <!-- ===== PACKAGING TAB ===== -->
@@ -296,12 +414,11 @@ if (!isset($_SESSION['userID'])) {
 
         <!-- Packaging Breakdown by Product -->
         <div class="section-title"><?=$languageArray['weight_code'][$language]?> by Product (kg)</div>
-        <div id="pkgProductBreakdown"><p class="text-muted">No data.</p></div>
+        <div id="pkgProductBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
       </div>
 
       <!-- ===== PULP & PASTE TAB ===== -->
-      <?php if ($module == 'industrial') { ?>
-      <div class="tab-pane fade <?= !in_array($module, ['wholesale', 'processing']) ? 'show active' : '' ?>" id="tabPulpPaste">
+      <div class="tab-pane fade" id="tabPulpPaste">
         <!-- Pulp & Paste Filters -->
         <div class="row mb-3">
           <div class="form-group col-md-3 mb-0">
@@ -359,7 +476,7 @@ if (!isset($_SESSION['userID'])) {
                 <button class="btn btn-sm btn-outline-secondary" onclick="ppSupplierPage(1)"><i class="fas fa-chevron-right"></i></button>
               </div>
             </div>
-            <div id="ppSupplierBreakdown"><p class="text-muted">No data.</p></div>
+            <div id="ppSupplierBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
           </div>
           <div class="col-md-6" id="ppCustomerBreakdownWrap">
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -370,7 +487,7 @@ if (!isset($_SESSION['userID'])) {
                 <button class="btn btn-sm btn-outline-secondary" onclick="ppCustomerPage(1)"><i class="fas fa-chevron-right"></i></button>
               </div>
             </div>
-            <div id="ppCustomerBreakdown"><p class="text-muted">No data.</p></div>
+            <div id="ppCustomerBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
           </div>
         </div>
 
@@ -384,14 +501,15 @@ if (!isset($_SESSION['userID'])) {
           </div>
         </div>
       </div>
-      <?php } ?>
 
     </div><!-- /.tab-content -->
   </div>
 </div>
 
 <script>
-  var wsTrendChart = null;
+  var wsTrendChart     = null;
+  var wsHourlyRecvChart = null;
+  var wsHourlyDispChart = null;
 
   var wsSupplierData = [];
   var wsSupplierCurrentPage = 0;
@@ -523,24 +641,33 @@ if (!isset($_SESSION['userID'])) {
       var wsType = $('#wsType').val();
 
       // Update cards visibility
-      if (wsType == 'DISPATCH') {
-        $('#wsReceivingCard').hide();
-        $('#wsDispatchCard').show();
+      if (wsType == 'DISPATCH' || wsType == 'STOCK-BAL') {
+        $('#wsReceivingCard, #wsReceivingValueCard').hide();
+        $('#wsDispatchCard, #wsDispatchValueCard').show();
       } else if (wsType == 'RECEIVING') {
-        $('#wsDispatchCard').hide();
-        $('#wsReceivingCard').show();
+        $('#wsDispatchCard, #wsDispatchValueCard').hide();
+        $('#wsReceivingCard, #wsReceivingValueCard').show();
       } else {
-        $('#wsReceivingCard').show();
-        $('#wsDispatchCard').show();
+        $('#wsReceivingCard, #wsReceivingValueCard').show();
+        $('#wsDispatchCard, #wsDispatchValueCard').show();
       }
 
       $('#wsReceivingWeight').text(formatNum(s.receiving_weight));
       $('#wsReceivingCount').text(s.receiving_count || 0);
+      $('#wsReceivingValue').html(formatCurrencyMap(s.receiving_value));
       $('#wsDispatchWeight').text(formatNum(s.dispatch_weight));
       $('#wsDispatchCount').text(s.dispatch_count || 0);
+      $('#wsDispatchValue').html(formatCurrencyMap(s.dispatch_value));
 
-      // Volume trend chart
+      // Volume trend chart — hide the card if there is no data
       var trend = obj.volumeTrend || [];
+
+      if (trend.length == 0) {
+        $('#wsTrendWrap').hide();
+      } else {
+        $('#wsTrendWrap').show();
+      }
+
       var labels   = trend.map(function(d) { return d.date; });
       var recvData = trend.map(function(d) { return d.receiving; });
       var dispData = trend.map(function(d) { return d.dispatch; });
@@ -612,6 +739,114 @@ if (!isset($_SESSION['userID'])) {
       } else {
         $('#wsCustomerBreakdownWrap').hide();
         wsCustomerData = [];
+      }
+
+      // Grade distribution — receiving (grouped by product)
+      var gradeRecv = obj.gradeDistribution || [];
+      if (wsType != 'DISPATCH' && gradeRecv.length > 0) {
+        $('#wsGradeRecvWrap').show();
+        var recvTotal = gradeRecv.reduce(function(s, p) { return s + p.grades.reduce(function(a, g) { return a + g.weight; }, 0); }, 0);
+        $('#wsGradeRecvTotal').text(formatNum(recvTotal) + ' kg');
+        renderGradeDist('wsGradeRecvPills', 'wsGradeRecvBars', gradeRecv, 'product', '#17a2b8');
+      } else {
+        $('#wsGradeRecvWrap').hide();
+      }
+
+      // Grade distribution — dispatch (grouped by product)
+      var gradeDisp = obj.gradeDistributionDispatch || [];
+      if (wsType != 'RECEIVING' && gradeDisp.length > 0) {
+        $('#wsGradeDispWrap').show();
+        var dispTotal = gradeDisp.reduce(function(s, p) { return s + p.grades.reduce(function(a, g) { return a + g.weight; }, 0); }, 0);
+        $('#wsGradeDispTotal').text(formatNum(dispTotal) + ' kg');
+        renderGradeDist('wsGradeDispPills', 'wsGradeDispBars', gradeDisp, 'product', '#28a745');
+      } else {
+        $('#wsGradeDispWrap').hide();
+      }
+
+      // Hourly distribution charts
+      // Labels for all 24 hours in 12-hour am/pm format
+      var hourLabels = ['12am','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
+                        '12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'];
+
+      var hourlyRecv = obj.hourlyReceiving || [];
+      var hourlyDisp = obj.hourlyDispatch  || [];
+
+      // Check if any hour has data — hide the whole row if both are empty
+      var hasRecvHourly = wsType != 'DISPATCH' && hourlyRecv.some(function(v) { return v > 0; });
+      var hasDispHourly = wsType != 'RECEIVING' && hourlyDisp.some(function(v) { return v > 0; });
+
+      if (!hasRecvHourly && !hasDispHourly) {
+        $('#wsHourlyWrap').hide();
+      } else {
+        $('#wsHourlyWrap').show();
+      }
+
+      if (hasRecvHourly) {
+        $('#wsHourlyRecvWrap').show();
+        if (wsHourlyRecvChart) {
+          wsHourlyRecvChart.data.datasets[0].data = hourlyRecv;
+          wsHourlyRecvChart.update();
+        } else {
+          var ctx = document.getElementById('wsHourlyRecvChart').getContext('2d');
+          wsHourlyRecvChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: hourLabels,
+              datasets: [{ label: 'Receiving (kg)', data: hourlyRecv, backgroundColor: 'rgba(23,162,184,0.7)', borderColor: '#17a2b8', borderWidth: 1 }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                xAxes: [{ gridLines: { display: false } }],
+                yAxes: [{ ticks: { beginAtZero: true } }]
+              },
+              legend: { display: false },
+              tooltips: {
+                callbacks: {
+                  label: function(item) {
+                    return parseFloat(item.yLabel).toLocaleString('en-MY', { minimumFractionDigits: 2 }) + ' kg';
+                  }
+                }
+              }
+            }
+          });
+        }
+      } else {
+        $('#wsHourlyRecvWrap').hide();
+      }
+
+      if (hasDispHourly) {
+        $('#wsHourlyDispWrap').show();
+        if (wsHourlyDispChart) {
+          wsHourlyDispChart.data.datasets[0].data = hourlyDisp;
+          wsHourlyDispChart.update();
+        } else {
+          var ctx = document.getElementById('wsHourlyDispChart').getContext('2d');
+          wsHourlyDispChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: hourLabels,
+              datasets: [{ label: 'Dispatch (kg)', data: hourlyDisp, backgroundColor: 'rgba(40,167,69,0.7)', borderColor: '#28a745', borderWidth: 1 }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                xAxes: [{ gridLines: { display: false } }],
+                yAxes: [{ ticks: { beginAtZero: true } }]
+              },
+              legend: { display: false },
+              tooltips: {
+                callbacks: {
+                  label: function(item) {
+                    return parseFloat(item.yLabel).toLocaleString('en-MY', { minimumFractionDigits: 2 }) + ' kg';
+                  }
+                }
+              }
+            }
+          });
+        }
+      } else {
+        $('#wsHourlyDispWrap').hide();
       }
     });
   }
@@ -944,6 +1179,83 @@ if (!isset($_SESSION['userID'])) {
     });
 
     return html;
+  }
+
+  function renderGradeDist(pillsId, barsId, groups, groupKey, color) {
+    // Build pill buttons for each group; clicking filters bars
+    var $pills = $('#' + pillsId);
+    var $bars  = $('#' + barsId);
+    $pills.empty();
+
+    // Aggregate all grades across groups for the "All" view
+    var allGrades = {};
+    groups.forEach(function(g) {
+      g.grades.forEach(function(gr) {
+        allGrades[gr.name] = (allGrades[gr.name] || 0) + gr.weight;
+      });
+    });
+
+    function renderBars(grades) {
+      var total = Object.values(grades).reduce(function(s, v) { return s + v; }, 0);
+      var max   = Math.max.apply(null, Object.values(grades));
+      var html  = '';
+      Object.keys(grades).sort(function(a, b) { return grades[b] - grades[a]; }).forEach(function(name) {
+        var w    = grades[name];
+        var pct  = max > 0 ? (w / max * 100).toFixed(1) : 0;
+        var share = total > 0 ? (w / total * 100).toFixed(0) : 0;
+        html += '<div class="breakdown-bar-wrap">' +
+          '<div class="breakdown-bar-label"><span>' + name + '</span><span>' + formatNum(w) + ' kg (' + share + '%)</span></div>' +
+          '<div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div></div>' +
+        '</div>';
+      });
+      $bars.html(html || '<p class="text-muted">No data.</p>');
+    }
+
+    // "All" pill
+    var $all = $('<button class="btn btn-sm btn-secondary active mr-1 mb-1">All</button>');
+    $all.on('click', function() {
+      $pills.find('button').removeClass('active btn-secondary').addClass('btn-outline-secondary');
+      $(this).removeClass('btn-outline-secondary').addClass('btn-secondary active');
+      renderBars(allGrades);
+    });
+    $pills.append($all);
+
+    groups.forEach(function(g) {
+      var label = g[groupKey] || 'Unknown';
+      var $btn = $('<button class="btn btn-sm btn-outline-secondary mr-1 mb-1"></button>').text(label);
+      $btn.on('click', function() {
+        $pills.find('button').removeClass('active btn-secondary').addClass('btn-outline-secondary');
+        $(this).removeClass('btn-outline-secondary').addClass('btn-secondary active');
+        var gradeObj = {};
+        g.grades.forEach(function(gr) { gradeObj[gr.name] = gr.weight; });
+        renderBars(gradeObj);
+      });
+      $pills.append($btn);
+    });
+
+    renderBars(allGrades);
+  }
+
+  function toggleCard(bodyId, chevronId) {
+    var $body    = $('#' + bodyId);
+    var $chevron = $('#' + chevronId);
+    $body.slideToggle(150, function() {
+      if ($body.is(':visible')) {
+        $chevron.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+      } else {
+        $chevron.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+      }
+    });
+  }
+
+  function formatCurrencyMap(map) {
+    if (!map || typeof map !== 'object') return '—';
+    var keys = Object.keys(map);
+    if (keys.length === 0) return '—';
+    return keys.map(function(cur) {
+      var n = parseFloat(map[cur]) || 0;
+      return (cur || '?') + ' ' + n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }).join('<br>');
   }
 
   function formatNum(val) {
