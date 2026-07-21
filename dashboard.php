@@ -14,12 +14,16 @@ if (!isset($_SESSION['userID'])) {
 
     if ($role != 'SADMIN') {
         $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+        $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
         $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
+        $suppliers2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
         $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
         $productionLines = $db->query("SELECT * FROM production_lines WHERE deleted = '0' AND customers = '$company' ORDER BY production_line ASC");
     } else {
         $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+        $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
         $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
+        $suppliers2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
         $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
         $productionLines = $db->query("SELECT * FROM production_lines WHERE deleted = '0' ORDER BY production_line ASC");
     }
@@ -68,7 +72,7 @@ if (!isset($_SESSION['userID'])) {
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['processing_code'][$language]?> <?=$languageArray['dashboard_code'][$language]?></h1>
+        <h1 class="m-0 text-dark"><?=$languageArray['dashboard_code'][$language]?></h1>
       </div>
     </div>
   </div>
@@ -99,6 +103,8 @@ if (!isset($_SESSION['userID'])) {
               </div>
             </div>
           </div>
+
+          <?php if ($module == 'wholesale' || $module == 'processing' || $module == 'industrial') { ?>
           <div class="form-group col-md-3 mb-0">
             <label class="mb-1"><?=$languageArray['locations_code'][$language]?></label>
             <select class="form-control select2" id="dashLocation">
@@ -108,6 +114,7 @@ if (!isset($_SESSION['userID'])) {
               <?php } ?>
             </select>
           </div>
+          <?php } ?>
           <div class="col-md-2 mb-0">
             <button type="button" class="btn btn-warning btn-block" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
@@ -122,12 +129,19 @@ if (!isset($_SESSION['userID'])) {
     <ul class="nav nav-tabs" id="dashTabs">
       <?php if (in_array($module, ['wholesale', 'processing'])) { ?>
       <li class="nav-item">
-        <a class="nav-link active" data-toggle="tab" href="#tabWholesales">
+        <a class="nav-link <?= $module != 'wholesale' || $module != 'processing' ? '' : 'active' ?>" data-toggle="tab" href="#tabWholesales">
           <i class="fas fa-cubes mr-1"></i> <?=$languageArray['wholesales_code'][$language]?>
         </a>
       </li>
       <?php } ?>
-      <?php if ($module === 'processing') { ?>
+      <?php if ($module == 'industrial') { ?>
+      <li class="nav-item">
+        <a class="nav-link <?= !in_array($module, ['wholesale', 'processing']) ? 'active' : '' ?>" data-toggle="tab" href="#tabPulpPaste">
+          <i class="fas fa-blender mr-1"></i> <?=$languageArray['pulp_and_paste_code'][$language]?>
+        </a>
+      </li>
+      <?php } ?>
+      <?php if ($module == 'processing') { ?>
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#tabGrading">
           <i class="fas fa-clipboard-check mr-1"></i> <?=$languageArray['grading_code'][$language]?>
@@ -144,7 +158,7 @@ if (!isset($_SESSION['userID'])) {
     <div class="tab-content" style="background:#fff; border:1px solid #dee2e6; border-top:none; border-radius:0 0 4px 4px; padding:20px;">
 
       <!-- ===== WHOLESALES TAB ===== -->
-      <div class="tab-pane fade show active" id="tabWholesales">
+      <div class="tab-pane fade <?= $module == 'industrial' ? '' : 'show active' ?>" id="tabWholesales">
         <!-- Wholesales Filters -->
         <div class="row mb-3">
           <div class="form-group col-md-3 mb-0">
@@ -228,7 +242,6 @@ if (!isset($_SESSION['userID'])) {
             <canvas id="wsTrendChart" height="80"></canvas>
           </div>
         </div>
-
       </div>
 
       <!-- ===== GRADING TAB ===== -->
@@ -286,6 +299,93 @@ if (!isset($_SESSION['userID'])) {
         <div id="pkgProductBreakdown"><p class="text-muted">No data.</p></div>
       </div>
 
+      <!-- ===== PULP & PASTE TAB ===== -->
+      <?php if ($module == 'industrial') { ?>
+      <div class="tab-pane fade <?= !in_array($module, ['wholesale', 'processing']) ? 'show active' : '' ?>" id="tabPulpPaste">
+        <!-- Pulp & Paste Filters -->
+        <div class="row mb-3">
+          <div class="form-group col-md-3 mb-0">
+            <label class="mb-1"><?=$languageArray['status_code'][$language]?></label>
+            <select class="form-control" id="ppType">
+              <option value=""><?=$languageArray['all_code'][$language]?></option>
+              <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+              <option value="OUTGOING"><?=$languageArray['outgoing_code'][$language]?></option>
+            </select>
+          </div>
+          <div class="form-group col-md-3 mb-0" id="ppSupplierWrap" style="display:none;">
+            <label class="mb-1"><?=$languageArray['supplier_code'][$language]?></label>
+            <select class="form-control select2" id="ppSupplier">
+              <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['supplier_code'][$language]?></option>
+              <?php while ($row = mysqli_fetch_assoc($suppliers2)) { ?>
+                <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['supplier_name']) ?></option>
+              <?php } ?>
+            </select>
+          </div>
+          <div class="form-group col-md-3 mb-0" id="ppCustomerWrap" style="display:none;">
+            <label class="mb-1"><?=$languageArray['customer_code'][$language]?></label>
+            <select class="form-control select2" id="ppCustomer">
+              <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['customer_code'][$language]?></option>
+              <?php while ($row = mysqli_fetch_assoc($customers2)) { ?>
+                <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['customer_name']) ?></option>
+              <?php } ?>
+            </select>
+          </div>
+        </div>
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <div class="col-md-3 col-6 mb-3" id="ppIncomingCard">
+            <div class="dash-stat-card" style="background:linear-gradient(135deg,#fd7e14,#e55a00);">
+              <div class="stat-label"><?=$languageArray['incoming_code'][$language]?> — <?=$languageArray['total_weight_code'][$language]?></div>
+              <div class="stat-value" id="ppIncomingWeight">—</div>
+              <div class="stat-sub"><span id="ppIncomingCount">—</span> records &nbsp;|&nbsp; kg</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 mb-3" id="ppOutgoingCard">
+            <div class="dash-stat-card" style="background:linear-gradient(135deg,#20c997,#12876f);">
+              <div class="stat-label"><?=$languageArray['outgoing_code'][$language]?> — <?=$languageArray['total_weight_code'][$language]?></div>
+              <div class="stat-value" id="ppOutgoingWeight">—</div>
+              <div class="stat-sub"><span id="ppOutgoingCount">—</span> records &nbsp;|&nbsp; kg</div>
+            </div>
+          </div>
+        </div>
+        <!-- Breakdowns -->
+        <div class="row">
+          <div class="col-md-6" id="ppSupplierBreakdownWrap">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</div>
+              <div id="ppSupplierPager" style="display:none;">
+                <button class="btn btn-sm btn-outline-secondary" onclick="ppSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
+                <small class="mx-2" id="ppSupplierPageInfo"></small>
+                <button class="btn btn-sm btn-outline-secondary" onclick="ppSupplierPage(1)"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+            <div id="ppSupplierBreakdown"><p class="text-muted">No data.</p></div>
+          </div>
+          <div class="col-md-6" id="ppCustomerBreakdownWrap">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</div>
+              <div id="ppCustomerPager" style="display:none;">
+                <button class="btn btn-sm btn-outline-secondary" onclick="ppCustomerPage(-1)"><i class="fas fa-chevron-left"></i></button>
+                <small class="mx-2" id="ppCustomerPageInfo"></small>
+                <button class="btn btn-sm btn-outline-secondary" onclick="ppCustomerPage(1)"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+            <div id="ppCustomerBreakdown"><p class="text-muted">No data.</p></div>
+          </div>
+        </div>
+
+        <!-- Volume Trend Chart -->
+        <div class="card mt-3 mb-3">
+          <div class="card-header">
+            <div class="section-title mb-0">Volume Trending (kg)</div>
+          </div>
+          <div class="card-body">
+            <canvas id="ppTrendChart" height="80"></canvas>
+          </div>
+        </div>
+      </div>
+      <?php } ?>
+
     </div><!-- /.tab-content -->
   </div>
 </div>
@@ -297,6 +397,11 @@ if (!isset($_SESSION['userID'])) {
   var wsSupplierCurrentPage = 0;
   var wsCustomerData = [];
   var wsCustomerCurrentPage = 0;
+  var ppTrendChart = null;
+  var ppSupplierData = [];
+  var ppSupplierCurrentPage = 0;
+  var ppCustomerData = [];
+  var ppCustomerCurrentPage = 0;
   var WS_PAGE_SIZE = 10;
 
   $(function () {
@@ -312,11 +417,11 @@ if (!isset($_SESSION['userID'])) {
     // Toggle customer/supplier filter visibility based on type selection
     $('#wsType').on('change', function () {
       var val = $(this).val();
-      if (val === 'DISPATCH') {
+      if (val == 'DISPATCH') {
         $('#wsSupplierWrap').hide();
         $('#wsCustomerWrap').show();
         $('#wsSupplier').val('').trigger('change.select2');
-      } else if (val === 'RECEIVING') {
+      } else if (val == 'RECEIVING') {
         $('#wsCustomerWrap').hide();
         $('#wsSupplierWrap').show();
         $('#wsCustomer').val('').trigger('change.select2');
@@ -337,6 +442,29 @@ if (!isset($_SESSION['userID'])) {
       loadPackaging();
     });
 
+    $('#ppType').on('change', function () {
+      var val = $(this).val();
+      if (val == 'OUTGOING') {
+        $('#ppSupplierWrap').hide();
+        $('#ppCustomerWrap').show();
+        $('#ppSupplier').val('').trigger('change.select2');
+      } else if (val == 'INCOMING') {
+        $('#ppCustomerWrap').hide();
+        $('#ppSupplierWrap').show();
+        $('#ppCustomer').val('').trigger('change.select2');
+      } else {
+        $('#ppSupplierWrap').hide();
+        $('#ppCustomerWrap').hide();
+        $('#ppSupplier').val('').trigger('change.select2');
+        $('#ppCustomer').val('').trigger('change.select2');
+      }
+      loadPulpPaste();
+    });
+
+    $('#ppSupplier, #ppCustomer').on('change', function () {
+      loadPulpPaste();
+    });
+
     $('#dashSearch').on('click', function () {
       loadAllDashboards();
     });
@@ -344,8 +472,15 @@ if (!isset($_SESSION['userID'])) {
     // Also reload when switching tabs if not yet loaded
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
       var target = $(e.target).attr('href');
-      if (target === '#tabGrading') loadGrading();
-      if (target === '#tabPackaging') loadPackaging();
+      if (target == '#tabGrading') {
+        loadGrading();
+      }
+      if (target == '#tabPackaging'){
+        loadPackaging();
+      } 
+      if (target == '#tabPulpPaste') {
+        loadPulpPaste();
+      }
     });
 
     // Load all on page ready
@@ -370,6 +505,7 @@ if (!isset($_SESSION['userID'])) {
     loadWholesales();
     loadGrading();
     loadPackaging();
+    loadPulpPaste();
   }
 
   function loadWholesales() {
@@ -387,10 +523,10 @@ if (!isset($_SESSION['userID'])) {
       var wsType = $('#wsType').val();
 
       // Update cards visibility
-      if (wsType === 'DISPATCH') {
+      if (wsType == 'DISPATCH') {
         $('#wsReceivingCard').hide();
         $('#wsDispatchCard').show();
-      } else if (wsType === 'RECEIVING') {
+      } else if (wsType == 'RECEIVING') {
         $('#wsDispatchCard').hide();
         $('#wsReceivingCard').show();
       } else {
@@ -457,7 +593,7 @@ if (!isset($_SESSION['userID'])) {
       }
 
       // Supplier breakdown
-      if (wsType !== 'DISPATCH' && obj.supplierBreakdown.length > 0) {
+      if (wsType != 'DISPATCH' && obj.supplierBreakdown.length > 0) {
         $('#wsSupplierBreakdownWrap').show();
         wsSupplierData = obj.supplierBreakdown;
         wsSupplierCurrentPage = 0;
@@ -468,7 +604,7 @@ if (!isset($_SESSION['userID'])) {
       }
 
       // Customer breakdown
-      if (wsType !== 'RECEIVING' && obj.customerBreakdown.length > 0) {
+      if (wsType != 'RECEIVING' && obj.customerBreakdown.length > 0) {
         $('#wsCustomerBreakdownWrap').show();
         wsCustomerData = obj.customerBreakdown;
         wsCustomerCurrentPage = 0;
@@ -490,7 +626,7 @@ if (!isset($_SESSION['userID'])) {
       $('#grSessionCount').text(s.session_count || 0);
 
       var items = obj.productGradeBreakdown || [];
-      if (items.length === 0) {
+      if (items.length == 0) {
         $('#grProductBreakdown').html('<p class="text-muted">No data.</p>');
         return;
       }
@@ -568,7 +704,7 @@ if (!isset($_SESSION['userID'])) {
       $('#pkgBatchCount').text(s.batch_count || 0);
 
       var items = obj.productBreakdown || [];
-      if (items.length === 0) {
+      if (items.length == 0) {
         $('#pkgProductBreakdown').html('<p class="text-muted">No data.</p>');
         return;
       }
@@ -627,6 +763,112 @@ if (!isset($_SESSION['userID'])) {
     });
   }
 
+  function loadPulpPaste() {
+    var ppType = $('#ppType').val();
+    var params = $.extend(getDateParams(), {
+      status: ppType,
+      supplier: $('#ppSupplier').val() || '',
+      customer: $('#ppCustomer').val() || ''
+    });
+    $.post('php/modules/industrial/getDashboard.php', params, function (data) {
+      var obj = JSON.parse(data);
+      if (obj.status !== 'success') return;
+
+      var s = obj.summary;
+
+      if (ppType == 'OUTGOING') {
+        $('#ppIncomingCard').hide();
+        $('#ppOutgoingCard').show();
+      } else if (ppType == 'INCOMING') {
+        $('#ppOutgoingCard').hide();
+        $('#ppIncomingCard').show();
+      } else {
+        $('#ppIncomingCard').show();
+        $('#ppOutgoingCard').show();
+      }
+
+      $('#ppIncomingWeight').text(formatNum(s.incoming_weight));
+      $('#ppIncomingCount').text(s.incoming_count || 0);
+      $('#ppOutgoingWeight').text(formatNum(s.outgoing_weight));
+      $('#ppOutgoingCount').text(s.outgoing_count || 0);
+
+      // Volume trend chart
+      var trend = obj.volumeTrend || [];
+      var labels   = trend.map(function(d) { return d.date; });
+      var inData   = trend.map(function(d) { return d.incoming; });
+      var outData  = trend.map(function(d) { return d.outgoing; });
+
+      if (ppTrendChart) {
+        ppTrendChart.data.labels = labels;
+        ppTrendChart.data.datasets[0].data = inData;
+        ppTrendChart.data.datasets[1].data = outData;
+        ppTrendChart.update();
+      } else {
+        var ctx = document.getElementById('ppTrendChart').getContext('2d');
+        ppTrendChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              { label: 'Incoming (kg)', data: inData, backgroundColor: 'rgba(253,126,20,0.7)', borderColor: '#fd7e14', borderWidth: 1 },
+              { label: 'Outgoing (kg)', data: outData, backgroundColor: 'rgba(32,201,151,0.7)', borderColor: '#20c997', borderWidth: 1 }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              xAxes: [{ gridLines: { display: false } }],
+              yAxes: [{ ticks: { beginAtZero: true } }]
+            },
+            legend: { position: 'top' },
+            tooltips: {
+              callbacks: {
+                label: function(item, data) {
+                  return data.datasets[item.datasetIndex].label + ': ' +
+                    parseFloat(item.yLabel).toLocaleString('en-MY', { minimumFractionDigits: 2 }) + ' kg';
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Supplier breakdown
+      if (ppType != 'OUTGOING' && obj.supplierBreakdown && obj.supplierBreakdown.length > 0) {
+        $('#ppSupplierBreakdownWrap').show();
+        ppSupplierData = obj.supplierBreakdown;
+        ppSupplierCurrentPage = 0;
+        renderPagedBreakdown('ppSupplierBreakdown', 'ppSupplierPager', 'ppSupplierPageInfo', ppSupplierData, ppSupplierCurrentPage, '#fd7e14');
+      } else {
+        $('#ppSupplierBreakdownWrap').hide();
+        ppSupplierData = [];
+      }
+
+      // Customer breakdown
+      if (ppType != 'INCOMING' && obj.customerBreakdown && obj.customerBreakdown.length > 0) {
+        $('#ppCustomerBreakdownWrap').show();
+        ppCustomerData = obj.customerBreakdown;
+        ppCustomerCurrentPage = 0;
+        renderPagedBreakdown('ppCustomerBreakdown', 'ppCustomerPager', 'ppCustomerPageInfo', ppCustomerData, ppCustomerCurrentPage, '#20c997');
+      } else {
+        $('#ppCustomerBreakdownWrap').hide();
+        ppCustomerData = [];
+      }
+    });
+  }
+
+  function ppSupplierPage(dir) {
+    var totalPages = Math.ceil(ppSupplierData.length / WS_PAGE_SIZE);
+    ppSupplierCurrentPage = Math.max(0, Math.min(ppSupplierCurrentPage + dir, totalPages - 1));
+    renderPagedBreakdown('ppSupplierBreakdown', 'ppSupplierPager', 'ppSupplierPageInfo', ppSupplierData, ppSupplierCurrentPage, '#fd7e14');
+  }
+
+  function ppCustomerPage(dir) {
+    var totalPages = Math.ceil(ppCustomerData.length / WS_PAGE_SIZE);
+    ppCustomerCurrentPage = Math.max(0, Math.min(ppCustomerCurrentPage + dir, totalPages - 1));
+    renderPagedBreakdown('ppCustomerBreakdown', 'ppCustomerPager', 'ppCustomerPageInfo', ppCustomerData, ppCustomerCurrentPage, '#20c997');
+  }
+
   function wsSupplierPage(dir) {
     var totalPages = Math.ceil(wsSupplierData.length / WS_PAGE_SIZE);
     wsSupplierCurrentPage = Math.max(0, Math.min(wsSupplierCurrentPage + dir, totalPages - 1));
@@ -660,7 +902,7 @@ if (!isset($_SESSION['userID'])) {
   }
 
   function renderBreakdownItems(items, maxVal, totalVal, color) {
-    if (!items || items.length === 0) return '<p class="text-muted">No data.</p>';
+    if (!items || items.length == 0) return '<p class="text-muted">No data.</p>';
     var html = '';
     items.forEach(function(item) {
       var val = parseFloat(item.total_weight) || 0;
@@ -680,7 +922,7 @@ if (!isset($_SESSION['userID'])) {
   }
 
   function renderBreakdown(items, color) {
-    if (!items || items.length === 0) return '<p class="text-muted">No data.</p>';
+    if (!items || items.length == 0) return '<p class="text-muted">No data.</p>';
 
     var maxVal = Math.max.apply(null, items.map(function (i) { return parseFloat(i.total_weight) || 0; }));
     var totalVal = items.reduce(function (sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);

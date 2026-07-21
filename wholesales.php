@@ -12,6 +12,7 @@ else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
   $module = $_SESSION['module'];
+  $companyProducts = $_SESSION['products'];
   $enableDailySales = $_SESSION['enableDailySales'];
   $dailySalesModules = $_SESSION['dailySalesModules'];
   $stmt = $db->prepare("SELECT * from users where id = ?");
@@ -208,7 +209,9 @@ else{
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
                     <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                    <?php if (in_array('stocks', $companyProducts)) { ?>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                    <?php } ?>
                   </select>
                 </div>
               </div>
@@ -445,7 +448,9 @@ else{
                 <select class="form-control" id="status" name="status" required>
                   <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
                   <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                  <?php if (in_array('stocks', $companyProducts)) { ?>
                   <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                  <?php } ?>
                 </select>
               </div>
             </div>
