@@ -158,7 +158,7 @@ if (!isset($_SESSION['userID'])) {
     <div class="tab-content" style="background:#fff; border:1px solid #dee2e6; border-top:none; border-radius:0 0 4px 4px; padding:20px;">
 
       <!-- ===== WHOLESALES TAB ===== -->
-      <div class="tab-pane fade <?= $module == 'industrial' ? '' : 'show active' ?>" id="tabWholesales">
+      <div class="tab-pane fade show active" id="tabWholesales">
         <!-- Wholesales Filters -->
         <div class="row mb-3">
           <div class="form-group col-md-3 mb-0">
@@ -300,8 +300,7 @@ if (!isset($_SESSION['userID'])) {
       </div>
 
       <!-- ===== PULP & PASTE TAB ===== -->
-      <?php if ($module == 'industrial') { ?>
-      <div class="tab-pane fade <?= !in_array($module, ['wholesale', 'processing']) ? 'show active' : '' ?>" id="tabPulpPaste">
+      <div class="tab-pane fade" id="tabPulpPaste">
         <!-- Pulp & Paste Filters -->
         <div class="row mb-3">
           <div class="form-group col-md-3 mb-0">
@@ -384,7 +383,6 @@ if (!isset($_SESSION['userID'])) {
           </div>
         </div>
       </div>
-      <?php } ?>
 
     </div><!-- /.tab-content -->
   </div>
