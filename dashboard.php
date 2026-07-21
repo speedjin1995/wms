@@ -7,6 +7,7 @@ if (!isset($_SESSION['userID'])) {
 } else {
     $user = $_SESSION['userID'];
     $module = $_SESSION['module'] ?? '';
+    $companyProducts = $_SESSION['products'] ?? [];
     $company = $_SESSION['customer'];
     $role = $_SESSION['role'];
     $language = $_SESSION['language'];
@@ -104,7 +105,6 @@ if (!isset($_SESSION['userID'])) {
             </div>
           </div>
 
-          <?php if ($module == 'wholesale' || $module == 'processing' || $module == 'industrial') { ?>
           <div class="form-group col-md-3 mb-0">
             <label class="mb-1"><?=$languageArray['locations_code'][$language]?></label>
             <select class="form-control select2" id="dashLocation">
@@ -114,7 +114,7 @@ if (!isset($_SESSION['userID'])) {
               <?php } ?>
             </select>
           </div>
-          <?php } ?>
+
           <div class="col-md-2 mb-0">
             <button type="button" class="btn btn-warning btn-block" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
@@ -127,21 +127,21 @@ if (!isset($_SESSION['userID'])) {
 
     <!-- Tabs -->
     <ul class="nav nav-tabs" id="dashTabs">
-      <?php if (in_array($module, ['wholesale', 'processing'])) { ?>
+      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
       <li class="nav-item">
         <a class="nav-link <?= $module != 'wholesale' || $module != 'processing' ? '' : 'active' ?>" data-toggle="tab" href="#tabWholesales">
           <i class="fas fa-cubes mr-1"></i> <?=$languageArray['wholesales_code'][$language]?>
         </a>
       </li>
       <?php } ?>
-      <?php if ($module == 'industrial') { ?>
+      <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
       <li class="nav-item">
         <a class="nav-link <?= !in_array($module, ['wholesale', 'processing']) ? 'active' : '' ?>" data-toggle="tab" href="#tabPulpPaste">
           <i class="fas fa-blender mr-1"></i> <?=$languageArray['pulp_and_paste_code'][$language]?>
         </a>
       </li>
       <?php } ?>
-      <?php if ($module == 'processing') { ?>
+      <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#tabGrading">
           <i class="fas fa-clipboard-check mr-1"></i> <?=$languageArray['grading_code'][$language]?>

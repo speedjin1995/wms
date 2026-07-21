@@ -144,6 +144,18 @@ if(!isset($_SESSION['userID'])){
             </div>
 
             <div class="modules-box-list">
+                <a href="php/setModule.php?module=dashboard" 
+                    <?php 
+                        if (empty(array_intersect(['industrial', 'wholesale', 'processing'], $_SESSION['products']))) {
+                            echo 'style="display:none;"';
+                        }
+                    ?>
+                >
+                    <div class="modules-box modules-box-1">
+                        <img src="assets/dashboard-icon.png" alt="Dashboard" class="modules-img">
+                        <div class="modules-txt"><?=$languageArray['dashboard_code'][$language]?></div>
+                    </div>
+                </a>
                 <a href="php/setModule.php?module=industrial" 
                     <?php 
                         if (!in_array('industrial', $_SESSION['products'], false)) {
