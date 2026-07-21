@@ -129,14 +129,14 @@ if (!isset($_SESSION['userID'])) {
     <ul class="nav nav-tabs" id="dashTabs">
       <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
       <li class="nav-item">
-        <a class="nav-link <?= $module != 'wholesale' || $module != 'processing' ? '' : 'active' ?>" data-toggle="tab" href="#tabWholesales">
+        <a class="nav-link active" data-toggle="tab" href="#tabWholesales">
           <i class="fas fa-cubes mr-1"></i> <?=$languageArray['wholesales_code'][$language]?>
         </a>
       </li>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
       <li class="nav-item">
-        <a class="nav-link <?= !in_array($module, ['wholesale', 'processing']) ? 'active' : '' ?>" data-toggle="tab" href="#tabPulpPaste">
+        <a class="nav-link" data-toggle="tab" href="#tabPulpPaste">
           <i class="fas fa-blender mr-1"></i> <?=$languageArray['pulp_and_paste_code'][$language]?>
         </a>
       </li>
@@ -190,19 +190,33 @@ if (!isset($_SESSION['userID'])) {
         </div>
 
         <!-- Wholesales Summary Cards -->
-        <div class="row mb-4" id="wsCards">
+        <div class="row mb-4 align-items-stretch" id="wsCards">
           <div class="col-md-3 col-6 mb-3" id="wsReceivingCard">
-            <div class="dash-stat-card" style="background:linear-gradient(135deg,#17a2b8,#138496);">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#17a2b8,#138496);">
               <div class="stat-label"><?=$languageArray['receiving_code'][$language]?> — <?=$languageArray['total_weight_code'][$language]?></div>
               <div class="stat-value" id="wsReceivingWeight">—</div>
               <div class="stat-sub"><span id="wsReceivingCount">—</span> records &nbsp;|&nbsp; kg</div>
             </div>
           </div>
+          <div class="col-md-3 col-6 mb-3" id="wsReceivingValueCard">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#0d6efd,#0a58ca);">
+              <div class="stat-label"><?=$languageArray['receiving_code'][$language]?> — <?=$languageArray['total_value_code'][$language]?></div>
+              <div class="stat-value" id="wsReceivingValue">—</div>
+              <div class="stat-sub"><?=$languageArray['total_value_code'][$language]?></div>
+            </div>
+          </div>
           <div class="col-md-3 col-6 mb-3" id="wsDispatchCard">
-            <div class="dash-stat-card" style="background:linear-gradient(135deg,#28a745,#1e7e34);">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#28a745,#1e7e34);">
               <div class="stat-label"><?=$languageArray['dispatch_code'][$language]?> — <?=$languageArray['total_weight_code'][$language]?></div>
               <div class="stat-value" id="wsDispatchWeight">—</div>
               <div class="stat-sub"><span id="wsDispatchCount">—</span> records &nbsp;|&nbsp; kg</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6 mb-3" id="wsDispatchValueCard">
+            <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#fd7e14,#e55a00);">
+              <div class="stat-label"><?=$languageArray['dispatch_code'][$language]?> — <?=$languageArray['total_value_code'][$language]?></div>
+              <div class="stat-value" id="wsDispatchValue">—</div>
+              <div class="stat-sub"><?=$languageArray['total_value_code'][$language]?></div>
             </div>
           </div>
         </div>
@@ -521,21 +535,23 @@ if (!isset($_SESSION['userID'])) {
       var wsType = $('#wsType').val();
 
       // Update cards visibility
-      if (wsType == 'DISPATCH') {
-        $('#wsReceivingCard').hide();
-        $('#wsDispatchCard').show();
+      if (wsType == 'DISPATCH' || wsType == 'STOCK-BAL') {
+        $('#wsReceivingCard, #wsReceivingValueCard').hide();
+        $('#wsDispatchCard, #wsDispatchValueCard').show();
       } else if (wsType == 'RECEIVING') {
-        $('#wsDispatchCard').hide();
-        $('#wsReceivingCard').show();
+        $('#wsDispatchCard, #wsDispatchValueCard').hide();
+        $('#wsReceivingCard, #wsReceivingValueCard').show();
       } else {
-        $('#wsReceivingCard').show();
-        $('#wsDispatchCard').show();
+        $('#wsReceivingCard, #wsReceivingValueCard').show();
+        $('#wsDispatchCard, #wsDispatchValueCard').show();
       }
 
       $('#wsReceivingWeight').text(formatNum(s.receiving_weight));
       $('#wsReceivingCount').text(s.receiving_count || 0);
+      $('#wsReceivingValue').html(formatCurrencyMap(s.receiving_value));
       $('#wsDispatchWeight').text(formatNum(s.dispatch_weight));
       $('#wsDispatchCount').text(s.dispatch_count || 0);
+      $('#wsDispatchValue').html(formatCurrencyMap(s.dispatch_value));
 
       // Volume trend chart
       var trend = obj.volumeTrend || [];
@@ -942,6 +958,16 @@ if (!isset($_SESSION['userID'])) {
     });
 
     return html;
+  }
+
+  function formatCurrencyMap(map) {
+    if (!map || typeof map !== 'object') return '—';
+    var keys = Object.keys(map);
+    if (keys.length === 0) return '—';
+    return keys.map(function(cur) {
+      var n = parseFloat(map[cur]) || 0;
+      return (cur || '?') + ' ' + n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }).join('<br>');
   }
 
   function formatNum(val) {
