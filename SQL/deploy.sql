@@ -2651,3 +2651,6 @@ ALTER TABLE `packaging_batch_items` ADD `label` VARCHAR(100) NULL AFTER `packagi
 
 -- 14/07/2026 --
 ALTER TABLE `companies` ADD `include_integration` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_sec_remark`, ADD `integration_list` TEXT NULL AFTER `include_integration`;
+
+-- 21/07/2026 --
+ALTER TABLE `companies` ADD `grading_mode` VARCHAR(20) NOT NULL DEFAULT 'Standard' AFTER `packing_mode`, ADD `batch_packaging_mode` VARCHAR(20) NOT NULL DEFAULT 'Standard' AFTER `grading_mode`;
