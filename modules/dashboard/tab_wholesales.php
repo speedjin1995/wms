@@ -5,11 +5,12 @@
   <div class="row dash-tab-filters">
     <div class="form-group col-12 col-md-3">
       <label><?=$languageArray['status_code'][$language]?></label>
-      <select class="form-control select2" id="wsType">
-        <option value=""><?=$languageArray['all_code'][$language]?></option>
-        <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-        <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
-      </select>
+      <div class="btn-group btn-group-sm ws-type-group d-flex" role="group">
+        <button type="button" class="btn btn-outline-secondary ws-type-btn active" data-value=""><?=$languageArray['all_code'][$language]?></button>
+        <button type="button" class="btn btn-outline-info ws-type-btn" data-value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></button>
+        <button type="button" class="btn btn-outline-success ws-type-btn" data-value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></button>
+      </div>
+      <input type="hidden" id="wsType" value="">
     </div>
     <div class="form-group col-12 col-md-3" id="wsSupplierWrap" style="display:none;">
       <label><?=$languageArray['supplier_code'][$language]?></label>
@@ -32,6 +33,7 @@
   </div>
 
   <!-- Summary Cards -->
+  <h6 class="dash-section-header"><?=$languageArray['summary_code'][$language]?></h6>
   <div class="row mb-3" id="wsCards">
     <div class="col-6 col-md-3 mb-3" id="wsReceivingCard">
       <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#17a2b8,#138496);">
@@ -64,7 +66,8 @@
   </div>
 
   <!-- Supplier / Customer Breakdowns -->
-  <div class="row">
+  <h6 class="dash-section-header" id="wsBreakdownHeader"><?=$languageArray['breakdown_code'][$language]?></h6>
+  <div class="row" id="wsBreakdownRow">
     <div class="col-12 col-md-6 mb-3" id="wsSupplierBreakdownWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsSupplierBody','wsSupplierChevron')">
@@ -104,7 +107,8 @@
   </div>
 
   <!-- Grade Distribution -->
-  <div class="row">
+  <h6 class="dash-section-header" id="wsGradeHeader"><?=$languageArray['grade_distribution_code'][$language]?></h6>
+  <div class="row" id="wsGradeRow">
     <div class="col-12 col-md-6 mb-3" id="wsGradeRecvWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsGradeRecvBody','wsGradeRecvChevron')">
@@ -112,7 +116,14 @@
             <i class="fas fa-chevron-down dash-chevron" id="wsGradeRecvChevron"></i>
             <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></span>
           </div>
-          <span class="text-muted" style="font-size:12px;flex-shrink:0;" id="wsGradeRecvTotal"></span>
+          <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
+            <span class="text-muted dash-meta-text" id="wsGradeRecvTotal"></span>
+            <div class="dash-pager" id="wsGradeRecvPager" style="display:none;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsGradeRecvPageFn(-1)"><i class="fas fa-chevron-left"></i></button>
+              <small id="wsGradeRecvPageInfo"></small>
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsGradeRecvPageFn(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
         </div>
         <div class="card-body" id="wsGradeRecvBody">
           <div id="wsGradeRecvPills" class="grade-pills-wrap"></div>
@@ -127,7 +138,14 @@
             <i class="fas fa-chevron-down dash-chevron" id="wsGradeDispChevron"></i>
             <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['dispatch_code'][$language]?></span>
           </div>
-          <span class="text-muted" style="font-size:12px;flex-shrink:0;" id="wsGradeDispTotal"></span>
+          <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
+            <span class="text-muted dash-meta-text" id="wsGradeDispTotal"></span>
+            <div class="dash-pager" id="wsGradeDispPager" style="display:none;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsGradeDispPageFn(-1)"><i class="fas fa-chevron-left"></i></button>
+              <small id="wsGradeDispPageInfo"></small>
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsGradeDispPageFn(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
         </div>
         <div class="card-body" id="wsGradeDispBody">
           <div id="wsGradeDispPills" class="grade-pills-wrap"></div>
@@ -138,6 +156,7 @@
   </div>
 
   <!-- Hourly Distribution -->
+  <h6 class="dash-section-header" id="wsHourlyHeader"><?=$languageArray['hourly_distribution_code'][$language]?></h6>
   <div class="row" id="wsHourlyWrap">
     <div class="col-12 col-md-6 mb-3" id="wsHourlyRecvWrap">
       <div class="card h-100 dash-section-card">
@@ -168,20 +187,9 @@
   </div>
 
   <!-- Volume Trend -->
-  <div class="row mb-3" id="wsTrendWrap">
-    <div class="col-12">
-      <div class="card dash-section-card">
-        <div class="card-header" onclick="toggleCard('wsTrendBody','wsTrendChevron')">
-          <div class="d-flex align-items-center">
-            <i class="fas fa-chevron-down dash-chevron" id="wsTrendChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['volume_trending_code'][$language]?></span>
-          </div>
-        </div>
-        <div class="card-body" id="wsTrendBody">
-          <div class="dash-chart-wrap"><canvas id="wsTrendChart"></canvas></div>
-        </div>
-      </div>
-    </div>
+  <h6 class="dash-section-header" id="wsTrendHeader"><?=$languageArray['volume_trending_code'][$language]?></h6>
+  <div id="wsTrendWrap" class="mb-3">
+    <div class="dash-chart-wrap"><canvas id="wsTrendChart"></canvas></div>
   </div>
 
 </div>

@@ -13,8 +13,11 @@ var WS_PAGE_SIZE = 10;
 
 /* ── Filter change handlers ─────────────────────────────── */
 $(function () {
-  $('#wsType').on('change', function () {
-    var val = $(this).val();
+  $('.ws-type-btn').on('click', function () {
+    $('.ws-type-btn').removeClass('active');
+    $(this).addClass('active');
+    $('#wsType').val($(this).data('value'));
+    var val = $(this).data('value');
     if (val === 'DISPATCH') {
       $('#wsSupplierWrap').hide();
       $('#wsCustomerWrap').show();
@@ -75,9 +78,9 @@ function loadWholesales() {
     var dispData = trend.map(function (d) { return d.dispatch; });
 
     if (trend.length === 0) {
-      $('#wsTrendWrap').hide();
+      $('#wsTrendWrap, #wsTrendHeader').hide();
     } else {
-      $('#wsTrendWrap').show();
+      $('#wsTrendWrap, #wsTrendHeader').show();
       if (wsTrendChart) {
         wsTrendChart.data.labels              = labels;
         wsTrendChart.data.datasets[0].data    = recvData;
@@ -110,7 +113,8 @@ function loadWholesales() {
     }
 
     /* --- supplier breakdown --- */
-    if (wsType !== 'DISPATCH' && obj.supplierBreakdown.length > 0) {
+    var hasSupplier = wsType !== 'DISPATCH' && obj.supplierBreakdown.length > 0;
+    if (hasSupplier) {
       $('#wsSupplierBreakdownWrap').show();
       wsSupplierData        = obj.supplierBreakdown;
       wsSupplierCurrentPage = 0;
@@ -121,7 +125,8 @@ function loadWholesales() {
     }
 
     /* --- customer breakdown --- */
-    if (wsType !== 'RECEIVING' && obj.customerBreakdown.length > 0) {
+    var hasCustomer = wsType !== 'RECEIVING' && obj.customerBreakdown.length > 0;
+    if (hasCustomer) {
       $('#wsCustomerBreakdownWrap').show();
       wsCustomerData        = obj.customerBreakdown;
       wsCustomerCurrentPage = 0;
@@ -131,27 +136,33 @@ function loadWholesales() {
       wsCustomerData = [];
     }
 
+    $('#wsBreakdownHeader, #wsBreakdownRow').toggle(hasSupplier || hasCustomer);
+
     /* --- grade distribution receiving --- */
     var gradeRecv = obj.gradeDistribution || [];
-    if (wsType !== 'DISPATCH' && gradeRecv.length > 0) {
+    var hasGradeRecv = wsType !== 'DISPATCH' && gradeRecv.length > 0;
+    if (hasGradeRecv) {
       $('#wsGradeRecvWrap').show();
       var recvTotal = gradeRecv.reduce(function (s, p) { return s + p.grades.reduce(function (a, g) { return a + g.weight; }, 0); }, 0);
       $('#wsGradeRecvTotal').text(formatNum(recvTotal) + ' kg');
-      renderGradeDist('wsGradeRecvPills', 'wsGradeRecvBars', gradeRecv, 'product', '#17a2b8');
+      renderGradeDist('wsGradeRecvPills', 'wsGradeRecvBars', gradeRecv, 'product', '#17a2b8', 'wsGradeRecvPager', 'wsGradeRecvPageInfo');
     } else {
       $('#wsGradeRecvWrap').hide();
     }
 
     /* --- grade distribution dispatch --- */
     var gradeDisp = obj.gradeDistributionDispatch || [];
-    if (wsType !== 'RECEIVING' && gradeDisp.length > 0) {
+    var hasGradeDisp = wsType !== 'RECEIVING' && gradeDisp.length > 0;
+    if (hasGradeDisp) {
       $('#wsGradeDispWrap').show();
       var dispTotal = gradeDisp.reduce(function (s, p) { return s + p.grades.reduce(function (a, g) { return a + g.weight; }, 0); }, 0);
       $('#wsGradeDispTotal').text(formatNum(dispTotal) + ' kg');
-      renderGradeDist('wsGradeDispPills', 'wsGradeDispBars', gradeDisp, 'product', '#28a745');
+      renderGradeDist('wsGradeDispPills', 'wsGradeDispBars', gradeDisp, 'product', '#28a745', 'wsGradeDispPager', 'wsGradeDispPageInfo');
     } else {
       $('#wsGradeDispWrap').hide();
     }
+
+    $('#wsGradeHeader, #wsGradeRow').toggle(hasGradeRecv || hasGradeDisp);
 
     /* --- hourly charts --- */
     var hourLabels = ['12am','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
@@ -162,6 +173,7 @@ function loadWholesales() {
     var hasDispHourly = wsType !== 'RECEIVING' && hourlyDisp.some(function (v) { return v > 0; });
 
     $('#wsHourlyWrap').toggle(hasRecvHourly || hasDispHourly);
+    $('#wsHourlyHeader').toggle(hasRecvHourly || hasDispHourly);
 
     if (hasRecvHourly) {
       $('#wsHourlyRecvWrap').show();
@@ -229,3 +241,6 @@ function wsCustomerPage(dir) {
   wsCustomerCurrentPage = Math.max(0, Math.min(wsCustomerCurrentPage + dir, totalPages - 1));
   renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
 }
+
+function wsGradeRecvPageFn(dir) { $('#wsGradeRecvBars').data('gradePage')(dir); }
+function wsGradeDispPageFn(dir) { $('#wsGradeDispBars').data('gradePage')(dir); }

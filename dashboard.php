@@ -49,7 +49,11 @@ if (!isset($_SESSION['userID'])) {
 
     <!-- ── Global Filter ──────────────────────────────────── -->
     <div class="card dash-filter-card mb-3">
-      <div class="card-body">
+      <div class="card-header dash-filter-header" onclick="toggleFilterCard()">
+        <span><i class="fas fa-filter mr-2"></i><?=$languageArray['search_code'][$language]?></span>
+        <i class="fas fa-chevron-down" id="dashFilterChevron"></i>
+      </div>
+      <div id="dashFilterBody" class="card-body" style="display:none;">
         <div class="row">
           <div class="form-group col-6 col-md-3">
             <label><?=$languageArray['from_date_code'][$language]?></label>
@@ -140,3 +144,16 @@ if (!isset($_SESSION['userID'])) {
 <script src="modules/dashboard/js/tab_grading.js"></script>
 <script src="modules/dashboard/js/tab_packaging.js"></script>
 <script src="modules/dashboard/js/tab_pulppaste.js"></script>
+<script>
+function toggleFilterCard() {
+  var $body    = $('#dashFilterBody');
+  var $chevron = $('#dashFilterChevron');
+  $body.slideToggle(200, function () {
+    if ($body.is(':visible')) {
+      $chevron.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    } else {
+      $chevron.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+    }
+  });
+}
+</script>

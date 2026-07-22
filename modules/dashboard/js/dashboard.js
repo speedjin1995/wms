@@ -90,7 +90,8 @@ function renderPagedBreakdown(containerId, pagerId, pageInfoId, items, page, col
   }
 }
 
-function renderGradeDist(pillsId, barsId, groups, groupKey, color) {
+function renderGradeDist(pillsId, barsId, groups, groupKey, color, pagerId, pageInfoId) {
+  var GRADE_PAGE_SIZE = 10;
   var $pills = $('#' + pillsId);
   var $bars  = $('#' + barsId);
   $pills.empty();
@@ -102,11 +103,20 @@ function renderGradeDist(pillsId, barsId, groups, groupKey, color) {
     });
   });
 
-  function renderBars(grades) {
-    var total = Object.values(grades).reduce(function (s, v) { return s + v; }, 0);
-    var max   = Math.max.apply(null, Object.values(grades));
-    var html  = '';
-    Object.keys(grades).sort(function (a, b) { return grades[b] - grades[a]; }).forEach(function (name) {
+  // sorted grade entries: [[name, weight], ...]
+  var currentGrades = null;
+  var currentPage   = 0;
+
+  function renderBars(grades, page) {
+    currentGrades = grades;
+    currentPage   = page || 0;
+    var sorted     = Object.keys(grades).sort(function (a, b) { return grades[b] - grades[a]; });
+    var totalPages = Math.ceil(sorted.length / GRADE_PAGE_SIZE);
+    var pageItems  = sorted.slice(currentPage * GRADE_PAGE_SIZE, (currentPage + 1) * GRADE_PAGE_SIZE);
+    var total      = Object.values(grades).reduce(function (s, v) { return s + v; }, 0);
+    var max        = Math.max.apply(null, Object.values(grades));
+    var html       = '';
+    pageItems.forEach(function (name) {
       var w     = grades[name];
       var pct   = max   > 0 ? (w / max   * 100).toFixed(1) : 0;
       var share = total > 0 ? (w / total * 100).toFixed(0)  : 0;
@@ -116,13 +126,32 @@ function renderGradeDist(pillsId, barsId, groups, groupKey, color) {
       '</div>';
     });
     $bars.html(html || '<p class="text-muted">No data.</p>');
+
+    if (pagerId) {
+      if (totalPages > 1) {
+        $('#' + pagerId).show();
+        $('#' + pageInfoId).text((currentPage + 1) + ' / ' + totalPages);
+        $('#' + pagerId + ' button:first').prop('disabled', currentPage === 0);
+        $('#' + pagerId + ' button:last').prop('disabled', currentPage >= totalPages - 1);
+      } else {
+        $('#' + pagerId).hide();
+      }
+    }
   }
+
+  // expose page function on the element for external pager buttons
+  $bars.data('gradePage', function (dir) {
+    var sorted     = Object.keys(currentGrades).sort(function (a, b) { return currentGrades[b] - currentGrades[a]; });
+    var totalPages = Math.ceil(sorted.length / GRADE_PAGE_SIZE);
+    currentPage    = Math.max(0, Math.min(currentPage + dir, totalPages - 1));
+    renderBars(currentGrades, currentPage);
+  });
 
   var $all = $('<button class="btn btn-sm btn-secondary active mr-1 mb-1">All</button>');
   $all.on('click', function () {
     $pills.find('button').removeClass('active btn-secondary').addClass('btn-outline-secondary');
     $(this).removeClass('btn-outline-secondary').addClass('btn-secondary active');
-    renderBars(allGrades);
+    renderBars(allGrades, 0);
   });
   $pills.append($all);
 
@@ -134,12 +163,12 @@ function renderGradeDist(pillsId, barsId, groups, groupKey, color) {
       $(this).removeClass('btn-outline-secondary').addClass('btn-secondary active');
       var gradeObj = {};
       g.grades.forEach(function (gr) { gradeObj[gr.name] = gr.weight; });
-      renderBars(gradeObj);
+      renderBars(gradeObj, 0);
     });
     $pills.append($btn);
   });
 
-  renderBars(allGrades);
+  renderBars(allGrades, 0);
 }
 
 /* ── UI helpers ─────────────────────────────────────────── */
