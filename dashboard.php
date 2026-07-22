@@ -50,7 +50,8 @@ if (!isset($_SESSION['userID'])) {
     <!-- ── Global Filter ──────────────────────────────────── -->
     <div class="card dash-filter-card mb-3">
       <div class="card-header dash-filter-header" onclick="toggleFilterCard()">
-        <span><i class="fas fa-filter mr-2"></i><?=$languageArray['search_code'][$language]?></span>
+        <span class="filter-icon"><i class="fas fa-sliders-h"></i></span>
+        <span><?=$languageArray['search_code'][$language]?></span>
         <i class="fas fa-chevron-down" id="dashFilterChevron"></i>
       </div>
       <div id="dashFilterBody" class="card-body" style="display:none;">
@@ -83,7 +84,7 @@ if (!isset($_SESSION['userID'])) {
             </select>
           </div>
           <div class="form-group col-12 col-md-3 d-flex align-items-end">
-            <button type="button" class="btn btn-warning btn-block" id="dashSearch">
+            <button type="button" class="btn btn-primary btn-block" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
             </button>
           </div>
