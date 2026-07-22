@@ -1,0 +1,269 @@
+/* ============================================================
+   Dashboard — Responsive Styles
+   Covers: stat cards, filter bar, tabs, breakdowns, charts
+   Mobile-first: base = mobile, overrides at md (768px+)
+   ============================================================ */
+
+/* ── Stat Cards ─────────────────────────────────────────── */
+.dash-stat-card {
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: #fff;
+  min-height: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.dash-stat-card .stat-icon {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  font-size: 28px;
+  opacity: 0.18;
+}
+.dash-stat-card .stat-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.dash-stat-card .stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  word-break: break-word;
+}
+.dash-stat-card .stat-sub {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+@media (min-width: 768px) {
+  .dash-stat-card {
+    padding: 18px 20px;
+    min-height: 90px;
+  }
+  .dash-stat-card .stat-label { font-size: 11px; }
+  .dash-stat-card .stat-value { font-size: 28px; }
+  .dash-stat-card .stat-sub   { font-size: 12px; }
+}
+
+/* ── Section Title ──────────────────────────────────────── */
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6c757d;
+  margin-bottom: 12px;
+}
+
+/* ── Global Filter Card ─────────────────────────────────── */
+.dash-filter-card .card-body { padding: 12px 14px; }
+
+.dash-filter-card .form-group { margin-bottom: 10px; }
+
+.dash-filter-card label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: #495057;
+}
+
+/* Search button full-width on mobile, auto on desktop */
+.dash-filter-card .btn-search {
+  width: 100%;
+  margin-top: 4px;
+}
+@media (min-width: 768px) {
+  .dash-filter-card .form-group { margin-bottom: 0; }
+  .dash-filter-card .btn-search { width: auto; }
+}
+
+/* ── Tab Navigation ─────────────────────────────────────── */
+#dashTabs {
+  flex-wrap: wrap;
+  border-bottom: 2px solid #dee2e6;
+}
+#dashTabs .nav-item { flex: 1 1 auto; }
+#dashTabs .nav-link {
+  text-align: center;
+  padding: 8px 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  border-radius: 0;
+  color: #6c757d;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+#dashTabs .nav-link i { display: block; font-size: 16px; margin-bottom: 2px; }
+#dashTabs .nav-link.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background: transparent;
+  font-weight: 600;
+}
+@media (min-width: 576px) {
+  #dashTabs .nav-link { font-size: 13px; padding: 8px 12px; }
+  #dashTabs .nav-link i { display: inline; font-size: inherit; margin-bottom: 0; }
+}
+@media (min-width: 768px) {
+  #dashTabs .nav-item { flex: 0 0 auto; }
+  #dashTabs .nav-link { padding: 10px 18px; font-size: 14px; }
+}
+
+/* ── Tab Content Panel ──────────────────────────────────── */
+.dash-tab-content {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 14px 12px;
+}
+@media (min-width: 768px) {
+  .dash-tab-content { padding: 20px; }
+}
+
+/* ── Per-tab Filter Row ─────────────────────────────────── */
+.dash-tab-filters { margin-bottom: 16px; }
+.dash-tab-filters .form-group { margin-bottom: 10px; }
+@media (min-width: 768px) {
+  .dash-tab-filters .form-group { margin-bottom: 0; }
+}
+
+/* ── Collapsible Section Cards ──────────────────────────── */
+.dash-section-card { margin-bottom: 16px; }
+.dash-section-card .card-header {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #f8f9fa;
+  user-select: none;
+}
+.dash-section-card .card-header .section-title { margin-bottom: 0; }
+.dash-chevron { font-size: 11px; color: #6c757d; margin-right: 8px; flex-shrink: 0; }
+
+/* ── Pager (inside card headers) ───────────────────────── */
+.dash-pager { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.dash-pager .btn {
+  padding: 3px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  min-width: 30px;
+  min-height: 30px;
+}
+.dash-pager small { font-size: 12px; white-space: nowrap; }
+
+/* ── Breakdown Bars ─────────────────────────────────────── */
+.breakdown-bar-wrap { margin-bottom: 10px; }
+.breakdown-bar-label {
+  font-size: 12px;
+  margin-bottom: 3px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.breakdown-bar-label span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.breakdown-bar-label span:last-child { flex-shrink: 0; color: #495057; font-weight: 500; }
+.breakdown-bar-track { background: #e9ecef; border-radius: 4px; height: 10px; }
+.breakdown-bar-fill  { height: 10px; border-radius: 4px; background: #007bff; transition: width 0.4s; }
+
+/* ── Grade Distribution Pills ───────────────────────────── */
+.grade-pills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.grade-pills-wrap .btn {
+  min-height: 32px;
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+/* ── Chart Wrappers ─────────────────────────────────────── */
+.dash-chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 180px;
+}
+.dash-chart-wrap canvas { display: block; width: 100% !important; }
+
+/* ── Product Breakdown Rows (Grading / Packaging) ───────── */
+.product-row-header {
+  cursor: pointer;
+  background: #f4f6f9;
+  padding: 10px 12px;
+}
+.product-row-header:active { background: #eaecf0; }
+.product-row-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.product-row-meta .product-name { font-weight: 600; font-size: 14px; flex: 1; min-width: 0; }
+.product-row-meta .product-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.product-progress { margin-top: 6px; background: #dee2e6; border-radius: 4px; height: 5px; }
+.product-progress-fill { height: 5px; border-radius: 4px; }
+
+/* Grade detail rows inside product cards */
+.grade-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.grade-detail-row:last-child { border-bottom: none; }
+.grade-detail-label { font-size: 13px; color: #6c757d; flex: 1; min-width: 0; }
+.grade-detail-value { font-size: 13px; text-align: right; flex-shrink: 0; }
+
+/* ── Pulp & Paste Breakdown Wrappers ────────────────────── */
+.pp-breakdown-wrap .card-header {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #f8f9fa;
+}
+
+/* ── Uniform card header height (Wholesales) ────────────── */
+#tabWholesales .card-header { min-height: 48px; }
+
+/* ── flex-1 utility used in card headers ────────────────── */
+.flex-1 { flex: 1; min-width: 0; }
+
+/* ── Spacing helpers ────────────────────────────────────── */
+.dash-row-gap { margin-bottom: 16px; }
+@media (min-width: 768px) { .dash-row-gap { margin-bottom: 0; } }
+
+/* ── Mobile: full-width columns stack cleanly ───────────── */
+@media (max-width: 575.98px) {
+  .dash-stat-card .stat-value { font-size: 20px; }
+  .content-header h1 { font-size: 20px; }
+  .dash-tab-content { padding: 10px 8px; }
+}
