@@ -1,6 +1,6 @@
 <?php
-require_once 'php/db_connect.php';
-require_once 'php/lookup.php';
+require_once '../../php/db_connect.php';
+require_once '../../php/lookup.php';
 
 session_start();
 
@@ -375,7 +375,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWholesale.php',
+      'url':'php/modules/wholesales/filterWholesale.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -501,7 +501,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWholesale.php',
+        'url':'php/modules/wholesales/filterWholesale.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -622,11 +622,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&isMulti=N");
     }
@@ -687,7 +687,7 @@ $(function () {
         }
       });
 
-      var base = "php/exportIntegration.php?docType="+docType+"&fromDate="+fromDateI+"&toDate="+toDateI+
+      var base = "php/modules/wholesales/exportIntegration.php?docType="+docType+"&fromDate="+fromDateI+"&toDate="+toDateI+
         "&transactionStatus="+transactionStatusI+"&status="+statusI+
         "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
         "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
@@ -726,11 +726,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&isMulti=N");
     }
@@ -762,7 +762,7 @@ $(function () {
 });
 
 function printSlip(id) {
-  $.post('php/print.php', {userID: id}, function(data){
+  $.post('php/modules/wholesales/print.php', {userID: id}, function(data){
     var response = JSON.parse(data);
     if(response.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);

@@ -1,6 +1,6 @@
 <?php
-require_once 'db_connect.php';
-require_once 'services/stockManagementService.php';
+require_once '../../db_connect.php';
+require_once '../../services/stockManagementService.php';
 
 session_start();
 

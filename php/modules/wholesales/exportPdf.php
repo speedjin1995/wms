@@ -1,7 +1,7 @@
 <?php
-require_once 'db_connect.php';
-require_once 'lookup.php';
-require_once '../vendor/autoload.php'; 
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
+require_once '../../../vendor/autoload.php'; 
 use Mpdf\Mpdf;
 
 session_start();
@@ -132,7 +132,7 @@ try {
         'margin_right' => 5,
         'margin_top' => 5,
         'margin_bottom' => 5,
-        'fontDir' => [__DIR__ . '/../vendor/mpdf/mpdf/ttfonts/'],
+        'fontDir' => [__DIR__ . '/../../../vendor/mpdf/mpdf/ttfonts/'],
         'fontdata' => [
             'sunexta' => [
                 'R' => 'Sun-ExtA.ttf',

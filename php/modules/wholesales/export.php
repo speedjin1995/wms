@@ -1,7 +1,7 @@
 <?php
-require_once 'db_connect.php';
-require_once 'lookup.php';
-require_once '../vendor/autoload.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
+require_once '../../../vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;

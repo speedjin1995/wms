@@ -1,6 +1,6 @@
 <?php
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 
 if(isset($_GET['id'])){
     $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_STRING);

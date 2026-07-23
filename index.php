@@ -455,7 +455,7 @@ to get the desired effect
             </a>
             <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
-                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
+                <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
@@ -490,7 +490,7 @@ to get the desired effect
               </li> -->
               <?php if ($module == 'wholesale') { ?>
               <li class="nav-item">
-                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
+                <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
@@ -551,7 +551,7 @@ to get the desired effect
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'wholesale') { ?>
           <li class="nav-item">
-            <a href="#reports" data-file="reports.php" class="nav-link link">
+            <a href="#reports" data-file="modules/wholesales/reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
               <p><?=$languageArray['reports_code'][$language]?></p>
             </a>

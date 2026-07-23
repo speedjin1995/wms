@@ -1,7 +1,7 @@
 <?php
-require_once 'db_connect.php';
-require_once 'lookup.php';
-require_once '../vendor/autoload.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
+require_once '../../../vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -22,7 +22,7 @@ if (empty($docType) || empty($integrationList)) {
 // ─── Resolve mapping folder ───────────────────────────────────────────────────
 
 $folder = ($transactionStatus === 'RECEIVING') ? 'Receiving' : 'Dispatch';
-$mappingFile = __DIR__ . '/../export-mapping/' . strtolower($integrationList) . '/' . $folder . '/' . $docType . '.json';
+$mappingFile = __DIR__ . '/../../../export-mapping/' . strtolower($integrationList) . '/' . $folder . '/' . $docType . '.json';
 
 if (!file_exists($mappingFile)) {
     die('Mapping not found for: ' . htmlspecialchars($docType));
