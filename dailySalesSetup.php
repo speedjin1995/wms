@@ -168,7 +168,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-      'url':'php/filterDailySalesSetup.php',
+      'url':'php/modules/dailySalesSetup/filterDailySalesSetup.php',
     },
     'columns': [
       { data: 'module' },
@@ -186,7 +186,7 @@ $(function () {
       submitHandler: function () {
           $('#spinnerLoading').show();
           $('#addModal').find('#module').prop('disabled', false);
-          $.post('php/dailySalesSetup.php', $('#dailySalesSetupForm').serialize(), function(data){
+          $.post('php/modules/dailySalesSetup/dailySalesSetup.php', $('#dailySalesSetupForm').serialize(), function(data){
               var obj = JSON.parse(data); 
               
               if(obj.status === 'success'){
@@ -235,7 +235,7 @@ $(function () {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getDailySalesSetup.php', {userID: id}, function(data){
+  $.post('php/modules/dailySalesSetup/getDailySalesSetup.php', {userID: id}, function(data){
       var obj = JSON.parse(data);
       
       if(obj.status === 'success'){
@@ -272,7 +272,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/deleteDailySales.php', {userID: id}, function(data){
+    $.post('php/modules/dailySalesSetup/deleteDailySales.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){
