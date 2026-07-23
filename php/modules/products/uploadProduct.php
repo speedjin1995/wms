@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 $user = $_SESSION['userID'];
