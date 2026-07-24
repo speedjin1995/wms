@@ -124,18 +124,20 @@ if($isMulti == 'Y'){
 
 try {
     // Initialize mPDF with a custom temporary directory
-    $mpdf = new Mpdf([
+    $mpdfConfig = [
         'mode'          => 'utf-8',
-        'format'        => 'A4-L',
+        'format'        => ($reportType === 'invoice') ? 'A4' : 'A4-L',
         'tempDir'       => sys_get_temp_dir(),
-        'margin_left'   => 5,
-        'margin_right'  => 5,
-        'margin_top'    => 5,
-        'margin_bottom' => 5,
+        'margin_left'   => 10,
+        'margin_right'  => 10,
+        'margin_top'    => ($reportType === 'invoice') ? 45 : 10,
+        'margin_bottom' => 10,
+        'margin_header' => ($reportType === 'invoice') ? 5 : 0,
         'fontDir'       => [__DIR__ . '/../../../vendor/mpdf/mpdf/ttfonts/'],
         'fontdata'      => ['sunexta' => ['R' => 'Sun-ExtA.ttf']],
         'default_font'  => 'sunexta',
-    ]);
+    ];
+    $mpdf = new Mpdf($mpdfConfig);
 
     $partialMap = [
         'summary' => __DIR__ . '/partial/pdfSummary.php',
