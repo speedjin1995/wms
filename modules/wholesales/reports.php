@@ -297,23 +297,26 @@ else{
 <div class="modal fade" id="pdfModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><?=$languageArray['export_pdf_code'][$language]?></h5>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Report Type</label>
-          <select class="form-control" id="pdfReportType">
-            <option value="invoice">Summary Report</option>
-            <option value="stockBalance">Detail Report</option>
-          </select>
+      <form id="pdfForm">
+        <div class="modal-header">
+          <h5 class="modal-title"><?=$languageArray['export_pdf_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
-        <button type="button" class="btn btn-warning btn-sm" id="pdfExportBtn"><?=$languageArray['submit_code'][$language]?></button>
-      </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label><?=$languageArray['report_type_code'][$language]?></label>
+            <select class="form-control" id="pdfReportType">
+              <option value="summary"><?=$languageArray['summary_report_code'][$language]?></option>
+              <option value="invoice"><?=$languageArray['invoice_listing_report_code'][$language]?></option>
+              <option value="stockBalance"><?=$languageArray['stock_balance_report_code'][$language]?></option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+          <button type="submit" class="btn btn-warning btn-sm" id="pdfExportBtn"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -323,12 +326,12 @@ else{
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Export Integration</h5>
+        <h5 class="modal-title"><?=$languageArray['export_integration_code'][$language]?></h5>
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>Document Type</label>
+          <label><?=$languageArray['document_type_code'][$language]?></label>
           <select class="form-control" id="integrationDocType">
             <option value="">-- Select --</option>
           </select>
@@ -626,6 +629,45 @@ $(function () {
     });
   });
 
+  $.validator.setDefaults({
+    submitHandler: function () {
+      if ($('#pdfModal').hasClass('show')){
+        $('#pdfModal').modal('hide');
+        var reportType = $('#pdfReportType').val();
+        var fromDateI = $('#fromDate').val();
+        var toDateI = $('#toDate').val();
+        var transactionStatusI = $('#transactionStatusFilter').val();
+        var statusI = $('#statusFilter').val();
+        var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+        var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
+        var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
+        var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+        var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+        var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
+        var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+        var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+        var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+        var selectedIds = [];
+
+        $("#weightTable tbody input[type='checkbox']").each(function () {
+          if (this.checked) selectedIds.push($(this).val());
+        });
+
+        var base = "php/modules/wholesales/exportPdf.php?reportType="+reportType+"&fromDate="+fromDateI+"&toDate="+toDateI+
+          "&transactionStatus="+transactionStatusI+"&status="+statusI+
+          "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
+          "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
+          "&weightedBy="+weightedByI+"&location="+locationI;
+
+        if (selectedIds.length > 0) {
+          window.open(base + "&isMulti=Y&ids=" + selectedIds);
+        } else {
+          window.open(base + "&isMulti=N");
+        }
+      }
+    }
+  });
+
   $('#exportExcel').on('click', function(){
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
@@ -732,43 +774,22 @@ $(function () {
   }
 
   $('#exportPdf').on('click', function(){
+    $('#pdfForm').find('#pdfReportType').val('summary');
     $('#pdfModal').modal('show');
-  });
 
-  $('#pdfExportBtn').on('click', function(){
-    var reportType = $('#pdfReportType').val();
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var statusI = $('#statusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-    var selectedIds = [];
-
-    $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) selectedIds.push($(this).val());
+    $('#pdfForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+      }
     });
-
-    var base = "php/modules/wholesales/exportPdf.php?reportType="+reportType+"&fromDate="+fromDateI+"&toDate="+toDateI+
-      "&transactionStatus="+transactionStatusI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
-      "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
-      "&weightedBy="+weightedByI+"&location="+locationI;
-
-    if (selectedIds.length > 0) {
-      window.open(base + "&isMulti=Y&ids=" + selectedIds);
-    } else {
-      window.open(base + "&isMulti=N");
-    }
-
-    $('#pdfModal').modal('hide');
   });
 
   $('#transactionStatusFilter').on('change', function () {
