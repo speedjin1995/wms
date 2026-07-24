@@ -1408,6 +1408,7 @@ $(function () {
     var selectedCategory = $(this).val();
     $('#weightDetailsTable select[name*="[product]"], #rejectDetailsTable select[name*="[product]"]').each(function() {
         var select = $(this);
+        var currentVal = select.val();
         select.select2('destroy');
         
         if (!select.data('original-options')) {
@@ -1421,6 +1422,11 @@ $(function () {
                     $(this).remove();
                 }
             });
+        }
+
+        // Re-apply previously selected value if it still exists in the filtered options
+        if (currentVal && select.find('option[value="' + currentVal + '"]').length) {
+            select.val(currentVal);
         }
         
         select.select2({

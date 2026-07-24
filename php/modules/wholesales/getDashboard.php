@@ -118,13 +118,13 @@ while ($row = mysqli_fetch_assoc($empRecords)) {
     // Resolve currency ID to currency name, using cache to avoid repeated lookups
     $curId = $item['currency'] ?? '';
     if ($curId == '') {
-      $cur = 'N/A';
+      $cur = 'MYR';
     } elseif (isset($currencyCache[$curId])) {
       $cur = $currencyCache[$curId];
     } else {
       $cur = searchCurrencyNameById($curId, $db);
       if (!$cur) {
-        $cur = 'N/A';
+        $cur = 'MYR';
       }
       $currencyCache[$curId] = $cur;
     }
