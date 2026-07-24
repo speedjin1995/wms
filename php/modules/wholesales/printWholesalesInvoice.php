@@ -42,8 +42,8 @@ if(isset($_GET['id'])){
 
                 // SO details from wholesales table
                 $soNo = $wholesale['po_no'];
-                $date = date('d/m/Y', strtotime($wholesale['created_datetime']));
-                $time = date('H:i:s', strtotime($wholesale['created_datetime']));
+                $date = date('d/m/Y', strtotime($wholesale['start_time']));
+                $time = date('H:i:s', strtotime($wholesale['start_time']));
                 $slipNo = $wholesale['serial_no'];
                 $vehicleNo = $wholesale['vehicle_no'] ?? '';
                 $priceStatus = (floatval($wholesale['total_price']) > 0) ? 'FIXED' : 'FLOAT';
@@ -81,7 +81,7 @@ if(isset($_GET['id'])){
                 $billToFax = $customerData['billing_fax'] ?? '';
 
                 // Summary data
-                $startWeightTime = date('g:i:s A', strtotime($wholesale['created_datetime']));
+                $startWeightTime = date('g:i:s A', strtotime($wholesale['start_time']));
                 $endWeightTime = !empty($wholesale['end_time']) ? date('g:i:s A', strtotime($wholesale['end_time'])) : '';
 
                 // Build items from weight_details JSON - group by product + grade
