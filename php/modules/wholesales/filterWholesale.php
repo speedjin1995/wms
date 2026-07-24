@@ -129,8 +129,15 @@ $sel = mysqli_query($db,"select count(*) as allcount from wholesales LEFT JOIN c
 $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
+## Column name mapping for computed/joined columns
+$columnMap = [
+  'parent'           => 'cp.customer_name',
+  'customer_supplier'=> 'COALESCE(c.customer_name, s.supplier_name)',
+];
+$orderByColumn = $columnMap[$columnName] ?? 'wholesales.' . $columnName;
+
 ## Fetch records
-$empQuery = "select wholesales.* from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select wholesales.* from wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN customers cp ON c.parent = cp.id LEFT JOIN supplies s ON wholesales.supplier = s.id where 1=1".$companyFilter.$searchQuery." order by ".$orderByColumn." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 

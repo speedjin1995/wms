@@ -792,8 +792,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'searching': true,
-    'order': [[ 1, 'asc' ]],
-    'columnDefs': [ { orderable: false, targets: [0] }],
+    'order': [[ 0, 'asc' ]],
     'ajax': {
       'url':'php/modules/wholesales/filterWholesale.php',
       'data': {
@@ -833,6 +832,7 @@ $(function () {
       { 
         data: 'id',
         class: 'action-button',
+        orderable: false,
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
@@ -911,8 +911,7 @@ $(function () {
       'serverSide': true,
       'serverMethod': 'post',
       'searching': true,
-      'order': [[ 1, 'asc' ]],
-      'columnDefs': [ { orderable: false, targets: [0] }],
+      'order': [[ 0, 'asc' ]],
       'ajax': {
         'url':'php/modules/wholesales/filterWholesale.php',
         'data': {
@@ -952,6 +951,7 @@ $(function () {
         { 
           data: 'id',
           class: 'action-button',
+          orderable: false,
           render: function ( data, type, row ) {
             var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {

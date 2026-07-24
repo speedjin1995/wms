@@ -293,6 +293,31 @@ else{
   </div>
 </div>  
 
+<!-- PDF Export Modal -->
+<div class="modal fade" id="pdfModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><?=$languageArray['export_pdf_code'][$language]?></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Report Type</label>
+          <select class="form-control" id="pdfReportType">
+            <option value="invoice">Summary Report</option>
+            <option value="stockBalance">Detail Report</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-warning btn-sm" id="pdfExportBtn"><?=$languageArray['submit_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Integration Export Modal -->
 <div class="modal fade" id="integrationModal" tabindex="-1">
   <div class="modal-dialog">
@@ -707,6 +732,11 @@ $(function () {
   }
 
   $('#exportPdf').on('click', function(){
+    $('#pdfModal').modal('show');
+  });
+
+  $('#pdfExportBtn').on('click', function(){
+    var reportType = $('#pdfReportType').val();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
     var transactionStatusI = $('#transactionStatusFilter').val();
@@ -720,23 +750,25 @@ $(function () {
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-    var selectedIds = []; // An array to store the selected 'id' values
+    var selectedIds = [];
 
     $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
+      if (this.checked) selectedIds.push($(this).val());
     });
 
-    if (selectedIds.length > 0){
-      window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&isMulti=Y&ids="+selectedIds);
-    }else{
-      window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&isMulti=N");
+    var base = "php/modules/wholesales/exportPdf.php?reportType="+reportType+"&fromDate="+fromDateI+"&toDate="+toDateI+
+      "&transactionStatus="+transactionStatusI+"&status="+statusI+
+      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
+      "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
+      "&weightedBy="+weightedByI+"&location="+locationI;
+
+    if (selectedIds.length > 0) {
+      window.open(base + "&isMulti=Y&ids=" + selectedIds);
+    } else {
+      window.open(base + "&isMulti=N");
     }
+
+    $('#pdfModal').modal('hide');
   });
 
   $('#transactionStatusFilter').on('change', function () {
