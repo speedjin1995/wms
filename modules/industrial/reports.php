@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -174,18 +174,6 @@ else{
                   </select>
                 </div>
               </div>
-
-              <!--div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['product_code'][$language]?></label>
-                  <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
-                    <option selected="selected">-</option>
-                    <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
-                      <option value="<?=$rowStatus2['id'] ?>"><?=$rowStatus2['product_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div-->
               
               <input type="hidden" id="categoryFilter" name="categoryFilter">
             </div>
@@ -237,7 +225,6 @@ else{
                   <th><?=$languageArray['total_reject_code'][$language]?></th>
                   <th><?=$languageArray['weighed_by_code'][$language]?></th>
                   <th><?=$languageArray['checked_by_code'][$language]?></th>
-                  <!-- <th width="10%">Action</th> -->
                 </tr>
               </thead>
               <tfoot>
@@ -313,7 +300,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWholesale.php',
+      'url':'php/modules/wholesales/filterWholesale.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -355,12 +342,6 @@ $(function () {
       { data: 'total_reject' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
-      // { 
-      //   data: 'id',
-      //   render: function ( data, type, row ) {
-      //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-      //   }
-      // }
     ],
     "footerCallback": function(row, data, start, end, display) {
       var api = this.api();
@@ -421,7 +402,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWholesale.php',
+        'url':'php/modules/wholesales/filterWholesale.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -463,12 +444,6 @@ $(function () {
         { data: 'total_reject' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
-        // { 
-        //   data: 'id',
-        //   render: function ( data, type, row ) {
-        //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-        //   }
-        // }
       ],
       "footerCallback": function(row, data, start, end, display) {
         var api = this.api();
@@ -522,11 +497,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
@@ -554,11 +529,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+      window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
@@ -588,21 +563,4 @@ $(function () {
     }
   });
 });
-
-function printSlip(id) {
-  $.post('php/print.php', {userID: id}, function(data){
-    var response = JSON.parse(data);
-    if(response.status === 'success') {
-      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-      printWindow.document.write(response.message);
-      printWindow.document.close();
-      setTimeout(function(){
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    } else {
-      alert('Error: ' + response.message);
-    }
-  });
-}
 </script>

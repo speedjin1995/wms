@@ -1,6 +1,6 @@
 <?php
-require_once 'php/db_connect.php';
-require_once 'php/lookup.php';
+require_once '../../php/db_connect.php';
+require_once '../../php/lookup.php';
 
 session_start();
 
@@ -128,12 +128,6 @@ else{
   $languageArray = $_SESSION['languageArray'];
 }
 ?>
-<!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
-  <option selected="selected">-</option>
-  <?php while($rowunits2=mysqli_fetch_assoc($units1)){ ?>
-    <option value="<?=$rowunits2['id'] ?>"><?=$rowunits2['units'] ?></option>
-  <?php } ?>
-</select-->
 
 <style>
   @media screen and (min-width: 676px) {
@@ -265,18 +259,6 @@ else{
                   </select>
                 </div>
               </div>
-
-              <!--div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['product_code'][$language]?></label>
-                  <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
-                    <option selected="selected">-</option>
-                    <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
-                      <option value="<?=$rowStatus2['id'] ?>"><?=$rowStatus2['product_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div-->
               
               <input type="hidden" id="categoryFilter" name="categoryFilter">
 
@@ -311,9 +293,6 @@ else{
           <div class="card-header">
             <div class="row">
               <div class="col-10"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
-              <!-- <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
-              </div> -->
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
@@ -346,15 +325,6 @@ else{
                   <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
-              <!-- <tfoot>
-                <tr>
-                    <th colspan="4">Total</th>
-                    <th></th>
-                    <th></th>
-                    <th></th> 
-                    <th></th>
-                </tr>
-              </tfoot> -->
             </table>
           </div>
         </div>
@@ -704,9 +674,6 @@ else{
 
 <script>
 // Values
-var controlflow = "None";
-var indicatorUnit = "kg";
-var weightUnit = "1";
 var rate = 1;
 var currency = "1";
 var weightCount = 0;
@@ -780,7 +747,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWholesale.php',
+      'url':'php/modules/wholesales/filterWholesale.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -832,38 +799,7 @@ $(function () {
           return buttons;
         }
       }
-    ],
-    // "footerCallback": function(row, data, start, end, display) {
-    //   var api = this.api();
-
-    //   // Calculate total for 'total_cages' column
-    //   var totalCages = api
-    //       .column(4, { page: 'current' })
-    //       .data()
-    //       .reduce(function(a, b) {
-    //           return a + parseFloat(b);
-    //       }, 0);
-
-    //   // Calculate total for 'total_birds' column
-    //   var totalBirds = api
-    //       .column(5, { page: 'current' })
-    //       .data()
-    //       .reduce(function(a, b) {
-    //           return a + parseFloat(b);
-    //       }, 0);
-
-    //   var totalConts = api
-    //     .column(6, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //         return a + parseFloat(b);
-    //     }, 0);
-
-    //   // Update footer with the total
-    //   $(api.column(4).footer()).html(totalCages.toFixed(3));
-    //   $(api.column(5).footer()).html(totalBirds.toFixed(3));
-    //   $(api.column(6).footer()).html(totalConts);
-    // }
+    ]
   });
 
   // Add event listener for opening and closing details on row click
@@ -885,7 +821,7 @@ $(function () {
           row.child.hide();
           tr.removeClass('shown');
       } else {
-          $.post('php/getWholesale.php', { userID: row.data().id}, function (data) {
+          $.post('php/modules/wholesales/getWholesale.php', { userID: row.data().id}, function (data) {
             var obj = JSON.parse(data);
             if (obj.status === 'success') {
               row.child(format(obj.message)).show();
@@ -897,29 +833,6 @@ $(function () {
           });
       }
   });
-
-  // Add event listener for opening and closing details
-  // $('#weightTable tbody').on('click', 'td.dt-control', function () {
-  //   var tr = $(this).closest('tr');
-  //   var row = table.row( tr );
-
-  //   if ( row.child.isShown() ) {
-  //     // This row is already open - close it
-  //     row.child.hide();
-  //     tr.removeClass('shown');
-  //   }
-  //   else {
-  //     // Open this row
-  //     <?php 
-  //       if($role == "ADMIN"){
-  //         echo 'row.child( format(row.data()) ).show();tr.addClass("shown");';
-  //       }
-  //       else{
-  //         echo 'row.child( formatNormal(row.data()) ).show();tr.addClass("shown");';
-  //       }
-  //     ?>
-  //   }
-  // });
 
   $('#filterSearch').on('click', function(){
     //$('#spinnerLoading').show();
@@ -951,7 +864,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWholesale.php',
+        'url':'php/modules/wholesales/filterWholesale.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -1005,38 +918,7 @@ $(function () {
             return buttons;
           }
         }
-      ],
-      // "footerCallback": function(row, data, start, end, display) {
-      //   var api = this.api();
-
-      //   // Calculate total for 'total_cages' column
-      //   var totalCages = api
-      //       .column(4, { page: 'current' })
-      //       .data()
-      //       .reduce(function(a, b) {
-      //           return a + parseFloat(b);
-      //       }, 0);
-
-      //   // Calculate total for 'total_birds' column
-      //   var totalBirds = api
-      //       .column(5, { page: 'current' })
-      //       .data()
-      //       .reduce(function(a, b) {
-      //           return a + parseFloat(b);
-      //       }, 0);
-
-      //   var totalConts = api
-      //     .column(6, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //         return a + parseFloat(b);
-      //     }, 0);
-
-      //   // Update footer with the total
-      //   $(api.column(4).footer()).html(totalCages.toFixed(3));
-      //   $(api.column(5).footer()).html(totalBirds.toFixed(3));
-      //   $(api.column(6).footer()).html(totalConts);
-      // }
+      ]
     });
   });
 
@@ -1087,7 +969,7 @@ $(function () {
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
-          url: 'php/wholesales.php',
+          url: 'php/modules/wholesales/wholesales.php',
           type: 'POST',
           data: formData,
           processData: false,
@@ -1114,7 +996,7 @@ $(function () {
         });
       }else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
-        $.post('php/deleteWholesale.php', $('#cancelForm').serialize(), function(data){
+        $.post('php/modules/wholesales/deleteWholesale.php', $('#cancelForm').serialize(), function(data){
           var obj = JSON.parse(data);
 
           if(obj.status === 'success'){
@@ -1133,7 +1015,7 @@ $(function () {
         });
       }else if ($('#printOptionsModal').hasClass('show')){
         $('#printOptionsModal').modal('hide');
-        $.post('php/print.php', $('#printOptionsForm').serialize(), function(data){
+        $.post('php/modules/wholesales/print.php', $('#printOptionsForm').serialize(), function(data){
           var obj = JSON.parse(data);
           if(obj.status === 'success') {
             var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
@@ -1161,149 +1043,6 @@ $(function () {
         });
       }
     }
-  });
-
-  $('#refreshBtn').on('click', function(){
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
-
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'searching': true,
-      'order': [[ 1, 'asc' ]],
-      'columnDefs': [ { orderable: false, targets: [0] }],
-      'ajax': {
-        'url':'php/filterWholesale.php',
-        'data': {
-          fromDate: fromDateI,
-          toDate: toDateI,
-          product: productI,
-          supplier: supplierNoI,
-          recordType: 'industrial'
-        } 
-      },
-      'columns': [
-        { data: 'serial_no' },
-        { data: 'created_datetime' },
-        { data: 'supplier_name' },
-        { data: 'product_name' },
-        { data: 'gross' },
-        { data: 'unit' },
-        { data: 'count' },
-        { 
-          data: 'id',
-          render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-          }
-        }
-      ],
-      "footerCallback": function(row, data, start, end, display) {
-        var api = this.api();
-
-        // Calculate total for 'total_cages' column
-        var totalCages = api
-            .column(4, { page: 'current' })
-            .data()
-            .reduce(function(a, b) {
-                return a + parseFloat(b);
-            }, 0);
-
-        // Calculate total for 'total_birds' column
-        var totalBirds = api
-            .column(5, { page: 'current' })
-            .data()
-            .reduce(function(a, b) {
-                return a + parseFloat(b);
-            }, 0);
-
-        var totalConts = api
-          .column(6, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-              return a + parseFloat(b);
-          }, 0);
-
-        // Update footer with the total
-        $(api.column(4).footer()).html(totalCages.toFixed(3));
-        $(api.column(5).footer()).html(totalBirds.toFixed(3));
-        $(api.column(5).footer()).html(totalConts);
-      }
-    });
-  });
-  
-  <?php 
-    if($role == "ADMIN" || $role == "SADMIN"){
-      echo "$('#manual').on('click', function(){
-        if($(this).is(':checked')){
-          $(this).val(1);
-            $('#currentWeight').removeAttr('readonly');
-        }
-        else{
-          $(this).val(0);
-            $('#currentWeight').attr('readonly', 'readonly');
-        }
-      })";
-    }
-  ?>
-
-  $('#extendModal').find('#inCButton').on('click', function(){
-    var text = $('#indicatorWeight').text();
-    var weight = parseFloat(text.replace("kg","").replace("g","").replace("oz","").replace("lbs",""))
-    $('#currentWeight').val(weight.toFixed(3));
-    $('#currentWeight').trigger("change");
-  });
-
-  $('#extendModal').find('#currentWeight').on('change', function(){
-    var weight = $('#product :selected').data('unit');
-    var uom = $('#product :selected').data('uom') ? $('#product :selected').data('uom') : '';
-    var uomDesc = $("#uomhidden option[value='"+uom+"']").text();
-    var cweight = $('#currentWeight').val();
-    $('#indicatorWeight').text(cweight.toString() + ' ' + uomDesc);
-
-    if(weight && cweight){
-      var count = parseFloat(cweight) / parseFloat(weight);
-      count = parseFloat(count).toFixed(0);
-      $('#actualCount').val(count);
-      $('#countingWeight').text(count);
-    }
-  });
-
-  $('#extendModal').find('#product').on('change', function () {
-    var desc = $('#product :selected').data('description');
-    var weight = $('#product :selected').data('unit');
-    var batch = $('#product :selected').data('batch')? $('#product :selected').data('batch') : '';
-    var uom = $('#product :selected').data('uom') ? $('#product :selected').data('uom') : '';
-    var cweight = $('#currentWeight').val();
-
-    var uomDesc = $("#uomhidden option[value='"+uom+"']").text();
-
-    $('#unitWeight').val(weight);
-    $('#unitCountWeight').text(weight.toString() + ' ' + uomDesc);
-
-    $('#productDesc').val(desc);
-    $('#uom').val(uom).trigger('change');
-    $('#batchNumber').val(batch);
-
-    if(weight && cweight){
-      var count = parseFloat(cweight) / parseFloat(weight);
-      count = parseFloat(count).toFixed(0);
-      $('#actualCount').val(count);
-      $('#countingWeight').text(count);
-    }
-  });
-
-  $('#extendModal').find('#uom').on('change', function () {
-    
   });
 
   $('#transactionStatusFilter').on('change', function () {
@@ -1773,7 +1512,7 @@ function calculateVariance(row){
   var nett = parseFloat(row.find('input[id^="net"]').val());
 
   if (nett > 0){
-    $.post('php/getProduct.php', {userID: productId}, function(data){
+    $.post('php/modules/products/getProduct.php', {userID: productId}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
@@ -1798,72 +1537,6 @@ function calculateVariance(row){
   }else{
     updateTotals();
   }
-}
-
-function updatePrices(isFromCurrency, rat){
-  var totalPrice;
-  var unitPrice = $('#unitPrice').val();
-  var totalWeight = $('#totalWeight').val();
-
-  if(isFromCurrency == 'Y'){
-    unitPrice = (unitPrice / rate) * parseFloat(rat);
-    $('#extendModal').find('#unitPrice').val(unitPrice.toFixed(2));
-    rate = parseFloat(rat).toFixed(2);
-  }
-  else{
-    unitPrice = unitPrice * parseFloat(rat);
-    $('#extendModal').find('#unitPrice').val(unitPrice.toFixed(2));
-    rate = parseFloat(rat).toFixed(2);
-  }
-  
-
-  if(unitPrice != '' &&  moq != '' && totalWeight != ''){
-    totalPrice = unitPrice * totalWeight;
-    $('#totalPrice').val(totalPrice.toFixed(2));
-  }
-  else(
-    $('#totalPrice').val((0).toFixed(2))
-  )
-}
-
-function updateWeights(){
-  var tareWeight =  0;
-  var currentWeight =  0;
-  var reduceWeight = 0;
-  var moq = $('#moq').val();
-  var totalWeight = 0;
-  var actualWeight = 0;
-
-  if($('#currentWeight').val()){
-    currentWeight =  $('#currentWeight').val();
-  }
-
-  if($('#tareWeight').val()){
-    tareWeight =  $('#tareWeight').val();
-  }
-
-  if($('#reduceWeight').val()){
-    reduceWeight =  $('#reduceWeight').val();
-  }
-
-  if(tareWeight == 0){
-    actualWeight = currentWeight - reduceWeight;
-    actualWeight = Math.abs(actualWeight);
-    $('#actualWeight').val(actualWeight.toFixed(2));
-  }
-  else{
-    actualWeight = tareWeight - currentWeight - reduceWeight;
-    actualWeight = Math.abs(actualWeight);
-    $('#actualWeight').val(actualWeight.toFixed(2));
-  }
-
-  if(actualWeight != '' &&  moq != ''){
-    totalWeight = actualWeight * moq;
-    $('#totalWeight').val(totalWeight.toFixed(2));
-  }
-  else{
-    $('#totalWeight').val((0).toFixed(2))
-  };
 }
 
 function format (row) {
@@ -2036,65 +1709,6 @@ function format (row) {
   `;
   
   return returnString;
-  // return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
-  // '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
-  // '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
-  // '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
-  // '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
-  // '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
-  // '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
-  // '</p></div><div class="col-md-3"><p>Package: '+row.packages+
-  // '</p></div></div><div class="row"><div class="col-md-3">'+
-  // '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
-  // '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
-  // '</p></div><div class="col-md-3 money"><p>Unit Price: '+row.unitPrice+
-  // '</p></div></div><div class="row"><div class="col-md-3">'+
-  // '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
-  // '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
-  // '</p></div><div class="col-md-3 money"><p>Total Weight: '+row.totalPrice+
-  // '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
-  // '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
-  // '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  // '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  // ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
-  // ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  // ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  // ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
-  // '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
-  // '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
-  // '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
-  // '</p></div></div>';
-  // ;
-}
-
-function formatNormal (row) {
-  return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
-  '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
-  '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
-  '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
-  '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
-  '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
-  '</p></div><div class="col-md-3"><p>Package: '+row.packages+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
-  '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
-  '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
-  '</p></div><div class="col-md-3"><p>Unit Price: '+row.unitPrice+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
-  '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
-  '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
-  '</p></div><div class="col-md-3"><p>Total Weight: '+row.totalPrice+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
-  '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
-  '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
-  '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
-  '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
-  '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
-  '</p></div></div>';
 }
 
 function newEntry(){
@@ -2144,7 +1758,7 @@ function newEntry(){
 
 function calculatePrice(productId, status, customerId, currentGrade, element) {
   if (productId){
-    $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
@@ -2167,13 +1781,9 @@ function calculatePrice(productId, status, customerId, currentGrade, element) {
   }
 }
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
 function edit(id) {
   $('#spinnerLoading').show();
-  $.post('php/getWholesale.php', {userID: id}, function(data){
+  $.post('php/modules/wholesales/getWholesale.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
@@ -2598,28 +2208,6 @@ function print(id) {
     },
     unhighlight: function (element, errorClass, validClass) {
         $(element).removeClass('is-invalid');
-    }
-  });
-}
-
-function portrait(id) {
-  $.post('php/printportrait.php', {userID: id, file: 'weight'}, function(data){
-    var obj = JSON.parse(data);
-
-    if(obj.status === 'success'){
-      var printWindow = window.open('', '', 'height=400,width=800');
-      printWindow.document.write(obj.message);
-      printWindow.document.close();
-      setTimeout(function(){
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something wrong when activate", "Failed:");
     }
   });
 }

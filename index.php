@@ -506,7 +506,7 @@ to get the desired effect
               <?php } ?>
               <?php if ($module == 'industrial') { ?>
               <li class="nav-item">
-                <a href="#industrial" data-file="industrial.php" class="nav-link link">
+                <a href="#industrial" data-file="modules/industrial/industrial.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['pulp_and_paste_code'][$language]?></p>
                 </a>
@@ -567,7 +567,7 @@ to get the desired effect
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'industrial') { ?>
           <li class="nav-item">
-            <a href="#reportsIndustry" data-file="reportsIndustry.php" class="nav-link link">
+            <a href="#reportsIndustry" data-file="modules/industrial/reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
               <p><?=$languageArray['reports_code'][$language]?></p>
             </a>
