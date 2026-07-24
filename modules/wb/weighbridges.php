@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -216,12 +216,6 @@ else{
           <div class="card-header">
             <div class="row">
               <div class="col-10"><?=$languageArray['weighbridge_code'][$language]?></div>
-              <!-- <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf">Export PDF</button>
-              </div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel">Export Excel</button>
-              </div> -->
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
@@ -538,7 +532,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWeighbridge.php',
+      'url':'php/modules/wb/filterWeighbridge.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -644,7 +638,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWeighbridge.php',
+        'url':'php/modules/wb/filterWeighbridge.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -731,7 +725,7 @@ $(function () {
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
-          url: 'php/weighbridges.php',
+          url: 'php/modules/wb/weighbridges.php',
           type: 'POST',
           data: formData,
           processData: false,
@@ -758,7 +752,7 @@ $(function () {
         });
       }else if($('#cancelModal').hasClass('show')){
         $('#spinnerLoading').show();
-        $.post('php/deleteWeighbridge.php', $('#cancelForm').serialize(), function(data){
+        $.post('php/modules/wb/deleteWeighbridge.php', $('#cancelForm').serialize(), function(data){
           var obj = JSON.parse(data);
 
           if(obj.status === 'success'){
@@ -776,65 +770,6 @@ $(function () {
           $('#spinnerLoading').hide();
         });
       }
-    }
-  });
-
-  $('#exportExcel').on('click', function(){
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var statusI = $('#statusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-    var selectedIds = []; // An array to store the selected 'id' values
-
-    $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0){
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
-    }else{
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
-    }
-  });
-
-  $('#exportPdf').on('click', function(){
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var statusI = $('#statusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-
-    var selectedIds = []; // An array to store the selected 'id' values
-
-    $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0){
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
-    }else{
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
   });
 
@@ -933,7 +868,7 @@ function newEntry(){
 
 function edit(id) {
   $('#spinnerLoading').show();
-  $.post('php/getWeighbridge.php', {userID: id}, function(data){
+  $.post('php/modules/wb/getWeighbridge.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
@@ -1022,7 +957,7 @@ function deactivate(id) {
 }
 
 function printSlip(id) {
-  $.post('php/printWeighbridge.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
+  $.post('php/modules/wb/printWeighbridge.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
     var response = JSON.parse(data);
     if(response.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);

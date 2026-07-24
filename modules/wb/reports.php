@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -262,7 +262,7 @@ $(function () {
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
     'ajax': {
-      'url':'php/filterWeighbridge.php',
+      'url':'php/modules/wb/filterWeighbridge.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
@@ -359,7 +359,7 @@ $(function () {
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
-        'url':'php/filterWeighbridge.php',
+        'url':'php/modules/wb/filterWeighbridge.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
@@ -450,11 +450,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/exportWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      window.open("php/modules/wb/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
       "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&transactionId="+transactionIdI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/exportWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      window.open("php/modules/wb/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
       "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&transactionId="+transactionIdI+"&isMulti=N");
     }
@@ -479,11 +479,11 @@ $(function () {
     });
 
     if (selectedIds.length > 0){
-      window.open("php/exportPdfWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      window.open("php/modules/wb/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
       "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&transactionId="+transactionIdI+"&isMulti=Y&ids="+selectedIds);
     }else{
-      window.open("php/exportPdfWb.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
+      window.open("php/modules/wb/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
       "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
       "&transactionId="+transactionIdI+"&isMulti=N");
     }
@@ -504,7 +504,7 @@ $(function () {
 });
 
 function printSlip(id) {
-  $.post('php/printWeighbridge.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
+  $.post('php/modules/wb/printWeighbridge.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
     var response = JSON.parse(data);
     if(response.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);

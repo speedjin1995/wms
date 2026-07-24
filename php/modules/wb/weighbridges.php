@@ -1,6 +1,6 @@
 <?php
-require_once 'db_connect.php';
-require_once 'uploadFileHelper.php';
+require_once '../../db_connect.php';
+require_once '../../uploadFileHelper.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 session_start();
 

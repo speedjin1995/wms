@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'db_connect.php';
-require_once 'lookup.php';
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 
 // $language = isset($_POST['prePrint']) ? $_POST['prePrint'] : $_SESSION['language'];
 // $languageArray = $_SESSION['languageArray'];

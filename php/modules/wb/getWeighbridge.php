@@ -1,6 +1,6 @@
 <?php
-require_once "db_connect.php";
-require_once "lookup.php";
+require_once '../../db_connect.php';
+require_once '../../lookup.php';
 $db->set_charset("utf8mb4");
 
 session_start();
