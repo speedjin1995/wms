@@ -37,7 +37,7 @@ if(!isset($_SESSION['userID'])){
         
         <title>WMS</title>
         
-        <link rel="icon" href="assets/wms-logo-site-icon.png" type="image">
+        <link rel="icon" href="assets/fy-fruit-trading-logo-icon.png" type="image">
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
         <!-- IonIcons -->
