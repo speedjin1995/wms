@@ -307,14 +307,14 @@ if (!empty($_GET['fromDate'])) {
     $dateTime     = DateTime::createFromFormat('d/m/Y', $_GET['fromDate']);
     $fromDate     = $dateTime->format('d/m/Y');
     $fromDateTime = $dateTime->format('Y-m-d 00:00:00');
-    $searchQuery .= " AND wholesales.created_datetime >= '" . $fromDateTime . "'";
+    $searchQuery .= " AND wholesales.start_time >= '" . $fromDateTime . "'";
 }
 
 if (!empty($_GET['toDate'])) {
     $dateTime   = DateTime::createFromFormat('d/m/Y', $_GET['toDate']);
     $toDate     = $dateTime->format('d/m/Y');
     $toDateTime = $dateTime->format('Y-m-d 23:59:59');
-    $searchQuery .= " AND wholesales.created_datetime <= '" . $toDateTime . "'";
+    $searchQuery .= " AND wholesales.start_time <= '" . $toDateTime . "'";
 }
 
 if (!empty($_GET['transactionStatus']) && $_GET['transactionStatus'] != '-') {
@@ -413,9 +413,9 @@ $allRows             = [];
 if ($query->num_rows > 0) {
     $count = 1;
     while ($row = $query->fetch_assoc()) {
-        $createdDateTime = new DateTime($row['created_datetime']);
-        $formattedDate   = $createdDateTime->format('d/m/Y');
-        $formattedTime   = $createdDateTime->format('H:i:s');
+        $startTime = new DateTime($row['start_time']);
+        $formattedDate   = $startTime->format('d/m/Y');
+        $formattedTime   = $startTime->format('H:i');
 
         $weighingDetails = json_decode($row['weight_details'], true);
         $arrangedDetails = arrangeByProductGrade($weighingDetails);
