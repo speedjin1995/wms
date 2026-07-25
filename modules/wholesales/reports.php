@@ -308,7 +308,6 @@ else{
             <select class="form-control" id="pdfReportType">
               <option value="summary"><?=$languageArray['summary_report_code'][$language]?></option>
               <option value="invoice"><?=$languageArray['invoice_listing_report_code'][$language]?></option>
-              <option value="stockBalance"><?=$languageArray['stock_balance_report_code'][$language]?></option>
             </select>
           </div>
         </div>

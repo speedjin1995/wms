@@ -556,6 +556,12 @@ to get the desired effect
               <p><?=$languageArray['reports_code'][$language]?></p>
             </a>
           </li>
+          <li class="nav-item">
+            <a href="#stockBalanceReport" data-file="modules/wholesales/stockBalanceReport.php" class="nav-link link">
+              <i class="nav-icon fas fa-balance-scale"></i>
+              <p><?=$languageArray['stock_balance_report_code'][$language]?></p>
+            </a>
+          </li>
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'weighing') { ?>
           <li class="nav-item">
