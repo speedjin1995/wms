@@ -89,7 +89,7 @@ if(!isset($_SESSION['userID'])){
                 <select class="form-control select2" id="productFilter">
                   <option value="">-</option>
                   <?php while($row = mysqli_fetch_assoc($products)) { ?>
-                    <option value="<?=$row['id']?>"><?=$row['product_name']?></option>
+                    <option value="<?=$row['id']?>" data-category="<?=$row['category']?>"><?=$row['product_name']?></option>
                   <?php } ?>
                 </select>
               </div>
@@ -162,6 +162,30 @@ $(function () {
 
   $('#datePicker').on('change.datetimepicker', function () {
     loadPreview();
+  });
+
+  $('#categoryFilter').on('change', function () {
+    var selectedCategory = $(this).val();
+    var productSelect = $('#productFilter');
+    var currentVal = productSelect.val();
+    productSelect.select2('destroy');
+    if (!productSelect.data('original-options')) {
+      productSelect.data('original-options', productSelect.html());
+    }
+    productSelect.html(productSelect.data('original-options'));
+    if (selectedCategory) {
+      productSelect.find('option').each(function () {
+        if ($(this).val() && $(this).data('category') != selectedCategory) {
+          $(this).remove();
+        }
+      });
+    }
+    if (currentVal && productSelect.find('option[value="' + currentVal + '"]').length) {
+      productSelect.val(currentVal);
+    } else {
+      productSelect.val('');
+    }
+    productSelect.select2({ allowClear: true, placeholder: 'Please Select' });
   });
 
   $('#refreshBtn').on('click', function () {
