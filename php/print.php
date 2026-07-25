@@ -312,7 +312,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'])){
                             <div class="col-4">
                                 <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>
                                 <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.$status.'</span></div>
-                                <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['created_datetime'])).'</span></div>
+                                <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['start_time'])).'</span></div>
                                 <div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Delivery' : 'Purchase').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div>';
 
                                 if ($wholesale['status'] == 'RECEIVING') {
@@ -343,7 +343,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'])){
                                 <div class="info-row"><span class="info-label">Cages Weight</span><span class="info-value">: '.number_format($totalCagesWeight, 2).' kg</span></div>
                                 <div class="info-row"><span class="info-label">Weight By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
                                 <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: '.($wholesale['checked_by'] == 'JACKY' ? '' : $wholesale['checked_by']).'</span></div>
-                                <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['created_datetime'])).'</span></div>
+                                <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['start_time'])).'</span></div>
                                 <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['end_time'])).'</span></div>
                             </div>
                         </div>

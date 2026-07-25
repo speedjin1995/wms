@@ -85,8 +85,8 @@ else{
                 <div class="form-group">
                   <label><?=$languageArray['transaction_status_code'][$language]?></label>
                   <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="OUTGOING" selected><?=$languageArray['outgoing_code'][$language]?></option>
-                    <option value="INCOMING"><?=$languageArray['incoming_code'][$language]?></option>
+                    <option value="OUTGOING"><?=$languageArray['outgoing_code'][$language]?></option>
+                    <option value="INCOMING" selected><?=$languageArray['incoming_code'][$language]?></option>
                   </select>
                 </div>
               </div>
@@ -226,7 +226,8 @@ else{
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
-                  <th><?=$languageArray['created_datetime_code'][$language]?></th>
+                  <th><?=$languageArray['start_time_code'][$language]?></th>
+                  <th><?=$languageArray['end_time_code'][$language]?></th>
                   <th><?=$languageArray['parent_code'][$language]?></th>
                   <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['vehicle_no_code'][$language]?></th>
@@ -241,7 +242,7 @@ else{
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
+                    <th colspan="10"><?=$languageArray['total_code'][$language]?></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -343,7 +344,8 @@ $(function () {
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'security_bills' },
-      { data: 'created_datetime' },
+      { data: 'start_time' },
+      { data: 'end_time' },
       { data: 'parent' },
       { data: 'customer_supplier' },
       { data: 'vehicle_no' },
@@ -364,29 +366,29 @@ $(function () {
       var api = this.api();
 
       var totalItem = api
-        .column(9, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-          return a + parseFloat(String(b || 0).replace(/,/g, ''));
-        }, 0);
-
-      var totalWeight = api
         .column(10, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
-      var totalReject = api
+      var totalWeight = api
         .column(11, { page: 'current' })
         .data()
         .reduce(function(a, b) {
           return a + parseFloat(String(b || 0).replace(/,/g, ''));
         }, 0);
 
-      $(api.column(9).footer()).html(totalItem);
-      $(api.column(10).footer()).html(totalWeight.toFixed(2));
-      $(api.column(11).footer()).html(totalReject.toFixed(2));
+      var totalReject = api
+        .column(12, { page: 'current' })
+        .data()
+        .reduce(function(a, b) {
+          return a + parseFloat(String(b || 0).replace(/,/g, ''));
+        }, 0);
+
+      $(api.column(10).footer()).html(totalItem);
+      $(api.column(11).footer()).html(totalWeight.toFixed(2));
+      $(api.column(12).footer()).html(totalReject.toFixed(2));
     }
   });
 
@@ -450,7 +452,8 @@ $(function () {
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'security_bills' },
-        { data: 'created_datetime' },
+        { data: 'start_time' },
+        { data: 'end_time' },
         { data: 'parent' },
         { data: 'customer_supplier' },
         { data: 'vehicle_no' },
@@ -471,29 +474,29 @@ $(function () {
         var api = this.api();
 
         var totalItem = api
-          .column(9, { page: 'current' })
-          .data()
-          .reduce(function(a, b) {
-            return a + parseFloat(String(b || 0).replace(/,/g, ''));
-          }, 0);
-
-        var totalWeight = api
           .column(10, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
-        var totalReject = api
+        var totalWeight = api
           .column(11, { page: 'current' })
           .data()
           .reduce(function(a, b) {
             return a + parseFloat(String(b || 0).replace(/,/g, ''));
           }, 0);
 
-        $(api.column(9).footer()).html(totalItem);
-        $(api.column(10).footer()).html(totalWeight.toFixed(2));
-        $(api.column(11).footer()).html(totalReject.toFixed(2));
+        var totalReject = api
+          .column(12, { page: 'current' })
+          .data()
+          .reduce(function(a, b) {
+            return a + parseFloat(String(b || 0).replace(/,/g, ''));
+          }, 0);
+
+        $(api.column(10).footer()).html(totalItem);
+        $(api.column(11).footer()).html(totalWeight.toFixed(2));
+        $(api.column(12).footer()).html(totalReject.toFixed(2));
       }
     });
   });
