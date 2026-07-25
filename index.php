@@ -3,11 +3,10 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if(!isset($_SESSION['userID'])) {
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $module = $_SESSION['module'] ?? '';
@@ -22,7 +21,7 @@ else{
   $name = '';
   $username = '';
 	
-	if(($row = $result->fetch_assoc()) !== null){
+	if(($row = $result->fetch_assoc()) !== null) {
     $role = $row['role_code'];
     $name = $row['name'];
     $username = $row['username'];
@@ -34,13 +33,13 @@ else{
   // Load message resource
   if (in_array('P', $packages, true)) {
     $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
-  }else{
+  } else {
     $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
   }
   
   $languageArray = Array();
 
-  while($row=mysqli_fetch_assoc($message_resource)){
+  while($row=mysqli_fetch_assoc($message_resource)) {
     $languageArray[$row['message_key_code']] = array("en"=>$row['en'],"zh"=>$row['zh'],"my"=>$row['my'],"ne"=>$row['ne'], "ja"=>$row['ja']);
   }
 
@@ -97,16 +96,6 @@ else{
       background-clip: padding-box;
       cursor: pointer
     }
-  
-    /* .table-striped > tbody > tr{
-      background-color: #007bff; 
-      color:white;
-    }
-
-    .table-striped > tbody > tr:nth-of-type(odd){
-      background-color: #14a2b8; 
-      color:white;
-    } */
 
     thead {
       background-color: #007bff; 
@@ -127,10 +116,6 @@ else{
     .row-child {
       background-color: #000;
     }
-
-    /*.hidden {
-      display: none !important;
-    }*/
 
     div.loading{
       position: fixed;
@@ -306,9 +291,7 @@ else{
       animation: uil-ring-anim 1s linear infinite;
     }
 
-    /*.nav-item.has-treeview.menu-is-opening.menu-open {
-      background-color: #00501a; /* Replace "your-color" with the desired background color 
-    }*/
+    /* New CSS Style */
 
   </style>
 </head>

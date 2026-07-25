@@ -3,10 +3,10 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
-  echo '<script type="text/javascript">';
-  echo 'window.location.href = "login.html";</script>';
-}else{
+if(!isset($_SESSION['userID'])) {
+    echo '<script type="text/javascript">';
+    echo 'window.location.href = "login.html";</script>';
+}else {
     // Language
     $company = $_SESSION['customer'];
     $language = $_SESSION['language'];
@@ -15,12 +15,12 @@ if(!isset($_SESSION['userID'])){
     // Load message resource
     if (in_array('P', $packages, true)) {
         $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
-    }else{
+    } else {
         $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
     }
     
     $languageArray = Array();
-    while($row=mysqli_fetch_assoc($message_resource)){
+    while($row=mysqli_fetch_assoc($message_resource)) {
         $languageArray[$row['message_key_code']] = array("en"=>$row['en'],"zh"=>$row['zh'],"my"=>$row['my'],"ne"=>$row['ne'], "ja"=>$row['ja']);
     }
 
@@ -70,9 +70,7 @@ if(!isset($_SESSION['userID'])){
                 justify-content: center;
                 align-items: center;
                 min-height: 100vh;
-                /*background: url('assets/modules-bg.jpeg');*/
-                background: url('assets/module-bg.jpeg');
-                /*background: url('assets/modules-bg.jpg');*/
+                background: url('assets/main-bg.jpg');
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
@@ -107,7 +105,7 @@ if(!isset($_SESSION['userID'])){
             .modules-box-list .modules-box:hover {
                 cursor: pointer;
                 transform: translateY(-10px);
-                box-shadow: 5px -5px 0px 2.5px rgba(0, 51, 146, 1);
+                box-shadow: 5px -5px 0px 2.5px rgba(227, 198, 106, 1);
             }
 
             .modules-box-list .modules-box .modules-img {
@@ -120,18 +118,21 @@ if(!isset($_SESSION['userID'])){
             .modules-box-list .modules-box .modules-txt {
                 font-size: 25px;
                 line-height: 30px;
+                letter-spacing: 0.75px;
                 font-weight: 700;
+                color: #1a1a1a;
             }
 
-            .company-name {
-                /*position: absolute;
-                top: 15%;*/
+            .company-name h1 {
                 width: 100%;
                 text-align: center;
-                font-size: 32px;
+                font-size: 40px;
+                line-height: 45px;
+                letter-spacing: 0.75px;
                 font-weight: 700;
-                letter-spacing: 1.5px;
-                color: #1f2d3d;
+                background: linear-gradient(135deg, rgba(246, 213, 74, 1) 0%, rgba(255, 243, 199, 1) 50%, rgba(217, 168, 45, 1) 75%);
+                background-clip: text;
+                color: transparent;
                 margin-bottom: 35px;
             }
         </style>
