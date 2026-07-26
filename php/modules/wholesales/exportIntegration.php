@@ -8,12 +8,13 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 session_start();
 
-$company       = $_SESSION['customer'];
+$company = $_SESSION['customer'];
 $companyDetail = searchCompanyById($company, $db);
 $integrationList = $companyDetail['integration_list'] ?? '';
 
-$docType           = $_GET['docType'] ?? '';
+$docType = $_GET['docType'] ?? '';
 $transactionStatus = $_GET['transactionStatus'] ?? '';
+$recordType = $_GET['recordType'] ?? '';
 
 if (empty($docType) || empty($integrationList)) {
     die('Invalid request.');
@@ -21,7 +22,7 @@ if (empty($docType) || empty($integrationList)) {
 
 // ─── Resolve mapping folder ───────────────────────────────────────────────────
 
-$folder = ($transactionStatus === 'RECEIVING') ? 'Receiving' : 'Dispatch';
+$folder = ($transactionStatus === 'RECEIVING' || $transactionStatus === 'INCOMING') ? 'Receiving' : 'Dispatch';
 $mappingFile = __DIR__ . '/../../../export-mapping/' . strtolower($integrationList) . '/' . $folder . '/' . $docType . '.json';
 
 if (!file_exists($mappingFile)) {
@@ -47,6 +48,12 @@ if (!empty($_GET['toDate'])) {
 
 if (!empty($_GET['transactionStatus']) && $_GET['transactionStatus'] != '-') {
     $searchQuery .= " AND wholesales.status = '" . mysqli_real_escape_string($db, $_GET['transactionStatus']) . "'";
+}
+
+if (!empty($_GET['recordType']) && $_GET['recordType'] != '-') {
+    $searchQuery .= " AND wholesales.records_type = '" . mysqli_real_escape_string($db, $_GET['recordType']) . "'";
+}else{
+    $searchQuery .= " AND wholesales.records_type = 'wholesales'";
 }
 
 if (!empty($_GET['product']) && $_GET['product'] != '-') {

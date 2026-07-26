@@ -337,8 +337,8 @@ else{
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary btn-sm" id="integrationExportBtn">Export</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-primary btn-sm" id="integrationExportBtn"><?=$languageArray['export_code'][$language]?></button>
       </div>
     </div>
   </div>

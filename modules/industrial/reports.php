@@ -1,5 +1,6 @@
 <?php
 require_once '../../php/db_connect.php';
+require_once '../../php/lookup.php';
 
 session_start();
 
@@ -27,6 +28,10 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
+
+    // Company Detail 
+    $companyDetail = searchCompanyById($company, $db);
+    $allowIntegration = $companyDetail['include_integration'];
   } else {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
@@ -34,6 +39,7 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
+    $allowIntegration = 'Y';
   }
 
   // Language
@@ -196,11 +202,16 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-6"></div>
-              <div class="col-3">
+              <div class="<?=$allowIntegration == 'Y' ? 'col-6' : 'col-8'?>"></div>
+              <?php if($allowIntegration == 'Y') { ?>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-danger btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
+              </div>
+              <?php } ?>
+              <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
-              <div class="col-3">
+              <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>
@@ -245,7 +256,34 @@ else{
   </div>
 </div>  
 
+<!-- Integration Export Modal -->
+<div class="modal fade" id="integrationModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><?=$languageArray['export_integration_code'][$language]?></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><?=$languageArray['document_type_code'][$language]?></label>
+          <select class="form-control" id="integrationDocType">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-primary btn-sm" id="integrationExportBtn"><?=$languageArray['export_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+var allowIntegration = '<?=$allowIntegration?>';
+var integrationList = '<?=$allowIntegration == 'Y' ? $companyDetail['integration_list'] : ''?>';
+
 $(function () {
   const today = new Date();
   const tomorrow = new Date(today);
@@ -538,6 +576,77 @@ $(function () {
       "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
     }
   });
+
+    if (allowIntegration === 'Y') {
+    $('#exportIntegration').on('click', function() {
+      var transactionStatusI = $('#transactionStatusFilter').val();
+      var $docType = $('#integrationDocType');
+
+      $docType.empty();
+      $docType.append('<option value="">-- Select --</option>');
+      if (transactionStatusI === 'DISPATCH' || transactionStatusI === 'STOCK-BAL') {
+        if (integrationList === 'AutoCount') {
+          $docType.append('<option value="quotation">Quotation</option>');
+          $docType.append('<option value="sales_order">Sales Order</option>');
+          $docType.append('<option value="delivery_order">Delivery Order</option>');
+          $docType.append('<option value="invoice">Invoice</option>');
+          $docType.append('<option value="cash_sale">Cash Sale</option>');
+        }
+      } else {
+        if (integrationList === 'AutoCount') {
+          $docType.append('<option value="request_quotation">Request Quotation</option>');
+          $docType.append('<option value="purchase_order">Purchase Order</option>');
+          $docType.append('<option value="goods_received_note">Goods Received Note</option>');
+          $docType.append('<option value="purchase_invoice">Purchase Invoice</option>');
+          $docType.append('<option value="cash_purchase">Cash Purchase</option>');
+        }
+      }
+      $('#integrationModal').modal('show');
+    });
+
+    $('#integrationExportBtn').on('click', function() {
+      var docType = $('#integrationDocType').val();
+      if (!docType) {
+        toastr["error"]("Please select a document type.", "Validation Error:");
+        return;
+      }
+
+      var fromDateI = $('#fromDate').val();
+      var toDateI = $('#toDate').val();
+      var transactionStatusI = $('#transactionStatusFilter').val();
+      var statusI = $('#statusFilter').val();
+      var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+      var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
+      var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
+      var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+      var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+      var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
+      var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+      var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+      var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+      var selectedIds = [];
+
+      $("#weightTable tbody input[type='checkbox']").each(function() {
+        if (this.checked) {
+          selectedIds.push($(this).val());
+        }
+      });
+
+      var base = "php/modules/wholesales/exportIntegration.php?recordType=industrial&docType="+docType+"&fromDate="+fromDateI+"&toDate="+toDateI+
+        "&transactionStatus="+transactionStatusI+"&status="+statusI+
+        "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
+        "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
+        "&weightedBy="+weightedByI+"&location="+locationI;
+
+      if (selectedIds.length > 0) {
+        window.open(base + "&isMulti=Y&ids=" + selectedIds);
+      } else {
+        window.open(base + "&isMulti=N");
+      }
+
+      $('#integrationModal').modal('hide');
+    });
+  }
 
   $('#transactionStatusFilter').on('change', function () {
     var status = $(this).val();
