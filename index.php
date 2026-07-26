@@ -550,17 +550,25 @@ to get the desired effect
           </li>
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'wholesale') { ?>
-          <li class="nav-item">
-            <a href="#reports" data-file="modules/wholesales/reports.php" class="nav-link link">
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
-              <p><?=$languageArray['reports_code'][$language]?></p>
+              <p><?=$languageArray['reports_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
-          </li>
-          <li class="nav-item">
-            <a href="#stockBalanceReport" data-file="modules/wholesales/stockBalanceReport.php" class="nav-link link">
-              <i class="nav-icon fas fa-balance-scale"></i>
-              <p><?=$languageArray['stock_balance_report_code'][$language]?></p>
-            </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <li class="nav-item">
+                <a href="#reports" data-file="modules/wholesales/reports.php" class="nav-link link">
+                  <i class="nav-icon fas fa-chart-bar"></i>
+                  <p><?=$languageArray['weighing_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#stockBalanceReport" data-file="modules/wholesales/stockBalanceReport.php" class="nav-link link">
+                  <i class="nav-icon fas fa-balance-scale"></i>
+                  <p><?=$languageArray['stock_balance_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
           </li>
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'weighing') { ?>
