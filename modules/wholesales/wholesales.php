@@ -1116,10 +1116,18 @@ $(function () {
             printWindow.document.close();
             var selectedPaperSize = $('#paperSize').val();
             if (selectedPaperSize == 'A5') {
-              setTimeout(function() {
-                printWindow.print();
-                printWindow.close();
-              }, 300);
+              var qrImg = printWindow.document.querySelector('.qr-block img');
+              if (qrImg && !qrImg.complete) {
+                qrImg.onload = qrImg.onerror = function() {
+                  printWindow.print();
+                  printWindow.close();
+                };
+              } else {
+                setTimeout(function() {
+                  printWindow.print();
+                  printWindow.close();
+                }, 300);
+              }
             } else {
               var pollCount = 0;
               var poll = setInterval(function() {

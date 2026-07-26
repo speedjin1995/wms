@@ -662,6 +662,13 @@ else{
               <option value="N"><?=$languageArray['no_code'][$language]?></option>
             </select>
           </div>
+          <div class="form-group mb-0">
+            <label><?=$languageArray['paper_size_code'][$language]?></label>
+            <select class="form-control" id="paperSize" name="paperSize">
+              <option value="A4">A4</option>
+              <option value="A5">A5</option>
+            </select>
+          </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
           <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
@@ -1021,18 +1028,34 @@ $(function () {
             var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
             printWindow.document.write(obj.message);
             printWindow.document.close();
-            var pollCount = 0;
-            var poll = setInterval(function() {
-              pollCount++;
-              var rendered = printWindow.document.querySelector('.pagedjs_pages');
-              if (rendered || pollCount > 60) {
-                clearInterval(poll);
+            var selectedPaperSize = $('#paperSize').val();
+            if (selectedPaperSize == 'A5') {
+              var qrImg = printWindow.document.querySelector('.qr-block img');
+              if (qrImg && !qrImg.complete) {
+                qrImg.onload = qrImg.onerror = function() {
+                  printWindow.print();
+                  printWindow.close();
+                };
+              } else {
                 setTimeout(function() {
                   printWindow.print();
                   printWindow.close();
                 }, 300);
               }
-            }, 200);
+            } else {
+              var pollCount = 0;
+              var poll = setInterval(function() {
+                pollCount++;
+                var rendered = printWindow.document.querySelector('.pagedjs_pages');
+                if (rendered || pollCount > 60) {
+                  clearInterval(poll);
+                  setTimeout(function() {
+                    printWindow.print();
+                    printWindow.close();
+                  }, 300);
+                }
+              }, 200);
+            }
           }
           else if(obj.status === 'failed'){
             alert(obj.message);
