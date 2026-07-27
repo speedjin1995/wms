@@ -714,7 +714,7 @@ $(function () {
     'serverSide': true,
     'serverMethod': 'post',
     'ajax': {
-      'url':'php/loadProducts.php',
+      'url':'php/modules/products/loadProducts.php',
       'data': {
         id: <?=$company ?>
       }
@@ -795,7 +795,7 @@ $(function () {
       $('#spinnerLoading').show();
       var formData = new FormData($('#productForm')[0]);
       $.ajax({
-        url: 'php/products.php',
+        url: 'php/modules/products/products.php',
         type: 'POST',
         data: formData,
         processData: false,
@@ -918,7 +918,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/uploadProduct.php',
+        url: 'php/modules/products/uploadProduct.php',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -961,7 +961,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/deleteProduct.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+          $.post('php/modules/products/deleteProduct.php', {userID: selectedIds, type: 'MULTI'}, function(data){
               var obj = JSON.parse(data);
               
               if(obj.status === 'success'){
@@ -1126,7 +1126,7 @@ $(function () {
     e.preventDefault();
     $('#spinnerLoading').show();
     $.ajax({
-      url: 'php/productCustomerSupplier.php',
+      url: 'php/modules/products/productCustomerSupplier.php',
       type: 'POST',
       data: $(this).serialize(),
       success: function(data) {
@@ -1274,7 +1274,7 @@ function setProductImagePreview(file) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/getProduct.php', {userID: id}, function(data){
+  $.post('php/modules/products/getProduct.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
@@ -1385,7 +1385,7 @@ function openCustomers(id) {
   $('#customersForm').find('#customerProductId').val(id);
   // Reset to customers tab
   $('#tabCustomersLink').tab('show');
-  $.post('php/getProduct.php', {userID: id}, function(data) {
+  $.post('php/modules/products/getProduct.php', {userID: id}, function(data) {
     var obj = JSON.parse(data);
     if (obj.status === 'success') {
       // Load customers
@@ -1476,7 +1476,7 @@ $('#rangeSetToggle').on('click', function() {
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     //$('#spinnerLoading').show();
-    $.post('php/deleteProduct.php', {userID: id}, function(data){
+    $.post('php/modules/products/deleteProduct.php', {userID: id}, function(data){
         var obj = JSON.parse(data);
         
         if(obj.status === 'success'){

@@ -455,7 +455,7 @@ to get the desired effect
             </a>
             <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
-                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
+                <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
@@ -490,7 +490,7 @@ to get the desired effect
               </li> -->
               <?php if ($module == 'wholesale') { ?>
               <li class="nav-item">
-                <a href="#wholesales" data-file="wholesales.php" class="nav-link link">
+                <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
@@ -498,7 +498,7 @@ to get the desired effect
               <?php } ?>
               <?php if ($module == 'weighing') { ?>
               <li class="nav-item">
-                <a href="#weighbridges" data-file="weighbridges.php" class="nav-link link">
+                <a href="#weighbridges" data-file="modules/wb/weighbridges.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['weighbridge_code'][$language]?></p>
                 </a>
@@ -506,7 +506,7 @@ to get the desired effect
               <?php } ?>
               <?php if ($module == 'industrial') { ?>
               <li class="nav-item">
-                <a href="#industrial" data-file="industrial.php" class="nav-link link">
+                <a href="#industrial" data-file="modules/industrial/industrial.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['pulp_and_paste_code'][$language]?></p>
                 </a>
@@ -550,16 +550,30 @@ to get the desired effect
           </li>
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'wholesale') { ?>
-          <li class="nav-item">
-            <a href="#reports" data-file="reports.php" class="nav-link link">
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
-              <p><?=$languageArray['reports_code'][$language]?></p>
+              <p><?=$languageArray['reports_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
+            <ul class="nav nav-treeview" style="display: block;">
+              <li class="nav-item">
+                <a href="#reports" data-file="modules/wholesales/reports.php" class="nav-link link">
+                  <i class="nav-icon fas fa-chart-bar"></i>
+                  <p><?=$languageArray['weighing_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#stockBalanceReport" data-file="modules/wholesales/stockBalanceReport.php" class="nav-link link">
+                  <i class="nav-icon fas fa-balance-scale"></i>
+                  <p><?=$languageArray['stock_balance_code'][$language]?></p>
+                </a>
+              </li>
+            </ul>
           </li>
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'weighing') { ?>
           <li class="nav-item">
-            <a href="#reportsWb" data-file="reportsWb.php" class="nav-link link">
+            <a href="#reportsWb" data-file="modules/wb/reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
               <p><?=$languageArray['reports_code'][$language]?></p>
             </a>
@@ -567,7 +581,7 @@ to get the desired effect
           <?php } ?>
           <?php if ($module != 'dashboard' && $module == 'industrial') { ?>
           <li class="nav-item">
-            <a href="#reportsIndustry" data-file="reportsIndustry.php" class="nav-link link">
+            <a href="#reportsIndustry" data-file="modules/industrial/reports.php" class="nav-link link">
               <i class="nav-icon fas fa-th"></i>
               <p><?=$languageArray['reports_code'][$language]?></p>
             </a>
