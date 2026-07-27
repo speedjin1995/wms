@@ -3,10 +3,10 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])) {
+if (!isset($_SESSION['userID'])) {
     echo '<script type="text/javascript">';
     echo 'window.location.href = "login.html";</script>';
-}else {
+} else {
     // Language
     $company = $_SESSION['customer'];
     $language = $_SESSION['language'];
@@ -20,7 +20,7 @@ if(!isset($_SESSION['userID'])) {
     }
     
     $languageArray = Array();
-    while($row=mysqli_fetch_assoc($message_resource)) {
+    while ($row=mysqli_fetch_assoc($message_resource)) {
         $languageArray[$row['message_key_code']] = array("en"=>$row['en'],"zh"=>$row['zh'],"my"=>$row['my'],"ne"=>$row['ne'], "ja"=>$row['ja']);
     }
 

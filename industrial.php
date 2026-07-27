@@ -4,11 +4,10 @@ require_once 'php/lookup.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if (!isset($_SESSION['userID'])) {
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
   $module = $_SESSION['module'];
@@ -27,7 +26,8 @@ else{
   $allowInvoice = 'N';
   $userLocationId = null;
   $filterStates = [];
-  if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
+
+  if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)) {
     // Query to get daily setup states
     $stateQuery = "SELECT * FROM daily_sales_setup WHERE module = 'industrial' AND company = ? AND deleted = 0";
     if ($state_stmt = $db->prepare($stateQuery)) {
@@ -43,7 +43,7 @@ else{
     }
   }
 
-	if(($row = $result->fetch_assoc()) !== null){
+	if (($row = $result->fetch_assoc()) !== null) {
     $role = $row['role_code'];
     $allowAdd = $row['allow_add'];
     $allowEdit = $row['allow_edit'];
@@ -51,17 +51,19 @@ else{
     $userLocationId = $row['location'];
   }
 
-  if ($role != 'SADMIN'){
- $stateFilter = '';
+  if ($role != 'SADMIN') {
+    $stateFilter = '';
     if (!empty($filterStates)) {
       $stateJson = json_encode(array_values($filterStates));
       $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
     }
+
     $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";
     $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
     }
+
     $products = $db->query($productQuery);
     $products2 = $db->query($productQuery);
     $products3 = $db->query($productQuery);
@@ -143,11 +145,11 @@ else{
   }
 </style>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['pulp_and_paste_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['pulp_and_paste_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -155,12 +157,12 @@ else{
 <!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
-  <div class="row">
+    <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
               <div class="form-group col-3">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
@@ -294,7 +296,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -308,21 +310,21 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
               <!-- <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
               </div> -->
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-add-btn btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body custom-table-card-body">
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
@@ -364,16 +366,16 @@ else{
 
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="extendForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_new_entry_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
 
-        <div class="modal-body" >
+        <div class="modal-body custom-model-body-box" >
           <input type="hidden" class="form-control" id="id" name="id">
           <input type="hidden" class="form-control" id="recordType" name="recordType" value="industrial">
           
@@ -509,7 +511,7 @@ else{
             <div class="col-md-12">
               <div class="form-group">
                 <label><?=$languageArray['remark_code'][$language]?></label>
-                <textarea colspan="3" class="form-control" id="remarks" name="remarks" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+                <textarea colspan="3" class="form-control custom-remarks-txtarea" id="remarks" name="remarks" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
               </div>
             </div>
           </div>
@@ -525,19 +527,19 @@ else{
             </div>
           <?php } ?>
           
-          <hr>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
-            <div class="d-flex align-items-center gap-2">
-              <label class="mb-0 mr-1 text-muted small"><?=$languageArray['unit_price_code'][$language]?></label>
-              <input type="number" class="form-control form-control-sm mr-2" id="bulkUnitPrice" step="0.01" placeholder="0.00" style="width:120px;">
-              <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
+          <hr class="custom-model-body-hr">
+          <div class="d-flex justify-content-between align-items-center custom-model-title-box">
+            <h5 class="custom-model-title-box-txt"><?=$languageArray['weight_details_code'][$language]?></h5>
+            <div class="d-flex align-items-center custom-model-title-box-filter">
+              <label class="custom-model-title-box-lbl"><?=$languageArray['unit_price_code'][$language]?></label>
+              <input type="number" class="form-control custom-model-title-box-form" id="bulkUnitPrice" step="0.01" placeholder="0.00" style="width:120px;">
+              <button type="button" class="btn custom-add-btn-sm btn-sm" id="addWeightBtn">
                 <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
               </button>
             </div>
           </div>
           <div class="row">
-            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+            <table class="table table-bordered nowrap table-striped align-middle custom-add-table-detail" style="width: 100%">
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllWeightCheckbox" class="selectAllCheckbox"></th>
@@ -584,15 +586,15 @@ else{
             </table>
           </div>
 
-          <hr>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0"><?=$languageArray['reject_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-danger btn-sm" id="addRejectWeightBtn">
+          <hr class="custom-inner-hr">
+          <div class="d-flex justify-content-between align-items-center custom-model-title-box">
+            <h5 class="custom-model-title-box-txt"><?=$languageArray['reject_details_code'][$language]?></h5>
+            <button type="button" class="btn custom-delete-btn-sm btn-sm" id="addRejectWeightBtn">
               <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
             </button>
           </div>
           <div class="row">
-            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+            <table class="table table-bordered nowrap table-striped align-middle custom-add-table-detail" style="width: 100%">
               <thead>
                 <tr>
                   <th><?=$languageArray['number_short_code'][$language]?></th>
@@ -629,15 +631,16 @@ else{
                   <?php if($allowPhoto == 'Y') { ?>
                   <th></th>
                   <?php } ?>
+                  <th></th>
                 </tr>
               </tfoot>
             </table>
           </div>
         </div>
 
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -665,9 +668,9 @@ else{
             <input type="hidden" class="form-control" id="id" name="id">
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -791,13 +794,13 @@ $(function () {
         data: 'id',
         class: 'action-button',
         render: function ( data, type, row ) {
-          var buttons = '<div class="row">';
+          var buttons = '<div class="row custom-tbl-btn-icon">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
+          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
@@ -961,14 +964,14 @@ $(function () {
           data: 'id',
           class: 'action-button',
           render: function ( data, type, row ) {
-            var buttons = '<div class="row">';
+            var buttons = '<div class="row custom-tbl-btn-icon">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<div class="col-3 mr-2"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div>';
+              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>';
             }
-            buttons += '<div class="col-3 mr-2"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div>';
+            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
 
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div>';
+              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>';
             }
             
             buttons += '</div>';
@@ -1145,7 +1148,7 @@ $(function () {
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+            return '<div class="row custom-tbl-btn-icon"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="print'+data+'" onclick="print('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
           }
         }
       ],
@@ -1362,12 +1365,12 @@ $(function () {
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="">
           <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
           <span id="rejectPhotoStatus${idx}"></span>
         </td>
         <td>
-          <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+          <button type="button" class="btn custom-check-btn-icon btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
+          <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -1433,12 +1436,12 @@ $(function () {
         <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
           <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
           <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
           <span id="photoStatus${idx}"></span>
         </td>
         <td>
-          <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+          <button type="button" class="btn custom-reject-btn-icon btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
+          <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -1811,36 +1814,36 @@ function updateWeights(){
 function format (row) {
   var returnString = `
   <!-- Wholesale Information -->
-  <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;">Wholesale Order Information</strong></span>
+  <div class="row custom-tbl-title-box">
+    <p class="custom-tbl-title-box-txt">Wholesale Order Information</p>
   </div>
-  <div class="row">
+  <div class="row custom-tbl-content-box">
     <div class="col-6">
-      <p><strong>Serial No:</strong> ${row.serial_no}</p>
-      <p><strong>Parent:</strong> ${row.parent}</p>
-      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
-      ${row.records_type != 'industrial' ? '<p><strong>Security Bill No:</strong> ' + row.security_bills + '</p>' : ''}
-      <p><strong>PO No:</strong> ${row.po_no}</p>
-      ${row.records_type != 'industrial' ? '<p><strong>Vehicle:</strong> ' + row.vehicle_no + '</p>' : ''}
-      ${row.records_type != 'industrial' ? '<p><strong>Driver:</strong> ' + row.driver + '</p>' : ''}
+      <p class="custom-tbl-content-box-txt"><strong>Serial No:</strong> ${row.serial_no}</p>
+      <p class="custom-tbl-content-box-txt"><strong>Parent:</strong> ${row.parent}</p>
+      <p class="custom-tbl-content-box-txt"><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
+      ${row.records_type != 'industrial' ? '<p class="custom-tbl-content-box-txt"><strong>Security Bill No:</strong> ' + row.security_bills + '</p>' : ''}
+      <p class="custom-tbl-content-box-txt"><strong>PO No:</strong> ${row.po_no}</p>
+      ${row.records_type != 'industrial' ? '<p class="custom-tbl-content-box-txt"><strong>Vehicle:</strong> ' + row.vehicle_no + '</p>' : ''}
+      ${row.records_type != 'industrial' ? '<p class="custom-tbl-content-box-txt"><strong>Driver:</strong> ' + row.driver + '</p>' : ''}
     </div>
     <div class="col-6">
-      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
-      <!--p><strong>Checked By:</strong> ${row.checked_by || ''}</p-->
-      <p><strong>Total Item:</strong> ${row.total_item}</p>
-      ${row.records_type != 'industrial' ? '<p><strong>Total Weight:</strong> ' + row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00' + '</p>' : ''}
-      ${row.records_type != 'industrial' ? '<p><strong>Total Reject:</strong> ' + row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00' + '</p>' : ''}
-      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
+      <p class="custom-tbl-content-box-txt"><strong>Weighted By:</strong> ${row.weighted_by}</p>
+      <!--p class="custom-tbl-content-box-txt"><strong>Checked By:</strong> ${row.checked_by || ''}</p-->
+      <p class="custom-tbl-content-box-txt"><strong>Total Item:</strong> ${row.total_item}</p>
+      ${row.records_type != 'industrial' ? '<p class="custom-tbl-content-box-txt"><strong>Total Weight:</strong> ' + row.total_weight ? parseFloat(row.total_weight).toFixed(2) : '0.00' + '</p>' : ''}
+      ${row.records_type != 'industrial' ? '<p class="custom-tbl-content-box-txt"><strong>Total Reject:</strong> ' + row.total_reject ? parseFloat(row.total_reject).toFixed(2) : '0.00' + '</p>' : ''}
+      ${allowPrice == 'Y' ? '<p class="custom-tbl-content-box-txt"><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
     </div>
   </div>
-  <div class="row">
+  <div class="row custom-tbl-content-box">
     <div class="col-12">
-      <p><strong>Remarks:</strong> ${row.remark || ''}</p>
+      <p class="custom-tbl-content-box-txt"><strong>Remarks:</strong> ${row.remark || ''}</p>
     </div>
   </div>
-  <hr>
-  <h3>Weighing Details</h3>
-  <div class="row mb-2">
+  <hr class="custom-tbl-hr">
+  <h3 class="custom-tbl-title">Weighing Details</h3>
+  <div class="row custom-tbl-fliter-box">
     <div class="col-md-3">
       <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
         <option value="">All Products</option>
@@ -1852,8 +1855,8 @@ function format (row) {
       </select>
     </div>
   </div>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
+  <div class="row custom-inner-tbl-box">
+    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width: 100%">
       <thead>
           <tr>
             <th>Product</th>
@@ -1917,10 +1920,10 @@ function format (row) {
     </table>
   </div>
 
-  <hr>
-  <h3>Reject Details</h3>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+  <hr class="custom-tbl-hr">
+  <h3 class="custom-tbl-title">Reject Details</h3>
+  <div class="row custom-inner-tbl-box">
+    <table class="table table-bordered nowrap table-striped align-middle" style="width: 100%">
       <thead>
           <tr>
             <th>Product</th>
@@ -1997,11 +2000,11 @@ function format (row) {
   // '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
   // '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
   // '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  // '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  // ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
-  // ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  // ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  // ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
+  // '</p></div><div class="col-md-3"><div class="row" custom-tbl-btn-icon><button type="button" class="btn custom-edit-btn-icon btn-sm" onclick="edit('+row.id+
+  // ')"><i class="fas fa-pen"></i></button><button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="deactivate('+row.id+
+  // ')"><i class="fas fa-trash"></i></button><button type="button" class="btn custom-print-btn-icon btn-sm" onclick="print('+row.id+
+  // ')"><i class="fas fa-print"></i></button><button type="button" class="btn custom-receipt-btn-icon btn-sm" onclick="portrait('+row.id+
+  // ')"><i class="fas fa-receipt"></i></button></div></div></div>'+
   // '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
   // '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
   // '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
@@ -2029,10 +2032,10 @@ function formatNormal (row) {
   '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
   '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
   '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
+  '</p></div><div class="col-md-3"><div class="row custom-tbl-btn-icon"><button type="button" class="btn custom-edit-btn-icon btn-sm" onclick="edit('+row.id+
+  ')"><i class="fas fa-pen"></i></button><button type="button" class="btn custom-print-btn-icon btn-sm" onclick="print('+row.id+
+  ')"><i class="fas fa-print"></i></button><button type="button" class="btn custom-receipt-btn-icon btn-sm" onclick="portrait('+row.id+
+  ')"><i class="fas fa-receipt"></i></button></div></div></div>'+
   '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
   '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
   '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
@@ -2206,12 +2209,12 @@ function edit(id) {
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
                 ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
                 <span id="photoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn custom-reject-btn-icon btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
+                <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;
@@ -2294,12 +2297,12 @@ function edit(id) {
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                 <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
                 ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
+                <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
                 <span id="rejectPhotoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn custom-check-btn-icon btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
+                <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;
@@ -2390,7 +2393,7 @@ function rejectRow(button) {
 
   row.find('input[name*="[isRejected]"]').val('YES');
 
-  row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
+  row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn custom-check-btn-icon btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
   row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
   row.find('input[id^="variance"]').closest('td').hide();
   row.find('input[id^="variancePerc"]').closest('td').hide();
@@ -2425,7 +2428,7 @@ function acceptRow(button) {
     }
   });
   
-  row.find('button[onclick*="acceptRow"]').replaceWith('<button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>');
+  row.find('button[onclick*="acceptRow"]').replaceWith('<button type="button" class="btn custom-reject-btn-icon btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>');
   row.find('button[onclick*="removeRejectDetail"]').attr('onclick', 'removeWeightDetail(this)');
   
   $('#weightDetailsTable').append(row);

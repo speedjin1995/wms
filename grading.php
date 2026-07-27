@@ -86,11 +86,11 @@ else{
   }
 </style>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['grading_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['grading_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -98,12 +98,12 @@ else{
 <!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
   <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
               <div class="form-group col-3">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
@@ -155,7 +155,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -169,9 +169,9 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row">
-              <div class="col-6"><?=$languageArray['grading_code'][$language]?></div>
+              <div class="col-6 custom-card-header-title"><?=$languageArray['grading_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
@@ -180,13 +180,13 @@ else{
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-danger btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-add-btn btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body custom-table-card-body">
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
@@ -531,7 +531,7 @@ $(function () {
         data: 'id',
         class: 'action-button',
         render: function ( data, type, row ) {
-          var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+          var buttons = '<div class="d-flex flex-nowrap custom-tbl-btn-icon" style="gap: 5px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }
@@ -626,7 +626,7 @@ $(function () {
           data: 'id',
           class: 'action-button',
           render: function ( data, type, row ) {
-            var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+            var buttons = '<div class="d-flex flex-nowrap custom-tbl-btn-icon" style="gap: 5px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
@@ -1038,27 +1038,27 @@ $(function () {
 function format (row) {
   var returnString = `
   <!-- Wholesale Information -->
-  <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;">Grading Information</strong></span>
+  <div class="row custom-tbl-title-box">
+    <p class="custom-tbl-title-box-txt">Grading Information</p>
   </div>
-  <div class="row">
+  <div class="row custom-tbl-content-box">
     <div class="col-6">
-      <p><strong><?=$languageArray['grading_no_code'][$language]?>:</strong> ${row.grading_no}</p>
-      <p><strong><?=$languageArray['category_code'][$language]?>:</strong> ${row.category}</p>
+      <p class="custom-tbl-content-box-txt"><strong><?=$languageArray['grading_no_code'][$language]?>:</strong> ${row.grading_no}</p>
+      <p class="custom-tbl-content-box-txt"><strong><?=$languageArray['category_code'][$language]?>:</strong> ${row.category}</p>
     </div>
     <div class="col-6">
-      <p><strong><?=$languageArray['start_time_code'][$language]?>:</strong> ${row.start_date}</p>
-      <p><strong><?=$languageArray['end_time_code'][$language]?>:</strong> ${row.end_date || ''}</p>
+      <p class="custom-tbl-content-box-txt"><strong><?=$languageArray['start_time_code'][$language]?>:</strong> ${row.start_date}</p>
+      <p class="custom-tbl-content-box-txt"><strong><?=$languageArray['end_time_code'][$language]?>:</strong> ${row.end_date || ''}</p>
     </div>
   </div>
-  <div class="row">
+  <div class="row custom-tbl-content-box">
     <div class="col-12">
-      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remark || ''}</p>
+      <p class="custom-tbl-content-box-txt"><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remark || ''}</p>
     </div>
   </div>
-    <hr>
-  <h3><?=$languageArray['weighing_details_code'][$language]?></h3>
-  <div class="row mb-2">
+    <hr class="custom-tbl-hr">
+  <h3 class="custom-tbl-title"><?=$languageArray['weighing_details_code'][$language]?></h3>
+  <div class="row custom-tbl-fliter-box">
     <div class="col-md-3">
       <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
         <option value=""><?=$languageArray['all_products_code'][$language]?></option>
@@ -1070,8 +1070,8 @@ function format (row) {
       </select>
     </div>
   </div>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
+  <div class="row custom-inner-tbl-box">
+    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width: 100%">
       <thead>
           <tr>
             <th><?=$languageArray['product_code'][$language]?></th>
@@ -1125,10 +1125,10 @@ function format (row) {
   `;
 
       returnString += `
-  <hr>
-  <h3>Reject Details</h3>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+  <hr class="custom-tbl-hr">
+  <h3 class="custom-tbl-title">Reject Details</h3>
+  <div class="row custom-inner-tbl-box">
+    <table class="table table-bordered nowrap table-striped align-middle" style="width: 97.5%">
       <thead>
           <tr>
             <th><?=$languageArray['product_code'][$language]?></th>

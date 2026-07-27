@@ -3,11 +3,10 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if (!isset($_SESSION['userID'])) {
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
@@ -15,30 +14,30 @@ else{
 }
 ?>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark">Translations</h1>
+        <h1 class="custom-title">Translations</h1>
       </div>
     </div>
   </div>
 </div>
 
-<section class="content">
+<section class="content custom-table-content">
   <div class="container-fluid">
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <div class="card-header">
-            <div class="row">
-              <div class="col-9"><h5 class="card-title mb-0">Translation Records</h5></div>
+          <div class="card-header custom-card-header">
+            <div class="row custom-card-header-row">
+              <div class="col-9"><h5 class="custom-card-header-title">Translation Records</h5></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="addTranslation">Add Translation</button>
+                <button type="button" class="btn btn-block custom-add-btn btn-sm" id="addTranslation">Add Translation</button>
               </div>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body custom-table-card-body">
             <table id="translationTable" class="table table-bordered table-striped">
               <thead>
                 <tr>
@@ -141,7 +140,7 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-5"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-5"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="row custom-tbl-btn-icon"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
         }
       }
     ]
