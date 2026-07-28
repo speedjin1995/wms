@@ -287,7 +287,7 @@ if(isset($_GET['id'])){
                                     <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>
                                 </div>
                                 <div class="so-section">
-                                    <div class="so-title"><span style="border-bottom: 1px solid black;">SALES ORDER</span></div>
+                                    <div class="so-title"><span style="border-bottom: 1px solid black;">INVOICE</span></div>
                                     <div class="so-detail"><span class="so-label">SO No.</span><span class="so-colon">:</span><span class="so-value">' . $soNo . '</span></div>
                                     <div class="so-detail"><span class="so-label">Date</span><span class="so-colon">:</span><span class="so-value">' . $date . '</span></div>
                                     <div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value">' . $time . '</span></div>
