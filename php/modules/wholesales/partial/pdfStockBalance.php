@@ -41,8 +41,9 @@ while ($wRow = $query->fetch_assoc()) {
   $locId   = $wRow['location'] ?? '';
 
   foreach ($details as $detail) {
-    $productId = $detail['product'] ?? '';
-    $gradeId = $detail['grade'] ?? '';
+    $productId = $detail['product']  ?? '';
+    $gradeId = $detail['grade_id'] ?? '';
+    $gradeName = searchGradeNameById($gradeId, $db) ?? '';
     if (empty($productId)) {
       continue;
     }
@@ -69,22 +70,25 @@ while ($wRow = $query->fetch_assoc()) {
       $category = $categoryNameCache[$catId];
     }
 
+    // Key by productId + grade name string (matches raw_stock_balance.grade and stock_movements.grade)
     $itemKey = $productId . '_' . $gradeId;
     if (!isset($grouped[$category][$itemKey])) {
-      $gradeName = !empty($gradeId) ? (searchGradeNameById($gradeId, $db) ?? '') : '';
       $grouped[$category][$itemKey] = [
+        'product_id' => $productId ?? '',
         'code' => $pRow['product_code'] ?? '',
-        'name' => ($pRow['product_name'] ?? '') . ($gradeName ? ' (' . $gradeName . ')' : ''),
-        'locations'    => [],
-        'totalInQty'   => 0,
-        'totalInCost'  => [],
-        'totalOutQty'  => 0,
+        'product' => $pRow['product_name'] ?? '',
+        'grade_id' => $gradeId,
+        'grade' => $gradeName,
+        'locations' => [],
+        'totalInQty' => 0,
+        'totalInCost' => [],
+        'totalOutQty' => 0,
         'totalOutCost' => [],
       ];
     }
 
-    $net      = floatval($detail['net']   ?? 0);
-    $cost     = floatval($detail['total'] ?? 0);
+    $net = floatval($detail['net']   ?? 0);
+    $cost = floatval($detail['total'] ?? 0);
     $currency = !empty($detail['currency']) ? searchCurrencyNameById($detail['currency'], $db) : $defaultCurrency;
     if (empty($currency)) $currency = $defaultCurrency;
     $allCurrencies[$currency] = true;
@@ -120,11 +124,12 @@ $currencies = array_keys($allCurrencies);
 if (empty($currencies)) {
   $currencies = [$defaultCurrency];
 }
+
 // fixed 4 cols per location: outQty + outCost + inQty + inCost
 $locCols     = 4;
 $printDate   = date('d/m/y H:i A');
 $locColCount = count($locations);
-$totalCols   = 4 + ($locColCount * $locCols) + $locCols;
+$totalCols   = 4 + ($locColCount * $locCols) + $locCols + 3; // +3 for Stock Bal Before Adj + Adjustment + Stock Balance
 
 $locNameHeaderHtml = '';
 foreach ($locations as $locId => $locName) {
@@ -149,14 +154,49 @@ $rowsHtml = '';
 foreach ($grouped as $category => $items) {
   $sgRowspan = count($items);
   $first = true;
-  foreach ($items as $item) {
+  foreach ($items as $itemKey => $item) {
+    $stockBalance = 0;
+    $adjustment = 0;
+    $balBeforeAdj = floatval($item['totalInQty']) - floatval($item['totalOutQty']);
+    // Get Raw Stock Balance
+    if ($rawStockBalanceStmt = $db->prepare("SELECT * FROM raw_stock_balance WHERE deleted = 0 AND company = ? AND product_id = ? AND grade = ?")){
+      $rawStockBalanceStmt->bind_param('sss', $company, $item['product_id'], $item['grade_id']);
+      $rawStockBalanceStmt->execute();
+      $rawStockBalanceResult = $rawStockBalanceStmt->get_result();
+      $rawStockBalanceRow = $rawStockBalanceResult->fetch_assoc();
+      $stockBalance = $rawStockBalanceRow['balance'] ?? 0;
+      $rawStockBalanceStmt->close();
+    }
+
+    // Get Stock Movement 
+    $adjustment = '-';
+    if ($stockMovementStmt = $db->prepare("SELECT * FROM stock_movements WHERE module = 'adjustment' AND status = 'ADJUSTMENT' AND company = ? AND product_id = ? AND grade = ? ORDER BY id DESC LIMIT 1")) {
+      $stockMovementStmt->bind_param('sss', $company, $item['product_id'], $item['grade_id']);
+      $stockMovementStmt->execute();
+      $stockMovementRow = $stockMovementStmt->get_result()->fetch_assoc();
+
+      if ($stockMovementRow) {
+        $qty = floatval($stockMovementRow['quantity'] ?? 0);
+        if ($stockMovementRow['movement_type'] == 'ADD') {
+          $adjustment = '+' . number_format($qty, 2);
+        } elseif ($stockMovementRow['movement_type'] == 'MINUS') {
+          $adjustment = '-' . number_format($qty, 2);
+        }
+      }
+
+      $stockMovementStmt->close();
+    }
+
+    $balBeforeAdjClass = $balBeforeAdj < 0 ? 'color:red;' : '';
+    $adjClass = $adjustment < 0 ? 'color:red;' : '';
+    $balClass = $stockBalance < 0 ? 'color:red;' : '';
     $rowsHtml .= '<tr>';
     if ($first) {
       $rowsHtml .= '<td rowspan="'.$sgRowspan.'" class="vt">'.htmlspecialchars($category).'</td>';
       $first = false;
     }
-    $rowsHtml .= '<td class="bd">'.htmlspecialchars($item['code']).'</td>';
-    $rowsHtml .= '<td class="bd">'.htmlspecialchars($item['name']).'</td>';
+    $rowsHtml .= '<td class="bd">'.htmlspecialchars(($item['code'] ? $item['code'].' - ' : '').$item['product']).'</td>';
+    $rowsHtml .= '<td class="bd">'.htmlspecialchars($item['grade']).'</td>';
     $rowsHtml .= '<td class="bc" style="padding:2px 4px;">KG</td>';
     foreach ($locations as $locId => $locName) {
       $outQty   = $item['locations'][$locId]['outQty']  ?? 0;
@@ -174,8 +214,11 @@ foreach ($grouped as $category => $items) {
     $inTotalStr  = implode('<br>', array_map(fn($c, $v) => $c.' '.number_format($v, 2), array_keys($item['totalInCost']),  $item['totalInCost']));
     $rowsHtml .= '<td class="brt">'.number_format($item['totalOutQty'] ?? 0, 2).'</td>';
     $rowsHtml .= '<td class="brt">'.$outTotalStr.'</td>';
-    $rowsHtml .= '<td class="brt">'.number_format($item['totalInQty']  ?? 0, 2).'</td>';
+    $rowsHtml .= '<td class="brt">'.number_format($item['totalInQty'] ?? 0, 2).'</td>';
     $rowsHtml .= '<td class="brt">'.$inTotalStr.'</td>';
+    $rowsHtml .= '<td class="brt" style="'.$balBeforeAdjClass.'">'.number_format($balBeforeAdj, 2).'</td>';
+    $rowsHtml .= '<td class="brt" style="'.$adjClass.'">'.$adjustment.'</td>';
+    $rowsHtml .= '<td class="brt" style="'.$balClass.'">'.$stockBalance.'</td>';
     $rowsHtml .= '</tr>';
   }
 }
@@ -186,13 +229,20 @@ if (empty($grouped)) {
 
 $footerCellsHtml = '';
 foreach ($locations as $locId => $locName) {
-  $loTotal = 0; $liTotal = 0; $lcOutTotal = []; $lcInTotal = [];
+  $loTotal = 0; 
+  $liTotal = 0; 
+  $lcOutTotal = []; 
+  $lcInTotal = [];
   foreach ($grouped as $items) {
     foreach ($items as $item) {
       $loTotal += $item['locations'][$locId]['outQty'] ?? 0;
       $liTotal += $item['locations'][$locId]['inQty']  ?? 0;
-      foreach ($item['locations'][$locId]['outCost'] ?? [] as $c => $v) { $lcOutTotal[$c] = ($lcOutTotal[$c] ?? 0) + $v; }
-      foreach ($item['locations'][$locId]['inCost']  ?? [] as $c => $v) { $lcInTotal[$c]  = ($lcInTotal[$c]  ?? 0) + $v; }
+      foreach ($item['locations'][$locId]['outCost'] ?? [] as $c => $v) { 
+        $lcOutTotal[$c] = ($lcOutTotal[$c] ?? 0) + $v; 
+      }
+      foreach ($item['locations'][$locId]['inCost']  ?? [] as $c => $v) { 
+        $lcInTotal[$c]  = ($lcInTotal[$c]  ?? 0) + $v; 
+      }
     }
   }
   $outStr = implode('<br>', array_map(fn($c, $v) => $c.' '.number_format($v, 2), array_keys($lcOutTotal), $lcOutTotal));
@@ -241,8 +291,8 @@ $headerHtml = '
 </table>
 ';
 
-$gtOutCostStr     = implode('<br>', array_map(fn($c, $v) => $c.' '.number_format($v, 2), array_keys($grandOutCost), $grandOutCost));
-$gtInCostStr      = implode('<br>', array_map(fn($c, $v) => $c.' '.number_format($v, 2), array_keys($grandInCost),  $grandInCost));
+$gtOutCostStr = implode('<br>', array_map(fn($c, $v) => $c.' '.number_format($v, 2), array_keys($grandOutCost), $grandOutCost));
+$gtInCostStr = implode('<br>', array_map(fn($c, $v) => $c.' '.number_format($v, 2), array_keys($grandInCost),  $grandInCost));
 $gtDispatchFooter = '<td class="br">'.$gtOutCostStr.'</td>';
 $gtReceiveFooter  = '<td class="br">'.$gtInCostStr.'</td>';
 
@@ -269,12 +319,15 @@ $html = '
 <table class="main">
   <thead>
     <tr>
-      <th rowspan="4" class="bl" style="width:12%;">Category</th>
-      <th rowspan="4" class="bl" style="width:10%;">Product Code</th>
-      <th rowspan="4" class="bl">Description</th>
-      <th rowspan="4" class="bc" style="width:5%;">UOM</th>
+      <th rowspan="4" class="bl">Category</th>
+      <th rowspan="4" class="bl">Product</th>
+      <th rowspan="4" class="bl">Grade</th>
+      <th rowspan="4" class="bc">UOM</th>
       '.($locColCount > 0 ? '<th colspan="'.($locColCount * $locCols).'" class="bc">Location</th>' : '').'
       <th colspan="'.$locCols.'" rowspan="2" class="bc">Grand Total</th>
+      <th rowspan="4" class="bc">Stock Bal Before Adj</th>
+      <th rowspan="4" class="bc">Adjustment</th>
+      <th rowspan="4" class="bc">Stock Bal</th>
     </tr>
     <tr>
       '.$locNameHeaderHtml.'
@@ -303,6 +356,9 @@ $html = '
       '.$gtDispatchFooter.'
       <td class="br">'.number_format($grandInQty,  2).'</td>
       '.$gtReceiveFooter.'
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
   </tfoot>
 </table>
