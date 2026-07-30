@@ -803,7 +803,9 @@ if (!isset($_SESSION['userID'])) {
       background: rgba(26, 26, 26, .05);
     }
 
-    .custom-search-card-body .form-group .input-group-append .input-group-text {
+    .custom-search-card-body .form-group .input-group-append .input-group-text,
+    .custom-card-box-body .form-group .input-group-append .input-group-text,
+    .custom-card-box-body .form-group .input-group-unit .input-group-text {
       border: 1px solid #E3C66A;
       background: #E3C66A;
       color: #fff;
@@ -814,6 +816,12 @@ if (!isset($_SESSION['userID'])) {
       letter-spacing: 0.75px;
       font-weight: 400;
       padding: 10px;
+    }
+
+    .custom-card-box-body .form-group .input-group-unit .input-group-text {
+      height: 40px;
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
     }
 
     .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .input-group-prepend .input-group-text {
