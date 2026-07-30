@@ -3,111 +3,104 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if (!isset($_SESSION['userID'])) {
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
-
+  
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
 }
 ?>
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><?=$languageArray['packaging_code'][$language]?></h1>
-			</div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<div class="content-header custom-title-content-box">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h1 class="custom-title"><?=$languageArray['packaging_code'][$language]?></h1>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </div>
 <!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
-	<div class="container-fluid">
-        <div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-              <div class="row">
-                  <div class="col-4"></div>
-                  <div class="col-2">
-                    <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                      <?=$languageArray['delete_packaging_code'][$language]?>
-                    </button>
-                  </div>                  
-                  <div class="col-2">
-                    <a href="template/Packaging_Template.xlsx" download>
-                      <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                        <?=$languageArray['download_template_code'][$language]?>
-                      </button>
-                    </a>
-                  </div>
-                  <div class="col-2">
-                    <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                      <?=$languageArray['upload_excel_code'][$language]?>
-                    </button>
-                  </div>
-                  <!-- <div class="col-2">
-                      <input type="file" id="fileInput" accept=".xlsx, .xls" />
-                  </div>
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
-                  </div>                             -->
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addPackaging"><?=$languageArray['add_packaging_code'][$language]?></button>
-                  </div>
+<section class="content custom-table-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header custom-card-header">
+            <div class="row custom-card-header-row">
+              <div class="col-1 custom-card-header-title-col"></div>
+              
+              <div class="col-11 custom-card-header-btn-col">
+                <button type="button" id="multiDeactivate" class="btn btn-block custom-delete-btn custom-card-header-btn-size btn-sm"><?=$languageArray['delete_packaging_code'][$language]?></button>
+                <a href="template/Packaging_Template.xlsx" download class="custom-card-header-btn-size">
+                  <button type="button" class="btn btn-block custom-export-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
+                </a>
+                <button type="button" id="uploadExcel" class="btn btn-block custom-upload-btn custom-card-header-btn-size btn-sm"><?=$languageArray['upload_excel_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-add-btn custom-card-header-btn-size btn-sm" id="addPackaging"><?=$languageArray['add_packaging_code'][$language]?></button>
               </div>
+              
+              <!-- <div class="col-2">
+                <input type="file" id="fileInput" accept=".xlsx, .xls" />
+              </div>
+              
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
+              </div> -->
+            </div>
           </div>
-					<div class="card-body">
-						<table id="packagingTable" class="table table-bordered table-striped">
-							<thead>
-								<tr>
+          
+          <div class="card-body custom-table-card-body">
+            <table id="packagingTable" class="table table-bordered table-striped">
+              <thead>
+                <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['packaging_name_code'][$language]?></th>
                   <th><?=$languageArray['packaging_type_code'][$language]?></th>
                   <th><?=$languageArray['packaging_weight_code'][$language]?></th>
                   <th><?=$languageArray['by_weight_code'][$language]?></th>
-									<th><?=$languageArray['actions_code'][$language]?></th>
-								</tr>
-							</thead>
-						</table>
-					</div><!-- /.card-body -->
-				</div><!-- /.card -->
-			</div><!-- /.col -->
-		</div><!-- /.row -->
-	</div><!-- /.container-fluid -->
+                  <th><?=$languageArray['actions_code'][$language]?></th>
+                </tr>
+              </thead>
+            </table>
+          </div><!-- /.card-body -->
+        </div><!-- /.card -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
 <div class="modal fade" id="uploadModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
-          <div class="modal-header">
-            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['upload_excel_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+        <div class="modal-body custom-model-body-box">
+          <div class="card-body custom-preview-model-box">
+            <input type="file" id="fileInput" class="custom-preview-field">
+            <button type="button" id="previewButton" class="custom-preview-btn"><?=$languageArray['preview_data_code'][$language]?></button>
+            <div id="previewTable" style="overflow: auto;"></div>
           </div>
-          <div class="modal-body">
-            <div class="card-body">
-              <input type="file" id="fileInput">
-              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
-              <div id="previewTable" style="overflow: auto;"></div>
-            </div>
-          </div>
-          <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadPackaging"><?=$languageArray['submit_code'][$language]?></button>
-          </div>
+        </div>
+        
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="button" class="btn custom-save-btn" id="uploadPackaging"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
       </form>
     </div>
     <!-- /.modal-content -->
@@ -117,21 +110,22 @@ else{
 
 <div class="modal fade" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
-          <div class="modal-header">
-            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="form-group">
-                <ol id="errorList" class="text-danger mt-2" style="padding-left: 20px;"></ol>
-              </div>
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['error_log_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+        <div class="modal-body custom-model-body-box">
+          <div class="row">
+            <div class="form-group">
+              <ol id="errorList" class="text-danger mt-2" style="padding-left: 20px;"></ol>
             </div>
           </div>
+        </div>
       </form>
     </div>
     <!-- /.modal-content -->
@@ -140,61 +134,68 @@ else{
 </div>
 
 <div class="modal fade" id="addModal">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <form role="form" id="packagingForm">
-            <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_packaging_code'][$language]?></h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content custom-model-content-box">
+      <form role="form" id="packagingForm">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_packaging_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+        <div class="modal-body custom-model-body-box">
+          <div class="card-body">
+            <div class="form-group">
+              <input type="hidden" class="form-control" id="id" name="id">
             </div>
-            <div class="modal-body">
-              <div class="card-body">
-                <div class="form-group">
-                  <input type="hidden" class="form-control" id="id" name="id">
-                </div>
-                <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
-                  <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
-                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="packagingName"><?=$languageArray['packaging_name_code'][$language]?> *</label>
-                  <input type="text" class="form-control" name="packagingName" id="packagingName" placeholder="<?=$languageArray['enter_packaging_name_code'][$language]?>" required>
-                </div>
-                <div class="form-group">
-                  <label for="packagingType"><?=$languageArray['packaging_type_code'][$language]?> *</label>
-                  <select class="form-control" name="packagingType" id="packagingType" required>
-                    <option value="Original"><?=$languageArray['original_code'][$language]?></option>
-                    <option value="Repack"><?=$languageArray['repack_code'][$language]?></option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="packagingWeight"><?=$languageArray['packaging_weight_code'][$language]?></label>
-                  <input type="number" class="form-control" name="packagingWeight" id="packagingWeight" placeholder="<?=$languageArray['enter_packaging_weight_code'][$language]?>">
-                </div>
-                <div class="form-group">
-                  <label for="packagingByWeight"><?=$languageArray['by_weight_code'][$language]?></label>
-                  <select class="form-control" name="packagingByWeight" id="packagingByWeight">
-                    <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
-                    <option value="N"><?=$languageArray['no_code'][$language]?></option>
-                  </select>
-                </div>
-              </div>
+            
+            <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+              <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
+              <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
+                <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                  <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
+                <?php } ?>
+              </select>
             </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+            
+            <div class="form-group">
+              <label for="packagingName"><?=$languageArray['packaging_name_code'][$language]?> *</label>
+              <input type="text" class="form-control" name="packagingName" id="packagingName" placeholder="<?=$languageArray['enter_packaging_name_code'][$language]?>" required>
             </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
+            
+            <div class="form-group">
+              <label for="packagingType"><?=$languageArray['packaging_type_code'][$language]?> *</label>
+              <select class="form-control" name="packagingType" id="packagingType" required>
+                <option value="Original"><?=$languageArray['original_code'][$language]?></option>
+                <option value="Repack"><?=$languageArray['repack_code'][$language]?></option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="packagingWeight"><?=$languageArray['packaging_weight_code'][$language]?></label>
+              <input type="number" class="form-control" name="packagingWeight" id="packagingWeight" placeholder="<?=$languageArray['enter_packaging_weight_code'][$language]?>">
+            </div>
+            
+            <div class="form-group">
+              <label for="packagingByWeight"><?=$languageArray['by_weight_code'][$language]?></label>
+              <select class="form-control" name="packagingByWeight" id="packagingByWeight">
+                <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+                <option value="N"><?=$languageArray['no_code'][$language]?></option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
     </div>
-    <!-- /.modal-dialog -->
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
 </div>
 
 <!-- jQuery -->
@@ -219,234 +220,226 @@ else{
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 <script src="plugins/chart.js/Chart.min.js"></script>
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
+
 <script>
-
-$(function () {
-  $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#packagingTable tbody input[type="checkbox"]');
-    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
-  });
-
-  $('.select2').each(function() {
-    $(this).select2({
+  $(function () {
+    $('#selectAllCheckbox').on('change', function() {
+      var checkboxes = $('#packagingTable tbody input[type="checkbox"]');
+      checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+    });
+    
+    $('.select2').each(function() {
+      $(this).select2({
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
         dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+      });
     });
-  });
-
-  $("#packagingTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'ajax': {
-      'url':'php/modules/packaging/loadPackaging.php',
-    },
-    'columns': [
-      {
-        // Add a checkbox with a unique ID for each row
-        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
-        className: 'select-checkbox',
-        orderable: false,
-        render: function (data, type, row) {
-            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
-        }
+    
+    $("#packagingTable").DataTable({
+      "responsive": true,
+      "autoWidth": false,
+      'processing': true,
+      'serverSide': true,
+      'serverMethod': 'post',
+      'ajax': {
+        'url':'php/modules/packaging/loadPackaging.php',
       },
-      { data: 'packaging_name' },
-      { data: 'packaging_type', render: function(data){ return data ? data.charAt(0).toUpperCase() + data.slice(1) : ''; } },
-      { data: 'weight' },
-      { data: 'is_by_weight' },
-      { 
-        data: 'deleted',
-        render: function (data, type, row) {
-          if (data == 0) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-          } 
-          else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+      'columns': [
+        {
+          // Add a checkbox with a unique ID for each row
+          data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+          className: 'select-checkbox',
+          orderable: false,
+          render: function (data, type, row) {
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+          }
+        },
+        { data: 'packaging_name' },
+        { data: 'packaging_type', render: function(data){ return data ? data.charAt(0).toUpperCase() + data.slice(1) : ''; } },
+        { data: 'weight' },
+        { data: 'is_by_weight' },
+        { 
+          data: 'deleted',
+          render: function (data, type, row) {
+            if (data == 0) {
+              return '<div class="row custom-tbl-btn-icon"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
+            } else {
+              return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn custom-reject-btn-icon btn-sm">Reactivate</button>';
+            }
           }
         }
-      }
-    ],
-    "rowCallback": function( row, data, index ) {
-      if (data.is_manual == 'Y') {
-        $(row).css('background-color', '#f8d7da');
-      }
-    }, 
-  });
-  
-  $.validator.setDefaults({
+      ],
+      "rowCallback": function( row, data, index ) {
+        if (data.is_manual == 'Y') {
+          $(row).css('background-color', '#f8d7da');
+        }
+      },
+    });
+    
+    $.validator.setDefaults({
       submitHandler: function () {
-          $('#spinnerLoading').show();
-          $.post('php/modules/packaging/packaging.php', $('#packagingForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
-              
-              if(obj.status === 'success'){
-                $('#addModal').modal('hide');
-                toastr["success"](obj.message, "Success:");
-                $('#packagingTable').DataTable().ajax.reload();
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                toastr["error"](obj.message, "Failed:");
-                $('#spinnerLoading').hide();
-              }
-              else{
-                toastr["error"]("Something wrong when edit", "Failed:");
-                $('#spinnerLoading').hide();
-              }
-          });
+        $('#spinnerLoading').show();
+        
+        $.post('php/modules/packaging/packaging.php', $('#packagingForm').serialize(), function(data) {
+          var obj = JSON.parse(data); 
+          
+          if (obj.status === 'success') {
+            $('#addModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#packagingTable').DataTable().ajax.reload();
+            $('#spinnerLoading').hide();
+          } else if (obj.status === 'failed') {
+            toastr["error"](obj.message, "Failed:");
+            $('#spinnerLoading').hide();
+          } else {
+            toastr["error"]("Something wrong when edit", "Failed:");
+            $('#spinnerLoading').hide();
+          }
+        });
       }
-  });
-
-  $('#addPackaging').on('click', function(){
-    $('#addModal').find('#id').val("");
-    $('#addModal').find('#packagingName').val("");
-    $('#addModal').find('#packagingType').val("Original");
-    $('#addModal').find('#packagingWeight').val(0);
-    $('#addModal').find('#packagingByWeight').val("N");
-    $('#addModal').modal('show');
+    });
     
-    $('#packagingForm').validate({
+    $('#addPackaging').on('click', function() {
+      $('#addModal').find('#id').val("");
+      $('#addModal').find('#packagingName').val("");
+      $('#addModal').find('#packagingType').val("Original");
+      $('#addModal').find('#packagingWeight').val(0);
+      $('#addModal').find('#packagingByWeight').val("N");
+      $('#addModal').modal('show');
+      
+      $('#packagingForm').validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
         },
         highlight: function (element, errorClass, validClass) {
-            $(element).addClass('is-invalid');
+          $(element).addClass('is-invalid');
         },
         unhighlight: function (element, errorClass, validClass) {
-            $(element).removeClass('is-invalid');
+          $(element).removeClass('is-invalid');
         }
+      });
     });
-  });
-
-   $('#uploadExcel').on('click', function(){
-    $('#uploadModal').modal('show');
-
-    $('#uploadForm').validate({
+    
+    $('#uploadExcel').on('click', function() {
+      $('#uploadModal').modal('show');
+      
+      $('#uploadForm').validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
         },
         highlight: function (element, errorClass, validClass) {
-            $(element).addClass('is-invalid');
+          $(element).addClass('is-invalid');
         },
         unhighlight: function (element, errorClass, validClass) {
-            $(element).removeClass('is-invalid');
+          $(element).removeClass('is-invalid');
         }
+      });
     });
-  });
-
-  $('#uploadModal').find('#previewButton').on('click', function(){
-    var fileInput = document.getElementById('fileInput');
-    var file = fileInput.files[0];
-    var reader = new FileReader();
     
-    reader.onload = function(e) {
+    $('#uploadModal').find('#previewButton').on('click', function() {
+      var fileInput = document.getElementById('fileInput');
+      var file = fileInput.files[0];
+      var reader = new FileReader();
+      
+      reader.onload = function(e) {
         var data = e.target.result;
         // Process data and display preview
         displayPreview(data);
-    };
-
-    reader.readAsBinaryString(file);
-  });
-
-  $('#uploadPackaging').on('click', function(){
-    $('#spinnerLoading').show();
-    var formData = $('#uploadForm').serializeArray();
-    var data = [];
-    var rowIndex = -1;
-    formData.forEach(function(field) {
-    var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
-    if (match) {
-      var fieldName = match[1];
-      var index = parseInt(match[2], 10);
-      if (index !== rowIndex) {
-      rowIndex = index;
-      data.push({});
-      }
-      data[index][fieldName] = field.value;
-    }
+      };
+      
+      reader.readAsBinaryString(file);
     });
-
-    // Send the JSON array to the server
-    $.ajax({
+    
+    $('#uploadPackaging').on('click', function() {
+      $('#spinnerLoading').show();
+      var formData = $('#uploadForm').serializeArray();
+      var data = [];
+      var rowIndex = -1;
+      formData.forEach(function(field) {
+        var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
+        if (match) {
+          var fieldName = match[1];
+          var index = parseInt(match[2], 10);
+          if (index !== rowIndex) {
+            rowIndex = index;
+            data.push({});
+          }
+          data[index][fieldName] = field.value;
+        }
+      });
+      
+      // Send the JSON array to the server
+      $.ajax({
         url: 'php/modules/packaging/uploadPackaging.php',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(response) {
-            var obj = JSON.parse(response);
+          var obj = JSON.parse(response);
+          if (obj.status === 'success') {
+            $('#spinnerLoading').hide();
+            $('#uploadModal').modal('hide');
+            $('#packagingTable').DataTable().ajax.reload();
+          } else if (obj.status === 'failed') {
+            $('#spinnerLoading').hide();
+          } else if (obj.status === 'error') {
+            $('#spinnerLoading').hide();
+            $('#uploadModal').modal('hide');
+            $('#errorModal').find('#errorList').empty();
+            var errorMessage = obj.message;
+            for (var i = 0; i < errorMessage.length; i++) {
+              $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);
+            }
+            $('#errorModal').modal('show');
+          } else {
+            $('#spinnerLoading').hide();
+          }
+        }
+      });
+    });
+    
+    $('#multiDeactivate').on('click', function () {
+      $('#spinnerLoading').show();
+      var selectedIds = []; // An array to store the selected 'id' values
+      
+      $("#packagingTable tbody input[type='checkbox']").each(function () {
+        if (this.checked) {
+          selectedIds.push($(this).val());
+        }
+      });
+      
+      if (selectedIds.length > 0) {
+        if (confirm('Are you sure you want to cancel these items?')) {
+          $.post('php/modules/packaging/deletePackaging.php', {userID: selectedIds, type: 'MULTI'}, function(data) {
+            var obj = JSON.parse(data);
+            
             if (obj.status === 'success') {
-              $('#spinnerLoading').hide();
-              $('#uploadModal').modal('hide');
               $('#packagingTable').DataTable().ajax.reload();
-            } 
-            else if (obj.status === 'failed') {
               $('#spinnerLoading').hide();
-            } 
-            else if (obj.status === 'error') {
+            } else if (obj.status === 'failed') {
               $('#spinnerLoading').hide();
-              $('#uploadModal').modal('hide');
-              $('#errorModal').find('#errorList').empty();
-              var errorMessage = obj.message;
-              for (var i = 0; i < errorMessage.length; i++) {
-                $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);                            
-              }
-              $('#errorModal').modal('show');
-            } 
-            else {
+            } else {
               $('#spinnerLoading').hide();
             }
-        }
-    });
-  });
-
-  $('#multiDeactivate').on('click', function () {
-    $('#spinnerLoading').show();
-    var selectedIds = []; // An array to store the selected 'id' values
-
-    $("#packagingTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0) {
-      if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/packaging/deletePackaging.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
-              
-              if(obj.status === 'success'){
-                $('#packagingTable').DataTable().ajax.reload();
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                $('#spinnerLoading').hide();
-              }
-              else{
-                $('#spinnerLoading').hide();
-              }
           });
-      }
-
-      $('#spinnerLoading').hide();
-    } 
-    else {
+        }
+        
+        $('#spinnerLoading').hide();
+      } else {
         // Optionally, you can display a message or take another action if no IDs are selected
         alert("Please select at least one packaging to delete.");
         $('#spinnerLoading').hide();
-    }     
+      }
+    });
   });
-});
-
-function displayPreview(data) {
+  
+  function displayPreview(data) {
     // Parse the Excel data
     var workbook = XLSX.read(data, { type: 'binary' });
 
@@ -474,35 +467,36 @@ function displayPreview(data) {
 
     // Iterate over the data and create table rows (skip header row)
     for (var i = 1; i < jsonData.length; i++) {
-        htmlTable += '<tr>';
-        var rowData = jsonData[i] || [];
-
-        for (var j = 0; j < 4; j++) {
-            var cellData = rowData[j];
-            var formattedData = cellData;
-
-            // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
-            if (typeof cellData === 'number' && cellData > 0) {
-                var excelDate = XLSX.SSF.parse_date_code(cellData);
-            }
-
-            htmlTable += '<td><input type="text" id="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+(i-1)+'" name="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+'['+(i-1)+']" value="' + (formattedData == null || formattedData === undefined ? '' : formattedData) + '" /></td>';
+      htmlTable += '<tr>';
+      var rowData = jsonData[i] || [];
+      
+      for (var j = 0; j < 4; j++) {
+        var cellData = rowData[j];
+        var formattedData = cellData;
+        
+        // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
+        if (typeof cellData === 'number' && cellData > 0) {
+          var excelDate = XLSX.SSF.parse_date_code(cellData);
         }
-        htmlTable += '</tr>';
+        
+        htmlTable += '<td><input type="text" id="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+(i-1)+'" name="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+'['+(i-1)+']" value="' + (formattedData == null || formattedData === undefined ? '' : formattedData) + '" /></td>';
+      }
+      htmlTable += '</tr>';
     }
-
+    
     htmlTable += '</tbody></table>';
-
+    
     var previewTable = document.getElementById('previewTable');
     previewTable.innerHTML = htmlTable;
-}
+  }
+  
+  function edit(id) {
+    $('#spinnerLoading').show();
 
-function edit(id){
-  $('#spinnerLoading').show();
-  $.post('php/modules/packaging/getPackaging.php', {userID: id}, function(data){
+    $.post('php/modules/packaging/getPackaging.php', {userID: id}, function(data) {
       var obj = JSON.parse(data);
       
-      if(obj.status === 'success'){
+      if (obj.status === 'success') {
         $('#addModal').find('#id').val(obj.message.id);
         $('#addModal').find('#packagingName').val(obj.message.packaging_name);
         $('#addModal').find('#packagingType').val(obj.message.packaging_type);
@@ -512,72 +506,68 @@ function edit(id){
         $('#addModal').modal('show');
         
         $('#packagingForm').validate({
-            errorElement: 'span',
-            errorPlacement: function (error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.form-group').append(error);
-            },
-            highlight: function (element, errorClass, validClass) {
-                $(element).addClass('is-invalid');
-            },
-            unhighlight: function (element, errorClass, validClass) {
-                $(element).removeClass('is-invalid');
-            }
+          errorElement: 'span',
+          errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+          },
+          highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+          },
+          unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+          }
         });
-      }
-      else if(obj.status === 'failed'){
+      } else if (obj.status === 'failed') {
         toastr["error"](obj.message, "Failed:");
-      }
-      else{
+      } else {
         toastr["error"]("Something wrong when activate", "Failed:");
       }
       $('#spinnerLoading').hide();
-  });
-}
-
-function deactivate(id){
-  if (confirm('Are you sure you want to delete this items?')) {
-    $('#spinnerLoading').show();
-    $.post('php/modules/packaging/deletePackaging.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
-        
-        if(obj.status === 'success'){
-            toastr["success"](obj.message, "Success:");
-            $('#packagingTable').DataTable().ajax.reload();
-            $('#spinnerLoading').hide();
-        }
-        else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-            $('#spinnerLoading').hide();
-        }
-        else{
-            toastr["error"]("Something wrong when activate", "Failed:");
-            $('#spinnerLoading').hide();
-        }
     });
   }
-}
-
-function reactivate(id){
-  if (confirm('Are you sure you want to reactivate this items?')) {
-    $('#spinnerLoading').show();
-    $.post('php/reactivatePackaging.php', {userID: id}, function(data){
+  
+  function deactivate(id) {
+    if (confirm('Are you sure you want to delete this items?')) {
+      $('#spinnerLoading').show();
+      
+      $.post('php/modules/packaging/deletePackaging.php', {userID: id}, function(data) {
         var obj = JSON.parse(data);
         
-        if(obj.status === 'success'){
-            toastr["success"](obj.message, "Success:");
-            $('#packagingTable').DataTable().ajax.reload();
-            $('#spinnerLoading').hide();
+        if (obj.status === 'success') {
+          toastr["success"](obj.message, "Success:");
+          $('#packagingTable').DataTable().ajax.reload();
+          $('#spinnerLoading').hide();
+        } else if (obj.status === 'failed') {
+          toastr["error"](obj.message, "Failed:");
+          $('#spinnerLoading').hide();
+        } else {
+          toastr["error"]("Something wrong when activate", "Failed:");
+          $('#spinnerLoading').hide();
         }
-        else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-            $('#spinnerLoading').hide();
-        }
-        else{
-            toastr["error"]("Something wrong when activate", "Failed:");
-            $('#spinnerLoading').hide();
-        }
-    });
+      });
+    }
   }
-}
+  
+  function reactivate(id) {
+    if (confirm('Are you sure you want to reactivate this items?')) {
+      $('#spinnerLoading').show();
+      
+      $.post('php/reactivatePackaging.php', {userID: id}, function(data) {
+        var obj = JSON.parse(data);
+        
+        if (obj.status === 'success') {
+          toastr["success"](obj.message, "Success:");
+          $('#packagingTable').DataTable().ajax.reload();
+          $('#spinnerLoading').hide();
+        } else if (obj.status === 'failed') {
+          toastr["error"](obj.message, "Failed:");
+          $('#spinnerLoading').hide();
+        } else {
+          toastr["error"]("Something wrong when activate", "Failed:");
+          $('#spinnerLoading').hide();
+        }
+      });
+    }
+  }
 </script>

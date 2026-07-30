@@ -30,12 +30,15 @@ if (!isset($_SESSION['userID'])) {
   if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)) {
     // Query to get daily setup states
     $stateQuery = "SELECT * FROM daily_sales_setup WHERE module = 'industrial' AND company = ? AND deleted = 0";
+    
     if ($state_stmt = $db->prepare($stateQuery)) {
         $state_stmt->bind_param('s', $company);
         $state_stmt->execute();
         $state_result = $state_stmt->get_result();
+        
         while ($state_row = $state_result->fetch_assoc()) {
             $decoded = json_decode($state_row['state'], true);
+            
             if (is_array($decoded)) {
                 $filterStates = array_merge($filterStates, $decoded);
             }
@@ -53,6 +56,7 @@ if (!isset($_SESSION['userID'])) {
 
   if ($role != 'SADMIN') {
     $stateFilter = '';
+    
     if (!empty($filterStates)) {
       $stateJson = json_encode(array_values($filterStates));
       $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
@@ -60,6 +64,7 @@ if (!isset($_SESSION['userID'])) {
 
     $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module = '$module' AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";
     $productCheck = $db->query($productQuery);
+    
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
     }
@@ -86,8 +91,10 @@ if (!isset($_SESSION['userID'])) {
 
     // Company Detail 
     $companyDetail = searchCompanyById($company, $db);
+    
     // $companyProducts = json_decode($companyDetail['products'], true);
     $secRemarksExists = false;
+    
     if ($companyDetail['include_sec_remark'] == 'Y') { 
       $secRemarksExists = true;
     }
@@ -169,7 +176,10 @@ if (!isset($_SESSION['userID'])) {
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
                   <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
-                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
+                    <div class="input-group-text">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -178,7 +188,9 @@ if (!isset($_SESSION['userID'])) {
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
                   <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    <div class="input-group-text">
+                      <i class="fa fa-calendar"></i>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -295,6 +307,7 @@ if (!isset($_SESSION['userID'])) {
 
             <div class="row">
               <div class="col-9"></div>
+              
               <div class="col-3">
                 <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
@@ -386,6 +399,7 @@ if (!isset($_SESSION['userID'])) {
                 <input type="text" class="form-control" id="serialNo" name="serialNo" readonly>
               </div>
             </div>
+
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['start_time_code'][$language]?> *</label>
@@ -397,6 +411,7 @@ if (!isset($_SESSION['userID'])) {
                 </div>
               </div>
             </div>
+
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['end_time_code'][$language]?></label>
@@ -408,6 +423,7 @@ if (!isset($_SESSION['userID'])) {
                 </div>
               </div>
             </div>
+
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['status_code'][$language]?> *</label>
@@ -417,18 +433,21 @@ if (!isset($_SESSION['userID'])) {
                 </select>
               </div>
             </div>
+
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['do_po_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="doPoNo" name="doPoNo">
               </div>
             </div>
+
             <div class="col-md-4" id="securityBillDiv" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
               </div>
             </div>
+
             <div class="col-md-4" id="customerDiv">
               <div class="form-group">
                 <label><?=$languageArray['customer_code'][$language]?></label>
@@ -441,12 +460,14 @@ if (!isset($_SESSION['userID'])) {
                 </select>
               </div>
             </div>
+
             <div class="col-md-4" id="customerOtherDiv">
               <div class="form-group">
                 <label><?=$languageArray['customer_other_code'][$language]?></label>
                 <input type="text" class="form-control" id="customerOther" name="customerOther">
               </div>
             </div>
+
             <div class="col-md-4" id="supplierDiv">
               <div class="form-group">
                 <label><?=$languageArray['supplier_code'][$language]?></label>
@@ -459,12 +480,14 @@ if (!isset($_SESSION['userID'])) {
                 </select>
               </div>
             </div>
+
             <div class="col-md-4" id="supplierOtherDiv">
               <div class="form-group">
                 <label><?=$languageArray['supplier_other_code'][$language]?></label>
                 <input type="text" class="form-control" id="supplierOther" name="supplierOther">
               </div>
             </div>
+            
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['vehicle_no_code'][$language]?></label>
@@ -477,12 +500,14 @@ if (!isset($_SESSION['userID'])) {
                 </select>
               </div>
             </div>
+
             <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
               <div class="form-group">
                 <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
                 <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
             </div>
+
             <div class="col-md-4" style="display:none">
               <div class="form-group">
                 <label><?=$languageArray['driver_code'][$language]?></label>
@@ -494,6 +519,7 @@ if (!isset($_SESSION['userID'])) {
                 </select>
               </div>
             </div>
+
             <div class="col-md-4">
               <div class="form-group">
                 <label><?=$languageArray['locations_code'][$language]?></label>
@@ -528,6 +554,7 @@ if (!isset($_SESSION['userID'])) {
           <?php } ?>
           
           <hr class="custom-model-body-hr">
+
           <div class="d-flex justify-content-between align-items-center custom-model-title-box">
             <h5 class="custom-model-title-box-txt"><?=$languageArray['weight_details_code'][$language]?></h5>
             <div class="d-flex align-items-center custom-model-title-box-filter">
@@ -538,6 +565,7 @@ if (!isset($_SESSION['userID'])) {
               </button>
             </div>
           </div>
+
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle custom-add-table-detail" style="width: 100%">
               <thead>
@@ -587,12 +615,14 @@ if (!isset($_SESSION['userID'])) {
           </div>
 
           <hr class="custom-inner-hr">
+
           <div class="d-flex justify-content-between align-items-center custom-model-title-box">
             <h5 class="custom-model-title-box-txt"><?=$languageArray['reject_details_code'][$language]?></h5>
             <button type="button" class="btn custom-delete-btn-sm btn-sm" id="addRejectWeightBtn">
               <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
             </button>
           </div>
+
           <div class="row">
             <table class="table table-bordered nowrap table-striped align-middle custom-add-table-detail" style="width: 100%">
               <thead>
@@ -657,6 +687,7 @@ if (!isset($_SESSION['userID'])) {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+
         <div class="modal-body">
           <div class="row">
             <div class="col-md-12">
@@ -668,6 +699,7 @@ if (!isset($_SESSION['userID'])) {
             <input type="hidden" class="form-control" id="id" name="id">
           </div>
         </div>
+
         <div class="modal-footer custom-model-fotter-box">
           <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn custom-save-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
@@ -842,34 +874,36 @@ $(function () {
 
   // Add event listener for opening and closing details on row click
   $('#weightTable tbody').on('click', 'tr', function (e) {
-      var tr = $(this); // The row that was clicked
-      var row = table.row(tr);
-
-      // Exclude clicks on buttons, checkboxes, and form elements
-      if ($(e.target).closest('td').hasClass('select-checkbox') || 
-          $(e.target).closest('td').hasClass('action-button') ||
-          $(e.target).is('select') || 
-          $(e.target).is('input') ||
-          $(e.target).is('button')) {
-        return;
-      }
-
-      if (row.child.isShown()) {
-          // This row is already open - close it
-          row.child.hide();
-          tr.removeClass('shown');
-      } else {
-          $.post('php/getWholesale.php', { userID: row.data().id}, function (data) {
-            var obj = JSON.parse(data);
-            if (obj.status === 'success') {
-              row.child(format(obj.message)).show();
-              tr.addClass("shown");
-              if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
-                populateFilters(obj.message.id, obj.message.weightDetails);
-              }
-            }
-          });
-      }
+    var tr = $(this); // The row that was clicked
+    var row = table.row(tr);
+    
+    // Exclude clicks on buttons, checkboxes, and form elements
+    if ($(e.target).closest('td').hasClass('select-checkbox') || 
+        $(e.target).closest('td').hasClass('action-button') ||
+        $(e.target).is('select') || 
+        $(e.target).is('input') ||
+        $(e.target).is('button')) {
+      return;
+    }
+    
+    if (row.child.isShown()) {
+      // This row is already open - close it
+      row.child.hide();
+      tr.removeClass('shown');
+    } else {
+      $.post('php/getWholesale.php', { userID: row.data().id}, function (data) {
+        var obj = JSON.parse(data);
+        
+        if (obj.status === 'success') {
+          row.child(format(obj.message)).show();
+          tr.addClass("shown");
+          
+          if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
+            populateFilters(obj.message.id, obj.message.weightDetails);
+          }
+        }
+      });
+    }
   });
 
   // Add event listener for opening and closing details
@@ -895,7 +929,7 @@ $(function () {
   //   }
   // });
 
-  $('#filterSearch').on('click', function(){
+  $('#filterSearch').on('click', function() {
     //$('#spinnerLoading').show();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
@@ -1050,13 +1084,15 @@ $(function () {
 
   $.validator.setDefaults({
     submitHandler: function () {
-      if($('#extendModal').hasClass('show')){
+      if ($('#extendModal').hasClass('show')) {
         var vehicle = $('#extendModal').find('#vehicle').val();
         var otherVehicleNo = $('#extendModal').find('#otherVehicleNo').val();
-        if((vehicle == 'OTHERS' || vehicle == 'UNKNOWN' || vehicle == 'UNKOWN NO') && !otherVehicleNo) {
+        
+        if ((vehicle == 'OTHERS' || vehicle == 'UNKNOWN' || vehicle == 'UNKOWN NO') && !otherVehicleNo) {
           alert('Please enter the vehicle number.');
           return false;
         }
+        
         $('#spinnerLoading').show();
         var formData = new FormData($('#extendForm')[0]);
         $.ajax({
@@ -1065,50 +1101,47 @@ $(function () {
           data: formData,
           processData: false,
           contentType: false,
-          success: function(data){
+          success: function(data) {
             var obj = JSON.parse(data); 
-            if(obj.status === 'success'){
+            if (obj.status === 'success') {
               $('#extendModal').modal('hide');
               toastr["success"](obj.message, "Success:");
               $('#weightTable').DataTable().ajax.reload();
-            }
-            else if(obj.status === 'failed'){
+            } else if (obj.status === 'failed') {
               toastr["error"](obj.message, "Failed:");
-            }
-            else{
+            } else {
               toastr["error"]("Something wrong when edit", "Failed:");
             }
             $('#spinnerLoading').hide();
           },
-          error: function(){
+          error: function() {
             toastr["error"]("Something wrong when saving", "Failed:");
             $('#spinnerLoading').hide();
           }
         });
-      }else if($('#cancelModal').hasClass('show')){
+      } else if ($('#cancelModal').hasClass('show')) {
         $('#spinnerLoading').show();
-        $.post('php/deleteWholesale.php', $('#cancelForm').serialize(), function(data){
+        $.post('php/deleteWholesale.php', $('#cancelForm').serialize(), function(data) {
           var obj = JSON.parse(data);
 
-          if(obj.status === 'success'){
+          if (obj.status === 'success') {
             $('#cancelModal').modal('hide');
             toastr["success"](obj.message, "Success:");
             $('#weightTable').DataTable().ajax.reload();
             
-          }
-          else if(obj.status === 'failed'){
+          } else if (obj.status === 'failed') {
             toastr["error"](obj.message, "Failed:");
-          }
-          else{
+          } else {
             toastr["error"]("Something wrong when delete", "Failed:");
           }
+          
           $('#spinnerLoading').hide();
         });
       }
     }
   });
 
-  $('#refreshBtn').on('click', function(){
+  $('#refreshBtn').on('click', function() {
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
     var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
@@ -1187,13 +1220,12 @@ $(function () {
   });
   
   <?php 
-    if($role == "ADMIN" || $role == "SADMIN"){
-      echo "$('#manual').on('click', function(){
-        if($(this).is(':checked')){
+    if ($role == "ADMIN" || $role == "SADMIN") {
+      echo "$('#manual').on('click', function() {
+        if ($(this).is(':checked')) {
           $(this).val(1);
             $('#currentWeight').removeAttr('readonly');
-        }
-        else{
+        } else {
           $(this).val(0);
             $('#currentWeight').attr('readonly', 'readonly');
         }
@@ -1201,21 +1233,21 @@ $(function () {
     }
   ?>
 
-  $('#extendModal').find('#inCButton').on('click', function(){
+  $('#extendModal').find('#inCButton').on('click', function() {
     var text = $('#indicatorWeight').text();
     var weight = parseFloat(text.replace("kg","").replace("g","").replace("oz","").replace("lbs",""))
     $('#currentWeight').val(weight.toFixed(3));
     $('#currentWeight').trigger("change");
   });
 
-  $('#extendModal').find('#currentWeight').on('change', function(){
+  $('#extendModal').find('#currentWeight').on('change', function() {
     var weight = $('#product :selected').data('unit');
     var uom = $('#product :selected').data('uom') ? $('#product :selected').data('uom') : '';
     var uomDesc = $("#uomhidden option[value='"+uom+"']").text();
     var cweight = $('#currentWeight').val();
     $('#indicatorWeight').text(cweight.toString() + ' ' + uomDesc);
 
-    if(weight && cweight){
+    if (weight && cweight) {
       var count = parseFloat(cweight) / parseFloat(weight);
       count = parseFloat(count).toFixed(0);
       $('#actualCount').val(count);
@@ -1239,7 +1271,7 @@ $(function () {
     $('#uom').val(uom).trigger('change');
     $('#batchNumber').val(batch);
 
-    if(weight && cweight){
+    if (weight && cweight) {
       var count = parseFloat(cweight) / parseFloat(weight);
       count = parseFloat(count).toFixed(0);
       $('#actualCount').val(count);
@@ -1253,11 +1285,10 @@ $(function () {
 
   $('#transactionStatusFilter').on('change', function () {
     var status = $(this).val();
-    if(status == "OUTGOING" || status == 'STOCK-BAL'){
+    if (status == "OUTGOING" || status == 'STOCK-BAL') {
       $('#customerStatusDiv').show();
       $('#supplierStatusDiv').hide();
-    }
-    else{
+    } else {
       $('#customerStatusDiv').hide();
       $('#supplierStatusDiv').show();
     }
@@ -1265,12 +1296,11 @@ $(function () {
 
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
-    if(status == "OUTGOING" || status == 'STOCK-BAL'){
+    if (status == "OUTGOING" || status == 'STOCK-BAL') {
       $('#extendModal').find('#customerDiv').show();
       $('#extendModal').find('#supplierDiv').hide();
       // $('#extendModal').find('#securityBillDiv').hide();
-    }
-    else{
+    } else {
       $('#extendModal').find('#customerDiv').hide();
       $('#extendModal').find('#supplierDiv').show();
       // $('#extendModal').find('#securityBillDiv').show();
@@ -1281,40 +1311,36 @@ $(function () {
 
   $('#extendModal').find('#customer').on('change', function () {
     var customer = $(this).val();
-    if(customer == "OTHERS"){
+    if (customer == "OTHERS") {
       $('#extendModal').find('#customerOtherDiv').show();
-    }
-    else{
+    } else {
       $('#extendModal').find('#customerOtherDiv').hide();
     }
   });
 
   $('#extendModal').find('#supplier').on('change', function () {
     var supplier = $(this).val();
-    if(supplier == "OTHERS"){
+    if (supplier == "OTHERS") {
       $('#extendModal').find('#supplierOtherDiv').show();
-    }
-    else{
+    } else {
       $('#extendModal').find('#supplierOtherDiv').hide();
     }
   });
 
   $('#extendModal').find('#vehicle').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
+    if (vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN") {
       $('#extendModal').find('#vehicleNoOtherDiv').show();
-    }
-    else{
+    } else {
       $('#extendModal').find('#vehicleNoOtherDiv').hide();
     }
   });
 
   $('#vehicleNoFilter').on('change', function () {
     var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
+    if (vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN") {
       $('#otherVehicleFilterDiv').show();
-    }
-    else{
+    } else {
       $('#otherVehicleFilterDiv').hide();
     }
   });
@@ -1483,7 +1509,8 @@ $(function () {
       // Remove options that don't match the selected product
       gradeSelect.find('option').each(function() {
         var gradeProduct = $(this).data('product');
-        if(gradeProduct && gradeProduct != productName) {
+
+        if (gradeProduct && gradeProduct != productName) {
           $(this).remove();
         }
       });
@@ -1500,7 +1527,7 @@ $(function () {
     // gradeSelect.val(currentGrade).trigger('change');
     calculateVariance($(this).closest('tr'));
 
-    if (allowPrice == 'Y' && productId && status){
+    if (allowPrice == 'Y' && productId && status) {
       calculatePrice(productId, status, customerId, '', $(this));
     }
   });
@@ -1511,12 +1538,12 @@ $(function () {
     var customerId = $('#extendModal').find('#customer').val();
     var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId && status){
+    if (allowPrice == 'Y' && productId && status) {
       calculatePrice(productId, status, customerId, grade, $(this));
     }
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
+  $("#weightDetailsTable").on('change', 'input[id^="gross"]', function() {
     // Retrieve the input's attributes
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
@@ -1525,7 +1552,7 @@ $(function () {
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="tare"]', function(){
+  $("#weightDetailsTable").on('change', 'input[id^="tare"]', function() {
     // Retrieve the input's attributes
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
@@ -1534,7 +1561,7 @@ $(function () {
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
+  $("#weightDetailsTable").on('change', 'input[id^="net"]', function() {
     // var totalGross = 0;
     // var totalTare = 0;
     // var totalNet = 0;
@@ -1557,16 +1584,16 @@ $(function () {
     calculateVariance($(this).closest('tr'));
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="price"]', function(){
+  $("#weightDetailsTable").on('change', 'input[id^="price"]', function() {
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
     var pricingType = row.find('input[id^="fixedfloat"]').val();
     var net = parseFloat(row.find('input[id^="net"]').val());
     var total = 0;
 
-    if (pricingType == 'Float'){
+    if (pricingType == 'Float') {
       total = price * net;
-    }else{
+    } else {
       total = price;
     }
 
@@ -1604,7 +1631,7 @@ $(function () {
     // Reset to original options
     gradeSelect.html(gradeSelect.data('original-options'));
     
-    if(productName) {
+    if (productName) {
       // Remove options that don't match the selected product
       gradeSelect.find('option').each(function() {
         var gradeProduct = $(this).data('product');
@@ -1631,26 +1658,26 @@ $(function () {
     var customerId = $('#extendModal').find('#customer').val();
     var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId && status){
+    if (allowPrice == 'Y' && productId && status) {
       calculatePrice(productId, status, customerId, grade, $(this));
     }
   });
 
-  $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
+  $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function() {
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
     var nettWeight = Math.abs(gross - tare);
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
-  $("#rejectDetailsTable").on('change', 'input[id^="tare"]', function(){
+  $("#rejectDetailsTable").on('change', 'input[id^="tare"]', function() {
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
     var nettWeight = Math.abs(gross - tare);
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
   });
 
-  $("#rejectDetailsTable").on('change', 'input[id^="net"]', function(){
+  $("#rejectDetailsTable").on('change', 'input[id^="net"]', function() {
     var totalGross = 0, totalTare = 0, totalNet = 0;
     $('#rejectDetailsTable tr').each(function() {
       totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
@@ -1664,16 +1691,16 @@ $(function () {
     $(this).closest('tr').find('input[id^="price"]').trigger("change");
   });
 
-  $("#rejectDetailsTable").on('change', 'input[id^="price"]', function(){
+  $("#rejectDetailsTable").on('change', 'input[id^="price"]', function() {
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
     var pricingType = row.find('input[id^="fixedfloat"]').val();
     var net = parseFloat(row.find('input[id^="net"]').val());
     var total = 0;
 
-    if (pricingType == 'Float'){
+    if (pricingType == 'Float') {
       total = price * net;
-    }else{
+    } else {
       total = price;
     }
 
@@ -1717,8 +1744,8 @@ function calculateVariance(row){
   var productId = product.find('option:selected').data('id');
   var nett = parseFloat(row.find('input[id^="net"]').val());
 
-  if (nett > 0){
-    $.post('php/getProduct.php', {userID: productId}, function(data){
+  if (nett > 0) {
+    $.post('php/getProduct.php', {userID: productId}, function(data) {
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
@@ -1729,18 +1756,17 @@ function calculateVariance(row){
         row.find('input[id^="variance"]').val(variance.toFixed(2));
         row.find('input[id^="variancePerc"]').val(variancePercentage.toFixed(2));
         updateTotals();
-      }
-      else if(obj.status === 'failed'){
+      } else if (obj.status === 'failed') {
         toastr["error"](obj.message, "Failed:");
         updateTotals();
-      }
-      else{
+      } else {
         toastr["error"]("Something wrong when delete", "Failed:");
         updateTotals();
       }
+
       $('#spinnerLoading').hide();
     });
-  }else{
+  } else {
     updateTotals();
   }
 }
@@ -1750,28 +1776,25 @@ function updatePrices(isFromCurrency, rat){
   var unitPrice = $('#unitPrice').val();
   var totalWeight = $('#totalWeight').val();
 
-  if(isFromCurrency == 'Y'){
+  if (isFromCurrency == 'Y') {
     unitPrice = (unitPrice / rate) * parseFloat(rat);
     $('#extendModal').find('#unitPrice').val(unitPrice.toFixed(2));
     rate = parseFloat(rat).toFixed(2);
-  }
-  else{
+  } else {
     unitPrice = unitPrice * parseFloat(rat);
     $('#extendModal').find('#unitPrice').val(unitPrice.toFixed(2));
     rate = parseFloat(rat).toFixed(2);
   }
   
-
-  if(unitPrice != '' &&  moq != '' && totalWeight != ''){
+  if (unitPrice != '' &&  moq != '' && totalWeight != '') {
     totalPrice = unitPrice * totalWeight;
     $('#totalPrice').val(totalPrice.toFixed(2));
-  }
-  else(
+  } else (
     $('#totalPrice').val((0).toFixed(2))
   )
 }
 
-function updateWeights(){
+function updateWeights() {
   var tareWeight =  0;
   var currentWeight =  0;
   var reduceWeight = 0;
@@ -1779,34 +1802,32 @@ function updateWeights(){
   var totalWeight = 0;
   var actualWeight = 0;
 
-  if($('#currentWeight').val()){
+  if ($('#currentWeight').val()) {
     currentWeight =  $('#currentWeight').val();
   }
 
-  if($('#tareWeight').val()){
+  if ($('#tareWeight').val()) {
     tareWeight =  $('#tareWeight').val();
   }
 
-  if($('#reduceWeight').val()){
+  if ($('#reduceWeight').val()) {
     reduceWeight =  $('#reduceWeight').val();
   }
 
-  if(tareWeight == 0){
+  if (tareWeight == 0) {
     actualWeight = currentWeight - reduceWeight;
     actualWeight = Math.abs(actualWeight);
     $('#actualWeight').val(actualWeight.toFixed(2));
-  }
-  else{
+  } else {
     actualWeight = tareWeight - currentWeight - reduceWeight;
     actualWeight = Math.abs(actualWeight);
     $('#actualWeight').val(actualWeight.toFixed(2));
   }
 
-  if(actualWeight != '' &&  moq != ''){
+  if (actualWeight != '' &&  moq != '') {
     totalWeight = actualWeight * moq;
     $('#totalWeight').val(totalWeight.toFixed(2));
-  }
-  else{
+  } else {
     $('#totalWeight').val((0).toFixed(2))
   };
 }
@@ -1878,6 +1899,7 @@ function format (row) {
       var totalWeightVariance = 0;
       var totalWeightVariancePerc = 0;
       var totalWeightPrice = 0;
+
       for (var i = 0; i < row.weightDetails.length; i++) {
         var detail = row.weightDetails[i]; 
         
@@ -1919,7 +1941,6 @@ function format (row) {
         </tr>
     </table>
   </div>
-
   <hr class="custom-tbl-hr">
   <h3 class="custom-tbl-title">Reject Details</h3>
   <div class="row custom-inner-tbl-box">
@@ -1942,6 +1963,7 @@ function format (row) {
       var totalRejectTare = 0;
       var totalRejectNet = 0;
       var totalRejectPrice = 0;
+
       for (var i = 0; i < row.rejectDetails.length; i++) {
         var detail = row.rejectDetails[i]; 
         
@@ -2042,7 +2064,7 @@ function formatNormal (row) {
   '</p></div></div>';
 }
 
-function newEntry(){
+function newEntry() {
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
   $('#extendModal').find('#status').val("INCOMING").trigger('change');
@@ -2088,26 +2110,24 @@ function newEntry(){
 }
 
 function calculatePrice(productId, status, customerId, currentGrade, element) {
-  if (productId){
+  if (productId) {
     $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
-      if(obj.status === 'success'){
+      if (obj.status === 'success') {
         var pricingType = obj.message.pricingType;
         var price = obj.message.price;
 
         element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
         element.closest('tr').find('input[id^="price"]').val(price).trigger('change');
-      }
-      else if(obj.status === 'failed'){
+      } else if(obj.status === 'failed') {
         toastr["error"](obj.message, "Failed:");
-      }
-      else{
+      } else {
         toastr["error"]("Something wrong when delete", "Failed:");
       }
       $('#spinnerLoading').hide();
     });
-  }else{
+  } else {
 
   }
 }
@@ -2118,10 +2138,10 @@ function numberWithCommas(x) {
 
 function edit(id) {
   $('#spinnerLoading').show();
-  $.post('php/getWholesale.php', {userID: id}, function(data){
+  $.post('php/getWholesale.php', {userID: id}, function(data) {
     var obj = JSON.parse(data);
     
-    if(obj.status === 'success'){
+    if (obj.status === 'success') {
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#serialNo').val(obj.message.serial_no);
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
@@ -2134,24 +2154,28 @@ function edit(id) {
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
       $('#extendModal').find('#bulkUnitPrice').val('');
 
-      if (obj.message.other_vehicle){
+      if (obj.message.other_vehicle) {
         $('#extendModal').find('#vehicle').val('OTHERS').trigger('change');
         $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
       } else {
         $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
         $('#extendModal').find('#otherVehicleNo').val('');
       }
+      
       $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
+      
       if (obj.message.created_datetime) {
         $('#startTimePicker').datetimepicker('date', moment(obj.message.created_datetime, 'YYYY-MM-DD HH:mm:ss'));
       } else {
         $('#startTimePicker').datetimepicker('clear');
       }
+
       if (obj.message.end_time) {
         $('#endTimePicker').datetimepicker('date', moment(obj.message.end_time, 'YYYY-MM-DD HH:mm:ss'));
       } else {
         $('#endTimePicker').datetimepicker('clear');
       }
+
       $('#extendModal').find('#remark').val(obj.message.remark);
       
       // Populate weight details table
@@ -2165,7 +2189,7 @@ function edit(id) {
         var totalPrice = 0;
         var totalVariance = 0;
 
-        for(var i = 0; i < obj.message.weightDetails.length; i++) {
+        for (var i = 0; i < obj.message.weightDetails.length; i++) {
           var detail = obj.message.weightDetails[i];
           var idx = weightCount++;
           var row = `
@@ -2253,13 +2277,13 @@ function edit(id) {
       var tbody = $('#rejectDetailsTable');
       tbody.empty();
       
-      if(obj.message.rejectDetails && obj.message.rejectDetails.length > 0) {
+      if (obj.message.rejectDetails && obj.message.rejectDetails.length > 0) {
         var totalRejectGross = 0;
         var totalRejectTare = 0;
         var totalRejectNet = 0;
         var totalRejectPrice = 0;
 
-        for(var i = 0; i < obj.message.rejectDetails.length; i++) {
+        for (var i = 0; i < obj.message.rejectDetails.length; i++) {
           var detail = obj.message.rejectDetails[i];
           var idx = rejectCount++;
           var row = `
@@ -2356,13 +2380,12 @@ function edit(id) {
           $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
         }
       });
-    }
-    else if(obj.status === 'failed'){
+    } else if (obj.status === 'failed') {
       toastr["error"](obj.message, "Failed:");
-    }
-    else{
+    } else {
       toastr["error"]("Something wrong when pull data", "Failed:");
     }
+
     $('#spinnerLoading').hide();
   });
 }
@@ -2374,11 +2397,12 @@ function rejectRow(button) {
   row.find('input[type="hidden"], input[type="number"], input[type="time"], select').each(function() {
     var name = $(this).attr('name');
     var id = $(this).attr('id');
-    if(name) {
+    if (name) {
       var newName = name.replace('weightDetails', 'rejectDetails').replace(/\[\d+\]/, '[' + rejectIndex + ']');
       $(this).attr('name', newName);
     }
-    if(id) {
+
+    if (id) {
       $(this).attr('id', id.replace(/\d+$/, rejectIndex));
     }
   });
@@ -2529,9 +2553,9 @@ function deactivate(id) {
 }
 
 function print(id) {
-  $.post('php/print.php', {userID: id}, function(data){
+  $.post('php/print.php', {userID: id}, function(data) {
     var obj = JSON.parse(data);
-    if(obj.status === 'success') {
+    if (obj.status === 'success') {
       var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
       printWindow.document.write(obj.message);
       printWindow.document.close();
@@ -2539,21 +2563,19 @@ function print(id) {
         printWindow.print();
         printWindow.close();
       }, 500);
-    }
-    else if(obj.status === 'failed'){
+    } else if (obj.status === 'failed') {
       alert(obj.message);
-    }
-    else{
+    } else {
       alert("Something wrong when activate");
     }
   });
 }
 
 function portrait(id) {
-  $.post('php/printportrait.php', {userID: id, file: 'weight'}, function(data){
+  $.post('php/printportrait.php', {userID: id, file: 'weight'}, function(data) {
     var obj = JSON.parse(data);
 
-    if(obj.status === 'success'){
+    if (obj.status === 'success') {
       var printWindow = window.open('', '', 'height=400,width=800');
       printWindow.document.write(obj.message);
       printWindow.document.close();
@@ -2561,11 +2583,9 @@ function portrait(id) {
         printWindow.print();
         printWindow.close();
       }, 500);
-    }
-    else if(obj.status === 'failed'){
+    } else if (obj.status === 'failed') {
       toastr["error"](obj.message, "Failed:");
-    }
-    else{
+    } else {
       toastr["error"]("Something wrong when activate", "Failed:");
     }
   });
@@ -2574,7 +2594,6 @@ function portrait(id) {
 function filterWeightTable(rowId) {
   var productFilter = $('#productFilter_' + rowId).val();
   var gradeFilter = $('#gradeFilter_' + rowId).val();
-  
   var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0;
   
   $('#weightTable_' + rowId + ' tbody tr').each(function() {
@@ -2585,7 +2604,7 @@ function filterWeightTable(rowId) {
     var show = showProduct && showGrade;
     $(this).toggle(show);
     
-    if(show) {
+    if (show) {
       var grossText = $(this).find('td:eq(2)').text().split(' ')[0];
       var tareText = $(this).find('td:eq(3)').text().split(' ')[0];
       var netText = $(this).find('td:eq(4)').text().split(' ')[0];
@@ -2603,7 +2622,7 @@ function filterWeightTable(rowId) {
   $('#weightTable_' + rowId + ' tfoot tr th:eq(3)').text(totalNet.toFixed(2));
   $('#weightTable_' + rowId + ' tfoot tr th:eq(5)').text('RM ' + totalPrice.toFixed(2));
   
-  if(productFilter) {
+  if (productFilter) {
     var gradeSelect = $('#gradeFilter_' + rowId);
     var currentGrade = gradeSelect.val();
     gradeSelect.find('option:not(:first)').remove();
@@ -2611,9 +2630,9 @@ function filterWeightTable(rowId) {
     var grades = [];
     $('#weightTable_' + rowId + ' tbody tr').each(function() {
       var product = $(this).find('td:eq(0)').text();
-      if(product === productFilter) {
+      if (product === productFilter) {
         var grade = $(this).find('td:eq(1)').text();
-        if(grades.indexOf(grade) === -1) {
+        if (grades.indexOf(grade) === -1) {
           grades.push(grade);
         }
       }
@@ -2632,7 +2651,7 @@ function filterWeightTable(rowId) {
     var grades = [];
     $('#weightTable_' + rowId + ' tbody tr').each(function() {
       var grade = $(this).find('td:eq(1)').text();
-      if(grades.indexOf(grade) === -1) {
+      if (grades.indexOf(grade) === -1) {
         grades.push(grade);
       }
     });
@@ -2651,13 +2670,13 @@ function populateFilters(rowId, weightDetails) {
   
   weightDetails.forEach(function(detail) {
     products[detail.product_name] = true;
-    if(grades.indexOf(detail.grade) === -1) {
+    if (grades.indexOf(detail.grade) === -1) {
       grades.push(detail.grade);
     }
   });
   
   var productSelect = $('#productFilter_' + rowId);
-  for(var product in products) {
+  for (var product in products) {
     productSelect.append('<option value="' + product + '">' + product + '</option>');
   }
   
@@ -2667,5 +2686,4 @@ function populateFilters(rowId, weightDetails) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
   });
 }
-
 </script>

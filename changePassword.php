@@ -3,11 +3,10 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if (!isset($_SESSION['userID'])) {
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
     $user = $_SESSION['userID'];
 
     // Language
@@ -16,20 +15,20 @@ else{
 }
 ?>
 
-<section class="content-header">
+<section class="content-header custom-title-content-box">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark"><?=$languageArray['change_password_code'][$language]?></h1>
+                <h1 class="custom-title"><?=$languageArray['change_password_code'][$language]?></h1>
             </div>
         </div>
     </div>
 </section>
 
-<section class="content">
-    <div class="card">
+<section class="content custom-table-content">
+    <div class="card custom-main-card">
         <form role="form" id="passwordForm">
-            <div class="card-body">
+            <div class="card-body custom-form-card-body">
                 <div class="form-group">
                     <label for="oldPassword"><?=$languageArray['old_password_code'][$language]?> *</label>
                     <input type="password" class="form-control" name="oldPassword" placeholder="<?=$languageArray['old_password_code'][$language]?>" required="">
@@ -46,67 +45,65 @@ else{
                 </div>
             </div>
             
-            <div class="card-footer">
-                <button type="submit" class="btn btn-success" name="submit"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
+            <div class="card-footer custom-form-card-footer">
+                <button type="submit" class="btn custom-save-btn" name="submit"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
             </div>
         </form>
     </div>
 </section>
 
 <script>
-$(function () {
-    $.validator.setDefaults({
-        submitHandler: function () {
-            $('#spinnerLoading').show();
-            $.post('php/changepassword.php', $('#passwordForm').serialize(), function(data){
-                var obj = JSON.parse(data); 
-                
-                if(obj.status === 'success'){
-                    toastr["success"](obj.message, "Success:");
+    $(function () {
+        $.validator.setDefaults({
+            submitHandler: function () {
+                $('#spinnerLoading').show();
+                $.post('php/changepassword.php', $('#passwordForm').serialize(), function(data) {
+                    var obj = JSON.parse(data); 
                     
-                    $.get('changePassword.php', function(data) {
-                        $('#mainContents').html(data);
+                    if(obj.status === 'success'){
+                        toastr["success"](obj.message, "Success:");
+                        
+                        $.get('changePassword.php', function(data) {
+                            $('#mainContents').html(data);
+                            $('#spinnerLoading').hide();
+                        });
+                    } else if (obj.status === 'failed') {
+                        toastr["error"](obj.message, "Failed:");
                         $('#spinnerLoading').hide();
-                    });
-                }
-                else if(obj.status === 'failed'){
-                    toastr["error"](obj.message, "Failed:");
-                    $('#spinnerLoading').hide();
-                }
-                else{
-                    toastr["error"]("Failed to update password", "Failed:");
-                    $('#spinnerLoading').hide();
-                }
-            });
-        }
-    });
-    
-    $('#passwordForm').validate({
-        rules: {
-            newPassword: {
-                minlength: 6
-            },
-            confirmPassword: {
-                equalTo: "#newPassword"
+                    } else {
+                        toastr["error"]("Failed to update password", "Failed:");
+                        $('#spinnerLoading').hide();
+                    }
+                });
             }
-        },
-        messages: {
-            newPassword: {
-                minlength: "Your password must be at least 6 characters long"
+        });
+        
+        $('#passwordForm').validate({
+            rules: {
+                newPassword: {
+                    minlength: 6
+                },
+                confirmPassword: {
+                    equalTo: "#newPassword"
+                }
             },
-            confirmPassword: " Enter Confirm Password Same as New Password"
-        },
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-            $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-            $(element).removeClass('is-invalid');
-        }
+            messages: {
+                newPassword: {
+                    minlength: "Your password must be at least 6 characters long"
+                },
+                confirmPassword: " Enter Confirm Password Same as New Password"
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
     });
-});
 </script>

@@ -19,7 +19,7 @@ if (!isset($_SESSION['userID'])) {
     $role = $row['role_code'];
   }
 
-  if ($role != 'SADMIN'){
+  if ($role != 'SADMIN') {
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
@@ -40,7 +40,6 @@ if (!isset($_SESSION['userID'])) {
   $languageArray = $_SESSION['languageArray'];
 }
 ?>
-
 
 <div class="content-header custom-title-content-box">
   <div class="container-fluid">
@@ -66,7 +65,10 @@ if (!isset($_SESSION['userID'])) {
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
                   <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
-                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
+                    <div class="input-group-text">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -75,7 +77,9 @@ if (!isset($_SESSION['userID'])) {
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
                   <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    <div class="input-group-text">
+                      <i class="fa fa-calendar"></i>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -202,15 +206,18 @@ if (!isset($_SESSION['userID'])) {
         </div>
       </div>
     </div>
+
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
           <div class="card-header custom-card-header">
             <div class="row">
               <div class="col-6"></div>
+              
               <div class="col-3">
                 <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
+
               <div class="col-3">
                 <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
@@ -257,140 +264,36 @@ if (!isset($_SESSION['userID'])) {
 </div>  
 
 <script>
-$(function () {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  const yesterday = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  yesterday.setDate(yesterday.getDate() - 7);
+  $(function () {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    const yesterday = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    yesterday.setDate(yesterday.getDate() - 7);
 
-  $('.select2').select2({
-    allowClear: true,
-    placeholder: "Please Select"
-  });
+    $('.select2').select2({
+      allowClear: true,
+      placeholder: "Please Select"
+    });
 
-  //Date picker
-  $('#fromDatePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY',
-    defaultDate: yesterday
-  });
+    //Date picker
+    $('#fromDatePicker').datetimepicker({
+      icons: { time: 'far fa-clock' },
+      format: 'DD/MM/YYYY',
+      defaultDate: yesterday
+    });
 
-  $('#toDatePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY',
-    defaultDate: today
-  });
+    $('#toDatePicker').datetimepicker({
+      icons: { time: 'far fa-clock' },
+      format: 'DD/MM/YYYY',
+      defaultDate: today
+    });
 
-  $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#weightTable tbody input[type="checkbox"]');
-    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
-  });
+    $('#selectAllCheckbox').on('change', function() {
+      var checkboxes = $('#weightTable tbody input[type="checkbox"]');
+      checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+    });
   
-  var fromDateI = $('#fromDate').val();
-  var toDateI = $('#toDate').val();
-  var transactionStatusI = $('#transactionStatusFilter').val();
-  var statusI = $('#statusFilter').val();
-  var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-  var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
-  var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-  var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-  var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-  var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-  var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-  var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-  var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-
-  var table = $("#weightTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'searching': true,
-    'order': [[ 1, 'asc' ]],
-    'columnDefs': [ { orderable: false, targets: [0] }],
-    'ajax': {
-      'url':'php/filterWholesale.php',
-      'data': {
-        fromDate: fromDateI,
-        toDate: toDateI,
-        transactionStatus: transactionStatusI,
-        status: statusI,
-        product: productI,
-        category: categoryI,
-        customer: customerNoI,
-        supplier: supplierNoI,
-        vehicle: vehicleNoI,
-        otherVehicle: otherVehicleNoI,
-        checkedBy: checkedByI,
-        weightedBy: weightedByI,
-        location: locationI,
-        recordType: 'industrial'
-      } 
-    },
-    'columns': [
-      {
-        // Add a checkbox with a unique ID for each row
-        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
-        className: 'select-checkbox',
-        orderable: false,
-        render: function (data, type, row) {
-            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
-        }
-      },
-      { data: 'serial_no' },
-      { data: 'po_no' },
-      { data: 'security_bills' },
-      { data: 'created_datetime' },
-      { data: 'parent' },
-      { data: 'customer_supplier' },
-      { data: 'vehicle_no' },
-      { data: 'driver' },
-      { data: 'total_item' },
-      { data: 'total_weight' },
-      { data: 'total_reject' },
-      { data: 'weighted_by' },
-      { data: 'checked_by' },
-      // { 
-      //   data: 'id',
-      //   render: function ( data, type, row ) {
-      //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-      //   }
-      // }
-    ],
-    "footerCallback": function(row, data, start, end, display) {
-      var api = this.api();
-
-      var totalItem = api
-        .column(9, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-          return a + parseFloat(String(b || 0).replace(/,/g, ''));
-        }, 0);
-
-      var totalWeight = api
-        .column(10, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-          return a + parseFloat(String(b || 0).replace(/,/g, ''));
-        }, 0);
-
-      var totalReject = api
-        .column(11, { page: 'current' })
-        .data()
-        .reduce(function(a, b) {
-          return a + parseFloat(String(b || 0).replace(/,/g, ''));
-        }, 0);
-
-      $(api.column(9).footer()).html(totalItem);
-      $(api.column(10).footer()).html(totalWeight.toFixed(2));
-      $(api.column(11).footer()).html(totalReject.toFixed(2));
-    }
-  });
-
-  $('#filterSearch').on('click', function(){
-    //$('#spinnerLoading').show();
     var fromDateI = $('#fromDate').val();
     var toDateI = $('#toDate').val();
     var transactionStatusI = $('#transactionStatusFilter').val();
@@ -404,17 +307,14 @@ $(function () {
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
 
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
+    var table = $("#weightTable").DataTable({
       "responsive": true,
       "autoWidth": false,
       'processing': true,
       'serverSide': true,
       'serverMethod': 'post',
-      'searching': false,
+      'searching': true,
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
       'ajax': {
@@ -443,7 +343,7 @@ $(function () {
           className: 'select-checkbox',
           orderable: false,
           render: function (data, type, row) {
-              return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
           }
         },
         { data: 'serial_no' },
@@ -495,110 +395,219 @@ $(function () {
         $(api.column(11).footer()).html(totalReject.toFixed(2));
       }
     });
-  });
 
-  $('#exportExcel').on('click', function(){
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var statusI = $('#statusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-    var selectedIds = []; // An array to store the selected 'id' values
+    $('#filterSearch').on('click', function() {
+      //$('#spinnerLoading').show();
+      var fromDateI = $('#fromDate').val();
+      var toDateI = $('#toDate').val();
+      var transactionStatusI = $('#transactionStatusFilter').val();
+      var statusI = $('#statusFilter').val();
+      var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+      var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
+      var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
+      var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+      var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+      var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
+      var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+      var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+      var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+      //Destroy the old Datatable
+      $("#weightTable").DataTable().clear().destroy();
 
-    $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
+      //Create new Datatable
+      table = $("#weightTable").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+        'processing': true,
+        'serverSide': true,
+        'serverMethod': 'post',
+        'searching': false,
+        'order': [[ 1, 'asc' ]],
+        'columnDefs': [ { orderable: false, targets: [0] }],
+        'ajax': {
+          'url':'php/filterWholesale.php',
+          'data': {
+            fromDate: fromDateI,
+            toDate: toDateI,
+            transactionStatus: transactionStatusI,
+            status: statusI,
+            product: productI,
+            category: categoryI,
+            customer: customerNoI,
+            supplier: supplierNoI,
+            vehicle: vehicleNoI,
+            otherVehicle: otherVehicleNoI,
+            checkedBy: checkedByI,
+            weightedBy: weightedByI,
+            location: locationI,
+            recordType: 'industrial'
+          } 
+        },
+        'columns': [
+          {
+            // Add a checkbox with a unique ID for each row
+            data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+            className: 'select-checkbox',
+            orderable: false,
+            render: function (data, type, row) {
+              return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+            }
+          },
+          { data: 'serial_no' },
+          { data: 'po_no' },
+          { data: 'security_bills' },
+          { data: 'created_datetime' },
+          { data: 'parent' },
+          { data: 'customer_supplier' },
+          { data: 'vehicle_no' },
+          { data: 'driver' },
+          { data: 'total_item' },
+          { data: 'total_weight' },
+          { data: 'total_reject' },
+          { data: 'weighted_by' },
+          { data: 'checked_by' },
+          // { 
+          //   data: 'id',
+          //   render: function ( data, type, row ) {
+          //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          //   }
+          // }
+        ],
+        "footerCallback": function(row, data, start, end, display) {
+          var api = this.api();
+
+          var totalItem = api
+            .column(9, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+              return a + parseFloat(String(b || 0).replace(/,/g, ''));
+            }, 0);
+
+          var totalWeight = api
+            .column(10, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+              return a + parseFloat(String(b || 0).replace(/,/g, ''));
+            }, 0);
+
+          var totalReject = api
+            .column(11, { page: 'current' })
+            .data()
+            .reduce(function(a, b) {
+              return a + parseFloat(String(b || 0).replace(/,/g, ''));
+            }, 0);
+
+          $(api.column(9).footer()).html(totalItem);
+          $(api.column(10).footer()).html(totalWeight.toFixed(2));
+          $(api.column(11).footer()).html(totalReject.toFixed(2));
+        }
+      });
+    });
+
+    $('#exportExcel').on('click', function() {
+      var fromDateI = $('#fromDate').val();
+      var toDateI = $('#toDate').val();
+      var transactionStatusI = $('#transactionStatusFilter').val();
+      var statusI = $('#statusFilter').val();
+      var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+      var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
+      var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+      var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+      var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
+      var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+      var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+      var selectedIds = []; // An array to store the selected 'id' values
+
+      $("#weightTable tbody input[type='checkbox']").each(function () {
+        if (this.checked) {
+            selectedIds.push($(this).val());
+        }
+      });
+
+      if (selectedIds.length > 0) {
+        window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+        "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+        "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      } else {
+        window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+        "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+        "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
       }
     });
 
-    if (selectedIds.length > 0){
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
-    }else{
-      window.open("php/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
-    }
-  });
+    $('#exportPdf').on('click', function() {
+      var fromDateI = $('#fromDate').val();
+      var toDateI = $('#toDate').val();
+      var transactionStatusI = $('#transactionStatusFilter').val();
+      var statusI = $('#statusFilter').val();
+      var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
+      var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
+      var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
+      var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
+      var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
+      var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
+      var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
 
-  $('#exportPdf').on('click', function(){
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var statusI = $('#statusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+      var selectedIds = []; // An array to store the selected 'id' values
 
-    var selectedIds = []; // An array to store the selected 'id' values
+      $("#weightTable tbody input[type='checkbox']").each(function () {
+        if (this.checked) {
+            selectedIds.push($(this).val());
+        }
+      });
 
-    $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
+      if (selectedIds.length > 0){
+        window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+        "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+        "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      } else {
+        window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
+        "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
+        "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
       }
     });
 
-    if (selectedIds.length > 0){
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
-    }else{
-      window.open("php/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
-      "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
-    }
+    $('#transactionStatusFilter').on('change', function () {
+      var status = $(this).val();
+      $('#customerNoFilter').val('').trigger('change');
+      $('#supplierNoFilter').val('').trigger('change');
+    
+      if (status == "DISPATCH" || status == 'STOCK-BAL') {
+        $('#customerStatusDiv').show();
+        $('#supplierStatusDiv').hide();
+      } else {
+        $('#customerStatusDiv').hide();
+        $('#supplierStatusDiv').show();
+      }
+    });
+
+    $('#vehicleNoFilter').on('change', function () {
+      var vehicleNo = $(this).val();
+      
+      if(vehicleNo == "UNKOWN NO") {
+        $('#otherVehicleFilterDiv').show();
+      } else {
+        $('#otherVehicleFilterDiv').hide();
+      }
+    });
   });
 
-  $('#transactionStatusFilter').on('change', function () {
-    var status = $(this).val();
-    $('#customerNoFilter').val('').trigger('change');
-    $('#supplierNoFilter').val('').trigger('change');
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
-      $('#customerStatusDiv').show();
-      $('#supplierStatusDiv').hide();
-    }
-    else{
-      $('#customerStatusDiv').hide();
-      $('#supplierStatusDiv').show();
-    }
-  });
-
-  $('#vehicleNoFilter').on('change', function () {
-    var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO"){
-      $('#otherVehicleFilterDiv').show();
-    }
-    else{
-      $('#otherVehicleFilterDiv').hide();
-    }
-  });
-});
-
-function printSlip(id) {
-  $.post('php/print.php', {userID: id}, function(data){
-    var response = JSON.parse(data);
-    if(response.status === 'success') {
-      var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-      printWindow.document.write(response.message);
-      printWindow.document.close();
-      setTimeout(function(){
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    } else {
-      alert('Error: ' + response.message);
-    }
-  });
-}
+  function printSlip(id) {
+    $.post('php/print.php', {userID: id}, function(data) {
+      var response = JSON.parse(data);
+      
+      if(response.status === 'success') {
+        var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+        printWindow.document.write(response.message);
+        printWindow.document.close();
+        
+        setTimeout(function() {
+          printWindow.print();
+          printWindow.close();
+        }, 500);
+      } else {
+        alert('Error: ' + response.message);
+      }
+    });
+  }
 </script>

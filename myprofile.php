@@ -3,11 +3,10 @@ require_once 'php/db_connect.php';
 
 session_start();
 
-if(!isset($_SESSION['userID'])){
+if (!isset($_SESSION['userID'])) {
     echo '<script type="text/javascript">';
     echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
     $id = $_SESSION['userID'];
     $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $id);
@@ -18,7 +17,7 @@ else{
     $userEmail = '';
     $language = 'en';
 	
-	if(($row = $result->fetch_assoc()) !== null){
+	if (($row = $result->fetch_assoc()) !== null) {
         $fullName = $row['name'];
         $userName = $row['username'];
         $userEmail = $row['email'] ?? '';
@@ -29,20 +28,20 @@ else{
 }
 ?>
 
-<section class="content-header">
+<section class="content-header custom-title-content-box">
 	<div class="container-fluid">
-		<div class="row mb-2">
+		<div class="row">
 			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><?=$languageArray['my_profile_code'][$language]?></h1>
+				<h1 class="custom-title"><?=$languageArray['my_profile_code'][$language]?></h1>
 			</div>
 		</div>
 	</div>
 </section>
 
-<section class="content" style="min-height:700px;">
-	<div class="card">
+<section class="content custom-table-content" style="min-height: 700px;">
+	<div class="card custom-main-card">
 		<form role="form" id="profileForm" novalidate="novalidate">
-			<div class="card-body">
+			<div class="card-body custom-form-card-body">
 				<div class="form-group">
 					<label for="name"><?=$languageArray['full_name_code'][$language]?> *</label>
 					<input type="text" class="form-control" id="userName" name="userName" value="<?=$fullName ?>" placeholder="<?=$languageArray['enter_full_name_code'][$language]?>" required="">
@@ -56,7 +55,7 @@ else{
 				<div class="form-group">
 					<label for="userEmailAddress"><?=$languageArray['email_address_code'][$language]?></label>
 					<input type="email" class="form-control" id="userEmailAddress" name="userEmailAddress" value="<?= htmlspecialchars($userEmail) ?>" placeholder="<?=$languageArray['enter_email_code'][$language]?>" autocomplete="email">
-					<small class="form-text text-muted"><?=$languageArray['used_for_password_reset_code'][$language]?></small>
+					<span class="email-address-notice"><?=$languageArray['used_for_password_reset_code'][$language]?></span>
 				</div>
 				
 				<div class="form-group">
@@ -71,60 +70,58 @@ else{
 				</div>
 			</div>
 			
-			<div class="card-footer">
-				<button class="btn btn-success" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
+			<div class="card-footer custom-form-card-footer">
+				<button class="btn custom-save-btn" id="saveProfile"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
 			</div>
 		</form>
 	</div>
 </section>
 
 <script>
-$(function () {
-    $.validator.setDefaults({
-        submitHandler: function () {
-            $('#spinnerLoading').show();
-            $.post('php/updateProfile.php', $('#profileForm').serialize(), function(data){
-                var obj = JSON.parse(data); 
-                
-                if(obj.status === 'success'){
-                    toastr["success"](obj.message, "Success:");
-                    window.location.href = 'index.php#myprofile';
-                    location.reload();
-        		}
-        		else if(obj.status === 'failed'){
-        		    toastr["error"](obj.message, "Failed:");
-                    $('#spinnerLoading').hide();
+    $(function () {
+        $.validator.setDefaults({
+            submitHandler: function () {
+                $('#spinnerLoading').show();
+                $.post('php/updateProfile.php', $('#profileForm').serialize(), function(data) {
+                    var obj = JSON.parse(data); 
+                    
+                    if (obj.status === 'success') {
+                        toastr["success"](obj.message, "Success:");
+                        window.location.href = 'index.php#myprofile';
+                        location.reload();
+                    } else if (obj.status === 'failed') {
+                        toastr["error"](obj.message, "Failed:");
+                        $('#spinnerLoading').hide();
+                    } else {
+                        toastr["error"]("Failed to update profile", "Failed:");
+                        $('#spinnerLoading').hide();
+                    }
+                });
+            }
+        });
+        
+        $('#profileForm').validate({
+            rules: {
+                text: {
+                    required: true
                 }
-        		else{
-        			toastr["error"]("Failed to update profile", "Failed:");
-                    $('#spinnerLoading').hide();
-        		}
-            });
-        }
-    });
-    
-    $('#profileForm').validate({
-        rules: {
-            text: {
-                required: true
+            },
+            messages: {
+                text: {
+                    required: "Please fill in this field"
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
             }
-        },
-        messages: {
-            text: {
-                required: "Please fill in this field"
-            }
-        },
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-            $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-            $(element).removeClass('is-invalid');
-        }
+        });
     });
-});
 </script>

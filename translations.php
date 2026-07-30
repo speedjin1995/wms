@@ -31,12 +31,16 @@ if (!isset($_SESSION['userID'])) {
         <div class="card">
           <div class="card-header custom-card-header">
             <div class="row custom-card-header-row">
-              <div class="col-9"><h5 class="custom-card-header-title">Translation Records</h5></div>
+              <div class="col-9">
+                <h5 class="custom-card-header-title">Translation Records</h5>
+              </div>
+
               <div class="col-3">
                 <button type="button" class="btn btn-block custom-add-btn btn-sm" id="addTranslation">Add Translation</button>
               </div>
             </div>
           </div>
+
           <div class="card-body custom-table-card-body">
             <table id="translationTable" class="table table-bordered table-striped">
               <thead>
@@ -61,17 +65,19 @@ if (!isset($_SESSION['userID'])) {
 
 <div class="modal fade" id="translationModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="translationForm">
-        <div class="modal-header">
-          <h4 class="modal-title">Add Translation</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt">Add Translation</h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
+
+        <div class="modal-body custom-model-body-box">
           <div class="card-body">
             <input type="hidden" id="keyId" name="keyId">
+            
             <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
               <label for="code">Company *</label>
               <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
@@ -80,35 +86,42 @@ if (!isset($_SESSION['userID'])) {
                 <?php } ?>
               </select>
             </div>
+            
             <div class="form-group">
               <label for="keyCode">Message Key Code *</label>
               <input type="text" class="form-control" id="keyCode" name="keyCode" placeholder="Message Key code" required>
             </div>
+            
             <div class="form-group">
               <label for="englishDecs">English *</label>
               <input type="text" class="form-control" id="englishDecs" name="englishDecs" placeholder="English" required>
             </div>
+            
             <div class="form-group">
               <label for="chineseDecs">中文</label>
               <input type="text" class="form-control" id="chineseDecs" name="chineseDecs" placeholder="中文">
             </div>
+            
             <div class="form-group">
               <label for="malayDecs">Bahasa Malaysia</label>
               <input type="text" class="form-control" id="malayDecs" name="malayDecs" placeholder="Bahasa">
             </div>
+            
             <div class="form-group">
               <label for="tamilDecs">தமிழ்</label>
               <input type="text" class="form-control" id="tamilDecs" name="tamilDecs" placeholder="தமிழ்">
             </div>
+            
             <div class="form-group">
               <label for="japaneseDecs">日本語</label>
               <input type="text" class="form-control" id="japaneseDecs" name="japaneseDecs" placeholder="日本語">
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="submitTranslation">Submit</button>
+        
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn custom-save-btn" id="submitTranslation">Submit</button>
         </div>
       </form>
     </div>
