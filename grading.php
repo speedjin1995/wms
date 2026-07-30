@@ -330,7 +330,7 @@ else{
           <hr>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="mb-0"><?=$languageArray['reject_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-danger btn-sm" id="addRejectWeightBtn">
+            <button type="button" class="btn custom-delete-btn-sm btn-sm" id="addRejectWeightBtn">
               <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
             </button>
           </div>
@@ -531,13 +531,13 @@ $(function () {
         data: 'id',
         class: 'action-button',
         render: function ( data, type, row ) {
-          var buttons = '<div class="d-flex flex-nowrap custom-tbl-btn-icon" style="gap: 5px;">';
+          var buttons = '<div class="row custom-tbl-btn-icon">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
@@ -626,13 +626,13 @@ $(function () {
           data: 'id',
           class: 'action-button',
           render: function ( data, type, row ) {
-            var buttons = '<div class="d-flex flex-nowrap custom-tbl-btn-icon" style="gap: 5px;">';
+            var buttons = '<div class="row custom-tbl-btn-icon">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>';
             }
-            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
             return buttons;
@@ -831,7 +831,7 @@ $(function () {
           <span id="photoStatus${idx}"></span>
         </td>
         <td>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+          <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -969,7 +969,7 @@ $(function () {
           <span id="rejectPhotoStatus${idx}"></span>
         </td>
         <td>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+          <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
         </td>
       </tr>
     `;
@@ -1278,7 +1278,7 @@ function edit(id) {
                 <span id="photoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;
@@ -1360,7 +1360,7 @@ function edit(id) {
                 <span id="rejectPhotoStatus${idx}"></span>
               </td>
               <td>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
               </td>
             </tr>
           `;

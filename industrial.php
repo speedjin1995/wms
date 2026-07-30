@@ -1838,6 +1838,7 @@ function format (row) {
   <div class="row custom-tbl-title-box">
     <p class="custom-tbl-title-box-txt">Wholesale Order Information</p>
   </div>
+
   <div class="row custom-tbl-content-box">
     <div class="col-6">
       <p class="custom-tbl-content-box-txt"><strong>Serial No:</strong> ${row.serial_no}</p>
@@ -1848,6 +1849,7 @@ function format (row) {
       ${row.records_type != 'industrial' ? '<p class="custom-tbl-content-box-txt"><strong>Vehicle:</strong> ' + row.vehicle_no + '</p>' : ''}
       ${row.records_type != 'industrial' ? '<p class="custom-tbl-content-box-txt"><strong>Driver:</strong> ' + row.driver + '</p>' : ''}
     </div>
+
     <div class="col-6">
       <p class="custom-tbl-content-box-txt"><strong>Weighted By:</strong> ${row.weighted_by}</p>
       <!--p class="custom-tbl-content-box-txt"><strong>Checked By:</strong> ${row.checked_by || ''}</p-->
@@ -1857,25 +1859,31 @@ function format (row) {
       ${allowPrice == 'Y' ? '<p class="custom-tbl-content-box-txt"><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
     </div>
   </div>
+
   <div class="row custom-tbl-content-box">
     <div class="col-12">
       <p class="custom-tbl-content-box-txt"><strong>Remarks:</strong> ${row.remark || ''}</p>
     </div>
   </div>
+
   <hr class="custom-tbl-hr">
+
   <h3 class="custom-tbl-title">Weighing Details</h3>
+
   <div class="row custom-tbl-fliter-box">
     <div class="col-md-3">
       <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
         <option value="">All Products</option>
       </select>
     </div>
+
     <div class="col-md-3" style="display:none">
       <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
         <option value="">All Grades</option>
       </select>
     </div>
   </div>
+
   <div class="row custom-inner-tbl-box">
     <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width: 100%">
       <thead>
@@ -1941,10 +1949,13 @@ function format (row) {
         </tr>
     </table>
   </div>
+
   <hr class="custom-tbl-hr">
+
   <h3 class="custom-tbl-title">Reject Details</h3>
+
   <div class="row custom-inner-tbl-box">
-    <table class="table table-bordered nowrap table-striped align-middle" style="width: 100%">
+    <table class="table table-bordered nowrap table-striped align-middle" style="width: 97%">
       <thead>
           <tr>
             <th>Product</th>

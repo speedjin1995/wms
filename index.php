@@ -805,7 +805,8 @@ if (!isset($_SESSION['userID'])) {
 
     .custom-search-card-body .form-group .input-group-append .input-group-text,
     .custom-card-box-body .form-group .input-group-append .input-group-text,
-    .custom-card-box-body .form-group .input-group-unit .input-group-text {
+    .custom-card-box-body .form-group .input-group-unit .input-group-text,
+    .custom-model-body-box .form-group .input-group-append .input-group-text {
       border: 1px solid #E3C66A;
       background: #E3C66A;
       color: #fff;

@@ -195,6 +195,7 @@ if (!isset($_SESSION['userID'])) {
 
             <div class="row">
               <div class="col-9"></div>
+              
               <div class="col-3">
                 <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
