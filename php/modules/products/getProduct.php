@@ -226,6 +226,7 @@ if(isset($_POST['userID'])){
                     $message['remark'] = $row['remark'];
                     $message['pricing_type'] = $row['pricing_type'];
                     $message['price'] = $row['price'];
+                    $message['purchasing_pricing_type'] = $row['purchasing_pricing_type'];
                     $message['purchasing_price'] = $row['purchasing_price'];
                     $message['weight'] = $row['weight'];
                     $message['customer'] = $row['customer'];
