@@ -48,8 +48,7 @@ if (!isset($_SESSION['userID'])) {
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
+</div><!-- /.content-header -->
 
 <!-- Main content -->
 <div class="content custom-table-content">

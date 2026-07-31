@@ -7,8 +7,7 @@ session_start();
 if(!isset($_SESSION['userID'])){
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}
-else{
+} else {
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
   $module = $_SESSION['module'];
@@ -27,23 +26,26 @@ else{
   $allowInvoice = 'N';
   $userLocationId = null;
   $filterStates = [];
-  if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
+
+  if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)) {
     // Query to get daily setup states
     $stateQuery = "SELECT * FROM daily_sales_setup WHERE module = 'wholesales' AND company = ? AND deleted = 0";
+    
     if ($state_stmt = $db->prepare($stateQuery)) {
-        $state_stmt->bind_param('s', $company);
-        $state_stmt->execute();
-        $state_result = $state_stmt->get_result();
-        while ($state_row = $state_result->fetch_assoc()) {
-            $decoded = json_decode($state_row['state'], true);
-            if (is_array($decoded)) {
-                $filterStates = array_merge($filterStates, $decoded);
-            }
+      $state_stmt->bind_param('s', $company);
+      $state_stmt->execute();
+      $state_result = $state_stmt->get_result();
+      
+      while ($state_row = $state_result->fetch_assoc()) {
+        $decoded = json_decode($state_row['state'], true);
+        if (is_array($decoded)) {
+          $filterStates = array_merge($filterStates, $decoded);
         }
+      }
     }
   }
 
-	if(($row = $result->fetch_assoc()) !== null){
+	if (($row = $result->fetch_assoc()) !== null) {
     $role = $row['role_code'];
     $allowAdd = $row['allow_add'];
     $allowEdit = $row['allow_edit'];
@@ -51,19 +53,23 @@ else{
     $userLocationId = $row['location'];
   }
 
-  if ($role != 'SADMIN'){
+  if ($role != 'SADMIN') {
     $stateFilter = '';
+    
     if (!empty($filterStates)) {
       $stateJson = json_encode(array_values($filterStates));
       $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
     }
+
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";    
     $productCheck = $db->query($productQuery);
+
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
     }
+
     $products = $db->query($productQuery);
     $products2 = $db->query($productQuery);
     $products3 = $db->query($productQuery);
@@ -91,6 +97,7 @@ else{
     $companyDetail = searchCompanyById($company, $db);
     // $companyProducts = json_decode($companyDetail['products'], true);
     $secRemarksExists = false;
+
     if ($companyDetail['include_sec_remark'] == 'Y') { 
       $secRemarksExists = true;
     }
@@ -135,10 +142,12 @@ else{
 
   // Default Currency
   $defaultCurrencyId = null;
+
   if ($curreny_stmt = $db->prepare("SELECT * FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1")) {
     $curreny_stmt->bind_param('s', $company);
     $curreny_stmt->execute();
     $curreny_result = $curreny_stmt->get_result();
+
     while ($curreny_row = $curreny_result->fetch_assoc()) {
       $defaultCurrencyId = $curreny_row['id'];
     }
@@ -149,6 +158,7 @@ else{
   $languageArray = $_SESSION['languageArray'];
 }
 ?>
+
 <!--select class="form-control" style="width: 100%;" id="uomhidden" name="uomhidden" style="display:none;"> 
   <option selected="selected">-</option>
   <?php while($rowunits2=mysqli_fetch_assoc($units1)){ ?>
@@ -172,13 +182,12 @@ else{
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
+</div><!-- /.content-header -->
 
 <!-- Main content -->
 <div class="content custom-table-content">
   <div class="container-fluid">
-  <div class="row">
+    <div class="row">
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body custom-search-card-body">
@@ -406,11 +415,11 @@ else{
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-
+        
         <div class="modal-body custom-model-body-box" >
           <input type="hidden" class="form-control" id="id" name="id">
           <input type="hidden" class="form-control" id="recordType" name="recordType" value="wholesales">
-
+          
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
@@ -579,7 +588,7 @@ else{
               <div class="col-md-12">
                 <div class="form-group">
                   <label><?=$languageArray['second_remarks_code'][$language]?></label>
-                  <textarea colspan="3" class="form-control" id="remarks2" name="remarks2" placeholder="<?=$languageArray['enter_remark_code'][$language]?> 2"></textarea>
+                  <textarea colspan="3" class="form-control custom-remarks-txtarea" id="remarks2" name="remarks2" placeholder="<?=$languageArray['enter_remark_code'][$language]?> 2"></textarea>
                 </div>
               </div>
             </div>
@@ -720,17 +729,20 @@ else{
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+
         <div class="modal-body custom-model-body-box">
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
                 <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+                <textarea class="form-control custom-reason-txtarea" id="cancelReason" name="cancelReason" rows="3" required></textarea>
               </div>
             </div>
+
             <input type="hidden" class="form-control" id="id" name="id">
           </div>
         </div>
+
         <div class="modal-footer custom-model-fotter-box">
           <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn custom-save-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
@@ -741,15 +753,17 @@ else{
 </div>
 
 <div class="modal fade" id="printOptionsModal" tabindex="-1">
-  <div class="modal-dialog" style="max-width:500px;">
+  <div class="modal-dialog" style="max-width: 500px;">
     <div class="modal-content custom-model-content-box">
       <form id="printOptionsForm">
         <div class="modal-header custom-model-header-box">
           <h5 class="modal-title custom-model-title-txt"><?=$languageArray['print_options_code'][$language]?></h5>
           <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
+
         <div class="modal-body custom-model-body-box">
           <input type="hidden" id="printID" name="userID">
+
           <div class="form-group mb-0">
             <label><?=$languageArray['print_with_photo_code'][$language]?></label>
             <select class="form-control" id="printWithPhoto" name="withPhoto">
@@ -758,6 +772,7 @@ else{
             </select>
           </div>
         </div>
+
         <div class="modal-footer custom-model-fotter-box">
           <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
           <button type="submit" class="btn custom-save-btn"><?=$languageArray['print_code'][$language]?></button>
@@ -886,17 +901,17 @@ else{
           render: function ( data, type, row ) {
             var buttons = '<div class="row custom-tbl-btn-icon">';
             
-            if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+            if (<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>';
             }
             
             buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
             
-            if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+            if (allowInvoice == 'Y' && row.status == 'DISPATCH'){
               buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn custom-reject-btn-icon btn-sm"><i class="fas fa-file-invoice"></i></button>';
             }
             
-            if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+            if (<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>';
             }
             
@@ -1063,17 +1078,17 @@ else{
             render: function ( data, type, row ) {
               var buttons = '<div class="row custom-tbl-btn-icon">';
               
-              if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+              if (<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
                 buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>';
               }
               
               buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
               
-              if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+              if (allowInvoice == 'Y' && row.status == 'DISPATCH') {
                 buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn custom-reject-btn-icon btn-sm"><i class="fas fa-file-invoice"></i></button>';
               }
               
-              if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+              if (<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
                 buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>';
               }
               
@@ -1186,6 +1201,7 @@ else{
           if ($('#rejectDetailsTable tr').length > 0) {
             $('#rejectDetailsTable tr').each(function() {
               var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
+
               if (nettWeight < 0) {
                 nettWeightError = true;
                 return false;
@@ -1405,12 +1421,10 @@ else{
       var batch = $('#product :selected').data('batch')? $('#product :selected').data('batch') : '';
       var uom = $('#product :selected').data('uom') ? $('#product :selected').data('uom') : '';
       var cweight = $('#currentWeight').val();
-
       var uomDesc = $("#uomhidden option[value='"+uom+"']").text();
 
       $('#unitWeight').val(weight);
       $('#unitCountWeight').text(weight.toString() + ' ' + uomDesc);
-
       $('#productDesc').val(desc);
       $('#uom').val(uom).trigger('change');
       $('#batchNumber').val(batch);
@@ -2038,19 +2052,19 @@ else{
     var totalWeight = 0;
     var actualWeight = 0;
 
-    if($('#currentWeight').val()){
+    if ($('#currentWeight').val()) {
       currentWeight =  $('#currentWeight').val();
     }
 
-    if($('#tareWeight').val()){
+    if ($('#tareWeight').val()) {
       tareWeight =  $('#tareWeight').val();
     }
 
-    if($('#reduceWeight').val()){
+    if ($('#reduceWeight').val()) {
       reduceWeight =  $('#reduceWeight').val();
     }
 
-    if(tareWeight == 0){
+    if (tareWeight == 0) {
       actualWeight = currentWeight - reduceWeight;
       $('#actualWeight').val(actualWeight.toFixed(2));
     } else {
@@ -2058,7 +2072,7 @@ else{
       $('#actualWeight').val(actualWeight.toFixed(2));
     }
 
-    if(actualWeight != '' &&  moq != ''){
+    if (actualWeight != '' &&  moq != '') {
       totalWeight = actualWeight * moq;
       $('#totalWeight').val(totalWeight.toFixed(2));
     } else {
@@ -2202,6 +2216,7 @@ else{
         var totalRejectTare = 0;
         var totalRejectNet = 0;
         var totalRejectPrice = 0;
+
         for (var i = 0; i < row.rejectDetails.length; i++) {
           var detail = row.rejectDetails[i]; 
           
@@ -2332,7 +2347,7 @@ else{
       $.post('php/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data) {
         var obj = JSON.parse(data);
 
-        if(obj.status === 'success'){
+        if (obj.status === 'success') {
           var pricingType = obj.message.pricingType;
           var existingPrice = element.closest('tr').find('input[id^="price"]').val();
           var price = (overridePrice !== undefined) ? overridePrice : (existingPrice !== '' && parseFloat(existingPrice) > 0 ? parseFloat(existingPrice) : obj.message.price);
@@ -2407,13 +2422,13 @@ else{
         var tbody = $('#weightDetailsTable');
         tbody.empty();
         
-        if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
+        if (obj.message.weightDetails && obj.message.weightDetails.length > 0) {
           var totalGross = 0;
           var totalTare = 0;
           var totalNet = 0;
           var totalPrice = 0;
 
-          for(var i = 0; i < obj.message.weightDetails.length; i++) {
+          for (var i = 0; i < obj.message.weightDetails.length; i++) {
             var detail = obj.message.weightDetails[i];
             var idx = weightCount++;
             var row = `
@@ -2497,8 +2512,10 @@ else{
             
             // Store original options before filtering
             gradeSelect.data('original-options', gradeSelect.html());
+
             gradeSelect.find('option').each(function() {
               var gradeProduct = $(this).attr('data-product');
+
               if (gradeProduct && gradeProduct !== productName) {
                 $(this).remove();
               }
@@ -2621,6 +2638,7 @@ else{
           ignore: [],
           errorPlacement: function (error, element) {
             error.addClass('invalid-feedback').css('display', 'block');
+
             if (element.hasClass('select2') || element.next('.select2-container').length) {
               error.insertAfter(element.next('.select2-container'));
             } else {
@@ -2629,6 +2647,7 @@ else{
           },
           highlight: function (element, errorClass, validClass) {
             $(element).addClass('is-invalid');
+
             if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
               $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
             }
@@ -2683,6 +2702,7 @@ else{
 
     // Replace product_name select/text with static display
     var productCell = row.find('select[name*="[product_name]"]').closest('td');
+
     if (productCell.length) {
       productCell.find('select').select2('destroy').remove();
       productCell.text('REJECT (拒收)');
@@ -2691,6 +2711,7 @@ else{
 
     // Replace grade select with static display
     var gradeCell = row.find('select[name*="[grade]"]').closest('td');
+
     if (gradeCell.length) {
       gradeCell.find('select').select2('destroy').remove();
       gradeCell.text('REJ');
@@ -2740,6 +2761,7 @@ else{
     reindexWeightDetails();
     reindexRejectDetails();
     updateTotals();
+
     $('.select2').select2({
       allowClear: true,
       placeholder: "Please Select",
@@ -2896,7 +2918,6 @@ else{
   function filterWeightTable(rowId) {
     var productFilter = $('#productFilter_' + rowId).val();
     var gradeFilter = $('#gradeFilter_' + rowId).val();
-    
     var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0;
     
     $('#weightTable_' + rowId + ' tbody tr').each(function() {
@@ -2929,8 +2950,8 @@ else{
       var gradeSelect = $('#gradeFilter_' + rowId);
       var currentGrade = gradeSelect.val();
       gradeSelect.find('option:not(:first)').remove();
-      
       var grades = [];
+
       $('#weightTable_' + rowId + ' tbody tr').each(function() {
         var product = $(this).find('td:eq(0)').text();
         
@@ -2944,16 +2965,18 @@ else{
       });
       
       grades.sort();
+
       grades.forEach(function(grade) {
         gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
       });
+
       gradeSelect.val(currentGrade);
     } else {
       var gradeSelect = $('#gradeFilter_' + rowId);
       var currentGrade = gradeSelect.val();
       gradeSelect.find('option:not(:first)').remove();
-      
       var grades = [];
+
       $('#weightTable_' + rowId + ' tbody tr').each(function() {
         var grade = $(this).find('td:eq(1)').text();
         
@@ -2963,9 +2986,11 @@ else{
       });
       
       grades.sort();
+
       grades.forEach(function(grade) {
         gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
       });
+
       gradeSelect.val(currentGrade);
     }
   }
@@ -2990,6 +3015,7 @@ else{
     
     grades.sort();
     var gradeSelect = $('#gradeFilter_' + rowId);
+
     grades.forEach(function(grade) {
       gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
     });

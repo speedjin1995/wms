@@ -98,8 +98,7 @@ if (!isset($_SESSION['userID'])) {
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
+</div><!-- /.content-header -->
 
 <!-- Main content -->
 <div class="content custom-table-content">
@@ -487,7 +486,7 @@ if (!isset($_SESSION['userID'])) {
             <div class="col-md-12">
               <div class="form-group">
                 <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+                <textarea class="form-control custom-reason-txtarea" id="cancelReason" name="cancelReason" rows="3" required></textarea>
               </div>
             </div>
             <input type="hidden" class="form-control" id="id" name="id">

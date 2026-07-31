@@ -105,13 +105,12 @@ if (!isset($_SESSION['userID'])) {
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
+</div><!-- /.content-header -->
 
 <!-- Main content -->
 <div class="content custom-table-content">
   <div class="container-fluid">
-  <div class="row">
+    <div class="row">
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body custom-search-card-body">
@@ -415,7 +414,7 @@ if (!isset($_SESSION['userID'])) {
               <div class="col-md-12">
                 <div class="form-group">
                   <label><?=$languageArray['second_remarks_code'][$language]?></label>
-                  <textarea colspan="3" class="form-control" id="remarks2" name="remarks2" placeholder="<?=$languageArray['enter_remark_code'][$language]?> 2"></textarea>
+                  <textarea colspan="3" class="form-control custom-remarks-txtarea" id="remarks2" name="remarks2" placeholder="<?=$languageArray['enter_remark_code'][$language]?> 2"></textarea>
                 </div>
               </div>
             </div>
@@ -552,7 +551,7 @@ if (!isset($_SESSION['userID'])) {
             <div class="col-md-12">
               <div class="form-group">
                 <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+                <textarea class="form-control custom-reason-txtarea" id="cancelReason" name="cancelReason" rows="3" required></textarea>
               </div>
             </div>
             <input type="hidden" class="form-control" id="id" name="id">

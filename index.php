@@ -1125,7 +1125,7 @@ if (!isset($_SESSION['userID'])) {
     }
 
     .custom-model-body-box .form-group .custom-remarks-txtarea, .custom-model-body-box .form-group .custom-description-txtarea,
-    .custom-model-body-box .form-group .custom-remark-txtarea {
+    .custom-model-body-box .form-group .custom-remark-txtarea, .custom-model-body-box .form-group .custom-reason-txtarea {
       height: 80px;
     }
 
@@ -1676,6 +1676,23 @@ if (!isset($_SESSION['userID'])) {
       height: 40px;
     }
 
+    .custom-view-btn-sm {
+      padding: 5px 15px;
+      border: unset;
+      border-radius: 5px;
+      background: #06B6D4;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      height: 40px;
+    }
+
     .custom-delete-btn-sm {
       padding: 5px 15px;
       border: unset;
@@ -1783,7 +1800,7 @@ if (!isset($_SESSION['userID'])) {
       line-height: 20px;
     }
 
-    .custom-receipt-btn-icon:hover, .custom-view-btn-icon:hover, .custom-preview-btn:hover {
+    .custom-receipt-btn-icon:hover, .custom-view-btn-icon:hover, .custom-preview-btn:hover, .custom-view-btn-sm:hover {
       background: #0891B2;
       color: #fff;
     }

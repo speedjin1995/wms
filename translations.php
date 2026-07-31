@@ -129,95 +129,62 @@ if (!isset($_SESSION['userID'])) {
 </div>
 
 <script>
-var table;
+  var table;
 
-$(function () {
-  table = $("#translationTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'order': [[ 1, 'asc' ]],
-    'ajax': {
-      'url':'php/modules/translations/loadTranslations.php'
-    },
-    'columns': [
-      { data: 'counter' },
-      { data: 'message_key_code' },
-      { data: 'en' },
-      { data: 'zh' },
-      { data: 'my' },
-      { data: 'ne' },
-      { data: 'ja' },
-      { 
-        data: 'id',
-        render: function ( data, type, row ) {
-          return '<div class="row custom-tbl-btn-icon"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
+  $(function () {
+    table = $("#translationTable").DataTable({
+      "responsive": true,
+      "autoWidth": false,
+      'processing': true,
+      'serverSide': true,
+      'serverMethod': 'post',
+      'order': [[ 1, 'asc' ]],
+      'ajax': {
+        'url':'php/modules/translations/loadTranslations.php'
+      },
+      'columns': [
+        { data: 'counter' },
+        { data: 'message_key_code' },
+        { data: 'en' },
+        { data: 'zh' },
+        { data: 'my' },
+        { data: 'ne' },
+        { data: 'ja' },
+        { 
+          data: 'id',
+          render: function ( data, type, row ) {
+            return '<div class="row custom-tbl-btn-icon"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
+          }
         }
-      }
-    ]
-  });
-  
-  $.validator.setDefaults({
-    submitHandler: function () {
-      $.post('php/modules/translations/translations.php', $('#translationForm').serialize(), function(data){
-        var obj = JSON.parse(data); 
-        
-        if(obj.status === 'success'){
-          $('#translationModal').modal('hide');
-          toastr["success"](obj.message, "Success:");
-          table.ajax.reload();
-        }
-        else if(obj.status === 'failed'){
-          toastr["error"](obj.message, "Failed:");
-        }
-        else{
-          toastr["error"]("Something went wrong", "Failed:");
-        }
-      });
-    }
-  });
-
-  $('#addTranslation').on('click', function(){
-    $('#translationModal').find('#keyId').val('');
-    $('#translationModal').find('#keyCode').val('');
-    $('#translationModal').find('#englishDecs').val('');
-    $('#translationModal').find('#chineseDecs').val('');
-    $('#translationModal').find('#malayDecs').val('');
-    $('#translationModal').find('#japaneseDecs').val('');
-    $('#translationModal').find('#tamilDecs').val('');
-    $('#translationModal').modal('show');
+      ]
+    });
     
-    $('#translationForm').validate({
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-        error.addClass('invalid-feedback');
-        element.closest('.form-group').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-        $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-        $(element).removeClass('is-invalid');
+    $.validator.setDefaults({
+      submitHandler: function () {
+        $.post('php/modules/translations/translations.php', $('#translationForm').serialize(), function(data){
+          var obj = JSON.parse(data); 
+          
+          if (obj.status === 'success') {
+            $('#translationModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            table.ajax.reload();
+          } else if (obj.status === 'failed') {
+            toastr["error"](obj.message, "Failed:");
+          } else {
+            toastr["error"]("Something went wrong", "Failed:");
+          }
+        });
       }
     });
-  });
-});
 
-function edit(id){
-  $.post('php/modules/translations/getTranslation.php', {messageId: id}, function(data){
-    var obj = JSON.parse(data);
-    
-    if(obj.status === 'success'){
-      $('#translationModal').find('#keyId').val(obj.message.id);
-      $('#translationModal').find('#keyCode').val(obj.message.message_key_code);
-      $('#translationModal').find('#englishDecs').val(obj.message.en);
-      $('#translationModal').find('#chineseDecs').val(obj.message.zh);
-      $('#translationModal').find('#malayDecs').val(obj.message.my);
-      $('#translationModal').find('#japaneseDecs').val(obj.message.ja);
-      $('#translationModal').find('#tamilDecs').val(obj.message.ne);
-      $('#translationModal').find('#company').val(obj.message.company).trigger('change');
+    $('#addTranslation').on('click', function() {
+      $('#translationModal').find('#keyId').val('');
+      $('#translationModal').find('#keyCode').val('');
+      $('#translationModal').find('#englishDecs').val('');
+      $('#translationModal').find('#chineseDecs').val('');
+      $('#translationModal').find('#malayDecs').val('');
+      $('#translationModal').find('#japaneseDecs').val('');
+      $('#translationModal').find('#tamilDecs').val('');
       $('#translationModal').modal('show');
       
       $('#translationForm').validate({
@@ -233,32 +200,59 @@ function edit(id){
           $(element).removeClass('is-invalid');
         }
       });
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something went wrong", "Failed:");
-    }
+    });
   });
-}
 
-function deactivate(id){
-  if (confirm('Are you sure you want to delete this item?')) {
-    $.post('php/modules/translations/deleteMessage.php', {messageId: id}, function(data){
+  function edit(id) {
+    $.post('php/modules/translations/getTranslation.php', {messageId: id}, function(data) {
       var obj = JSON.parse(data);
       
-      if(obj.status === 'success'){
-        toastr["success"](obj.message, "Success:");
-        table.ajax.reload();
-      }
-      else if(obj.status === 'failed'){
+      if (obj.status === 'success') {
+        $('#translationModal').find('#keyId').val(obj.message.id);
+        $('#translationModal').find('#keyCode').val(obj.message.message_key_code);
+        $('#translationModal').find('#englishDecs').val(obj.message.en);
+        $('#translationModal').find('#chineseDecs').val(obj.message.zh);
+        $('#translationModal').find('#malayDecs').val(obj.message.my);
+        $('#translationModal').find('#japaneseDecs').val(obj.message.ja);
+        $('#translationModal').find('#tamilDecs').val(obj.message.ne);
+        $('#translationModal').find('#company').val(obj.message.company).trigger('change');
+        $('#translationModal').modal('show');
+        
+        $('#translationForm').validate({
+          errorElement: 'span',
+          errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+          },
+          highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+          },
+          unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+          }
+        });
+      } else if (obj.status === 'failed') {
         toastr["error"](obj.message, "Failed:");
-      }
-      else{
+      } else {
         toastr["error"]("Something went wrong", "Failed:");
       }
     });
   }
-}
+
+  function deactivate(id) {
+    if (confirm('Are you sure you want to delete this item?')) {
+      $.post('php/modules/translations/deleteMessage.php', {messageId: id}, function(data) {
+        var obj = JSON.parse(data);
+        
+        if(obj.status === 'success'){
+          toastr["success"](obj.message, "Success:");
+          table.ajax.reload();
+        } else if (obj.status === 'failed') {
+          toastr["error"](obj.message, "Failed:");
+        } else {
+          toastr["error"]("Something went wrong", "Failed:");
+        }
+      });
+    }
+  }
 </script>

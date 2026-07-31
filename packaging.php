@@ -26,8 +26,7 @@ if (!isset($_SESSION['userID'])) {
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
+</div><!-- /.content-header -->
 
 <!-- Main content -->
 <section class="content custom-table-content">
@@ -102,10 +101,8 @@ if (!isset($_SESSION['userID'])) {
           <button type="button" class="btn custom-save-btn" id="uploadPackaging"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>
 
 <div class="modal fade" id="errorModal" style="display:none">
@@ -127,10 +124,8 @@ if (!isset($_SESSION['userID'])) {
           </div>
         </div>
       </form>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>
 
 <div class="modal fade" id="addModal">
@@ -192,10 +187,8 @@ if (!isset($_SESSION['userID'])) {
           <button type="submit" class="btn custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>
 
 <!-- jQuery -->
