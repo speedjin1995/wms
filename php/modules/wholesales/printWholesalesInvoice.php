@@ -2,7 +2,11 @@
 require_once '../../db_connect.php';
 require_once '../../lookup.php';
 
+session_start();
+
 if(isset($_GET['id'])){
+    $languageArray = $_SESSION['languageArray'];
+    $language = 'en';
     $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_STRING);
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
@@ -287,7 +291,7 @@ if(isset($_GET['id'])){
                                     <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>
                                 </div>
                                 <div class="so-section">
-                                    <div class="so-title"><span style="border-bottom: 1px solid black;">SALES ORDER</span></div>
+                                    <div class="so-title"><span style="border-bottom: 1px solid black;">'.$languageArray['invoice_title_code'][$language].'</span></div>
                                     <div class="so-detail"><span class="so-label">SO No.</span><span class="so-colon">:</span><span class="so-value">' . $soNo . '</span></div>
                                     <div class="so-detail"><span class="so-label">Date</span><span class="so-colon">:</span><span class="so-value">' . $date . '</span></div>
                                     <div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value">' . $time . '</span></div>

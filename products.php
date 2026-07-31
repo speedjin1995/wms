@@ -1288,6 +1288,7 @@ function edit(id){
       $('#addModal').find('#remark').val(obj.message.remark);
       $('#addModal').find('#pricingType').val(obj.message.pricing_type);
       $('#addModal').find('#price').val(obj.message.price);
+      $('#addModal').find('#purchasingPricingType').val(obj.message.purchasing_pricing_type);
       $('#addModal').find('#purchasingPrice').val(obj.message.purchasing_price);
       $('#addModal').find('#weight').val(obj.message.weight);
       $('#addModal').find('#productCategory').val(obj.message.category).trigger('change');
