@@ -629,7 +629,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination,
     .custom-table-content #profileForm .custom-profile-box:last-child,
     .custom-table-content #logoForm .custom-profile-box:last-child,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination, .custom-main-card {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination, .custom-main-card,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination {
       margin-bottom: 0px;
     }
 
@@ -655,7 +656,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
     .custom-table-content .custom-profile-box .custom-profile-body-box .form-group,
     .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
-    .custom-form-card-body .form-group {
+    .custom-form-card-body .form-group,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
       margin-bottom: 15px;
     }
 
@@ -690,7 +692,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
     .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .form-control,
     .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
-    .custom-form-card-body .form-group .form-control {
+    .custom-form-card-body .form-group .form-control,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
       height: 40px;
       background: #fff;
       color: #1a1a1a;
@@ -724,7 +727,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
     .custom-table-content .custom-profile-box .custom-profile-body-box .form-group select.form-control,
     .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
-    .custom-form-card-body .form-group select.form-control {
+    .custom-form-card-body .form-group select.form-control,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control {
       -webkit-appearance: none;
       appearance: none;
       background-image: url(assets/chevron-down-solid-full.svg);
@@ -767,7 +771,9 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .form-control:focus,
     .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label .form-control:focus,
     .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
-    .custom-form-card-body .form-group .form-control:focus {
+    .custom-form-card-body .form-group .form-control:focus,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label .form-control:focus,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus {
       border-color: #1a1a1a;
       box-shadow: unset;
     }
@@ -795,7 +801,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .form-control::placeholder,
     .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
     .custom-form-card-body .form-group .form-control::placeholder,
-    .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__placeholder {
+    .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__placeholder,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder {
       color: rgba(26, 26, 26, .5);
     }
 
@@ -1083,7 +1090,9 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .row:first-child #locationTable_length label,
     .custom-table-card-body #locationTable_wrapper .row:first-child #locationTable_filter label,
     .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_length label,
-    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label {
+    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_length label,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label {
       display: flex;
       align-items: center;
       gap: 15px;
@@ -1110,7 +1119,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:first-child #vehicleTable_filter label .form-control,
     .custom-table-card-body #gradeTable_wrapper .row:first-child #gradeTable_filter label .form-control,
     .custom-table-card-body #locationTable_wrapper .row:first-child #locationTable_filter label .form-control,
-    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label .form-control {
+    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label .form-control,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label .form-control {
       height: 40px;
       padding: 10px;
       border: 1px solid #E3C66A;
@@ -1142,7 +1152,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered,
     .custom-table-card-body #gradeTable_wrapper .table-bordered,
     .custom-table-card-body #locationTable_wrapper .table-bordered,
-    .custom-table-card-body #memberTable_wrapper .table-bordered {
+    .custom-table-card-body #memberTable_wrapper .table-bordered,
+    .custom-table-card-body #pvTable_wrapper .table-bordered {
       margin-top: 10px;
       margin-bottom: 25px;
       border: 1px solid #D9A82D;
@@ -1171,7 +1182,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th,
     .custom-table-card-body #gradeTable_wrapper .table-bordered thead th,
     .custom-table-card-body #locationTable_wrapper .table-bordered thead th,
-    .custom-table-card-body #memberTable_wrapper .table-bordered thead th {
+    .custom-table-card-body #memberTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #pvTable_wrapper .table-bordered thead th {
       background: #D9A82D;
       color: #fff;
       font-size: 16px;
@@ -1202,7 +1214,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th:first-child,
     .custom-table-card-body #gradeTable_wrapper .table-bordered thead th:first-child,
     .custom-table-card-body #locationTable_wrapper .table-bordered thead th:first-child,
-    .custom-table-card-body #memberTable_wrapper .table-bordered thead th:first-child {
+    .custom-table-card-body #memberTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #pvTable_wrapper .table-bordered thead th:first-child {
       border-left: 1px solid #D9A82D;
     }
 
@@ -1222,7 +1235,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th:last-child,
     .custom-table-card-body #gradeTable_wrapper .table-bordered thead th:last-child,
     .custom-table-card-body #locationTable_wrapper .table-bordered thead th:last-child,
-    .custom-table-card-body #memberTable_wrapper .table-bordered thead th:last-child {
+    .custom-table-card-body #memberTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #pvTable_wrapper .table-bordered thead th:last-child {
       border-right: 1px solid #D9A82D;
     }
 
@@ -1243,7 +1257,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(odd) {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr:nth-of-type(odd) {
       background: rgba(26, 26, 26, .15);
     }
 
@@ -1264,7 +1279,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody tr:nth-of-type(even),
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody tr:nth-of-type(even),
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr:nth-of-type(even),
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(even) {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr:nth-of-type(even) {
       background: #fff;
     }
 
@@ -1284,7 +1300,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody tr td,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody tr td,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr td,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr td {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr td {
       padding: 10px;
       border: 1px solid #D9A82D;
       font-size: 14px;
@@ -1306,7 +1323,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-title-box,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-title-box,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title-box,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title-box {
       padding-top: 15px;
       padding-left: 15px;
       padding-right: 15px;
@@ -1325,7 +1343,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt {
       margin-bottom: 25px;
       font-size: 16px;
       line-height: 24px;
@@ -1348,7 +1367,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-content-box,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-content-box,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box {
       padding-left: 15px;
       padding-right: 15px;
     }
@@ -1380,7 +1400,9 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
     .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12 {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12 {
       padding-left: 0px;
       padding-right: 0px;
     }
@@ -1398,7 +1420,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt {
       font-size: 14px;
       line-height: 22px;
       letter-spacing: 0.75px;
@@ -1423,7 +1446,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-hr,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-hr,
     .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-hr,
-    .custom-form-card-body .custom-form-card-hr {
+    .custom-form-card-body .custom-form-card-hr,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-hr {
       margin-top: 10px;
       margin-bottom: 25px;
       border-top: 1px solid #E3C66A;
@@ -1442,7 +1466,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-title,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-title,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title {
       margin-bottom: 25px;
       padding-left: 10px;
       padding-right: 10px;
@@ -1467,7 +1492,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box {
       padding-left: 7.5px;
       padding-right: 7.5px;
     }
@@ -1485,7 +1511,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
     .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered {
       margin-top: 0px;
       margin-bottom: 15px;
       margin-left: 15px;
@@ -1521,7 +1548,9 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
     .custom-table-card-body #locationTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
     .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
-    .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr:nth-of-type(even) {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr:nth-of-type(even) {
       background: rgba(227, 198, 106, .25);
       border: 1px solid #D9A82D;
     }
@@ -1540,7 +1569,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .table-bordered tfoot tr th,
     .custom-table-card-body #gradeTable_wrapper .table-bordered tfoot tr th,
     .custom-table-card-body #locationTable_wrapper .table-bordered tfoot tr th,
-    .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr th {
+    .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr th {
       border: 1px solid #D9A82D;
       padding: 10px;
       font-size: 14px;
@@ -1741,7 +1771,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .custom-tbl-btn-icon,
     .custom-table-card-body #gradeTable_wrapper .custom-tbl-btn-icon,
     .custom-table-card-body #locationTable_wrapper .custom-tbl-btn-icon,
-    .custom-table-card-body #memberTable_wrapper .custom-tbl-btn-icon {
+    .custom-table-card-body #memberTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #pvTable_wrapper .custom-tbl-btn-icon {
       flex-direction: row !important;
       gap: 5px;
       justify-content: flex-start;
@@ -2196,7 +2227,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child,
     .custom-table-card-body #gradeTable_wrapper .row:last-child,
     .custom-table-card-body #locationTable_wrapper .row:last-child,
-    .custom-table-card-body #memberTable_wrapper .row:last-child {
+    .custom-table-card-body #memberTable_wrapper .row:last-child,
+    .custom-table-card-body #pvTable_wrapper .row:last-child {
       flex-direction: column;
     }
 
@@ -2213,7 +2245,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child .col-sm-12,
     .custom-table-card-body #gradeTable_wrapper .row:last-child .col-sm-12,
     .custom-table-card-body #locationTable_wrapper .row:last-child .col-sm-12,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .col-sm-12 {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .col-sm-12 {
       max-width: unset;
     }
 
@@ -2230,7 +2263,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_info,
     .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_info,
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_info,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_info {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_info {
       font-size: 16px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -2252,7 +2286,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
     .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a {
       background: #fff;
       color: rgba(26, 26, 26, .5);
       border: 1px solid rgba(26, 26, 26, .5);
@@ -2271,7 +2306,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
     .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a {
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
     }
@@ -2289,7 +2325,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
     .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a {
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
     }
@@ -2307,7 +2344,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
     .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a {
       background: #fff;
       color: #1a1a1a;
       border: 1px solid rgba(26, 26, 26, .5);
@@ -2333,7 +2371,8 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
     .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus {
       box-shadow: unset;
     }
 
@@ -2364,7 +2403,9 @@ if (!isset($_SESSION['userID'])) {
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
     .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
     .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
-    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a {
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a {
       background: #1a1a1a;
       color: #fff;
     }
