@@ -325,6 +325,7 @@ else{
 
             <div class="row">
               <div class="col-9"></div>
+              
               <div class="col-3">
                 <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
@@ -1592,7 +1593,7 @@ else{
           <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
             <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="">
             <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-            <button type="button" class="btn custom-print-btn-icon btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+            <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
             <span id="rejectPhotoStatus${idx}"></span>
           </td>
           <td>
@@ -1674,7 +1675,7 @@ else{
           <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
             <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
             <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-            <button type="button" class="btn custom-print-btn-icon btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+            <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
             <span id="photoStatus${idx}"></span>
           </td>
           <td>
@@ -2152,7 +2153,7 @@ else{
                 <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
                 ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td>' + parseFloat(detail.price).toFixed(2) + '</td><td>' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td>${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
+                ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn custom-view-btn-icon btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
               returnString += `
               </tr>`;
 
@@ -2213,7 +2214,7 @@ else{
                 <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
                 ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td>' + parseFloat(detail.price).toFixed(2) + '</td><td>' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td>${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
+                ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn custom-view-btn-icon btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
               returnString += `
               </tr>`;
 
@@ -2464,7 +2465,7 @@ else{
                   <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                   <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
                   ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                  <button type="button" class="btn custom-print-btn-icon btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+                  <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
                   <span id="photoStatus${idx}"></span>
                 </td>
                 <td>
@@ -2576,7 +2577,7 @@ else{
                   <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
                   <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
                   ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                  <button type="button" class="btn custom-print-btn-icon btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
+                  <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
                   <span id="rejectPhotoStatus${idx}"></span>
                 </td>
                 <td>
@@ -2696,7 +2697,7 @@ else{
       $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][grade]', value:'REJ'}).appendTo(gradeCell);
     }
 
-    row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
+    row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn custom-check-btn-icon btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
     row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
     
     $('#rejectDetailsTable').append(row);
