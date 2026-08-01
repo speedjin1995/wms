@@ -463,7 +463,7 @@ to get the desired effect
               <li class="nav-item">
                 <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
                   <i class="nav-icon fas fa-tags"></i>
-                  <p>Bulk Price Update</p>
+                  <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
                 </a>
               </li>
               <li class="nav-item">
@@ -504,7 +504,7 @@ to get the desired effect
               <li class="nav-item">
                 <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
                   <i class="nav-icon fas fa-tags"></i>
-                  <p>Bulk Price Update</p>
+                  <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
                 </a>
               </li>
               <?php } ?>
