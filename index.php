@@ -461,6 +461,12 @@ to get the desired effect
                 </a>
               </li>
               <li class="nav-item">
+                <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
+                  <i class="nav-icon fas fa-tags"></i>
+                  <p>Bulk Price Update</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="#grading" data-file="grading.php" class="nav-link link">
                   <i class="nav-icon fas fa-clipboard-check"></i>
                   <p><?=$languageArray['grading_code'][$language]?></p>
@@ -493,6 +499,12 @@ to get the desired effect
                 <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
                   <i class="nav-icon fas fa-cubes"></i>
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
+                  <i class="nav-icon fas fa-tags"></i>
+                  <p>Bulk Price Update</p>
                 </a>
               </li>
               <?php } ?>
