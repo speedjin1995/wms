@@ -143,7 +143,7 @@ if (!isset($_SESSION['userID'])) {
 <script src="modules/dashboard/js/dashboard.js"></script>
 <script src="modules/dashboard/js/tab_wholesales.js"></script>
 <script src="modules/dashboard/js/tab_grading.js"></script>
-<script src="modules/dashboard/js/tab_packaging.js"></script>
+<script src="modules/dashboard/js/tab_packaging.js?v=<?=time()?>" ></script>
 <script src="modules/dashboard/js/tab_pulppaste.js"></script>
 <script>
 function toggleFilterCard() {

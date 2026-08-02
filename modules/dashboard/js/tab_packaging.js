@@ -47,18 +47,36 @@ function loadPackaging() {
         '<div class="pkg-grade-rows" id="pkg-grades-' + idx + '" style="display:none;">' +
           '<div class="card-body py-2 px-3">';
 
-      (item.grades || []).forEach(function (grade) {
+      (item.grades || []).forEach(function (grade, gIdx) {
         var gPct = item.total_weight > 0 ? (parseFloat(grade.total_weight) / item.total_weight * 100).toFixed(1) : 0;
-        html += '<div class="d-flex justify-content-between align-items-center py-1">' +
-          '<span class="text-muted" style="font-size:13px;">' +
-            '<i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + grade.grade_name +
-            ' <span class="badge badge-light border">' + grade.packaging_name + '</span>' +
-          '</span>' +
-          '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg' +
-            ' <span class="text-muted">(' + gPct + '%)</span>' +
-            ' &nbsp;|&nbsp; ' + grade.total_boxes + ' boxes' +
-          '</span>' +
-        '</div>';
+        var gradeId = 'pkg-items-' + idx + '-' + gIdx;
+        html += '<div class="pkg-grade-item border-bottom">' +
+          '<div class="d-flex justify-content-between align-items-center py-1 pkg-grade-row" data-grade="' + gradeId + '" style="cursor:pointer;">' +
+            '<span class="text-muted" style="font-size:13px;">' +
+              '<i class="fas fa-chevron-right pkg-grade-chevron mr-1" style="font-size:10px;"></i>' +
+              '<i class="fas fa-tag mr-1" style="font-size:10px;"></i>' + grade.grade_name +
+              ' <span class="badge badge-light border">' + grade.packaging_name + '</span>' +
+            '</span>' +
+            '<span style="font-size:13px;">' + formatNum(grade.total_weight) + ' kg' +
+              ' <span class="text-muted">(' + gPct + '%)</span>' +
+              ' &nbsp;|&nbsp; ' + grade.total_boxes + ' boxes' +
+            '</span>' +
+          '</div>' +
+          '<div id="' + gradeId + '" style="display:none;padding:4px 16px 8px;">' +
+            '<table class="table table-sm table-bordered mb-0" style="font-size:12px;">' +
+              '<thead class="thead-light"><tr>' +
+                '<th>Batch No</th><th>Date</th><th>Pcs/Box</th><th>Weight (kg)</th><th>Customer</th>' +
+              '</tr></thead><tbody>';
+        (grade.items || []).forEach(function (it) {
+          html += '<tr>' +
+            '<td>' + it.batch_no + '</td>' +
+            '<td>' + it.date + '</td>' +
+            '<td>' + it.units_per_box + '</td>' +
+            '<td>' + formatNum(it.weight) + '</td>' +
+            '<td>' + it.customer_name + '</td>' +
+          '</tr>';
+        });
+        html += '</tbody></table></div></div>';
       });
 
       html += '</div></div></div>';
@@ -70,6 +88,14 @@ function loadPackaging() {
       var i = $(this).data('idx');
       $('#pkg-grades-' + i).slideToggle(150);
       $(this).find('.pkg-chevron').toggleClass('fa-chevron-right fa-chevron-down');
+    });
+
+    $('#pkgProductBreakdown').off('click', '.pkg-grade-row').on('click', '.pkg-grade-row', function (e) {
+      e.stopPropagation();
+      var gradeId = $(this).attr('data-grade');
+      var $target = document.getElementById(gradeId);
+      if ($target) { $($target).slideToggle(150); }
+      $(this).find('.pkg-grade-chevron').toggleClass('fa-chevron-right fa-chevron-down');
     });
   });
 }
