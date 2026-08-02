@@ -417,3 +417,36 @@ function searchCurrencyNameById($value, $db) {
 
     return $id;
 }
+
+function getCustomerById($id, $db, &$cache) {
+    if (!isset($cache[$id])) {
+        $stmt = $db->prepare("SELECT * FROM customers WHERE id = ?");
+        $stmt->bind_param('s', $id);
+        $stmt->execute();
+        $cache[$id] = $stmt->get_result()->fetch_assoc() ?: [];
+        $stmt->close();
+    }
+    return $cache[$id];
+}
+
+function getSupplierById($id, $db, &$cache) {
+    if (!isset($cache[$id])) {
+        $stmt = $db->prepare("SELECT * FROM supplies WHERE id = ?");
+        $stmt->bind_param('s', $id);
+        $stmt->execute();
+        $cache[$id] = $stmt->get_result()->fetch_assoc() ?: [];
+        $stmt->close();
+    }
+    return $cache[$id];
+}
+
+function getProductById($id, $db, &$cache) {
+    if (!isset($cache[$id])) {
+        $stmt = $db->prepare("SELECT * FROM products WHERE id = ?");
+        $stmt->bind_param('s', $id);
+        $stmt->execute();
+        $cache[$id] = $stmt->get_result()->fetch_assoc() ?: [];
+        $stmt->close();
+    }
+    return $cache[$id];
+}
