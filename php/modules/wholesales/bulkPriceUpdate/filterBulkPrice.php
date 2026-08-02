@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../../db_connect.php';
+require_once '../../../lookup.php';
 
 ## Read value
 $draw = $_POST['draw'];
@@ -39,7 +40,7 @@ $productFilter = isset($_POST['product']) ? $_POST['product'] : '';
 $gradeFilter   = isset($_POST['grade'])   ? $_POST['grade']   : '';
 
 ## Fetch all matching wholesales records
-$sql = "SELECT w.id, w.serial_no, w.start_time, w.status, w.weight_details
+$sql = "SELECT w.id, w.serial_no, w.start_time, w.status, w.weight_details, w.po_no, w.customer, w.supplier, w.other_customer, w.other_supplier
         FROM wholesales w
         WHERE w.deleted = '0' AND w.records_type = 'wholesales'
         $companyFilter $dateFilter $statusFilter
@@ -72,12 +73,21 @@ while ($row = mysqli_fetch_assoc($result)) {
   ## Apply search against serial_no
   if ($searchValue !== '' && stripos($row['serial_no'], $searchValue) === false) continue;
 
+  ## Get customer/supplier name based on status
+  if ($row['status'] == 'DISPATCH') {
+    $customerSupplier = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
+  } else {
+    $customerSupplier = searchSupplierNameById($row['supplier'], $row['other_supplier'], $db);
+  }
+
   $allRows[] = [
-    'serial_no'  => $row['serial_no'],
-    'start_time' => $row['start_time'] ? date('d/m/Y H:i', strtotime($row['start_time'])) : '',
-    'status'     => $row['status'],
-    'item_count' => count($matchedItems),
-    'items'      => $matchedItems,
+    'serial_no'         => $row['serial_no'],
+    'start_time'        => $row['start_time'] ? date('d/m/Y H:i', strtotime($row['start_time'])) : '',
+    'status'            => $row['status'],
+    'po_no'             => $row['po_no'] ?? '',
+    'customer_supplier' => $customerSupplier,
+    'item_count'        => count($matchedItems),
+    'items'             => $matchedItems,
   ];
 }
 

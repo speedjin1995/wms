@@ -53,36 +53,69 @@ if(isset($_GET['id'])){
                 $priceStatus = (floatval($wholesale['total_price']) > 0) ? 'FIXED' : 'FLOAT';
                 $weightBy = searchUserNameById($wholesale['weighted_by'], $db);
 
-                // Customer info for Bill To
-                $customerData = [];
-                if (!empty($wholesale['customer'])) {
-                    if ($cust_stmt = $db->prepare("SELECT * FROM customers WHERE id = ?")) {
-                        $cust_stmt->bind_param('s', $wholesale['customer']);
-                        $cust_stmt->execute();
-                        $cust_result = $cust_stmt->get_result();
-                        $customerData = $cust_result->fetch_assoc() ?: [];
-                        $cust_stmt->close();
+                if ($wholesale['status'] == 'RECEIVING'){
+                    // Supplier info for Bill To
+                    $supplierData = [];
+                    if (!empty($wholesale['supplier'])) {
+                        if ($supp_stmt = $db->prepare("SELECT * FROM supplies WHERE id = ?")) {
+                            $supp_stmt->bind_param('s', $wholesale['supplier']);
+                            $supp_stmt->execute();
+                            $supp_result = $supp_stmt->get_result();
+                            $supplierData = $supp_result->fetch_assoc() ?: [];
+                            $supp_stmt->close();
+                        }
                     }
+
+                    $deliverToName = $supplierData['supplier_name'] ?? '';
+                    $deliverToAddr1 = $supplierData['supplier_address'] ?? '';
+                    $deliverToAddr2 = $supplierData['supplier_address2'] ?? '';
+                    $deliverToAddr3 = $supplierData['supplier_address3'] ?? '';
+                    $deliverToAddr4 = $supplierData['supplier_address4'] ?? '';
+                    $deliverToAttn = $supplierData['pic'] ?? '';
+                    $deliverToTel = $supplierData['supplier_phone'] ?? '';
+                    $deliverToFax = $supplierData['fax'] ?? '';
+
+                    // Delivery To (same as Bill To)
+                    $billToName = $supplierData['billing_name'] ?? '';
+                    $billToAddr1 = $supplierData['billing_address'] ?? '';
+                    $billToAddr2 = $supplierData['billing_address2'] ?? '';
+                    $billToAddr3 = $supplierData['billing_address3'] ?? '';
+                    $billToAddr4 = $supplierData['billing_address4'] ?? '';
+                    $billToAttn = $supplierData['billing_pic'] ?? '';
+                    $billToTel = $supplierData['billing_phone'] ?? '';
+                    $billToFax = $supplierData['billing_fax'] ?? '';
+                }else{
+                    // Customer info for Bill To
+                    $customerData = [];
+                    if (!empty($wholesale['customer'])) {
+                        if ($cust_stmt = $db->prepare("SELECT * FROM customers WHERE id = ?")) {
+                            $cust_stmt->bind_param('s', $wholesale['customer']);
+                            $cust_stmt->execute();
+                            $cust_result = $cust_stmt->get_result();
+                            $customerData = $cust_result->fetch_assoc() ?: [];
+                            $cust_stmt->close();
+                        }
+                    }
+
+                    $deliverToName = $customerData['customer_name'] ?? '';
+                    $deliverToAddr1 = $customerData['customer_address'] ?? '';
+                    $deliverToAddr2 = $customerData['customer_address2'] ?? '';
+                    $deliverToAddr3 = $customerData['customer_address3'] ?? '';
+                    $deliverToAddr4 = $customerData['customer_address4'] ?? '';
+                    $deliverToAttn = $customerData['pic'] ?? '';
+                    $deliverToTel = $customerData['customer_phone'] ?? '';
+                    $deliverToFax = $customerData['fax'] ?? '';
+
+                    // Delivery To (same as Bill To)
+                    $billToName = $customerData['billing_name'] ?? '';
+                    $billToAddr1 = $customerData['billing_address'] ?? '';
+                    $billToAddr2 = $customerData['billing_address2'] ?? '';
+                    $billToAddr3 = $customerData['billing_address3'] ?? '';
+                    $billToAddr4 = $customerData['billing_address4'] ?? '';
+                    $billToAttn = $customerData['billing_pic'] ?? '';
+                    $billToTel = $customerData['billing_phone'] ?? '';
+                    $billToFax = $customerData['billing_fax'] ?? '';
                 }
-
-                $deliverToName = $customerData['customer_name'] ?? '';
-                $deliverToAddr1 = $customerData['customer_address'] ?? '';
-                $deliverToAddr2 = $customerData['customer_address2'] ?? '';
-                $deliverToAddr3 = $customerData['customer_address3'] ?? '';
-                $deliverToAddr4 = $customerData['customer_address4'] ?? '';
-                $deliverToAttn = $customerData['pic'] ?? '';
-                $deliverToTel = $customerData['customer_phone'] ?? '';
-                $deliverToFax = $customerData['fax'] ?? '';
-
-                // Delivery To (same as Bill To)
-                $billToName = $customerData['billing_name'] ?? '';
-                $billToAddr1 = $customerData['billing_address'] ?? '';
-                $billToAddr2 = $customerData['billing_address2'] ?? '';
-                $billToAddr3 = $customerData['billing_address3'] ?? '';
-                $billToAddr4 = $customerData['billing_address4'] ?? '';
-                $billToAttn = $customerData['billing_pic'] ?? '';
-                $billToTel = $customerData['billing_phone'] ?? '';
-                $billToFax = $customerData['billing_fax'] ?? '';
 
                 // Summary data
                 $startWeightTime = date('g:i:s A', strtotime($wholesale['start_time']));
@@ -203,7 +236,7 @@ if(isset($_GET['id'])){
                             /* Bill/Delivery Section */
                             .info-section { display: flex; padding: 6px 0; }
                             .bill-to, .deliver-to { width: 33%; padding-right: 10px; }
-                            .so-section { width: 34%; }
+                            .so-section { width: 34%; margin-left: auto; }
                             .section-title { font-weight: bold; margin-bottom: 3px; font-size: 12px; }
                             .so-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 3px; }
                             .so-detail { display: flex; font-size: 11px; line-height: 1.5; }
@@ -277,7 +310,7 @@ if(isset($_GET['id'])){
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $billToTel . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value">' . $billToFax . '</span></div>
                                 </div>
-                                <div class="deliver-to">
+                                <div class="deliver-to" style="' . ($wholesale['status'] == 'RECEIVING' ? 'display:none;' : '') . '">
                                     <div class="section-title">DELIVERY TO :</div>
                                     <div class="addr-name">' . $deliverToName . '</div>
                                     <div class="addr-line">' . $deliverToAddr1 . '</div>
@@ -290,9 +323,20 @@ if(isset($_GET['id'])){
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToTel . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>
                                 </div>
-                                <div class="so-section">
-                                    <div class="so-title"><span style="border-bottom: 1px solid black;">'.$languageArray['invoice_title_code'][$language].'</span></div>
-                                    <div class="so-detail"><span class="so-label">SO No.</span><span class="so-colon">:</span><span class="so-value">' . $soNo . '</span></div>
+                                <div class="so-section">';
+                                    if ($wholesale['status'] == 'RECEIVING'){
+                                        $message .= '
+                                            <div class="so-title"><span style="border-bottom: 1px solid black;">'.$languageArray['purchase_invoice_code'][$language].'</span></div>
+                                            <div class="so-detail"><span class="so-label">'.$languageArray['pi_no_code'][$language].'</span><span class="so-colon">:</span><span class="so-value">' . $soNo . '</span></div>
+                                        ';
+                                    }else{
+                                        $message .= '
+                                            <div class="so-title"><span style="border-bottom: 1px solid black;">'.$languageArray['invoice_title_code'][$language].'</span></div>
+                                            <div class="so-detail"><span class="so-label">'.$languageArray['so_no_code'][$language].'</span><span class="so-colon">:</span><span class="so-value">' . $soNo . '</span></div>
+                                        ';
+                                    }
+                                    
+                                    $message .= '
                                     <div class="so-detail"><span class="so-label">Date</span><span class="so-colon">:</span><span class="so-value">' . $date . '</span></div>
                                     <div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value">' . $time . '</span></div>
                                     <div class="so-detail"><span class="so-label">Weight Slip No</span><span class="so-colon">:</span><span class="so-value">' . $slipNo . '</span></div>
@@ -322,16 +366,14 @@ if(isset($_GET['id'])){
                                     <div class="footer-total-words">RINGGIT MALAYSIA : ' . $totalAmountWords . '</div>
                                     <div class="footer-total-amount">RM' . $totalAmount . '</div>
                                 </div>
-                                <div class="footer-note">* We confirm acceptance of the above item description billing with goods sold are not returnable nor refundable.</div>
+                                ' . ($wholesale['status'] != 'RECEIVING' ? '<div class="footer-note">* We confirm acceptance of the above item description billing with goods sold are not returnable nor refundable.</div>
                                 <div class="footer-note">* All payment cheque &amp; cash should be crossed and made payable to &#39;<b>' . $companyName . '</b>&#39;</div>
                                 <div class="footer-note">* Banker Name&nbsp;&nbsp;&nbsp;&nbsp;: ' . $companyBankerName . '</div>
                                 <div class="footer-note">* Bank Account No: ' . $companyBankAcctNo . '</div>
                                 <div class="footer-note">* Bank Swift Code: ' . $companyBankSwiftCode . '</div>
                                 <div class="footer-section-title">Remark :</div>
                                 <div class="footer-note">* Goods Sold Are Neither returnable nor refundable.</div>
-                                <div class="footer-note">* Goods are the buyer’s risk once they leave the packaging house.</div>
-                                <!--div class="footer-note">* We reserve the right to charge interest base on invoice date overdue bills at the rate of 2.5% per days and refer to payment Franz.</div-->
-                                <!--div class="footer-note">* If the remaining payment for 30 Days is not fully paid, We have the right to recover all of the above description of goods.</div-->
+                                <div class="footer-note">* Goods are the buyer’s risk once they leave the packaging house.</div>' : '') . '
                                 <div class="footer-section-title">Notes :</div>
                                 <div class="footer-note">* This Invoice is generated by "<b>' . $companyName . '</b>" Computer Administrators and does not require a signature.</div>
                                 <div class="footer-note">* If any concern &amp; required, kindly contact "<b>' . $companyName . '</b>" Account Department (' . $companyPhone . ')</div>

@@ -137,6 +137,8 @@ else{
                 <tr>
                   <th width="30"></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
+                  <th><?=$languageArray['do_po_no_code'][$language]?></th>
+                  <th><?=$languageArray['customer_supplier_code'][$language]?></th>
                   <th><?=$languageArray['start_time_code'][$language]?></th>
                   <th><?=$languageArray['transaction_status_code'][$language]?></th>
                   <th><?=$languageArray['items_code'][$language]?></th>
@@ -294,7 +296,10 @@ $(function() {
     defaultDate: new Date()
   });
 
-  $('.select2').select2({ allowClear: true, placeholder: "Please Select" });
+  $('.select2').select2({ 
+    allowClear: true, 
+    placeholder: "Please Select" 
+  });
 
   $('#productFilter').on('change', function() {
     var productName = $(this).find('option:selected').text();
@@ -427,6 +432,8 @@ function buildTable(){
         }
       },
       { data: 'serial_no' },
+      { data: 'po_no' },
+      { data: 'customer_supplier' },
       { data: 'start_time' },
       { data: 'status' },
       { data: 'item_count' }
