@@ -85,7 +85,7 @@ else{
   
   <style>
     body {
-      bbackground: url('assets/main-bg.jpg');
+      background: url('assets/main-bg.jpg');
       background-repeat: repeat;
       background-size: cover;
       background-position: center;
@@ -557,7 +557,8 @@ else{
       padding-bottom: 5px !important;
     }
 
-    .custom-content-detail, .custom-search-card-body, .custom-table-card-body {
+    .custom-content-detail, .custom-search-card-body, .custom-table-card-body,
+    .custom-table-content .custom-profile-box .custom-profile-body-box, .custom-form-card-body {
       padding: 25px;
     }
 
@@ -587,6 +588,13 @@ else{
       font-weight: 700;
       color: #fff;
       margin-bottom: 35px !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .custom-title i {
+      color: #D9A82D;
     }
 
     .custom-table-content {
@@ -594,7 +602,7 @@ else{
       padding-right: 0px !important;
     }
 
-    .custom-table-content .container-fluid .row .card {
+    .custom-table-content .container-fluid .row .card, .custom-table-content .custom-profile-box, .custom-main-card {
       margin-bottom: 25px;
       border: unset;
       border-radius: 5px;
@@ -602,20 +610,63 @@ else{
       box-shadow: 0px 0px 10px 0px rgba(227, 198, 106, 1);
     }
 
+    .custom-table-content #logoForm .custom-profile-box:first-child {
+      margin-top: 25px;
+    }
+
     .custom-table-content .container-fluid .row:last-child .card,
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination,
-    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination {
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-content #profileForm .custom-profile-box:last-child,
+    .custom-table-content #logoForm .custom-profile-box:last-child,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination, .custom-main-card,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination {
       margin-bottom: 0px;
+    }
+
+    .custom-model-body-box .card-body {
+      min-height: unset;
+      padding: 0px;
     }
 
     .custom-search-card-body .form-group,
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
     .custom-model-body-box .form-group,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-form-card-body .form-group,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
       margin-bottom: 15px;
     }
 
-    .custom-search-card-body .form-group label, .custom-model-body-box .form-group label {
+    .custom-search-card-body .form-group label, .custom-model-body-box .form-group label,
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group label,
+    .custom-form-card-body .form-group label {
       font-size: 16px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -627,7 +678,26 @@ else{
     .custom-search-card-body .form-group .form-control,
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
     .custom-model-body-box .form-group .form-control, .custom-model-body-box .custom-model-title-box-form,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-card-box .custom-card-box-body .custom-range-set-box .form-control,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .form-control,
+    .custom-tab-box .table-bordered tbody tr td .form-control,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .form-control,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-form-card-body .form-group .form-control,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
       height: 40px;
       background: #fff;
       color: #1a1a1a;
@@ -638,12 +708,32 @@ else{
       border: 1px solid #E3C66A;
       border-radius: 5px;
       padding: 10px;
+      box-shadow: unset;
     }
 
     .custom-search-card-body .form-group select.form-control,
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
     .custom-model-body-box .form-group select.form-control,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-card-box .custom-card-box-body .custom-range-set-box select.form-control,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td select.form-control,
+    .custom-tab-box .table-bordered tbody tr td select.form-control,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group select.form-control,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-form-card-body .form-group select.form-control,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control {
       -webkit-appearance: none;
       appearance: none;
       background-image: url(assets/chevron-down-solid-full.svg);
@@ -656,8 +746,41 @@ else{
     .custom-table-card-body #weightTable_wrapper .row:first-child #weightTable_filter label .form-control:focus,
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
     .custom-model-body-box .form-group .form-control:focus, .custom-model-body-box .custom-select:focus,
-    .custom-table-card-body #translationTable_wrapper .row:first-child #weightTable_filter label .form-control:focus,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus {
+    .custom-table-card-body #translationTable_wrapper .row:first-child #translationTable_filter label .form-control:focus,
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #stateTable_wrapper .row:first-child #stateTable_filter label .form-control:focus,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #currencyTable_wrapper .row:first-child #currencyTable_filter label .form-control:focus,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #supplierTable_wrapper .row:first-child #supplierTable_filter label .form-control:focus,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #categoryTable_wrapper .row:first-child #categoryTable_filter label .form-control:focus,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #packagingTable_wrapper .row:first-child #packagingTable_filter label .form-control:focus,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #customerTable_wrapper .row:first-child #customerTable_filter label .form-control:focus,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #productTable_wrapper .row:first-child #productTable_filter label .form-control:focus,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-card-box .custom-card-box-body .custom-range-set-box .form-control:focus,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .form-control:focus,
+    .custom-tab-box .table-bordered tbody tr td .form-control:focus,
+    .custom-table-card-body #driverTable_wrapper .row:first-child #driverTable_filter label .form-control:focus,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #vehicleTable_wrapper .row:first-child #vehicleTable_filter label .form-control:focus,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #gradeTable_wrapper .row:first-child #gradeTable_filter label .form-control:focus,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #locationTable_wrapper .row:first-child #locationTable_filter label .form-control:focus,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .form-control:focus,
+    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label .form-control:focus,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-form-card-body .form-group .form-control:focus,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label .form-control:focus,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+    .custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_filter label .form-control:focus,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus {
       border-color: #1a1a1a;
       box-shadow: unset;
     }
@@ -667,11 +790,38 @@ else{
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
     .custom-model-body-box .form-group .form-control::placeholder,
     .custom-model-body-box .form-group .select2-selection .select2-selection__rendered .select2-selection__placeholder,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-card-box .custom-card-box-body .custom-range-set-box .form-control::placeholder,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .form-control::placeholder,
+    .custom-tab-box .table-bordered tbody tr td .form-control::placeholder,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .form-control::placeholder,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-form-card-body .form-group .form-control::placeholder,
+    .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__placeholder,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder {
       color: rgba(26, 26, 26, .5);
     }
 
-    .custom-search-card-body .form-group .input-group-append .input-group-text {
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .form-control:read-only {
+      background: rgba(26, 26, 26, .05);
+    }
+
+    .custom-search-card-body .form-group .input-group-append .input-group-text,
+    .custom-card-box-body .form-group .input-group-append .input-group-text,
+    .custom-card-box-body .form-group .input-group-unit .input-group-text,
+    .custom-model-body-box .form-group .input-group-append .input-group-text {
       border: 1px solid #E3C66A;
       background: #E3C66A;
       color: #fff;
@@ -684,7 +834,54 @@ else{
       padding: 10px;
     }
 
-    .custom-search-card-body .form-group .select2-selection, .custom-model-body-box .form-group .select2-selection {
+    .custom-card-box-body .form-group .input-group-unit .input-group-text {
+      height: 40px;
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .input-group-prepend .input-group-text {
+      border: 1px solid #E3C66A;
+      background: #E3C66A;
+      color: #fff;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 400;
+      padding: 10px;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-body-box .form-group .input-group .form-control {
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+    }
+
+    .custom-table-content .custom-profile-box .img-thumbnail {
+      padding: 15px;
+      background-color: #fff;
+      border: 1px solid #E3C66A;
+      border-radius: 5px;
+      box-shadow: unset;
+      max-width: unset;
+      max-height: unset;
+      width: 100%;
+      height: 100%;
+    }
+
+    .custom-table-content .custom-profile-box .upload-img-notice, .custom-form-card-body .form-group .email-address-notice,
+    .custom-card-box-body .form-group .batch-txt-notice, .batch-txt-notice {
+      font-size: 12px;
+      line-height: 20px;
+      letter-spacing: 0.75px;
+      font-weight: 400;
+      color: #1a1a1a;
+    }
+
+    .custom-search-card-body .form-group .select2-selection, .custom-model-body-box .form-group .select2-selection,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection,
+    .custom-tab-box .table-bordered tbody tr td .select2-selection, .custom-form-card-body .form-group .select2-selection {
       font-size: 14px;
       line-height: 22px;
       letter-spacing: 0.75px;
@@ -697,28 +894,69 @@ else{
       background: #fff;
     }
 
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection,
+    .custom-tab-box .table-bordered tbody tr td .select2-selection {
+      height: 40px !important;
+      padding: 10px !important;
+    }
+
     .custom-search-card-body .form-group .select2-selection .select2-selection__rendered,
-    .custom-model-body-box .form-group .select2-selection .select2-selection__rendered {
+    .custom-model-body-box .form-group .select2-selection .select2-selection__rendered,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__rendered,
+    .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered,
+    .custom-form-card-body .form-group .select2-selection .select2-selection__rendered {
       margin-top: 0px;
       padding: 0px;
       line-height: 22px;
       color: #1a1a1a;
+      margin-bottom: 0px;
+    }
+
+    .custom-search-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline,
+    .custom-model-body-box .form-group .select2-selection .select2-selection__rendered .select2-search--inline,
+    .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline {
+      margin-left: 0px;
+    }
+
+    .custom-search-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field,
+    .custom-model-body-box .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field,
+    .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field {
+      margin-top: 0px;
+      padding: 0px;
+      position: relative;
+      top: -10px;
     }
 
     .custom-search-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__clear,
-    .custom-model-body-box .form-group .select2-selection .select2-selection__rendered .select2-selection__clear {
+    .custom-model-body-box .form-group .select2-selection .select2-selection__rendered .select2-selection__clear,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__rendered .select2-selection__clear,
+    .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered .select2-selection__clear,
+    .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__clear {
       z-index: 1;
+      right: 15px;
     }
 
     .custom-search-card-body .form-group .select2-selection .select2-selection__arrow,
-    .custom-model-body-box .form-group .select2-selection .select2-selection__arrow {
+    .custom-model-body-box .form-group .select2-selection .select2-selection__arrow,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
+    .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
+    .custom-form-card-body .form-group .select2-selection .select2-selection__arrow {
       height: 40px;
       right: 5px;
       top: -1px;
     }
 
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
+    .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow {
+      height: 40px !important;
+      padding-top: 0px !important;
+    }
+
     .custom-search-card-body .form-group .select2-selection .select2-selection__arrow b,
-    .custom-model-body-box .form-group .select2-selection .select2-selection__arrow b {
+    .custom-model-body-box .form-group .select2-selection .select2-selection__arrow b,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__arrow b,
+    .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow b,
+    .custom-form-card-body .form-group .select2-selection .select2-selection__arrow b {
       border-color: rgba(26, 26, 26, .5) transparent transparent transparent;
     }
 
@@ -774,9 +1012,10 @@ else{
       line-height: 22px;
       letter-spacing: 0.75px;
       font-weight: 700;
+      margin-top: 0px !important;
     }
 
-    .custom-search-btn:hover, .custom-reject-btn-icon:hover {
+    .custom-search-btn:hover, .custom-reject-btn-icon:hover, .custom-filter-btn-sm:hover {
       background: #C2410C;
       color: #fff;
     }
@@ -788,6 +1027,16 @@ else{
 
     .custom-card-header .custom-card-header-row {
       align-items: center;
+    }
+
+    .custom-card-header .custom-card-header-row .custom-card-header-btn-col {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+    }
+
+    .custom-card-header .custom-card-header-row .custom-card-header-btn-col .custom-card-header-btn-size {
+      width: 20%;
     }
 
     .custom-card-header-title {
@@ -815,6 +1064,7 @@ else{
       line-height: 22px;
       letter-spacing: 0.75px;
       font-weight: 700;
+      margin-top: 0px !important;
     }
 
     .custom-add-btn:hover, .custom-save-btn:hover, .custom-add-btn-sm:hover, .custom-check-btn-icon:hover {
@@ -824,8 +1074,36 @@ else{
 
     .custom-table-card-body #weightTable_wrapper .row:first-child #weightTable_length label,
     .custom-table-card-body #weightTable_wrapper .row:first-child #weightTable_filter label,
-    .custom-table-card-body #translationTable_wrapper .row:first-child #weightTable_length label,
-    .custom-table-card-body #translationTable_wrapper .row:first-child #weightTable_filter label {
+    .custom-table-card-body #translationTable_wrapper .row:first-child #translationTable_length label,
+    .custom-table-card-body #translationTable_wrapper .row:first-child #translationTable_filter label,
+    .custom-table-card-body #stateTable_wrapper .row:first-child #stateTable_length label,
+    .custom-table-card-body #stateTable_wrapper .row:first-child #stateTable_filter label,
+    .custom-table-card-body #currencyTable_wrapper .row:first-child #currencyTable_length label,
+    .custom-table-card-body #currencyTable_wrapper .row:first-child #currencyTable_filter label,
+    .custom-table-card-body #supplierTable_wrapper .row:first-child #supplierTable_length label,
+    .custom-table-card-body #supplierTable_wrapper .row:first-child #supplierTable_filter label,
+    .custom-table-card-body #categoryTable_wrapper .row:first-child #categoryTable_length label,
+    .custom-table-card-body #categoryTable_wrapper .row:first-child #categoryTable_filter label,
+    .custom-table-card-body #packagingTable_wrapper .row:first-child #packagingTable_length label,
+    .custom-table-card-body #packagingTable_wrapper .row:first-child #packagingTable_filter label,
+    .custom-table-card-body #customerTable_wrapper .row:first-child #customerTable_length label,
+    .custom-table-card-body #customerTable_wrapper .row:first-child #customerTable_filter label,
+    .custom-table-card-body #productTable_wrapper .row:first-child #productTable_length label,
+    .custom-table-card-body #productTable_wrapper .row:first-child #productTable_filter label,
+    .custom-table-card-body #driverTable_wrapper .row:first-child #driverTable_length label,
+    .custom-table-card-body #driverTable_wrapper .row:first-child #driverTable_filter label,
+    .custom-table-card-body #vehicleTable_wrapper .row:first-child #vehicleTable_length label,
+    .custom-table-card-body #vehicleTable_wrapper .row:first-child #vehicleTable_filter label,
+    .custom-table-card-body #gradeTable_wrapper .row:first-child #gradeTable_length label,
+    .custom-table-card-body #gradeTable_wrapper .row:first-child #gradeTable_filter label,
+    .custom-table-card-body #locationTable_wrapper .row:first-child #locationTable_length label,
+    .custom-table-card-body #locationTable_wrapper .row:first-child #locationTable_filter label,
+    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_length label,
+    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_length label,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label,
+    .custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_length label,
+    .custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_filter label {
       display: flex;
       align-items: center;
       gap: 15px;
@@ -840,7 +1118,21 @@ else{
 
     .custom-table-card-body .custom-select, 
     .custom-table-card-body #weightTable_wrapper .row:first-child #weightTable_filter label .form-control,
-    .custom-table-card-body #translationTable_wrapper .row:first-child #weightTable_filter label .form-control {
+    .custom-table-card-body #translationTable_wrapper .row:first-child #translationTable_filter label .form-control,
+    .custom-table-card-body #stateTable_wrapper .row:first-child #stateTable_filter label .form-control,
+    .custom-table-card-body #currencyTable_wrapper .row:first-child #currencyTable_filter label .form-control,
+    .custom-table-card-body #supplierTable_wrapper .row:first-child #supplierTable_filter label .form-control,
+    .custom-table-card-body #categoryTable_wrapper .row:first-child #categoryTable_filter label .form-control,
+    .custom-table-card-body #packagingTable_wrapper .row:first-child #packagingTable_filter label .form-control,
+    .custom-table-card-body #customerTable_wrapper .row:first-child #customerTable_filter label .form-control,
+    .custom-table-card-body #productTable_wrapper .row:first-child #productTable_filter label .form-control,
+    .custom-table-card-body #driverTable_wrapper .row:first-child #driverTable_filter label .form-control,
+    .custom-table-card-body #vehicleTable_wrapper .row:first-child #vehicleTable_filter label .form-control,
+    .custom-table-card-body #gradeTable_wrapper .row:first-child #gradeTable_filter label .form-control,
+    .custom-table-card-body #locationTable_wrapper .row:first-child #locationTable_filter label .form-control,
+    .custom-table-card-body #memberTable_wrapper .row:first-child #memberTable_filter label .form-control,
+    .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label .form-control,
+    .custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_filter label .form-control {
       height: 40px;
       padding: 10px;
       border: 1px solid #E3C66A;
@@ -854,12 +1146,27 @@ else{
       font-weight: 400;
     }
 
-    .custom-model-body-box .form-group .custom-remarks-txtarea {
+    .custom-model-body-box .form-group .custom-remarks-txtarea, .custom-model-body-box .form-group .custom-description-txtarea,
+    .custom-model-body-box .form-group .custom-remark-txtarea, .custom-model-body-box .form-group .custom-reason-txtarea {
       height: 80px;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered, .custom-model-body-box .custom-add-table-detail,
-    .custom-table-card-body #translationTable_wrapper .table-bordered {
+    .custom-table-card-body #translationTable_wrapper .table-bordered,
+    .custom-table-card-body #stateTable_wrapper .table-bordered,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered,
+    .custom-table-card-body #customerTable_wrapper .table-bordered,
+    .custom-table-card-body #productTable_wrapper .table-bordered, .custom-tab-box .table-bordered,
+    .custom-table-card-body #driverTable_wrapper .table-bordered,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered,
+    .custom-table-card-body #locationTable_wrapper .table-bordered,
+    .custom-table-card-body #memberTable_wrapper .table-bordered,
+    .custom-table-card-body #pvTable_wrapper .table-bordered,
+    .custom-table-card-body #transferTable_wrapper .table-bordered {
       margin-top: 10px;
       margin-bottom: 25px;
       border: 1px solid #D9A82D;
@@ -874,7 +1181,23 @@ else{
 
     .custom-table-card-body #weightTable_wrapper .table-bordered thead th,
     .custom-model-body-box .custom-add-table-detail thead th,
-    .custom-table-card-body #translationTable_wrapper .table-bordered thead th {
+    .custom-table-card-body #translationTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #stateTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #customerTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #productTable_wrapper .table-bordered thead th,
+    .custom-card-box .custom-card-box-body .table-bordered thead th,
+    .custom-model-body-box .tab-content .table-bordered thead th, .custom-tab-box .table-bordered thead th,
+    .custom-table-card-body #driverTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #locationTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #memberTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #pvTable_wrapper .table-bordered thead th,
+    .custom-table-card-body #transferTable_wrapper .table-bordered thead th {
       background: #D9A82D;
       color: #fff;
       font-size: 16px;
@@ -890,31 +1213,114 @@ else{
 
     .custom-table-card-body #weightTable_wrapper .table-bordered thead th:first-child,
     .custom-model-body-box .custom-add-table-detail thead th:first-child,
-    .custom-table-card-body #translationTable_wrapper .table-bordered thead th:first-child {
+    .custom-table-card-body #translationTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #stateTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #customerTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #productTable_wrapper .table-bordered thead th:first-child,
+    .custom-card-box .custom-card-box-body .table-bordered thead th:first-child,
+    .custom-model-body-box .tab-content .table-bordered thead th:first-child,
+    .custom-tab-box .table-bordered thead th:first-child,
+    .custom-table-card-body #driverTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #locationTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #memberTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #pvTable_wrapper .table-bordered thead th:first-child,
+    .custom-table-card-body #transferTable_wrapper .table-bordered thead th:first-child {
       border-left: 1px solid #D9A82D;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered thead th:last-child,
     .custom-model-body-box .custom-add-table-detail thead th:last-child,
-    .custom-table-card-body #translationTable_wrapper .table-bordered thead th:last-child {
+    .custom-table-card-body #translationTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #stateTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #customerTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #productTable_wrapper .table-bordered thead th:last-child,
+    .custom-card-box .custom-card-box-body .table-bordered thead th:last-child,
+    .custom-model-body-box .tab-content .table-bordered thead th:last-child, .custom-tab-box .table-bordered thead th:last-child,
+    .custom-table-card-body #driverTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #locationTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #memberTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #pvTable_wrapper .table-bordered thead th:last-child,
+    .custom-table-card-body #transferTable_wrapper .table-bordered thead th:last-child {
       border-right: 1px solid #D9A82D;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
     .custom-model-body-box .custom-add-table-detail tbody tr:nth-of-type(odd),
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody tr:nth-of-type(odd) {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr:nth-of-type(odd),
+    .custom-model-body-box .tab-content .table-bordered tbody tr:nth-of-type(odd),
+    .custom-tab-box .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody tr:nth-of-type(odd) {
       background: rgba(26, 26, 26, .15);
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody tr:nth-of-type(even),
     .custom-model-body-box .custom-add-table-detail tbody tr:nth-of-type(even),
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody tr:nth-of-type(even) {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr:nth-of-type(even),
+    .custom-model-body-box .tab-content .table-bordered tbody tr:nth-of-type(even),
+    .custom-tab-box .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody tr:nth-of-type(even) {
       background: #fff;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody tr td,
     .custom-model-body-box .custom-add-table-detail tbody tr td,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody tr td {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody tr td,
+    .custom-card-box .custom-card-box-body .table-bordered tbody tr td,
+    .custom-model-body-box .tab-content .table-bordered tbody tr td, .custom-tab-box .table-bordered tbody tr td,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr td,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody tr td {
       padding: 10px;
       border: 1px solid #D9A82D;
       font-size: 14px;
@@ -924,14 +1330,42 @@ else{
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-title-box,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-title-box {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title-box {
       padding-top: 15px;
       padding-left: 15px;
       padding-right: 15px;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt {
       margin-bottom: 25px;
       font-size: 16px;
       line-height: 24px;
@@ -942,7 +1376,21 @@ else{
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-content-box,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-content-box {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box {
       padding-left: 15px;
       padding-right: 15px;
     }
@@ -950,13 +1398,55 @@ else{
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
     .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12 {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12 {
       padding-left: 0px;
       padding-right: 0px;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt {
       font-size: 14px;
       line-height: 22px;
       letter-spacing: 0.75px;
@@ -967,14 +1457,44 @@ else{
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-hr,
     .custom-model-body-box .custom-model-body-hr, .custom-model-body-box .custom-inner-hr,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-hr {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-model-body-box .custom-model-inner-line,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-form-card-body .custom-form-card-hr,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-hr,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-hr {
       margin-top: 10px;
       margin-bottom: 25px;
       border-top: 1px solid #E3C66A;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-title,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-title {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title {
       margin-bottom: 25px;
       padding-left: 10px;
       padding-right: 10px;
@@ -987,13 +1507,41 @@ else{
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box {
       padding-left: 7.5px;
       padding-right: 7.5px;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered {
       margin-top: 0px;
       margin-bottom: 15px;
       margin-left: 15px;
@@ -1005,14 +1553,56 @@ else{
     .custom-model-body-box .custom-add-table-detail tfoot tr:nth-of-type(odd),
     .custom-model-body-box .custom-add-table-detail tfoot tr:nth-of-type(even),
     .custom-table-card-body #translationTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
-    .custom-table-card-body #translationTable_wrapper .table-bordered tfoot tr:nth-of-type(even) {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #stateTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #stateTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #customerTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #customerTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #productTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #productTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #driverTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #driverTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #locationTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #locationTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+    .custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+    .custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr:nth-of-type(even) {
       background: rgba(227, 198, 106, .25);
       border: 1px solid #D9A82D;
     }
 
     .custom-table-card-body #weightTable_wrapper .table-bordered tfoot tr th,
     .custom-model-body-box .custom-add-table-detail tfoot tr th,
-    .custom-table-card-body #translationTable_wrapper .table-bordered tfoot tr th {
+    .custom-table-card-body #translationTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #stateTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #currencyTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #supplierTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #categoryTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #packagingTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #customerTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #productTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #driverTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #vehicleTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #gradeTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #locationTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr th,
+    .custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr th {
       border: 1px solid #D9A82D;
       padding: 10px;
       font-size: 14px;
@@ -1029,7 +1619,7 @@ else{
       background: #F9F7F2;
     }
 
-    .custom-model-header-box, .custom-model-fotter-box {
+    .custom-model-header-box, .custom-model-fotter-box, .custom-form-card-footer {
       background: linear-gradient(135deg, rgba(246, 213, 74, 1) 0%, rgba(255, 243, 199, 1) 50%, rgba(217, 168, 45, 1) 100%);
       padding: 25px;
       align-items: center;
@@ -1041,6 +1631,9 @@ else{
       letter-spacing: 0.75px;
       font-weight: 700;
       color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
 
     .custom-btn-close-icon {
@@ -1061,6 +1654,7 @@ else{
 
     .custom-model-body-box {
       padding: 25px;
+      background: #F9F7F2;
     }
 
     .custom-model-fotter-box {
@@ -1078,9 +1672,13 @@ else{
       line-height: 22px;
       letter-spacing: 0.75px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
-    .custom-close-btn:hover, .custom-delete-btn-sm:hover, .custom-delete-btn-icon:hover {
+    .custom-close-btn:hover, .custom-delete-btn-sm:hover, .custom-delete-btn-icon:hover, .custom-delete-btn:hover,
+    .custom-remove-btn-sm:hover {
       background: #B91C1C;
       color: #fff;
     }
@@ -1096,6 +1694,9 @@ else{
       line-height: 22px;
       letter-spacing: 0.75px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .custom-model-title-box .custom-model-title-box-txt {
@@ -1137,6 +1738,23 @@ else{
       height: 40px;
     }
 
+    .custom-view-btn-sm {
+      padding: 5px 15px;
+      border: unset;
+      border-radius: 5px;
+      background: #06B6D4;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      height: 40px;
+    }
+
     .custom-delete-btn-sm {
       padding: 5px 15px;
       border: unset;
@@ -1153,6 +1771,47 @@ else{
       font-weight: 700;
       height: 40px;
       margin-bottom: 15px;
+    }
+
+    .custom-filter-btn-sm {
+      padding: 5px 15px;
+      border: unset;
+      border-radius: 5px;
+      background: #EA580C;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      height: 40px;
+    }
+
+    .custom-table-card-body #weightTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #translationTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #stateTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #currencyTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #supplierTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #categoryTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #packagingTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #customerTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #productTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #driverTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #vehicleTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #gradeTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #locationTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #memberTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #pvTable_wrapper .custom-tbl-btn-icon,
+    .custom-table-card-body #transferTable_wrapper .custom-tbl-btn-icon {
+      flex-direction: row !important;
+      gap: 5px;
+      justify-content: flex-start;
+      align-items: center;
+      margin-left: 0px;
+      margin-right: 0px;
     }
 
     .custom-edit-btn-icon {
@@ -1205,7 +1864,7 @@ else{
       line-height: 20px;
     }
 
-    .custom-receipt-btn-icon:hover, .custom-view-btn-icon:hover {
+    .custom-receipt-btn-icon:hover, .custom-view-btn-icon:hover, .custom-preview-btn:hover, .custom-view-btn-sm:hover {
       background: #0891B2;
       color: #fff;
     }
@@ -1224,16 +1883,7 @@ else{
       line-height: 22px;
       letter-spacing: 0.75px;
       font-weight: 700;
-    }
-
-    .custom-table-card-body #weightTable_wrapper .custom-tbl-btn-icon,
-    .custom-table-card-body #translationTable_wrapper .custom-tbl-btn-icon {
-      flex-direction: row !important;
-      gap: 5px;
-      justify-content: flex-start;
-      align-items: center;
-      margin-left: 0px;
-      margin-right: 0px;
+      margin-top: 0px !important;
     }
 
     .custom-reject-btn-icon {
@@ -1256,12 +1906,417 @@ else{
       line-height: 20px;
     }
 
-    .custom-table-card-body #weightTable_wrapper .row:last-child, .custom-table-card-body #translationTable_wrapper .row:last-child {
+    .custom-delete-btn {
+      padding: 10px 25px;
+      border: unset;
+      border-radius: 5px;
+      background: #DC2626;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      margin-top: 0px !important;
+    }
+
+    .custom-upload-btn {
+      padding: 10px 25px;
+      border: unset;
+      border-radius: 5px;
+      background: #2563EB;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      margin-top: 0px !important;
+    }
+
+    .custom-upload-btn:hover, .custom-upload-logo-btn:hover {
+      background: #1D4ED8;
+      color: #fff;
+    }
+
+    .custom-preview-btn {
+      padding: 10px 25px;
+      border: unset;
+      border-radius: 5px;
+      background: #06B6D4;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      margin-top: 0px !important;
+    }
+
+    .custom-preview-model-box {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .custom-preview-field {
+      color: #1a1a1a;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 400;
+    }
+
+    .custom-model-body-box .custom-model-inner-title, .custom-form-card-body .custom-form-card-title {
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      text-decoration: underline;
+      color: #D9A82D;
+    }
+
+    .custom-model-body-box .custom-card-box {
+      box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, .5);
+      border-top: 5px solid #1E3A8A;
+      border-radius: 1px;
+      background: #fff;
+      margin-bottom: 25px;
+    }
+
+    .custom-model-body-box .custom-card-product-info-box, .custom-table-content .custom-profile-box .custom-profile-header-box {
+      border-top: 5px solid #1E3A8A;
+    }
+
+    .custom-model-body-box .custom-card-product-image-box {
+      border-top: 5px solid #7C3AED;
+    }
+
+    .custom-model-body-box .custom-card-range-box {
+      border-top: 5px solid #0F766E;
+    }
+
+    .custom-model-body-box .custom-card-grade-box {
+      border-top: 5px solid #B45309;
+    }
+
+    .custom-model-body-box .custom-card-box-header, .custom-table-content .custom-profile-box .custom-profile-header-box {
+      padding: 10px 25px;
+      border-bottom: 1px solid #E3C66A;
+    }
+
+    .custom-model-body-box .custom-card-range-box .custom-card-box-header,
+    .custom-model-body-box .custom-card-grade-box .custom-card-box-header {
+      display: flex;
+    }
+
+    .custom-model-body-box .custom-card-box-header-title, .custom-table-content .custom-profile-box .custom-profile-title {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 18px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0px;
+    }
+
+    .custom-card-box .custom-card-box-body {
+      padding: 25px;
+    }
+
+    .custom-card-box .custom-card-box-body .product-img-drop-zone {
+      border: 2.5px dashed #E3C66A;
+      border-radius: 5px;
+      padding: 25px;
+      text-align: center;
+      cursor: pointer;
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    .custom-card-box .custom-card-box-body .product-img-drop-zone i,
+    .custom-card-box .custom-card-box-body .product-img-placeholder i {
+      font-size: 50px;
+      margin-bottom: 15px;
+    }
+
+    .custom-card-box .custom-card-box-body .product-img-drop-zone .product-img-drop-zone-txt-1 {
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 400;
+      margin-bottom: 5px;
+    }
+
+    .custom-card-box .custom-card-box-body .product-img-drop-zone .product-img-drop-zone-txt-2,
+    .custom-card-box .custom-card-box-body .product-img-placeholder .product-img-placeholder-txt {
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      margin-bottom: 0px;
+    }
+
+    .custom-card-box .custom-card-box-body .product-image-preview .product-image-thumbnail {
+      max-height: 200px;
+      max-width: 100%;
+      border-radius: 5px;
+      object-fit: contain;
+    }
+
+    .custom-card-box .custom-card-box-body .product-image-btn-box {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .custom-remove-btn-sm {
+      padding: 5px 15px;
+      border: unset;
+      border-radius: 5px;
+      background: #DC2626;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+    }
+
+    .custom-card-box .custom-card-box-body .custom-range-set-box {
+      margin-bottom: 15px;
+    }
+
+    .custom-card-box .custom-card-box-body .custom-range-set-box .custom-range-set-label {
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0px;
+    }
+
+    .custom-card-box .custom-card-box-body .custom-range-set-box .form-control.custom-range-set-weight-1 {
+      background: rgba(40, 167, 69, 0.25);
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .custom-card-box .custom-card-box-body .custom-range-set-box .form-control.custom-range-set-weight-2 {
+      background: rgba(255, 193, 7, 0.25);
+      color: #856404;
+      border: 1px solid #ffc107;
+    }
+
+    .custom-card-box .custom-card-box-body .custom-range-set-box .form-control.custom-range-set-weight-3 {
+      background: rgba(220, 53, 69, 0.2);
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    .custom-card-box .custom-card-box-body .table-bordered,
+    .custom-model-body-box .tab-content .table-bordered {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      border: 1px solid #D9A82D;
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    .custom-card-box .custom-card-box-header-title .badge {
+      background: #1a1a1a;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      line-height: 20px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      padding: 5px;
+      border-radius: 5px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .custom-model-body-box .custom-tab-btn-box {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .custom-model-body-box .custom-tab-nav {
+      margin-bottom: 25px;
+      border-bottom: unset;
+    }
+
+    .custom-model-body-box .custom-tab-nav .nav-item {
+      margin-right: 15px;
+    }
+
+    .custom-model-body-box .custom-tab-nav .nav-item:last-child {
+      margin-right: 0px;
+    }
+
+    .custom-model-body-box .custom-tab-nav .nav-item .nav-link {
+      margin-bottom: 0px;
+      border: 1px solid #1a1a1a;
+      border-radius: 5px;
+      padding: 10px 25px;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 18px;
+      line-height: 24px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+    }
+
+    .custom-model-body-box .custom-tab-nav .nav-item .nav-link:hover,
+    .custom-model-body-box .custom-tab-nav .nav-item .nav-link.active {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-header-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-title {
+      width: 50%;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-btn {
+      display: flex;
+      justify-content: flex-end;
+      width: 50%;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-footer-box {
+      background: linear-gradient(135deg, rgba(246, 213, 74, 1) 0%, rgba(255, 243, 199, 1) 50%, rgba(217, 168, 45, 1) 100%);
+      padding: 10px 25px;
+      align-items: center;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-body-box .custom-file-label {
+      height: 40px;
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 400;
+      border: 1px solid #E3C66A;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      padding: 10px;
+      margin-bottom: 0px;
+    }
+
+    .custom-table-content .custom-profile-box .custom-profile-body-box .custom-file-label:after {
+      height: 40px;
+      background: #E3C66A;
+      color: #1a1a1a;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 400;
+      padding: 10px;
+      border-radius: 0px;
+    }
+
+    .custom-upload-logo-btn {
+      height: 40px;
+      background: #2563EB;
+      color: #fff;
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: 0.75px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .custom-form-card-footer {
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+
+    .custom-table-card-body #weightTable_wrapper .row:last-child, 
+    .custom-table-card-body #translationTable_wrapper .row:last-child,
+    .custom-table-card-body #stateTable_wrapper .row:last-child,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child,
+    .custom-table-card-body #customerTable_wrapper .row:last-child,
+    .custom-table-card-body #productTable_wrapper .row:last-child,
+    .custom-table-card-body #driverTable_wrapper .row:last-child,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child,
+    .custom-table-card-body #locationTable_wrapper .row:last-child,
+    .custom-table-card-body #memberTable_wrapper .row:last-child,
+    .custom-table-card-body #pvTable_wrapper .row:last-child,
+    .custom-table-card-body #transferTable_wrapper .row:last-child {
       flex-direction: column;
     }
 
+    .custom-table-card-body #weightTable_wrapper .row:last-child .col-sm-12, 
+    .custom-table-card-body #translationTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #productTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .col-sm-12,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .col-sm-12 {
+      max-width: unset;
+    }
+
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_info,
-    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_info {
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_info,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_info {
       font-size: 16px;
       line-height: 24px;
       letter-spacing: 0.75px;
@@ -1271,26 +2326,82 @@ else{
     }
 
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
-    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a {
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a {
       background: #fff;
       color: rgba(26, 26, 26, .5);
       border: 1px solid rgba(26, 26, 26, .5);
     }
 
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
-    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a {
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a {
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
     }
 
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
-    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a {
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a {
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
     }
 
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
-    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a {
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a {
       background: #fff;
       color: #1a1a1a;
       border: 1px solid rgba(26, 26, 26, .5);
@@ -1303,10 +2414,57 @@ else{
       margin-left: -1px;
     }
 
+    .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus {
+      box-shadow: unset;
+    }
+
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
     .custom-table-card-body #weightTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
     .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
-    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a {
+    .custom-table-card-body #translationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #stateTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #currencyTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #supplierTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #categoryTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #packagingTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #customerTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #productTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #driverTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #vehicleTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #gradeTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+    .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a {
       background: #1a1a1a;
       color: #fff;
     }
