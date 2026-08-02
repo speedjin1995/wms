@@ -846,7 +846,7 @@ $(function () {
             buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
           }
           buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-          if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+          if(allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
             buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
           }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
@@ -965,7 +965,7 @@ $(function () {
               buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
             }
             buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-            if(allowInvoice == 'Y' && row.status == 'DISPATCH'){
+            if(allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
               buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
