@@ -523,6 +523,16 @@ else{
                 </select>
               </div>
             </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label><?=$languageArray['payment_method_code'][$language]?></label>
+                <select class="form-control select2" id="paymentMethod" name="paymentMethod">
+                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                  <option value="Cash"><?=$languageArray['cash_code'][$language]?></option>
+                  <option value="Bank Transfer"><?=$languageArray['bank_transfer_code'][$language]?></option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="row">
@@ -1734,45 +1744,46 @@ function format (row) {
   var returnString = `
   <!-- Wholesale Information -->
   <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;">Wholesale Order Information</strong></span>
+    <p><span><strong style="font-size:120%; text-decoration: underline;"><?=$languageArray['wholesale_order_information_code'][$language]?></strong></span>
   </div>
   <div class="row">
     <div class="col-6">
-      <p><strong>Serial No:</strong> ${row.serial_no}</p>
-      <p><strong>Parent:</strong> ${row.parent}</p>
-      <p><strong>Customer/Supplier:</strong> ${row.customer_supplier}</p>
-      <p><strong>Security Bill No:</strong> ${row.security_bills || ''}</p>
-      <p><strong>PO No:</strong> ${row.po_no}</p>
-      <p><strong>Vehicle:</strong> ${row.vehicle_no}</p>
-      <p><strong>Driver:</strong> ${row.driver}</p>
+      <p><strong><?=$languageArray['serial_no_code'][$language]?>:</strong> ${row.serial_no}</p>
+      <p><strong><?=$languageArray['parent_code'][$language]?>:</strong> ${row.parent}</p>
+      <p><strong><?=$languageArray['customer_supplier_code'][$language]?>:</strong> ${row.customer_supplier}</p>
+      <p><strong><?=$languageArray['sec_bill_no_code'][$language]?>:</strong> ${row.security_bills || ''}</p>
+      <p><strong><?=$languageArray['do_po_no_code'][$language]?>:</strong> ${row.po_no}</p>
+      <p><strong><?=$languageArray['vehicle_no_code'][$language]?>:</strong> ${row.vehicle_no}</p>
+      <p><strong><?=$languageArray['driver_code'][$language]?>:</strong> ${row.driver}</p>
+      <p><strong><?=$languageArray['payment_method_code'][$language]?>:</strong> ${row.payment_method || ''}</p>
     </div>
     <div class="col-6">
-      <p><strong>Weighted By:</strong> ${row.weighted_by}</p>
-      <p><strong>Checked By:</strong> ${row.checked_by || ''}</p>
-      <p><strong>Category:</strong> ${row.category_name || ''}</p>
-      <p><strong>Location:</strong> ${row.location_name || ''}</p>
-      <p><strong>Total Item:</strong> ${row.totalItems}</p>
-      <p><strong>Total Weight:</strong> ${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'}</p>
-      <p><strong>Total Reject:</strong> ${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'}</p>
-      ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.totalPrice).toFixed(2) + '</p>' : ''}
+      <p><strong><?=$languageArray['weighed_by_code'][$language]?>:</strong> ${row.weighted_by}</p>
+      <p><strong><?=$languageArray['checked_by_code'][$language]?>:</strong> ${row.checked_by || ''}</p>
+      <p><strong><?=$languageArray['category_name_code'][$language]?>:</strong> ${row.category_name || ''}</p>
+      <p><strong><?=$languageArray['locations_code'][$language]?>:</strong> ${row.location_name || ''}</p>
+      <p><strong><?=$languageArray['total_item_code'][$language]?>:</strong> ${row.totalItems}</p>
+      <p><strong><?=$languageArray['total_weight_code'][$language]?>:</strong> ${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'}</p>
+      <p><strong><?=$languageArray['total_reject_code'][$language]?>:</strong> ${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'}</p>
+      ${allowPrice == 'Y' ? '<p><strong><?=$languageArray['total_price_code'][$language]?>:</strong> RM ' + parseFloat(row.totalPrice).toFixed(2) + '</p>' : ''}
     </div>
   </div>
   <div class="row">
     <div class="col-12">
-      <p><strong>Remarks:</strong> ${row.remark || ''}</p>
+      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remark || ''}</p>
     </div>
   </div>
   <hr>
-  <h3>Weighing Details</h3>
+  <h3><?=$languageArray['weighing_details_code'][$language]?></h3>
   <div class="row mb-2">
     <div class="col-md-3">
       <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value="">All Products</option>
+        <option value=""><?=$languageArray['all_products_code'][$language]?></option>
       </select>
     </div>
     <div class="col-md-3">
       <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value="">All Grades</option>
+        <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
       </select>
     </div>
   </div>
@@ -1780,14 +1791,14 @@ function format (row) {
     <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
       <thead>
           <tr>
-            <th>Product</th>
-            <th>Grade</th>
-            <th>Gross</th>
-            <th>Tare</th>
-            <th>Net</th>
-            ${allowPrice == 'Y' ? '<th>Currency</th><th>Price</th><th>Total</th>' : ''}            
-            <th>Time</th>
-            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
+            <th><?=$languageArray['product_code'][$language]?></th>
+            <th><?=$languageArray['grade_code'][$language]?></th>
+            <th><?=$languageArray['gross_code'][$language]?></th>
+            <th><?=$languageArray['tare_code'][$language]?></th>
+            <th><?=$languageArray['net_code'][$language]?></th>
+            ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th><?=$languageArray['price_code'][$language]?></th><th><?=$languageArray['total_code'][$language]?></th>' : ''}            
+            <th><?=$languageArray['time_code'][$language]?></th>
+            ${allowPhoto == 'Y' ? '<th><?=$languageArray['photo_code'][$language]?></th>' : ''}
           </tr>
       </thead>
       <tbody>`;
@@ -1822,7 +1833,7 @@ function format (row) {
       </tbody>
       <tfoot>
         <tr>
-          <th colspan="2">Total</th>
+          <th colspan="2"><?=$languageArray['total_code'][$language]?></th>
           <th>${totalWeightGross.toFixed(2)}</th>
           <th>${totalWeightTare.toFixed(2)}</th>
           <th>${totalWeightNet.toFixed(2)}</th>
@@ -1834,19 +1845,19 @@ function format (row) {
   </div>
 
   <hr>
-  <h3>Reject Details</h3>
+  <h3><?=$languageArray['reject_details_code'][$language]?></h3>
   <div class="row">
     <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
       <thead>
           <tr>
-            <th>Product</th>
-            <th>Grade</th>
-            <th>Gross</th>
-            <th>Tare</th>
-            <th>Net</th>
-            ${allowPrice == 'Y' ? '<th>Currency</th><th>Price</th><th>Total</th>' : ''}
-            <th>Time</th>
-            ${allowPhoto == 'Y' ? '<th>Photo</th>' : ''}
+            <th><?=$languageArray['product_code'][$language]?></th>
+            <th><?=$languageArray['grade_code'][$language]?></th>
+            <th><?=$languageArray['gross_code'][$language]?></th>
+            <th><?=$languageArray['tare_code'][$language]?></th>
+            <th><?=$languageArray['net_code'][$language]?></th>
+            ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th><?=$languageArray['price_code'][$language]?></th><th><?=$languageArray['total_code'][$language]?></th>' : ''}
+            <th><?=$languageArray['time_code'][$language]?></th>
+            ${allowPhoto == 'Y' ? '<th><?=$languageArray['photo_code'][$language]?></th>' : ''}
           </tr>
       </thead>
       <tbody>`;
@@ -1881,7 +1892,7 @@ function format (row) {
       </tbody>
       <tfoot>
         <tr>
-          <th colspan="2">Total</th>
+          <th colspan="2"><?=$languageArray['total_code'][$language]?></th>
           <th>${totalRejectGross.toFixed(2)}</th>
           <th>${totalRejectTare.toFixed(2)}</th>
           <th>${totalRejectNet.toFixed(2)}</th>
@@ -1900,6 +1911,7 @@ function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
   $('#extendModal').find('#category').val("").trigger('change');
+  $('#extendModal').find('#paymentMethod').val("").trigger('change');
   $('#extendModal').find('#status').val("DISPATCH").trigger('change');
   $('#extendModal').find('#doPoNo').val("");
   $('#extendModal').find('#securityBillNo').val("");
@@ -1988,6 +2000,7 @@ function edit(id) {
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#serialNo').val(obj.message.serial_no);
       $('#extendModal').find('#category').val(obj.message.category).trigger('change');
+      $('#extendModal').find('#paymentMethod').val(obj.message.payment_method).trigger('change');
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
