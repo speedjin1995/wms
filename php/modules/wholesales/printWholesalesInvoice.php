@@ -316,7 +316,6 @@ if(isset($_GET['id'])){
                                     <div class="addr-line">' . $billToAddr3 . '</div>
                                     <br>
                                     <br>
-                                    <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $billToAttn . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $billToTel . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value">' . $billToFax . '</span></div>
@@ -327,7 +326,6 @@ if(isset($_GET['id'])){
                                     <div class="addr-line">' . $deliverToAddr1 . '</div>
                                     <div class="addr-line">' . $deliverToAddr2 . '</div>
                                     <div class="addr-line">' . $deliverToAddr3 . '</div>
-                                    <br>
                                     <br>
                                     <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToAttn . '</span></div>
@@ -352,7 +350,7 @@ if(isset($_GET['id'])){
                                     <div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value">' . $time . '</span></div>
                                     <div class="so-detail"><span class="so-label">Weight Slip No</span><span class="so-colon">:</span><span class="so-value">' . $slipNo . '</span></div>
                                     <div class="so-detail"><span class="so-label">Vehicle No</span><span class="so-colon">:</span><span class="so-value">' . $vehicleNo . '</span></div>
-                                    <div class="so-detail"><span class="so-label">Price Status</span><span class="so-colon">:</span><span class="so-value">' . $priceStatus . '</span></div>
+                                    <!--div class="so-detail"><span class="so-label">Price Status</span><span class="so-colon">:</span><span class="so-value">' . $priceStatus . '</span></div-->
                                     <div class="so-detail"><span class="so-label">Weight by</span><span class="so-colon">:</span><span class="so-value">' . $weightBy . '</span></div>
                                     <div class="so-detail"><span class="so-label">Pages</span><span class="so-colon">:</span><span class="so-value"><span class="page-current"></span> - <span class="page-total"></span></span></div>
                                 </div>
