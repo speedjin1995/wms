@@ -339,6 +339,15 @@ else{
           </div>
 
           <div class="card-body">
+            <div class="mb-2">
+              <div class="dropdown d-inline-block">
+                <button class="btn btn-success btn-sm dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
+                </button>
+                <div class="dropdown-menu p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;">
+                </div>
+              </div>
+            </div>
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
@@ -749,6 +758,23 @@ var allowPhoto = '<?=$allowPhoto?>';
 var allowPrice = '<?=$allowPrice?>';
 var allowInvoice = '<?=$allowInvoice?>';
 var userLocation = '<?=$userLocationId?>';
+var columnNames = [
+  '<?=$languageArray['serial_no_code'][$language]?>',
+  '<?=$languageArray['do_po_no_code'][$language]?>',
+  '<?=$languageArray['sec_bill_no_code'][$language]?>',
+  '<?=$languageArray['start_time_code'][$language]?>',
+  '<?=$languageArray['end_time_code'][$language]?>',
+  '<?=$languageArray['parent_code'][$language]?>',
+  '<?=$languageArray['customer_supplier_code'][$language]?>',
+  '<?=$languageArray['vehicle_no_code'][$language]?>',
+  '<?=$languageArray['driver_code'][$language]?>',
+  '<?=$languageArray['total_item_code'][$language]?>',
+  '<?=$languageArray['total_weight_code'][$language]?>',
+  allowPrice == 'Y' ? 'Total Price' : '<?=$languageArray['total_reject_code'][$language]?>',
+  '<?=$languageArray['weighed_by_code'][$language]?>',
+  '<?=$languageArray['checked_by_code'][$language]?>'
+  <?php if ($secRemarksExists) { ?>,'<?=$languageArray['second_remarks_code'][$language]?>'<?php } ?>
+];
 
 $(function () {
   $('#uomhidden').hide();
@@ -789,6 +815,9 @@ $(function () {
         dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
     });
   });
+
+  // Build column toggle menu
+  buildColumnToggleMenu();
 
   var fromDateI = $('#fromDate').val();
   var toDateI = $('#toDate').val();
@@ -988,7 +1017,7 @@ $(function () {
           }
         }
       ]
-    });
+      });
   });
 
   // $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
@@ -1744,86 +1773,201 @@ function applyCustomerCurrency(currencyId) {
 
 function format (row) {
   var returnString = `
-  <!-- Wholesale Information -->
-  <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;"><?=$languageArray['wholesale_order_information_code'][$language]?></strong></span>
-  </div>
-  <div class="row">
-    <div class="col-6">
-      <p><strong><?=$languageArray['serial_no_code'][$language]?>:</strong> ${row.serial_no}</p>
-      <p><strong><?=$languageArray['parent_code'][$language]?>:</strong> ${row.parent}</p>
-      <p><strong><?=$languageArray['customer_supplier_code'][$language]?>:</strong> ${row.customer_supplier}</p>
-      <p><strong><?=$languageArray['sec_bill_no_code'][$language]?>:</strong> ${row.security_bills || ''}</p>
-      <p><strong><?=$languageArray['do_po_no_code'][$language]?>:</strong> ${row.po_no}</p>
-      <p><strong><?=$languageArray['vehicle_no_code'][$language]?>:</strong> ${row.vehicle_no}</p>
-      <p><strong><?=$languageArray['driver_code'][$language]?>:</strong> ${row.driver}</p>
-      <p><strong><?=$languageArray['payment_method_code'][$language]?>:</strong> ${row.payment_method || ''}</p>
+  <div class="p-3 bg-light rounded">
+    <!-- Header with Title and Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+      <div>
+        <h5 class="mb-0 font-weight-bold">${row.serial_no}</h5>
+        <small class="text-muted">${row.customer_supplier || '<?=$languageArray['no_customer_code'][$language] ?? 'No Customer'?>'}</small>
+      </div>
+      <div class="d-flex" style="gap:4px;">
+        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-success btn-sm" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>' : ''}
+        <button type="button" onclick="print('+row.id+')" class="btn btn-warning btn-sm" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>
+        ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-info btn-sm" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>' : ''}
+        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-danger btn-sm" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>' : ''}
+      </div>
     </div>
-    <div class="col-6">
-      <p><strong><?=$languageArray['weighed_by_code'][$language]?>:</strong> ${row.weighted_by}</p>
-      <p><strong><?=$languageArray['checked_by_code'][$language]?>:</strong> ${row.checked_by || ''}</p>
-      <p><strong><?=$languageArray['category_name_code'][$language]?>:</strong> ${row.category_name || ''}</p>
-      <p><strong><?=$languageArray['locations_code'][$language]?>:</strong> ${row.location_name || ''}</p>
-      <p><strong><?=$languageArray['total_item_code'][$language]?>:</strong> ${row.totalItems}</p>
-      <p><strong><?=$languageArray['total_weight_code'][$language]?>:</strong> ${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'}</p>
-      <p><strong><?=$languageArray['total_reject_code'][$language]?>:</strong> ${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'}</p>
-      ${allowPrice == 'Y' ? '<p><strong><?=$languageArray['total_price_code'][$language]?>:</strong> RM ' + parseFloat(row.totalPrice).toFixed(2) + '</p>' : ''}
+
+    <!-- KPI Summary Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-6 mb-2">
+        <div class="card shadow-sm h-100">
+          <div class="card-body py-3">
+            <small class="text-muted text-uppercase"><?=$languageArray['total_item_code'][$language]?></small>
+            <h3 class="mb-0 font-weight-bold">${row.totalItems || 0}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-2">
+        <div class="card shadow-sm h-100">
+          <div class="card-body py-3">
+            <small class="text-muted text-uppercase"><?=$languageArray['total_weight_code'][$language]?></small>
+            <h3 class="mb-0 font-weight-bold text-primary">${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'} <small class="font-weight-normal">Kg</small></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-2">
+        <div class="card shadow-sm h-100">
+          <div class="card-body py-3">
+            <small class="text-muted text-uppercase"><?=$languageArray['total_reject_code'][$language]?></small>
+            <h3 class="mb-0 font-weight-bold text-danger">${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'} <small class="font-weight-normal">Kg</small></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-2">
+        ${allowPrice == 'Y' ? `
+        <div class="card shadow-sm h-100 bg-success text-white">
+          <div class="card-body py-3">
+            <small class="text-uppercase" style="opacity:0.8"><?=$languageArray['total_price_code'][$language]?></small>
+            <h3 class="mb-0 font-weight-bold">RM ${parseFloat(row.totalPrice).toFixed(2)}</h3>
+          </div>
+        </div>` : `
+        <div class="card shadow-sm h-100">
+          <div class="card-body py-3">
+            <small class="text-muted text-uppercase"><?=$languageArray['status_code'][$language]?></small>
+            <h4 class="mb-0 font-weight-bold">${row.status}</h4>
+          </div>
+        </div>`}
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-12">
-      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remark || ''}</p>
+
+    <!-- Order Details Card -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 font-weight-bold text-uppercase"><?=$languageArray['wholesale_order_information_code'][$language]?></h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['serial_no_code'][$language]?></small>
+              <span class="font-weight-bold">${row.serial_no || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['parent_code'][$language]?></small>
+              <span class="font-weight-bold">${row.parent || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['customer_supplier_code'][$language]?></small>
+              <span class="font-weight-bold">${row.customer_supplier || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['do_po_no_code'][$language]?></small>
+              <span class="font-weight-bold">${row.po_no || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['sec_bill_no_code'][$language]?></small>
+              <span class="font-weight-bold">${row.security_bills || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['vehicle_no_code'][$language]?></small>
+              <span class="font-weight-bold">${row.vehicle_no || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['driver_code'][$language]?></small>
+              <span class="font-weight-bold">${row.driver || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['weighed_by_code'][$language]?></small>
+              <span class="font-weight-bold">${row.weighted_by || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['checked_by_code'][$language]?></small>
+              <span class="font-weight-bold">${row.checked_by || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['category_name_code'][$language]?></small>
+              <span class="font-weight-bold">${row.category_name || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['locations_code'][$language]?></small>
+              <span class="font-weight-bold">${row.location_name || '-'}</span>
+            </div>
+          </div>
+          <div class="col-md-4 col-6 mb-3">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['payment_method_code'][$language]?></small>
+              <span class="font-weight-bold">${row.payment_method || '-'}</span>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="bg-light rounded p-2">
+              <small class="text-muted d-block"><?=$languageArray['remark_code'][$language]?></small>
+              <span class="font-weight-bold">${row.remark || '-'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <hr>
-  <h3><?=$languageArray['weighing_details_code'][$language]?></h3>
-  <div class="row mb-2">
-    <div class="col-md-3">
-      <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value=""><?=$languageArray['all_products_code'][$language]?></option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
-      </select>
-    </div>
-  </div>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
-      <thead>
-          <tr>
-            <th><?=$languageArray['product_code'][$language]?></th>
-            <th><?=$languageArray['grade_code'][$language]?></th>
-            <th><?=$languageArray['gross_code'][$language]?></th>
-            <th><?=$languageArray['tare_code'][$language]?></th>
-            <th><?=$languageArray['net_code'][$language]?></th>
-            ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th><?=$languageArray['price_code'][$language]?></th><th><?=$languageArray['total_code'][$language]?></th>' : ''}            
-            <th><?=$languageArray['time_code'][$language]?></th>
-            ${allowPhoto == 'Y' ? '<th><?=$languageArray['photo_code'][$language]?></th>' : ''}
-          </tr>
-      </thead>
-      <tbody>`;
+  <!-- Weighing Details Card -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 font-weight-bold text-uppercase"><?=$languageArray['weighing_details_code'][$language]?></h6>
+        <div class="d-flex">
+          <select class="form-control form-control-sm mr-2" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')" style="min-width:150px;">
+            <option value=""><?=$languageArray['all_products_code'][$language]?></option>
+          </select>
+          <select class="form-control form-control-sm" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')" style="min-width:150px;">
+            <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
+          </select>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0" id="weightTable_${row.id}">
+            <thead class="thead-light">
+              <tr>
+                <th class="border-0"><?=$languageArray['product_code'][$language]?></th>
+                <th class="border-0"><?=$languageArray['grade_code'][$language]?></th>
+                <th class="border-0 text-right"><?=$languageArray['gross_code'][$language]?></th>
+                <th class="border-0 text-right"><?=$languageArray['tare_code'][$language]?></th>
+                <th class="border-0 text-right"><?=$languageArray['net_code'][$language]?></th>
+                ${allowPrice == 'Y' ? '<th class="border-0"><?=$languageArray['currency_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['price_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+                <th class="border-0 text-center"><?=$languageArray['time_code'][$language]?></th>
+                ${allowPhoto == 'Y' ? '<th class="border-0 text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+              </tr>
+            </thead>
+            <tbody>`;
 
       var totalWeightGross = 0;
       var totalWeightTare = 0;
       var totalWeightNet = 0;
       var totalWeightPrice = 0;
       for (var i = 0; i < row.weightDetails.length; i++) {
-        var detail = row.weightDetails[i]; 
+        var detail = row.weightDetails[i];
         
         returnString += `
-            <tr>
-              <td>${detail.product_name}</td>
-              <td>${detail.grade}</td>
-              <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td>' + parseFloat(detail.price).toFixed(2) + '</td><td>' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
-              <td>${detail.time}</td>
-              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
-            returnString += `
-            </tr>`;
+              <tr>
+                <td>${detail.product_name}</td>
+                <td><span class="badge badge-secondary">${detail.grade}</span></td>
+                <td class="text-right text-monospace">${parseFloat(detail.gross).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
+                <td class="text-right text-monospace">${parseFloat(detail.tare).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
+                <td class="text-right text-monospace font-weight-bold text-primary">${parseFloat(detail.net).toFixed(2)} <small class="text-muted font-weight-normal">${detail.unit}</small></td>
+                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-monospace">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-monospace font-weight-bold text-success">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                <td class="text-center text-muted">${detail.time}</td>
+                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '<span class="text-muted">-</span>') + '</td>' : ''}`;
+        returnString += `
+              </tr>`;
 
         totalWeightGross += parseFloat(detail.gross);
         totalWeightTare += parseFloat(detail.tare);
@@ -1832,77 +1976,100 @@ function format (row) {
       }
 
       returnString += `
-      </tbody>
-      <tfoot>
-        <tr>
-          <th colspan="2"><?=$languageArray['total_code'][$language]?></th>
-          <th>${totalWeightGross.toFixed(2)}</th>
-          <th>${totalWeightTare.toFixed(2)}</th>
-          <th>${totalWeightNet.toFixed(2)}</th>
-          ${allowPrice == 'Y' ? '<th></th><th></th><th>' + totalWeightPrice.toFixed(2) + '</th>' : ''}
-          <th></th>
-          ${allowPhoto == 'Y' ? '<th></th>' : ''}
-        </tr>
-    </table>
-  </div>
+            </tbody>
+            <tfoot class="bg-light font-weight-bold">
+              <tr>
+                <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
+                <td class="text-right text-monospace">${totalWeightGross.toFixed(2)}</td>
+                <td class="text-right text-monospace">${totalWeightTare.toFixed(2)}</td>
+                <td class="text-right text-monospace text-primary">${totalWeightNet.toFixed(2)}</td>
+                ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-monospace text-success">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
+                <td></td>
+                ${allowPhoto == 'Y' ? '<td></td>' : ''}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
 
-  <hr>
-  <h3><?=$languageArray['reject_details_code'][$language]?></h3>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-      <thead>
-          <tr>
-            <th><?=$languageArray['product_code'][$language]?></th>
-            <th><?=$languageArray['grade_code'][$language]?></th>
-            <th><?=$languageArray['gross_code'][$language]?></th>
-            <th><?=$languageArray['tare_code'][$language]?></th>
-            <th><?=$languageArray['net_code'][$language]?></th>
-            ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th><?=$languageArray['price_code'][$language]?></th><th><?=$languageArray['total_code'][$language]?></th>' : ''}
-            <th><?=$languageArray['time_code'][$language]?></th>
-            ${allowPhoto == 'Y' ? '<th><?=$languageArray['photo_code'][$language]?></th>' : ''}
-          </tr>
-      </thead>
-      <tbody>`;
+  <!-- Reject Details Card -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h6 class="mb-0 font-weight-bold text-uppercase text-danger"><i class="fas fa-times-circle mr-2"></i><?=$languageArray['reject_details_code'][$language]?></h6>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="thead-light">
+              <tr>
+                <th class="border-0"><?=$languageArray['product_code'][$language]?></th>
+                <th class="border-0"><?=$languageArray['grade_code'][$language]?></th>
+                <th class="border-0 text-right"><?=$languageArray['gross_code'][$language]?></th>
+                <th class="border-0 text-right"><?=$languageArray['tare_code'][$language]?></th>
+                <th class="border-0 text-right"><?=$languageArray['net_code'][$language]?></th>
+                ${allowPrice == 'Y' ? '<th class="border-0"><?=$languageArray['currency_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['price_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+                <th class="border-0 text-center"><?=$languageArray['time_code'][$language]?></th>
+                ${allowPhoto == 'Y' ? '<th class="border-0 text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+              </tr>
+            </thead>
+            <tbody>`;
 
       var totalRejectGross = 0;
       var totalRejectTare = 0;
       var totalRejectNet = 0;
       var totalRejectPrice = 0;
-      for (var i = 0; i < row.rejectDetails.length; i++) {
-        var detail = row.rejectDetails[i]; 
-        
+      
+      if (row.rejectDetails.length === 0) {
         returnString += `
-            <tr>
-              <td>${detail.product_name}</td>
-              <td>${detail.grade}</td>
-              <td>${parseFloat(detail.gross).toFixed(2)} ${detail.unit}</td>
-              <td>${parseFloat(detail.tare).toFixed(2)} ${detail.unit}</td>
-              <td>${parseFloat(detail.net).toFixed(2)} ${detail.unit}</td>
-              ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td>' + parseFloat(detail.price).toFixed(2) + '</td><td>' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
-              <td>${detail.time}</td>
-              ${allowPhoto == 'Y' ? '<td>' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}`;
-            returnString += `
-            </tr>`;
+              <tr>
+                <td colspan="${allowPrice == 'Y' ? (allowPhoto == 'Y' ? '10' : '9') : (allowPhoto == 'Y' ? '7' : '6')}" class="text-center py-5 text-muted">
+                  <i class="fas fa-check-circle fa-2x text-success d-block mb-2"></i>
+                  <?=$languageArray['no_reject_items_code'][$language] ?? 'No rejected items'?>
+                </td>
+              </tr>`;
+      } else {
+        for (var i = 0; i < row.rejectDetails.length; i++) {
+          var detail = row.rejectDetails[i];
+          
+          returnString += `
+              <tr>
+                <td>${detail.product_name}</td>
+                <td><span class="badge badge-danger">${detail.grade}</span></td>
+                <td class="text-right text-monospace">${parseFloat(detail.gross).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
+                <td class="text-right text-monospace">${parseFloat(detail.tare).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
+                <td class="text-right text-monospace font-weight-bold text-danger">${parseFloat(detail.net).toFixed(2)} <small class="text-muted font-weight-normal">${detail.unit}</small></td>
+                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-monospace">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-monospace font-weight-bold text-danger">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                <td class="text-center text-muted">${detail.time}</td>
+                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '<span class="text-muted">-</span>') + '</td>' : ''}`;
+          returnString += `
+              </tr>`;
 
-        totalRejectGross += parseFloat(detail.gross);
-        totalRejectTare += parseFloat(detail.tare);
-        totalRejectNet += parseFloat(detail.net);
-        totalRejectPrice += parseFloat(detail.total);
+          totalRejectGross += parseFloat(detail.gross);
+          totalRejectTare += parseFloat(detail.tare);
+          totalRejectNet += parseFloat(detail.net);
+          totalRejectPrice += parseFloat(detail.total);
+        }
       }
 
       returnString += `
-      </tbody>
-      <tfoot>
-        <tr>
-          <th colspan="2"><?=$languageArray['total_code'][$language]?></th>
-          <th>${totalRejectGross.toFixed(2)}</th>
-          <th>${totalRejectTare.toFixed(2)}</th>
-          <th>${totalRejectNet.toFixed(2)}</th>
-          ${allowPrice == 'Y' ? '<th></th><th></th><th>' + totalRejectPrice.toFixed(2) + '</th>' : ''}
-          <th></th>
-          ${allowPhoto == 'Y' ? '<th></th>' : ''}
-        </tr>
-    </table>
+            </tbody>
+            ${row.rejectDetails.length > 0 ? `
+            <tfoot class="bg-light font-weight-bold">
+              <tr>
+                <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
+                <td class="text-right text-monospace">${totalRejectGross.toFixed(2)}</td>
+                <td class="text-right text-monospace">${totalRejectTare.toFixed(2)}</td>
+                <td class="text-right text-monospace text-danger">${totalRejectNet.toFixed(2)}</td>
+                ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-monospace text-danger">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
+                <td></td>
+                ${allowPhoto == 'Y' ? '<td></td>' : ''}
+              </tr>
+            </tfoot>` : ''}
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
   `;
   
@@ -2584,6 +2751,25 @@ function populateFilters(rowId, weightDetails) {
   var gradeSelect = $('#gradeFilter_' + rowId);
   grades.forEach(function(grade) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  });
+}
+
+function buildColumnToggleMenu() {
+  var menu = $('#columnToggleMenu');
+  menu.empty();
+  for (var i = 0; i < columnNames.length; i++) {
+    menu.append(
+      '<div class="form-check">' +
+        '<input class="form-check-input column-toggle" type="checkbox" id="colToggle' + i + '" data-col="' + i + '" checked>' +
+        '<label class="form-check-label" for="colToggle' + i + '">' + columnNames[i] + '</label>' +
+      '</div>'
+    );
+  }
+  menu.on('click', function(e) { e.stopPropagation(); });
+  menu.on('change', '.column-toggle', function() {
+    var col = $(this).data('col');
+    var visible = $(this).is(':checked');
+    $('#weightTable').DataTable().column(col).visible(visible);
   });
 }
 
