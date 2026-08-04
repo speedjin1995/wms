@@ -75,10 +75,13 @@
             <i class="fas fa-chevron-down dash-chevron" id="wsSupplierChevron"></i>
             <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
           </div>
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();exportSupplierBreakdown()" title="Export Excel"><i class="fas fa-file-excel"></i></button>
           <div class="dash-pager" id="wsSupplierPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" id="wsSupplierPrev" onclick="event.stopPropagation();wsSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
             <small id="wsSupplierPageInfo"></small>
             <button class="btn btn-sm btn-outline-secondary" id="wsSupplierNext" onclick="event.stopPropagation();wsSupplierPage(1)"><i class="fas fa-chevron-right"></i></button>
+          </div>
           </div>
         </div>
         <div class="card-body" id="wsSupplierBody">
@@ -93,10 +96,13 @@
             <i class="fas fa-chevron-down dash-chevron" id="wsCustomerChevron"></i>
             <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</span>
           </div>
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();exportCustomerBreakdown()" title="Export Excel"><i class="fas fa-file-excel"></i></button>
           <div class="dash-pager" id="wsCustomerPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" id="wsCustomerPrev" onclick="event.stopPropagation();wsCustomerPage(-1)"><i class="fas fa-chevron-left"></i></button>
             <small id="wsCustomerPageInfo"></small>
             <button class="btn btn-sm btn-outline-secondary" id="wsCustomerNext" onclick="event.stopPropagation();wsCustomerPage(1)"><i class="fas fa-chevron-right"></i></button>
+          </div>
           </div>
         </div>
         <div class="card-body" id="wsCustomerBody">
@@ -117,6 +123,7 @@
             <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></span>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
+            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();exportGradeDistribution('RECEIVING')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
             <span class="text-muted dash-meta-text" id="wsGradeRecvTotal"></span>
             <div class="dash-pager" id="wsGradeRecvPager" style="display:none;">
               <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsGradeRecvPageFn(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -139,6 +146,7 @@
             <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['dispatch_code'][$language]?></span>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
+            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();exportGradeDistribution('DISPATCH')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
             <span class="text-muted dash-meta-text" id="wsGradeDispTotal"></span>
             <div class="dash-pager" id="wsGradeDispPager" style="display:none;">
               <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsGradeDispPageFn(-1)"><i class="fas fa-chevron-left"></i></button>
