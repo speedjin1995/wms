@@ -99,6 +99,7 @@ else{
     $allowPhoto = $companyDetail['include_photo'];
     $allowPrice = $companyDetail['include_price'];
     $allowInvoice = $companyDetail['include_invoice'];
+    $allowPayment = $companyDetail['include_payment'];
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
@@ -128,6 +129,7 @@ else{
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
     $allowInvoice = 'Y';
+    $allowPayment = 'Y';
     $secRemarksExists = true;
   }
 
@@ -523,7 +525,7 @@ else{
                 </select>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4" <?php if($allowPayment == 'Y') { echo 'style="display: block;"'; } else { echo 'style="display: none;"'; } ?>>
               <div class="form-group">
                 <label><?=$languageArray['payment_method_code'][$language]?></label>
                 <select class="form-control select2" id="paymentMethod" name="paymentMethod">
