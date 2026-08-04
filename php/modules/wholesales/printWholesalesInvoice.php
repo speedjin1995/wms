@@ -236,9 +236,9 @@ if(isset($_GET['id'])){
                             /* Bill/Delivery Section */
                             .info-section { display: flex; padding: 6px 0; }
                             .bill-to, .deliver-to { width: 33%; padding-right: 10px; }
-                            .so-section { width: 34%; margin-left: auto; }
+                            .so-section { width: 34%; margin-left: auto; min-width: 220px; }
                             .section-title { font-weight: bold; margin-bottom: 3px; font-size: 12px; }
-                            .so-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 3px; }
+                            .so-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 3px; white-space: nowrap; }
                             .so-detail { display: flex; font-size: 11px; line-height: 1.5; }
                             .so-label { width: 100px; flex-shrink: 0; }
                             .so-colon { width: 10px; flex-shrink: 0; }
@@ -297,13 +297,23 @@ if(isset($_GET['id'])){
                                 </div>
                             </div>
                             <div class="info-section">
-                                <div class="bill-to">
+                                <div class="bill-to">';
+
+                                if ($wholesale['status'] == 'RECEIVING'){
+                                    $message .= '
+                                    <div class="section-title">PAYMENT TO :</div>
+                                    ';
+                                }else{
+                                    $message .= '
                                     <div class="section-title">BILL TO :</div>
+                                    ';
+                                }
+
+                                $message .= '
                                     <div class="addr-name">' . $billToName . '</div>
                                     <div class="addr-line">' . $billToAddr1 . '</div>
                                     <div class="addr-line">' . $billToAddr2 . '</div>
                                     <div class="addr-line">' . $billToAddr3 . '</div>
-                                    <br>
                                     <br>
                                     <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $billToAttn . '</span></div>
@@ -316,7 +326,6 @@ if(isset($_GET['id'])){
                                     <div class="addr-line">' . $deliverToAddr1 . '</div>
                                     <div class="addr-line">' . $deliverToAddr2 . '</div>
                                     <div class="addr-line">' . $deliverToAddr3 . '</div>
-                                    <br>
                                     <br>
                                     <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToAttn . '</span></div>
@@ -341,7 +350,7 @@ if(isset($_GET['id'])){
                                     <div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value">' . $time . '</span></div>
                                     <div class="so-detail"><span class="so-label">Weight Slip No</span><span class="so-colon">:</span><span class="so-value">' . $slipNo . '</span></div>
                                     <div class="so-detail"><span class="so-label">Vehicle No</span><span class="so-colon">:</span><span class="so-value">' . $vehicleNo . '</span></div>
-                                    <div class="so-detail"><span class="so-label">Price Status</span><span class="so-colon">:</span><span class="so-value">' . $priceStatus . '</span></div>
+                                    <!--div class="so-detail"><span class="so-label">Price Status</span><span class="so-colon">:</span><span class="so-value">' . $priceStatus . '</span></div-->
                                     <div class="so-detail"><span class="so-label">Weight by</span><span class="so-colon">:</span><span class="so-value">' . $weightBy . '</span></div>
                                     <div class="so-detail"><span class="so-label">Pages</span><span class="so-colon">:</span><span class="so-value"><span class="page-current"></span> - <span class="page-total"></span></span></div>
                                 </div>

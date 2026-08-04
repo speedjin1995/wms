@@ -53,6 +53,7 @@ if(isset($_POST['userID'])){
                 $message['start_time'] = $row['start_time'];
                 $message['end_time'] = $row['end_time'];
                 $message['records_type'] = $row['records_type'];
+                $message['payment_method'] = $row['payment_method'];
                 $message['category'] = $row['category'];
                 $message['category_name'] = searchCategoryById($row['category'], $db);
                 
