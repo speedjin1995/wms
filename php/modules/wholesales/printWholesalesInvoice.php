@@ -297,7 +297,7 @@ if(isset($_GET['id'])){
                                 </div>
                             </div>
                             <div class="info-section">
-                                <div class="bill-to">'
+                                <div class="bill-to">';
 
                                 if ($wholesale['status'] == 'RECEIVING'){
                                     $message .= '
