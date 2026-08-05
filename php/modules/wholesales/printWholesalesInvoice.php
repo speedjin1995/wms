@@ -39,6 +39,7 @@ if(isset($_GET['id'])){
                 $companyBankAcctNo = $wholesale['bank_acct_no'] ?? '';
                 $companyBankSwiftCode = $wholesale['bank_swift_code'] ?? '';
                 $companyLogo = $wholesale['company_logo'];
+                $companyIncludePayment = $wholesale['include_payment'] ?? 'N';
                 $companyLogoSrc = '';
                 if (!empty($companyLogo)) {
                     $companyLogoSrc = 'php/viewPhoto.php?file=' . urlencode($companyLogo) . '&type=file_table';
@@ -234,9 +235,10 @@ if(isset($_GET['id'])){
                             .company-contact { font-size: 13px; }
 
                             /* Bill/Delivery Section */
-                            .info-section { display: flex; padding: 6px 0; }
+                            .info-section { display: flex; flex-wrap: wrap; padding: 6px 0; }
                             .bill-to, .deliver-to { width: 33%; padding-right: 10px; }
                             .so-section { width: 34%; margin-left: auto; min-width: 220px; }
+                            .payment-method-row { width: 66%; padding-right: 10px; margin-top: 4px; }
                             .section-title { font-weight: bold; margin-bottom: 3px; font-size: 12px; }
                             .so-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 3px; white-space: nowrap; }
                             .so-detail { display: flex; font-size: 11px; line-height: 1.5; }
@@ -248,7 +250,8 @@ if(isset($_GET['id'])){
 
                             /* Contact row */
                             .contact-row { display: flex; font-size: 11px; line-height: 1.5; }
-                            .contact-label { width: 40px; flex-shrink: 0; }
+                            .contact-label { width: 60px; flex-shrink: 0; }
+                            .contact-label-wide { width: 100px; flex-shrink: 0; }
                             .contact-colon { width: 15px; flex-shrink: 0; }
                             .contact-value { flex: 1; }
 
@@ -318,7 +321,13 @@ if(isset($_GET['id'])){
                                     <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $billToAttn . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $billToTel . '</span></div>
-                                    <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value">' . $billToFax . '</span></div>
+                                    <div class="contact-row"><span class="contact-label">Email</span><span class="contact-colon">:</span><span class="contact-value">' . $billToFax . '</span></div>';
+
+                                    if ($companyIncludePayment == 'Y') {
+                                        $message .= '
+                                        <div class="contact-row"><span class="contact-label">Payment <br>Method</span><span class="contact-colon">:</span><span class="contact-value">' . $wholesale['payment_method'] . '</span></div>';
+                                    }
+                                $message .= '
                                 </div>
                                 <div class="deliver-to" style="' . ($wholesale['status'] == 'RECEIVING' ? 'display:none;' : '') . '">
                                     <div class="section-title">DELIVERY TO :</div>
@@ -330,9 +339,9 @@ if(isset($_GET['id'])){
                                     <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToAttn . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToTel . '</span></div>
-                                    <div class="contact-row"><span class="contact-label">Fax</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>
+                                    <div class="contact-row"><span class="contact-label">Email</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>
                                 </div>
-                                <div class="so-section">';
+                                <div class="so-section">'; 
                                     if ($wholesale['status'] == 'RECEIVING'){
                                         $message .= '
                                             <div class="so-title"><span style="border-bottom: 1px solid black;">'.$languageArray['purchase_invoice_code'][$language].'</span></div>
