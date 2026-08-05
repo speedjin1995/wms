@@ -28,6 +28,8 @@ else{
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 AND customer = '".$company."' ORDER BY packaging_name ASC");
     $currency = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency3 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency4 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
   }
   else{
     $customers = $db->query("SELECT c.*, s.states AS state_name FROM customers c LEFT JOIN states s ON c.states = s.id WHERE c.deleted = 0 ORDER BY c.customer_name ASC");
@@ -40,6 +42,20 @@ else{
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 ORDER BY packaging_name ASC");
     $currency = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency3 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency4 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+  }
+
+  // Default Currency
+  $defaultCurrencyId = null;
+  if ($curreny_stmt = $db->prepare("SELECT id FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1 LIMIT 1")) {
+    $curreny_stmt->bind_param('s', $company);
+    $curreny_stmt->execute();
+    $curreny_result = $curreny_stmt->get_result();
+    if ($curreny_row = $curreny_result->fetch_assoc()) {
+      $defaultCurrencyId = $curreny_row['id'];
+    }
+    $curreny_stmt->close();
   }
 
   // Language
@@ -168,263 +184,271 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="addModal">
+<!-- Product Modal -->
+<div class="modal fade" id="productModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="productForm">
-        <div class="modal-header bg-gradient-dark">
-          <h5 class="modal-title text-white"><i class="fas fa-box mr-2"></i><?=$languageArray['add_products_code'][$language]?></h5>
-          <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle"><?=$languageArray['add_products_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body" style="max-height:75vh; overflow-y:auto; background:#f4f6f9;">
+        <div class="modal-body">
           <input type="hidden" id="id" name="id">
+          <?php if($role != 'SADMIN'){ ?>
+          <input type="hidden" id="company" name="company" value="<?=$company?>">
+          <?php } ?>
 
           <!-- Company (SADMIN only) -->
-          <div <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-            <div class="card card-outline card-primary mb-3">
-              <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-building mr-1"></i><?=$languageArray['company_code'][$language]?></h6></div>
-              <div class="card-body py-2">
-                <select class="form-control select2" style="width:100%;" id="company" name="company" required>
-                  <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                    <option value="<?=$rowCompany['id']?>" <?php if($rowCompany['id']==$company) echo 'selected';?>><?=$rowCompany['name']?></option>
-                  <?php } ?>
-                </select>
+          <?php if($role == 'SADMIN'){ ?>
+          <div class="modal-section">
+            <div class="section-title"><i class="fas fa-building mr-2"></i><?=$languageArray['company_code'][$language]?></div>
+            <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+              <?php $companies->data_seek(0); while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                <option value="<?=$rowCompany['id']?>" <?php if($rowCompany['id']==$company) echo 'selected';?>><?=$rowCompany['name']?></option>
+              <?php } ?>
+            </select>
+          </div>
+          <?php } ?>
+
+          <!-- Product Info -->
+          <div class="modal-section">
+            <div class="section-title"><i class="fas fa-info-circle mr-2"></i><?=$languageArray['product_information_code'][$language]?></div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
+                </div>
               </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
+                  <select class="form-control select2" id="state" name="state[]" multiple style="width:100%;">
+                    <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
+                      <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['weight_code'][$language]?></label>
+                  <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['unit_code'][$language]?></label>
+                  <select class="form-control select2" id="uom" name="uom" style="width:100%;">
+                    <option selected>-</option>
+                    <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
+                      <option value="<?=$rowunits['id']?>"><?=$rowunits['units']?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['category_code'][$language]?></label>
+                  <select class="form-control select2" id="productCategory" name="productCategory" style="width:100%;">
+                    <option value="" selected>-</option>
+                    <?php while($rowCat=mysqli_fetch_assoc($category)){ ?>
+                      <option value="<?=$rowCat['id']?>"><?=$rowCat['category_name']?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
+                  <select class="form-control select2" id="productPackaging" name="productPackaging" style="width:100%;">
+                    <option value="" selected>-</option>
+                    <?php while($rowPack=mysqli_fetch_assoc($packaging)){ ?>
+                      <option value="<?=$rowPack['id']?>"><?=$rowPack['packaging_name']?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
+              <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
             </div>
           </div>
 
-          <!-- Product Info -->
-          <div class="card card-outline card-primary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i><?=$languageArray['product_information_code'][$language]?></h6></div>
-            <div class="card-body py-3">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
+          <!-- Pricing -->
+          <div class="modal-section">
+            <div class="section-title"><i class="fas fa-tags mr-2"></i><?=$languageArray['pricing_code'][$language] ?? 'Pricing'?></div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="pricing-card pricing-card-sell">
+                  <div class="pricing-card-header">
+                    <i class="fas fa-arrow-up"></i>
+                    <span><?=$languageArray['selling_price_code'][$language]?></span>
                   </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?></label>
-                    <select class="form-control select2" id="state" name="state[]" multiple>
-                        <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
-                            <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
-                        <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['weight_code'][$language]?></label>
-                    <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['unit_code'][$language]?></label>
-                    <select class="form-control select2" id="uom" name="uom">
-                      <option selected>-</option>
-                      <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
-                        <option value="<?=$rowunits['id']?>"><?=$rowunits['units']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['category_code'][$language]?></label>
-                    <select class="form-control select2" id="productCategory" name="productCategory">
-                      <option value="" selected>-</option>
-                      <?php while($rowCat=mysqli_fetch_assoc($category)){ ?>
-                        <option value="<?=$rowCat['id']?>"><?=$rowCat['category_name']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
-                    <select class="form-control select2" id="productPackaging" name="productPackaging">
-                      <option value="" selected>-</option>
-                      <?php while($rowPack=mysqli_fetch_assoc($packaging)){ ?>
-                        <option value="<?=$rowPack['id']?>"><?=$rowPack['packaging_name']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['pricing_type_code'][$language]?></label>
-                    <select class="form-control" id="pricingType" name="pricingType">
-                      <option selected><?=$languageArray['fixed_code'][$language]?></option>
-                      <option><?=$languageArray['float_code'][$language]?></option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['selling_price_currency_code'][$language]?></label>
-                    <select class="form-control" id="pricingCurrency" name="pricingCurrency">
-                      <?php while($rowcurrency=mysqli_fetch_assoc($currency)){ ?>
-                        <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00" value="0.00">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
-                    <select class="form-control" id="purchasingPricingType" name="purchasingPricingType">
-                      <option selected><?=$languageArray['fixed_code'][$language]?></option>
-                      <option><?=$languageArray['float_code'][$language]?></option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['purchasing_price_currency_code'][$language]?></label>
-                    <select class="form-control" id="purchasingPricingCurrency" name="purchasingPricingCurrency">
-                      <?php while($rowcurrency=mysqli_fetch_assoc($currency2)){ ?>
-                        <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00" value="0.00">
+                  <div class="pricing-card-body">
+                    <div class="row">
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                        <select class="form-control form-control-sm" id="pricingType" name="pricingType">
+                          <option selected><?=$languageArray['fixed_code'][$language]?></option>
+                          <option><?=$languageArray['float_code'][$language]?></option>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['currency_code'][$language] ?? 'Currency'?></label>
+                        <select class="form-control form-control-sm select2" id="pricingCurrency" name="pricingCurrency">
+                          <?php $currency->data_seek(0); while($rowcurrency=mysqli_fetch_assoc($currency)){ ?>
+                            <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['price_code'][$language] ?? 'Price'?></label>
+                        <input type="number" class="form-control form-control-sm" name="price" id="price" placeholder="0.00" value="0.00">
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="form-group mb-0">
-                <label class="font-weight-bold"><?=$languageArray['remark_code'][$language]?></label>
-                <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
+              <div class="col-md-6">
+                <div class="pricing-card pricing-card-buy">
+                  <div class="pricing-card-header">
+                    <i class="fas fa-arrow-down"></i>
+                    <span><?=$languageArray['purchasing_price_code'][$language]?></span>
+                  </div>
+                  <div class="pricing-card-body">
+                    <div class="row">
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                        <select class="form-control form-control-sm" id="purchasingPricingType" name="purchasingPricingType">
+                          <option selected><?=$languageArray['fixed_code'][$language]?></option>
+                          <option><?=$languageArray['float_code'][$language]?></option>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['currency_code'][$language] ?? 'Currency'?></label>
+                        <select class="form-control form-control-sm select2" id="purchasingPricingCurrency" name="purchasingPricingCurrency">
+                          <?php $currency2->data_seek(0); while($rowcurrency=mysqli_fetch_assoc($currency2)){ ?>
+                            <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['price_code'][$language] ?? 'Price'?></label>
+                        <input type="number" class="form-control form-control-sm" name="purchasingPrice" id="purchasingPrice" placeholder="0.00" value="0.00">
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Product Image -->
-          <div class="card card-outline card-secondary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image mr-1"></i><?=$languageArray['product_image_code'][$language]?></h6></div>
-            <div class="card-body py-3">
-              <div class="row align-items-center">
-                <div class="col-md-6">
-                  <div id="productImageDropzone" style="border:2px dashed #adb5bd; border-radius:6px; padding:24px; text-align:center; cursor:pointer; background:#fff;">
-                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                    <p class="mb-1 text-muted"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
-                    <p class="mb-1 text-muted"><?=$languageArray['file_format_max_size_code'][$language]?></p>
-                    <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+          <div class="modal-section">
+            <div class="section-title"><i class="fas fa-image mr-2"></i><?=$languageArray['product_image_code'][$language]?></div>
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="upload-zone" id="productImageDropzone">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
+                  <span><?=$languageArray['file_format_max_size_code'][$language]?></span>
+                  <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+                </div>
+              </div>
+              <div class="col-md-6 text-center">
+                <div id="productImagePreview" style="display:none;">
+                  <img id="productImageThumb" src="" style="max-height:140px; max-width:100%; border-radius:8px; border:1px solid var(--border-color); object-fit:contain;">
+                  <div class="mt-2">
+                    <button type="button" id="removeProductImage" class="btn-drawer btn-drawer-secondary btn-sm"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
                   </div>
                 </div>
-                <div class="col-md-6 text-center">
-                  <div id="productImagePreview" style="display:none;">
-                    <img id="productImageThumb" src="" style="max-height:160px; max-width:100%; border-radius:6px; border:1px solid #dee2e6; object-fit:contain;">
-                    <div class="mt-2">
-                      <button type="button" id="removeProductImage" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
-                    </div>
-                  </div>
-                  <div id="productImagePlaceholder" style="color:#adb5bd;">
-                    <i class="fas fa-image fa-3x"></i>
-                    <p class="mt-1 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
-                  </div>
+                <div id="productImagePlaceholder" style="color:var(--text-muted);">
+                  <i class="fas fa-image fa-3x"></i>
+                  <p class="mt-2 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Ranges Set -->
-          <div class="card card-outline card-warning mb-3">
-            <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0 text-danger font-weight-bold"><i class="fas fa-sliders-h mr-1"></i><?=$languageArray['ranges_set_code'][$language]?></h6>
-              <div class="ml-auto d-flex align-items-center">
-                <input type="hidden" name="rangeSet" id="rangeSet" value="0">
-                <div id="rangeSetToggle" style="cursor:pointer; display:inline-flex; align-items:center; background:#ccc; border-radius:30px; width:110px; height:34px; position:relative; transition:background 0.3s;">
-                  <div id="rangeSetKnob" style="position:absolute; width:30px; height:30px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left 0.3s; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.3);">
-                    <i id="rangeSetIcon" class="fas fa-times text-danger"></i>
-                  </div>
-                  <span id="rangeSetLabel" style="position:absolute; right:10px; font-size:11px; font-weight:600; color:#fff; letter-spacing:0.5px;"><?=$languageArray['disable_code'][$language]?></span>
-                </div>
-              </div>
+          <div class="modal-section collapsible-section">
+            <div class="section-header-toggle" id="rangeSetHeader">
+              <div class="section-title mb-0"><i class="fas fa-sliders-h mr-2"></i><?=$languageArray['ranges_set_code'][$language]?></div>
+              <input type="hidden" name="rangeSet" id="rangeSet" value="0">
+              <label class="toggle-switch">
+                <input type="checkbox" id="rangeSetCheckbox">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <div id="rangeWeightFields" class="card-body py-3" style="display:none;">
-              <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['ok_weight_code'][$language]?></label></div>
-                <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="okWeight" name="okWeight" placeholder="0.000" style="background:rgba(40,167,69,0.25); color:#155724; border:1px solid #28a745;">
+            <div id="rangeWeightFields" class="collapsible-content" style="display:none;">
+              <div class="row mt-3">
+                <div class="col-md-4">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern" style="color:#28a745;"><?=$languageArray['ok_weight_code'][$language]?></label>
+                    <div class="input-group">
+                      <input type="number" step="any" class="form-control" id="okWeight" name="okWeight" placeholder="0.000" style="border-color:#28a745;">
+                      <select class="form-control" id="okWeightUnit" name="okWeightUnit" style="max-width:80px;">
+                        <?php $units2->data_seek(0); while($r=mysqli_fetch_assoc($units2)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-md-3">
-                  <select class="form-control" id="okWeightUnit" name="okWeightUnit">
-                    <?php while($r=mysqli_fetch_assoc($units2)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
-                  </select>
+                <div class="col-md-4">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern" style="color:#ffc107;"><?=$languageArray['lo_weight_code'][$language]?></label>
+                    <div class="input-group">
+                      <input type="number" step="any" class="form-control" id="loWeight" name="loWeight" placeholder="0.000" style="border-color:#ffc107;">
+                      <select class="form-control" id="loWeightUnit" name="loWeightUnit" style="max-width:80px;">
+                        <?php $units3->data_seek(0); while($r=mysqli_fetch_assoc($units3)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['lo_weight_code'][$language]?></label></div>
-                <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="loWeight" name="loWeight" placeholder="0.000" style="background:rgba(255,193,7,0.25); color:#856404; border:1px solid #ffc107;">
-                </div>
-                <div class="col-md-3">
-                  <select class="form-control" id="loWeightUnit" name="loWeightUnit">
-                    <?php while($r=mysqli_fetch_assoc($units3)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
-                  </select>
-                </div>
-              </div>
-              <div class="row align-items-center">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['hi_weight_code'][$language]?></label></div>
-                <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="hiWeight" name="hiWeight" placeholder="0.000" style="background:rgba(220,53,69,0.2); color:#721c24; border:1px solid #dc3545;">
-                </div>
-                <div class="col-md-3">
-                  <select class="form-control" id="hiWeightUnit" name="hiWeightUnit">
-                    <?php while($r=mysqli_fetch_assoc($units4)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
-                  </select>
+                <div class="col-md-4">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern" style="color:#dc3545;"><?=$languageArray['hi_weight_code'][$language]?></label>
+                    <div class="input-group">
+                      <input type="number" step="any" class="form-control" id="hiWeight" name="hiWeight" placeholder="0.000" style="border-color:#dc3545;">
+                      <select class="form-control" id="hiWeightUnit" name="hiWeightUnit" style="max-width:80px;">
+                        <?php $units4->data_seek(0); while($r=mysqli_fetch_assoc($units4)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Grades -->
-          <div class="card card-outline card-info mb-0">
-            <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0"><i class="fas fa-layer-group mr-1"></i><?=$languageArray['grades_code'][$language]?></h6>
-              <button type="button" class="btn btn-info btn-sm add-grade ml-auto"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+          <div class="modal-section">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="section-title mb-0"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
+              <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
             </div>
-            <div class="card-body p-2">
-              <table class="table table-sm table-bordered mb-0">
-                <thead class="thead-light">
-                  <tr>
-                    <th width="8%"><?=$languageArray['number_short_code'][$language]?></th>
-                    <th><?=$languageArray['unit_code'][$language]?></th>
-                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['selling_price_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_price_code'][$language]?></th>
-                    <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
-                  </tr>
-                </thead>
-                <tbody id="gradeTable"></tbody>
-              </table>
+            <div id="gradeRowsContainer">
+              <div id="gradeEmptyState" class="empty-state">
+                <i class="fas fa-layer-group"></i>
+                <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
+                <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
+              </div>
             </div>
+            <!-- Hidden table for form data submission -->
+            <table style="display:none;"><tbody id="gradeTable"></tbody></table>
           </div>
 
         </div>
-        <div class="modal-footer justify-content-end">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn-modern btn-modern-primary" id="submitMember"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -561,8 +585,8 @@ else{
   </div>
 </div>
 
-<!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
+<link rel="stylesheet" href="assets/css/product-modal.css">
 <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
 <!-- Bootstrap -->
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -691,6 +715,13 @@ else{
       </select>
     </td>
     <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="gradePricingCurrency" name="gradePricingCurrency">
+        <?php while($rowCur3=mysqli_fetch_assoc($currency3)){ ?>
+          <option value="<?=$rowCur3['id']?>"><?=$rowCur3['currency']?></option>
+        <?php } ?>
+      </select>
+    </td>
+    <td>
       <input type="number" class="form-control mb-1" id="gradePrice" name="gradePrice" style="background-color:white;" value="0">
     </td>
     <td>
@@ -698,6 +729,13 @@ else{
         <option selected><?=$languageArray['standard_code'][$language]?></option>
         <option><?=$languageArray['fixed_code'][$language]?></option>
         <option><?=$languageArray['float_code'][$language]?></option>
+      </select>
+    </td>
+    <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="gradePurchasingPricingCurrency" name="gradePurchasingPricingCurrency">
+        <?php while($rowCur4=mysqli_fetch_assoc($currency4)){ ?>
+          <option value="<?=$rowCur4['id']?>"><?=$rowCur4['currency']?></option>
+        <?php } ?>
       </select>
     </td>
     <td>
@@ -711,10 +749,54 @@ else{
   </tr>
 </script>
 
+<script type="text/html" id="gradeRowTemplate">
+  <div class="grade-card" data-index="{index}">
+    <div class="grade-card-body">
+      <div class="grade-card-row grade-card-grade-row">
+        <select class="form-control form-control-sm select2 grade-select" id="gradesRow{index}" data-index="{index}" style="width:100%;">
+          <?php $grades->data_seek(0); while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
+            <option value="<?=$rowGrade['id']?>"><?=$rowGrade['units']?></option>
+          <?php } ?>
+        </select>
+        <button type="button" class="grade-card-remove" data-index="{index}"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="grade-card-row grade-card-sell">
+        <span class="grade-card-label"><i class="fas fa-arrow-up"></i> <?=$languageArray['sell_code'][$language] ?? 'Sell'?></span>
+        <select class="form-control form-control-sm" id="gradePricingTypeRow{index}">
+          <option selected><?=$languageArray['standard_code'][$language]?></option>
+          <option><?=$languageArray['fixed_code'][$language]?></option>
+          <option><?=$languageArray['float_code'][$language]?></option>
+        </select>
+        <select class="form-control form-control-sm select2 currency-select" id="gradePricingCurrencyRow{index}" style="width:100%;">
+          <?php $currency3->data_seek(0); while($rowCur3=mysqli_fetch_assoc($currency3)){ ?>
+            <option value="<?=$rowCur3['id']?>"><?=$rowCur3['currency']?></option>
+          <?php } ?>
+        </select>
+        <input type="number" class="form-control form-control-sm" id="gradePriceRow{index}" placeholder="0.00" value="0">
+      </div>
+      <div class="grade-card-row grade-card-buy">
+        <span class="grade-card-label"><i class="fas fa-arrow-down"></i> <?=$languageArray['buy_code'][$language] ?? 'Buy'?></span>
+        <select class="form-control form-control-sm" id="gradePurchasingPricingTypeRow{index}">
+          <option selected><?=$languageArray['standard_code'][$language]?></option>
+          <option><?=$languageArray['fixed_code'][$language]?></option>
+          <option><?=$languageArray['float_code'][$language]?></option>
+        </select>
+        <select class="form-control form-control-sm select2 currency-select" id="gradePurchasingPricingCurrencyRow{index}" style="width:100%;">
+          <?php $currency4->data_seek(0); while($rowCur4=mysqli_fetch_assoc($currency4)){ ?>
+            <option value="<?=$rowCur4['id']?>"><?=$rowCur4['currency']?></option>
+          <?php } ?>
+        </select>
+        <input type="number" class="form-control form-control-sm" id="gradePurchasingPriceRow{index}" placeholder="0.00" value="0">
+      </div>
+    </div>
+  </div>
+</script>
+
 <script>
 var customerRowCount = $("#customerTable").find(".details").length;
 var gradeRowCount = $("#gradeTable").find(".details").length;
 var supplierRowCount = $("#supplierTable").find(".details").length;
+var defaultCurrencyId = '<?= $defaultCurrencyId ?>';
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
@@ -727,7 +809,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : undefined
     });
   });
   
@@ -827,7 +909,7 @@ $(function () {
         success: function(data){
           var obj = JSON.parse(data);
           if(obj.status === 'success'){
-            $('#addModal').modal('hide');
+            $('#productModal').modal('hide');
             toastr["success"](obj.message, "Success:");
             $('#productTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
@@ -844,22 +926,21 @@ $(function () {
   });
 
   $('#addProducts').on('click', function(){
-    $('#addModal').find('#id').val("");
-    $('#addModal').find('#code').val("");
-    $('#addModal').find('#product').val("");
-    $('#addModal').find('#serial').val("");
-    $('#addModal').find('#batch').val("");
-    $('#addModal').find('#part').val("");
-    $('#addModal').find('#unit').val("");
-    $('#addModal').find('#remark').val("");
-    $('#addModal').find('#pricingType').val("Fixed");
-    $('#addModal').find('#price').val("0.00");
-    $('#addModal').find('#purchasingPrice').val("0.00");
-    $('#addModal').find('#weight').val("");
-    $('#addModal').find('#productCategory').val("").trigger('change');
-    $('#addModal').find('#productPackaging').val("").trigger('change');
-    $('#addModal').find('#state').val("").trigger('change');
-    $('#addModal').find('#uom').val("").trigger('change');
+    $('#productModal').find('#id').val("");
+    $('#productModal').find('#code').val("");
+    $('#productModal').find('#product').val("");
+    $('#productModal').find('#remark').val("");
+    $('#productModal').find('#pricingType').val("Float");
+    $('#productModal').find('#pricingCurrency').val(defaultCurrencyId).trigger('change');
+    $('#productModal').find('#price').val("0.00");
+    $('#productModal').find('#purchasingPricingType').val("Float");
+    $('#productModal').find('#purchasingPricingCurrency').val(defaultCurrencyId).trigger('change');
+    $('#productModal').find('#purchasingPrice').val("0.00");
+    $('#productModal').find('#weight').val("");
+    $('#productModal').find('#productCategory').val("").trigger('change');
+    $('#productModal').find('#productPackaging').val("").trigger('change');
+    $('#productModal').find('#state').val("").trigger('change');
+    $('#productModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
     $('#okWeight').val(''); $('#okWeightUnit').val('kg');
     $('#loWeight').val(''); $('#loWeightUnit').val('kg');
@@ -869,11 +950,14 @@ $(function () {
     $('#productImageThumb').attr('src', '');
     $('#productImagePlaceholder').show();
 
-    // clear grade table
+    // clear grade table and rows
     gradeRowCount = 0;
     $('#gradeTable').html('');
+    $('#gradeRowsContainer .grade-card').remove();
+    $('#gradeEmptyState').show();
 
-    $('#addModal').modal('show');
+    $('#modalTitle').text('<?=$languageArray['add_products_code'][$language]?>');
+    $('#productModal').modal('show');
     
     $('#productForm').validate({
       errorElement: 'span',
@@ -1096,46 +1180,61 @@ $(function () {
     supplierRowCount++;
   });
 
+  $('#drawerClose, #drawerCancel, #drawerOverlay').on('click', function() {
+    $('#productModal').modal('hide');
+  });
+
+  $('#rangeSetCheckbox').on('change', function() {
+    setRangeSet($(this).is(':checked') ? 1 : 0);
+  });
+
+  // Remove grade row
+  $('#gradeRowsContainer').on('click', '.grade-card-remove', function() {
+    var index = $(this).data('index');
+    $(this).closest('.grade-card').remove();
+    $('#gradeTable').find('tr[data-index="'+index+'"]').remove();
+    updateGradeEmptyState();
+  });
+
+  // Sync row changes to hidden table
+  $('#gradeRowsContainer').on('change', 'select, input', function() {
+    var index = $(this).closest('.grade-card').data('index');
+    syncGradeRowToTable(index);
+  });
+
   // Find and remove selected table rows
   $("#gradeTable").on('click', 'button[id^="remove"]', function () {
+    var index = $(this).closest('tr').data('index');
     $(this).parents("tr").remove();
-
-    $("#gradeTable tr").each(function (index) {
-        $(this).find('input[name^="no"]').val(index + 1);
-    });
+    $('#gradeRowsContainer').find('.grade-card[data-index="'+index+'"]').remove();
+    updateGradeEmptyState();
   });
 
   $(".add-grade").click(function(){
+    // Add visual row
+    $('#gradeRowsContainer').append(renderGradeRow(gradeRowCount));
+    $('#gradeEmptyState').hide();
+
+    // Init Select2 on new row
+    $('#gradesRow'+gradeRowCount).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
+    $('#gradePricingCurrencyRow'+gradeRowCount).val(defaultCurrencyId).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+    $('#gradePurchasingPricingCurrencyRow'+gradeRowCount).val(defaultCurrencyId).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+
+    // Add hidden table row for form submission
     var $addContents = $("#gradeDetail").clone();
     $("#gradeTable").append($addContents.html());
 
-    $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount);
-    $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
+    $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
     $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
-
     $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount);
     $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(gradeRowCount+1);
-    $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#addModal')
-    });
+    $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount);
     $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount);
+    $("#gradeTable").find('#gradePricingCurrency:last').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(defaultCurrencyId);
     $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount);
     $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount);
+    $("#gradeTable").find('#gradePurchasingPricingCurrency:last').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(defaultCurrencyId);
     $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount);
-
-    // Apply custom styling to Select2 elements in addModal
-    $('#gradeTable .select2-container .select2-selection--single').css({
-      'padding-top': '4px',
-      'padding-bottom': '4px',
-      'height': 'auto'
-    });
-
-    $('#gradeTable .select2-container .select2-selection__arrow').css({
-      'padding-top': '33px',
-      'height': 'auto'
-    });
 
     gradeRowCount++;
   });
@@ -1235,6 +1334,30 @@ $(function () {
   });
 });
 
+function renderGradeRow(index) {
+  var html = $('#gradeRowTemplate').html();
+  return html.replace(/{index}/g, index);
+}
+
+function syncGradeRowToTable(index) {
+  var $row = $('#gradeTable').find('tr[data-index="'+index+'"]');
+  $row.find('select[name^="grades"]').val($('#gradesRow'+index).val());
+  $row.find('select[name^="gradePricingType"]').val($('#gradePricingTypeRow'+index).val());
+  $row.find('select[name^="gradePricingCurrency"]').val($('#gradePricingCurrencyRow'+index).val());
+  $row.find('input[name^="gradePrice"]').val($('#gradePriceRow'+index).val());
+  $row.find('select[name^="gradePurchasingPricingType"]').val($('#gradePurchasingPricingTypeRow'+index).val());
+  $row.find('select[name^="gradePurchasingPricingCurrency"]').val($('#gradePurchasingPricingCurrencyRow'+index).val());
+  $row.find('input[name^="gradePurchasingPrice"]').val($('#gradePurchasingPriceRow'+index).val());
+}
+
+function updateGradeEmptyState() {
+  if ($('#gradeRowsContainer .grade-card').length === 0) {
+    $('#gradeEmptyState').show();
+  } else {
+    $('#gradeEmptyState').hide();
+  }
+}
+
 function displayPreview(data) {
   // Parse the Excel data
   var workbook = XLSX.read(data, { type: 'binary' });
@@ -1302,23 +1425,22 @@ function edit(id){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
-      $('#addModal').find('#id').val(obj.message.id);
-      $('#addModal').find('#code').val(obj.message.product_code);
-      $('#addModal').find('#product').val(obj.message.product_name);
-      $('#addModal').find('#serial').val(obj.message.product_sn);
-      $('#addModal').find('#batch').val(obj.message.batch_no);
-      $('#addModal').find('#part').val(obj.message.parts_no);
-      $('#addModal').find('#uom').val(obj.message.uom).trigger('change');
-      $('#addModal').find('#remark').val(obj.message.remark);
-      $('#addModal').find('#pricingType').val(obj.message.pricing_type);
-      $('#addModal').find('#price').val(obj.message.price);
-      $('#addModal').find('#purchasingPricingType').val(obj.message.purchasing_pricing_type);
-      $('#addModal').find('#purchasingPrice').val(obj.message.purchasing_price);
-      $('#addModal').find('#weight').val(obj.message.weight);
-      $('#addModal').find('#productCategory').val(obj.message.category).trigger('change');
-      $('#addModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
-      $('#addModal').find('#state').val(obj.message.state).trigger('change');
-      $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+      $('#productModal').find('#id').val(obj.message.id);
+      $('#productModal').find('#code').val(obj.message.product_code);
+      $('#productModal').find('#product').val(obj.message.product_name);
+      $('#productModal').find('#uom').val(obj.message.uom).trigger('change');
+      $('#productModal').find('#remark').val(obj.message.remark);
+      $('#productModal').find('#pricingType').val(obj.message.pricing_type);
+      $('#productModal').find('#pricingCurrency').val(obj.message.pricing_currency).trigger('change');
+      $('#productModal').find('#price').val(obj.message.price);
+      $('#productModal').find('#purchasingPricingType').val(obj.message.purchasing_pricing_type);
+      $('#productModal').find('#purchasingPricingCurrency').val(obj.message.purchasing_pricing_currency).trigger('change');
+      $('#productModal').find('#purchasingPrice').val(obj.message.purchasing_price);
+      $('#productModal').find('#weight').val(obj.message.weight);
+      $('#productModal').find('#productCategory').val(obj.message.category).trigger('change');
+      $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
+      $('#productModal').find('#state').val(obj.message.state).trigger('change');
+      $('#productModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');
       if (obj.message.product_image) {
         $('#productImageThumb').attr('src', 'php/viewPhoto.php?file=' + obj.message.product_image + '&type=file_table');
@@ -1334,48 +1456,49 @@ function edit(id){
       $('#loWeight').val(obj.message.lo_weight); $('#loWeightUnit').val(obj.message.lo_weight_unit || 'kg');
       $('#hiWeight').val(obj.message.hi_weight); $('#hiWeightUnit').val(obj.message.hi_weight_unit || 'kg');
 
-      // grade table
+      // grade table and rows
       $('#gradeTable').html('');
+      $('#gradeRowsContainer .grade-card').remove();
       gradeRowCount = 0;
       if (obj.message.productGrades.length > 0){
+        $('#gradeEmptyState').hide();
         for(var i = 0; i < obj.message.productGrades.length; i++){
           var item = obj.message.productGrades[i];
+          
+          // Add visual row
+          $('#gradeRowsContainer').append(renderGradeRow(gradeRowCount));
+          $('#gradesRow'+gradeRowCount).val(item.grade_id).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
+          $('#gradePricingTypeRow'+gradeRowCount).val(item.pricing_type || 'Standard');
+          $('#gradePricingCurrencyRow'+gradeRowCount).val(item.pricing_currency).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+          $('#gradePriceRow'+gradeRowCount).val(item.price || 0);
+          $('#gradePurchasingPricingTypeRow'+gradeRowCount).val(item.purchasing_pricing_type || 'Standard');
+          $('#gradePurchasingPricingCurrencyRow'+gradeRowCount).val(item.purchasing_pricing_currency).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+          $('#gradePurchasingPriceRow'+gradeRowCount).val(item.purchasing_price || 0);
+
+          // Add hidden table row
           var $addContents = $("#gradeDetail").clone();
           $("#gradeTable").append($addContents.html());
 
-          $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount);
-          $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
+          $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
           $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
-
           $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount).val(item.id);
           $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(item.no);
-          $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id).select2({
-            allowClear: true,
-            placeholder: "Please Select",
-            dropdownParent: $('#addModal')
-          });
+          $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id);
           $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val(item.pricing_type || 'Standard');
-          $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price || 0.00);
+          $("#gradeTable").find('#gradePricingCurrency:last').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(item.pricing_currency);
+          $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price || 0);
           $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount).val(item.purchasing_pricing_type || 'Standard');
+          $("#gradeTable").find('#gradePurchasingPricingCurrency:last').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(item.purchasing_pricing_currency);
           $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount).val(item.purchasing_price || 0);
-
-          // Apply custom styling to Select2 elements in addModal
-          $('#gradeTable .select2-container .select2-selection--single').css({
-            'padding-top': '4px',
-            'padding-bottom': '4px',
-            'height': 'auto'
-          });
-
-          $('#gradeTable .select2-container .select2-selection__arrow').css({
-            'padding-top': '33px',
-            'height': 'auto'
-          });
 
           gradeRowCount++;
         }
+      } else {
+        $('#gradeEmptyState').show();
       }
 
-      $('#addModal').modal('show');
+      $('#modalTitle').text('<?=$languageArray['edit_product_code'][$language] ?? 'Edit Product'?>');
+      $('#productModal').modal('show');
       
       $('#productForm').validate({
         errorElement: 'span',
@@ -1487,16 +1610,9 @@ function openCustomers(id) {
 function setRangeSet(val) {
   var enabled = val == 1;
   $('#rangeSet').val(enabled ? 1 : 0);
-  $('#rangeSetToggle').css('background', enabled ? '#28a745' : '#ccc');
-  $('#rangeSetKnob').css('left', enabled ? '75px' : '1px');
-  $('#rangeSetIcon').attr('class', enabled ? 'fas fa-check text-success' : 'fas fa-times text-danger');
-  $('#rangeSetLabel').text(enabled ? 'Enable' : 'Disable').css('right', enabled ? 'auto' : '8px').css('left', enabled ? '8px' : 'auto');
+  $('#rangeSetCheckbox').prop('checked', enabled);
   $('#rangeWeightFields').toggle(enabled);
 }
-
-$('#rangeSetToggle').on('click', function() {
-  setRangeSet($('#rangeSet').val() == 1 ? 0 : 1);
-});
 
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
