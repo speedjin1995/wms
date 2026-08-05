@@ -26,6 +26,8 @@ else{
     $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 AND customer = '".$company."' ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 AND customer = '".$company."' ORDER BY packaging_name ASC");
+    $currency = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency2 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
   }
   else{
     $customers = $db->query("SELECT c.*, s.states AS state_name FROM customers c LEFT JOIN states s ON c.states = s.id WHERE c.deleted = 0 ORDER BY c.customer_name ASC");
@@ -36,6 +38,8 @@ else{
     $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 ORDER BY packaging_name ASC");
+    $currency = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency2 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
   }
 
   // Language
@@ -266,6 +270,16 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['selling_price_currency_code'][$language]?></label>
+                    <select class="form-control" id="pricingCurrency" name="pricingCurrency">
+                      <?php while($rowcurrency=mysqli_fetch_assoc($currency)){ ?>
+                        <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
                     <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
                     <input type="number" class="form-control" name="price" id="price" placeholder="0.00" value="0.00">
                   </div>
@@ -276,6 +290,16 @@ else{
                     <select class="form-control" id="purchasingPricingType" name="purchasingPricingType">
                       <option selected><?=$languageArray['fixed_code'][$language]?></option>
                       <option><?=$languageArray['float_code'][$language]?></option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group mb-2">
+                    <label class="font-weight-bold"><?=$languageArray['purchasing_price_currency_code'][$language]?></label>
+                    <select class="form-control" id="purchasingPricingCurrency" name="purchasingPricingCurrency">
+                      <?php while($rowcurrency=mysqli_fetch_assoc($currency2)){ ?>
+                        <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
+                      <?php } ?>
                     </select>
                   </div>
                 </div>
