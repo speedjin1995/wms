@@ -19,8 +19,10 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     $uom = null;
     $remark = null;
     $pricingType = null;
+    $pricingCurrency = null;
     $price = null;
     $purchasingPricingType = null;
+    $purchasingPricingCurrency = null;
     $purchasingPrice = null;
     $weight = null;
     $rangeSet = 0;
@@ -60,6 +62,10 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         $pricingType = filter_input(INPUT_POST, 'pricingType', FILTER_SANITIZE_STRING);
     }
 
+    if(isset($_POST['pricingCurrency']) && $_POST['pricingCurrency'] != null && $_POST['pricingCurrency'] != ''){
+        $pricingCurrency = filter_input(INPUT_POST, 'pricingCurrency', FILTER_SANITIZE_STRING);
+    }
+
     if(isset($_POST['price']) && $_POST['price'] != null && $_POST['price'] != ''){
         $price = filter_input(INPUT_POST, 'price', FILTER_SANITIZE_STRING);
     }
@@ -70,6 +76,10 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
 
     if(isset($_POST['purchasingPricingType']) && $_POST['purchasingPricingType'] != null && $_POST['purchasingPricingType'] != ''){
         $purchasingPricingType = filter_input(INPUT_POST, 'purchasingPricingType', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['purchasingPricingCurrency']) && $_POST['purchasingPricingCurrency'] != null && $_POST['purchasingPricingCurrency'] != ''){
+        $purchasingPricingCurrency = filter_input(INPUT_POST, 'purchasingPricingCurrency', FILTER_SANITIZE_STRING);
     }
 
     if(isset($_POST['weight']) && $_POST['weight'] != null && $_POST['weight'] != ''){
@@ -117,8 +127,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, price=?, purchasing_pricing_type=?, purchasing_price=?, weight=?, range_set=?, ok_weight=?, ok_weight_unit=?, lo_weight=?, lo_weight_unit=?, hi_weight=?, hi_weight_unit=?, category=?, packaging=?, state=?, is_manual=?, modified_by=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $purchasingPricingType, $purchasingPrice, $weight, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $isManual, $userID, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, pricing_currency=?, price=?, purchasing_pricing_type=?, purchasing_pricing_currency=?, purchasing_price=?, weight=?, range_set=?, ok_weight=?, ok_weight_unit=?, lo_weight=?, lo_weight_unit=?, hi_weight=?, hi_weight_unit=?, category=?, packaging=?, state=?, is_manual=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $pricingCurrency, $price, $purchasingPricingType, $purchasingPricingCurrency, $purchasingPrice, $weight, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $isManual, $userID, $_POST['id']);
 
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -189,8 +199,10 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                     $productGradeId = (array)$_POST['productGradeId'];
                     $grades =  (array)$_POST['grades'];
                     $gradePricingType = (array)$_POST['gradePricingType'];
+                    $gradePricingCurrency = isset($_POST['gradePricingCurrency']) ? (array)$_POST['gradePricingCurrency'] : [];
                     $gradePrice = (array)$_POST['gradePrice'];
                     $gradePurchasingPricingType = (array)$_POST['gradePurchasingPricingType'];
+                    $gradePurchasingPricingCurrency = isset($_POST['gradePurchasingPricingCurrency']) ? (array)$_POST['gradePurchasingPricingCurrency'] : [];
                     $gradePurchasingPrice = (array)$_POST['gradePurchasingPrice'];
 
                     if(isset($no) && $no != null && count($no) > 0){
@@ -214,21 +226,23 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                 foreach($no as $key => $number) {
                                     $gradeId = $grades[$key];
                                     $gPricingType = $gradePricingType[$key];
+                                    $gPricingCurrency = isset($gradePricingCurrency[$key]) && $gradePricingCurrency[$key] != '' ? $gradePricingCurrency[$key] : null;
                                     $gPrice = $gradePrice[$key];
                                     $gPurchasingPricingType = $gradePurchasingPricingType[$key];
+                                    $gPurchasingPricingCurrency = isset($gradePurchasingPricingCurrency[$key]) && $gradePurchasingPricingCurrency[$key] != '' ? $gradePurchasingPricingCurrency[$key] : null;
                                     $gPurchasingPrice = $gradePurchasingPrice[$key];
 
                                     if (isset($productGradeId[$key]) && $productGradeId[$key] != null && $productGradeId[$key] != ''){
                                         $gProductId = $productGradeId[$key];
 
-                                        if ($update_stmt2 = $db->prepare("UPDATE product_grades SET product_id=?, grade_id=?, pricing_type=?, price=?, purchasing_pricing_type=?, purchasing_price=?, modified_by=?, deleted='0' WHERE id=?")){
-                                            $update_stmt2->bind_param('ssssssss', $_POST['id'], $gradeId, $gPricingType, $gPrice, $gPurchasingPricingType, $gPurchasingPrice, $userID, $gProductId);
+                                        if ($update_stmt2 = $db->prepare("UPDATE product_grades SET product_id=?, grade_id=?, pricing_type=?, pricing_currency=?, price=?, purchasing_pricing_type=?, purchasing_pricing_currency=?, purchasing_price=?, modified_by=?, deleted='0' WHERE id=?")){
+                                            $update_stmt2->bind_param('ssssssssss', $_POST['id'], $gradeId, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID, $gProductId);
                                             $update_stmt2->execute();
                                             $update_stmt2->close();
                                         }
                                     }else{
-                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)")){
-                                            $product_stmt->bind_param('sssssss', $_POST['id'], $gradeId, $gPricingType, $gPrice, $gPurchasingPricingType, $gPurchasingPrice, $userID);
+                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                                            $product_stmt->bind_param('sssssssss', $_POST['id'], $gradeId, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID);
                                             $product_stmt->execute();
                                             $product_stmt->close();
                                         }
@@ -283,8 +297,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, price, purchasing_pricing_type, purchasing_price, weight, customer, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, category, packaging, state, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $price, $purchasingPricingType, $purchasingPrice, $weight, $company, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, category, packaging, state, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $pricingCurrency, $price, $purchasingPricingType, $purchasingPricingCurrency, $purchasingPrice, $weight, $company, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $userID);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {
@@ -335,14 +349,18 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                     $no = $_POST['gradeNo'];
                     $grades = $_POST['grades'];
                     $gradePricingType = $_POST['gradePricingType'];
+                    $gradePricingCurrency = isset($_POST['gradePricingCurrency']) ? $_POST['gradePricingCurrency'] : [];
                     $gradePrice = $_POST['gradePrice'];
                     $gradePurchasingPricingType = $_POST['gradePurchasingPricingType'];
+                    $gradePurchasingPricingCurrency = isset($_POST['gradePurchasingPricingCurrency']) ? $_POST['gradePurchasingPricingCurrency'] : [];
                     $gradePurchasingPrice = $_POST['gradePurchasingPrice'];
 
                     if(isset($no) && $no != null && count($no) > 0){
                         foreach ($no as $key => $number) {
-                            if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, price, purchasing_pricing_type, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)")){
-                                $product_stmt->bind_param('sssssss', $productId, $grades[$key], $gradePricingType[$key], $gradePrice[$key], $gradePurchasingPricingType[$key], $gradePurchasingPrice[$key], $userID);
+                            $gPricingCurrency = isset($gradePricingCurrency[$key]) && $gradePricingCurrency[$key] != '' ? $gradePricingCurrency[$key] : null;
+                            $gPurchasingPricingCurrency = isset($gradePurchasingPricingCurrency[$key]) && $gradePurchasingPricingCurrency[$key] != '' ? $gradePurchasingPricingCurrency[$key] : null;
+                            if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                                $product_stmt->bind_param('sssssssss', $productId, $grades[$key], $gradePricingType[$key], $gPricingCurrency, $gradePrice[$key], $gradePurchasingPricingType[$key], $gPurchasingPricingCurrency, $gradePurchasingPrice[$key], $userID);
                                 $product_stmt->execute();
                                 $product_stmt->close();
                             }

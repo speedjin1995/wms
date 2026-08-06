@@ -26,6 +26,12 @@ else{
     $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 AND customer = '".$company."' ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 AND customer = '".$company."' ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 AND customer = '".$company."' ORDER BY packaging_name ASC");
+    $currency = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency2 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency3 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency4 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency5 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
+    $currency6 = $db->query("SELECT * FROM currency WHERE deleted = 0 AND customer = '".$company."' ORDER BY currency ASC");
   }
   else{
     $customers = $db->query("SELECT c.*, s.states AS state_name FROM customers c LEFT JOIN states s ON c.states = s.id WHERE c.deleted = 0 ORDER BY c.customer_name ASC");
@@ -36,6 +42,24 @@ else{
     $gradesSupplier = $db->query("SELECT * FROM grades WHERE deleted = 0 ORDER BY units ASC");
     $category = $db->query("SELECT * FROM categories WHERE deleted = 0 ORDER BY category_name ASC");
     $packaging = $db->query("SELECT * FROM packaging WHERE deleted = 0 ORDER BY packaging_name ASC");
+    $currency = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency2 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency3 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency4 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency5 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+    $currency6 = $db->query("SELECT * FROM currency WHERE deleted = 0 ORDER BY currency ASC");
+  }
+
+  // Default Currency
+  $defaultCurrencyId = null;
+  if ($curreny_stmt = $db->prepare("SELECT id FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1 LIMIT 1")) {
+    $curreny_stmt->bind_param('s', $company);
+    $curreny_stmt->execute();
+    $curreny_result = $curreny_stmt->get_result();
+    if ($curreny_row = $curreny_result->fetch_assoc()) {
+      $defaultCurrencyId = $curreny_row['id'];
+    }
+    $curreny_stmt->close();
   }
 
   // Language
@@ -112,7 +136,7 @@ else{
 </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade" id="uploadModal">
+<div class="modal fade modal-modern" id="uploadModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -130,8 +154,8 @@ else{
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadProduct"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn-modern btn-modern-primary" id="uploadProduct"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -140,7 +164,7 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="errorModal" style="display:none">
+<div class="modal fade modal-modern" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -164,243 +188,266 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="addModal">
+<!-- Product Modal -->
+<div class="modal fade modal-modern" id="productModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="productForm">
-        <div class="modal-header bg-gradient-dark">
-          <h5 class="modal-title text-white"><i class="fas fa-box mr-2"></i><?=$languageArray['add_products_code'][$language]?></h5>
-          <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle"><?=$languageArray['add_products_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body" style="max-height:75vh; overflow-y:auto; background:#f4f6f9;">
+        <div class="modal-body">
           <input type="hidden" id="id" name="id">
 
           <!-- Company (SADMIN only) -->
-          <div <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-            <div class="card card-outline card-primary mb-3">
-              <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-building mr-1"></i><?=$languageArray['company_code'][$language]?></h6></div>
-              <div class="card-body py-2">
-                <select class="form-control select2" style="width:100%;" id="company" name="company" required>
-                  <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                    <option value="<?=$rowCompany['id']?>" <?php if($rowCompany['id']==$company) echo 'selected';?>><?=$rowCompany['name']?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
+          <div class="modal-section" <?php if($role != 'SADMIN') echo 'style="display:none;"'; ?>>
+            <div class="section-title"><i class="fas fa-building mr-2"></i><?=$languageArray['company_code'][$language]?></div>
+            <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+              <?php $companies->data_seek(0); while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                <option value="<?=$rowCompany['id']?>" <?php if($rowCompany['id']==$company) echo 'selected';?>><?=$rowCompany['name']?></option>
+              <?php } ?>
+            </select>
           </div>
 
           <!-- Product Info -->
-          <div class="card card-outline card-primary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i><?=$languageArray['product_information_code'][$language]?></h6></div>
-            <div class="card-body py-3">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
-                  </div>
+          <div class="modal-section">
+            <div class="section-title"><i class="fas fa-info-circle mr-2"></i><?=$languageArray['product_information_code'][$language]?></div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?></label>
-                    <select class="form-control select2" id="state" name="state[]" multiple>
-                        <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
-                            <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
-                        <?php } ?>
-                    </select>
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
+                  <select class="form-control select2" id="state" name="state[]" multiple style="width:100%;">
+                    <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
+                      <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['weight_code'][$language]?></label>
-                    <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['weight_code'][$language]?></label>
+                  <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['unit_code'][$language]?></label>
-                    <select class="form-control select2" id="uom" name="uom">
-                      <option selected>-</option>
-                      <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
-                        <option value="<?=$rowunits['id']?>"><?=$rowunits['units']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['unit_code'][$language]?></label>
+                  <select class="form-control select2" id="uom" name="uom" style="width:100%;">
+                    <option selected>-</option>
+                    <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
+                      <option value="<?=$rowunits['id']?>"><?=$rowunits['units']?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['category_code'][$language]?></label>
-                    <select class="form-control select2" id="productCategory" name="productCategory">
-                      <option value="" selected>-</option>
-                      <?php while($rowCat=mysqli_fetch_assoc($category)){ ?>
-                        <option value="<?=$rowCat['id']?>"><?=$rowCat['category_name']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['category_code'][$language]?></label>
+                  <select class="form-control select2" id="productCategory" name="productCategory" style="width:100%;">
+                    <option value="" selected>-</option>
+                    <?php while($rowCat=mysqli_fetch_assoc($category)){ ?>
+                      <option value="<?=$rowCat['id']?>"><?=$rowCat['category_name']?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
-                    <select class="form-control select2" id="productPackaging" name="productPackaging">
-                      <option value="" selected>-</option>
-                      <?php while($rowPack=mysqli_fetch_assoc($packaging)){ ?>
-                        <option value="<?=$rowPack['id']?>"><?=$rowPack['packaging_name']?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
+                  <select class="form-control select2" id="productPackaging" name="productPackaging" style="width:100%;">
+                    <option value="" selected>-</option>
+                    <?php while($rowPack=mysqli_fetch_assoc($packaging)){ ?>
+                      <option value="<?=$rowPack['id']?>"><?=$rowPack['packaging_name']?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['pricing_type_code'][$language]?></label>
-                    <select class="form-control" id="pricingType" name="pricingType">
-                      <option selected><?=$languageArray['fixed_code'][$language]?></option>
-                      <option><?=$languageArray['float_code'][$language]?></option>
-                    </select>
+              </div>
+            </div>
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
+              <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
+            </div>
+          </div>
+
+          <!-- Pricing -->
+          <div class="modal-section">
+            <div class="section-title"><i class="fas fa-tags mr-2"></i><?=$languageArray['pricing_code'][$language] ?? 'Pricing'?></div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="pricing-card pricing-card-sell">
+                  <div class="pricing-card-header">
+                    <i class="fas fa-arrow-up"></i>
+                    <span><?=$languageArray['selling_price_code'][$language]?></span>
                   </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="price" id="price" placeholder="0.00" value="0.00">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
-                    <select class="form-control" id="purchasingPricingType" name="purchasingPricingType">
-                      <option selected><?=$languageArray['fixed_code'][$language]?></option>
-                      <option><?=$languageArray['float_code'][$language]?></option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
-                    <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00" value="0.00">
+                  <div class="pricing-card-body">
+                    <div class="row">
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                        <select class="form-control form-control-sm" id="pricingType" name="pricingType">
+                          <option selected><?=$languageArray['fixed_code'][$language]?></option>
+                          <option><?=$languageArray['float_code'][$language]?></option>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['currency_code'][$language] ?? 'Currency'?></label>
+                        <select class="form-control form-control-sm select2" id="pricingCurrency" name="pricingCurrency">
+                          <?php $currency->data_seek(0); while($rowcurrency=mysqli_fetch_assoc($currency)){ ?>
+                            <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['price_code'][$language] ?? 'Price'?></label>
+                        <input type="number" class="form-control form-control-sm" name="price" id="price" placeholder="0.00" value="0.00">
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="form-group mb-0">
-                <label class="font-weight-bold"><?=$languageArray['remark_code'][$language]?></label>
-                <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
+              <div class="col-md-6">
+                <div class="pricing-card pricing-card-buy">
+                  <div class="pricing-card-header">
+                    <i class="fas fa-arrow-down"></i>
+                    <span><?=$languageArray['purchasing_price_code'][$language]?></span>
+                  </div>
+                  <div class="pricing-card-body">
+                    <div class="row">
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                        <select class="form-control form-control-sm" id="purchasingPricingType" name="purchasingPricingType">
+                          <option selected><?=$languageArray['fixed_code'][$language]?></option>
+                          <option><?=$languageArray['float_code'][$language]?></option>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['currency_code'][$language] ?? 'Currency'?></label>
+                        <select class="form-control form-control-sm select2" id="purchasingPricingCurrency" name="purchasingPricingCurrency">
+                          <?php $currency2->data_seek(0); while($rowcurrency=mysqli_fetch_assoc($currency2)){ ?>
+                            <option value="<?=$rowcurrency['id']?>"><?=$rowcurrency['currency']?></option>
+                          <?php } ?>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label-modern"><?=$languageArray['price_code'][$language] ?? 'Price'?></label>
+                        <input type="number" class="form-control form-control-sm" name="purchasingPrice" id="purchasingPrice" placeholder="0.00" value="0.00">
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Product Image -->
-          <div class="card card-outline card-secondary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image mr-1"></i><?=$languageArray['product_image_code'][$language]?></h6></div>
-            <div class="card-body py-3">
-              <div class="row align-items-center">
-                <div class="col-md-6">
-                  <div id="productImageDropzone" style="border:2px dashed #adb5bd; border-radius:6px; padding:24px; text-align:center; cursor:pointer; background:#fff;">
-                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                    <p class="mb-1 text-muted"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
-                    <p class="mb-1 text-muted"><?=$languageArray['file_format_max_size_code'][$language]?></p>
-                    <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+          <div class="modal-section">
+            <div class="section-title"><i class="fas fa-image mr-2"></i><?=$languageArray['product_image_code'][$language]?></div>
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="upload-zone" id="productImageDropzone">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
+                  <span><?=$languageArray['file_format_max_size_code'][$language]?></span>
+                  <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+                </div>
+              </div>
+              <div class="col-md-6 text-center">
+                <div id="productImagePreview" style="display:none;">
+                  <img id="productImageThumb" src="" style="max-height:140px; max-width:100%; border-radius:8px; border:1px solid var(--border-color); object-fit:contain;">
+                  <div class="mt-2">
+                    <button type="button" id="removeProductImage" class="btn-drawer btn-drawer-secondary btn-sm"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
                   </div>
                 </div>
-                <div class="col-md-6 text-center">
-                  <div id="productImagePreview" style="display:none;">
-                    <img id="productImageThumb" src="" style="max-height:160px; max-width:100%; border-radius:6px; border:1px solid #dee2e6; object-fit:contain;">
-                    <div class="mt-2">
-                      <button type="button" id="removeProductImage" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
-                    </div>
-                  </div>
-                  <div id="productImagePlaceholder" style="color:#adb5bd;">
-                    <i class="fas fa-image fa-3x"></i>
-                    <p class="mt-1 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
-                  </div>
+                <div id="productImagePlaceholder" style="color:var(--text-muted);">
+                  <i class="fas fa-image fa-3x"></i>
+                  <p class="mt-2 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Ranges Set -->
-          <div class="card card-outline card-warning mb-3">
-            <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0 text-danger font-weight-bold"><i class="fas fa-sliders-h mr-1"></i><?=$languageArray['ranges_set_code'][$language]?></h6>
-              <div class="ml-auto d-flex align-items-center">
-                <input type="hidden" name="rangeSet" id="rangeSet" value="0">
-                <div id="rangeSetToggle" style="cursor:pointer; display:inline-flex; align-items:center; background:#ccc; border-radius:30px; width:110px; height:34px; position:relative; transition:background 0.3s;">
-                  <div id="rangeSetKnob" style="position:absolute; width:30px; height:30px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left 0.3s; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.3);">
-                    <i id="rangeSetIcon" class="fas fa-times text-danger"></i>
-                  </div>
-                  <span id="rangeSetLabel" style="position:absolute; right:10px; font-size:11px; font-weight:600; color:#fff; letter-spacing:0.5px;"><?=$languageArray['disable_code'][$language]?></span>
-                </div>
-              </div>
+          <div class="modal-section collapsible-section">
+            <div class="section-header-toggle" id="rangeSetHeader">
+              <div class="section-title mb-0"><i class="fas fa-sliders-h mr-2"></i><?=$languageArray['ranges_set_code'][$language]?></div>
+              <input type="hidden" name="rangeSet" id="rangeSet" value="0">
+              <label class="toggle-switch">
+                <input type="checkbox" id="rangeSetCheckbox">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <div id="rangeWeightFields" class="card-body py-3" style="display:none;">
-              <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['ok_weight_code'][$language]?></label></div>
-                <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="okWeight" name="okWeight" placeholder="0.000" style="background:rgba(40,167,69,0.25); color:#155724; border:1px solid #28a745;">
+            <div id="rangeWeightFields" class="collapsible-content" style="display:none;">
+              <div class="row mt-3">
+                <div class="col-md-4">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern" style="color:#28a745;"><?=$languageArray['ok_weight_code'][$language]?></label>
+                    <div class="input-group">
+                      <input type="number" step="any" class="form-control" id="okWeight" name="okWeight" placeholder="0.000" style="border-color:#28a745;">
+                      <select class="form-control" id="okWeightUnit" name="okWeightUnit" style="max-width:80px;">
+                        <?php $units2->data_seek(0); while($r=mysqli_fetch_assoc($units2)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-md-3">
-                  <select class="form-control" id="okWeightUnit" name="okWeightUnit">
-                    <?php while($r=mysqli_fetch_assoc($units2)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
-                  </select>
+                <div class="col-md-4">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern" style="color:#ffc107;"><?=$languageArray['lo_weight_code'][$language]?></label>
+                    <div class="input-group">
+                      <input type="number" step="any" class="form-control" id="loWeight" name="loWeight" placeholder="0.000" style="border-color:#ffc107;">
+                      <select class="form-control" id="loWeightUnit" name="loWeightUnit" style="max-width:80px;">
+                        <?php $units3->data_seek(0); while($r=mysqli_fetch_assoc($units3)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['lo_weight_code'][$language]?></label></div>
-                <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="loWeight" name="loWeight" placeholder="0.000" style="background:rgba(255,193,7,0.25); color:#856404; border:1px solid #ffc107;">
-                </div>
-                <div class="col-md-3">
-                  <select class="form-control" id="loWeightUnit" name="loWeightUnit">
-                    <?php while($r=mysqli_fetch_assoc($units3)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
-                  </select>
-                </div>
-              </div>
-              <div class="row align-items-center">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['hi_weight_code'][$language]?></label></div>
-                <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="hiWeight" name="hiWeight" placeholder="0.000" style="background:rgba(220,53,69,0.2); color:#721c24; border:1px solid #dc3545;">
-                </div>
-                <div class="col-md-3">
-                  <select class="form-control" id="hiWeightUnit" name="hiWeightUnit">
-                    <?php while($r=mysqli_fetch_assoc($units4)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
-                  </select>
+                <div class="col-md-4">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern" style="color:#dc3545;"><?=$languageArray['hi_weight_code'][$language]?></label>
+                    <div class="input-group">
+                      <input type="number" step="any" class="form-control" id="hiWeight" name="hiWeight" placeholder="0.000" style="border-color:#dc3545;">
+                      <select class="form-control" id="hiWeightUnit" name="hiWeightUnit" style="max-width:80px;">
+                        <?php $units4->data_seek(0); while($r=mysqli_fetch_assoc($units4)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Grades -->
-          <div class="card card-outline card-info mb-0">
-            <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0"><i class="fas fa-layer-group mr-1"></i><?=$languageArray['grades_code'][$language]?></h6>
-              <button type="button" class="btn btn-info btn-sm add-grade ml-auto"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+          <div class="modal-section">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="section-title mb-0"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
+              <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
             </div>
-            <div class="card-body p-2">
-              <table class="table table-sm table-bordered mb-0">
-                <thead class="thead-light">
-                  <tr>
-                    <th width="8%"><?=$languageArray['number_short_code'][$language]?></th>
-                    <th><?=$languageArray['unit_code'][$language]?></th>
-                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['selling_price_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_price_code'][$language]?></th>
-                    <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
-                  </tr>
-                </thead>
-                <tbody id="gradeTable"></tbody>
-              </table>
+            <div id="gradeRowsContainer">
+              <div id="gradeEmptyState" class="empty-state">
+                <i class="fas fa-layer-group"></i>
+                <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
+                <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
+              </div>
             </div>
+            <!-- Hidden table for form data submission -->
+            <table style="display:none;"><tbody id="gradeTable"></tbody></table>
           </div>
 
         </div>
-        <div class="modal-footer justify-content-end">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn-modern btn-modern-primary" id="submitMember"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -408,7 +455,7 @@ else{
 </div>
 
 <!-- Customers Modal -->
-<div class="modal fade" id="customersModal">
+<div class="modal fade modal-modern" id="customersModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="customersForm">
@@ -428,46 +475,30 @@ else{
                 <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                 <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
               </div>
-              <table class="table table-sm table-bordered mb-0">
-                <thead class="thead-light">
-                  <tr>
-                    <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
-                    <th><?=$languageArray['customer_code'][$language]?></th>
-                    <th width="12%"><?=$languageArray['states_code'][$language]?></th>
-                    <th width="15%"><?=$languageArray['grade_code'][$language]?></th>
-                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['selling_price_code'][$language]?></th>
-                    <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
-                  </tr>
-                </thead>
-                <tbody id="customerTable"></tbody>
-              </table>
+              <div id="customerCards" class="customer-supplier-cards"></div>
+              <div id="customerEmptyState" class="empty-state">
+                <i class="fas fa-user-plus"></i>
+                <p><?=$languageArray['no_customers_code'][$language] ?? 'No customers added'?></p>
+                <span><?=$languageArray['click_add_customer_code'][$language] ?? 'Click the button above to add a customer'?></span>
+              </div>
             </div>
             <div class="tab-pane fade" id="tabSuppliers">
               <div class="mb-2 text-right">
                 <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                 <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
               </div>
-              <table class="table table-sm table-bordered mb-0">
-                <thead class="thead-light">
-                  <tr>
-                    <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
-                    <th><?=$languageArray['supplier_code'][$language]?></th>
-                    <th width="12%"><?=$languageArray['states_code'][$language]?></th>
-                    <th width="15%"><?=$languageArray['grade_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_price_code'][$language]?></th>
-                    <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
-                  </tr>
-                </thead>
-                <tbody id="supplierTable"></tbody>
-              </table>
+              <div id="supplierCards" class="customer-supplier-cards"></div>
+              <div id="supplierEmptyState" class="empty-state">
+                <i class="fas fa-truck"></i>
+                <p><?=$languageArray['no_suppliers_code'][$language] ?? 'No suppliers added'?></p>
+                <span><?=$languageArray['click_add_supplier_code'][$language] ?? 'Click the button above to add a supplier'?></span>
+              </div>
             </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="submitCustomers"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+          <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn-modern btn-modern-primary" id="submitCustomers"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -475,7 +506,7 @@ else{
 </div>
 
 <!-- Bulk Price by State Modal -->
-<div class="modal fade" id="bulkPriceByStateModal">
+<div class="modal fade modal-modern" id="bulkPriceByStateModal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-gradient-warning">
@@ -530,15 +561,15 @@ else{
         </div>
       </div>
       <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-        <button type="button" class="btn btn-warning" id="bulkPriceByStateSave"><?=$languageArray['save_code'][$language]?></button>
+        <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn-modern btn-modern-primary" id="bulkPriceByStateSave"><i class="fas fa-check mr-1"></i><?=$languageArray['save_code'][$language]?></button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- jQuery -->
 <script src="plugins/jquery/jquery.min.js"></script>
+<link rel="stylesheet" href="assets/css/modal-global.css">
 <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
 <!-- Bootstrap -->
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -561,89 +592,111 @@ else{
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 
 <script type="text/html" id="customerDetail">
-  <tr class="details">
-    <td>
-      <input type="text" class="form-control" id="no" name="no" readonly>
-      <input type="text" class="form-control" id="customerProductId" name="customerProductId" hidden>
-      <input type="hidden" id="customerRowType" name="customerRowType" value="customer">
-    </td>
-    <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="customers" name="customers" data-placeholder="Please Select">
-        <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
-          <option value="<?=$rowCustomer['id'] ?>" data-state="<?=$rowCustomer['state_name']?>"><?=$rowCustomer['customer_name']?></option>
+  <div class="cs-card details">
+    <input type="hidden" id="customerProductId" name="customerProductId">
+    <input type="hidden" id="customerRowType" name="customerRowType" value="customer">
+    <input type="hidden" id="no" name="no">
+    <div class="cs-card-header">
+      <span class="cs-card-number"></span>
+      <select class="form-control form-control-sm select2" id="customers" name="customers" data-placeholder="<?=$languageArray['select_customer_code'][$language] ?? 'Select Customer'?>">
+        <option value=""></option>
+        <?php $customers->data_seek(0); while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
+          <option value="<?=$rowCustomer['id']?>" data-state="<?=$rowCustomer['state_name']?>"><?=$rowCustomer['customer_name']?></option>
         <?php } ?>
       </select>
-    </td>
-    <td>
-      <input type="text" class="form-control customer-state-display" readonly style="background-color:#e9ecef;">
-    </td>
-    <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="customerGrade" name="customerGrade" data-placeholder="-">
-        <option value="">-</option>
-        <?php while($gradeListRow=mysqli_fetch_assoc($grades2)){ ?>
-          <option value="<?=$gradeListRow['id']?>"><?=$gradeListRow['units']?></option>
-        <?php } ?>
-      </select>
-    </td>
-    <td>
-      <select class="form-control" style="width: 100%; background-color:white;" id="customerPricingType" name="customerPricingType">
-        <option selected><?=$languageArray['standard_code'][$language]?></option>
-        <option><?=$languageArray['fixed_code'][$language]?></option>
-        <option><?=$languageArray['float_code'][$language]?></option>
-      </select>
-    </td>
-    <td>
-      <input type="number" step="0.01" min="0" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
-    </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
-          <i class="fa fa-times"></i>
-      </button>
-    </td>
-  </tr>
+      <button type="button" class="cs-card-remove" id="remove"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cs-card-body">
+      <div class="cs-card-field">
+        <label><?=$languageArray['states_code'][$language]?></label>
+        <input type="text" class="form-control form-control-sm customer-state-display" readonly>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['grade_code'][$language]?></label>
+        <select class="form-control form-control-sm select2" id="customerGrade" name="customerGrade" data-placeholder="-">
+          <option value="">-</option>
+          <?php $grades2->data_seek(0); while($gradeListRow=mysqli_fetch_assoc($grades2)){ ?>
+            <option value="<?=$gradeListRow['id']?>"><?=$gradeListRow['units']?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['pricing_type_code'][$language]?></label>
+        <select class="form-control form-control-sm" id="customerPricingType" name="customerPricingType">
+          <option selected><?=$languageArray['standard_code'][$language]?></option>
+          <option><?=$languageArray['fixed_code'][$language]?></option>
+          <option><?=$languageArray['float_code'][$language]?></option>
+        </select>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['currency_code'][$language] ?? 'Currency'?></label>
+        <select class="form-control form-control-sm select2" id="customerCurrency" name="customerCurrency" data-placeholder="-">
+          <option value="">-</option>
+          <?php $currency5->data_seek(0); while($rowCur5=mysqli_fetch_assoc($currency5)){ ?>
+            <option value="<?=$rowCur5['id']?>"><?=$rowCur5['currency']?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['selling_price_code'][$language]?></label>
+        <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="customerPrice" name="customerPrice" value="0">
+      </div>
+    </div>
+  </div>
 </script>
 
 <script type="text/html" id="supplierDetail">
-  <tr class="details">
-    <td>
-      <input type="text" class="form-control" id="supplierNo" name="supplierNo" readonly>
-      <input type="text" class="form-control" id="supplierProductId" name="supplierProductId" hidden>
-      <input type="hidden" id="supplierRowType" name="supplierRowType" value="supplier">
-    </td>
-    <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="suppliers" name="suppliers" data-placeholder="Please Select">
-        <?php while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
-          <option value="<?=$rowSupplier['id'] ?>" data-state="<?=$rowSupplier['state_name']?>"><?=$rowSupplier['supplier_name']?></option>
+  <div class="cs-card details">
+    <input type="hidden" id="supplierProductId" name="supplierProductId">
+    <input type="hidden" id="supplierRowType" name="supplierRowType" value="supplier">
+    <input type="hidden" id="supplierNo" name="supplierNo">
+    <div class="cs-card-header">
+      <span class="cs-card-number"></span>
+      <select class="form-control form-control-sm select2" id="suppliers" name="suppliers" data-placeholder="<?=$languageArray['select_supplier_code'][$language] ?? 'Select Supplier'?>">
+        <option value=""></option>
+        <?php $suppliers->data_seek(0); while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
+          <option value="<?=$rowSupplier['id']?>" data-state="<?=$rowSupplier['state_name']?>"><?=$rowSupplier['supplier_name']?></option>
         <?php } ?>
       </select>
-    </td>
-    <td>
-      <input type="text" class="form-control supplier-state-display" readonly style="background-color:#e9ecef;">
-    </td>
-    <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="supplierGrade" name="supplierGrade" data-placeholder="-">
-        <option value="">-</option>
-        <?php while($gradeSupRow=mysqli_fetch_assoc($gradesSupplier)){ ?>
-          <option value="<?=$gradeSupRow['id']?>"><?=$gradeSupRow['units']?></option>
-        <?php } ?>
-      </select>
-    </td>
-    <td>
-      <select class="form-control" style="width: 100%; background-color:white;" id="supplierPricingType" name="supplierPricingType">
-        <option selected><?=$languageArray['standard_code'][$language]?></option>
-        <option><?=$languageArray['fixed_code'][$language]?></option>
-        <option><?=$languageArray['float_code'][$language]?></option>
-      </select>
-    </td>
-    <td>
-      <input type="number" step="0.01" min="0" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
-    </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="removeSupplier" style="background-color: #f06548;">
-          <i class="fa fa-times"></i>
-      </button>
-    </td>
-  </tr>
+      <button type="button" class="cs-card-remove" id="removeSupplier"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cs-card-body">
+      <div class="cs-card-field">
+        <label><?=$languageArray['states_code'][$language]?></label>
+        <input type="text" class="form-control form-control-sm supplier-state-display" readonly>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['grade_code'][$language]?></label>
+        <select class="form-control form-control-sm select2" id="supplierGrade" name="supplierGrade" data-placeholder="-">
+          <option value="">-</option>
+          <?php $gradesSupplier->data_seek(0); while($gradeSupRow=mysqli_fetch_assoc($gradesSupplier)){ ?>
+            <option value="<?=$gradeSupRow['id']?>"><?=$gradeSupRow['units']?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
+        <select class="form-control form-control-sm" id="supplierPricingType" name="supplierPricingType">
+          <option selected><?=$languageArray['standard_code'][$language]?></option>
+          <option><?=$languageArray['fixed_code'][$language]?></option>
+          <option><?=$languageArray['float_code'][$language]?></option>
+        </select>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['currency_code'][$language] ?? 'Currency'?></label>
+        <select class="form-control form-control-sm select2" id="supplierCurrency" name="supplierCurrency" data-placeholder="-">
+          <option value="">-</option>
+          <?php $currency6->data_seek(0); while($rowCur6=mysqli_fetch_assoc($currency6)){ ?>
+            <option value="<?=$rowCur6['id']?>"><?=$rowCur6['currency']?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div class="cs-card-field">
+        <label><?=$languageArray['purchasing_price_code'][$language]?></label>
+        <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="supplierPrice" name="supplierPrice" value="0">
+      </div>
+    </div>
+  </div>
 </script>
 
 <script type="text/html" id="gradeDetail">
@@ -667,6 +720,13 @@ else{
       </select>
     </td>
     <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="gradePricingCurrency" name="gradePricingCurrency">
+        <?php while($rowCur3=mysqli_fetch_assoc($currency3)){ ?>
+          <option value="<?=$rowCur3['id']?>"><?=$rowCur3['currency']?></option>
+        <?php } ?>
+      </select>
+    </td>
+    <td>
       <input type="number" class="form-control mb-1" id="gradePrice" name="gradePrice" style="background-color:white;" value="0">
     </td>
     <td>
@@ -674,6 +734,13 @@ else{
         <option selected><?=$languageArray['standard_code'][$language]?></option>
         <option><?=$languageArray['fixed_code'][$language]?></option>
         <option><?=$languageArray['float_code'][$language]?></option>
+      </select>
+    </td>
+    <td>
+      <select class="form-control select2" style="width: 100%; background-color:white;" id="gradePurchasingPricingCurrency" name="gradePurchasingPricingCurrency">
+        <?php while($rowCur4=mysqli_fetch_assoc($currency4)){ ?>
+          <option value="<?=$rowCur4['id']?>"><?=$rowCur4['currency']?></option>
+        <?php } ?>
       </select>
     </td>
     <td>
@@ -687,10 +754,54 @@ else{
   </tr>
 </script>
 
+<script type="text/html" id="gradeRowTemplate">
+  <div class="dynamic-card" data-index="{index}">
+    <div class="dynamic-card-body">
+      <div class="dynamic-card-row dynamic-card-header">
+        <select class="form-control form-control-sm select2 grade-select" id="gradesRow{index}" data-index="{index}" style="width:100%;">
+          <?php $grades->data_seek(0); while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
+            <option value="<?=$rowGrade['id']?>"><?=$rowGrade['units']?></option>
+          <?php } ?>
+        </select>
+        <button type="button" class="dynamic-card-remove" data-index="{index}"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="dynamic-card-row">
+        <span class="dynamic-card-label dynamic-card-label-success"><i class="fas fa-arrow-up"></i> <?=$languageArray['sell_code'][$language] ?? 'Sell'?></span>
+        <select class="form-control form-control-sm" id="gradePricingTypeRow{index}">
+          <option selected><?=$languageArray['standard_code'][$language]?></option>
+          <option><?=$languageArray['fixed_code'][$language]?></option>
+          <option><?=$languageArray['float_code'][$language]?></option>
+        </select>
+        <select class="form-control form-control-sm select2 currency-select" id="gradePricingCurrencyRow{index}" style="width:100%;">
+          <?php $currency3->data_seek(0); while($rowCur3=mysqli_fetch_assoc($currency3)){ ?>
+            <option value="<?=$rowCur3['id']?>"><?=$rowCur3['currency']?></option>
+          <?php } ?>
+        </select>
+        <input type="number" class="form-control form-control-sm" id="gradePriceRow{index}" placeholder="0.00" value="0">
+      </div>
+      <div class="dynamic-card-row">
+        <span class="dynamic-card-label dynamic-card-label-warning"><i class="fas fa-arrow-down"></i> <?=$languageArray['buy_code'][$language] ?? 'Buy'?></span>
+        <select class="form-control form-control-sm" id="gradePurchasingPricingTypeRow{index}">
+          <option selected><?=$languageArray['standard_code'][$language]?></option>
+          <option><?=$languageArray['fixed_code'][$language]?></option>
+          <option><?=$languageArray['float_code'][$language]?></option>
+        </select>
+        <select class="form-control form-control-sm select2 currency-select" id="gradePurchasingPricingCurrencyRow{index}" style="width:100%;">
+          <?php $currency4->data_seek(0); while($rowCur4=mysqli_fetch_assoc($currency4)){ ?>
+            <option value="<?=$rowCur4['id']?>"><?=$rowCur4['currency']?></option>
+          <?php } ?>
+        </select>
+        <input type="number" class="form-control form-control-sm" id="gradePurchasingPriceRow{index}" placeholder="0.00" value="0">
+      </div>
+    </div>
+  </div>
+</script>
+
 <script>
-var customerRowCount = $("#customerTable").find(".details").length;
+var customerRowCount = $("#customerCards").find(".details").length;
 var gradeRowCount = $("#gradeTable").find(".details").length;
-var supplierRowCount = $("#supplierTable").find(".details").length;
+var supplierRowCount = $("#supplierCards").find(".details").length;
+var defaultCurrencyId = '<?= $defaultCurrencyId ?>';
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
@@ -703,7 +814,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : undefined
     });
   });
   
@@ -803,7 +914,7 @@ $(function () {
         success: function(data){
           var obj = JSON.parse(data);
           if(obj.status === 'success'){
-            $('#addModal').modal('hide');
+            $('#productModal').modal('hide');
             toastr["success"](obj.message, "Success:");
             $('#productTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
@@ -820,22 +931,21 @@ $(function () {
   });
 
   $('#addProducts').on('click', function(){
-    $('#addModal').find('#id').val("");
-    $('#addModal').find('#code').val("");
-    $('#addModal').find('#product').val("");
-    $('#addModal').find('#serial').val("");
-    $('#addModal').find('#batch').val("");
-    $('#addModal').find('#part').val("");
-    $('#addModal').find('#unit').val("");
-    $('#addModal').find('#remark').val("");
-    $('#addModal').find('#pricingType').val("Fixed");
-    $('#addModal').find('#price').val("0.00");
-    $('#addModal').find('#purchasingPrice').val("0.00");
-    $('#addModal').find('#weight').val("");
-    $('#addModal').find('#productCategory').val("").trigger('change');
-    $('#addModal').find('#productPackaging').val("").trigger('change');
-    $('#addModal').find('#state').val("").trigger('change');
-    $('#addModal').find('#uom').val("").trigger('change');
+    $('#productModal').find('#id').val("");
+    $('#productModal').find('#code').val("");
+    $('#productModal').find('#product').val("");
+    $('#productModal').find('#remark').val("");
+    $('#productModal').find('#pricingType').val("Float");
+    $('#productModal').find('#pricingCurrency').val(defaultCurrencyId).trigger('change');
+    $('#productModal').find('#price').val("0.00");
+    $('#productModal').find('#purchasingPricingType').val("Float");
+    $('#productModal').find('#purchasingPricingCurrency').val(defaultCurrencyId).trigger('change');
+    $('#productModal').find('#purchasingPrice').val("0.00");
+    $('#productModal').find('#weight').val("");
+    $('#productModal').find('#productCategory').val("").trigger('change');
+    $('#productModal').find('#productPackaging').val("").trigger('change');
+    $('#productModal').find('#state').val("").trigger('change');
+    $('#productModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
     $('#okWeight').val(''); $('#okWeightUnit').val('kg');
     $('#loWeight').val(''); $('#loWeightUnit').val('kg');
@@ -845,11 +955,14 @@ $(function () {
     $('#productImageThumb').attr('src', '');
     $('#productImagePlaceholder').show();
 
-    // clear grade table
+    // clear grade table and rows
     gradeRowCount = 0;
     $('#gradeTable').html('');
+    $('#gradeRowsContainer .dynamic-card').remove();
+    $('#gradeEmptyState').show();
 
-    $('#addModal').modal('show');
+    $('#modalTitle').text('<?=$languageArray['add_products_code'][$language]?>');
+    $('#productModal').modal('show');
     
     $('#productForm').validate({
       errorElement: 'span',
@@ -986,132 +1099,169 @@ $(function () {
     }     
   });
 
-  // Find and remove selected table rows
-  $("#customerTable").on('click', 'button[id^="remove"]', function () {
-    $(this).parents("tr").remove();
-    $("#customerTable tr").each(function (index) {
-      $(this).find('input[name^="no"]').val(index + 1);
-    });
+  // Find and remove selected customer cards
+  $("#customerCards").on('click', 'button[id^="remove"]', function () {
+    $(this).closest('.cs-card').remove();
+    updateCustomerNumbers();
+    toggleCustomerEmptyState();
   });
 
+  function updateCustomerNumbers() {
+    $("#customerCards .cs-card").each(function (index) {
+      $(this).find('.cs-card-number').text(index + 1);
+      $(this).find('input[name^="no"]').val(index + 1);
+    });
+  }
+
+  function toggleCustomerEmptyState() {
+    if ($("#customerCards .cs-card").length === 0) {
+      $('#customerEmptyState').show();
+    } else {
+      $('#customerEmptyState').hide();
+    }
+  }
+
   $(".add-customer").click(function(){
+    $('#customerEmptyState').hide();
     var $addContents = $("#customerDetail").clone();
-    $("#customerTable").append($addContents.html());
+    $("#customerCards").append($addContents.html());
 
-    $("#customerTable").find('.details:last').attr("id", "detail" + customerRowCount);
-    $("#customerTable").find('.details:last').attr("data-index", customerRowCount);
-    $("#customerTable").find('#remove:last').attr("id", "remove" + customerRowCount);
-
-    $("#customerTable").find('#customerProductId:last').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount);
-    $("#customerTable").find('#customerRowType:last').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
-    $("#customerTable").find('#no:last').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(customerRowCount+1);
-    $("#customerTable").find('#customers:last').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#customersModal')
+    var $card = $("#customerCards").find('.details:last');
+    $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount);
+    $card.find('.cs-card-number').text(customerRowCount + 1);
+    $card.find('#remove').attr("id", "remove" + customerRowCount);
+    $card.find('#customerProductId').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount);
+    $card.find('#customerRowType').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
+    $card.find('#no').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(customerRowCount+1);
+    $card.find('#customers').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).select2({
+      allowClear: true, placeholder: $("#customerDetail").find('#customers').data('placeholder'), dropdownParent: $('#customersModal')
     });
-    $("#customerTable").find('#customerGrade:last').attr('name', 'customerGrade['+customerRowCount+']').attr("id", "customerGrade" + customerRowCount).select2({
-      allowClear: true,
-      placeholder: "-",
-      dropdownParent: $('#customersModal')
+    $card.find('#customerGrade').attr('name', 'customerGrade['+customerRowCount+']').attr("id", "customerGrade" + customerRowCount).select2({
+      allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
     });
-    $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount);
-    $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount);
+    $card.find('#customerPricingType').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount);
+    $card.find('#customerCurrency').attr('name', 'customerCurrency['+customerRowCount+']').attr("id", "customerCurrency" + customerRowCount).select2({
+      allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
+    });
+    $card.find('#customerPrice').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount);
 
-    $("#customerTable").find('#customers' + customerRowCount).on('change', function() {
+    $card.find('#customers' + customerRowCount).on('change', function() {
       var state = $(this).find('option:selected').data('state') || '';
-      $(this).closest('tr').find('.customer-state-display').val(state);
+      $(this).closest('.cs-card').find('.customer-state-display').val(state);
     }).trigger('change');
-
-    $('#customerTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
-    $('#customerTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
 
     customerRowCount++;
   });
 
-  // Find and remove selected supplier table rows
-  $("#supplierTable").on('click', 'button[id^="removeSupplier"]', function () {
-    $(this).parents("tr").remove();
-    $("#supplierTable tr").each(function (index) {
-      $(this).find('input[name^="supplierNo"]').val(index + 1);
-    });
+  // Find and remove selected supplier cards
+  $("#supplierCards").on('click', 'button[id^="removeSupplier"]', function () {
+    $(this).closest('.cs-card').remove();
+    updateSupplierNumbers();
+    toggleSupplierEmptyState();
   });
 
+  function updateSupplierNumbers() {
+    $("#supplierCards .cs-card").each(function (index) {
+      $(this).find('.cs-card-number').text(index + 1);
+      $(this).find('input[name^="supplierNo"]').val(index + 1);
+    });
+  }
+
+  function toggleSupplierEmptyState() {
+    if ($("#supplierCards .cs-card").length === 0) {
+      $('#supplierEmptyState').show();
+    } else {
+      $('#supplierEmptyState').hide();
+    }
+  }
+
   $(".add-supplier").click(function(){
+    $('#supplierEmptyState').hide();
     var $addContents = $("#supplierDetail").clone();
-    $("#supplierTable").append($addContents.html());
+    $("#supplierCards").append($addContents.html());
 
-    $("#supplierTable").find('.details:last').attr("id", "supplierDetail" + supplierRowCount);
-    $("#supplierTable").find('.details:last').attr("data-index", supplierRowCount);
-    $("#supplierTable").find('#removeSupplier:last').attr("id", "removeSupplier" + supplierRowCount);
-
-    $("#supplierTable").find('#supplierProductId:last').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount);
-    $("#supplierTable").find('#supplierRowType:last').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
-    $("#supplierTable").find('#supplierNo:last').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(supplierRowCount+1);
-    $("#supplierTable").find('#suppliers:last').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#customersModal')
+    var $card = $("#supplierCards").find('.details:last');
+    $card.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
+    $card.find('.cs-card-number').text(supplierRowCount + 1);
+    $card.find('#removeSupplier').attr("id", "removeSupplier" + supplierRowCount);
+    $card.find('#supplierProductId').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount);
+    $card.find('#supplierRowType').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
+    $card.find('#supplierNo').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(supplierRowCount+1);
+    $card.find('#suppliers').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).select2({
+      allowClear: true, placeholder: $("#supplierDetail").find('#suppliers').data('placeholder'), dropdownParent: $('#customersModal')
     });
-    $("#supplierTable").find('#supplierGrade:last').attr('name', 'supplierGrade['+supplierRowCount+']').attr("id", "supplierGrade" + supplierRowCount).select2({
-      allowClear: true,
-      placeholder: "-",
-      dropdownParent: $('#customersModal')
+    $card.find('#supplierGrade').attr('name', 'supplierGrade['+supplierRowCount+']').attr("id", "supplierGrade" + supplierRowCount).select2({
+      allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
     });
-    $("#supplierTable").find('#supplierPricingType:last').attr('name', 'supplierPricingType['+supplierRowCount+']').attr("id", "supplierPricingType" + supplierRowCount);
-    $("#supplierTable").find('#supplierPrice:last').attr('name', 'supplierPrice['+supplierRowCount+']').attr("id", "supplierPrice" + supplierRowCount);
+    $card.find('#supplierPricingType').attr('name', 'supplierPricingType['+supplierRowCount+']').attr("id", "supplierPricingType" + supplierRowCount);
+    $card.find('#supplierCurrency').attr('name', 'supplierCurrency['+supplierRowCount+']').attr("id", "supplierCurrency" + supplierRowCount).select2({
+      allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
+    });
+    $card.find('#supplierPrice').attr('name', 'supplierPrice['+supplierRowCount+']').attr("id", "supplierPrice" + supplierRowCount);
 
-    $("#supplierTable").find('#suppliers' + supplierRowCount).on('change', function() {
+    $card.find('#suppliers' + supplierRowCount).on('change', function() {
       var state = $(this).find('option:selected').data('state') || '';
-      $(this).closest('tr').find('.supplier-state-display').val(state);
+      $(this).closest('.cs-card').find('.supplier-state-display').val(state);
     }).trigger('change');
-
-    $('#supplierTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
-    $('#supplierTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
 
     supplierRowCount++;
   });
 
+  $('#drawerClose, #drawerCancel, #drawerOverlay').on('click', function() {
+    $('#productModal').modal('hide');
+  });
+
+  $('#rangeSetCheckbox').on('change', function() {
+    setRangeSet($(this).is(':checked') ? 1 : 0);
+  });
+
+  // Remove grade row
+  $('#gradeRowsContainer').on('click', '.dynamic-card-remove', function() {
+    var index = $(this).data('index');
+    $(this).closest('.dynamic-card').remove();
+    $('#gradeTable').find('tr[data-index="'+index+'"]').remove();
+    updateGradeEmptyState();
+  });
+
+  // Sync row changes to hidden table
+  $('#gradeRowsContainer').on('change', 'select, input', function() {
+    var index = $(this).closest('.dynamic-card').data('index');
+    syncGradeRowToTable(index);
+  });
+
   // Find and remove selected table rows
   $("#gradeTable").on('click', 'button[id^="remove"]', function () {
+    var index = $(this).closest('tr').data('index');
     $(this).parents("tr").remove();
-
-    $("#gradeTable tr").each(function (index) {
-        $(this).find('input[name^="no"]').val(index + 1);
-    });
+    $('#gradeRowsContainer').find('.dynamic-card[data-index="'+index+'"]').remove();
+    updateGradeEmptyState();
   });
 
   $(".add-grade").click(function(){
+    // Add visual row
+    $('#gradeRowsContainer').append(renderGradeRow(gradeRowCount));
+    $('#gradeEmptyState').hide();
+
+    // Init Select2 on new row
+    $('#gradesRow'+gradeRowCount).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
+    $('#gradePricingCurrencyRow'+gradeRowCount).val(defaultCurrencyId).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+    $('#gradePurchasingPricingCurrencyRow'+gradeRowCount).val(defaultCurrencyId).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+
+    // Add hidden table row for form submission
     var $addContents = $("#gradeDetail").clone();
     $("#gradeTable").append($addContents.html());
 
-    $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount);
-    $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
+    $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
     $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
-
     $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount);
     $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(gradeRowCount+1);
-    $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#addModal')
-    });
+    $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount);
     $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount);
+    $("#gradeTable").find('#gradePricingCurrency:last').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(defaultCurrencyId);
     $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount);
     $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount);
+    $("#gradeTable").find('#gradePurchasingPricingCurrency:last').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(defaultCurrencyId);
     $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount);
-
-    // Apply custom styling to Select2 elements in addModal
-    $('#gradeTable .select2-container .select2-selection--single').css({
-      'padding-top': '4px',
-      'padding-bottom': '4px',
-      'height': 'auto'
-    });
-
-    $('#gradeTable .select2-container .select2-selection__arrow').css({
-      'padding-top': '33px',
-      'height': 'auto'
-    });
 
     gradeRowCount++;
   });
@@ -1177,7 +1327,7 @@ $(function () {
     if (targetType === 'customer') {
       var pricingType = $('#bulkPricingType').val();
       var sellingPrice = $('#bulkSellingPrice').val();
-      $('#customerTable tr.details').each(function() {
+      $('#customerCards .cs-card.details').each(function() {
         var $row = $(this);
         var customerState = $row.find('select[id^="customers"]').find('option:selected').data('state');
         var rowGrade = $row.find('select[id^="customerGrade"]').val();
@@ -1192,7 +1342,7 @@ $(function () {
     } else {
       var purchasingPricingType = $('#bulkPurchasingPricingType').val();
       var purchasingPrice = $('#bulkPurchasingPrice').val();
-      $('#supplierTable tr.details').each(function() {
+      $('#supplierCards .cs-card.details').each(function() {
         var $row = $(this);
         var supplierState = $row.find('select[id^="suppliers"]').find('option:selected').data('state');
         var rowGrade = $row.find('select[id^="supplierGrade"]').val();
@@ -1210,6 +1360,30 @@ $(function () {
     toastr["success"](updated + " row(s) updated.", "Success:");
   });
 });
+
+function renderGradeRow(index) {
+  var html = $('#gradeRowTemplate').html();
+  return html.replace(/{index}/g, index);
+}
+
+function syncGradeRowToTable(index) {
+  var $row = $('#gradeTable').find('tr[data-index="'+index+'"]');
+  $row.find('select[name^="grades"]').val($('#gradesRow'+index).val());
+  $row.find('select[name^="gradePricingType"]').val($('#gradePricingTypeRow'+index).val());
+  $row.find('select[name^="gradePricingCurrency"]').val($('#gradePricingCurrencyRow'+index).val());
+  $row.find('input[name^="gradePrice"]').val($('#gradePriceRow'+index).val());
+  $row.find('select[name^="gradePurchasingPricingType"]').val($('#gradePurchasingPricingTypeRow'+index).val());
+  $row.find('select[name^="gradePurchasingPricingCurrency"]').val($('#gradePurchasingPricingCurrencyRow'+index).val());
+  $row.find('input[name^="gradePurchasingPrice"]').val($('#gradePurchasingPriceRow'+index).val());
+}
+
+function updateGradeEmptyState() {
+  if ($('#gradeRowsContainer .dynamic-card').length === 0) {
+    $('#gradeEmptyState').show();
+  } else {
+    $('#gradeEmptyState').hide();
+  }
+}
 
 function displayPreview(data) {
   // Parse the Excel data
@@ -1278,23 +1452,22 @@ function edit(id){
     var obj = JSON.parse(data);
     
     if(obj.status === 'success'){
-      $('#addModal').find('#id').val(obj.message.id);
-      $('#addModal').find('#code').val(obj.message.product_code);
-      $('#addModal').find('#product').val(obj.message.product_name);
-      $('#addModal').find('#serial').val(obj.message.product_sn);
-      $('#addModal').find('#batch').val(obj.message.batch_no);
-      $('#addModal').find('#part').val(obj.message.parts_no);
-      $('#addModal').find('#uom').val(obj.message.uom).trigger('change');
-      $('#addModal').find('#remark').val(obj.message.remark);
-      $('#addModal').find('#pricingType').val(obj.message.pricing_type);
-      $('#addModal').find('#price').val(obj.message.price);
-      $('#addModal').find('#purchasingPricingType').val(obj.message.purchasing_pricing_type);
-      $('#addModal').find('#purchasingPrice').val(obj.message.purchasing_price);
-      $('#addModal').find('#weight').val(obj.message.weight);
-      $('#addModal').find('#productCategory').val(obj.message.category).trigger('change');
-      $('#addModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
-      $('#addModal').find('#state').val(obj.message.state).trigger('change');
-      $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+      $('#productModal').find('#id').val(obj.message.id);
+      $('#productModal').find('#code').val(obj.message.product_code);
+      $('#productModal').find('#product').val(obj.message.product_name);
+      $('#productModal').find('#uom').val(obj.message.uom).trigger('change');
+      $('#productModal').find('#remark').val(obj.message.remark);
+      $('#productModal').find('#pricingType').val(obj.message.pricing_type);
+      $('#productModal').find('#pricingCurrency').val(obj.message.pricing_currency).trigger('change');
+      $('#productModal').find('#price').val(obj.message.price);
+      $('#productModal').find('#purchasingPricingType').val(obj.message.purchasing_pricing_type);
+      $('#productModal').find('#purchasingPricingCurrency').val(obj.message.purchasing_pricing_currency).trigger('change');
+      $('#productModal').find('#purchasingPrice').val(obj.message.purchasing_price);
+      $('#productModal').find('#weight').val(obj.message.weight);
+      $('#productModal').find('#productCategory').val(obj.message.category).trigger('change');
+      $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
+      $('#productModal').find('#state').val(obj.message.state).trigger('change');
+      $('#productModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');
       if (obj.message.product_image) {
         $('#productImageThumb').attr('src', 'php/viewPhoto.php?file=' + obj.message.product_image + '&type=file_table');
@@ -1310,48 +1483,49 @@ function edit(id){
       $('#loWeight').val(obj.message.lo_weight); $('#loWeightUnit').val(obj.message.lo_weight_unit || 'kg');
       $('#hiWeight').val(obj.message.hi_weight); $('#hiWeightUnit').val(obj.message.hi_weight_unit || 'kg');
 
-      // grade table
+      // grade table and rows
       $('#gradeTable').html('');
+      $('#gradeRowsContainer .dynamic-card').remove();
       gradeRowCount = 0;
       if (obj.message.productGrades.length > 0){
+        $('#gradeEmptyState').hide();
         for(var i = 0; i < obj.message.productGrades.length; i++){
           var item = obj.message.productGrades[i];
+          
+          // Add visual row
+          $('#gradeRowsContainer').append(renderGradeRow(gradeRowCount));
+          $('#gradesRow'+gradeRowCount).val(item.grade_id).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
+          $('#gradePricingTypeRow'+gradeRowCount).val(item.pricing_type || 'Standard');
+          $('#gradePricingCurrencyRow'+gradeRowCount).val(item.pricing_currency).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+          $('#gradePriceRow'+gradeRowCount).val(item.price || 0);
+          $('#gradePurchasingPricingTypeRow'+gradeRowCount).val(item.purchasing_pricing_type || 'Standard');
+          $('#gradePurchasingPricingCurrencyRow'+gradeRowCount).val(item.purchasing_pricing_currency).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
+          $('#gradePurchasingPriceRow'+gradeRowCount).val(item.purchasing_price || 0);
+
+          // Add hidden table row
           var $addContents = $("#gradeDetail").clone();
           $("#gradeTable").append($addContents.html());
 
-          $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount);
-          $("#gradeTable").find('.details:last').attr("data-index", gradeRowCount);
+          $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
           $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
-
           $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount).val(item.id);
           $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(item.no);
-          $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id).select2({
-            allowClear: true,
-            placeholder: "Please Select",
-            dropdownParent: $('#addModal')
-          });
+          $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id);
           $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val(item.pricing_type || 'Standard');
-          $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price || 0.00);
+          $("#gradeTable").find('#gradePricingCurrency:last').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(item.pricing_currency);
+          $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price || 0);
           $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount).val(item.purchasing_pricing_type || 'Standard');
+          $("#gradeTable").find('#gradePurchasingPricingCurrency:last').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(item.purchasing_pricing_currency);
           $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount).val(item.purchasing_price || 0);
-
-          // Apply custom styling to Select2 elements in addModal
-          $('#gradeTable .select2-container .select2-selection--single').css({
-            'padding-top': '4px',
-            'padding-bottom': '4px',
-            'height': 'auto'
-          });
-
-          $('#gradeTable .select2-container .select2-selection__arrow').css({
-            'padding-top': '33px',
-            'height': 'auto'
-          });
 
           gradeRowCount++;
         }
+      } else {
+        $('#gradeEmptyState').show();
       }
 
-      $('#addModal').modal('show');
+      $('#modalTitle').text('<?=$languageArray['edit_product_code'][$language] ?? 'Edit Product'?>');
+      $('#productModal').modal('show');
       
       $('#productForm').validate({
         errorElement: 'span',
@@ -1379,8 +1553,8 @@ function edit(id){
 
 function openCustomers(id) {
   $('#spinnerLoading').show();
-  $('#customerTable').html('');
-  $('#supplierTable').html('');
+  $('#customerCards').html('');
+  $('#supplierCards').html('');
   customerRowCount = 0;
   supplierRowCount = 0;
   $('#customersForm').find('#customerProductId').val(id);
@@ -1391,64 +1565,78 @@ function openCustomers(id) {
     if (obj.status === 'success') {
       // Load customers
       var items = obj.message.productCustomers;
+      if (items.length > 0) {
+        $('#customerEmptyState').hide();
+      } else {
+        $('#customerEmptyState').show();
+      }
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
         var $addContents = $("#customerDetail").clone();
-        $("#customerTable").append($addContents.html());
+        $("#customerCards").append($addContents.html());
 
-        $("#customerTable").find('.details:last').attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount);
-        $("#customerTable").find('#remove:last').attr("id", "remove" + customerRowCount);
-        $("#customerTable").find('#no:last').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(item.no);
-        $("#customerTable").find('#customerProductId:last').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount).val(item.id);
-        $("#customerTable").find('#customerRowType:last').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
-        $("#customerTable").find('#customers:last').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).val(item.customer_id).select2({
-          allowClear: true, placeholder: "Please Select", dropdownParent: $('#customersModal')
+        var $card = $("#customerCards").find('.details:last');
+        $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount);
+        $card.find('.cs-card-number').text(customerRowCount + 1);
+        $card.find('#remove').attr("id", "remove" + customerRowCount);
+        $card.find('#no').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(item.no);
+        $card.find('#customerProductId').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount).val(item.id);
+        $card.find('#customerRowType').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
+        $card.find('#customers').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).val(item.customer_id).select2({
+          allowClear: true, placeholder: $("#customerDetail").find('#customers').data('placeholder'), dropdownParent: $('#customersModal')
         }).on('change', function() {
           var state = $(this).find('option:selected').data('state') || '';
-          $(this).closest('tr').find('.customer-state-display').val(state);
+          $(this).closest('.cs-card').find('.customer-state-display').val(state);
         });
-        var customerStateVal = $("#customerTable").find('#customers' + customerRowCount).find('option:selected').data('state') || '';
-        $("#customerTable").find('.details:last .customer-state-display').val(customerStateVal);
-        $("#customerTable").find('#customerGrade:last').attr('name', 'customerGrade['+customerRowCount+']').attr("id", "customerGrade" + customerRowCount).val(item.grade_id || '').select2({
+        var customerStateVal = $card.find('#customers' + customerRowCount).find('option:selected').data('state') || '';
+        $card.find('.customer-state-display').val(customerStateVal);
+        $card.find('#customerGrade').attr('name', 'customerGrade['+customerRowCount+']').attr("id", "customerGrade" + customerRowCount).val(item.grade_id || '').select2({
           allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
         });
-        $("#customerTable").find('#customerPricingType:last').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount).val(item.pricing_type || 'Standard');
-        $("#customerTable").find('#customerPrice:last').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount).val(item.price || 0);
-
-        $('#customerTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
-        $('#customerTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
+        $card.find('#customerPricingType').attr('name', 'customerPricingType['+customerRowCount+']').attr("id", "customerPricingType" + customerRowCount).val(item.pricing_type || 'Standard');
+        $card.find('#customerCurrency').attr('name', 'customerCurrency['+customerRowCount+']').attr("id", "customerCurrency" + customerRowCount).val(item.pricing_currency || '').select2({
+          allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
+        });
+        $card.find('#customerPrice').attr('name', 'customerPrice['+customerRowCount+']').attr("id", "customerPrice" + customerRowCount).val(item.price || 0);
 
         customerRowCount++;
       }
 
       // Load suppliers
       var supplierItems = obj.message.productSuppliers;
+      if (supplierItems.length > 0) {
+        $('#supplierEmptyState').hide();
+      } else {
+        $('#supplierEmptyState').show();
+      }
       for (var j = 0; j < supplierItems.length; j++) {
         var sItem = supplierItems[j];
         var $sContents = $("#supplierDetail").clone();
-        $("#supplierTable").append($sContents.html());
+        $("#supplierCards").append($sContents.html());
 
-        $("#supplierTable").find('.details:last').attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
-        $("#supplierTable").find('#removeSupplier:last').attr("id", "removeSupplier" + supplierRowCount);
-        $("#supplierTable").find('#supplierNo:last').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(sItem.no);
-        $("#supplierTable").find('#supplierProductId:last').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount).val(sItem.id);
-        $("#supplierTable").find('#supplierRowType:last').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
-        $("#supplierTable").find('#suppliers:last').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).val(sItem.supplier_id).select2({
-          allowClear: true, placeholder: "Please Select", dropdownParent: $('#customersModal')
+        var $sCard = $("#supplierCards").find('.details:last');
+        $sCard.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
+        $sCard.find('.cs-card-number').text(supplierRowCount + 1);
+        $sCard.find('#removeSupplier').attr("id", "removeSupplier" + supplierRowCount);
+        $sCard.find('#supplierNo').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(sItem.no);
+        $sCard.find('#supplierProductId').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount).val(sItem.id);
+        $sCard.find('#supplierRowType').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
+        $sCard.find('#suppliers').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).val(sItem.supplier_id).select2({
+          allowClear: true, placeholder: $("#supplierDetail").find('#suppliers').data('placeholder'), dropdownParent: $('#customersModal')
         }).on('change', function() {
           var state = $(this).find('option:selected').data('state') || '';
-          $(this).closest('tr').find('.supplier-state-display').val(state);
+          $(this).closest('.cs-card').find('.supplier-state-display').val(state);
         });
-        var supplierStateVal = $("#supplierTable").find('#suppliers' + supplierRowCount).find('option:selected').data('state') || '';
-        $("#supplierTable").find('.details:last .supplier-state-display').val(supplierStateVal);
-        $("#supplierTable").find('#supplierGrade:last').attr('name', 'supplierGrade['+supplierRowCount+']').attr("id", "supplierGrade" + supplierRowCount).val(sItem.grade_id || '').select2({
+        var supplierStateVal = $sCard.find('#suppliers' + supplierRowCount).find('option:selected').data('state') || '';
+        $sCard.find('.supplier-state-display').val(supplierStateVal);
+        $sCard.find('#supplierGrade').attr('name', 'supplierGrade['+supplierRowCount+']').attr("id", "supplierGrade" + supplierRowCount).val(sItem.grade_id || '').select2({
           allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
         });
-        $("#supplierTable").find('#supplierPricingType:last').attr('name', 'supplierPricingType['+supplierRowCount+']').attr("id", "supplierPricingType" + supplierRowCount).val(sItem.purchasing_pricing_type || 'Standard');
-        $("#supplierTable").find('#supplierPrice:last').attr('name', 'supplierPrice['+supplierRowCount+']').attr("id", "supplierPrice" + supplierRowCount).val(sItem.purchasing_price || 0);
-
-        $('#supplierTable .select2-container .select2-selection--single').css({'padding-top':'4px','padding-bottom':'4px','height':'auto'});
-        $('#supplierTable .select2-container .select2-selection__arrow').css({'padding-top':'33px','height':'auto'});
+        $sCard.find('#supplierPricingType').attr('name', 'supplierPricingType['+supplierRowCount+']').attr("id", "supplierPricingType" + supplierRowCount).val(sItem.purchasing_pricing_type || 'Standard');
+        $sCard.find('#supplierCurrency').attr('name', 'supplierCurrency['+supplierRowCount+']').attr("id", "supplierCurrency" + supplierRowCount).val(sItem.purchasing_pricing_currency || '').select2({
+          allowClear: true, placeholder: "-", dropdownParent: $('#customersModal')
+        });
+        $sCard.find('#supplierPrice').attr('name', 'supplierPrice['+supplierRowCount+']').attr("id", "supplierPrice" + supplierRowCount).val(sItem.purchasing_price || 0);
 
         supplierRowCount++;
       }
@@ -1463,16 +1651,9 @@ function openCustomers(id) {
 function setRangeSet(val) {
   var enabled = val == 1;
   $('#rangeSet').val(enabled ? 1 : 0);
-  $('#rangeSetToggle').css('background', enabled ? '#28a745' : '#ccc');
-  $('#rangeSetKnob').css('left', enabled ? '75px' : '1px');
-  $('#rangeSetIcon').attr('class', enabled ? 'fas fa-check text-success' : 'fas fa-times text-danger');
-  $('#rangeSetLabel').text(enabled ? 'Enable' : 'Disable').css('right', enabled ? 'auto' : '8px').css('left', enabled ? '8px' : 'auto');
+  $('#rangeSetCheckbox').prop('checked', enabled);
   $('#rangeWeightFields').toggle(enabled);
 }
-
-$('#rangeSetToggle').on('click', function() {
-  setRangeSet($('#rangeSet').val() == 1 ? 0 : 1);
-});
 
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {

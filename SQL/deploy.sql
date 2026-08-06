@@ -2691,3 +2691,154 @@ $$
 DELIMITER ;
 
 ALTER TABLE `companies` ADD `include_payment` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_integration`;
+
+-- 05/08/2026 --
+ALTER TABLE `products` ADD `pricing_currency` INT(11) NULL AFTER `pricing_type`;
+ALTER TABLE `products` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+ALTER TABLE `products_log` ADD `pricing_currency` INT(11) NULL AFTER `pricing_type`;
+ALTER TABLE `products_log` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCTS` AFTER INSERT ON `products` FOR EACH ROW INSERT INTO products_log (
+    product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTS` BEFORE UPDATE ON `products` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into products_log table
+    INSERT INTO products_log (
+      product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `product_customers` ADD `pricing_currency` INT(11) NULL AFTER `pricing_type`;
+ALTER TABLE `product_customers` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+ALTER TABLE `product_customers_log` ADD `pricing_currency` INT(11) NULL AFTER `pricing_type`;
+ALTER TABLE `product_customers_log` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCT_CUSTOMERS` AFTER INSERT ON `product_customers` FOR EACH ROW INSERT INTO product_customers_log (
+    product_customer_id, product_id, customer_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_id, NEW.customer_id, NEW.grade_id, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_CUSTOMERS` BEFORE UPDATE ON `product_customers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Skip if bulk soft-delete flag is set
+    IF @skip_customer_log IS NULL THEN
+      -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+      IF NEW.deleted = 1 THEN
+          SET action_value = 3;
+      ELSE
+          SET action_value = 2;
+      END IF;
+
+      -- Insert into product_customers_log table
+      INSERT INTO product_customers_log (
+        product_customer_id, product_id, customer_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+      ) 
+      VALUES (
+          NEW.id, NEW.product_id, NEW.customer_id, NEW.grade_id, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, action_value, NEW.modified_by, NEW.modified_datetime
+      );
+    END IF;
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `product_suppliers` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+ALTER TABLE `product_suppliers_log` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCT_SUPPLIERS` AFTER INSERT ON `product_suppliers` FOR EACH ROW INSERT INTO product_suppliers_log (
+    product_supplier_id, product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_id, NEW.supplier_id, NEW.grade_id, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_SUPPLIERS` BEFORE UPDATE ON `product_suppliers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Skip if bulk soft-delete flag is set
+    IF @skip_supplier_log IS NULL THEN
+        -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+        IF NEW.deleted = 1 THEN
+            SET action_value = 3;
+        ELSE
+            SET action_value = 2;
+        END IF;
+
+        -- Insert into product_suppliers_log table
+        INSERT INTO product_suppliers_log (
+          product_supplier_id, product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+        ) 
+        VALUES (
+            NEW.id, NEW.product_id, NEW.supplier_id, NEW.grade_id, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, action_value, NEW.modified_by, NEW.modified_datetime
+        );
+    END IF;
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `product_grades` ADD `pricing_currency` INT(11) NULL AFTER `pricing_type`;
+ALTER TABLE `product_grades` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+ALTER TABLE `product_grades_log` ADD `pricing_currency` INT(11) NULL AFTER `pricing_type`;
+ALTER TABLE `product_grades_log` ADD `purchasing_pricing_currency` INT(11) NULL AFTER `purchasing_pricing_type`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCT_GRADES` AFTER INSERT ON `product_grades` FOR EACH ROW INSERT INTO product_grades_log (
+    product_grade_id, product_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_id, NEW.grade_id, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_GRADES` BEFORE UPDATE ON `product_grades` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Skip if bulk soft-delete flag is set
+    IF @skip_grade_log IS NULL THEN
+      -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+      IF NEW.deleted = 1 THEN
+          SET action_value = 3;
+      ELSE
+          SET action_value = 2;
+      END IF;
+
+      -- Insert into product_grades_log table
+      INSERT INTO product_grades_log (
+        product_grade_id, product_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+      ) 
+      VALUES (
+          NEW.id, NEW.product_id, NEW.grade_id, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, action_value, NEW.modified_by, NEW.modified_datetime
+      );
+    END IF;
+END
+$$
+DELIMITER ;
