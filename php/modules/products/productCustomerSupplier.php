@@ -28,24 +28,26 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
         $customerProductId = (array)$_POST['customerProductId'];
         $customerGrade = isset($_POST['customerGrade']) ? (array)$_POST['customerGrade'] : [];
         $customerPricingType = (array)$_POST['customerPricingType'];
+        $customerCurrency = isset($_POST['customerCurrency']) ? (array)$_POST['customerCurrency'] : [];
         $customerPrice = (array)$_POST['customerPrice'];
 
         foreach ($no as $key => $number) {
             $customerId = $customers[$key];
             $cGradeId = isset($customerGrade[$key]) && $customerGrade[$key] != '' ? $customerGrade[$key] : null;
             $cPricingType = $customerPricingType[$key];
+            $cCurrency = isset($customerCurrency[$key]) && $customerCurrency[$key] != '' ? $customerCurrency[$key] : null;
             $cPrice = $customerPrice[$key];
 
             if (isset($customerProductId[$key]) && $customerProductId[$key] != '') {
                 $cProductId = $customerProductId[$key];
-                if ($stmt = $db->prepare("UPDATE product_customers SET product_id=?, customer_id=?, grade_id=?, pricing_type=?, price=?, deleted='0', modified_by=? WHERE id=?")) {
-                    $stmt->bind_param('sssssss', $productId, $customerId, $cGradeId, $cPricingType, $cPrice, $userID, $cProductId);
+                if ($stmt = $db->prepare("UPDATE product_customers SET product_id=?, customer_id=?, grade_id=?, pricing_type=?, pricing_currency=?, price=?, deleted='0', modified_by=? WHERE id=?")) {
+                    $stmt->bind_param('ssssssss', $productId, $customerId, $cGradeId, $cPricingType, $cCurrency, $cPrice, $userID, $cProductId);
                     $stmt->execute();
                     $stmt->close();
                 }
             } else {
-                if ($stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, grade_id, pricing_type, price, created_by) VALUES (?, ?, ?, ?, ?, ?)")) {
-                    $stmt->bind_param('ssssss', $productId, $customerId, $cGradeId, $cPricingType, $cPrice, $userID);
+                if ($stmt = $db->prepare("INSERT INTO product_customers (product_id, customer_id, grade_id, pricing_type, pricing_currency, price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                    $stmt->bind_param('sssssss', $productId, $customerId, $cGradeId, $cPricingType, $cCurrency, $cPrice, $userID);
                     $stmt->execute();
                     $stmt->close();
                 }
@@ -82,24 +84,26 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
         $supplierProductId = (array)$_POST['supplierProductId'];
         $supplierGrade = isset($_POST['supplierGrade']) ? (array)$_POST['supplierGrade'] : [];
         $supplierPricingType = (array)$_POST['supplierPricingType'];
+        $supplierCurrency = isset($_POST['supplierCurrency']) ? (array)$_POST['supplierCurrency'] : [];
         $supplierPrice = (array)$_POST['supplierPrice'];
 
         foreach ($supplierNo as $key => $number) {
             $supplierId = $suppliers[$key];
             $sGradeId = isset($supplierGrade[$key]) && $supplierGrade[$key] != '' ? $supplierGrade[$key] : null;
             $sPricingType = $supplierPricingType[$key];
+            $sCurrency = isset($supplierCurrency[$key]) && $supplierCurrency[$key] != '' ? $supplierCurrency[$key] : null;
             $sPrice = $supplierPrice[$key];
 
             if (isset($supplierProductId[$key]) && $supplierProductId[$key] != '') {
                 $sProductId = $supplierProductId[$key];
-                if ($stmt = $db->prepare("UPDATE product_suppliers SET product_id=?, supplier_id=?, grade_id=?, purchasing_pricing_type=?, purchasing_price=?, deleted='0', modified_by=? WHERE id=?")) {
-                    $stmt->bind_param('sssssss', $productId, $supplierId, $sGradeId, $sPricingType, $sPrice, $userID, $sProductId);
+                if ($stmt = $db->prepare("UPDATE product_suppliers SET product_id=?, supplier_id=?, grade_id=?, purchasing_pricing_type=?, purchasing_pricing_currency=?, purchasing_price=?, deleted='0', modified_by=? WHERE id=?")) {
+                    $stmt->bind_param('ssssssss', $productId, $supplierId, $sGradeId, $sPricingType, $sCurrency, $sPrice, $userID, $sProductId);
                     $stmt->execute();
                     $stmt->close();
                 }
             } else {
-                if ($stmt = $db->prepare("INSERT INTO product_suppliers (product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?)")) {
-                    $stmt->bind_param('ssssss', $productId, $supplierId, $sGradeId, $sPricingType, $sPrice, $userID);
+                if ($stmt = $db->prepare("INSERT INTO product_suppliers (product_id, supplier_id, grade_id, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                    $stmt->bind_param('sssssss', $productId, $supplierId, $sGradeId, $sPricingType, $sCurrency, $sPrice, $userID);
                     $stmt->execute();
                     $stmt->close();
                 }
