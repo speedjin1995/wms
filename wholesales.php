@@ -215,7 +215,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" id="customerStatusDiv">
+              <div class="col-3" id="customerStatusDiv" style="display: none;">
                 <div class="form-group">
                   <label><?=$languageArray['customer_code'][$language]?></label>
                   <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
@@ -227,7 +227,7 @@ else{
                 </div>
               </div>
 
-              <div class="col-3" id="supplierStatusDiv" style="display: none;">
+              <div class="col-3" id="supplierStatusDiv">
                 <div class="form-group">
                   <label><?=$languageArray['supplier_code'][$language]?></label>
                   <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
