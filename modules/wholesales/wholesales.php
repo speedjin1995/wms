@@ -1532,9 +1532,26 @@ $(function () {
 
     if (allowPrice == 'Y' && productId && status){
       if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, gradeId, $(this));
+        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
       }else{
-        calculatePrice(productId, status, customerId, gradeId, $(this));
+        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
+      }
+    }
+  });
+
+  $('#weightDetailsTable').on('change', 'select[name*="[currency]"]', function() {
+    var row = $(this).closest('tr');
+    var productId = row.find('select[id^="product"]').val();
+    var gradeId = row.find('select[id^="grade_id"]').val();
+    var customerId = $('#extendModal').find('#customer').val();
+    var supplierId = $('#extendModal').find('#supplier').val();
+    var status = $('#extendModal').find('#status').val();
+
+    if (allowPrice == 'Y' && productId && status){
+      if (status == 'RECEIVING' || status == 'INCOMING'){
+        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
+      }else{
+        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
       }
     }
   });
@@ -1662,13 +1679,31 @@ $(function () {
     var grade = $(this).find(':selected').data('id');
     var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
     var customerId = $('#extendModal').find('#customer').val();
+    var supplierId = $('#extendModal').find('#supplier').val();
     var status = $('#extendModal').find('#status').val();
 
     if (allowPrice == 'Y' && productId && status){
       if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, gradeId, $(this));
+        calculatePrice(productId, status, supplierId, grade, $(this), undefined, true);
       }else{
-        calculatePrice(productId, status, customerId, gradeId, $(this));
+        calculatePrice(productId, status, customerId, grade, $(this), undefined, true);
+      }
+    }
+  });
+
+  $('#rejectDetailsTable').on('change', 'select[name*="[currency]"]', function() {
+    var row = $(this).closest('tr');
+    var productId = row.find('select[id^="product"]').find(':selected').data('id');
+    var gradeId = row.find('select[id^="grade"]').find(':selected').data('id');
+    var customerId = $('#extendModal').find('#customer').val();
+    var supplierId = $('#extendModal').find('#supplier').val();
+    var status = $('#extendModal').find('#status').val();
+
+    if (allowPrice == 'Y' && productId && status){
+      if (status == 'RECEIVING' || status == 'INCOMING'){
+        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
+      }else{
+        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
       }
     }
   });
@@ -2131,17 +2166,25 @@ function newEntry(){
   });
 }
 
-function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice) {
-  if (productId){
+function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
+  var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
+  if (productId && currencyId){
     $('#spinnerLoading').show();
 
-    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
+    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId, type: "getPrice"}, function(data){
       var obj = JSON.parse(data);
 
       if(obj.status === 'success'){
         var pricingType = obj.message.pricingType;
         var existingPrice = element.closest('tr').find('input[id^="price"]').val();
-        var price = parseFloat((overridePrice !== undefined) ? overridePrice : (existingPrice !== '' && parseFloat(existingPrice) > 0 ? existingPrice : obj.message.price)) || 0;
+        var price;
+        if (overridePrice !== undefined) {
+          price = parseFloat(overridePrice) || 0;
+        } else if (forceReplace) {
+          price = parseFloat(obj.message.price) || 0;
+        } else {
+          price = (existingPrice !== '' && parseFloat(existingPrice) > 0) ? parseFloat(existingPrice) : (parseFloat(obj.message.price) || 0);
+        }
         var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
         var total = (pricingType == 'Float') ? price * net : price;
 
