@@ -2161,6 +2161,7 @@ function calculatePrice(productId, status, customerId, currentGrade, element, ov
 }
 
 function edit(id) {
+  var defaultCurrencyId = '<?= $defaultCurrencyId ?>';
   $('#spinnerLoading').show();
   $.post('php/modules/wholesales/getWholesale.php', {userID: id}, function(data){
     var obj = JSON.parse(data);
@@ -2273,7 +2274,7 @@ function edit(id) {
           `;
           tbody.append(row);
 
-          tbody.find(`select[name="weightDetails[${idx}][currency]"]`).val(detail.currency).trigger('change');
+          tbody.find(`select[name="weightDetails[${idx}][currency]"]`).val(detail.currency || defaultCurrencyId).trigger('change');
           
           // Store original options and filter by selected category
           var newProductSelect = tbody.find(`select[name="weightDetails[${idx}][product]"]`);
