@@ -83,6 +83,9 @@ else{
   <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
   <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
   
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/modal-global.css">
+
   <style>
     body {
       background: #eee;

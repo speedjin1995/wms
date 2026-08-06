@@ -260,6 +260,7 @@ if(isset($_POST['userID'])){
                             "customer_id" => $row2['customer_id'],
                             "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
+                            "pricing_currency" => $row2['pricing_currency'],
                             "price" => $row2['price'],
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
                             "purchasing_price" => $row2['purchasing_price']
@@ -283,6 +284,7 @@ if(isset($_POST['userID'])){
                             "supplier_id" => $row2['supplier_id'],
                             "grade_id" => $row2['grade_id'],
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
+                            "purchasing_pricing_currency" => $row2['purchasing_pricing_currency'],
                             "purchasing_price" => $row2['purchasing_price']
                         );
                         $productSupplierCount++;
