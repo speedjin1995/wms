@@ -40,6 +40,7 @@ if (!empty($weighingDetails)) {
             $groups[$key] = [
                 'product_id'   => $productId,
                 'grade_id'     => $gradeId,
+                'grade'        => $detail['grade'] ?? '',
                 'count'        => 0,
                 'net'          => 0.0,
                 'unit'         => $detail['unit'] ?? 'kg',
@@ -65,6 +66,7 @@ $rowNo = 1;
 foreach ($groups as $g) {
     $productName = searchProductNameById($g['product_id'], $db);
     $gradeName = searchGradeNameById($g['grade_id'], $db);
+    if (empty($gradeName)) $gradeName = $g['grade'] ?? '';
     $net = $g['net'];
     $count = $g['count'];
 
