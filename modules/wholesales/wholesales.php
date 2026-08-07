@@ -1817,7 +1817,7 @@ function format (row) {
       </div>
       <div class="d-flex" style="gap:4px;">
         ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-success btn-sm" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>' : ''}
-        <button type="button" onclick="print('+row.id+')" class="btn btn-warning btn-sm" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>
+        <button type="button" onclick="print(${row.id})" class="btn btn-warning btn-sm" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>
         ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-info btn-sm" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>' : ''}
         ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-danger btn-sm" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>' : ''}
       </div>
