@@ -2775,3 +2775,51 @@ div.loading {
   background: #1a1a1a;
   color: #fff;
 }
+
+
+/* ============================================
+   CUSTOM NAV TABS STYLES
+   ============================================ */
+.custom-nav-tabs {
+  border-bottom: 1px solid #E3C66A;
+  background: #F9F7F2;
+  border-radius: 5px 5px 0 0;
+  padding: 0;
+  gap: 0;
+}
+
+.custom-nav-tabs .nav-item {
+  margin-bottom: 0;
+}
+
+.custom-nav-tabs .nav-item .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  padding: 15px 25px;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.custom-nav-tabs .nav-item .nav-link:hover {
+  border-color: transparent;
+  border-bottom-color: #D9A82D;
+  color: #D9A82D;
+  background: rgba(217, 168, 45, 0.1);
+}
+
+.custom-nav-tabs .nav-item .nav-link.active {
+  border-color: transparent;
+  border-bottom-color: #D9A82D;
+  color: #D9A82D;
+  background: rgba(217, 168, 45, 0.15);
+}
+
+.custom-nav-tabs .nav-item .nav-link i {
+  margin-right: 5px;
+}
