@@ -244,3 +244,31 @@ function wsCustomerPage(dir) {
 
 function wsGradeRecvPageFn(dir) { $('#wsGradeRecvBars').data('gradePage')(dir); }
 function wsGradeDispPageFn(dir) { $('#wsGradeDispBars').data('gradePage')(dir); }
+
+/* ── Export functions ───────────────────────────────────── */
+function exportCustomerBreakdown() {
+  var params = getDateParams();
+  var url = 'php/modules/wholesales/exportDashboard.php?type=customer';
+  url += '&fromDate=' + encodeURIComponent(params.fromDate);
+  url += '&toDate=' + encodeURIComponent(params.toDate);
+  url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
+  window.open(url, '_blank');
+}
+
+function exportSupplierBreakdown() {
+  var params = getDateParams();
+  var url = 'php/modules/wholesales/exportDashboard.php?type=supplier';
+  url += '&fromDate=' + encodeURIComponent(params.fromDate);
+  url += '&toDate=' + encodeURIComponent(params.toDate);
+  url += '&supplier=' + encodeURIComponent($('#wsSupplier').val() || '');
+  window.open(url, '_blank');
+}
+
+function exportGradeDistribution(status) {
+  var params = getDateParams();
+  var url = 'php/modules/wholesales/exportDashboard.php?type=grade';
+  url += '&fromDate=' + encodeURIComponent(params.fromDate);
+  url += '&toDate=' + encodeURIComponent(params.toDate);
+  url += '&status=' + encodeURIComponent(status);
+  window.open(url, '_blank');
+}

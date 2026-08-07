@@ -25,6 +25,7 @@ if(isset($_POST['userID'])){
 
         $customerID = null;
         $grade = null;
+        $currency = null;
         
         if(isset($_POST['customerID']) && $_POST['customerID'] != null && $_POST['customerID'] != ''){
             $customerID = filter_input(INPUT_POST, 'customerID', FILTER_SANITIZE_STRING);
@@ -34,12 +35,17 @@ if(isset($_POST['userID'])){
             $grade = filter_input(INPUT_POST, 'grade', FILTER_SANITIZE_STRING);
         }
 
+        if(isset($_POST['currency']) && $_POST['currency'] != null && $_POST['currency'] != ''){
+            $currency = filter_input(INPUT_POST, 'currency', FILTER_SANITIZE_STRING);
+        }
+
         // Final Pricing Detail
         $resultPricingType = null;
         $resultPrice = 0;
 
         // Product Pricing Detail
         $productPricingType = null;
+        $productCurrency = null;
         $productPrice = 0;
 
         $product_stmt = $db->prepare("SELECT * FROM products WHERE id=?");
@@ -50,9 +56,11 @@ if(isset($_POST['userID'])){
             while ($row = $product_result->fetch_assoc()) {
                 if ($status == 'RECEIVING' || $status == 'INCOMING'){
                     $productPricingType = $row['purchasing_pricing_type'];
+                    $productCurrency = $row['purchasing_pricing_currency'];
                     $productPrice = $row['purchasing_price'];
                 }else{
                     $productPricingType = $row['pricing_type'];
+                    $productCurrency = $row['pricing_currency'];
                     $productPrice = $row['price'];
                 }
 
@@ -71,15 +79,17 @@ if(isset($_POST['userID'])){
             $result = null;
 
             $isSupplier = ($status == 'RECEIVING' || $status == 'INCOMING');
+            $currencyField = $isSupplier ? 'purchasing_pricing_currency' : 'pricing_currency';
 
             // If grade provided, try match with grade first
             if (!empty($grade)) {
                 if ($isSupplier) {
-                    $productCustomerStmt = $db->prepare("SELECT * FROM product_suppliers WHERE product_id=? AND supplier_id=? AND grade_id=? AND deleted=0");
+                    $productCustomerStmt = $db->prepare("SELECT * FROM product_suppliers WHERE product_id=? AND supplier_id=? AND grade_id=? AND $currencyField=? AND deleted=0");
+                    $productCustomerStmt->bind_param('ssss', $id, $customerID, $grade, $currency);
                 } else {
-                    $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND grade_id=? AND deleted=0");
+                    $productCustomerStmt = $db->prepare("SELECT * FROM product_customers WHERE product_id=? AND customer_id=? AND grade_id=? AND $currencyField=? AND deleted=0");
+                    $productCustomerStmt->bind_param('ssss', $id, $customerID, $grade, $currency);
                 }
-                $productCustomerStmt->bind_param('sss', $id, $customerID, $grade);
                 $productCustomerStmt->execute();
                 $result = $productCustomerStmt->get_result();
             }
@@ -96,8 +106,14 @@ if(isset($_POST['userID'])){
                 }
 
                 if ($pricingType == 'Standard'){
-                    $resultPricingType = $productPricingType;
-                    $resultPrice = $productPrice;
+                    // Standard means use product price, but if currency provided and no match, return 0
+                    if (!empty($currency) && $currency != $productCurrency) {
+                        $resultPricingType = $productPricingType;
+                        $resultPrice = 0;
+                    } else {
+                        $resultPricingType = $productPricingType;
+                        $resultPrice = $productPrice;
+                    }
                 } else {
                     $resultPricingType = $pricingType;
                     $resultPrice = $price;
@@ -107,8 +123,8 @@ if(isset($_POST['userID'])){
             } else {
                 // If no customer specific pricing, check product_grade first
                 if (!empty($grade)){
-                    $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND deleted=0");
-                    $productGradeStmt->bind_param('ss', $id, $grade);
+                    $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND $currencyField=? AND deleted=0");
+                    $productGradeStmt->bind_param('sss', $id, $grade, $currency);
                     $productGradeStmt->execute();
                     $productGradeResult = $productGradeStmt->get_result();
                     if ($productGradeResult->num_rows > 0) {
@@ -125,22 +141,34 @@ if(isset($_POST['userID'])){
 
                         // If pricing type is Standard then need to take product price
                         if ($pricingType == 'Standard'){
-                            $resultPricingType = $productPricingType;
-                            $resultPrice = $productPrice;
+                            if (!empty($currency)) {
+                                $resultPricingType = $productPricingType;
+                                $resultPrice = 0;
+                            } else {
+                                $resultPricingType = $productPricingType;
+                                $resultPrice = $productPrice;
+                            }
                         }else{
                             $resultPricingType = $pricingType;
                             $resultPrice = $price;
                         }
                     }else{
-                        $resultPricingType = $productPricingType;
-                        $resultPrice = $productPrice;
+                        // No grade pricing found, return 0 if currency provided
+                        if (!empty($currency)) {
+                            $resultPricingType = $productPricingType;
+                            $resultPrice = 0;
+                        } else {
+                            $resultPricingType = $productPricingType;
+                            $resultPrice = $productPrice;
+                        }
                     }
                 }
                 echo json_encode(array("status" => "success", "message" => ['pricingType' => $resultPricingType, 'price' => $resultPrice]));
             }
         } else if (empty($customerID) && !empty($grade)){
-            $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND deleted=0");
-            $productGradeStmt->bind_param('ss', $id, $grade);
+            $currencyField = ($status == 'RECEIVING' || $status == 'INCOMING') ? 'purchasing_pricing_currency' : 'pricing_currency';
+            $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND $currencyField=? AND deleted=0");
+            $productGradeStmt->bind_param('sss', $id, $grade, $currency);
             $productGradeStmt->execute();
             $productGradeResult = $productGradeStmt->get_result();
             if ($productGradeResult->num_rows > 0) {
@@ -157,8 +185,13 @@ if(isset($_POST['userID'])){
 
                 // If pricing type is Standard then need to take product price
                 if ($pricingType == 'Standard'){
-                    $resultPricingType = $productPricingType;
-                    $resultPrice = $productPrice;
+                    if (!empty($currency) && $currency != $productCurrency) {
+                        $resultPricingType = $productPricingType;
+                        $resultPrice = 0;
+                    } else {
+                        $resultPricingType = $productPricingType;
+                        $resultPrice = $productPrice;
+                    }
                 }else{
                     $resultPricingType = $pricingType;
                     $resultPrice = $price;
@@ -175,11 +208,18 @@ if(isset($_POST['userID'])){
                         "message" => $pricingDetail
                     ));
             }else{
-                // If grade no pricing, take product pricing
-                $pricingDetail = [
-                    'pricingType' => $productPricingType,
-                    'price' => $productPrice,
-                ];
+                // If grade no pricing, return 0 if currency provided
+                if (!empty($currency) && $currency != $productCurrency) {
+                    $pricingDetail = [
+                        'pricingType' => $productPricingType,
+                        'price' => 0,
+                    ];
+                } else {
+                    $pricingDetail = [
+                        'pricingType' => $productPricingType,
+                        'price' => $productPrice,
+                    ];
+                }
 
                 echo json_encode(
                     array(
@@ -188,10 +228,18 @@ if(isset($_POST['userID'])){
                     ));
             }
         } else {
-            $pricingDetail = [
-                'pricingType' => $productPricingType,
-                'price' => $productPrice,
-            ];
+            // No customer and no grade, return 0 if currency provided
+            if (!empty($currency) && $currency != $productCurrency) {
+                $pricingDetail = [
+                    'pricingType' => $productPricingType,
+                    'price' => 0,
+                ];
+            } else {
+                $pricingDetail = [
+                    'pricingType' => $productPricingType,
+                    'price' => $productPrice,
+                ];
+            }
 
             echo json_encode(
                 array(
@@ -225,8 +273,10 @@ if(isset($_POST['userID'])){
                     $message['uom'] = $row['uom'];
                     $message['remark'] = $row['remark'];
                     $message['pricing_type'] = $row['pricing_type'];
+                    $message['pricing_currency'] = $row['pricing_currency'];
                     $message['price'] = $row['price'];
                     $message['purchasing_pricing_type'] = $row['purchasing_pricing_type'];
+                    $message['purchasing_pricing_currency'] = $row['purchasing_pricing_currency'];
                     $message['purchasing_price'] = $row['purchasing_price'];
                     $message['weight'] = $row['weight'];
                     $message['customer'] = $row['customer'];
@@ -258,6 +308,7 @@ if(isset($_POST['userID'])){
                             "customer_id" => $row2['customer_id'],
                             "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
+                            "pricing_currency" => $row2['pricing_currency'],
                             "price" => $row2['price'],
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
                             "purchasing_price" => $row2['purchasing_price']
@@ -281,6 +332,7 @@ if(isset($_POST['userID'])){
                             "supplier_id" => $row2['supplier_id'],
                             "grade_id" => $row2['grade_id'],
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
+                            "purchasing_pricing_currency" => $row2['purchasing_pricing_currency'],
                             "purchasing_price" => $row2['purchasing_price']
                         );
                         $productSupplierCount++;
@@ -301,8 +353,10 @@ if(isset($_POST['userID'])){
                             "product_id" => $row2['product_id'],
                             "grade_id" => $row2['grade_id'],
                             "pricing_type" => $row2['pricing_type'],
+                            "pricing_currency" => $row2['pricing_currency'],
                             "price" => $row2['price'],
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
+                            "purchasing_pricing_currency" => $row2['purchasing_pricing_currency'],
                             "purchasing_price" => $row2['purchasing_price']
                         );
                         $productGradeCount++;
@@ -318,9 +372,6 @@ if(isset($_POST['userID'])){
             }
         }
     }
-
-
-    
 }
 else{
     echo json_encode(
