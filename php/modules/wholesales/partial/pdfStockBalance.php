@@ -43,7 +43,8 @@ while ($wRow = $query->fetch_assoc()) {
   foreach ($details as $detail) {
     $productId = $detail['product']  ?? '';
     $gradeId = $detail['grade_id'] ?? '';
-    $gradeName = searchGradeNameById($gradeId, $db) ?? '';
+    $gradeName = searchGradeNameById($gradeId, $db);
+    if (empty($gradeName)) $gradeName = $detail['grade'] ?? '';
     if (empty($productId)) {
       continue;
     }
