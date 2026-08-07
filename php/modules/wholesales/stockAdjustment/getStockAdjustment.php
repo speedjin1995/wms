@@ -3,12 +3,12 @@ require_once '../../../db_connect.php';
 require_once '../../../lookup.php';
 session_start();
 
-$company  = $_SESSION['customer'];
+$company = $_SESSION['customer'];
 $role     = $_SESSION['role'] ?? 'NORMAL';
-$category = $_POST['category'] ?? '';
-$product  = $_POST['product']  ?? '';
-$grade    = $_POST['grade']    ?? '';
-$dateStr  = $_POST['date']     ?? '';
+$categoryFilter = $_POST['category'] ?? '';
+$productFilter  = $_POST['product']  ?? '';
+$gradeFilter    = $_POST['grade']    ?? '';
+$dateStr      = $_POST['date']     ?? '';
 
 $dateObj = !empty($dateStr) ? DateTime::createFromFormat('d/m/Y', $dateStr) : new DateTime();
 $fromDT  = $dateObj->format('Y-m-d') . ' 00:00:00';
@@ -22,10 +22,10 @@ if ($role != 'SADMIN') {
 $searchQuery .= " AND wholesales.start_time >= '$fromDT'";
 $searchQuery .= " AND wholesales.start_time <= '$toDT'";
 
-if (!empty($category)) {
+if (!empty($categoryFilter)) {
     $catProductIds = [];
     $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND deleted = '0'");
-    $catStmt->bind_param('s', $category);
+    $catStmt->bind_param('s', $categoryFilter);
     $catStmt->execute();
     $catResult = $catStmt->get_result();
     while ($catRow = $catResult->fetch_assoc()) {
@@ -41,8 +41,8 @@ if (!empty($category)) {
     }
 }
 
-if (!empty($product)) {
-    $searchQuery .= " AND wholesales.weight_details LIKE '%" . mysqli_real_escape_string($db, '"product":"' . $product . '"') . "%'";
+if (!empty($productFilter)) {
+    $searchQuery .= " AND wholesales.weight_details LIKE '%" . mysqli_real_escape_string($db, '"product":"' . $productFilter . '"') . "%'";
 }
 
 $query = $db->query("SELECT weight_details FROM wholesales WHERE 1=1 $searchQuery");
@@ -55,28 +55,29 @@ while ($wRow = $query->fetch_assoc()) {
     $details = json_decode($wRow['weight_details'], true) ?? [];
     foreach ($details as $detail) {
         $productId = $detail['product']  ?? '';
-        $gradeId   = $detail['grade_id'] ?? '';
+        $gradeId = $detail['grade_id'] ?? '';
+        $gradeName = $detail['grade'] ?? '';
         if (empty($productId)) continue;
 
         // Detail-level filters
-        if (!empty($product)  && $product != $productId) continue;
-        if (!empty($grade)    && $grade   != $gradeId)   continue;
-        if (!empty($category)) {
+        if (!empty($productFilter) && $productFilter != $productId) continue;
+        if (!empty($gradeFilter) && $gradeFilter != $gradeId) continue;
+        if (!empty($categoryFilter)) {
             $pRow = getProductById($productId, $db, $productCache);
-            if (($pRow['category'] ?? '') != $category) continue;
+            if (($pRow['category'] ?? '') != $categoryFilter) continue;
         }
 
         $key = $productId . '_' . $gradeId;
-        $seen[$key] = ['product_id' => $productId, 'grade' => $gradeId];
+        $seen[$key] = ['product_id' => $productId, 'grade_id' => $gradeId, 'grade' => $gradeName];
     }
 }
 
 // Enrich with names and fetch balance from raw_stock_balance
 $data = [];
 foreach ($seen as $item) {
-    $pRow      = getProductById($item['product_id'], $db, $productCache);
-    $gradeName = !empty($item['grade']) ? (searchGradeNameById($item['grade'], $db) ?? '') : '';
-
+    $pRow = getProductById($item['product_id'], $db, $productCache);
+    $gradeName = searchGradeNameById($item['grade_id'], $db);
+    if (empty($gradeName)) $gradeName = $item['grade'] ?? '';
     $catId   = $pRow['category'] ?? '';
     $catName = '';
     if (!empty($catId)) {
@@ -87,7 +88,7 @@ foreach ($seen as $item) {
     }
 
     $balStmt = $db->prepare("SELECT id, balance FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0' LIMIT 1");
-    $balStmt->bind_param('sss', $item['product_id'], $item['grade'], $company);
+    $balStmt->bind_param('sss', $item['product_id'], $item['grade_id'], $company);
     $balStmt->execute();
     $balRow = $balStmt->get_result()->fetch_assoc();
     $balStmt->close();
@@ -95,7 +96,7 @@ foreach ($seen as $item) {
     $data[] = [
         'id'            => $balRow['id']      ?? null,
         'product_id'    => $item['product_id'],
-        'grade'         => $item['grade'],
+        'grade'         => $item['grade_id'],
         'product_code'  => $pRow['product_code'] ?? '',
         'product_name'  => $pRow['product_name'] ?? '',
         'grade_name'    => $gradeName,
