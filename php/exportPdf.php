@@ -413,7 +413,7 @@ try {
                     <thead>
                         <tr>';
                             // Row 1: fixed cols blank, product names spanning grades, trailing cols blank
-                            $fixedColCount = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
+                            $fixedColCount = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 8 : 7;
                             $totalGradeCols = 0;
                             foreach ($productGradeColumns as $product => $grades) { 
                                 $totalGradeCols += count($grades); 
@@ -468,7 +468,7 @@ try {
                     </tbody>
                     <tfoot>
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
-                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '9' : '8').'">SUBTOTAL</td>';
+                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '8' : '7').'">SUBTOTAL</td>';
                             foreach ($productGradeColumns as $product => $grades) {
                                 foreach ($grades as $grade) {
                                     $html .= '<td>'.number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2).'</td>';
@@ -485,7 +485,7 @@ try {
                             }
                             $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
                             if ($allowPrice == 'Y') {
-                                $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
+                                $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 8 : 7;
                                 foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
                                     $html .= '<tr style="font-weight: bold; background-color: #e8f4e8;">';
                                     $html .= '<td colspan="'.$fixedColCount2.'">TOTAL PRICE ('.$cur.')</td>';
