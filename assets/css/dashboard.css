@@ -44,24 +44,24 @@
 .content { background: var(--dash-bg); }
 
 /* ── Page Header ────────────────────────────────────────── */
-.content-header h1 {
+/*.content-header h1 {
   font-size: 20px !important;
   font-weight: 700;
   color: var(--dash-text-primary);
   letter-spacing: -0.3px;
-}
+}*/
 @media (max-width: 575.98px) {
   .content-header h1 { font-size: 17px !important; }
 }
 
 /* ── Global Filter Card ─────────────────────────────────── */
-.dash-filter-card {
+/*.dash-filter-card {
   background: var(--dash-surface);
   border: 1px solid var(--dash-border) !important;
   border-radius: var(--dash-radius) !important;
   box-shadow: var(--dash-shadow);
   overflow: visible;
-}
+}*/
 
 .dash-filter-header {
   cursor: pointer;

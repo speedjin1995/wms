@@ -427,7 +427,8 @@ div.loading {
    CONTENT & FOOTER STYLES
    ============================================ */
 .custom-content-detail, .custom-search-card-body, .custom-table-card-body,
-.custom-table-content .custom-profile-box .custom-profile-body-box, .custom-form-card-body {
+.custom-table-content .custom-profile-box .custom-profile-body-box, .custom-form-card-body,
+.custom-table-content .dash-filter-card-box .dash-filter-header-box, .dash-filter-card-box .dash-tab-content {
   padding: 25px;
 }
 
@@ -474,12 +475,103 @@ div.loading {
   padding-right: 0px !important;
 }
 
-.custom-table-content .container-fluid .row .card, .custom-table-content .custom-profile-box, .custom-main-card {
+.custom-table-content .container-fluid .row .card, .custom-table-content .custom-profile-box, .custom-main-card,
+.custom-table-content .dash-filter-card-box {
   margin-bottom: 25px;
   border: unset;
   border-radius: 5px;
   background: #F9F7F2;
   box-shadow: 0px 0px 10px 0px rgba(227, 198, 106, 1);
+}
+
+.custom-table-content .dash-filter-card-box .dash-filter-header-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: unset;
+  border-radius: 1px;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.dash-filter-card-box #dashTabs {
+  border-bottom: 1px solid #E3C66A;
+  gap: 15px;
+  padding: 0px;
+  background: #F9F7F2;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.dash-filter-card-box #dashTabs .nav-item .nav-link {
+  padding: 10px 25px;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #1a1a1a;
+  gap: 10px;
+}
+
+.dash-filter-card-box #dashTabs .nav-item .nav-link.active, .dash-filter-card-box #dashTabs .nav-item .nav-link:hover {
+  color: #D9A82D;
+  border-bottom-color: #D9A82D;
+}
+
+.dash-filter-card-box .dash-tab-content {
+  background: #F9F7F2;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.dash-filter-card-box .dash-tab-content .dash-tab-filters, .dash-filter-card-box .dash-tab-content #wsReceivingCard,
+.dash-filter-card-box .dash-tab-content #wsReceivingValueCard, .dash-filter-card-box .dash-tab-content #wsDispatchCard,
+.dash-filter-card-box .dash-tab-content #wsDispatchValueCard {
+  margin-bottom: 25px;
+}
+
+.dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group {
+  border: 1px solid #1a1a1a;
+  border-radius: 5px;
+}
+
+.dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group .ws-type-btn {
+  border-left: 1px solid #1a1a1a;
+  border-right: 1px solid #1a1a1a;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group .ws-type-btn:first-child {
+  border-left: unset;
+}
+
+.dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group .ws-type-btn:last-child {
+  border-right: unset;
+}
+
+.dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group .ws-type-btn:hover,
+.dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group .ws-type-btn.active {
+  background: #E3C66A;
+}
+
+.dash-filter-card-box .dash-tab-content .dash-section-header {
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #D9A82D;
+  margin-top: 0px;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #E3C66A;
+  text-transform: capitalize;
 }
 
 .custom-table-content #logoForm .custom-profile-box:first-child {
@@ -542,7 +634,7 @@ div.loading {
 
 .custom-search-card-body .form-group label, .custom-model-body-box .form-group label,
 .custom-table-content .custom-profile-box .custom-profile-body-box .form-group label,
-.custom-form-card-body .form-group label {
+.custom-form-card-body .form-group label, .dash-filter-card-box .dash-tab-content .dash-tab-filters label {
   font-size: 16px;
   line-height: 24px;
   letter-spacing: 0.75px;

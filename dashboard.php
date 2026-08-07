@@ -34,7 +34,7 @@ if (!isset($_SESSION['userID'])) {
 <link rel="stylesheet" href="assets/css/dashboard.css">
 
 <!-- ── Page Header ──────────────────────────────────────── -->
-<div class="content-header custom-title-content-box">
+<div class="custom-title-content-box">
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-6">
@@ -44,17 +44,17 @@ if (!isset($_SESSION['userID'])) {
   </div>
 </div>
 
-<div class="content custom-table-content">
+<div class="custom-table-content">
   <div class="container-fluid">
 
     <!-- ── Global Filter ──────────────────────────────────── -->
-    <div class="card dash-filter-card mb-3">
-      <div class="card-header dash-filter-header" onclick="toggleFilterCard()">
+    <div class="card dash-filter-card-box">
+      <div class="card-header dash-filter-header-box" onclick="toggleFilterCard()">
         <span class="filter-icon"><i class="fas fa-sliders-h"></i></span>
         <span><?=$languageArray['search_code'][$language]?></span>
         <i class="fas fa-chevron-down" id="dashFilterChevron"></i>
       </div>
-      <div id="dashFilterBody" class="card-body" style="display:none;">
+      <div id="dashFilterBody" class="card-body custom-search-card-body" style="display:none;">
         <div class="row">
           <div class="form-group col-6 col-md-3">
             <label><?=$languageArray['from_date_code'][$language]?></label>
@@ -84,7 +84,7 @@ if (!isset($_SESSION['userID'])) {
             </select>
           </div>
           <div class="form-group col-12 col-md-3 d-flex align-items-end">
-            <button type="button" class="btn btn-primary btn-block" id="dashSearch">
+            <button type="button" class="btn custom-search-btn btn-block" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
             </button>
           </div>
@@ -93,49 +93,50 @@ if (!isset($_SESSION['userID'])) {
     </div>
 
     <!-- ── Tab Navigation ─────────────────────────────────── -->
-    <ul class="nav nav-tabs" id="dashTabs">
-      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
-      <li class="nav-item">
-        <a class="nav-link active" data-toggle="tab" href="#tabWholesales">
-          <i class="fas fa-cubes"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['wholesales_code'][$language]?></span>
-        </a>
-      </li>
-      <?php } ?>
-      <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#tabPulpPaste">
-          <i class="fas fa-blender"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['pulp_and_paste_code'][$language]?></span>
-        </a>
-      </li>
-      <?php } ?>
-      <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#tabGrading">
-          <i class="fas fa-clipboard-check"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['grading_code'][$language]?></span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#tabPackaging">
-          <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['batch_packaging_code'][$language]?></span>
-        </a>
-      </li>
-      <?php } ?>
-    </ul>
+    <div class="card dash-filter-card-box">
+      <ul class="nav nav-tabs" id="dashTabs">
+        <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
+        <li class="nav-item">
+          <a class="nav-link active" data-toggle="tab" href="#tabWholesales">
+            <i class="fas fa-cubes"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['wholesales_code'][$language]?></span>
+          </a>
+        </li>
+        <?php } ?>
+        <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#tabPulpPaste">
+            <i class="fas fa-blender"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['pulp_and_paste_code'][$language]?></span>
+          </a>
+        </li>
+        <?php } ?>
+        <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#tabGrading">
+            <i class="fas fa-clipboard-check"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['grading_code'][$language]?></span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#tabPackaging">
+            <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['batch_packaging_code'][$language]?></span>
+          </a>
+        </li>
+        <?php } ?>
+      </ul>
 
-    <!-- ── Tab Panes ──────────────────────────────────────── -->
-    <div class="tab-content dash-tab-content">
-      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
-        <?php require_once 'modules/dashboard/tab_wholesales.php'; ?>
-      <?php } ?>
-      <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
-        <?php require_once 'modules/dashboard/tab_pulppaste.php'; ?>
-      <?php } ?>
-      <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
-        <?php require_once 'modules/dashboard/tab_grading.php'; ?>
-        <?php require_once 'modules/dashboard/tab_packaging.php'; ?>
-      <?php } ?>
+      <!-- ── Tab Panes ──────────────────────────────────────── -->
+      <div class="tab-content dash-tab-content">
+        <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
+          <?php require_once 'modules/dashboard/tab_wholesales.php'; ?>
+        <?php } ?>
+        <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
+          <?php require_once 'modules/dashboard/tab_pulppaste.php'; ?>
+        <?php } ?>
+        <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
+          <?php require_once 'modules/dashboard/tab_grading.php'; ?>
+          <?php require_once 'modules/dashboard/tab_packaging.php'; ?>
+        <?php } ?>
+      </div>
     </div>
-
   </div>
 </div>
 

@@ -34,29 +34,29 @@
 
   <!-- Summary Cards -->
   <h6 class="dash-section-header"><?=$languageArray['summary_code'][$language]?></h6>
-  <div class="row mb-3" id="wsCards">
-    <div class="col-6 col-md-3 mb-3" id="wsReceivingCard">
+  <div class="row" id="wsCards">
+    <div class="col-6 col-md-3" id="wsReceivingCard">
       <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#17a2b8,#138496);">
         <div class="stat-label"><?=$languageArray['receiving_code'][$language]?><br><?=$languageArray['total_weight_code'][$language]?></div>
         <div class="stat-value" id="wsReceivingWeight">—</div>
         <div class="stat-sub"><span id="wsReceivingCount">—</span> records | kg</div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3" id="wsReceivingValueCard">
+    <div class="col-6 col-md-3" id="wsReceivingValueCard">
       <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#0d6efd,#0a58ca);">
         <div class="stat-label"><?=$languageArray['receiving_code'][$language]?><br><?=$languageArray['total_value_code'][$language]?></div>
         <div class="stat-value" id="wsReceivingValue">—</div>
         <div class="stat-sub"><?=$languageArray['total_value_code'][$language]?></div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3" id="wsDispatchCard">
+    <div class="col-6 col-md-3" id="wsDispatchCard">
       <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#28a745,#1e7e34);">
         <div class="stat-label"><?=$languageArray['dispatch_code'][$language]?><br><?=$languageArray['total_weight_code'][$language]?></div>
         <div class="stat-value" id="wsDispatchWeight">—</div>
         <div class="stat-sub"><span id="wsDispatchCount">—</span> records | kg</div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3" id="wsDispatchValueCard">
+    <div class="col-6 col-md-3" id="wsDispatchValueCard">
       <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#fd7e14,#e55a00);">
         <div class="stat-label"><?=$languageArray['dispatch_code'][$language]?><br><?=$languageArray['total_value_code'][$language]?></div>
         <div class="stat-value" id="wsDispatchValue">—</div>
