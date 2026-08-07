@@ -468,7 +468,7 @@ try {
                     </tbody>
                     <tfoot>
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
-                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '8' : '7').'">SUBTOTAL</td>';
+                            <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '8' : '8').'">SUBTOTAL</td>';
                             foreach ($productGradeColumns as $product => $grades) {
                                 foreach ($grades as $grade) {
                                     $html .= '<td>'.number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2).'</td>';
