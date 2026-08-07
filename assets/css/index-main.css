@@ -429,7 +429,7 @@ div.loading {
 .custom-content-detail, .custom-search-card-body, .custom-table-card-body,
 .custom-table-content .custom-profile-box .custom-profile-body-box, .custom-form-card-body,
 .custom-table-content .dash-filter-card-box .dash-filter-header-box, .dash-filter-card-box .dash-tab-content,
-.custom-breakdown-box .dash-section-card .card-body {
+.custom-breakdown-box .dash-section-card .card-body, .custom-model-body-box .custom-card-box .custom-card-box-body {
   padding: 25px;
 }
 
@@ -2461,6 +2461,11 @@ div.loading {
 .custom-model-body-box .custom-tab-nav .nav-item .nav-link.active {
   background: #1a1a1a;
   color: #fff;
+}
+
+.custom-model-body-box .custom-card-box .custom-card-box-header {
+  padding: 25px 25px 0px;
+  border: unset;
 }
 
 /* ============================================
