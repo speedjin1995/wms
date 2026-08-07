@@ -20,7 +20,7 @@ function loadPackaging() {
 
     var items = obj.productBreakdown || [];
     if (items.length === 0) {
-      $('#pkgProductBreakdown').html('<p class="text-muted">No data.</p>');
+      $('#pkgProductBreakdown').html('<p class="no-data-txt">No data.</p>');
       return;
     }
 

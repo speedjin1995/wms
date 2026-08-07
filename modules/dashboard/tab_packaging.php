@@ -15,15 +15,15 @@
   </div>
 
   <!-- Summary Cards -->
-  <div class="row mb-3">
-    <div class="col-6 col-md-3 mb-3">
+  <div class="row">
+    <div class="col-6 col-md-3" id="PkgTotalWeightCard">
       <div class="dash-stat-card" style="background:linear-gradient(135deg,#007bff,#0056b3);">
         <div class="stat-label"><?=$languageArray['total_weight_code'][$language]?></div>
         <div class="stat-value" id="pkgTotalWeight">—</div>
         <div class="stat-sub"><span id="pkgBatchCount">—</span> batches | kg</div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
+    <div class="col-6 col-md-3" id="PkgTotalBoxesCard">
       <div class="dash-stat-card" style="background:linear-gradient(135deg,#e83e8c,#c2185b);">
         <div class="stat-label"><?=$languageArray['total_code'][$language]?> <?=$languageArray['boxes_code'][$language]?></div>
         <div class="stat-value" id="pkgTotalBoxes">—</div>
@@ -33,7 +33,7 @@
   </div>
 
   <!-- Product Breakdown -->
-  <div class="section-title"><?=$languageArray['weight_code'][$language]?> by Product (kg)</div>
-  <div id="pkgProductBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
+  <div class="section-title dash-section-header"><?=$languageArray['weight_code'][$language]?> by Product (kg)</div>
+  <div id="pkgProductBreakdown"><p class="no-data-txt"><?=$languageArray['no_data_code'][$language]?></p></div>
 
 </div>

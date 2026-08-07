@@ -32,15 +32,15 @@
   </div>
 
   <!-- Summary Cards -->
-  <div class="row mb-3">
-    <div class="col-6 col-md-3 mb-3" id="ppIncomingCard">
+  <div class="row">
+    <div class="col-6 col-md-3" id="ppIncomingCard">
       <div class="dash-stat-card" style="background:linear-gradient(135deg,#fd7e14,#e55a00);">
         <div class="stat-label"><?=$languageArray['incoming_code'][$language]?><br><?=$languageArray['total_weight_code'][$language]?></div>
         <div class="stat-value" id="ppIncomingWeight">—</div>
         <div class="stat-sub"><span id="ppIncomingCount">—</span> records | kg</div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3" id="ppOutgoingCard">
+    <div class="col-6 col-md-3" id="ppOutgoingCard">
       <div class="dash-stat-card" style="background:linear-gradient(135deg,#20c997,#12876f);">
         <div class="stat-label"><?=$languageArray['outgoing_code'][$language]?><br><?=$languageArray['total_weight_code'][$language]?></div>
         <div class="stat-value" id="ppOutgoingWeight">—</div>
@@ -50,13 +50,13 @@
   </div>
 
   <!-- Supplier / Customer Breakdowns -->
-  <div class="row">
-    <div class="col-12 col-md-6 mb-3" id="ppSupplierBreakdownWrap">
+  <div class="row custom-breakdown-box">
+    <div class="col-12 col-md-6 custom-breakdown-card" id="ppSupplierBreakdownWrap">
       <div class="card dash-section-card">
         <div class="card-header" onclick="toggleCard('ppSupplierBody','ppSupplierChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="ppSupplierChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
+            <span class="section-title"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
           </div>
           <div class="dash-pager" id="ppSupplierPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();ppSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -69,7 +69,7 @@
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6 mb-3" id="ppCustomerBreakdownWrap">
+    <div class="col-12 col-md-6 mb-3 custom-breakdown-card" id="ppCustomerBreakdownWrap">
       <div class="card dash-section-card">
         <div class="card-header" onclick="toggleCard('ppCustomerBody','ppCustomerChevron')">
           <div class="d-flex align-items-center flex-1">
@@ -90,8 +90,8 @@
   </div>
 
   <!-- Volume Trend -->
-  <div class="row mb-3">
-    <div class="col-12">
+  <div class="row custom-breakdown-box">
+    <div class="col-12 custom-breakdown-card">
       <div class="card dash-section-card">
         <div class="card-header" onclick="toggleCard('ppTrendBody','ppTrendChevron')">
           <div class="d-flex align-items-center">

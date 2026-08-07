@@ -67,15 +67,15 @@
 
   <!-- Supplier / Customer Breakdowns -->
   <h6 class="dash-section-header" id="wsBreakdownHeader"><?=$languageArray['breakdown_code'][$language]?></h6>
-  <div class="row" id="wsBreakdownRow">
-    <div class="col-12 col-md-6 mb-3" id="wsSupplierBreakdownWrap">
+  <div class="row custom-breakdown-box" id="wsBreakdownRow">
+    <div class="col-12 col-md-6 custom-breakdown-card" id="wsSupplierBreakdownWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsSupplierBody','wsSupplierChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsSupplierChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
+            <span class="section-title"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
           </div>
-          <div class="d-flex align-items-center" style="gap:8px;">
+          <div class="d-flex align-items-center" style="gap: 10px;">
             <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();exportSupplierBreakdown()" title="Export Excel"><i class="fas fa-file-excel"></i></button>
           <div class="dash-pager" id="wsSupplierPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" id="wsSupplierPrev" onclick="event.stopPropagation();wsSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -89,12 +89,12 @@
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6 mb-3" id="wsCustomerBreakdownWrap">
+    <div class="col-12 col-md-6 custom-breakdown-card" id="wsCustomerBreakdownWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsCustomerBody','wsCustomerChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsCustomerChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</span>
+            <span class="section-title"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</span>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;">
             <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();exportCustomerBreakdown()" title="Export Excel"><i class="fas fa-file-excel"></i></button>
@@ -114,15 +114,15 @@
 
   <!-- Grade Distribution -->
   <h6 class="dash-section-header" id="wsGradeHeader"><?=$languageArray['grade_distribution_code'][$language]?></h6>
-  <div class="row" id="wsGradeRow">
-    <div class="col-12 col-md-6 mb-3" id="wsGradeRecvWrap">
+  <div class="row custom-breakdown-box" id="wsGradeRow">
+    <div class="col-12 col-md-6 custom-breakdown-card" id="wsGradeRecvWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsGradeRecvBody','wsGradeRecvChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsGradeRecvChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></span>
+            <span class="section-title"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></span>
           </div>
-          <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
+          <div class="d-flex align-items-center" style="gap: 10px; flex-shrink: 0;">
             <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();exportGradeDistribution('RECEIVING')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
             <span class="text-muted dash-meta-text" id="wsGradeRecvTotal"></span>
             <div class="dash-pager" id="wsGradeRecvPager" style="display:none;">
@@ -138,14 +138,14 @@
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6 mb-3" id="wsGradeDispWrap">
+    <div class="col-12 col-md-6 custom-breakdown-card" id="wsGradeDispWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsGradeDispBody','wsGradeDispChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsGradeDispChevron"></i>
             <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['dispatch_code'][$language]?></span>
           </div>
-          <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
+          <div class="d-flex align-items-center" style="gap: 10px; flex-shrink: 0;">
             <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();exportGradeDistribution('DISPATCH')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
             <span class="text-muted dash-meta-text" id="wsGradeDispTotal"></span>
             <div class="dash-pager" id="wsGradeDispPager" style="display:none;">
@@ -165,13 +165,13 @@
 
   <!-- Hourly Distribution -->
   <h6 class="dash-section-header" id="wsHourlyHeader"><?=$languageArray['hourly_distribution_code'][$language]?></h6>
-  <div class="row" id="wsHourlyWrap">
-    <div class="col-12 col-md-6 mb-3" id="wsHourlyRecvWrap">
+  <div class="row custom-breakdown-box" id="wsHourlyWrap">
+    <div class="col-12 col-md-6 custom-breakdown-card" id="wsHourlyRecvWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsHourlyRecvBody','wsHourlyRecvChevron')">
           <div class="d-flex align-items-center">
             <i class="fas fa-chevron-down dash-chevron" id="wsHourlyRecvChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['receiving_code'][$language]?> by Hour (kg)</span>
+            <span class="section-title"><?=$languageArray['receiving_code'][$language]?> by Hour (kg)</span>
           </div>
         </div>
         <div class="card-body" id="wsHourlyRecvBody">
@@ -179,12 +179,12 @@
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6 mb-3" id="wsHourlyDispWrap">
+    <div class="col-12 col-md-6 custom-breakdown-card" id="wsHourlyDispWrap">
       <div class="card h-100 dash-section-card">
         <div class="card-header" onclick="toggleCard('wsHourlyDispBody','wsHourlyDispChevron')">
           <div class="d-flex align-items-center">
             <i class="fas fa-chevron-down dash-chevron" id="wsHourlyDispChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['dispatch_code'][$language]?> by Hour (kg)</span>
+            <span class="section-title"><?=$languageArray['dispatch_code'][$language]?> by Hour (kg)</span>
           </div>
         </div>
         <div class="card-body" id="wsHourlyDispBody">
@@ -196,7 +196,7 @@
 
   <!-- Volume Trend -->
   <h6 class="dash-section-header" id="wsTrendHeader"><?=$languageArray['volume_trending_code'][$language]?></h6>
-  <div id="wsTrendWrap" class="mb-3">
+  <div id="wsTrendWrap" class="volume-trading-box">
     <div class="dash-chart-wrap"><canvas id="wsTrendChart"></canvas></div>
   </div>
 

@@ -428,7 +428,8 @@ div.loading {
    ============================================ */
 .custom-content-detail, .custom-search-card-body, .custom-table-card-body,
 .custom-table-content .custom-profile-box .custom-profile-body-box, .custom-form-card-body,
-.custom-table-content .dash-filter-card-box .dash-filter-header-box, .dash-filter-card-box .dash-tab-content {
+.custom-table-content .dash-filter-card-box .dash-filter-header-box, .dash-filter-card-box .dash-tab-content,
+.custom-breakdown-box .dash-section-card .card-body {
   padding: 25px;
 }
 
@@ -529,7 +530,9 @@ div.loading {
 
 .dash-filter-card-box .dash-tab-content .dash-tab-filters, .dash-filter-card-box .dash-tab-content #wsReceivingCard,
 .dash-filter-card-box .dash-tab-content #wsReceivingValueCard, .dash-filter-card-box .dash-tab-content #wsDispatchCard,
-.dash-filter-card-box .dash-tab-content #wsDispatchValueCard {
+.dash-filter-card-box .dash-tab-content #wsDispatchValueCard,
+.dash-filter-card-box .dash-tab-content #ppIncomingCard, .dash-filter-card-box .dash-tab-content #GrTotalNetCard,
+.dash-filter-card-box .dash-tab-content #PkgTotalWeightCard {
   margin-bottom: 25px;
 }
 
@@ -540,12 +543,12 @@ div.loading {
 
 .dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group .ws-type-btn {
   border-left: 1px solid #1a1a1a;
-  border-right: 1px solid #1a1a1a;
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0.75px;
   font-weight: 400;
   color: #1a1a1a;
+  height: 40px;
 }
 
 .dash-filter-card-box .dash-tab-content .dash-tab-filters .ws-type-group .ws-type-btn:first-child {
@@ -603,6 +606,98 @@ div.loading {
 .custom-model-body-box .card-body {
   min-height: unset;
   padding: 0px;
+}
+
+.custom-breakdown-box {
+  margin-bottom: 25px;
+}
+
+.custom-breakdown-box .custom-breakdown-card .dash-section-card {
+  margin-bottom: 0px !important;
+  box-shadow: unset !important;
+  background: #fff !important;
+  border: 1px solid #E3C66A !important;
+  border-radius: 5px !important;
+}
+
+.custom-breakdown-box .dash-section-card .card-header {
+  background: #9B6B12;
+  border-bottom: 1px solid #E3C66A !important;
+  padding: 10px 25px;
+}
+
+.custom-breakdown-box .dash-section-card .card-header .section-title,
+.custom-breakdown-box .dash-section-card .card-header .dash-chevron,
+.custom-breakdown-box .dash-section-card .card-header .dash-meta-text {
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #fff !important;
+}
+
+.custom-breakdown-box .dash-section-card .card-header .btn-outline-info {
+  color: #fff;
+  border-color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.custom-breakdown-box .dash-section-card .card-body .breakdown-bar-wrap {
+  margin-bottom: 0px;
+}
+
+.custom-breakdown-box .dash-section-card .card-body .breakdown-bar-wrap .breakdown-bar-label {
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  margin-bottom: 5px;
+  gap: 10px;
+  color: #1a1a1a;
+}
+
+.custom-breakdown-box .dash-section-card .card-body .grade-pills-wrap {
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.custom-breakdown-box .dash-section-card .card-body .grade-pills-wrap button {
+  margin-bottom: 0px !important;
+  margin-right: 0px !important;
+  padding: 5px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: #1a1a1a !important;
+  background: #fff !important;
+  border: 1px solid #1a1a1a;
+}
+
+.custom-breakdown-box .dash-section-card .card-body .grade-pills-wrap button.active,
+.custom-breakdown-box .dash-section-card .card-body .grade-pills-wrap button:hover {
+  background: #E3C66A !important;
+  border-color: #E3C66A !important;
+}
+
+.dash-filter-card-box .dash-tab-content .volume-trading-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 5px;
+  border: 1px solid #E3C66A;
+}
+
+.dash-filter-card-box .no-data-txt {
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin-bottom: 0px;
 }
 
 
@@ -674,7 +769,8 @@ div.loading {
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-form-card-body .form-group .form-control,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+.custom-table-content .dash-tab-filters .select2-selection--single {
   height: 40px;
   background: #fff;
   color: #1a1a1a;
@@ -685,7 +781,7 @@ div.loading {
   border: 1px solid #E3C66A;
   border-radius: 5px;
   padding: 10px;
-  box-shadow: unset;
+  box-shadow: unset !important;
 }
 
 .modal-modern .pricing-card-body .form-control, .modal-modern .dynamic-card-row .form-control,
@@ -789,7 +885,8 @@ div.loading {
 .custom-model-body-box .form-group .select2-container--default.select2-container--focus .select2-selection--single,
 .modal-modern .pricing-card-body .select2-container--default.select2-container--focus .select2-selection--single,
 .modal-modern .dynamic-card-row .select2-container--default.select2-container--focus .select2-selection--single,
-.custom-main-cards .custom-cs-card-detail .custom-cs-card-body .form-control:focus {
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-body .form-control:focus,
+.custom-table-content .dash-tab-filters .select2-container--default.select2-container--focus .select2-selection--single {
   border-color: #1a1a1a;
   box-shadow: unset;
 }
@@ -845,7 +942,8 @@ div.loading {
 .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
 .modal-modern .pricing-card-body .select2-container--default .select2-selection--single .select2-selection__placeholder,
 .modal-modern .dynamic-card-row .select2-container--default .select2-selection--single .select2-selection__placeholder,
-.custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single .select2-selection__placeholder {
+.custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single .select2-selection__placeholder,
+.custom-table-content .dash-tab-filters .select2-container--default .select2-selection--single .select2-selection__placeholder {
   color: rgba(26, 26, 26, .5);
 }
 
@@ -958,12 +1056,18 @@ div.loading {
 .custom-model-body-box .form-group .select2-selection .select2-selection__rendered,
 .custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered,
-.custom-form-card-body .form-group .select2-selection .select2-selection__rendered {
+.custom-form-card-body .form-group .select2-selection .select2-selection__rendered,
+.custom-table-content .dash-tab-filters .select2-selection .select2-selection__rendered {
   margin-top: 0px;
   padding: 0px;
   line-height: 22px;
   color: #1a1a1a;
   margin-bottom: 0px;
+}
+
+.custom-table-content .dash-tab-filters .select2-selection .select2-selection__rendered {
+  font-size: 14px;
+  letter-spacing: 0.75px;
 }
 
 .custom-search-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline,
@@ -974,7 +1078,8 @@ div.loading {
 
 .custom-search-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field,
 .custom-model-body-box .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field,
-.custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field {
+.custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field,
+.custom-table-content .dash-tab-filters .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field {
   margin-top: 0px;
   padding: 0px;
   position: relative;
@@ -991,6 +1096,7 @@ div.loading {
 .custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered .select2-selection__clear,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered .select2-selection__clear,
 .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__clear,
+.custom-table-content .dash-tab-filters .select2-selection .select2-selection__rendered .select2-selection__clear,
 .modal-modern .pricing-card-body .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear,
 .modal-modern .dynamic-card-row .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear,
 .custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear {
@@ -1002,7 +1108,8 @@ div.loading {
 .custom-model-body-box .form-group .select2-selection .select2-selection__arrow,
 .custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
-.custom-form-card-body .form-group .select2-selection .select2-selection__arrow {
+.custom-form-card-body .form-group .select2-selection .select2-selection__arrow,
+.custom-table-content .dash-tab-filters .select2-selection .select2-selection__arrow {
   height: 40px;
   right: 5px;
   top: -1px;
@@ -1029,7 +1136,8 @@ div.loading {
 .custom-form-card-body .form-group .select2-selection .select2-selection__arrow b,
 .modal-modern .pricing-card-body .select2-selection .select2-selection__arrow b,
 .modal-modern .dynamic-card-row .select2-selection .select2-selection__arrow b,
-.custom-main-cards .custom-cs-card-detail .select2-selection .select2-selection__arrow b {
+.custom-main-cards .custom-cs-card-detail .select2-selection .select2-selection__arrow b,
+.custom-table-content .dash-tab-filters .select2-selection .select2-selection__arrow b {
   border-color: rgba(26, 26, 26, .5) transparent transparent transparent;
 }
 
