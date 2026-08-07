@@ -717,7 +717,7 @@ else{
 </div>
 
 <div class="modal fade" id="printOptionsModal" tabindex="-1">
-  <div class="modal-dialog" style="max-width: 500px;">
+  <div class="modal-dialog" style="max-width:500px;">
     <div class="modal-content custom-model-content-box">
       <form id="printOptionsForm">
         <div class="modal-header custom-model-header-box">
@@ -1816,11 +1816,11 @@ function format (row) {
         <h5 class="mb-0 font-weight-bold">${row.serial_no}</h5>
         <small class="text-muted">${row.customer_supplier || '<?=$languageArray['no_customer_code'][$language] ?? 'No Customer'?>'}</small>
       </div>
-      <div class="row custom-tbl-btn-icon">
-        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn custom-edit-btn-icon btn-sm" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>' : ''}
-        <button type="button" onclick="print('+row.id+')" class="btn custom-print-btn-icon btn-sm" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>
-        ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn custom-view-btn-icon btn-sm" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>' : ''}
-        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn custom-delete-btn-icon btn-sm" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>' : ''}
+      <div class="d-flex" style="gap:4px;">
+        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-success btn-sm" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>' : ''}
+        <button type="button" onclick="print(${row.id})" class="btn btn-warning btn-sm" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>
+        ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-info btn-sm" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>' : ''}
+        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-danger btn-sm" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>' : ''}
       </div>
     </div>
 
@@ -1875,87 +1875,87 @@ function format (row) {
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['serial_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['serial_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.serial_no || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['parent_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['parent_code'][$language]?></small>
               <span class="font-weight-bold">${row.parent || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['customer_supplier_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['customer_supplier_code'][$language]?></small>
               <span class="font-weight-bold">${row.customer_supplier || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['do_po_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['do_po_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.po_no || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['sec_bill_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['sec_bill_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.security_bills || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['vehicle_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['vehicle_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.vehicle_no || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['driver_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['driver_code'][$language]?></small>
               <span class="font-weight-bold">${row.driver || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['weighed_by_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['weighed_by_code'][$language]?></small>
               <span class="font-weight-bold">${row.weighted_by || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['checked_by_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['checked_by_code'][$language]?></small>
               <span class="font-weight-bold">${row.checked_by || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['category_name_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['category_name_code'][$language]?></small>
               <span class="font-weight-bold">${row.category_name || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['locations_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['locations_code'][$language]?></small>
               <span class="font-weight-bold">${row.location_name || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['payment_method_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['payment_method_code'][$language]?></small>
               <span class="font-weight-bold">${row.payment_method || '-'}</span>
             </div>
           </div>
           <div class="col-12">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['remark_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['remark_code'][$language]?></small>
               <span class="font-weight-bold">${row.remark || '-'}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-  <!-- Weighing Details Card -->
+    <!-- Weighing Details Card -->
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
         <h6 class="mb-0 font-weight-bold text-uppercase"><?=$languageArray['weighing_details_code'][$language]?></h6>
@@ -2029,7 +2029,7 @@ function format (row) {
       </div>
     </div>
 
-  <!-- Reject Details Card -->
+    <!-- Reject Details Card -->
     <div class="card shadow-sm">
       <div class="card-header bg-white py-3">
         <h6 class="mb-0 font-weight-bold text-uppercase text-danger"><i class="fas fa-times-circle mr-2"></i><?=$languageArray['reject_details_code'][$language]?></h6>

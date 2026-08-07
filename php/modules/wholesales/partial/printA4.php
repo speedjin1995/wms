@@ -17,8 +17,8 @@ if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) 
     $rejectGross = $rejectTare = $rejectNet = $rejectPrice = $rejectUnitPrice = 0;
     $rejectPricingType = null;
     $rejectHtml = '<table class="grade-table">';
-    $rejectHtml .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-    $rejectHtml .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+    $rejectHtml .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="2">REJECT</td></tr>';
+    $rejectHtml .= '<tr><th>No</th><th>Net Weight</th></tr>';
     for ($i = 0; $i < 10; $i++) {
         if ($i < count($rejectDetails)) {
             $item = $rejectDetails[$i];
@@ -33,15 +33,15 @@ if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) 
         $rejectGross += $gross != '' ? $gross : 0;
         $rejectTare += $tare != '' ? $tare : 0;
         $rejectNet += $net != '' ? $net : 0;
-        $rejectHtml .= '<tr><td>'.($i+1).'</td><td>'.($gross != '' ? number_format($gross,2).' kg' : '').'</td><td>'.($tare != '' ? number_format($tare,2).' kg' : '').'</td><td>'.($net != '' ? number_format($net,2).' kg' : '').'</td></tr>';
+        $rejectHtml .= '<tr><td>'.($i+1).'</td><td>'.($net != '' ? number_format($net,2).' kg' : '').'</td></tr>';
     }
-    $rejectHtml .= '<tr style="font-weight:bold;"><td style="border-right:none;">T</td><td style="border-left:none;border-right:none;">'.number_format($rejectGross,2).' kg</td><td style="border-left:none;border-right:none;">'.number_format($rejectTare,2).' kg</td><td style="border-left:none;">'.number_format($rejectNet,2).' kg</td></tr>';
+    $rejectHtml .= '<tr style="font-weight:bold;"><td>T</td><td>'.number_format($rejectNet,2).' kg</td></tr>';
     if ($companyDetail['include_price'] == 'Y') {
-        $rejectHtml .= '<tr><td colspan="2">Unit Price</td><td colspan="2">RM '.number_format($rejectUnitPrice,2).'</td></tr>';
-        $rejectHtml .= '<tr><td colspan="2">Total Price</td><td colspan="2">RM '.number_format($rejectPrice,2).(!empty($rejectPricingType) && $rejectPricingType !== 'null' ? ' ('.$rejectPricingType.')' : '').'</td></tr>';
+        $rejectHtml .= '<tr><td>Unit Price</td><td>RM '.number_format($rejectUnitPrice,2).'</td></tr>';
+        $rejectHtml .= '<tr><td>Total Price</td><td>RM '.number_format($rejectPrice,2).(!empty($rejectPricingType) && $rejectPricingType !== 'null' ? ' ('.$rejectPricingType.')' : '').'</td></tr>';
     } else {
-        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td colspan="2" style="border:none;">Unit Price</td><td colspan="2" style="border:none;">RM 0.00</td></tr>';
-        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td colspan="2" style="border:none;">Total Price</td><td colspan="2" style="border:none;">RM 0.00</td></tr>';
+        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td style="border:none;">Unit Price</td><td style="border:none;">RM 0.00</td></tr>';
+        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td style="border:none;">Total Price</td><td style="border:none;">RM 0.00</td></tr>';
     }
     $rejectHtml .= '</table>';
     $expandedGrades[] = ['html' => $rejectHtml];
@@ -75,8 +75,8 @@ for($row = 0; $row < $rowsNeeded; $row++) {
             $product = searchProductNameById(explode(' - ', $key)[0], $db);
             $grade = explode(' - ', $key)[1];
             $weightDetails .= '<table class="grade-table">';
-            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">'.$product.' GRADE : ' . $grade . '</td></tr>';
-            $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="2">'.$product.' GRADE : ' . $grade . '</td></tr>';
+            $weightDetails .= '<tr><th>No</th><th>Net Weight</th></tr>';
 
             $totalGross = $totalTare = $totalNet = $totalPrice = $unitPrice = 0;
             $pricingType = null;
@@ -103,25 +103,21 @@ for($row = 0; $row < $rowsNeeded; $row++) {
 
                 $weightDetails .= '<tr>';
                 $weightDetails .= '<td>' . ($i + 1) . '</td>';
-                $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 2) . ' kg' : '') . '</td>';
-                $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 2) . ' kg' : '') . '</td>';
                 $weightDetails .= '<td>' . ($net != '' ? number_format($net, 2) . ' kg' : '') . '</td>';
                 $weightDetails .= '</tr>';
             }
 
             $weightDetails .= '<tr style="font-weight: bold;">';
-            $weightDetails .= '<td style="border-right: none;">T</td>';
-            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalGross, 2) . ' kg</td>';
-            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 2) . ' kg</td>';
-            $weightDetails .= '<td style="border-left: none;">' . number_format($totalNet, 2) . ' kg</td>';
+            $weightDetails .= '<td>T</td>';
+            $weightDetails .= '<td>' . number_format($totalNet, 2) . ' kg</td>';
             $weightDetails .= '</tr>';
 
             if ($companyDetail['include_price'] == 'Y') {
-                $weightDetails .= '<tr><td colspan="2">Unit Price</td><td colspan="2">RM ' . number_format($unitPrice, 2) . '</td></tr>';
-                $weightDetails .= '<tr><td colspan="2">Total Price</td><td colspan="2">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td></tr>';
+                $weightDetails .= '<tr><td>Unit Price</td><td>RM ' . number_format($unitPrice, 2) . '</td></tr>';
+                $weightDetails .= '<tr><td>Total Price</td><td>RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td></tr>';
             } else {
-                $weightDetails .= '<tr style="visibility: hidden; border: none;"><td colspan="2" style="border: none;">Unit Price</td><td colspan="2" style="border: none;">RM ' . number_format($unitPrice, 2) . '</td></tr>';
-                $weightDetails .= '<tr style="visibility: hidden; border: none;"><td colspan="2" style="border: none;">Total Price</td><td colspan="2" style="border: none;">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td></tr>';
+                $weightDetails .= '<tr style="visibility: hidden; border: none;"><td style="border: none;">Unit Price</td><td style="border: none;">RM ' . number_format($unitPrice, 2) . '</td></tr>';
+                $weightDetails .= '<tr style="visibility: hidden; border: none;"><td style="border: none;">Total Price</td><td style="border: none;">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td></tr>';
             }
 
             $grandTotalPrice += $totalPrice;
@@ -198,9 +194,7 @@ $message = '
                 </div>
                 <div class="col-4">
                     <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>
-                    <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.$status.'</span></div>
-                    <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['start_time'])).'</span></div>
-                    <div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Delivery' : 'Purchase').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div>';
+                    <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.$status.'</span></div>';
 
                     if ($wholesale['status'] == 'RECEIVING') {
                         $message .= '
@@ -215,8 +209,8 @@ $message = '
             <div class="row mb-1">
                 <div class="col-8">
                     <div class="info-row"><span class="info-label">To '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
-                    <div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">: '.$wholesale['driver'].'</span></div>
-                    <div class="info-row"><span class="info-label">Driver IC</span><span class="info-value">: '.$wholesale['driver_ic'].'</span></div>
+                    <!--div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">: '.$wholesale['driver'].'</span></div-->
+                    <!--div class="info-row"><span class="info-label">Driver IC</span><span class="info-value">: '.$wholesale['driver_ic'].'</span></div-->
                     <div class="info-row"><span class="info-label">Actual Weight</span><span class="info-value">: '.number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2).' kg</span></div>
                     <div class="info-row"><span class="info-label">Reject Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_reject'], 2).' kg</span></div>
                     <div class="info-row"><span class="info-label">Total Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_weight'], 2).' kg</span></div>
@@ -224,11 +218,9 @@ $message = '
                     <div class="info-row"><span class="info-label">Remark</span><span class="info-value">: '.$wholesale['remark'].'</span></div>
                 </div>
                 <div class="col-4">
-                    <div class="info-row"><span class="info-label">To Vehicle No</span><span class="info-value">: '.$wholesale['vehicle_no'].'</span></div>
+                    <div class="info-row"><span class="info-label">Date</span><span class="info-value">: '.date('d/m/Y', strtotime($wholesale['start_time'])).'</span></div>
+                    <div class="info-row"><span class="info-label">'.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Delivery' : 'Purchase').' No</span><span class="info-value">: '.$wholesale['po_no'].'</span></div>
                     <div class="info-row"><span class="info-label">Total Cages</span><span class="info-value">: '.number_format($totalCages).'</span></div>
-                    <div class="info-row"><span class="info-label">Cages Weight</span><span class="info-value">: '.number_format($totalCagesWeight, 2).' kg</span></div>
-                    <div class="info-row"><span class="info-label">Weight By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
-                    <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: '.($wholesale['checked_by'] == 'JACKY' ? '' : $wholesale['checked_by']).'</span></div>
                     <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['start_time'])).'</span></div>
                     <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['end_time'])).'</span></div>
                 </div>
