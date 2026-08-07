@@ -42,22 +42,22 @@ else{
 }
 ?>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></h1>
+        <h1 class="custom-title"><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></h1>
       </div>
     </div>
   </div>
 </div>
 
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
               <div class="form-group col-md-3 col-sm-6">
                 <label><?=$languageArray['date_code'][$language] ?? 'Date'?></label>
@@ -104,7 +104,7 @@ else{
             <div class="row">
               <div class="col-md-9 col-sm-6"></div>
               <div class="col-md-3 col-sm-6">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
                 </button>
               </div>
@@ -117,22 +117,22 @@ else{
     <div class="row" id="resultsCard" style="display:none;">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row align-items-center">
               <div class="col-8">
-                <h3 class="card-title"><?=$languageArray['results_code'][$language] ?? 'Results'?></h3>
+                <h3 class="card-title custom-card-header-title"><?=$languageArray['results_code'][$language] ?? 'Results'?></h3>
               </div>
               <?php if($allowEdit == 'Y'){ ?>
-              <div class="col-4 text-right">
-                <button type="button" class="btn bg-gradient-warning btn-sm" onclick="openBulkPriceModal()">
+              <div class="col-4">
+                <button type="button" class="btn custom-add-btn btn-sm" onclick="openBulkPriceModal()">
                   <i class="fas fa-tags"></i> <?=$languageArray['update_price_code'][$language] ?? 'Update Price'?>
                 </button>
               </div>
               <?php } ?>
             </div>
           </div>
-          <div class="card-body">
-            <table id="weightTable" class="table table-bordered table-striped display" style="width:100%">
+          <div class="card-body custom-table-card-body">
+            <table id="weightTable" class="table table-bordered table-striped display" style="width: 100%">
               <thead>
                 <tr>
                   <th width="30"></th>
@@ -155,15 +155,15 @@ else{
 <!-- Bulk Price Update Modal -->
 <div class="modal fade" id="bulkPriceModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="bulkPriceForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['update_price_code'][$language] ?? 'Update Price'?></h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['update_price_code'][$language] ?? 'Update Price'?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true" style="color:#fff">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body custom-model-body-box">
 
           <!-- Wizard Steps Indicator -->
           <div class="wizard-container">
@@ -234,14 +234,14 @@ else{
           </div>
 
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-default" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <div>
-            <button type="button" class="btn btn-default" id="btnBackToInputs" style="display:none;" onclick="wizardGoTo(1)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
-            <button type="submit" class="btn btn-primary" id="btnPreview"><i class="fas fa-eye"></i> <?=$languageArray['preview_code'][$language] ?? 'Preview'?></button>
-            <button type="button" class="btn btn-default" id="btnBackToPreview" style="display:none;" onclick="wizardGoTo(2)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
-            <button type="button" class="btn btn-primary" id="btnGoConfirm" style="display:none;" onclick="wizardGoTo(3)"><i class="fas fa-arrow-right"></i> <?=$languageArray['next_code'][$language] ?? 'Next'?></button>
-            <button type="button" class="btn btn-success" id="btnConfirm" style="display:none;" onclick="confirmBulkUpdate()"><i class="fas fa-check"></i> <?=$languageArray['confirm_update_code'][$language] ?? 'Confirm Update'?></button>
+            <button type="button" class="btn custom-preview-btn" id="btnBackToInputs" style="display:none;" onclick="wizardGoTo(1)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
+            <button type="submit" class="btn custom-preview-btn" id="btnPreview"><i class="fas fa-eye"></i> <?=$languageArray['preview_code'][$language] ?? 'Preview'?></button>
+            <button type="button" class="btn custom-preview-btn" id="btnBackToPreview" style="display:none;" onclick="wizardGoTo(2)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
+            <button type="button" class="btn custom-preview-btn" id="btnGoConfirm" style="display:none;" onclick="wizardGoTo(3)"><i class="fas fa-arrow-right"></i> <?=$languageArray['next_code'][$language] ?? 'Next'?></button>
+            <button type="button" class="btn custom-save-btn" id="btnConfirm" style="display:none;" onclick="confirmBulkUpdate()"><i class="fas fa-check"></i> <?=$languageArray['confirm_update_code'][$language] ?? 'Confirm Update'?></button>
           </div>
         </div>
       </form>

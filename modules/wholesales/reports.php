@@ -55,11 +55,11 @@ else{
 ?>
 
 
-<div class="content-header">
+<div class="content-header custom-table-content">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['reports_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['reports_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -67,12 +67,12 @@ else{
 <!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
               <div class="form-group col-3">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
@@ -219,7 +219,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -232,24 +232,24 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row">
-              <div class="<?=$allowIntegration == 'Y' ? 'col-6' : 'col-8'?>"></div>
+              <div class="<?=$allowIntegration == 'Y' ? 'col-3' : 'col-5'?>"></div>
               <?php if($allowIntegration == 'Y') { ?>
-              <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-danger btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
+              <div class="col-3">
+                <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
               </div>
               <?php } ?>
-              <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
+              <div class="col-3">
+                <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
-              <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
+              <div class="col-3">
+                <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body custom-table-card-body">
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
@@ -277,7 +277,7 @@ else{
               </thead>
               <tfoot>
                 <tr>
-                    <th colspan="10"><?=$languageArray['total_code'][$language]?></th>
+                    <th colspan="9"><?=$languageArray['total_code'][$language]?></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -296,13 +296,13 @@ else{
 <!-- PDF Export Modal -->
 <div class="modal fade" id="pdfModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form id="pdfForm">
-        <div class="modal-header">
-          <h5 class="modal-title"><?=$languageArray['export_pdf_code'][$language]?></h5>
-          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header custom-model-header-box">
+          <h5 class="modal-title custom-model-title-txt"><?=$languageArray['export_pdf_code'][$language]?></h5>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body custom-model-body-box">
           <div class="form-group">
             <label><?=$languageArray['report_type_code'][$language]?></label>
             <select class="form-control" id="pdfReportType">
@@ -311,9 +311,9 @@ else{
             </select>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
-          <button type="submit" class="btn btn-warning btn-sm" id="pdfExportBtn"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn btn-sm" id="pdfExportBtn"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -323,12 +323,12 @@ else{
 <!-- Integration Export Modal -->
 <div class="modal fade" id="integrationModal" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><?=$languageArray['export_integration_code'][$language]?></h5>
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+    <div class="modal-content custom-model-content-box">
+      <div class="modal-header custom-model-header-box">
+        <h5 class="modal-title custom-model-title-txt"><?=$languageArray['export_integration_code'][$language]?></h5>
+        <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body custom-model-body-box">
         <div class="form-group">
           <label><?=$languageArray['document_type_code'][$language]?></label>
           <select class="form-control" id="integrationDocType">
@@ -336,9 +336,9 @@ else{
           </select>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
-        <button type="button" class="btn btn-primary btn-sm" id="integrationExportBtn"><?=$languageArray['export_code'][$language]?></button>
+      <div class="modal-footer custom-model-fotter-box">
+        <button type="button" class="btn custom-close-btn btn-sm" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn custom-save-btn btn-sm" id="integrationExportBtn"><?=$languageArray['export_code'][$language]?></button>
       </div>
     </div>
   </div>
