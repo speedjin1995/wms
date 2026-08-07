@@ -42,11 +42,11 @@ else{
 ?>
 
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['reports_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['reports_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -54,12 +54,12 @@ else{
 <!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
               <div class="form-group col-3">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
@@ -159,7 +159,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -172,19 +172,19 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row">
               <div class="col-6"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body custom-table-card-body">
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
@@ -299,7 +299,7 @@ $(function () {
       // { 
       //   data: 'id',
       //   render: function ( data, type, row ) {
-      //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+      //     return '<button type="button" onclick="printSlip('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
       //   }
       // }
     ],
@@ -396,7 +396,7 @@ $(function () {
         // { 
         //   data: 'id',
         //   render: function ( data, type, row ) {
-        //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+        //     return '<button type="button" onclick="printSlip('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
         //   }
         // }
       ],

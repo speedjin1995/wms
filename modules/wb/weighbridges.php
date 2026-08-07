@@ -83,11 +83,11 @@ else{
 }
 ?>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['weighbridge_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['weighbridge_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -95,12 +95,12 @@ else{
 <!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
               <div class="form-group col-3">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
@@ -200,7 +200,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -213,18 +213,18 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['weighbridge_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['weighbridge_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-add-btn btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body custom-table-card-body">
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
@@ -253,36 +253,36 @@ else{
 
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="extendForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_new_entry_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
 
-        <div class="modal-body bg-light">
+        <div class="modal-body custom-model-body-box">
           <input type="hidden" class="form-control" id="id" name="id">
           <input type="hidden" class="form-control" id="customerCode" name="customerCode">
           <input type="hidden" class="form-control" id="supplierCode" name="supplierCode">
           <input type="hidden" class="form-control" id="productCode" name="productCode">
 
-          <div class="card card-outline card-primary mb-3 shadow-sm">
-            <div class="card-header py-2">
-              <h6 class="card-title mb-0"><i class="fas fa-file-alt mr-2"></i>Transaction Info</h6>
+          <div class="custom-card-box custom-card-product-info-box">
+            <div class="card-header custom-card-box-header">
+              <h6 class="custom-card-box-header-title"><i class="fas fa-file-alt"></i>Transaction Info</h6>
             </div>
-            <div class="card-body pt-3">
+            <div class="card-body custom-card-box-body">
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_id_code'][$language]?> *</label>
+                    <label><?=$languageArray['transaction_id_code'][$language]?> *</label>
                     <input type="text" class="form-control form-control" id="transactionId" name="transactionId" readonly>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_date_code'][$language]?> *</label>
+                    <label><?=$languageArray['transaction_date_code'][$language]?> *</label>
                     <div class="input-group input-group date" id="transactionDateTimePicker" data-target-input="nearest">
                       <input type="text" class="form-control datetimepicker-input" data-target="#transactionDateTimePicker" id="transactionDate" name="transactionDate"/>
                       <div class="input-group-append" data-target="#transactionDateTimePicker" data-toggle="datetimepicker">
@@ -293,7 +293,7 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_status_code'][$language]?></label>
+                    <label><?=$languageArray['transaction_status_code'][$language]?></label>
                     <select class="form-control form-control" id="transactionStatus" name="transactionStatus">
                       <option value="Dispatch" selected><?=$languageArray['dispatch_code'][$language]?></option>
                       <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
@@ -304,19 +304,19 @@ else{
                 </div>
                 <div class="col-md-4" id="purchaseOrderDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['po_no_code'][$language]?></label>
+                    <label><?=$languageArray['po_no_code'][$language]?></label>
                     <input type="text" class="form-control form-control" id="poNo" name="poNo">
                   </div>
                 </div>
                 <div class="col-md-4" id="deliveryOrderDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['do_no_code'][$language]?></label>
+                    <label><?=$languageArray['do_no_code'][$language]?></label>
                     <input type="text" class="form-control form-control" id="doNo" name="doNo">
                   </div>
                 </div>
                 <div class="col-md-4" id="customerDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['customer_code'][$language]?></label>
+                    <label><?=$languageArray['customer_code'][$language]?></label>
                     <select class="form-control form-control select2" id="customer" name="customer">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
@@ -327,7 +327,7 @@ else{
                 </div>
                 <div class="col-md-4" id="supplierDiv">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['supplier_code'][$language]?></label>
+                    <label><?=$languageArray['supplier_code'][$language]?></label>
                     <select class="form-control form-control select2" id="supplier" name="supplier">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
@@ -338,7 +338,7 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['product_code'][$language]?></label>
+                    <label><?=$languageArray['product_code'][$language]?></label>
                     <select class="form-control form-control select2" id="product" name="product">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowProduct3=mysqli_fetch_assoc($products2)){ ?>
@@ -349,7 +349,7 @@ else{
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['vehicle_no_code'][$language]?></label>
+                    <label><?=$languageArray['vehicle_no_code'][$language]?></label>
                     <select class="form-control form-control select2" id="vehicle" name="vehicle">
                       <option value="" selected disabled hidden>Please Select</option>
                       <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
@@ -362,16 +362,16 @@ else{
             </div>
           </div><!-- /.card Transaction Info -->
 
-          <div class="card card-outline card-warning mb-0 shadow-sm">
-            <div class="card-header py-2">
-              <h6 class="card-title mb-0"><i class="fas fa-weight mr-2"></i><?=$languageArray['weighing_details_code'][$language]?></h6>
+          <div class="custom-card-box custom-card-product-image-box">
+            <div class="card-header custom-card-box-header">
+              <h6 class="custom-card-box-header-title"><i class="fas fa-weight"></i><?=$languageArray['weighing_details_code'][$language]?></h6>
             </div>
-            <div class="card-body pt-3">
+            <div class="card-body custom-card-box-body">
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['incoming_weight_code'][$language]?></label>
-                    <div class="input-group input-group">
+                    <label><?=$languageArray['incoming_weight_code'][$language]?></label>
+                    <div class="input-group input-group input-group-unit">
                       <input type="number" class="form-control" id="grossIncoming" name="grossIncoming" placeholder="0" required>
                       <div class="input-group-text">KG</div>
                     </div>
@@ -380,8 +380,8 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_weight_code'][$language]?></label>
-                    <div class="input-group input-group">
+                    <label><?=$languageArray['outgoing_weight_code'][$language]?></label>
+                    <div class="input-group input-group input-group-unit">
                       <input type="number" class="form-control" id="tareOutgoing" name="tareOutgoing" placeholder="0">
                       <div class="input-group-text">KG</div>
                     </div>
@@ -390,8 +390,8 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['nett_weight_code'][$language]?></label>
-                    <div class="input-group input-group">
+                    <label><?=$languageArray['nett_weight_code'][$language]?></label>
+                    <div class="input-group input-group input-group-unit">
                       <input type="number" class="form-control" id="nettWeight" name="nettWeight" placeholder="0" readonly>
                       <div class="input-group-text">KG</div>
                     </div>
@@ -400,7 +400,7 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['incoming_date_code'][$language]?></label>
+                    <label><?=$languageArray['incoming_date_code'][$language]?></label>
                     <div class="input-group input-group date" id="grossIncomingDatePicker" data-target-input="nearest">
                       <input type="text" class="form-control datetimepicker-input" data-target="#grossIncomingDatePicker" id="grossIncomingDate" name="grossIncomingDate">
                       <div class="input-group-append" data-target="#grossIncomingDatePicker" data-toggle="datetimepicker">
@@ -412,7 +412,7 @@ else{
 
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_date_code'][$language]?></label>
+                    <label><?=$languageArray['outgoing_date_code'][$language]?></label>
                     <div class="input-group input-group date" id="tareOutgoingDatePicker" data-target-input="nearest">
                       <input type="text" class="form-control datetimepicker-input" data-target="#tareOutgoingDatePicker" id="tareOutgoingDate" name="tareOutgoingDate">
                       <div class="input-group-append" data-target="#tareOutgoingDatePicker" data-toggle="datetimepicker">
@@ -426,9 +426,9 @@ else{
           </div><!-- /.card Weighing Details -->
         </div><!-- /.modal-body -->
 
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
@@ -437,28 +437,28 @@ else{
 
 <div class="modal fade" id="cancelModal">
   <div class="modal-dialog modal-xl" style="max-width: 90%;">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="cancelForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['delete_reason_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body custom-model-body-box">
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
                 <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+                <textarea class="form-control custom-reason-txtarea" id="cancelReason" name="cancelReason" rows="3" required></textarea>
               </div>
             </div>
             <input type="hidden" class="form-control" id="id" name="id">
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -569,13 +569,13 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+          var buttons = '<div class="row custom-tbl-btn-icon">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn custom-print-btn-icon btn-sm"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
