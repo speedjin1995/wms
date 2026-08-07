@@ -551,6 +551,15 @@ div.loading {
   margin-bottom: 5px;
 }
 
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-body label {
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 5px;
+}
+
 .custom-search-card-body .form-group .form-control,
 .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-model-body-box .form-group .form-control, .custom-model-body-box .custom-model-title-box-form,
@@ -562,8 +571,8 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
-.custom-card-box .custom-card-box-body .custom-range-set-box .form-control,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .form-control,
+.custom-card-box .custom-range-set-box .form-control,
+.custom-card-box .table-bordered tbody tr td .form-control,
 .custom-tab-box .table-bordered tbody tr td .form-control,
 .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
@@ -587,6 +596,20 @@ div.loading {
   box-shadow: unset;
 }
 
+.modal-modern .pricing-card-body .form-control, .modal-modern .dynamic-card-row .form-control,
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-body .form-control {
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  border: 1px solid #E3C66A;
+  border-radius: 5px;
+  padding: 5px;
+  box-shadow: unset;
+}
+
 .custom-search-card-body .form-group select.form-control,
 .custom-table-card-body #weightTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
 .custom-model-body-box .form-group select.form-control,
@@ -598,8 +621,8 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
 .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
 .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
-.custom-card-box .custom-card-box-body .custom-range-set-box select.form-control,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td select.form-control,
+.custom-card-box .custom-range-set-box select.form-control,
+.custom-card-box .table-bordered tbody tr td select.form-control,
 .custom-tab-box .table-bordered tbody tr td select.form-control,
 .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
 .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
@@ -616,6 +639,17 @@ div.loading {
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 10px;
+}
+
+.modal-modern .pricing-card-body select.form-control, .modal-modern .dynamic-card-row select.form-control,
+.modal-modern .dynamic-card-row select.form-control, 
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-body select.form-control {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url(../chevron-down-solid-full.svg);
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 7px;
 }
 
 
@@ -640,8 +674,8 @@ div.loading {
 .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
 .custom-table-card-body #productTable_wrapper .row:first-child #productTable_filter label .form-control:focus,
 .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
-.custom-card-box .custom-card-box-body .custom-range-set-box .form-control:focus,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .form-control:focus,
+.custom-card-box .custom-range-set-box .form-control:focus,
+.custom-card-box .table-bordered tbody tr td .form-control:focus,
 .custom-tab-box .table-bordered tbody tr td .form-control:focus,
 .custom-table-card-body #driverTable_wrapper .row:first-child #driverTable_filter label .form-control:focus,
 .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
@@ -658,9 +692,36 @@ div.loading {
 .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label .form-control:focus,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
 .custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_filter label .form-control:focus,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus,
+.custom-model-body-box .form-group .select2-container--default.select2-container--focus .select2-selection--multiple,
+.custom-model-body-box .form-group .select2-container--default.select2-container--focus .select2-selection--single,
+.modal-modern .pricing-card-body .select2-container--default.select2-container--focus .select2-selection--single,
+.modal-modern .dynamic-card-row .select2-container--default.select2-container--focus .select2-selection--single,
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-body .form-control:focus {
   border-color: #1a1a1a;
   box-shadow: unset;
+}
+
+.modal-modern .pricing-card-body .select2-container--default .select2-selection--single,
+.modal-modern .dynamic-card-row .select2-container--default .select2-selection--single,
+.custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single {
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  border: 1px solid #E3C66A;
+  border-radius: 5px;
+  padding: 5px;
+  box-shadow: unset;
+  height: calc(1.8125rem + 2px);
+}
+
+.modal-modern .pricing-card-body .select2-container--default .select2-selection__rendered,
+.modal-modern .dynamic-card-row .select2-container--default .select2-selection__rendered,
+.custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection__rendered {
+  height: calc(1.8125rem + 2px);
 }
 
 /* Placeholder Styles */
@@ -677,8 +738,8 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
 .custom-table-card-body #customerTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
 .custom-table-card-body #productTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
-.custom-card-box .custom-card-box-body .custom-range-set-box .form-control::placeholder,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .form-control::placeholder,
+.custom-card-box .custom-range-set-box .form-control::placeholder,
+.custom-card-box .table-bordered tbody tr td .form-control::placeholder,
 .custom-tab-box .table-bordered tbody tr td .form-control::placeholder,
 .custom-table-card-body #driverTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
 .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
@@ -689,7 +750,10 @@ div.loading {
 .custom-form-card-body .form-group .form-control::placeholder,
 .custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__placeholder,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder,
+.modal-modern .pricing-card-body .select2-container--default .select2-selection--single .select2-selection__placeholder,
+.modal-modern .dynamic-card-row .select2-container--default .select2-selection--single .select2-selection__placeholder,
+.custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single .select2-selection__placeholder {
   color: rgba(26, 26, 26, .5);
 }
 
@@ -697,13 +761,25 @@ div.loading {
   background: rgba(26, 26, 26, .05);
 }
 
+.modal-modern .pricing-card-body .select2-container--default .select2-selection--single .select2-selection__rendered,
+.modal-modern .dynamic-card-row .select2-container--default .select2-selection--single .select2-selection__rendered,
+.custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single .select2-selection__rendered {
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: #1a1a1a;
+  padding: 0px;
+  margin-top: 0px;
+}
+
 
 /* ============================================
    INPUT GROUPS
    ============================================ */
 .custom-search-card-body .form-group .input-group-append .input-group-text,
-.custom-card-box-body .form-group .input-group-append .input-group-text,
-.custom-card-box-body .form-group .input-group-unit .input-group-text,
+.custom-card-box .form-group .input-group-append .input-group-text,
+.custom-card-box .form-group .input-group-unit .input-group-text,
 .custom-model-body-box .form-group .input-group-append .input-group-text {
   border: 1px solid #E3C66A;
   background: #E3C66A;
@@ -717,7 +793,7 @@ div.loading {
   padding: 10px;
 }
 
-.custom-card-box-body .form-group .input-group-unit .input-group-text {
+.custom-card-box .form-group .input-group-unit .input-group-text {
   height: 40px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
@@ -754,7 +830,7 @@ div.loading {
 }
 
 .custom-table-content .custom-profile-box .upload-img-notice, .custom-form-card-body .form-group .email-address-notice,
-.custom-card-box-body .form-group .batch-txt-notice, .batch-txt-notice {
+.custom-card-box .form-group .batch-txt-notice, .batch-txt-notice {
   font-size: 12px;
   line-height: 20px;
   letter-spacing: 0.75px;
@@ -766,7 +842,7 @@ div.loading {
    SELECT2 STYLES
    ============================================ */
 .custom-search-card-body .form-group .select2-selection, .custom-model-body-box .form-group .select2-selection,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection,
+.custom-card-box .table-bordered tbody tr td .select2-selection,
 .custom-tab-box .table-bordered tbody tr td .select2-selection, .custom-form-card-body .form-group .select2-selection {
   font-size: 14px;
   line-height: 22px;
@@ -780,7 +856,7 @@ div.loading {
   background: #fff;
 }
 
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection,
+.custom-card-box .table-bordered tbody tr td .select2-selection,
 .custom-tab-box .table-bordered tbody tr td .select2-selection {
   height: 40px !important;
   padding: 10px !important;
@@ -788,7 +864,7 @@ div.loading {
 
 .custom-search-card-body .form-group .select2-selection .select2-selection__rendered,
 .custom-model-body-box .form-group .select2-selection .select2-selection__rendered,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__rendered,
+.custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered,
 .custom-form-card-body .form-group .select2-selection .select2-selection__rendered {
   margin-top: 0px;
@@ -813,18 +889,26 @@ div.loading {
   top: -10px;
 }
 
+.custom-card-box .form-group .select2-selection .select2-selection__rendered .select2-search--inline .select2-search__field,
+.custom-model-body-box .form-group .select2-selection.select2-selection--multiple .select2-selection__rendered .select2-search--inline .select2-search__field {
+  top: 0px;
+}
+
 .custom-search-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__clear,
 .custom-model-body-box .form-group .select2-selection .select2-selection__rendered .select2-selection__clear,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__rendered .select2-selection__clear,
+.custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered .select2-selection__clear,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__rendered .select2-selection__clear,
-.custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__clear {
+.custom-form-card-body .form-group .select2-selection .select2-selection__rendered .select2-selection__clear,
+.modal-modern .pricing-card-body .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear,
+.modal-modern .dynamic-card-row .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear,
+.custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single .select2-selection__rendered .select2-selection__clear {
   z-index: 1;
   right: 15px;
 }
 
 .custom-search-card-body .form-group .select2-selection .select2-selection__arrow,
 .custom-model-body-box .form-group .select2-selection .select2-selection__arrow,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
+.custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
 .custom-form-card-body .form-group .select2-selection .select2-selection__arrow {
   height: 40px;
@@ -832,17 +916,28 @@ div.loading {
   top: -1px;
 }
 
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
+.custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow {
   height: 40px !important;
   padding-top: 0px !important;
 }
 
+.modal-modern .pricing-card-body .select2-selection .select2-selection__arrow,
+.modal-modern .dynamic-card-row .select2-selection .select2-selection__arrow,
+.custom-main-cards .custom-cs-card-detail .select2-selection .select2-selection__arrow {
+  height: calc(1.8125rem + 2px) !important;
+  top: -1px !important;
+  right: 0px !important;
+}
+
 .custom-search-card-body .form-group .select2-selection .select2-selection__arrow b,
 .custom-model-body-box .form-group .select2-selection .select2-selection__arrow b,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td .select2-selection .select2-selection__arrow b,
+.custom-card-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow b,
 .custom-tab-box .table-bordered tbody tr td .select2-selection .select2-selection__arrow b,
-.custom-form-card-body .form-group .select2-selection .select2-selection__arrow b {
+.custom-form-card-body .form-group .select2-selection .select2-selection__arrow b,
+.modal-modern .pricing-card-body .select2-selection .select2-selection__arrow b,
+.modal-modern .dynamic-card-row .select2-selection .select2-selection__arrow b,
+.custom-main-cards .custom-cs-card-detail .select2-selection .select2-selection__arrow b {
   border-color: rgba(26, 26, 26, .5) transparent transparent transparent;
 }
 
@@ -884,6 +979,38 @@ div.loading {
   background: #D9A82D;
 }
 
+.custom-main-cards .custom-cs-card-detail {
+  background: #fff;
+  border: 1px solid #E3C66A;
+  border-radius: 5px;
+}
+
+.custom-main-cards .custom-cs-card-detail:hover {
+  border-color: #1a1a1a;
+}
+
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-header {
+  gap: 10px;
+  padding: 10px 25px;
+  background: rgb(246, 213, 74, .25);
+  border-bottom: 1px solid #E3C66A;
+}
+
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-header .cs-card-number {
+  flex: 0 0 25px;
+  width: 25px;
+  height: 25px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+}
+
+.custom-main-cards .custom-cs-card-detail .custom-cs-card-body {
+  padding: 25px;
+  gap: 10px;
+}
 
 /* ============================================
    BUTTON STYLES
@@ -1366,7 +1493,7 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered thead th,
 .custom-table-card-body #customerTable_wrapper .table-bordered thead th,
 .custom-table-card-body #productTable_wrapper .table-bordered thead th,
-.custom-card-box .custom-card-box-body .table-bordered thead th,
+.custom-card-box .table-bordered thead th,
 .custom-model-body-box .tab-content .table-bordered thead th, .custom-tab-box .table-bordered thead th,
 .custom-table-card-body #driverTable_wrapper .table-bordered thead th,
 .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th,
@@ -1398,7 +1525,7 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered thead th:first-child,
 .custom-table-card-body #customerTable_wrapper .table-bordered thead th:first-child,
 .custom-table-card-body #productTable_wrapper .table-bordered thead th:first-child,
-.custom-card-box .custom-card-box-body .table-bordered thead th:first-child,
+.custom-card-box .table-bordered thead th:first-child,
 .custom-model-body-box .tab-content .table-bordered thead th:first-child,
 .custom-tab-box .table-bordered thead th:first-child,
 .custom-table-card-body #driverTable_wrapper .table-bordered thead th:first-child,
@@ -1421,7 +1548,7 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered thead th:last-child,
 .custom-table-card-body #customerTable_wrapper .table-bordered thead th:last-child,
 .custom-table-card-body #productTable_wrapper .table-bordered thead th:last-child,
-.custom-card-box .custom-card-box-body .table-bordered thead th:last-child,
+.custom-card-box .table-bordered thead th:last-child,
 .custom-model-body-box .tab-content .table-bordered thead th:last-child, .custom-tab-box .table-bordered thead th:last-child,
 .custom-table-card-body #driverTable_wrapper .table-bordered thead th:last-child,
 .custom-table-card-body #vehicleTable_wrapper .table-bordered thead th:last-child,
@@ -1445,7 +1572,7 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
 .custom-table-card-body #customerTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
 .custom-table-card-body #productTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
-.custom-card-box .custom-card-box-body .table-bordered tbody tr:nth-of-type(odd),
+.custom-card-box .table-bordered tbody tr:nth-of-type(odd),
 .custom-model-body-box .tab-content .table-bordered tbody tr:nth-of-type(odd),
 .custom-tab-box .table-bordered tbody tr:nth-of-type(odd),
 .custom-table-card-body #driverTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
@@ -1469,7 +1596,7 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered tbody tr:nth-of-type(even),
 .custom-table-card-body #customerTable_wrapper .table-bordered tbody tr:nth-of-type(even),
 .custom-table-card-body #productTable_wrapper .table-bordered tbody tr:nth-of-type(even),
-.custom-card-box .custom-card-box-body .table-bordered tbody tr:nth-of-type(even),
+.custom-card-box .table-bordered tbody tr:nth-of-type(even),
 .custom-model-body-box .tab-content .table-bordered tbody tr:nth-of-type(even),
 .custom-tab-box .table-bordered tbody tr:nth-of-type(even),
 .custom-table-card-body #driverTable_wrapper .table-bordered tbody tr:nth-of-type(even),
@@ -1493,7 +1620,7 @@ div.loading {
 .custom-table-card-body #packagingTable_wrapper .table-bordered tbody tr td,
 .custom-table-card-body #customerTable_wrapper .table-bordered tbody tr td,
 .custom-table-card-body #productTable_wrapper .table-bordered tbody tr td,
-.custom-card-box .custom-card-box-body .table-bordered tbody tr td,
+.custom-card-box .table-bordered tbody tr td,
 .custom-model-body-box .tab-content .table-bordered tbody tr td, .custom-tab-box .table-bordered tbody tr td,
 .custom-table-card-body #driverTable_wrapper .table-bordered tbody tr td,
 .custom-table-card-body #vehicleTable_wrapper .table-bordered tbody tr td,
@@ -1917,6 +2044,10 @@ div.loading {
   border-top: 5px solid #1E3A8A;
 }
 
+.custom-model-body-box .custom-card-pricing-box {
+  border-top: 5px solid #06B6D4;
+}
+
 .custom-model-body-box .custom-card-product-image-box {
   border-top: 5px solid #7C3AED;
 }
@@ -1939,7 +2070,7 @@ div.loading {
   display: flex;
 }
 
-.custom-model-body-box .custom-card-box-header-title, .custom-table-content .custom-profile-box .custom-profile-title {
+.custom-table-content .custom-profile-box .custom-profile-title {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1951,11 +2082,23 @@ div.loading {
   margin-bottom: 0px;
 }
 
-.custom-card-box .custom-card-box-body {
-  padding: 25px;
+.custom-model-body-box .custom-card-box-header-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 25px;
 }
 
-.custom-card-box .custom-card-box-body .product-img-drop-zone {
+/*.custom-card-box .custom-card-box-body {
+  padding: 25px;
+}*/
+
+.custom-card-box .product-img-drop-zone {
   border: 2.5px dashed #E3C66A;
   border-radius: 5px;
   padding: 25px;
@@ -1965,13 +2108,13 @@ div.loading {
   color: #1a1a1a;
 }
 
-.custom-card-box .custom-card-box-body .product-img-drop-zone i,
-.custom-card-box .custom-card-box-body .product-img-placeholder i {
+.custom-card-box .product-img-drop-zone i,
+.custom-card-box .product-img-placeholder i {
   font-size: 50px;
   margin-bottom: 15px;
 }
 
-.custom-card-box .custom-card-box-body .product-img-drop-zone .product-img-drop-zone-txt-1 {
+.custom-card-box .product-img-drop-zone .product-img-drop-zone-txt-1 {
   font-size: 16px;
   line-height: 24px;
   letter-spacing: 0.75px;
@@ -1979,8 +2122,12 @@ div.loading {
   margin-bottom: 5px;
 }
 
-.custom-card-box .custom-card-box-body .product-img-drop-zone .product-img-drop-zone-txt-2,
-.custom-card-box .custom-card-box-body .product-img-placeholder .product-img-placeholder-txt {
+.custom-card-box .product-img-drop-zone .product-img-drop-zone-txt-1, .custom-card-box .product-img-drop-zone .product-img-drop-zone-txt-2 {
+  color: #1a1a1a;
+}
+
+.custom-card-box .product-img-drop-zone .product-img-drop-zone-txt-2,
+.custom-card-box .product-img-placeholder .product-img-placeholder-txt {
   font-size: 16px;
   line-height: 24px;
   letter-spacing: 0.75px;
@@ -1988,25 +2135,25 @@ div.loading {
   margin-bottom: 0px;
 }
 
-.custom-card-box .custom-card-box-body .product-image-preview .product-image-thumbnail {
+.custom-card-box .product-image-preview .product-image-thumbnail {
   max-height: 200px;
   max-width: 100%;
   border-radius: 5px;
   object-fit: contain;
 }
 
-.custom-card-box .custom-card-box-body .product-image-btn-box {
+.custom-card-box .product-image-btn-box {
   margin-top: 15px;
   display: flex;
   justify-content: center;
 }
 
 /* Range Set Box */
-.custom-card-box .custom-card-box-body .custom-range-set-box {
+.custom-card-box .custom-range-set-box {
   margin-bottom: 15px;
 }
 
-.custom-card-box .custom-card-box-body .custom-range-set-box .custom-range-set-label {
+.custom-card-box .custom-range-set-box .custom-range-set-label {
   font-size: 16px;
   line-height: 24px;
   letter-spacing: 0.75px;
@@ -2015,25 +2162,25 @@ div.loading {
   margin-bottom: 0px;
 }
 
-.custom-card-box .custom-card-box-body .custom-range-set-box .form-control.custom-range-set-weight-1 {
+.custom-card-box .custom-range-set-box .form-control.custom-range-set-weight-1 {
   background: rgba(40, 167, 69, 0.25);
   color: #155724;
   border: 1px solid #28a745;
 }
 
-.custom-card-box .custom-card-box-body .custom-range-set-box .form-control.custom-range-set-weight-2 {
+.custom-card-box .custom-range-set-box .form-control.custom-range-set-weight-2 {
   background: rgba(255, 193, 7, 0.25);
   color: #856404;
   border: 1px solid #ffc107;
 }
 
-.custom-card-box .custom-card-box-body .custom-range-set-box .form-control.custom-range-set-weight-3 {
+.custom-card-box .custom-range-set-box .form-control.custom-range-set-weight-3 {
   background: rgba(220, 53, 69, 0.2);
   color: #721c24;
   border: 1px solid #dc3545;
 }
 
-.custom-card-box .custom-card-box-body .table-bordered,
+.custom-card-box .table-bordered,
 .custom-model-body-box .tab-content .table-bordered {
   margin-top: 0px;
   margin-bottom: 0px;
@@ -2056,6 +2203,10 @@ div.loading {
   border-radius: 5px;
   width: 20px;
   height: 20px;
+}
+
+.custom-card-box .section-header-toggle .toggle-switch {
+  margin-bottom: 25px;
 }
 
 

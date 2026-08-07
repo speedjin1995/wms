@@ -130,7 +130,7 @@ else{
 </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade modal-modern" id="uploadModal">
+<div class="modal fade" id="uploadModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
@@ -147,9 +147,9 @@ else{
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
-          <div class="modal-footer justify-content-between">
-            <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn-modern btn-modern-primary" id="uploadProduct"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+          <div class="modal-footer custom-model-fotter-box">
+            <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn custom-save-btn" id="uploadProduct"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -158,7 +158,7 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade modal-modern" id="errorModal" style="display:none">
+<div class="modal fade" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
     <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
@@ -187,17 +187,17 @@ else{
   <div class="modal-dialog modal-xl">
     <div class="modal-content custom-model-content-box">
       <form role="form" id="productForm">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle"><?=$languageArray['add_products_code'][$language]?></h5>
-          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header custom-model-header-box">
+          <h5 class="modal-title custom-model-title-txt" id="modalTitle"><?=$languageArray['add_products_code'][$language]?></h5>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body custom-model-body-box">
           <input type="hidden" id="id" name="id">
 
           <!-- Company (SADMIN only) -->
-          <div class="modal-section" <?php if($role != 'SADMIN') echo 'style="display:none;"'; ?>>
-            <div class="section-title"><i class="fas fa-building mr-2"></i><?=$languageArray['company_code'][$language]?></div>
-            <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+          <div class="modal-section custom-card-box custom-card-company-box" <?php if($role != 'SADMIN') echo 'style="display:none;"'; ?>>
+            <div class="section-title custom-card-box-header-title"><i class="fas fa-building"></i><?=$languageArray['company_code'][$language]?></div>
+            <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
               <?php $companies->data_seek(0); while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                 <option value="<?=$rowCompany['id']?>" <?php if($rowCompany['id']==$company) echo 'selected';?>><?=$rowCompany['name']?></option>
               <?php } ?>
@@ -205,24 +205,24 @@ else{
           </div>
 
           <!-- Product Info -->
-          <div class="modal-section">
-            <div class="section-title"><i class="fas fa-info-circle mr-2"></i><?=$languageArray['product_information_code'][$language]?></div>
+          <div class="modal-section custom-card-box custom-card-product-info-box">
+            <div class="section-title custom-card-box-header-title"><i class="fas fa-info-circle"></i><?=$languageArray['product_information_code'][$language]?></div>
             <div class="row">
               <div class="col-md-4">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
+                <div class="form-group">
+                  <label><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
+                <div class="form-group">
+                  <label><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
+                <div class="form-group">
+                  <label><?=$languageArray['states_code'][$language]?></label>
                   <select class="form-control select2" id="state" name="state[]" multiple style="width:100%;">
                     <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
                       <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
@@ -231,14 +231,14 @@ else{
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['weight_code'][$language]?></label>
+                <div class="form-group">
+                  <label><?=$languageArray['weight_code'][$language]?></label>
                   <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['unit_code'][$language]?></label>
+                <div class="form-group">
+                  <label><?=$languageArray['unit_code'][$language]?></label>
                   <select class="form-control select2" id="uom" name="uom" style="width:100%;">
                     <option selected>-</option>
                     <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
@@ -248,8 +248,8 @@ else{
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['category_code'][$language]?></label>
+                <div class="form-group">
+                  <label><?=$languageArray['category_code'][$language]?></label>
                   <select class="form-control select2" id="productCategory" name="productCategory" style="width:100%;">
                     <option value="" selected>-</option>
                     <?php while($rowCat=mysqli_fetch_assoc($category)){ ?>
@@ -259,8 +259,8 @@ else{
                 </div>
               </div>
               <div class="col-md-4">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
+                <div class="form-group">
+                  <label><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
                   <select class="form-control select2" id="productPackaging" name="productPackaging" style="width:100%;">
                     <option value="" selected>-</option>
                     <?php while($rowPack=mysqli_fetch_assoc($packaging)){ ?>
@@ -270,15 +270,15 @@ else{
                 </div>
               </div>
             </div>
-            <div class="form-group-modern">
-              <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
-              <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
+            <div class="form-group">
+              <label><?=$languageArray['remark_code'][$language]?></label>
+              <textarea class="form-control custom-remark-txtarea" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
             </div>
           </div>
 
           <!-- Pricing -->
-          <div class="modal-section">
-            <div class="section-title"><i class="fas fa-tags mr-2"></i><?=$languageArray['pricing_code'][$language] ?? 'Pricing'?></div>
+          <div class="modal-section custom-card-box custom-card-pricing-box">
+            <div class="section-title custom-card-box-header-title"><i class="fas fa-tags"></i><?=$languageArray['pricing_code'][$language] ?? 'Pricing'?></div>
             <div class="row">
               <div class="col-md-6">
                 <div class="pricing-card pricing-card-sell">
@@ -346,36 +346,36 @@ else{
           </div>
 
           <!-- Product Image -->
-          <div class="modal-section">
-            <div class="section-title"><i class="fas fa-image mr-2"></i><?=$languageArray['product_image_code'][$language]?></div>
+          <div class="modal-section custom-card-box custom-card-product-image-box">
+            <div class="section-title custom-card-box-header-title"><i class="fas fa-image"></i><?=$languageArray['product_image_code'][$language]?></div>
             <div class="row align-items-center">
               <div class="col-md-6">
-                <div class="upload-zone" id="productImageDropzone">
+                <div class="upload-zone product-img-drop-zone" id="productImageDropzone">
                   <i class="fas fa-cloud-upload-alt"></i>
-                  <p><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
-                  <span><?=$languageArray['file_format_max_size_code'][$language]?></span>
+                  <p class="product-img-drop-zone-txt-1"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
+                  <span class="product-img-drop-zone-txt-2"><?=$languageArray['file_format_max_size_code'][$language]?></span>
                   <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
                 </div>
               </div>
               <div class="col-md-6 text-center">
-                <div id="productImagePreview" style="display:none;">
-                  <img id="productImageThumb" src="" style="max-height:140px; max-width:100%; border-radius:8px; border:1px solid var(--border-color); object-fit:contain;">
-                  <div class="mt-2">
-                    <button type="button" id="removeProductImage" class="btn-drawer btn-drawer-secondary btn-sm"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
+                <div id="productImagePreview" class="product-image-preview" style="display:none;">
+                  <img id="productImageThumb" src="" class="product-image-thumbnail">
+                  <div class="product-image-btn-box">
+                    <button type="button" id="removeProductImage" class="btn btn-sm custom-remove-btn-sm"><i class="fas fa-trash"></i><?=$languageArray['remove_code'][$language]?></button>
                   </div>
                 </div>
-                <div id="productImagePlaceholder" style="color:var(--text-muted);">
-                  <i class="fas fa-image fa-3x"></i>
-                  <p class="mt-2 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
+                <div id="productImagePlaceholder" class="product-img-placeholder" style="color: #1a1a1a;">
+                  <i class="fas fa-image"></i>
+                  <p class="product-img-placeholder-txt"><?=$languageArray['no_image_selected_code'][$language]?></p>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Ranges Set -->
-          <div class="modal-section collapsible-section">
+          <div class="modal-section collapsible-section custom-card-box custom-card-range-box">
             <div class="section-header-toggle" id="rangeSetHeader">
-              <div class="section-title mb-0"><i class="fas fa-sliders-h mr-2"></i><?=$languageArray['ranges_set_code'][$language]?></div>
+              <div class="section-title custom-card-box-header-title"><i class="fas fa-sliders-h"></i><?=$languageArray['ranges_set_code'][$language]?></div>
               <input type="hidden" name="rangeSet" id="rangeSet" value="0">
               <label class="toggle-switch">
                 <input type="checkbox" id="rangeSetCheckbox">
@@ -383,35 +383,35 @@ else{
               </label>
             </div>
             <div id="rangeWeightFields" class="collapsible-content" style="display:none;">
-              <div class="row mt-3">
+              <div class="row">
                 <div class="col-md-4">
-                  <div class="form-group-modern">
-                    <label class="form-label-modern" style="color:#28a745;"><?=$languageArray['ok_weight_code'][$language]?></label>
+                  <div class="form-group">
+                    <label style="color: #28a745;"><?=$languageArray['ok_weight_code'][$language]?></label>
                     <div class="input-group">
-                      <input type="number" step="any" class="form-control" id="okWeight" name="okWeight" placeholder="0.000" style="border-color:#28a745;">
-                      <select class="form-control" id="okWeightUnit" name="okWeightUnit" style="max-width:80px;">
+                      <input type="number" step="any" class="form-control" id="okWeight" name="okWeight" placeholder="0.000" style="border-color: #28a745;">
+                      <select class="form-control" id="okWeightUnit" name="okWeightUnit" style="max-width: fit-content; border-color: #28a745; border-left: unset;">
                         <?php $units2->data_seek(0); while($r=mysqli_fetch_assoc($units2)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
                       </select>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group-modern">
-                    <label class="form-label-modern" style="color:#ffc107;"><?=$languageArray['lo_weight_code'][$language]?></label>
+                  <div class="form-group">
+                    <label style="color: #ffc107;"><?=$languageArray['lo_weight_code'][$language]?></label>
                     <div class="input-group">
-                      <input type="number" step="any" class="form-control" id="loWeight" name="loWeight" placeholder="0.000" style="border-color:#ffc107;">
-                      <select class="form-control" id="loWeightUnit" name="loWeightUnit" style="max-width:80px;">
+                      <input type="number" step="any" class="form-control" id="loWeight" name="loWeight" placeholder="0.000" style="border-color: #ffc107;">
+                      <select class="form-control" id="loWeightUnit" name="loWeightUnit" style="max-width: fit-content; border-color: #ffc107; border-left: unset;">
                         <?php $units3->data_seek(0); while($r=mysqli_fetch_assoc($units3)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
                       </select>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group-modern">
-                    <label class="form-label-modern" style="color:#dc3545;"><?=$languageArray['hi_weight_code'][$language]?></label>
+                  <div class="form-group">
+                    <label style="color: #dc3545;"><?=$languageArray['hi_weight_code'][$language]?></label>
                     <div class="input-group">
-                      <input type="number" step="any" class="form-control" id="hiWeight" name="hiWeight" placeholder="0.000" style="border-color:#dc3545;">
-                      <select class="form-control" id="hiWeightUnit" name="hiWeightUnit" style="max-width:80px;">
+                      <input type="number" step="any" class="form-control" id="hiWeight" name="hiWeight" placeholder="0.000" style="border-color: #dc3545;">
+                      <select class="form-control" id="hiWeightUnit" name="hiWeightUnit" style="max-width: fit-content; border-color: #dc3545; border-left: unset;">
                         <?php $units4->data_seek(0); while($r=mysqli_fetch_assoc($units4)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
                       </select>
                     </div>
@@ -422,10 +422,10 @@ else{
           </div>
 
           <!-- Grades -->
-          <div class="modal-section">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <div class="section-title mb-0"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
-              <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+          <div class="modal-section custom-card-box custom-card-grade-box">
+            <div class="d-flex align-items-center justify-content-between" style="margin-bottom: 25px;">
+              <div class="section-title custom-card-box-header-title" style="margin-bottom: 0px;"><i class="fas fa-layer-group"></i><?=$languageArray['grades_code'][$language]?></div>
+              <button type="button" class="btn custom-add-btn-sm btn-sm add-grade"><i class="fas fa-plus"></i><?=$languageArray['add_grade_code'][$language]?></button>
             </div>
             <div id="gradeRowsContainer">
               <div id="gradeEmptyState" class="empty-state">
@@ -439,9 +439,9 @@ else{
           </div>
 
         </div>
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn-modern btn-modern-primary" id="submitMember"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" id="submitMember"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -454,7 +454,7 @@ else{
     <div class="modal-content custom-model-content-box">
       <form role="form" id="customersForm">
         <input type="hidden" id="customerProductId" name="product_id">
-        <div class="modal-header custom-model-title-txt">
+        <div class="modal-header custom-model-header-box">
           <h5 class="modal-title custom-model-title-txt"><i class="fas fa-users"></i><?=$languageArray['customers_code'][$language]?></h5>
           <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
@@ -469,7 +469,7 @@ else{
                 <button type="button" class="btn custom-filter-btn-sm btn-sm" id="bulkPriceByState"><i class="fas fa-tags"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                 <button type="button" class="btn custom-add-btn-sm btn-sm add-customer"><i class="fas fa-plus"></i><?=$languageArray['add_customers_code'][$language]?></button>
               </div>
-              <div id="customerCards" class="customer-supplier-cards"></div>
+              <div id="customerCards" class="customer-supplier-cards custom-main-cards"></div>
               <div id="customerEmptyState" class="empty-state">
                 <i class="fas fa-user-plus"></i>
                 <p><?=$languageArray['no_customers_code'][$language] ?? 'No customers added'?></p>
@@ -481,7 +481,7 @@ else{
                 <button type="button" class="btn custom-filter-btn-sm btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                 <button type="button" class="btn custom-add-btn-sm btn-sm add-supplier"><i class="fas fa-plus"></i><?=$languageArray['add_supplier_code'][$language]?></button>
               </div>
-              <div id="supplierCards" class="customer-supplier-cards"></div>
+              <div id="supplierCards" class="customer-supplier-cards custom-main-cards"></div>
               <div id="supplierEmptyState" class="empty-state">
                 <i class="fas fa-truck"></i>
                 <p><?=$languageArray['no_suppliers_code'][$language] ?? 'No suppliers added'?></p>
@@ -490,9 +490,9 @@ else{
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn-modern btn-modern-primary" id="submitCustomers"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" id="submitCustomers"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -554,9 +554,9 @@ else{
           <input type="number" class="form-control" id="bulkPurchasingPrice" placeholder="0.00" value="0">
         </div>
       </div>
-      <div class="modal-footer justify-content-between">
-        <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-        <button type="button" class="btn-modern btn-modern-primary" id="bulkPriceByStateSave"><i class="fas fa-check mr-1"></i><?=$languageArray['save_code'][$language]?></button>
+      <div class="modal-footer custom-model-fotter-box">
+        <button type="button" class="btn custom-close-btn" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn custom-save-btn" id="bulkPriceByStateSave"><i class="fas fa-check mr-1"></i><?=$languageArray['save_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -586,11 +586,11 @@ else{
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 
 <script type="text/html" id="customerDetail">
-  <div class="cs-card details">
+  <div class="cs-card details custom-cs-card-detail">
     <input type="hidden" id="customerProductId" name="customerProductId">
     <input type="hidden" id="customerRowType" name="customerRowType" value="customer">
     <input type="hidden" id="no" name="no">
-    <div class="cs-card-header">
+    <div class="cs-card-header custom-cs-card-header">
       <span class="cs-card-number"></span>
       <select class="form-control form-control-sm select2" id="customers" name="customers" data-placeholder="<?=$languageArray['select_customer_code'][$language] ?? 'Select Customer'?>">
         <option value=""></option>
@@ -600,7 +600,7 @@ else{
       </select>
       <button type="button" class="cs-card-remove" id="remove"><i class="fas fa-times"></i></button>
     </div>
-    <div class="cs-card-body">
+    <div class="cs-card-body custom-cs-card-body">
       <div class="cs-card-field">
         <label><?=$languageArray['states_code'][$language]?></label>
         <input type="text" class="form-control form-control-sm customer-state-display" readonly>
@@ -640,11 +640,11 @@ else{
 </script>
 
 <script type="text/html" id="supplierDetail">
-  <div class="cs-card details">
+  <div class="cs-card details custom-cs-card-detail">
     <input type="hidden" id="supplierProductId" name="supplierProductId">
     <input type="hidden" id="supplierRowType" name="supplierRowType" value="supplier">
     <input type="hidden" id="supplierNo" name="supplierNo">
-    <div class="cs-card-header">
+    <div class="cs-card-header custom-cs-card-header">
       <span class="cs-card-number"></span>
       <select class="form-control form-control-sm select2" id="suppliers" name="suppliers" data-placeholder="<?=$languageArray['select_supplier_code'][$language] ?? 'Select Supplier'?>">
         <option value=""></option>
@@ -654,7 +654,7 @@ else{
       </select>
       <button type="button" class="cs-card-remove" id="removeSupplier"><i class="fas fa-times"></i></button>
     </div>
-    <div class="cs-card-body">
+    <div class="cs-card-body custom-cs-card-body">
       <div class="cs-card-field">
         <label><?=$languageArray['states_code'][$language]?></label>
         <input type="text" class="form-control form-control-sm supplier-state-display" readonly>
