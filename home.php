@@ -6,7 +6,7 @@ session_start();
 if(!isset($_SESSION['userID'])){
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
-}else{
+} else {
     // Language
     $company = $_SESSION['customer'];
     $language = $_SESSION['language'];
@@ -15,7 +15,7 @@ if(!isset($_SESSION['userID'])){
     // Load message resource
     if (in_array('P', $packages, true)) {
         $message_resource = $db->query("SELECT * FROM message_resource WHERE company = '$company'");
-    }else{
+    } else {
         $message_resource = $db->query("SELECT * FROM message_resource WHERE company = 0");
     }
     

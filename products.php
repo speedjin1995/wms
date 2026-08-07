@@ -44,41 +44,38 @@ else{
 }
 ?>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-      <div class="row mb-2">
+      <div class="row">
     <div class="col-sm-6">
-      <h1 class="m-0 text-dark"><?=$languageArray['products_code'][$language]?></h1>
+      <h1 class="custom-title"><?=$languageArray['products_code'][$language]?></h1>
     </div><!-- /.col -->
       </div><!-- /.row -->
   </div><!-- /.container-fluid -->
 </div><!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
+<section class="content custom-table-content">
   <div class="container-fluid">
       <div class="row">
     <div class="col-12">
       <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-4"></div>
-            <div class="col-2">
-              <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
+        <div class="card-header custom-card-header">
+          <div class="row custom-card-header-row">
+            <div class="col-1 custom-card-header-title-col"></div>
+            <div class="col-11 custom-card-header-btn-col">
+              <button type="button" id="multiDeactivate" class="btn btn-block custom-delete-btn custom-card-header-btn-size btn-sm">
                 <?=$languageArray['delete_product_code'][$language]?>
               </button>
-            </div>
-            <div class="col-2">
-              <a href="template/Product_Template.xlsx" download>
-                <button type="button" class="btn btn-block bg-gradient-info btn-sm">
+              <a href="template/Product_Template.xlsx" download class="custom-card-header-btn-size">
+                <button type="button" class="btn btn-block custom-export-btn btn-sm">
                   <?=$languageArray['download_template_code'][$language]?>
                 </button>
               </a>
-            </div>
-            <div class="col-2">
-              <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
+              <button type="button" id="uploadExcel" class="btn btn-block custom-upload-btn custom-card-header-btn-size btn-sm">
                 <?=$languageArray['upload_excel_code'][$language]?>
               </button>
+              <button type="button" class="btn btn-block custom-add-btn custom-card-header-btn-size btn-sm" id="addProducts"><?=$languageArray['add_products_code'][$language]?></button>
             </div>
             <!-- <div class="col-2">
                 <input type="file" id="fileInput" accept=".xlsx, .xls" />
@@ -86,12 +83,9 @@ else{
             <div class="col-2">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
             </div>                             -->
-            <div class="col-2">
-              <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProducts"><?=$languageArray['add_products_code'][$language]?></button>
-            </div>
           </div>
         </div>
-        <div class="card-body">
+        <div class="card-body custom-table-card-body">
           <table id="productTable" class="table table-bordered table-striped">
             <thead>
               <tr>
@@ -114,24 +108,24 @@ else{
 
 <div class="modal fade" id="uploadModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
-          <div class="modal-header">
-            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <div class="modal-header custom-model-header-box">
+            <h4 class="modal-title custom-model-title-txt"><?=$languageArray['upload_excel_code'][$language]?></h4>
+            <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-            <div class="card-body">
+          <div class="modal-body custom-model-body-box">
+            <div class="card-body custom-preview-model-box">
               <input type="file" id="fileInput">
-              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
+              <button type="button" id="previewButton" class="custom-preview-btn"><?=$languageArray['preview_data_code'][$language]?></button>
               <div id="previewTable" style="overflow: auto;"></div>
             </div>
           </div>
-          <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadProduct"><?=$languageArray['submit_code'][$language]?></button>
+          <div class="modal-footer custom-model-fotter-box">
+            <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn custom-save-btn" id="uploadProduct"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -142,15 +136,15 @@ else{
 
 <div class="modal fade" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
-          <div class="modal-header">
-            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <div class="modal-header custom-model-header-box">
+            <h4 class="modal-title custom-model-title-txt"><?=$languageArray['error_log_code'][$language]?></h4>
+            <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body custom-model-body-box">
             <div class="row">
               <div class="form-group">
                 <ol id="errorList" class="text-danger mt-2" style="padding-left: 20px;"></ol>
@@ -166,20 +160,20 @@ else{
 
 <div class="modal fade" id="addModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="productForm">
-        <div class="modal-header bg-gradient-dark">
-          <h5 class="modal-title text-white"><i class="fas fa-box mr-2"></i><?=$languageArray['add_products_code'][$language]?></h5>
-          <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header custom-model-header-box">
+          <h5 class="modal-title custom-model-title-txt"><i class="fas fa-box"></i><?=$languageArray['add_products_code'][$language]?></h5>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body" style="max-height:75vh; overflow-y:auto; background:#f4f6f9;">
+        <div class="modal-body custom-model-body-box" style="max-height:75vh; overflow-y:auto; background:#f4f6f9;">
           <input type="hidden" id="id" name="id">
 
           <!-- Company (SADMIN only) -->
           <div <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-            <div class="card card-outline card-primary mb-3">
-              <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-building mr-1"></i><?=$languageArray['company_code'][$language]?></h6></div>
-              <div class="card-body py-2">
+            <div class="custom-card-box custom-card-company-box">
+              <div class="card-header custom-card-box-header"><h6 class="custom-card-box-header-title"><i class="fas fa-building"></i><?=$languageArray['company_code'][$language]?></h6></div>
+              <div class="card-body custom-card-box-body">
                 <select class="form-control select2" style="width:100%;" id="company" name="company" required>
                   <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                     <option value="<?=$rowCompany['id']?>" <?php if($rowCompany['id']==$company) echo 'selected';?>><?=$rowCompany['name']?></option>
@@ -190,25 +184,25 @@ else{
           </div>
 
           <!-- Product Info -->
-          <div class="card card-outline card-primary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle mr-1"></i><?=$languageArray['product_information_code'][$language]?></h6></div>
-            <div class="card-body py-3">
+          <div class="custom-card-box custom-card-product-info-box">
+            <div class="card-header custom-card-box-header"><h6 class="custom-card-box-header-title"><i class="fas fa-info-circle"></i><?=$languageArray['product_information_code'][$language]?></h6></div>
+            <div class="card-body custom-card-box-body">
               <div class="row">
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['product_code_code'][$language]?> <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_product_code_code'][$language]?>" required>
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['product_name_code'][$language]?> <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="product" id="product" placeholder="<?=$languageArray['enter_product_name_code'][$language]?>" required>
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['states_code'][$language]?></label>
                     <select class="form-control select2" id="state" name="state[]" multiple>
                         <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
                             <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
@@ -217,14 +211,14 @@ else{
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['weight_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['weight_code'][$language]?></label>
                     <input type="number" class="form-control" name="weight" id="weight" placeholder="0.000">
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['unit_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['unit_code'][$language]?></label>
                     <select class="form-control select2" id="uom" name="uom">
                       <option selected>-</option>
                       <?php while($rowunits=mysqli_fetch_assoc($units)){ ?>
@@ -234,8 +228,8 @@ else{
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['category_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['category_code'][$language]?></label>
                     <select class="form-control select2" id="productCategory" name="productCategory">
                       <option value="" selected>-</option>
                       <?php while($rowCat=mysqli_fetch_assoc($category)){ ?>
@@ -245,8 +239,8 @@ else{
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['packaging_code'][$language]?> / <?=$languageArray['uom_code'][$language]?></label>
                     <select class="form-control select2" id="productPackaging" name="productPackaging">
                       <option value="" selected>-</option>
                       <?php while($rowPack=mysqli_fetch_assoc($packaging)){ ?>
@@ -256,8 +250,8 @@ else{
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['pricing_type_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['pricing_type_code'][$language]?></label>
                     <select class="form-control" id="pricingType" name="pricingType">
                       <option selected><?=$languageArray['fixed_code'][$language]?></option>
                       <option><?=$languageArray['float_code'][$language]?></option>
@@ -265,14 +259,14 @@ else{
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['selling_price_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['selling_price_code'][$language]?></label>
                     <input type="number" class="form-control" name="price" id="price" placeholder="0.00" value="0.00">
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['purchasing_pricing_type_code'][$language]?></label>
                     <select class="form-control" id="purchasingPricingType" name="purchasingPricingType">
                       <option selected><?=$languageArray['fixed_code'][$language]?></option>
                       <option><?=$languageArray['float_code'][$language]?></option>
@@ -280,42 +274,42 @@ else{
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="form-group mb-2">
-                    <label class="font-weight-bold"><?=$languageArray['purchasing_price_code'][$language]?></label>
+                  <div class="form-group">
+                    <label><?=$languageArray['purchasing_price_code'][$language]?></label>
                     <input type="number" class="form-control" name="purchasingPrice" id="purchasingPrice" placeholder="0.00" value="0.00">
                   </div>
                 </div>
               </div>
-              <div class="form-group mb-0">
-                <label class="font-weight-bold"><?=$languageArray['remark_code'][$language]?></label>
-                <textarea class="form-control" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
+              <div class="form-group">
+                <label><?=$languageArray['remark_code'][$language]?></label>
+                <textarea class="form-control custom-remark-txtarea" id="remark" name="remark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>" rows="2"></textarea>
               </div>
             </div>
           </div>
 
           <!-- Product Image -->
-          <div class="card card-outline card-secondary mb-3">
-            <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-image mr-1"></i><?=$languageArray['product_image_code'][$language]?></h6></div>
-            <div class="card-body py-3">
+          <div class="custom-card-box custom-card-product-image-box">
+            <div class="card-header custom-card-box-header"><h6 class="custom-card-box-header-title"><i class="fas fa-image"></i><?=$languageArray['product_image_code'][$language]?></h6></div>
+            <div class="card-body custom-card-box-body">
               <div class="row align-items-center">
                 <div class="col-md-6">
-                  <div id="productImageDropzone" style="border:2px dashed #adb5bd; border-radius:6px; padding:24px; text-align:center; cursor:pointer; background:#fff;">
-                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
-                    <p class="mb-1 text-muted"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
-                    <p class="mb-1 text-muted"><?=$languageArray['file_format_max_size_code'][$language]?></p>
+                  <div id="productImageDropzone" class="product-img-drop-zone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p class="product-img-drop-zone-txt-1"><?=$languageArray['click_or_drag_to_upload_code'][$language]?></p>
+                    <p class="product-img-drop-zone-txt-2"><?=$languageArray['file_format_max_size_code'][$language]?></p>
                     <input type="file" id="productImage" name="productImage" accept="image/png,image/jpeg,image/jpg" style="display:none;">
                   </div>
                 </div>
                 <div class="col-md-6 text-center">
-                  <div id="productImagePreview" style="display:none;">
-                    <img id="productImageThumb" src="" style="max-height:160px; max-width:100%; border-radius:6px; border:1px solid #dee2e6; object-fit:contain;">
-                    <div class="mt-2">
-                      <button type="button" id="removeProductImage" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash mr-1"></i><?=$languageArray['remove_code'][$language]?></button>
+                  <div id="productImagePreview" class="product-image-preview" style="display:none;">
+                    <img id="productImageThumb" src="" class="product-image-thumbnail">
+                    <div class="product-image-btn-box">
+                      <button type="button" id="removeProductImage" class="btn btn-sm custom-remove-btn-sm"><i class="fas fa-trash"></i><?=$languageArray['remove_code'][$language]?></button>
                     </div>
                   </div>
-                  <div id="productImagePlaceholder" style="color:#adb5bd;">
-                    <i class="fas fa-image fa-3x"></i>
-                    <p class="mt-1 mb-0"><?=$languageArray['no_image_selected_code'][$language]?></p>
+                  <div id="productImagePlaceholder" class="product-img-placeholder" style="color: #1a1a1a;">
+                    <i class="fas fa-image"></i>
+                    <p class="product-img-placeholder-txt"><?=$languageArray['no_image_selected_code'][$language]?></p>
                   </div>
                 </div>
               </div>
@@ -323,49 +317,49 @@ else{
           </div>
 
           <!-- Ranges Set -->
-          <div class="card card-outline card-warning mb-3">
-            <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0 text-danger font-weight-bold"><i class="fas fa-sliders-h mr-1"></i><?=$languageArray['ranges_set_code'][$language]?></h6>
+          <div class="custom-card-box custom-card-range-box">
+            <div class="card-header custom-card-box-header">
+              <h6 class="custom-card-box-header-title"><i class="fas fa-sliders-h"></i><?=$languageArray['ranges_set_code'][$language]?></h6>
               <div class="ml-auto d-flex align-items-center">
                 <input type="hidden" name="rangeSet" id="rangeSet" value="0">
-                <div id="rangeSetToggle" style="cursor:pointer; display:inline-flex; align-items:center; background:#ccc; border-radius:30px; width:110px; height:34px; position:relative; transition:background 0.3s;">
-                  <div id="rangeSetKnob" style="position:absolute; width:30px; height:30px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left 0.3s; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.3);">
+                <div id="rangeSetToggle" style="cursor: pointer; display: inline-flex; align-items: center; background: rgba(26, 26, 26, 0.5); border-radius: 30px; width: 110px; height: 34px; position: relative; transition: background 0.3s;">
+                  <div id="rangeSetKnob" style="position: absolute; width: 32px; height: 32px; background: #fff; border-radius: 50%; top: 0.5px; left: 0px; transition: left 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);">
                     <i id="rangeSetIcon" class="fas fa-times text-danger"></i>
                   </div>
-                  <span id="rangeSetLabel" style="position:absolute; right:10px; font-size:11px; font-weight:600; color:#fff; letter-spacing:0.5px;"><?=$languageArray['disable_code'][$language]?></span>
+                  <span id="rangeSetLabel" style="position: absolute; right: 20px; font-size: 12px; line-height: 20px; font-weight: 700; color: #fff; letter-spacing: 0.75px;"><?=$languageArray['disable_code'][$language]?></span>
                 </div>
               </div>
             </div>
-            <div id="rangeWeightFields" class="card-body py-3" style="display:none;">
-              <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['ok_weight_code'][$language]?></label></div>
+            <div id="rangeWeightFields" class="card-body custom-card-box-body" style="display:none;">
+              <div class="row align-items-center custom-range-set-box">
+                <div class="col-md-2"><label class="custom-range-set-label"><?=$languageArray['ok_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="okWeight" name="okWeight" placeholder="0.000" style="background:rgba(40,167,69,0.25); color:#155724; border:1px solid #28a745;">
+                  <input type="number" step="any" class="form-control custom-range-set-weight-1" id="okWeight" name="okWeight" placeholder="0.000" style="background:rgba(40,167,69,0.25); color:#155724; border:1px solid #28a745;">
                 </div>
                 <div class="col-md-3">
-                  <select class="form-control" id="okWeightUnit" name="okWeightUnit">
+                  <select class="form-control custom-range-set-unit" id="okWeightUnit" name="okWeightUnit">
                     <?php while($r=mysqli_fetch_assoc($units2)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
                   </select>
                 </div>
               </div>
-              <div class="row align-items-center mb-2">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['lo_weight_code'][$language]?></label></div>
+              <div class="row align-items-center custom-range-set-box">
+                <div class="col-md-2"><label class="custom-range-set-label"><?=$languageArray['lo_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="loWeight" name="loWeight" placeholder="0.000" style="background:rgba(255,193,7,0.25); color:#856404; border:1px solid #ffc107;">
+                  <input type="number" step="any" class="form-control custom-range-set-weight-2" id="loWeight" name="loWeight" placeholder="0.000" style="background:rgba(255,193,7,0.25); color:#856404; border:1px solid #ffc107;">
                 </div>
                 <div class="col-md-3">
-                  <select class="form-control" id="loWeightUnit" name="loWeightUnit">
+                  <select class="form-control custom-range-set-unit" id="loWeightUnit" name="loWeightUnit">
                     <?php while($r=mysqli_fetch_assoc($units3)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
                   </select>
                 </div>
               </div>
-              <div class="row align-items-center">
-                <div class="col-md-2"><label class="mb-0 font-weight-bold"><?=$languageArray['hi_weight_code'][$language]?></label></div>
+              <div class="row align-items-center custom-range-set-box">
+                <div class="col-md-2"><label class="custom-range-set-label"><?=$languageArray['hi_weight_code'][$language]?></label></div>
                 <div class="col-md-7">
-                  <input type="number" step="any" class="form-control font-weight-bold" id="hiWeight" name="hiWeight" placeholder="0.000" style="background:rgba(220,53,69,0.2); color:#721c24; border:1px solid #dc3545;">
+                  <input type="number" step="any" class="form-control custom-range-set-weight-3" id="hiWeight" name="hiWeight" placeholder="0.000" style="background:rgba(220,53,69,0.2); color:#721c24; border:1px solid #dc3545;">
                 </div>
                 <div class="col-md-3">
-                  <select class="form-control" id="hiWeightUnit" name="hiWeightUnit">
+                  <select class="form-control custom-range-set-unit" id="hiWeightUnit" name="hiWeightUnit">
                     <?php while($r=mysqli_fetch_assoc($units4)){ ?><option value="<?=$r['id']?>"><?=$r['units']?></option><?php } ?>
                   </select>
                 </div>
@@ -374,22 +368,22 @@ else{
           </div>
 
           <!-- Grades -->
-          <div class="card card-outline card-info mb-0">
-            <div class="card-header py-2 d-flex align-items-center justify-content-between">
-              <h6 class="mb-0"><i class="fas fa-layer-group mr-1"></i><?=$languageArray['grades_code'][$language]?></h6>
-              <button type="button" class="btn btn-info btn-sm add-grade ml-auto"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+          <div class="custom-card-box custom-card-grade-box">
+            <div class="card-header custom-card-box-header">
+              <h6 class="custom-card-box-header-title"><i class="fas fa-layer-group"></i><?=$languageArray['grades_code'][$language]?></h6>
+              <button type="button" class="btn custom-add-btn-sm btn-sm add-grade ml-auto"><i class="fas fa-plus"></i><?=$languageArray['add_grade_code'][$language]?></button>
             </div>
-            <div class="card-body p-2">
-              <table class="table table-sm table-bordered mb-0">
+            <div class="card-body custom-card-box-body">
+              <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                   <tr>
-                    <th width="8%"><?=$languageArray['number_short_code'][$language]?></th>
+                    <th width="7.5%"><?=$languageArray['number_short_code'][$language]?></th>
                     <th><?=$languageArray['unit_code'][$language]?></th>
-                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['pricing_type_code'][$language]?></th>
                     <th><?=$languageArray['selling_price_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
                     <th><?=$languageArray['purchasing_price_code'][$language]?></th>
-                    <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
+                    <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
                 <tbody id="gradeTable"></tbody>
@@ -398,9 +392,9 @@ else{
           </div>
 
         </div>
-        <div class="modal-footer justify-content-end">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><i class="fas fa-times"></i><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" name="submit" id="submitMember"><i class="fas fa-save"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -410,54 +404,54 @@ else{
 <!-- Customers Modal -->
 <div class="modal fade" id="customersModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="customersForm">
         <input type="hidden" id="customerProductId" name="product_id">
-        <div class="modal-header bg-gradient-success">
-          <h5 class="modal-title text-white"><i class="fas fa-users mr-2"></i><?=$languageArray['customers_code'][$language]?></h5>
-          <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header custom-model-title-txt">
+          <h5 class="modal-title custom-model-title-txt"><i class="fas fa-users"></i><?=$languageArray['customers_code'][$language]?></h5>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body p-2">
-          <ul class="nav nav-tabs mb-2" id="customerSupplierTabs">
+        <div class="modal-body custom-model-body-box">
+          <ul class="nav nav-tabs custom-tab-nav" id="customerSupplierTabs">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tabCustomers" id="tabCustomersLink"><?=$languageArray['customers_code'][$language]?></a></li>
             <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tabSuppliers" id="tabSuppliersLink"><?=$languageArray['supplier_code'][$language]?></a></li>
           </ul>
           <div class="tab-content">
-            <div class="tab-pane fade show active" id="tabCustomers">
-              <div class="mb-2 text-right">
-                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
-                <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+            <div class="tab-pane fade show active custom-tab-box" id="tabCustomers">
+              <div class="custom-tab-btn-box">
+                <button type="button" class="btn custom-filter-btn-sm btn-sm" id="bulkPriceByState"><i class="fas fa-tags"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                <button type="button" class="btn custom-add-btn-sm btn-sm add-customer"><i class="fas fa-plus"></i><?=$languageArray['add_customers_code'][$language]?></button>
               </div>
-              <table class="table table-sm table-bordered mb-0">
+              <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                   <tr>
-                    <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
+                    <th width="7.5%"><?=$languageArray['number_short_code'][$language]?></th>
                     <th><?=$languageArray['customer_code'][$language]?></th>
-                    <th width="12%"><?=$languageArray['states_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['states_code'][$language]?></th>
                     <th width="15%"><?=$languageArray['grade_code'][$language]?></th>
-                    <th><?=$languageArray['pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['selling_price_code'][$language]?></th>
-                    <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['pricing_type_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['selling_price_code'][$language]?></th>
+                    <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
                 <tbody id="customerTable"></tbody>
               </table>
             </div>
-            <div class="tab-pane fade" id="tabSuppliers">
-              <div class="mb-2 text-right">
-                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
-                <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
+            <div class="tab-pane fade custom-tab-box" id="tabSuppliers">
+              <div class="custom-tab-btn-box">
+                <button type="button" class="btn custom-filter-btn-sm btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                <button type="button" class="btn custom-add-btn-sm btn-sm add-supplier"><i class="fas fa-plus"></i><?=$languageArray['add_supplier_code'][$language]?></button>
               </div>
-              <table class="table table-sm table-bordered mb-0">
+              <table class="table table-sm table-bordered">
                 <thead class="thead-light">
                   <tr>
-                    <th width="6%"><?=$languageArray['number_short_code'][$language]?></th>
+                    <th width="7.5%"><?=$languageArray['number_short_code'][$language]?></th>
                     <th><?=$languageArray['supplier_code'][$language]?></th>
-                    <th width="12%"><?=$languageArray['states_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['states_code'][$language]?></th>
                     <th width="15%"><?=$languageArray['grade_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
-                    <th><?=$languageArray['purchasing_price_code'][$language]?></th>
-                    <th width="6%"><?=$languageArray['actions_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['purchasing_pricing_type_code'][$language]?></th>
+                    <th width="15%"><?=$languageArray['purchasing_price_code'][$language]?></th>
+                    <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
                 <tbody id="supplierTable"></tbody>
@@ -465,9 +459,9 @@ else{
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="submitCustomers"><i class="fas fa-save mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><i class="fas fa-times"></i><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" id="submitCustomers"><i class="fas fa-save"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -477,12 +471,12 @@ else{
 <!-- Bulk Price by State Modal -->
 <div class="modal fade" id="bulkPriceByStateModal">
   <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-gradient-warning">
-        <h5 class="modal-title text-white"><i class="fas fa-tags mr-2"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></h5>
-        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+    <div class="modal-content custom-model-content-box">
+      <div class="modal-header custom-model-header-box">
+        <h5 class="modal-title custom-model-title-txt"><i class="fas fa-tags"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></h5>
+        <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body custom-model-body-box">
         <input type="hidden" id="bulkTargetType" value="customer">
         <div class="form-group">
           <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?> <span class="text-danger">*</span></label>
@@ -529,9 +523,9 @@ else{
           <input type="number" class="form-control" id="bulkPurchasingPrice" placeholder="0.00" value="0">
         </div>
       </div>
-      <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-        <button type="button" class="btn btn-warning" id="bulkPriceByStateSave"><?=$languageArray['save_code'][$language]?></button>
+      <div class="modal-footer custom-model-fotter-box">
+        <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn custom-save-btn" id="bulkPriceByStateSave"><?=$languageArray['save_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -593,10 +587,10 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" step="0.01" min="0" class="form-control" id="customerPrice" name="customerPrice" style="background-color:white;" value="0">
+      <input type="number" step="0.01" min="0" class="form-control" id="customerPrice" name="customerPrice" value="0">
     </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+    <td>
+      <button class="btn custom-reject-btn-icon" id="remove">
           <i class="fa fa-times"></i>
       </button>
     </td>
@@ -636,10 +630,10 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" step="0.01" min="0" class="form-control" id="supplierPrice" name="supplierPrice" style="background-color:white;" value="0">
+      <input type="number" step="0.01" min="0" class="form-control" id="supplierPrice" name="supplierPrice" value="0">
     </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="removeSupplier" style="background-color: #f06548;">
+    <td>
+      <button class="btn custom-reject-btn-icon" id="removeSupplier">
           <i class="fa fa-times"></i>
       </button>
     </td>
@@ -677,10 +671,10 @@ else{
       </select>
     </td>
     <td>
-      <input type="number" class="form-control" id="gradePurchasingPrice" name="gradePurchasingPrice" style="background-color:white;" value="0">
+      <input type="number" class="form-control" id="gradePurchasingPrice" name="gradePurchasingPrice" value="0">
     </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
+    <td>
+      <button class="btn custom-reject-btn-icon" id="remove">
           <i class="fa fa-times"></i>
       </button>
     </td>
@@ -737,7 +731,7 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="openCustomers('+data+')" class="btn btn-info btn-sm"><i class="fas fa-users"></i></button></div><div class="col-3"><button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="row custom-tbl-btn-icon"><button type="button" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" onclick="openCustomers('+data+')" class="btn custom-view-btn-icon btn-sm"><i class="fas fa-users"></i></button><button type="button" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
         }
       }
     ],
@@ -754,13 +748,13 @@ $(function () {
 
   $('#productImageDropzone').on('dragover', function(e){
     e.preventDefault();
-    $(this).css({'border-color':'#007bff', 'background':'#e8f0fe'});
+    $(this).css({'border-color':'#16A34A', 'background':'#F9F7F2'});
   }).on('dragleave', function(e){
     e.preventDefault();
-    $(this).css({'border-color':'#adb5bd', 'background':'#fff'});
+    $(this).css({'border-color':'#E3C66A', 'background':'#fff'});
   }).on('drop', function(e){
     e.preventDefault();
-    $(this).css({'border-color':'#adb5bd', 'background':'#fff'});
+    $(this).css({'border-color':'#1a1a1a', 'background':'#fff'});
     var file = e.originalEvent.dataTransfer.files[0];
     if (file) setProductImagePreview(file);
   });

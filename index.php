@@ -562,6 +562,10 @@ else{
       padding: 25px;
     }
 
+    .custom-content-detail {
+      background: transparent;
+    }
+
     .custom-main-footer {
       background: transparent;
       padding: 10px 25px;
@@ -3000,7 +3004,7 @@ to get the desired effect
   </aside>
 
   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper" id="mainContents">
+  <div class="content-wrapper custom-content-detail" id="mainContents">
     
   </div>
   <!-- /.content-wrapper -->
