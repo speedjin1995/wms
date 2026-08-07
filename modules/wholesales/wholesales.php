@@ -161,11 +161,11 @@ else{
   }
 </style>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['wholesales_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['wholesales_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -173,12 +173,12 @@ else{
 <!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
   <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
               <div class="form-group col-3">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
@@ -313,7 +313,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -327,24 +327,24 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['wholesales_code'][$language]?></div>
+              <div class="col-10 custom-card-header-title"><?=$languageArray['wholesales_code'][$language]?></div>
               <?php if($allowAdd == 'Y'){ ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-add-btn btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
             </div>
           </div>
 
-          <div class="card-body">
-            <div class="mb-2">
+          <div class="card-body custom-table-card-body">
+            <div style="margin-bottom: 25px;">
               <div class="dropdown d-inline-block">
-                <button class="btn btn-success btn-sm dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn custom-add-btn btn-sm dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
                 </button>
-                <div class="dropdown-menu p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;">
+                <div class="dropdown-menu" id="columnToggleMenu" style="min-width: 200px; max-height: 300px; overflow-y: auto;">
                 </div>
               </div>
             </div>
@@ -381,16 +381,16 @@ else{
 
 <div class="modal fade" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 98%;">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="extendForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_new_entry_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
 
-        <div class="modal-body" >
+        <div class="modal-body custom-model-body-box" >
           <input type="hidden" class="form-control" id="id" name="id">
           <input type="hidden" class="form-control" id="recordType" name="recordType" value="wholesales">
 

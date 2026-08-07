@@ -34,17 +34,17 @@ if (!isset($_SESSION['userID'])) {
 <link rel="stylesheet" href="assets/css/dashboard.css">
 
 <!-- ── Page Header ──────────────────────────────────────── -->
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['dashboard_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['dashboard_code'][$language]?></h1>
       </div>
     </div>
   </div>
 </div>
 
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
 
     <!-- ── Global Filter ──────────────────────────────────── -->

@@ -964,6 +964,16 @@ div.loading {
   color: #1a1a1a;
 }
 
+.custom-table-card-body .dropdown-menu {
+  padding: 10px;
+  font-size: 15px;
+  line-height: 23px;
+  letter-spacing: 0.75px;
+  color: #1a1a1a;
+  border: 1px solid #E3C66A;
+  border-radius: 5px;
+}
+
 .select2-container--default .select2-results__option {
   padding: 5px 10px;
   font-size: 14px;
