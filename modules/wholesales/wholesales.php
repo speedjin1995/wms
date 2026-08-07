@@ -717,15 +717,15 @@ else{
 
 <div class="modal fade" id="printOptionsModal" tabindex="-1">
   <div class="modal-dialog" style="max-width:500px;">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form id="printOptionsForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h5 class="modal-title"><?=$languageArray['print_options_code'][$language]?></h5>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header custom-model-header-box">
+          <h5 class="modal-title custom-model-title-txt"><?=$languageArray['print_options_code'][$language]?></h5>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body custom-model-body-box">
           <input type="hidden" id="printID" name="userID">
-          <div class="form-group mb-0">
+          <div class="form-group">
             <label><?=$languageArray['print_with_photo_code'][$language]?></label>
             <select class="form-control" id="printWithPhoto" name="withPhoto">
               <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
@@ -740,9 +740,9 @@ else{
             </select>
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary"><?=$languageArray['print_code'][$language]?></button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn"><?=$languageArray['print_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -1874,87 +1874,87 @@ function format (row) {
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['serial_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['serial_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.serial_no || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['parent_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['parent_code'][$language]?></small>
               <span class="font-weight-bold">${row.parent || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['customer_supplier_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['customer_supplier_code'][$language]?></small>
               <span class="font-weight-bold">${row.customer_supplier || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['do_po_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['do_po_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.po_no || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['sec_bill_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['sec_bill_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.security_bills || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['vehicle_no_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['vehicle_no_code'][$language]?></small>
               <span class="font-weight-bold">${row.vehicle_no || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['driver_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['driver_code'][$language]?></small>
               <span class="font-weight-bold">${row.driver || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['weighed_by_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['weighed_by_code'][$language]?></small>
               <span class="font-weight-bold">${row.weighted_by || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['checked_by_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['checked_by_code'][$language]?></small>
               <span class="font-weight-bold">${row.checked_by || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['category_name_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['category_name_code'][$language]?></small>
               <span class="font-weight-bold">${row.category_name || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['locations_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['locations_code'][$language]?></small>
               <span class="font-weight-bold">${row.location_name || '-'}</span>
             </div>
           </div>
           <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['payment_method_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['payment_method_code'][$language]?></small>
               <span class="font-weight-bold">${row.payment_method || '-'}</span>
             </div>
           </div>
           <div class="col-12">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['remark_code'][$language]?></small>
+            <div class="bg-dark rounded p-2">
+              <small class="text-white d-block"><?=$languageArray['remark_code'][$language]?></small>
               <span class="font-weight-bold">${row.remark || '-'}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-  <!-- Weighing Details Card -->
+    <!-- Weighing Details Card -->
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
         <h6 class="mb-0 font-weight-bold text-uppercase"><?=$languageArray['weighing_details_code'][$language]?></h6>
@@ -2028,7 +2028,7 @@ function format (row) {
       </div>
     </div>
 
-  <!-- Reject Details Card -->
+    <!-- Reject Details Card -->
     <div class="card shadow-sm">
       <div class="card-header bg-white py-3">
         <h6 class="mb-0 font-weight-bold text-uppercase text-danger"><i class="fas fa-times-circle mr-2"></i><?=$languageArray['reject_details_code'][$language]?></h6>

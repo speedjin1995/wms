@@ -2823,3 +2823,12 @@ div.loading {
 .custom-nav-tabs .nav-item .nav-link i {
   margin-right: 5px;
 }
+
+
+/* ============================================
+   FIX FOR EXPANDED ROW CARD LAYOUT
+   ============================================ */
+.custom-table-card-body #weightTable_wrapper .table-bordered tbody tr td .card-body > .row {
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+}
