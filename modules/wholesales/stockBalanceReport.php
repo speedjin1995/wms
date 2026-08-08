@@ -226,7 +226,7 @@ if(!isset($_SESSION['userID'])){
           <div class="col-lg-12">
             <div class="card">
               <div class="card-header custom-card-header">
-                <span class="custom-card-header-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?> &mdash; <span id="adjDateLabel"><?=date('d/m/Y')?></span></span>
+                <h5 class="custom-card-header-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?> &mdash; <span id="adjDateLabel"><?=date('d/m/Y')?></span></h5>
               </div>
               <div class="card-body custom-table-card-body">
                 <table class="table table-bordered table-striped" id="adjustTable">
@@ -252,7 +252,7 @@ if(!isset($_SESSION['userID'])){
         <div class="modal-dialog" style="max-width:450px;">
           <div class="modal-content custom-model-content-box">
             <div class="modal-header custom-model-header-box">
-              <h5 class="modal-title custom-model-title-txt">Stock Adjustment</h5>
+              <h4 class="modal-title custom-model-title-txt">Stock Adjustment</h4>
               <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body custom-model-body-box">

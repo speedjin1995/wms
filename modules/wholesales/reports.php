@@ -233,18 +233,18 @@ else{
         <div class="card card-info">
           <div class="card-header custom-card-header">
             <div class="row custom-card-header-row">
-              <div class="<?=$allowIntegration == 'Y' ? 'col-6' : 'col-8'?>">
+              <div class="<?=$allowIntegration == 'Y' ? 'col-3' : 'col-5'?>">
                 <h5 class="custom-card-header-title"><?=$languageArray['reports_code'][$language]?></h5>
               </div>
               <?php if($allowIntegration == 'Y') { ?>
-              <div class="col-2">
+              <div class="col-3">
                 <button type="button" class="btn btn-block custom-delete-btn btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
               </div>
               <?php } ?>
-              <div class="col-2">
+              <div class="col-3">
                 <button type="button" class="btn btn-block custom-search-btn btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
-              <div class="col-2">
+              <div class="col-3">
                 <button type="button" class="btn btn-block custom-add-btn btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>
