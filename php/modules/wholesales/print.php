@@ -36,6 +36,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'], $_POST['paperSize'])){
     $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
     $withPhoto = filter_input(INPUT_POST, 'withPhoto', FILTER_SANITIZE_STRING);
     $paperSize = filter_input(INPUT_POST, 'paperSize', FILTER_SANITIZE_STRING);
+    $withDetails = filter_input(INPUT_POST, 'withDetails', FILTER_SANITIZE_STRING) ?? 'N';
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);

@@ -1,6 +1,6 @@
 <?php
 // Variables expected from print.php:
-// $wholesale, $companyDetail, $weighingDetails, $db
+// $wholesale, $companyDetail, $weighingDetails, $db, $withDetails
 
 $slipTitle = ucwords(strtolower($status));
 
@@ -47,6 +47,7 @@ if (!empty($weighingDetails)) {
                 'unit'         => $detail['unit'] ?? 'kg',
                 'unitPrice'    => [],  // currency => last unit price
                 'totalByCur'   => [],  // currency => summed total
+                'rows'         => [],  // raw detail rows for breakdown
             ];
         }
         $groups[$key]['count']++;
@@ -54,6 +55,7 @@ if (!empty($weighingDetails)) {
         $groups[$key]['unitPrice'][$curName]  = $price;
         if (!isset($groups[$key]['totalByCur'][$curName])) $groups[$key]['totalByCur'][$curName] = 0.0;
         $groups[$key]['totalByCur'][$curName] += $total;
+        $groups[$key]['rows'][] = ['gross' => floatval($detail['gross'] ?? 0), 'tare' => floatval($detail['tare'] ?? 0), 'net' => $net, 'unit' => $detail['unit'] ?? 'kg', 'time' => $detail['time'] ?? ''];
     }
 }
 
@@ -98,6 +100,20 @@ foreach ($groups as $g) {
         $rows .= '<td>'.$totalPriceStr.'</td>';
     }
     $rows .= '</tr>';
+
+    // Breakdown rows
+    if (!empty($withDetails) && $withDetails == 'Y') {
+        $colSpanBefore = $includePrice ? 8 : 6;
+        foreach ($g['rows'] as $ri => $r) {
+            $rows .= '<tr style="background:#f9f9f9;font-size:10px;">';
+            $rows .= '<td style="border-top:none;"></td>';
+            $rows .= '<td colspan="'.($colSpanBefore - 1).'" style="border-top:none;padding-left:20px;text-align:left;">';
+            $rows .= ($ri + 1).'. &nbsp; Net: <strong>'.number_format($r['net'],2).'</strong> '.$r['unit'];
+            $rows .= '</td>';
+            $rows .= '</tr>';
+        }
+    }
+
     $rowNo++;
 }
 
