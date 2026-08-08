@@ -118,13 +118,13 @@ else{
       <div class="col-lg-12">
         <div class="card card-info">
           <div class="card-header custom-card-header">
-            <div class="row align-items-center">
-              <div class="col-8">
-                <h3 class="card-title custom-card-header-title"><?=$languageArray['results_code'][$language] ?? 'Results'?></h3>
+            <div class="row custom-card-header-row">
+              <div class="col-10">
+                <h5 class="custom-card-header-title"><?=$languageArray['results_code'][$language] ?? 'Results'?></h5>
               </div>
               <?php if($allowEdit == 'Y'){ ?>
-              <div class="col-4">
-                <button type="button" class="btn custom-add-btn btn-sm" onclick="openBulkPriceModal()">
+              <div class="col-2">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" onclick="openBulkPriceModal()">
                   <i class="fas fa-tags"></i> <?=$languageArray['update_price_code'][$language] ?? 'Update Price'?>
                 </button>
               </div>
@@ -132,7 +132,7 @@ else{
             </div>
           </div>
           <div class="card-body custom-table-card-body">
-            <table id="weightTable" class="table table-bordered table-striped display" style="width: 100%">
+            <table id="weightTable" class="table table-bordered table-striped display" style="width:100%">
               <thead>
                 <tr>
                   <th width="30"></th>
@@ -160,7 +160,7 @@ else{
         <div class="modal-header custom-model-header-box">
           <h4 class="modal-title custom-model-title-txt"><?=$languageArray['update_price_code'][$language] ?? 'Update Price'?></h4>
           <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true" style="color:#fff">&times;</span>
+            <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body custom-model-body-box">
@@ -237,10 +237,10 @@ else{
         <div class="modal-footer custom-model-fotter-box">
           <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <div>
-            <button type="button" class="btn custom-preview-btn" id="btnBackToInputs" style="display:none;" onclick="wizardGoTo(1)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
-            <button type="submit" class="btn custom-preview-btn" id="btnPreview"><i class="fas fa-eye"></i> <?=$languageArray['preview_code'][$language] ?? 'Preview'?></button>
-            <button type="button" class="btn custom-preview-btn" id="btnBackToPreview" style="display:none;" onclick="wizardGoTo(2)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
-            <button type="button" class="btn custom-preview-btn" id="btnGoConfirm" style="display:none;" onclick="wizardGoTo(3)"><i class="fas fa-arrow-right"></i> <?=$languageArray['next_code'][$language] ?? 'Next'?></button>
+            <button type="button" class="btn custom-close-btn" id="btnBackToInputs" style="display:none;" onclick="wizardGoTo(1)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
+            <button type="submit" class="btn custom-search-btn" id="btnPreview"><i class="fas fa-eye"></i> <?=$languageArray['preview_code'][$language] ?? 'Preview'?></button>
+            <button type="button" class="btn custom-close-btn" id="btnBackToPreview" style="display:none;" onclick="wizardGoTo(2)"><i class="fas fa-arrow-left"></i> <?=$languageArray['back_code'][$language] ?? 'Back'?></button>
+            <button type="button" class="btn custom-search-btn" id="btnGoConfirm" style="display:none;" onclick="wizardGoTo(3)"><i class="fas fa-arrow-right"></i> <?=$languageArray['next_code'][$language] ?? 'Next'?></button>
             <button type="button" class="btn custom-save-btn" id="btnConfirm" style="display:none;" onclick="confirmBulkUpdate()"><i class="fas fa-check"></i> <?=$languageArray['confirm_update_code'][$language] ?? 'Confirm Update'?></button>
           </div>
         </div>
