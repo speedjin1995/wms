@@ -28,7 +28,8 @@ if (!empty($weighingDetails)) {
     foreach ($weighingDetails as $detail) {
         $productId  = $detail['product'] ?? '';
         $gradeId    = $detail['grade_id'] ?? '';
-        $key        = $productId . '_' . $gradeId;
+        $gradeKey   = !empty($gradeId) ? $gradeId : ($detail['grade'] ?? '');
+        $key        = $productId . '_' . $gradeKey;
         $net        = floatval($detail['net'] ?? 0);
         $price      = floatval($detail['price'] ?? 0);
         $fixedfloat = $detail['fixedfloat'] ?? 'Float';
