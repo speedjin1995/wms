@@ -55,7 +55,7 @@ else{
 ?>
 
 
-<div class="content-header custom-table-content">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-6">

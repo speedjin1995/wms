@@ -208,6 +208,32 @@ div.loading {
   padding: 5px 15px;
 }
 
+.custom-table-content-tab {
+  margin-bottom: 25px;
+  border: unset;
+  gap: 15px;
+}
+
+.custom-table-content-tab .nav-item .nav-link {
+  margin-bottom: 0px;
+  border: 1px solid #fff;
+  padding: 10px 25px;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-table-content-tab .nav-item .nav-link:hover, .custom-table-content-tab .nav-item .nav-link.active {
+  background: #D9A82D;
+  border-color: #D9A82D;
+}
+
 /* ============================================
    SIDEBAR STYLES
    ============================================ */
@@ -599,7 +625,8 @@ div.loading {
 .custom-table-content #logoForm .custom-profile-box:last-child,
 .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination, .custom-main-card,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination {
   margin-bottom: 0px;
 }
 
@@ -723,7 +750,8 @@ div.loading {
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-form-card-body .form-group,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control {
   margin-bottom: 15px;
 }
 
@@ -770,6 +798,7 @@ div.loading {
 .custom-form-card-body .form-group .form-control,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control,
 .custom-table-content .dash-tab-filters .select2-selection--single {
   height: 40px;
   background: #fff;
@@ -820,7 +849,8 @@ div.loading {
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
 .custom-form-card-body .form-group select.form-control,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-fliter-box select.form-control {
   -webkit-appearance: none;
   appearance: none;
   background-image: url(../chevron-down-solid-full.svg);
@@ -886,7 +916,8 @@ div.loading {
 .modal-modern .pricing-card-body .select2-container--default.select2-container--focus .select2-selection--single,
 .modal-modern .dynamic-card-row .select2-container--default.select2-container--focus .select2-selection--single,
 .custom-main-cards .custom-cs-card-detail .custom-cs-card-body .form-control:focus,
-.custom-table-content .dash-tab-filters .select2-container--default.select2-container--focus .select2-selection--single {
+.custom-table-content .dash-tab-filters .select2-container--default.select2-container--focus .select2-selection--single,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control:focus {
   border-color: #1a1a1a;
   box-shadow: unset;
 }
@@ -943,7 +974,8 @@ div.loading {
 .modal-modern .pricing-card-body .select2-container--default .select2-selection--single .select2-selection__placeholder,
 .modal-modern .dynamic-card-row .select2-container--default .select2-selection--single .select2-selection__placeholder,
 .custom-main-cards .custom-cs-card-detail .select2-container--default .select2-selection--single .select2-selection__placeholder,
-.custom-table-content .dash-tab-filters .select2-container--default .select2-selection--single .select2-selection__placeholder {
+.custom-table-content .dash-tab-filters .select2-container--default .select2-selection--single .select2-selection__placeholder,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-fliter-box .form-control::placeholder {
   color: rgba(26, 26, 26, .5);
 }
 
@@ -1575,6 +1607,7 @@ div.loading {
   display: flex;
   align-items: center;
   margin-bottom: 0px;
+  gap: 10px;
 }
 
 
@@ -1612,7 +1645,8 @@ div.loading {
 .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_length label,
 .custom-table-card-body #pvTable_wrapper .row:first-child #pvTable_filter label,
 .custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_length label,
-.custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_filter label {
+.custom-table-card-body #transferTable_wrapper .row:first-child #transferTable_filter label,
+.custom-table-card-body #adjustTable_wrapper .row:first-child #adjustTable_length label {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -1679,7 +1713,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered,
 .custom-table-card-body #memberTable_wrapper .table-bordered,
 .custom-table-card-body #pvTable_wrapper .table-bordered,
-.custom-table-card-body #transferTable_wrapper .table-bordered {
+.custom-table-card-body #transferTable_wrapper .table-bordered,
+.custom-table-card-body #adjustTable_wrapper .table-bordered {
   margin-top: 10px;
   margin-bottom: 25px;
   border: 1px solid #D9A82D;
@@ -1711,7 +1746,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered thead th,
 .custom-table-card-body #memberTable_wrapper .table-bordered thead th,
 .custom-table-card-body #pvTable_wrapper .table-bordered thead th,
-.custom-table-card-body #transferTable_wrapper .table-bordered thead th {
+.custom-table-card-body #transferTable_wrapper .table-bordered thead th,
+.custom-table-card-body #adjustTable_wrapper .table-bordered thead th {
   background: #D9A82D;
   color: #fff;
   font-size: 16px;
@@ -1744,7 +1780,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered thead th:first-child,
 .custom-table-card-body #memberTable_wrapper .table-bordered thead th:first-child,
 .custom-table-card-body #pvTable_wrapper .table-bordered thead th:first-child,
-.custom-table-card-body #transferTable_wrapper .table-bordered thead th:first-child {
+.custom-table-card-body #transferTable_wrapper .table-bordered thead th:first-child,
+.custom-table-card-body #adjustTable_wrapper .table-bordered thead th:first-child {
   border-left: 1px solid #D9A82D;
 }
 
@@ -1766,7 +1803,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered thead th:last-child,
 .custom-table-card-body #memberTable_wrapper .table-bordered thead th:last-child,
 .custom-table-card-body #pvTable_wrapper .table-bordered thead th:last-child,
-.custom-table-card-body #transferTable_wrapper .table-bordered thead th:last-child {
+.custom-table-card-body #transferTable_wrapper .table-bordered thead th:last-child,
+.custom-table-card-body #adjustTable_wrapper .table-bordered thead th:last-child {
   border-right: 1px solid #D9A82D;
 }
 
@@ -1791,7 +1829,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody tr:nth-of-type(odd) {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody tr:nth-of-type(odd),
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody tr:nth-of-type(odd) {
   background: rgba(26, 26, 26, .15);
 }
 
@@ -1815,7 +1854,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr:nth-of-type(even),
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr:nth-of-type(even),
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr:nth-of-type(even),
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody tr:nth-of-type(even) {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody tr:nth-of-type(even),
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody tr:nth-of-type(even) {
   background: #fff;
 }
 
@@ -1838,7 +1878,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody tr td,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody tr td,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody tr td,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody tr td {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody tr td,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody tr td {
   padding: 10px;
   border: 1px solid #D9A82D;
   font-size: 14px;
@@ -1864,7 +1905,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title-box,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title-box,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title-box {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title-box,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-title-box {
   padding-top: 15px;
   padding-left: 15px;
   padding-right: 15px;
@@ -1885,7 +1927,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-title-box .custom-tbl-title-box-txt {
   margin-bottom: 25px;
   font-size: 16px;
   line-height: 24px;
@@ -1911,7 +1954,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-content-box {
   padding-left: 15px;
   padding-right: 15px;
 }
@@ -1947,7 +1991,9 @@ div.loading {
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
 .custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12 {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-6,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-content-box .col-12 {
   padding-left: 0px;
   padding-right: 0px;
 }
@@ -1967,7 +2013,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-content-box .custom-tbl-content-box-txt {
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0.75px;
@@ -1996,7 +2043,8 @@ div.loading {
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-hr,
 .custom-form-card-body .custom-form-card-hr,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-hr,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-hr {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-hr,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-hr {
   margin-top: 10px;
   margin-bottom: 25px;
   border-top: 1px solid #E3C66A;
@@ -2018,7 +2066,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-title,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-title,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-title,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-title,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-title {
   margin-bottom: 25px;
   padding-left: 10px;
   padding-right: 10px;
@@ -2046,7 +2095,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-tbl-fliter-box,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-tbl-fliter-box {
   padding-left: 7.5px;
   padding-right: 7.5px;
 }
@@ -2067,7 +2117,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
 .custom-table-card-body #memberTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
 .custom-table-card-body #pvTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
-.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered {
+.custom-table-card-body #transferTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tbody .custom-inner-tbl-box .table-bordered {
   margin-top: 0px;
   margin-bottom: 15px;
   margin-left: 15px;
@@ -2108,7 +2159,9 @@ div.loading {
 .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
 .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
 .custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
-.custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr:nth-of-type(even) {
+.custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr:nth-of-type(even),
+.custom-table-card-body #adjustTable_wrapper .table-bordered tfoot tr:nth-of-type(odd),
+.custom-table-card-body #adjustTable_wrapper .table-bordered tfoot tr:nth-of-type(even) {
   background: rgba(227, 198, 106, .25);
   border: 1px solid #D9A82D;
 }
@@ -2129,13 +2182,23 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .table-bordered tfoot tr th,
 .custom-table-card-body #memberTable_wrapper .table-bordered tfoot tr th,
 .custom-table-card-body #pvTable_wrapper .table-bordered tfoot tr th,
-.custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr th {
+.custom-table-card-body #transferTable_wrapper .table-bordered tfoot tr th,
+.custom-table-card-body #adjustTable_wrapper .table-bordered tfoot tr th {
   border: 1px solid #D9A82D;
   padding: 10px;
   font-size: 14px;
   line-height: 22px;
   letter-spacing: 0.75px;
   font-weight: 700;
+  color: #1a1a1a;
+}
+
+.dataTables_processing {
+  box-shadow: unset !important;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
   color: #1a1a1a;
 }
 
@@ -2303,10 +2366,6 @@ div.loading {
   color: #1a1a1a;
   margin-bottom: 25px;
 }
-
-/*.custom-card-box .custom-card-box-body {
-  padding: 25px;
-}*/
 
 .custom-card-box .product-img-drop-zone {
   border: 2.5px dashed #E3C66A;
@@ -2556,7 +2615,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .custom-tbl-btn-icon,
 .custom-table-card-body #memberTable_wrapper .custom-tbl-btn-icon,
 .custom-table-card-body #pvTable_wrapper .custom-tbl-btn-icon,
-.custom-table-card-body #transferTable_wrapper .custom-tbl-btn-icon {
+.custom-table-card-body #transferTable_wrapper .custom-tbl-btn-icon,
+.custom-table-card-body #adjustTable_wrapper .custom-tbl-btn-icon {
   flex-direction: row !important;
   gap: 5px;
   justify-content: flex-start;
@@ -2584,7 +2644,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child,
 .custom-table-card-body #memberTable_wrapper .row:last-child,
 .custom-table-card-body #pvTable_wrapper .row:last-child,
-.custom-table-card-body #transferTable_wrapper .row:last-child {
+.custom-table-card-body #transferTable_wrapper .row:last-child,
+.custom-table-card-body #adjustTable_wrapper .row:last-child {
   flex-direction: column;
 }
 
@@ -2603,7 +2664,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child .col-sm-12,
 .custom-table-card-body #memberTable_wrapper .row:last-child .col-sm-12,
 .custom-table-card-body #pvTable_wrapper .row:last-child .col-sm-12,
-.custom-table-card-body #transferTable_wrapper .row:last-child .col-sm-12 {
+.custom-table-card-body #transferTable_wrapper .row:last-child .col-sm-12,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .col-sm-12 {
   max-width: unset;
 }
 
@@ -2622,7 +2684,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_info,
 .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_info,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_info,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_info {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_info,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_info {
   font-size: 16px;
   line-height: 24px;
   letter-spacing: 0.75px;
@@ -2647,7 +2710,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
 .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.disabled a {
   background: #fff;
   color: rgba(26, 26, 26, .5);
   border: 1px solid rgba(26, 26, 26, .5);
@@ -2669,7 +2733,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
 .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination .previous.disabled a {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
 }
@@ -2690,7 +2755,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
 .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination .next.disabled a {
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
 }
@@ -2711,7 +2777,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
 .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a {
   background: #fff;
   color: #1a1a1a;
   border: 1px solid rgba(26, 26, 26, .5);
@@ -2740,7 +2807,8 @@ div.loading {
 .custom-table-card-body #locationTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
 .custom-table-card-body #memberTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:focus {
   box-shadow: unset;
 }
 
@@ -2776,7 +2844,9 @@ div.loading {
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
 .custom-table-card-body #pvTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
 .custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
-.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a {
+.custom-table-card-body #transferTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item a:hover,
+.custom-table-card-body #adjustTable_wrapper .row:last-child .dataTables_paginate .pagination .page-item.active a {
   background: #1a1a1a;
   color: #fff;
 }

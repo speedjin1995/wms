@@ -37,21 +37,21 @@ if(!isset($_SESSION['userID'])){
 }
 ?>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['stock_balance_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['stock_balance_code'][$language]?></h1>
       </div>
     </div>
   </div>
 </div>
 
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
 
     <!-- Tabs -->
-    <ul class="nav nav-tabs mb-3" id="stockTabs">
+    <ul class="nav nav-tabs custom-table-content-tab" id="stockTabs">
       <li class="nav-item">
         <a class="nav-link active" id="tab-report" data-toggle="tab" href="#paneReport">
           <i class="fas fa-file-alt mr-1"></i> <?=$languageArray['stock_balance_report_code'][$language]?>
@@ -71,7 +71,7 @@ if(!isset($_SESSION['userID'])){
         <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div class="card-body">
+              <div class="card-body custom-search-card-body">
                 <div class="row">
                   <div class="form-group col-3">
                     <label><?=$languageArray['date_code'][$language]?></label>
@@ -120,12 +120,12 @@ if(!isset($_SESSION['userID'])){
                 <div class="row">
                   <div class="col-6"></div>
                   <div class="col-3">
-                    <button type="button" class="btn btn-block btn-outline-info btn-sm" id="refreshBtn">
+                    <button type="button" class="btn btn-block custom-search-btn btn-sm" id="refreshBtn">
                       <i class="fas fa-sync-alt"></i> <?=$languageArray['refresh_code'][$language]?>
                     </button>
                   </div>
                   <div class="col-3">
-                    <button type="button" class="btn btn-block bg-gradient-purple btn-sm" id="exportBtn">
+                    <button type="button" class="btn btn-block custom-export-btn btn-sm" id="exportBtn">
                       <i class="fas fa-file-pdf"></i> <?=$languageArray['export_pdf_code'][$language]?>
                     </button>
                   </div>
@@ -138,11 +138,11 @@ if(!isset($_SESSION['userID'])){
         <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div class="card-header">
-                <span><i class="fas fa-file-alt mr-1"></i> <?=$languageArray['preview_code'][$language]?></span>
+              <div class="card-header custom-card-header">
+                <span class="custom-card-header-title"><i class="fas fa-file-alt"></i> <?=$languageArray['preview_code'][$language]?></span>
               </div>
-              <div class="card-body p-0">
-                <iframe id="previewFrame" src="" style="width:100%; height:80vh; border:none;"></iframe>
+              <div class="card-body custom-table-card-body">
+                <iframe id="previewFrame" src="" style="width: 100%; height: 80vh; border: none;"></iframe>
               </div>
             </div>
           </div>
@@ -156,7 +156,7 @@ if(!isset($_SESSION['userID'])){
         <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div class="card-body">
+              <div class="card-body custom-search-card-body">
                 <div class="row">
                   <div class="col-3">
                     <div class="form-group">
@@ -205,11 +205,11 @@ if(!isset($_SESSION['userID'])){
                       </select>
                     </div>
                   </div>
-                  <div class="col-12 mt-1">
+                  <div class="col-12">
                     <div class="row">
                       <div class="col-9"></div>
                       <div class="col-3">
-                        <button type="button" class="btn btn-block btn-outline-info btn-sm" id="loadAdjBtn">
+                        <button type="button" class="btn btn-block custom-search-btn btn-sm" id="loadAdjBtn">
                           <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
                         </button>
                       </div>
@@ -225,10 +225,10 @@ if(!isset($_SESSION['userID'])){
         <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div class="card-header">
-                <span><i class="fas fa-sliders-h mr-1"></i> <?=$languageArray['stock_adjustment_code'][$language]?> &mdash; <span id="adjDateLabel"><?=date('d/m/Y')?></span></span>
+              <div class="card-header custom-card-header">
+                <span class="custom-card-header-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?> &mdash; <span id="adjDateLabel"><?=date('d/m/Y')?></span></span>
               </div>
-              <div class="card-body">
+              <div class="card-body custom-table-card-body">
                 <table class="table table-bordered table-striped" id="adjustTable">
                   <thead>
                     <tr>
@@ -250,12 +250,12 @@ if(!isset($_SESSION['userID'])){
       <!-- Adjustment Modal -->
       <div class="modal fade" id="adjModal">
         <div class="modal-dialog" style="max-width:450px;">
-          <div class="modal-content">
-            <div class="modal-header bg-gray-dark color-palette">
-              <h5 class="modal-title">Stock Adjustment</h5>
-              <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+          <div class="modal-content custom-model-content-box">
+            <div class="modal-header custom-model-header-box">
+              <h5 class="modal-title custom-model-title-txt">Stock Adjustment</h5>
+              <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body custom-model-body-box">
               <input type="hidden" id="adjId">
               <input type="hidden" id="adjProductId">
               <input type="hidden" id="adjGrade">
@@ -276,9 +276,9 @@ if(!isset($_SESSION['userID'])){
                 <input type="number" step="0.01" class="form-control" id="adjNewBalance">
               </div>
             </div>
-            <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="button" class="btn btn-success" id="saveAdjBtn"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
+            <div class="modal-footer custom-model-fotter-box">
+              <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="button" class="btn custom-save-btn" id="saveAdjBtn"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
             </div>
           </div>
         </div>
@@ -484,7 +484,7 @@ function loadAdjustment() {
         }
       },
       { data: null, orderable: false, render: function (d) {
-          return '<button class="btn btn-sm btn-success open-adj-btn" ' +
+          return '<button class="btn btn-sm custom-add-btn open-adj-btn" ' +
             'data-id="' + (d.id || '') + '" ' +
             'data-product="' + d.product_id + '" ' +
             'data-grade="' + (d.grade || '') + '" ' +
