@@ -103,13 +103,16 @@ foreach ($groups as $g) {
 
     // Breakdown rows
     if (!empty($withDetails) && $withDetails == 'Y') {
-        $colSpanBefore = $includePrice ? 8 : 6;
-        foreach ($g['rows'] as $ri => $r) {
+        $colSpan = $includePrice ? 7 : 5;
+        $chunks = array_chunk($g['rows'], 10, true);
+        foreach ($chunks as $chunk) {
+            $parts = [];
+            foreach ($chunk as $ri => $r) {
+                $parts[] = ($ri + 1).'. '.number_format($r['net'],2).' '.$r['unit'];
+            }
             $rows .= '<tr style="background:#f9f9f9;font-size:10px;">';
             $rows .= '<td style="border-top:none;"></td>';
-            $rows .= '<td colspan="'.($colSpanBefore - 1).'" style="border-top:none;padding-left:20px;text-align:left;">';
-            $rows .= ($ri + 1).'. &nbsp; Net: <strong>'.number_format($r['net'],2).'</strong> '.$r['unit'];
-            $rows .= '</td>';
+            $rows .= '<td colspan="'.$colSpan.'" style="border-top:none;padding-left:20px;text-align:left;">'.implode(' &nbsp; ', $parts).'</td>';
             $rows .= '</tr>';
         }
     }
