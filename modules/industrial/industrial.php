@@ -1566,10 +1566,10 @@ function calculateVariance(row){
 function format (row) {
   var returnString = `
   <!-- Wholesale Information -->
-  <div class="row">
-    <p><span><strong style="font-size:120%; text-decoration: underline;">Wholesale Order Information</strong></span>
+  <div class="row custom-tbl-title-box">
+    <p class="custom-tbl-title-box-txt">Wholesale Order Information</p>
   </div>
-  <div class="row">
+  <div class="row custom-tbl-content-box">
     <div class="col-6">
       <p><strong>Serial No:</strong> ${row.serial_no}</p>
       <p><strong>Parent:</strong> ${row.parent}</p>
@@ -1588,14 +1588,14 @@ function format (row) {
       ${allowPrice == 'Y' ? '<p><strong>Total Price:</strong> RM ' + parseFloat(row.total_price).toFixed(2) + '</p>' : ''}
     </div>
   </div>
-  <div class="row">
+  <div class="row custom-tbl-content-box">
     <div class="col-12">
       <p><strong>Remarks:</strong> ${row.remark || ''}</p>
     </div>
   </div>
-  <hr>
-  <h3>Weighing Details</h3>
-  <div class="row mb-2">
+  <hr class="custom-tbl-hr">
+  <h3 class="custom-tbl-title">Weighing Details</h3>
+  <div class="row custom-tbl-fliter-box">
     <div class="col-md-3">
       <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
         <option value="">All Products</option>
@@ -1607,8 +1607,8 @@ function format (row) {
       </select>
     </div>
   </div>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
+  <div class="row custom-inner-tbl-box">
+    <table class="table table-bordered nowrap table-striped align-middle" id="weightTable_${row.id}" style="width: 100%">
       <thead>
           <tr>
             <th>Product</th>
@@ -1672,10 +1672,10 @@ function format (row) {
     </table>
   </div>
 
-  <hr>
-  <h3>Reject Details</h3>
-  <div class="row">
-    <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
+  <hr class="custom-tbl-hr">
+  <h3 class="custom-tbl-title">Reject Details</h3>
+  <div class="row custom-inner-tbl-box">
+    <table class="table table-bordered nowrap table-striped align-middle" style="width: 97%">
       <thead>
           <tr>
             <th>Product</th>
