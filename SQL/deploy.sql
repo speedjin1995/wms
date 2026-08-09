@@ -2877,3 +2877,37 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_CUSTOMER` BEFORE UPDATE ON `customers` FOR EA
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `supplies` ADD `supplier_type` VARCHAR(10) NOT NULL DEFAULT 'Normal' AFTER `currency`;
+ALTER TABLE `supplies_log` ADD `supplier_type` VARCHAR(10) NOT NULL DEFAULT 'Normal' AFTER `currency`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_SUPPLIER` AFTER INSERT ON `supplies` FOR EACH ROW INSERT INTO supplies_log (
+    supplier_id, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_pic, billing_phone, billing_fax, currency, supplier_type, parent, customer, is_manual, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.supplier_code, NEW.reg_no, NEW.supplier_name, NEW.supplier_address, NEW.supplier_address2, NEW.supplier_address3, NEW.supplier_address4, NEW.states, NEW.supplier_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.billing_state, NEW.billing_pic, NEW.billing_phone, NEW.billing_fax, NEW.currency, NEW.supplier_type, NEW.parent, NEW.customer, NEW.is_manual, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_SUPPLIER` BEFORE UPDATE ON `supplies` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into supplies_log table
+    INSERT INTO supplies_log (
+      supplier_id, supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_pic, billing_phone, billing_fax, currency, supplier_type, parent, customer, is_manual, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.supplier_code, NEW.reg_no, NEW.supplier_name, NEW.supplier_address, NEW.supplier_address2, NEW.supplier_address3, NEW.supplier_address4, NEW.states, NEW.supplier_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.billing_state, NEW.billing_pic, NEW.billing_phone, NEW.billing_fax, NEW.currency, NEW.supplier_type, NEW.parent, NEW.customer, NEW.is_manual, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
