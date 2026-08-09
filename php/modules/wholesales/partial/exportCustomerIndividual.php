@@ -76,10 +76,14 @@ while ($row = mysqli_fetch_assoc($result)) {
         if (!isset($p[$productName]))                     $p[$productName] = [];
         if (!isset($p[$productName][$gradeName]))         $p[$productName][$gradeName] = [];
         if (!isset($p[$productName][$gradeName][$cpKey])) {
-            $p[$productName][$gradeName][$cpKey] = ['net' => 0, 'price' => $price, 'total' => 0, 'currency' => $currency];
+                $p[$productName][$gradeName][$cpKey] = ['net' => 0, 'price' => $price, 'total' => 0, 'currency' => $currency, 'do_po_no' => []];
         }
         $p[$productName][$gradeName][$cpKey]['net']   += $net;
         $p[$productName][$gradeName][$cpKey]['total'] += $total;
+        $poNo = $row['po_no'] ?? '';
+        if ($poNo != '' && !in_array($poNo, $p[$productName][$gradeName][$cpKey]['do_po_no'])) {
+            $p[$productName][$gradeName][$cpKey]['do_po_no'][] = $poNo;
+        }
         unset($p);
     }
 }
@@ -107,18 +111,19 @@ foreach ($data as $customerName => $dateGroups) {
     $sheet      = $spreadsheet->createSheet();
     $sheet->setTitle($sheetTitle);
 
-    $lastCol = ($allowPrice == 'Y') ? 'H' : 'F';
+    $lastCol = ($allowPrice == 'Y') ? 'I' : 'G';
 
     $r = 1;
     $sheet->setCellValue('A'.$r, 'Date');
-    $sheet->setCellValue('B'.$r, 'Customer');
-    $sheet->setCellValue('C'.$r, 'Product');
-    $sheet->setCellValue('D'.$r, 'Grade');
-    $sheet->setCellValue('E'.$r, 'Kg');
-    $sheet->setCellValue('F'.$r, 'Currency');
+    $sheet->setCellValue('B'.$r, 'DO/PO No.');
+    $sheet->setCellValue('C'.$r, 'Customer');
+    $sheet->setCellValue('D'.$r, 'Product');
+    $sheet->setCellValue('E'.$r, 'Grade');
+    $sheet->setCellValue('F'.$r, 'Kg');
+    $sheet->setCellValue('G'.$r, 'Currency');
     if ($allowPrice == 'Y') {
-        $sheet->setCellValue('G'.$r, 'U.Price');
-        $sheet->setCellValue('H'.$r, 'Total');
+        $sheet->setCellValue('H'.$r, 'U.Price');
+        $sheet->setCellValue('I'.$r, 'Total');
     }
     $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($headerStyle);
     $r++;
@@ -135,6 +140,10 @@ foreach ($data as $customerName => $dateGroups) {
         foreach ($products as $productName => $grades) {
             foreach ($grades as $gradeName => $cpEntries) {
                 foreach ($cpEntries as $entry) {
+                    $doPoList = [];
+                    foreach ($entry['do_po_no'] as $i => $s) {
+                        $doPoList[] = ($i + 1) . '. ' . $s;
+                    }
                     $dayRows[] = [
                         'date'     => $firstRow ? $dateData['display'] : '',
                         'product'  => $productName,
@@ -143,6 +152,8 @@ foreach ($data as $customerName => $dateGroups) {
                         'net'      => $entry['net'],
                         'price'    => $entry['price'],
                         'total'    => $entry['total'],
+                        'do_po_no' => implode("
+", $doPoList),
                     ];
                     $cur = $entry['currency'];
                     if (!isset($grandTotalByCurrency[$cur]))   $grandTotalByCurrency[$cur]   = 0;
@@ -157,16 +168,18 @@ foreach ($data as $customerName => $dateGroups) {
         $firstDataRow = true;
         foreach ($dayRows as $dr) {
             $sheet->setCellValue('A'.$r, $dr['date']);
-            $sheet->setCellValue('B'.$r, ($firstDataRow && $dr['date'] != '') ? $customerName : '');
-            $sheet->setCellValue('C'.$r, $dr['product']);
+            $sheet->setCellValue('B'.$r, $dr['do_po_no']);
+            $sheet->setCellValue('C'.$r, ($firstDataRow && $dr['date'] != '') ? $customerName : '');
+            $sheet->setCellValue('D'.$r, $dr['product']);
             $firstDataRow = false;
-            $sheet->setCellValue('D'.$r, $dr['grade']);
-            $sheet->setCellValue('E'.$r, $dr['net']);
-            $sheet->setCellValue('F'.$r, $dr['currency']);
+            $sheet->setCellValue('E'.$r, $dr['grade']);
+            $sheet->setCellValue('F'.$r, $dr['net']);
+            $sheet->setCellValue('G'.$r, $dr['currency']);
             if ($allowPrice == 'Y') {
-                $sheet->setCellValue('G'.$r, $dr['price']);
-                $sheet->setCellValue('H'.$r, $dr['total']);
+                $sheet->setCellValue('H'.$r, $dr['price']);
+                $sheet->setCellValue('I'.$r, $dr['total']);
             }
+            $sheet->getStyle('B'.$r)->getAlignment()->setWrapText(true);
             $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($dataStyle);
             $r++;
         }
@@ -176,9 +189,9 @@ foreach ($data as $customerName => $dateGroups) {
     $firstGrandRow = true;
     foreach ($grandTotalByCurrency as $cur => $amt) {
         $sheet->setCellValue('A'.$r, $firstGrandRow ? 'Grand Total' : '');
-        $sheet->setCellValue('E'.$r, $grandTotalKgByCurrency[$cur]);
-        $sheet->setCellValue('F'.$r, $cur);
-        if ($allowPrice == 'Y') $sheet->setCellValue('H'.$r, $amt);
+        $sheet->setCellValue('F'.$r, $grandTotalKgByCurrency[$cur]);
+        $sheet->setCellValue('G'.$r, $cur);
+        if ($allowPrice == 'Y') $sheet->setCellValue('I'.$r, $amt);
         $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($grandTotalStyle);
         $r++;
         $firstGrandRow = false;
@@ -188,9 +201,9 @@ foreach ($data as $customerName => $dateGroups) {
     foreach (range('A', $lastCol) as $col) {
         $sheet->getColumnDimension($col)->setAutoSize(true);
     }
-    $sheet->getStyle('E2:E'.$r)->getNumberFormat()->setFormatCode('#,##0.00');
+    $sheet->getStyle('F2:F'.$r)->getNumberFormat()->setFormatCode('#,##0.00');
     if ($allowPrice == 'Y') {
-        $sheet->getStyle('G2:H'.$r)->getNumberFormat()->setFormatCode('#,##0.00');
+        $sheet->getStyle('H2:I'.$r)->getNumberFormat()->setFormatCode('#,##0.00');
     }
 }
 
