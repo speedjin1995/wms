@@ -198,6 +198,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                     $no = $_POST['gradeNo'];
                     $productGradeId = (array)$_POST['productGradeId'];
                     $grades =  (array)$_POST['grades'];
+                    $gradeType = isset($_POST['gradeType']) ? (array)$_POST['gradeType'] : [];
                     $gradePricingType = (array)$_POST['gradePricingType'];
                     $gradePricingCurrency = isset($_POST['gradePricingCurrency']) ? (array)$_POST['gradePricingCurrency'] : [];
                     $gradePrice = (array)$_POST['gradePrice'];
@@ -225,6 +226,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                 $db->query("SET @skip_grade_log = NULL");
                                 foreach($no as $key => $number) {
                                     $gradeId = $grades[$key];
+                                    $gType = isset($gradeType[$key]) && $gradeType[$key] != '' ? $gradeType[$key] : 'Local';
                                     $gPricingType = $gradePricingType[$key];
                                     $gPricingCurrency = isset($gradePricingCurrency[$key]) && $gradePricingCurrency[$key] != '' ? $gradePricingCurrency[$key] : null;
                                     $gPrice = $gradePrice[$key];
@@ -235,14 +237,14 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                     if (isset($productGradeId[$key]) && $productGradeId[$key] != null && $productGradeId[$key] != ''){
                                         $gProductId = $productGradeId[$key];
 
-                                        if ($update_stmt2 = $db->prepare("UPDATE product_grades SET product_id=?, grade_id=?, pricing_type=?, pricing_currency=?, price=?, purchasing_pricing_type=?, purchasing_pricing_currency=?, purchasing_price=?, modified_by=?, deleted='0' WHERE id=?")){
-                                            $update_stmt2->bind_param('ssssssssss', $_POST['id'], $gradeId, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID, $gProductId);
+                                        if ($update_stmt2 = $db->prepare("UPDATE product_grades SET product_id=?, grade_id=?, type=?, pricing_type=?, pricing_currency=?, price=?, purchasing_pricing_type=?, purchasing_pricing_currency=?, purchasing_price=?, modified_by=?, deleted='0' WHERE id=?")){
+                                            $update_stmt2->bind_param('sssssssssss', $_POST['id'], $gradeId, $gType, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID, $gProductId);
                                             $update_stmt2->execute();
                                             $update_stmt2->close();
                                         }
                                     }else{
-                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
-                                            $product_stmt->bind_param('sssssssss', $_POST['id'], $gradeId, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID);
+                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                                            $product_stmt->bind_param('ssssssssss', $_POST['id'], $gradeId, $gType, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID);
                                             $product_stmt->execute();
                                             $product_stmt->close();
                                         }
@@ -348,6 +350,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 if(isset($_POST['gradeNo'])){
                     $no = $_POST['gradeNo'];
                     $grades = $_POST['grades'];
+                    $gradeType = isset($_POST['gradeType']) ? $_POST['gradeType'] : [];
                     $gradePricingType = $_POST['gradePricingType'];
                     $gradePricingCurrency = isset($_POST['gradePricingCurrency']) ? $_POST['gradePricingCurrency'] : [];
                     $gradePrice = $_POST['gradePrice'];
@@ -357,10 +360,11 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
 
                     if(isset($no) && $no != null && count($no) > 0){
                         foreach ($no as $key => $number) {
+                            $gType = isset($gradeType[$key]) && $gradeType[$key] != '' ? $gradeType[$key] : 'Local';
                             $gPricingCurrency = isset($gradePricingCurrency[$key]) && $gradePricingCurrency[$key] != '' ? $gradePricingCurrency[$key] : null;
                             $gPurchasingPricingCurrency = isset($gradePurchasingPricingCurrency[$key]) && $gradePurchasingPricingCurrency[$key] != '' ? $gradePurchasingPricingCurrency[$key] : null;
-                            if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
-                                $product_stmt->bind_param('sssssssss', $productId, $grades[$key], $gradePricingType[$key], $gPricingCurrency, $gradePrice[$key], $gradePurchasingPricingType[$key], $gPurchasingPricingCurrency, $gradePurchasingPrice[$key], $userID);
+                            if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                                $product_stmt->bind_param('ssssssssss', $productId, $grades[$key], $gType, $gradePricingType[$key], $gPricingCurrency, $gradePrice[$key], $gradePurchasingPricingType[$key], $gPurchasingPricingCurrency, $gradePurchasingPrice[$key], $userID);
                                 $product_stmt->execute();
                                 $product_stmt->close();
                             }

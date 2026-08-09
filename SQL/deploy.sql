@@ -2911,3 +2911,40 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_SUPPLIER` BEFORE UPDATE ON `supplies` FOR EAC
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `product_grades` ADD `type` VARCHAR(10) NOT NULL DEFAULT 'Local' AFTER `grade_id`;
+ALTER TABLE `product_grades_log` ADD `type` VARCHAR(10) NOT NULL DEFAULT 'Local' AFTER `grade_id`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCT_GRADES` AFTER INSERT ON `product_grades` FOR EACH ROW INSERT INTO product_grades_log (
+    product_grade_id, product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_id, NEW.grade_id, NEW.type, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_GRADES` BEFORE UPDATE ON `product_grades` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Skip if bulk soft-delete flag is set
+    IF @skip_grade_log IS NULL THEN
+      -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+      IF NEW.deleted = 1 THEN
+          SET action_value = 3;
+      ELSE
+          SET action_value = 2;
+      END IF;
+
+      -- Insert into product_grades_log table
+      INSERT INTO product_grades_log (
+        product_grade_id, product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, deleted, action_id, action_by, event_date
+      ) 
+      VALUES (
+          NEW.id, NEW.product_id, NEW.grade_id, NEW.type, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.deleted, action_value, NEW.modified_by, NEW.modified_datetime
+      );
+    END IF;
+END
+$$
+DELIMITER ;

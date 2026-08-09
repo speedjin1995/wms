@@ -429,15 +429,39 @@ else{
 
           <!-- Grades -->
           <div class="modal-section">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <div class="section-title mb-0"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
-              <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
-            </div>
-            <div id="gradeRowsContainer">
-              <div id="gradeEmptyState" class="empty-state">
-                <i class="fas fa-layer-group"></i>
-                <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
-                <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
+            <div class="section-title mb-3"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
+            <ul class="nav nav-tabs" id="gradeTypeTabs">
+              <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#gradeLocalTab" style="font-size:0.8rem; padding:0.5rem 0.75rem;"><?=$languageArray['local_code'][$language] ?? 'Local'?></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#gradeExportTab" style="font-size:0.8rem; padding:0.5rem 0.75rem;"><?=$languageArray['export_code'][$language] ?? 'Export'?></a>
+              </li>
+            </ul>
+            <div class="tab-content mt-2">
+              <div class="tab-pane fade show active" id="gradeLocalTab">
+                <div class="mb-2 text-right">
+                  <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade" data-type="Local"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+                </div>
+                <div id="gradeLocalRowsContainer">
+                  <div id="gradeLocalEmptyState" class="empty-state">
+                    <i class="fas fa-layer-group"></i>
+                    <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
+                    <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="gradeExportTab">
+                <div class="mb-2 text-right">
+                  <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade" data-type="Export"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
+                </div>
+                <div id="gradeExportRowsContainer">
+                  <div id="gradeExportEmptyState" class="empty-state">
+                    <i class="fas fa-layer-group"></i>
+                    <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
+                    <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
+                  </div>
+                </div>
               </div>
             </div>
             <!-- Hidden table for form data submission -->
@@ -702,60 +726,22 @@ else{
 <script type="text/html" id="gradeDetail">
   <tr class="details">
     <td>
-      <input type="text" class="form-control" id="gradeNo" name="gradeNo" readonly>
-      <input type="text" class="form-control" id="productGradeId" name="productGradeId" hidden>
-    </td>
-    <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="grades" name="grades">
-        <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-          <option value="<?=$rowGrade['id'] ?>"><?=$rowGrade['units']?></option>
-        <?php } ?>
-      </select>
-    </td>
-    <td>
-      <select class="form-control" style="width: 100%; background-color:white;" id="gradePricingType" name="gradePricingType">
-        <option selected><?=$languageArray['standard_code'][$language]?></option>
-        <option><?=$languageArray['fixed_code'][$language]?></option>
-        <option><?=$languageArray['float_code'][$language]?></option>
-      </select>
-    </td>
-    <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="gradePricingCurrency" name="gradePricingCurrency">
-        <?php while($rowCur3=mysqli_fetch_assoc($currency3)){ ?>
-          <option value="<?=$rowCur3['id']?>"><?=$rowCur3['currency']?></option>
-        <?php } ?>
-      </select>
-    </td>
-    <td>
-      <input type="number" class="form-control mb-1" id="gradePrice" name="gradePrice" style="background-color:white;" value="0">
-    </td>
-    <td>
-      <select class="form-control" style="width: 100%; background-color:white;" id="gradePurchasingPricingType" name="gradePurchasingPricingType">
-        <option selected><?=$languageArray['standard_code'][$language]?></option>
-        <option><?=$languageArray['fixed_code'][$language]?></option>
-        <option><?=$languageArray['float_code'][$language]?></option>
-      </select>
-    </td>
-    <td>
-      <select class="form-control select2" style="width: 100%; background-color:white;" id="gradePurchasingPricingCurrency" name="gradePurchasingPricingCurrency">
-        <?php while($rowCur4=mysqli_fetch_assoc($currency4)){ ?>
-          <option value="<?=$rowCur4['id']?>"><?=$rowCur4['currency']?></option>
-        <?php } ?>
-      </select>
-    </td>
-    <td>
-      <input type="number" class="form-control" id="gradePurchasingPrice" name="gradePurchasingPrice" style="background-color:white;" value="0">
-    </td>
-    <td class="d-flex" style="text-align:center">
-      <button class="btn btn-success" id="remove" style="background-color: #f06548;">
-          <i class="fa fa-times"></i>
-      </button>
+      <input type="hidden" id="gradeNo" name="gradeNo">
+      <input type="hidden" id="productGradeId" name="productGradeId">
+      <input type="hidden" id="grades" name="grades">
+      <input type="hidden" id="gradeType" name="gradeType">
+      <input type="hidden" id="gradePricingType" name="gradePricingType">
+      <input type="hidden" id="gradePricingCurrency" name="gradePricingCurrency">
+      <input type="hidden" id="gradePrice" name="gradePrice">
+      <input type="hidden" id="gradePurchasingPricingType" name="gradePurchasingPricingType">
+      <input type="hidden" id="gradePurchasingPricingCurrency" name="gradePurchasingPricingCurrency">
+      <input type="hidden" id="gradePurchasingPrice" name="gradePurchasingPrice">
     </td>
   </tr>
 </script>
 
 <script type="text/html" id="gradeRowTemplate">
-  <div class="dynamic-card" data-index="{index}">
+  <div class="dynamic-card" data-index="{index}" data-type="{type}">
     <div class="dynamic-card-body">
       <div class="dynamic-card-row dynamic-card-header">
         <select class="form-control form-control-sm select2 grade-select" id="gradesRow{index}" data-index="{index}" style="width:100%;">
@@ -888,8 +874,9 @@ $(function () {
   $.validator.setDefaults({
     submitHandler: function () {
       var gradeError = false;
-      $('#gradeTable .details').each(function() {
-        var $select = $(this).find('select[name^="grades"]');
+      $('#gradeLocalRowsContainer .dynamic-card, #gradeExportRowsContainer .dynamic-card').each(function() {
+        var index = $(this).data('index');
+        var $select = $('#gradesRow'+index);
         if (!$select.val()) {
           gradeError = true;
           $select.next('.select2-container').find('.select2-selection').css({'border': '1px solid #dc3545'});
@@ -956,8 +943,10 @@ $(function () {
     // clear grade table and rows
     gradeRowCount = 0;
     $('#gradeTable').html('');
-    $('#gradeRowsContainer .dynamic-card').remove();
-    $('#gradeEmptyState').show();
+    $('#gradeLocalRowsContainer .dynamic-card').remove();
+    $('#gradeExportRowsContainer .dynamic-card').remove();
+    $('#gradeLocalEmptyState').show();
+    $('#gradeExportEmptyState').show();
 
     $('#modalTitle').text('<?=$languageArray['add_products_code'][$language]?>');
     $('#productModal').modal('show');
@@ -1214,7 +1203,7 @@ $(function () {
   });
 
   // Remove grade row
-  $('#gradeRowsContainer').on('click', '.dynamic-card-remove', function() {
+  $('#gradeLocalRowsContainer, #gradeExportRowsContainer').on('click', '.dynamic-card-remove', function() {
     var index = $(this).data('index');
     $(this).closest('.dynamic-card').remove();
     $('#gradeTable').find('tr[data-index="'+index+'"]').remove();
@@ -1222,7 +1211,7 @@ $(function () {
   });
 
   // Sync row changes to hidden table
-  $('#gradeRowsContainer').on('change', 'select, input', function() {
+  $('#gradeLocalRowsContainer, #gradeExportRowsContainer').on('change', 'select, input', function() {
     var index = $(this).closest('.dynamic-card').data('index');
     syncGradeRowToTable(index);
   });
@@ -1236,9 +1225,13 @@ $(function () {
   });
 
   $(".add-grade").click(function(){
+    var gradeType = $(this).data('type'); // 'Local' or 'Export'
+    var containerId = gradeType === 'Local' ? '#gradeLocalRowsContainer' : '#gradeExportRowsContainer';
+    var emptyStateId = gradeType === 'Local' ? '#gradeLocalEmptyState' : '#gradeExportEmptyState';
+
     // Add visual row
-    $('#gradeRowsContainer').append(renderGradeRow(gradeRowCount));
-    $('#gradeEmptyState').hide();
+    $(containerId).append(renderGradeRow(gradeRowCount, gradeType));
+    $(emptyStateId).hide();
 
     // Init Select2 on new row
     $('#gradesRow'+gradeRowCount).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
@@ -1249,17 +1242,18 @@ $(function () {
     var $addContents = $("#gradeDetail").clone();
     $("#gradeTable").append($addContents.html());
 
-    $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
-    $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
-    $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount);
-    $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(gradeRowCount+1);
-    $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount);
-    $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount);
-    $("#gradeTable").find('#gradePricingCurrency:last').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(defaultCurrencyId);
-    $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount);
-    $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount);
-    $("#gradeTable").find('#gradePurchasingPricingCurrency:last').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(defaultCurrencyId);
-    $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount);
+    var $tr = $("#gradeTable").find('.details:last');
+    $tr.attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
+    $tr.find('#gradeNo').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(gradeRowCount+1);
+    $tr.find('#productGradeId').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount);
+    $tr.find('#grades').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount);
+    $tr.find('#gradeType').attr('name', 'gradeType['+gradeRowCount+']').attr("id", "gradeType" + gradeRowCount).val(gradeType);
+    $tr.find('#gradePricingType').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val('Standard');
+    $tr.find('#gradePricingCurrency').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(defaultCurrencyId);
+    $tr.find('#gradePrice').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(0);
+    $tr.find('#gradePurchasingPricingType').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount).val('Standard');
+    $tr.find('#gradePurchasingPricingCurrency').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(defaultCurrencyId);
+    $tr.find('#gradePurchasingPrice').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount).val(0);
 
     gradeRowCount++;
   });
@@ -1359,27 +1353,32 @@ $(function () {
   });
 });
 
-function renderGradeRow(index) {
+function renderGradeRow(index, type) {
   var html = $('#gradeRowTemplate').html();
-  return html.replace(/{index}/g, index);
+  return html.replace(/{index}/g, index).replace(/{type}/g, type);
 }
 
 function syncGradeRowToTable(index) {
   var $row = $('#gradeTable').find('tr[data-index="'+index+'"]');
-  $row.find('select[name^="grades"]').val($('#gradesRow'+index).val());
-  $row.find('select[name^="gradePricingType"]').val($('#gradePricingTypeRow'+index).val());
-  $row.find('select[name^="gradePricingCurrency"]').val($('#gradePricingCurrencyRow'+index).val());
+  $row.find('input[name^="grades"]').val($('#gradesRow'+index).val());
+  $row.find('input[name^="gradePricingType"]').val($('#gradePricingTypeRow'+index).val());
+  $row.find('input[name^="gradePricingCurrency"]').val($('#gradePricingCurrencyRow'+index).val());
   $row.find('input[name^="gradePrice"]').val($('#gradePriceRow'+index).val());
-  $row.find('select[name^="gradePurchasingPricingType"]').val($('#gradePurchasingPricingTypeRow'+index).val());
-  $row.find('select[name^="gradePurchasingPricingCurrency"]').val($('#gradePurchasingPricingCurrencyRow'+index).val());
+  $row.find('input[name^="gradePurchasingPricingType"]').val($('#gradePurchasingPricingTypeRow'+index).val());
+  $row.find('input[name^="gradePurchasingPricingCurrency"]').val($('#gradePurchasingPricingCurrencyRow'+index).val());
   $row.find('input[name^="gradePurchasingPrice"]').val($('#gradePurchasingPriceRow'+index).val());
 }
 
 function updateGradeEmptyState() {
-  if ($('#gradeRowsContainer .dynamic-card').length === 0) {
-    $('#gradeEmptyState').show();
+  if ($('#gradeLocalRowsContainer .dynamic-card').length === 0) {
+    $('#gradeLocalEmptyState').show();
   } else {
-    $('#gradeEmptyState').hide();
+    $('#gradeLocalEmptyState').hide();
+  }
+  if ($('#gradeExportRowsContainer .dynamic-card').length === 0) {
+    $('#gradeExportEmptyState').show();
+  } else {
+    $('#gradeExportEmptyState').hide();
   }
 }
 
@@ -1483,15 +1482,20 @@ function edit(id){
 
       // grade table and rows
       $('#gradeTable').html('');
-      $('#gradeRowsContainer .dynamic-card').remove();
+      $('#gradeLocalRowsContainer .dynamic-card').remove();
+      $('#gradeExportRowsContainer .dynamic-card').remove();
       gradeRowCount = 0;
       if (obj.message.productGrades.length > 0){
-        $('#gradeEmptyState').hide();
+        var hasLocal = false, hasExport = false;
         for(var i = 0; i < obj.message.productGrades.length; i++){
           var item = obj.message.productGrades[i];
+          var gradeType = item.type || 'Local';
+          var containerId = gradeType === 'Local' ? '#gradeLocalRowsContainer' : '#gradeExportRowsContainer';
+          if (gradeType === 'Local') hasLocal = true;
+          else hasExport = true;
           
           // Add visual row
-          $('#gradeRowsContainer').append(renderGradeRow(gradeRowCount));
+          $(containerId).append(renderGradeRow(gradeRowCount, gradeType));
           $('#gradesRow'+gradeRowCount).val(item.grade_id).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
           $('#gradePricingTypeRow'+gradeRowCount).val(item.pricing_type || 'Standard');
           $('#gradePricingCurrencyRow'+gradeRowCount).val(item.pricing_currency).select2({ allowClear: true, placeholder: "Select", dropdownParent: $('#productModal') });
@@ -1504,22 +1508,26 @@ function edit(id){
           var $addContents = $("#gradeDetail").clone();
           $("#gradeTable").append($addContents.html());
 
-          $("#gradeTable").find('.details:last').attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
-          $("#gradeTable").find('#remove:last').attr("id", "remove" + gradeRowCount);
-          $("#gradeTable").find('#productGradeId:last').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount).val(item.id);
-          $("#gradeTable").find('#gradeNo:last').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(item.no);
-          $("#gradeTable").find('#grades:last').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id);
-          $("#gradeTable").find('#gradePricingType:last').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val(item.pricing_type || 'Standard');
-          $("#gradeTable").find('#gradePricingCurrency:last').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(item.pricing_currency);
-          $("#gradeTable").find('#gradePrice:last').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price || 0);
-          $("#gradeTable").find('#gradePurchasingPricingType:last').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount).val(item.purchasing_pricing_type || 'Standard');
-          $("#gradeTable").find('#gradePurchasingPricingCurrency:last').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(item.purchasing_pricing_currency);
-          $("#gradeTable").find('#gradePurchasingPrice:last').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount).val(item.purchasing_price || 0);
+          var $tr = $("#gradeTable").find('.details:last');
+          $tr.attr("id", "detail" + gradeRowCount).attr("data-index", gradeRowCount);
+          $tr.find('#productGradeId').attr('name', 'productGradeId['+gradeRowCount+']').attr("id", "productGradeId" + gradeRowCount).val(item.id);
+          $tr.find('#gradeNo').attr('name', 'gradeNo['+gradeRowCount+']').attr("id", "gradeNo" + gradeRowCount).val(item.no);
+          $tr.find('#grades').attr('name', 'grades['+gradeRowCount+']').attr("id", "grades" + gradeRowCount).val(item.grade_id);
+          $tr.find('#gradeType').attr('name', 'gradeType['+gradeRowCount+']').attr("id", "gradeType" + gradeRowCount).val(gradeType);
+          $tr.find('#gradePricingType').attr('name', 'gradePricingType['+gradeRowCount+']').attr("id", "gradePricingType" + gradeRowCount).val(item.pricing_type || 'Standard');
+          $tr.find('#gradePricingCurrency').attr('name', 'gradePricingCurrency['+gradeRowCount+']').attr("id", "gradePricingCurrency" + gradeRowCount).val(item.pricing_currency);
+          $tr.find('#gradePrice').attr('name', 'gradePrice['+gradeRowCount+']').attr("id", "gradePrice" + gradeRowCount).val(item.price || 0);
+          $tr.find('#gradePurchasingPricingType').attr('name', 'gradePurchasingPricingType['+gradeRowCount+']').attr("id", "gradePurchasingPricingType" + gradeRowCount).val(item.purchasing_pricing_type || 'Standard');
+          $tr.find('#gradePurchasingPricingCurrency').attr('name', 'gradePurchasingPricingCurrency['+gradeRowCount+']').attr("id", "gradePurchasingPricingCurrency" + gradeRowCount).val(item.purchasing_pricing_currency);
+          $tr.find('#gradePurchasingPrice').attr('name', 'gradePurchasingPrice['+gradeRowCount+']').attr("id", "gradePurchasingPrice" + gradeRowCount).val(item.purchasing_price || 0);
 
           gradeRowCount++;
         }
+        $('#gradeLocalEmptyState').toggle(!hasLocal);
+        $('#gradeExportEmptyState').toggle(!hasExport);
       } else {
-        $('#gradeEmptyState').show();
+        $('#gradeLocalEmptyState').show();
+        $('#gradeExportEmptyState').show();
       }
 
       $('#modalTitle').text('<?=$languageArray['edit_product_code'][$language] ?? 'Edit Product'?>');
