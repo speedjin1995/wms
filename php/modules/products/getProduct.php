@@ -295,7 +295,7 @@ if(isset($_POST['userID'])){
                     $message['state'] = json_decode($row['state'], true);
                     
                     // retrieve product customers
-                    $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
+                    $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY type ASC, id ASC";
                     $empRecords = mysqli_query($db, $empQuery);
                     $productCustomers = array();
                     $productCustomerCount = 1;
@@ -307,6 +307,7 @@ if(isset($_POST['userID'])){
                             "product_id" => $row2['product_id'],
                             "customer_id" => $row2['customer_id'],
                             "grade_id" => $row2['grade_id'],
+                            "type" => $row2['type'] ?? 'Local',
                             "pricing_type" => $row2['pricing_type'],
                             "pricing_currency" => $row2['pricing_currency'],
                             "price" => $row2['price'],
@@ -319,7 +320,7 @@ if(isset($_POST['userID'])){
                     $message['productCustomers'] = $productCustomers;
 
                     // retrieve product suppliers
-                    $empQuery = "SELECT * FROM product_suppliers WHERE product_id = $id AND deleted = '0' ORDER BY id ASC";
+                    $empQuery = "SELECT * FROM product_suppliers WHERE product_id = $id AND deleted = '0' ORDER BY type ASC, id ASC";
                     $empRecords = mysqli_query($db, $empQuery);
                     $productSuppliers = array();
                     $productSupplierCount = 1;
@@ -331,6 +332,7 @@ if(isset($_POST['userID'])){
                             "product_id" => $row2['product_id'],
                             "supplier_id" => $row2['supplier_id'],
                             "grade_id" => $row2['grade_id'],
+                            "type" => $row2['type'] ?? 'Local',
                             "purchasing_pricing_type" => $row2['purchasing_pricing_type'],
                             "purchasing_pricing_currency" => $row2['purchasing_pricing_currency'],
                             "purchasing_price" => $row2['purchasing_price']

@@ -495,9 +495,19 @@ else{
           </ul>
           <div class="tab-content">
             <div class="tab-pane fade show active" id="tabCustomers">
-              <div class="mb-2 text-right">
-                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
-                <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+              <div class="mb-2 d-flex justify-content-between align-items-center">
+                <div>
+                  <label class="mr-2 mb-0" style="font-size:0.85rem;"><?=$languageArray['filter_code'][$language] ?? 'Filter'?>:</label>
+                  <select class="form-control form-control-sm d-inline-block" id="customerTypeFilter" style="width:auto;">
+                    <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                  </select>
+                </div>
+                <div>
+                  <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                  <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
+                </div>
               </div>
               <div id="customerCards" class="customer-supplier-cards"></div>
               <div id="customerEmptyState" class="empty-state">
@@ -507,9 +517,19 @@ else{
               </div>
             </div>
             <div class="tab-pane fade" id="tabSuppliers">
-              <div class="mb-2 text-right">
-                <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
-                <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
+              <div class="mb-2 d-flex justify-content-between align-items-center">
+                <div>
+                  <label class="mr-2 mb-0" style="font-size:0.85rem;"><?=$languageArray['filter_code'][$language] ?? 'Filter'?>:</label>
+                  <select class="form-control form-control-sm d-inline-block" id="supplierTypeFilter" style="width:auto;">
+                    <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                  </select>
+                </div>
+                <div>
+                  <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
+                  <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
+                </div>
               </div>
               <div id="supplierCards" class="customer-supplier-cards"></div>
               <div id="supplierEmptyState" class="empty-state">
@@ -628,6 +648,10 @@ else{
           <option value="<?=$rowCustomer['id']?>" data-state="<?=$rowCustomer['state_name']?>"><?=$rowCustomer['customer_name']?></option>
         <?php } ?>
       </select>
+      <select class="form-control form-control-sm customer-type-select" id="customerType" name="customerType" style="width:90px; flex-shrink:0;">
+        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+      </select>
       <button type="button" class="cs-card-remove" id="remove"><i class="fas fa-times"></i></button>
     </div>
     <div class="cs-card-body">
@@ -681,6 +705,10 @@ else{
         <?php $suppliers->data_seek(0); while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
           <option value="<?=$rowSupplier['id']?>" data-state="<?=$rowSupplier['state_name']?>"><?=$rowSupplier['supplier_name']?></option>
         <?php } ?>
+      </select>
+      <select class="form-control form-control-sm supplier-type-select" id="supplierType" name="supplierType" style="width:90px; flex-shrink:0;">
+        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
       </select>
       <button type="button" class="cs-card-remove" id="removeSupplier"><i class="fas fa-times"></i></button>
     </div>
@@ -1101,12 +1129,32 @@ $(function () {
   }
 
   function toggleCustomerEmptyState() {
-    if ($("#customerCards .cs-card").length === 0) {
-      $('#customerEmptyState').show();
-    } else {
-      $('#customerEmptyState').hide();
-    }
+    var filter = $('#customerTypeFilter').val();
+    var visibleCount = filter ? $('#customerCards .cs-card[data-type="'+filter+'"]').length : $('#customerCards .cs-card').length;
+    $('#customerEmptyState').toggle(visibleCount === 0);
   }
+
+  // Filter customers by type
+  $('#customerTypeFilter').on('change', function() {
+    var filter = $(this).val();
+    if (filter) {
+      $('#customerCards .cs-card').hide();
+      $('#customerCards .cs-card[data-type="'+filter+'"]').show();
+    } else {
+      $('#customerCards .cs-card').show();
+    }
+    toggleCustomerEmptyState();
+  });
+
+  // Update card data-type when type dropdown changes
+  $('#customerCards').on('change', '.customer-type-select', function() {
+    $(this).closest('.cs-card').attr('data-type', $(this).val());
+    var filter = $('#customerTypeFilter').val();
+    if (filter && $(this).val() !== filter) {
+      $(this).closest('.cs-card').hide();
+    }
+    toggleCustomerEmptyState();
+  });
 
   $(".add-customer").click(function(){
     $('#customerEmptyState').hide();
@@ -1114,11 +1162,13 @@ $(function () {
     $("#customerCards").append($addContents.html());
 
     var $card = $("#customerCards").find('.details:last');
-    $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount);
+    var defaultType = $('#customerTypeFilter').val() || 'Local';
+    $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount).attr("data-type", defaultType);
     $card.find('.cs-card-number').text(customerRowCount + 1);
     $card.find('#remove').attr("id", "remove" + customerRowCount);
     $card.find('#customerProductId').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount);
     $card.find('#customerRowType').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
+    $card.find('#customerType').attr('name', 'customerType['+customerRowCount+']').attr("id", "customerType" + customerRowCount).val(defaultType);
     $card.find('#no').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(customerRowCount+1);
     $card.find('#customers').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).select2({
       allowClear: true, placeholder: $("#customerDetail").find('#customers').data('placeholder'), dropdownParent: $('#customersModal')
@@ -1155,12 +1205,32 @@ $(function () {
   }
 
   function toggleSupplierEmptyState() {
-    if ($("#supplierCards .cs-card").length === 0) {
-      $('#supplierEmptyState').show();
-    } else {
-      $('#supplierEmptyState').hide();
-    }
+    var filter = $('#supplierTypeFilter').val();
+    var visibleCount = filter ? $('#supplierCards .cs-card[data-type="'+filter+'"]').length : $('#supplierCards .cs-card').length;
+    $('#supplierEmptyState').toggle(visibleCount === 0);
   }
+
+  // Filter suppliers by type
+  $('#supplierTypeFilter').on('change', function() {
+    var filter = $(this).val();
+    if (filter) {
+      $('#supplierCards .cs-card').hide();
+      $('#supplierCards .cs-card[data-type="'+filter+'"]').show();
+    } else {
+      $('#supplierCards .cs-card').show();
+    }
+    toggleSupplierEmptyState();
+  });
+
+  // Update card data-type when type dropdown changes
+  $('#supplierCards').on('change', '.supplier-type-select', function() {
+    $(this).closest('.cs-card').attr('data-type', $(this).val());
+    var filter = $('#supplierTypeFilter').val();
+    if (filter && $(this).val() !== filter) {
+      $(this).closest('.cs-card').hide();
+    }
+    toggleSupplierEmptyState();
+  });
 
   $(".add-supplier").click(function(){
     $('#supplierEmptyState').hide();
@@ -1168,11 +1238,13 @@ $(function () {
     $("#supplierCards").append($addContents.html());
 
     var $card = $("#supplierCards").find('.details:last');
-    $card.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
+    var defaultType = $('#supplierTypeFilter').val() || 'Local';
+    $card.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount).attr("data-type", defaultType);
     $card.find('.cs-card-number').text(supplierRowCount + 1);
     $card.find('#removeSupplier').attr("id", "removeSupplier" + supplierRowCount);
     $card.find('#supplierProductId').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount);
     $card.find('#supplierRowType').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
+    $card.find('#supplierType').attr('name', 'supplierType['+supplierRowCount+']').attr("id", "supplierType" + supplierRowCount).val(defaultType);
     $card.find('#supplierNo').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(supplierRowCount+1);
     $card.find('#suppliers').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).select2({
       allowClear: true, placeholder: $("#supplierDetail").find('#suppliers').data('placeholder'), dropdownParent: $('#customersModal')
@@ -1319,7 +1391,7 @@ $(function () {
     if (targetType === 'customer') {
       var pricingType = $('#bulkPricingType').val();
       var sellingPrice = $('#bulkSellingPrice').val();
-      $('#customerCards .cs-card.details').each(function() {
+      $('#customerCards .cs-card.details:visible').each(function() {
         var $row = $(this);
         var customerState = $row.find('select[id^="customers"]').find('option:selected').data('state');
         var rowGrade = $row.find('select[id^="customerGrade"]').val();
@@ -1334,7 +1406,7 @@ $(function () {
     } else {
       var purchasingPricingType = $('#bulkPurchasingPricingType').val();
       var purchasingPrice = $('#bulkPurchasingPrice').val();
-      $('#supplierCards .cs-card.details').each(function() {
+      $('#supplierCards .cs-card.details:visible').each(function() {
         var $row = $(this);
         var supplierState = $row.find('select[id^="suppliers"]').find('option:selected').data('state');
         var rowGrade = $row.find('select[id^="supplierGrade"]').val();
@@ -1563,6 +1635,8 @@ function openCustomers(id) {
   $('#supplierCards').html('');
   customerRowCount = 0;
   supplierRowCount = 0;
+  $('#customerTypeFilter').val('');
+  $('#supplierTypeFilter').val('');
   $('#customersForm').find('#customerProductId').val(id);
   // Reset to customers tab
   $('#tabCustomersLink').tab('show');
@@ -1578,16 +1652,19 @@ function openCustomers(id) {
       }
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
+        var customerType = item.type || 'Local';
+        
         var $addContents = $("#customerDetail").clone();
         $("#customerCards").append($addContents.html());
 
         var $card = $("#customerCards").find('.details:last');
-        $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount);
+        $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount).attr("data-type", customerType);
         $card.find('.cs-card-number').text(customerRowCount + 1);
         $card.find('#remove').attr("id", "remove" + customerRowCount);
         $card.find('#no').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(item.no);
         $card.find('#customerProductId').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount).val(item.id);
         $card.find('#customerRowType').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
+        $card.find('#customerType').attr('name', 'customerType['+customerRowCount+']').attr("id", "customerType" + customerRowCount).val(customerType);
         $card.find('#customers').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).val(item.customer_id).select2({
           allowClear: true, placeholder: $("#customerDetail").find('#customers').data('placeholder'), dropdownParent: $('#customersModal')
         }).on('change', function() {
@@ -1617,16 +1694,19 @@ function openCustomers(id) {
       }
       for (var j = 0; j < supplierItems.length; j++) {
         var sItem = supplierItems[j];
+        var supplierType = sItem.type || 'Local';
+        
         var $sContents = $("#supplierDetail").clone();
         $("#supplierCards").append($sContents.html());
 
         var $sCard = $("#supplierCards").find('.details:last');
-        $sCard.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
+        $sCard.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount).attr("data-type", supplierType);
         $sCard.find('.cs-card-number').text(supplierRowCount + 1);
         $sCard.find('#removeSupplier').attr("id", "removeSupplier" + supplierRowCount);
         $sCard.find('#supplierNo').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(sItem.no);
         $sCard.find('#supplierProductId').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount).val(sItem.id);
         $sCard.find('#supplierRowType').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
+        $sCard.find('#supplierType').attr('name', 'supplierType['+supplierRowCount+']').attr("id", "supplierType" + supplierRowCount).val(supplierType);
         $sCard.find('#suppliers').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).val(sItem.supplier_id).select2({
           allowClear: true, placeholder: $("#supplierDetail").find('#suppliers').data('placeholder'), dropdownParent: $('#customersModal')
         }).on('change', function() {
