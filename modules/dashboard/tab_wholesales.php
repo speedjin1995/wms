@@ -1,6 +1,5 @@
 <!-- ===== WHOLESALES TAB ===== -->
 <div class="tab-pane fade show active" id="tabWholesales">
-
   <!-- Filters -->
   <div class="row dash-tab-filters">
     <div class="form-group col-12 col-md-3">
@@ -75,8 +74,8 @@
             <i class="fas fa-chevron-down dash-chevron" id="wsSupplierChevron"></i>
             <span class="section-title"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
           </div>
-          <div class="d-flex align-items-center" style="gap: 10px;">
-            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();exportSupplierBreakdown()" title="Export Excel"><i class="fas fa-file-excel"></i></button>
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();openExportModal('supplier')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
           <div class="dash-pager" id="wsSupplierPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" id="wsSupplierPrev" onclick="event.stopPropagation();wsSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
             <small id="wsSupplierPageInfo"></small>
@@ -97,7 +96,7 @@
             <span class="section-title"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</span>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;">
-            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();exportCustomerBreakdown()" title="Export Excel"><i class="fas fa-file-excel"></i></button>
+            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();openExportModal('customer')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
           <div class="dash-pager" id="wsCustomerPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" id="wsCustomerPrev" onclick="event.stopPropagation();wsCustomerPage(-1)"><i class="fas fa-chevron-left"></i></button>
             <small id="wsCustomerPageInfo"></small>
@@ -200,4 +199,29 @@
     <div class="dash-chart-wrap"><canvas id="wsTrendChart"></canvas></div>
   </div>
 
+  <!-- Export Type Modal -->
+  <div class="modal fade" id="wsExportTypeModal" tabindex="-1">
+    <div class="modal-dialog" style="max-width:380px;">
+      <div class="modal-content custom-model-content-box">
+        <div class="modal-header custom-model-header-box">
+          <h5 class="modal-title custom-model-title-txt"><i class="fas fa-file-export"></i> Export Options</h5>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body custom-model-body-box">
+          <input type="hidden" id="wsExportParty">
+          <div class="form-group mb-0">
+            <label>Export Type</label>
+            <select class="form-control" id="wsExportType">
+              <option value="summary">Summary</option>
+              <option value="individual">Individual</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="custom-close-btn" data-dismiss="modal"><i class="fas fa-times"></i> Cancel</button>
+          <button type="button" class="custom-save-btn" onclick="doExportBreakdown()"><i class="fas fa-file-export"></i> Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
