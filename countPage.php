@@ -867,31 +867,31 @@ function updateWeights(){
 }
 
 function format (row) {
-  return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
+  return '<div class="row custom-tbl-content-box"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
   '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
   '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
   '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3"><p>Address: '+row.customer_address+
   '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
   '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
   '</p></div><div class="col-md-3"><p>Package: '+row.packages+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3">'+
   '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
   '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
   '</p></div><div class="col-md-3 money"><p>Unit Price: '+row.unitPrice+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3">'+
   '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
   '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
   '</p></div><div class="col-md-3 money"><p>Total Weight: '+row.totalPrice+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
   '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
   '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-danger btn-sm" onclick="deactivate('+row.id+
-  ')"><i class="fas fa-trash"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
-  '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
+  '</p></div><div class="col-md-3"><div class="row custom-tbl-btn-icon"><button type="button" class="btn custom-edit-btn-icon btn-sm" onclick="edit('+row.id+
+  ')"><i class="fas fa-pen"></i></button><button type="button" class="btn custom-delete-btn-icon btn-sm" onclick="deactivate('+row.id+
+  ')"><i class="fas fa-trash"></i></button><button type="button" class="btn custom-print-btn-icon btn-sm" onclick="print('+row.id+
+  ')"><i class="fas fa-print"></i></button><button type="button" class="btn custom-view-btn-icon btn-sm" onclick="portrait('+row.id+
+  ')"><i class="fas fa-receipt"></i></button></div></div></div>'+
+  '</div><div class="row custom-tbl-content-box"><div class="col-md-3"><p>Remark: '+row.remark+
   '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
   '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
   '</p></div></div>';
@@ -899,30 +899,30 @@ function format (row) {
 }
 
 function formatNormal (row) {
-  return '<div class="row"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
+  return '<div class="row custom-tbl-content-box"><div class="col-md-3"><p>Customer Name: '+row.customer_name+
   '</p></div><div class="col-md-3"><p>Unit Weight: '+row.unit+
   '</p></div><div class="col-md-3"><p>Weight Status: '+row.status+
   '</p></div><div class="col-md-3"><p>MOQ: '+row.moq+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Address: '+row.customer_address+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3"><p>Address: '+row.customer_address+
   '</p></div><div class="col-md-3"><p>Batch No: '+row.batchNo+
   '</p></div><div class="col-md-3"><p>Weight By: '+row.userName+
   '</p></div><div class="col-md-3"><p>Package: '+row.packages+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3">'+
   '</div><div class="col-md-3"><p>Lot No: '+row.lots_no+
   '</p></div><div class="col-md-3"><p>Invoice No: '+row.invoiceNo+
   '</p></div><div class="col-md-3"><p>Unit Price: '+row.unitPrice+
-  '</p></div></div><div class="row"><div class="col-md-3">'+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3">'+
   '</div><div class="col-md-3"><p>Order Weight: '+row.supplyWeight+
   '</p></div><div class="col-md-3"><p>Delivery No: '+row.deliveryNo+
   '</p></div><div class="col-md-3"><p>Total Weight: '+row.totalPrice+
-  '</p></div></div><div class="row"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
+  '</p></div></div><div class="row custom-tbl-content-box"><div class="col-md-3"><p>Contact No: '+row.customer_phone+
   '</p></div><div class="col-md-3"><p>Variance Weight: '+row.varianceWeight+
   '</p></div><div class="col-md-3"><p>Purchase No: '+row.purchaseNo+
-  '</p></div><div class="col-md-3"><div class="row"><div class="col-3"><button type="button" class="btn btn-warning btn-sm" onclick="edit('+row.id+
-  ')"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" class="btn btn-info btn-sm" onclick="print('+row.id+
-  ')"><i class="fas fa-print"></i></button></div><div class="col-3"><button type="button" class="btn btn-success btn-sm" onclick="portrait('+row.id+
-  ')"><i class="fas fa-receipt"></i></button></div></div></div></div>'+
-  '</div><div class="row"><div class="col-md-3"><p>Remark: '+row.remark+
+  '</p></div><div class="col-md-3"><div class="row custom-tbl-btn-icon"><button type="button" class="btn custom-edit-btn-icon btn-sm" onclick="edit('+row.id+
+  ')"><i class="fas fa-pen"></i></button><button type="button" class="btn custom-print-btn-icon btn-sm" onclick="print('+row.id+
+  ')"><i class="fas fa-print"></i></button><button type="button" class="btn custom-view-btn-icon btn-sm" onclick="portrait('+row.id+
+  ')"><i class="fas fa-receipt"></i></button></div></div></div>'+
+  '</div><div class="row custom-tbl-content-box"><div class="col-md-3"><p>Remark: '+row.remark+
   '</p></div><div class="col-md-3"><p>% Variance: '+row.variancePerc+
   '</p></div><div class="col-md-3"><p>Transporter: '+row.transporter_name+
   '</p></div></div>';

@@ -80,65 +80,441 @@ else{
 ?>
 
 <style>
-  .content-wrapper { padding:0 !important; }
-  #sales-wrap { display:flex; height:calc(100vh - 57px); overflow:hidden; }
-  #sales-left  { flex:1; overflow:hidden; display:flex; flex-direction:column; border-right:1px solid #e5e7eb; }
-  #sales-right { width:480px; flex-shrink:0; overflow:hidden; display:flex; flex-direction:column; }
+  .content-wrapper {
+    padding: 0 !important;
+  }
 
-  #sales-wrap { font-family: 'Source Sans Pro', sans-serif; font-size:0.9rem; }
-  #sales-wrap *:not(.fas):not(.far):not(.fab):not(.fal):not([class*='fa-']) { font-family: 'Source Sans Pro', sans-serif; font-size:0.9rem; }
-  #sales-wrap h1 { font-size:2rem !important; font-weight:700; }
+  #sales-wrap {
+    display: flex;
+    height: calc(100vh - 57px);
+    overflow: hidden;
+  }
 
-  .sales-header { flex-shrink:0; }
-  .cat-tabs { display:flex; border-bottom:2px solid #e5e7eb; flex-shrink:0; }
-  .cat-tab  { padding:10px 18px; font-size:0.9rem; font-weight:600; color:#6b7280; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all 0.2s; white-space:nowrap; }
-  .cat-tab.active { color:#2563eb; border-bottom-color:#2563eb; }
+  #sales-left  {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #E3C66A;
+  }
 
-  .search-wrap { flex-shrink:0; }
-  .search-wrap .input-group { border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; display:flex; align-items:center; }
-  .search-wrap .input-group-text { background:#fff; color:#9ca3af; border:0; padding:8px 12px; flex-shrink:0; }
-  .search-wrap input { border:0; flex:1; min-width:0; font-size:0.9rem; padding:8px 12px; outline:none; box-shadow:none; border-radius:0 8px 8px 0; }
-  .search-wrap input:focus { box-shadow:none; outline:none; }
+  #sales-right {
+    width: 480px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
 
-  .product-scroll { flex:1; overflow-y:auto; }
-  .product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  #sales-wrap {
+    font-family: 'Source Sans Pro', sans-serif;
+    /*font-size:0.9rem;*/
+  }
 
-  .product-card { border:1px solid #e5e7eb; border-radius:12px; cursor:pointer; transition:box-shadow 0.2s, transform 0.2s; overflow:hidden; background:#fff; }
-  .product-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.10); transform:translateY(-2px); }
-  .product-item.out-of-stock { pointer-events:none; }
-  .product-item.out-of-stock .product-card { opacity:0.55; cursor:not-allowed; background:#f9fafb; }
-  .product-item.out-of-stock .product-card:hover { box-shadow:none; transform:none; }
-  .out-of-stock-badge { position:absolute; top:8px; right:8px; background:#ef4444; color:#fff; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:20px; }
-  .product-card .product-img { width:100%; height:160px; object-fit:cover; background:#f3f4f6; }
-  .product-card .product-img-placeholder { width:100%; height:160px; background:#f3f4f6; display:flex; align-items:center; justify-content:center; color:#d1d5db; font-size:3rem; }
-  .product-card .card-info { padding:12px 14px 14px; }
-  .product-card .product-name { font-size:0.9rem; font-weight:700; color:#111827; margin:0 0 4px; }
-  .product-card .product-price { font-size:0.9rem; color:#6b7280; margin:0; }
+  #sales-wrap *:not(.fas):not(.far):not(.fab):not(.fal):not([class*='fa-']) {
+    font-family: 'Source Sans Pro', sans-serif;
+    /*font-size: 0.9rem;*/
+  }
 
-  .pagination-wrap { display:flex; justify-content:center; }
-  .pagination .page-link { font-size:0.82rem; padding:4px 11px; color:#2563eb; border-color:#e5e7eb; }
-  .pagination .page-item.active .page-link { background:#2563eb; border-color:#2563eb; color:#fff; }
-  .pagination .page-item.disabled .page-link { color:#d1d5db; }
+  #sales-wrap h1 {
+    /*font-size: 2rem !important;
+    font-weight: 700;*/
+  }
 
-  .order-header { background:#2563eb; color:#fff; font-size:1rem; font-weight:700; flex-shrink:0; display:flex; align-items:center; gap:10px; }
-  .order-table-wrap { flex:1; overflow-y:auto; }
-  .order-table { width:100%; border-collapse:collapse; }
-  .order-table thead th { font-size:0.9rem; color:#6b7280; font-weight:600; border-bottom:1px solid #f3f4f6; background:#fff; }
-  .order-table tbody td { font-size:0.9rem; border-bottom:1px solid #f9fafb; vertical-align:middle; color:#111827; }
-  .order-table .item-name { font-weight:600; }
-  .del-btn { background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer; padding:0 4px; }
+  .sales-header {
+    flex-shrink: 0;
+  }
 
-  .order-summary { border-top:1px solid #f3f4f6; flex-shrink:0; }
-  .summary-row   { display:flex; justify-content:space-between; font-size:0.9rem; color:#6b7280; }
-  .summary-total { display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700; color:#2563eb; }
-  .order-footer  { flex-shrink:0; }
-  .order-footer label { font-size:0.9rem; font-weight:600; color:#374151; }
-  .order-footer select { border-radius:8px; font-size:0.9rem; border-color:#e5e7eb; }
-  .btn-cancel { flex:1; border:1.5px solid #ef4444; color:#ef4444; background:#fff; border-radius:8px; font-weight:600; font-size:0.88rem; transition:background 0.15s; }
-  .btn-cancel:hover { background:#fef2f2; }
-  .btn-submit { flex:1; background:#94a3b8; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88rem; display:flex; align-items:center; justify-content:center; gap:6px; transition:background 0.15s; }
-  .btn-submit.ready { background:#2563eb; }
-  .btn-submit.ready:hover { background:#1d4ed8; }
+  .custom-sale-header {
+    padding: 25px;
+  }
+
+  .custom-sale-header .custom-sale-header-title {
+    font-size: 35px;
+    line-height: 40px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 35px;
+  }
+
+  .cat-tabs {
+    display: flex;
+    border-bottom: 2px solid #fff;
+    flex-shrink: 0;
+    gap: 15px;
+  }
+
+  .cat-tab  {
+    padding: 0px 0px 10px;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .cat-tab.active, .cat-tab:hover {
+    color: #D9A82D;
+    border-bottom-color: #D9A82D;
+  }
+
+  .search-wrap {
+    flex-shrink: 0;
+    padding: 0px 25px 25px;
+  }
+
+  .search-wrap .input-group {
+    border: 1px solid #fff;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    height: 40px;
+  }
+
+  .search-wrap .input-group-text {
+    background: #fff;
+    color: #1a1a1a;
+    border: unset;
+    border-radius: 1px;
+    padding: 10px;
+    flex-shrink: 0;
+    height: 40px;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+  }
+
+  .search-wrap input {
+    border: unset;
+    flex: 1;
+    min-width: unset;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    padding: 10px;
+    outline: none;
+    box-shadow: none;
+    border-radius: 1px;
+    color: #1a1a1a;
+    height: 40px;
+  }
+
+  .search-wrap input:focus {
+    box-shadow: none;
+    outline: none;
+  }
+
+  .product-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0px 25px 25px;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+  }
+
+  .product-card {
+    border: 1px solid #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .product-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    transform: translateY(-2px);
+  }
+
+  .product-item.out-of-stock {
+    pointer-events: none;
+  }
+
+  .product-item.out-of-stock .product-card {
+    opacity: 0.75;
+    cursor: not-allowed;
+    background: #fff;
+  }
+
+  .product-item.out-of-stock .product-card:hover {
+    box-shadow: none;
+    transform: none;
+  }
+
+  .out-of-stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #DC2626;
+    color: #fff;
+    font-size: 10px;
+    line-height: 18px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    padding: 2.5px 10px;
+    border-radius: 35px;
+  }
+  
+  .product-card .product-img {
+    width: 100%;
+    height: 175px;
+    object-fit: cover;
+    background: #fff;
+    padding: 15px;
+  }
+  
+  .product-card .product-img-placeholder {
+    width: 100%;
+    padding: 15px;
+    height: 175px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d1d5db;
+    font-size: 35px;
+  }
+
+  .product-card .card-info {
+    padding: 15px;
+  }
+
+  .product-card .product-name {
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
+
+  .product-card .product-price {
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    color: #9B6B12;
+    margin: 0;
+  }
+
+  .pagination-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+  }
+
+  .pagination {
+    border-radius: 5px;
+    margin-bottom: 0px;
+  }
+  
+  .pagination .page-link {
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    padding: 5px 15px;
+    color: #1a1a1a;
+    border-color: #E3C66A;
+  }
+  
+  .pagination .page-item.active .page-link, .pagination .page-item .page-link:hover {
+    background: #1a1a1a;
+    border-color: #E3C66A;
+    color: #fff;
+  }
+  
+  .pagination .page-item.disabled .page-link {
+    background: #fff;
+    color: rgba(26, 26, 26, .5);
+    border: 1px solid rgba(227, 198, 106, .5);
+  }
+
+  .pagination-sm .page-item:last-child .page-link {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .order-header {
+    background: linear-gradient(135deg, rgba(246, 213, 74, 1) 0%, rgba(255, 243, 199, 1) 50%, rgba(217, 168, 45, 1) 100%);
+    color: #1a1a1a;
+    font-size: 20px;
+    line-height: 25px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 25px;
+  }
+  
+  .order-table-wrap {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .order-table thead th {
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    border: 1px solid #E3C66A;
+    background: #fff;
+    padding: 5px;
+    text-align: center;
+  }
+
+  .order-table tbody tr:nth-of-type(odd) {
+    background: rgba(26, 26, 26, .15);
+  }
+
+  .order-table tbody tr:nth-of-type(even) {
+    background: #fff;
+  }
+  
+  .order-table tbody td {
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    border-bottom: 1px solid #E3C66A;
+    vertical-align: middle;
+    color: #1a1a1a;
+    background: #fff;
+  }
+  
+  .order-table .item-name {
+    font-weight: 600;
+  }
+  
+  .del-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 4px;
+  }
+
+  .order-summary {
+    /*border-top: 1px solid #f3f4f6;*/
+    flex-shrink: 0;
+    padding: 25px;
+    background: #fff;
+  }
+  
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+  }
+  
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    color: #D9A82D;
+  }
+  
+  .order-footer  {
+    flex-shrink: 0;
+    padding: 0px 25px 25px;
+    background: #fff;
+  }
+  
+  .order-footer label {
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  
+  .order-footer select {
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 400;
+    border-color: #E3C66A;
+  }
+  
+  .btn-cancel {
+    flex: 1;
+    transition: background 0.15s;
+    padding: 5px 15px;
+    border: unset;
+    border-radius: 5px;
+    background: #DC2626;
+    color: #fff;
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+  }
+  
+  .btn-cancel:hover {
+    background: #B91C1C;
+  }
+  
+  .btn-submit {
+    flex: 1;
+    transition: background 0.15s;
+    padding: 5px 15px;
+    border: unset;
+    border-radius: 5px;
+    background: #16A34A;
+    color: #fff;
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.75px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+  }
+  
+  .btn-submit.ready {
+    background: #15803D;
+  }
+
+  .btn-submit.ready:hover {
+    background: #15803D;
+    }
 </style>
 
 <div id="sales-wrap">
@@ -147,8 +523,8 @@ else{
   <div id="sales-left">
 
     <!-- Header & Category Tabs -->
-    <div class="sales-header pt-4 pb-0 px-4">
-      <h1 class="font-weight-bold mb-3"><?=$languageArray['sales_code'][$language]?></h1>
+    <div class="sales-header custom-sale-header">
+      <h1 class="custom-sale-header-title"><?=$languageArray['sales_code'][$language]?></h1>
       <div class="cat-tabs" id="catTabs">
         <?php for ($i = 0; $i < count($productGroup); $i++) {
           $active = $i == 0 ? 'active' : '';
@@ -159,7 +535,7 @@ else{
     </div>
 
     <!-- Search Bar -->
-    <div class="search-wrap px-4 pt-3 pb-2">
+    <div class="search-wrap">
       <div class="input-group">
         <span class="input-group-text">
           <i class="fas fa-search"></i>
@@ -169,7 +545,7 @@ else{
     </div>
 
     <!-- Product Grid -->
-    <div class="product-scroll px-4 pt-2 pb-3">
+    <div class="product-scroll">
       <?php for ($j = 0; $j < count($message); $j++) {
         $tabId = str_replace(' ', '_', $message[$j]['Category']);
         $show  = $j == 0 ? '' : 'display:none;';
@@ -207,7 +583,7 @@ else{
         }
 
         echo '  </div>'; // .product-grid
-        echo '  <div class="pagination-wrap mt-3">';
+        echo '  <div class="pagination-wrap">';
         echo '    <ul class="pagination pagination-sm" id="page_' . $tabId . '"></ul>';
         echo '  </div>';
         echo '</div>'; // .tab-pane
@@ -234,11 +610,11 @@ else{
         <table class="order-table">
           <thead>
             <tr>
-              <th class="px-3 py-3"><?=$languageArray['item_code'][$language]?></th>
-              <th class="px-3 py-3"><?=$languageArray['price_code'][$language]?>/<?=$languageArray['uom_code'][$language]?></th>
-              <th class="px-3 py-3"><?=$languageArray['weight_code'][$language]?></th>
-              <th class="px-3 py-3"><?=$languageArray['total_code'][$language]?></th>
-              <th class="px-3 py-3"></th>
+              <th><?=$languageArray['item_code'][$language]?></th>
+              <th><?=$languageArray['price_code'][$language]?>/<?=$languageArray['uom_code'][$language]?></th>
+              <th><?=$languageArray['weight_code'][$language]?></th>
+              <th><?=$languageArray['total_code'][$language]?></th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="TableId"></tbody>
@@ -246,8 +622,8 @@ else{
       </div>
 
       <!-- Order Summary -->
-      <div class="order-summary px-4 pt-3 pb-0">
-        <div class="summary-row mb-2">
+      <div class="order-summary">
+        <div class="summary-row">
           <span><?=$languageArray['sub_total_code'][$language]?> (RM)</span>
           <span>
             <input
@@ -256,11 +632,11 @@ else{
               step="0.01"
               value="0.00"
               readonly
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right; background:#f9fafb;"
+              style="width: 70px; border: 1px solid #1a1a1a; border-radius: 5px; padding: 2.5px 7px; font-size: 14px; line-height: 22px; font-weight: 400; text-align: right; background: #f9fafb; color: #1a1a1a;"
             >
           </span>
         </div>
-        <div class="summary-row mb-2">
+        <div class="summary-row">
           <span><?=$languageArray['discount_code'][$language]?> (RM)</span>
           <span>
             <input
@@ -269,11 +645,11 @@ else{
               id="totalDiscount"
               step="0.01"
               value="0.00"
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
+              style="width: 70px; border: 1px solid #1a1a1a; border-radius: 5px; padding: 2.5px 7px; font-size: 14px; line-height: 22px; font-weight: 400; text-align: right; background: #f9fafb; color: #1a1a1a;"
             >
           </span>
         </div>
-        <div class="summary-row mb-2">
+        <div class="summary-row">
           <span><?=$languageArray['tax_code'][$language]?> (%)</span>
           <span>
             <input
@@ -282,11 +658,11 @@ else{
               id="taxRate"
               step="0.01"
               value="0.00"
-              style="width:70px; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-size:0.85rem; text-align:right;"
+              style="width: 70px; border: 1px solid #1a1a1a; border-radius: 5px; padding: 2.5px 7px; font-size: 14px; line-height: 22px; font-weight: 400; text-align: right; background: #f9fafb; color: #1a1a1a;"
             >
           </span>
         </div>
-        <div class="summary-total mb-3">
+        <div class="summary-total">
           <span><?=$languageArray['total_code'][$language]?> (RM)</span>
           <span>
             <input
@@ -295,7 +671,7 @@ else{
               step="0.01"
               value="0.00"
               readonly
-              style="width:70px; border:1px solid #2563eb; border-radius:6px; padding:2px 6px; font-size:0.9rem; text-align:right; background:#eff6ff; color:#2563eb; font-weight:700;"
+              style="width: 70px; border: 1px solid #D9A82D; border-radius: 5px; padding: 2.5px 7px; font-size: 14px; line-height: 22px; font-weight: 700; text-align: right; background: #f9fafb; color: #D9A82D;"
             >
           </span>
         </div>
@@ -305,7 +681,7 @@ else{
       </div>
 
       <!-- Order Footer -->
-      <div class="order-footer px-4 pt-2 pb-4">
+      <div class="order-footer">
 
         <!-- Company (SADMIN only) -->
         <?php if ($role == 'SADMIN') { ?>
@@ -324,10 +700,10 @@ else{
         <?php } ?>
 
         <div class="d-flex" style="gap:10px;">
-          <button type="button" class="btn-cancel py-2" id="cancelSales">
-            <i class="fas fa-times mr-1"></i> <?=$languageArray['cancel_code'][$language]?>
+          <button type="button" class="btn-cancel" id="cancelSales">
+            <i class="fas fa-times"></i> <?=$languageArray['cancel_code'][$language]?>
           </button>
-          <button type="submit" class="btn-submit py-2" id="submitSales" name="submitsales">
+          <button type="submit" class="btn-submit" id="submitSales" name="submitsales">
             <i class="fas fa-shopping-cart"></i> <?=$languageArray['submit_code'][$language]?>
           </button>
         </div>

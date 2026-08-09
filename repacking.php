@@ -31,28 +31,28 @@ if ($role != 'SADMIN') {
 }
 ?>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark"><?=$languageArray['repacking_code'][$language]?></h1>
+                <h1 class="custom-title"><?=$languageArray['repacking_code'][$language]?></h1>
             </div>
         </div>
     </div>
 </div>
 
-<div class="content">
+<div class="content custom-table-content">
     <div class="container-fluid">
         <div class="card">
             <form role="form" id="repackingForm">
-                <div class="card-body">
+                <div class="card-body custom-table-card-body">
 
                     <!-- Source Product -->
-                    <div class="card card-outline card-primary mb-3 shadow-sm">
-                        <div class="card-header py-2">
-                            <h6 class="card-title mb-0"><i class="fas fa-box-open mr-2"></i><?=$languageArray['source_product_code'][$language]?></h6>
+                    <div class="custom-card-box custom-card-product-info-box">
+                        <div class="card-header custom-card-box-header">
+                            <h6 class="custom-card-box-header-title"><i class="fas fa-box-open"></i><?=$languageArray['source_product_code'][$language]?></h6>
                         </div>
-                        <div class="card-body pt-3">
+                        <div class="card-body custom-card-box-body">
                             <div class="row">
                                 <div class="form-group col-md-4">
                                     <label><?=$languageArray['product_bulk_code'][$language]?></label>
@@ -73,16 +73,16 @@ if ($role != 'SADMIN') {
                     </div>
 
                     <!-- Target Products -->
-                    <div class="card card-outline card-warning mb-3 shadow-sm">
-                        <div class="card-header py-2 d-flex justify-content-between align-items-center w-100">
-                            <h6 class="card-title mb-0"><i class="fas fa-boxes mr-2"></i><?=$languageArray['target_products_packed_code'][$language]?></h6>
-                            <button type="button" class="btn btn-success btn-sm ml-auto" id="addRowBtn">
+                    <div class="custom-card-box custom-card-product-image-box">
+                        <div class="card-header custom-card-box-header">
+                            <h6 class="custom-card-box-header-title"><i class="fas fa-boxes"></i><?=$languageArray['target_products_packed_code'][$language]?></h6>
+                            <button type="button" class="btn custom-add-btn-sm btn-sm ml-auto" id="addRowBtn">
                                 <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
                             </button>
                         </div>
-                        <div class="card-body p-0">
-                            <table class="table table-bordered mb-0">
-                                <thead class="thead-light">
+                        <div class="card-body custom-card-box-body">
+                            <table class="table table-bordered">
+                                <thead>
                                     <tr>
                                         <th><?=$languageArray['product_code'][$language]?></th>
                                         <th><?=$languageArray['weight_code'][$language]?> (kg)</th>
@@ -95,8 +95,8 @@ if ($role != 'SADMIN') {
                     </div>
 
                 </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-success" id="saveBtn">
+                <div class="card-footer custom-form-card-footer">
+                    <button type="submit" class="btn custom-save-btn" id="saveBtn">
                         <i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?>
                     </button>
                 </div>
@@ -120,7 +120,7 @@ if ($role != 'SADMIN') {
         <input type="number" class="form-control" id="itemWeight" name="itemWeight" placeholder="Enter weight" step="0.01" min="0" required>
     </td>
     <td>
-        <button type="button" class="btn btn-danger btn-sm" id="removeBtn"><i class="fas fa-times"></i></button>
+        <button type="button" class="btn custom-reject-btn-icon btn-sm" id="removeBtn"><i class="fas fa-times"></i></button>
     </td>
 </tr>
 </script>

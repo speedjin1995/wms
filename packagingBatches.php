@@ -1390,7 +1390,7 @@ if (!isset($_SESSION['userID'])) {
                 <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                   <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photo_path || ''}">
                   <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                  ${detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn custom-view-btn-icon btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
+                  ${detail.photo_path ? '<a href="php/viewPhoto.php?file=' + detail.photo_path + '" target="_blank" class="btn custom-view-btn-icon btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
                   <button type="button" class="btn custom-view-btn-icon btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
                   <span id="photoStatus${idx}"></span>
                 </td>

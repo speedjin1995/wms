@@ -1558,7 +1558,7 @@ function calculateVariance(row){
       }
       $('#spinnerLoading').hide();
     });
-  }else{
+  } else {
     updateTotals();
   }
 }

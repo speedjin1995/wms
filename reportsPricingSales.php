@@ -42,11 +42,11 @@ else{
 ?>
 
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
   <div class="container-fluid">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['reports_code'][$language]?></h1>
+        <h1 class="custom-title"><?=$languageArray['reports_code'][$language]?></h1>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
@@ -54,14 +54,14 @@ else{
 <!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content custom-table-content">
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body custom-search-card-body">
             <div class="row">
-              <div class="form-group col-3">
+              <div class="form-group col-4">
                 <label><?=$languageArray['from_date_code'][$language]?>:</label>
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
@@ -70,7 +70,7 @@ else{
                 </div>
               </div>
 
-              <div class="form-group col-3">
+              <div class="form-group col-4">
                 <label><?=$languageArray['to_date_code'][$language]?>:</label>
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
@@ -80,7 +80,7 @@ else{
                 </div>
               </div>
 
-              <div class="form-group col-3">
+              <div class="form-group col-4">
                 <label><?=$languageArray['receipt_no_code'][$language]?></label>
                 <input type="text" id="receiptNoFilter" name="receiptNoFilter" class="form-control" placeholder="<?=$languageArray['receipt_no_code'][$language]?>">
               </div>
@@ -89,7 +89,7 @@ else{
             <div class="row">
               <div class="col-9"></div>
               <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
+                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
                   <i class="fas fa-search"></i>
                   <?=$languageArray['search_code'][$language]?>
                 </button>
@@ -102,9 +102,9 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header">
+          <div class="card-header custom-card-header">
             <div class="row">
-              <div class="col-6"><?=$languageArray['sales_code'][$language]?></div>
+              <div class="col-6 custom-card-header-title"><?=$languageArray['sales_code'][$language]?></div>
               <!-- <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
@@ -114,7 +114,7 @@ else{
             </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body custom-table-card-body">
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
@@ -143,17 +143,17 @@ else{
 <!-- View Sales Modal -->
 <div class="modal fade" id="viewSalesModal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-info">
+    <div class="modal-content custom-model-content-box">
+      <div class="modal-header custom-model-header-box">
         <div>
-          <h5 class="modal-title text-white mb-0"><i class="fas fa-receipt mr-2"></i><?=$languageArray['sales_code'][$language]?> - <span id="v_receipt_no"></span></h5>
-          <small class="text-white-50"><i class="fas fa-user mr-1"></i><?=$languageArray['created_by_code'][$language]?>: <span id="v_created_by"></span> &nbsp;|&nbsp; <i class="fas fa-clock mr-1"></i><span id="v_created_datetime"></span></small>
+          <h5 class="modal-title custom-model-title-txt"><i class="fas fa-receipt"></i><?=$languageArray['sales_code'][$language]?> - <span id="v_receipt_no"></span></h5>
+          <span><i class="fas fa-user"></i><?=$languageArray['created_by_code'][$language]?>: <span id="v_created_by"></span> &nbsp;|&nbsp; <i class="fas fa-clock"></i><span id="v_created_datetime"></span></span>
         </div>
-        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body custom-model-body-box">
         <!-- Cart Items -->
-        <h6 class="font-weight-bold mb-2"><i class="fas fa-box mr-1"></i><?=$languageArray['item_code'][$language]?></h6>
+        <h6 class="font-weight-bold"><i class="fas fa-box mr-1"></i><?=$languageArray['item_code'][$language]?></h6>
         <table class="table table-bordered table-sm table-striped">
           <thead class="thead-dark">
             <tr>
@@ -167,7 +167,7 @@ else{
           <tbody id="v_cart_items"></tbody>
         </table>
 
-        <div class="row mt-3">
+        <div class="row">
           <!-- Payment Section -->
           <div class="col-6">
             <h6 class="font-weight-bold mb-2"><i class="fas fa-money-bill-wave mr-1"></i><?=$languageArray['payments_code'][$language]?></h6>
@@ -222,8 +222,8 @@ else{
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+      <div class="modal-footer custom-model-fotter-box">
+        <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
       </div>
     </div>
   </div>

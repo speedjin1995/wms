@@ -236,7 +236,7 @@ if(!isset($_SESSION['userID'])){
             <div class="card-body custom-card-box-body">
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <div class="form-group">
+                  <div class="form-group batch-select-field">
                     <label><?=$languageArray['batch_no_code'][$language]?> *</label>
                     <select class="form-control select2" id="batchNo" name="batchNo[]" multiple="multiple" data-placeholder="Select Batch(es)" required style="width: 100%;">
                       <?php while($batchRow = mysqli_fetch_assoc($batches)) { ?>
@@ -657,7 +657,7 @@ if(!isset($_SESSION['userID'])){
   function format (row) {
     var statusCls = { pending: 'warning', partial: 'info', completed: 'success' };
     var returnString = `
-    <div class="row">
+    <div class="row custom-tbl-content-box">
       <div class="col-6">
         <p><strong><?=$languageArray['loading_no_code'][$language]?>:</strong> ${row.loading_no}</p>
         <p><strong><?=$languageArray['loading_date_code'][$language]?>:</strong> ${row.loading_date}</p>
@@ -669,10 +669,10 @@ if(!isset($_SESSION['userID'])){
       </div>
     </div>
 
-    <hr>
+    <hr class="custom-tbl-hr">
 
-    <div class="row">
-      <table class="table table-bordered table-striped align-middle" style="width:100%">
+    <div class="row custom-inner-tbl-box">
+      <table class="table table-bordered table-striped align-middle" style="width: 100%">
         <thead>
           <tr>
             <th><?=$languageArray['batch_no_code'][$language]?></th>

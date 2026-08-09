@@ -11,25 +11,25 @@ $language      = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 ?>
 
-<div class="content-header">
+<div class="content-header custom-title-content-box">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="row">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark">Inventory</h1>
+                <h1 class="custom-title">Inventory</h1>
             </div>
         </div>
     </div>
 </div>
 
-<div class="content">
+<div class="content custom-table-content">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Product Inventory</h3>
+                    <div class="card-header custom-card-header">
+                        <h3 class="custom-card-header-title">Product Inventory</h3>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body custom-table-card-body">
                         <table id="inventoryTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
@@ -64,8 +64,8 @@ $(function () {
                 data: "status",
                 render: function (data) {
                     return data == 0
-                        ? '<span class="badge badge-success">Active</span>'
-                        : '<span class="badge badge-danger">Inactive</span>';
+                        ? '<span class="badge custom-badge-activate">Active</span>'
+                        : '<span class="badge custom-badge-deactivate">Inactive</span>';
                 }
             }
         ]
