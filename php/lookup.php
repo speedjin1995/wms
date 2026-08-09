@@ -450,3 +450,39 @@ function getProductById($id, $db, &$cache) {
     }
     return $cache[$id];
 }
+
+function getCustomerDetailsById($value, $db) {
+    $id = [];
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM customers WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row;
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
+
+function getSupplierDetailsById($value, $db) {
+    $id = [];
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT * FROM supplies WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row;
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
