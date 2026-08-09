@@ -772,26 +772,24 @@ else{
           <option><?=$languageArray['fixed_code'][$language]?></option>
           <option><?=$languageArray['float_code'][$language]?></option>
         </select>
-        <select class="form-control form-control-sm select2 currency-select" id="gradePricingCurrencyRow{index}" style="width:100%;">
+        <select class="form-control form-control-sm select2 currency-select" id="gradePricingCurrencyRow{index}" style="width:80px; flex-shrink:0;">
           <?php $currency3->data_seek(0); while($rowCur3=mysqli_fetch_assoc($currency3)){ ?>
             <option value="<?=$rowCur3['id']?>"><?=$rowCur3['currency']?></option>
           <?php } ?>
         </select>
-        <input type="number" class="form-control form-control-sm" id="gradePriceRow{index}" placeholder="0.00" value="0">
-      </div>
-      <div class="dynamic-card-row">
+        <input type="number" class="form-control form-control-sm" id="gradePriceRow{index}" placeholder="0.00" value="0" style="flex:1; min-width:100px;">
         <span class="dynamic-card-label dynamic-card-label-warning"><i class="fas fa-arrow-down"></i> <?=$languageArray['buy_code'][$language] ?? 'Buy'?></span>
         <select class="form-control form-control-sm" id="gradePurchasingPricingTypeRow{index}">
           <option selected><?=$languageArray['standard_code'][$language]?></option>
           <option><?=$languageArray['fixed_code'][$language]?></option>
           <option><?=$languageArray['float_code'][$language]?></option>
         </select>
-        <select class="form-control form-control-sm select2 currency-select" id="gradePurchasingPricingCurrencyRow{index}" style="width:100%;">
+        <select class="form-control form-control-sm select2 currency-select" id="gradePurchasingPricingCurrencyRow{index}" style="width:80px; flex-shrink:0;">
           <?php $currency4->data_seek(0); while($rowCur4=mysqli_fetch_assoc($currency4)){ ?>
             <option value="<?=$rowCur4['id']?>"><?=$rowCur4['currency']?></option>
           <?php } ?>
         </select>
-        <input type="number" class="form-control form-control-sm" id="gradePurchasingPriceRow{index}" placeholder="0.00" value="0">
+        <input type="number" class="form-control form-control-sm" id="gradePurchasingPriceRow{index}" placeholder="0.00" value="0" style="flex:1; min-width:100px;">
       </div>
     </div>
   </div>
