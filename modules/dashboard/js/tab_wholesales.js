@@ -264,6 +264,39 @@ function exportSupplierBreakdown() {
   window.open(url, '_blank');
 }
 
+function openExportModal(party) {
+  $('#wsExportParty').val(party);
+  $('#wsExportType').val('summary');
+  $('#wsExportTypeModal').modal('show');
+}
+
+function doExportBreakdown() {
+  var party = $('#wsExportParty').val();
+  var exportType = $('#wsExportType').val();
+  var params = getDateParams();
+  var url;
+  if (exportType === 'individual') {
+    url = 'php/modules/wholesales/exportDashboard.php?type=' + party + '_individual';
+    url += '&fromDate=' + encodeURIComponent(params.fromDate);
+    url += '&toDate=' + encodeURIComponent(params.toDate);
+    if (party === 'customer') {
+      url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
+    } else {
+      url += '&supplier=' + encodeURIComponent($('#wsSupplier').val() || '');
+    }
+  } else {
+    if (party === 'customer') {
+      exportCustomerBreakdown();
+    } else {
+      exportSupplierBreakdown();
+    }
+    $('#wsExportTypeModal').modal('hide');
+    return;
+  }
+  $('#wsExportTypeModal').modal('hide');
+  window.open(url, '_blank');
+}
+
 function exportGradeDistribution(status) {
   var params = getDateParams();
   var url = 'php/modules/wholesales/exportDashboard.php?type=grade';
