@@ -43,8 +43,10 @@ while ($wRow = $query->fetch_assoc()) {
   foreach ($details as $detail) {
     $productId = $detail['product']  ?? '';
     $gradeId = $detail['grade_id'] ?? '';
+    $grade = $detail['grade'] ?? '';
     $gradeName = searchGradeNameById($gradeId, $db);
-    if (empty($gradeName)) $gradeName = $detail['grade'] ?? '';
+    if (empty($gradeName)) $gradeName = $grade ?? '';
+    $gradeKey = !empty($gradeId) ? $gradeId : ($grade ?? '');
     if (empty($productId)) {
       continue;
     }
@@ -72,7 +74,7 @@ while ($wRow = $query->fetch_assoc()) {
     }
 
     // Key by productId + grade name string (matches raw_stock_balance.grade and stock_movements.grade)
-    $itemKey = $productId . '_' . $gradeId;
+    $itemKey = $productId . '_' . $gradeKey;
     if (!isset($grouped[$category][$itemKey])) {
       $grouped[$category][$itemKey] = [
         'product_id' => $productId ?? '',

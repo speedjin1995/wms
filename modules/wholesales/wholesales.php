@@ -739,6 +739,13 @@ else{
               <option value="A5">A5</option>
             </select>
           </div>
+          <div class="form-group mb-0" id="withDetailsDiv" style="display:none;">
+            <label><?=$languageArray['with_details_code'][$language]?></label>
+            <select class="form-control" id="printWithDetails" name="withDetails">
+              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+            </select>
+          </div>
         </div>
         <div class="modal-footer justify-content-between bg-gray-dark color-palette">
           <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
@@ -1295,6 +1302,10 @@ $(function () {
     else{
       $('#extendModal').find('#vehicleNoOtherDiv').hide();
     }
+  });
+
+  $('#paperSize').on('change', function() {
+    $('#withDetailsDiv').toggle($(this).val() === 'A5');
   });
 
   $('#vehicleNoFilter').on('change', function () {
