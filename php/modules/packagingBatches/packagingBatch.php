@@ -33,6 +33,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
     $batchNo = null;
     $productionLines = null;
     $location = null;
+    $type = 'Local';
 
     $packagingDateTimeObj = DateTime::createFromFormat('d/m/Y H:i', $packagingDate);
     $packagingDateTime = $packagingDateTimeObj->format("d/m/Y 00:00:00");
@@ -51,6 +52,10 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 
     if(isset($_POST['location']) && $_POST['location'] != null && $_POST['location'] != ''){
 		$location = $_POST['location'];
+	}
+
+    if(isset($_POST['gradeType']) && $_POST['gradeType'] != null && $_POST['gradeType'] != ''){
+		$type = $_POST['gradeType'];
 	}
 
     if(!isset($_POST['batchNo']) || $_POST['batchNo'] == null || $_POST['batchNo'] == ''){
@@ -127,8 +132,8 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
         $batchId = $_POST['id'];
 
-        if ($update_stmt = $db->prepare("UPDATE packaging_batches SET batch_no=?, packaging_date=?, location=?, production_line=?, remarks=?, modified_by=? WHERE id=?")){
-            $update_stmt->bind_param('sssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $userID, $batchId);
+        if ($update_stmt = $db->prepare("UPDATE packaging_batches SET batch_no=?, packaging_date=?, location=?, production_line=?, remarks=?, type=?, modified_by=? WHERE id=?")){
+            $update_stmt->bind_param('ssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $type, $userID, $batchId);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -205,8 +210,8 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, company, created_by, status) VALUES  (?, ?, ?, ?, ?, ?, ?, 'pending')")){
-            $insert_stmt->bind_param('sssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $company, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, type, company, created_by, status) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, 'pending')")){
+            $insert_stmt->bind_param('ssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $type, $company, $userID);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()){

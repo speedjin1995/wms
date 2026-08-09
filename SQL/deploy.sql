@@ -3021,3 +3021,36 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCT_CUSTOMERS` BEFORE UPDATE ON `product_
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `packaging_batches` ADD `type` VARCHAR(10) NOT NULL DEFAULT 'Local' AFTER `production_line`;
+ALTER TABLE `packaging_batch_logs` ADD `type` VARCHAR(10) NOT NULL DEFAULT 'Local' AFTER `production_line`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PACKAGING_BATCH` AFTER INSERT ON `packaging_batches` FOR EACH ROW INSERT INTO packaging_batch_logs (
+  packaging_batch_id, batch_no, packaging_date, remarks, location, production_line, type, company, deleted, delete_reason, status, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.location, NEW.production_line, NEW.type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_batches` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO packaging_batch_logs (
+    packaging_batch_id, batch_no, packaging_date, remarks, location, production_line, type, company, deleted, delete_reason, status, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.location, NEW.production_line, NEW.type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
