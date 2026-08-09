@@ -578,22 +578,27 @@
 }
 
 .modal-modern .empty-state i {
-  font-size: 2.5rem;
-  color: #cbd5e1;
-  margin-bottom: 1rem;
+  font-size: 40px;
+  color: #D9A82D;
+  margin-bottom: 15px;
 }
 
 .modal-modern .empty-state p {
   margin: 0;
-  font-size: var(--modal-font-base);
-  font-weight: 500;
-  color: var(--modal-text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
 .modal-modern .empty-state span {
-  font-size: var(--modal-font-sm);
-  color: var(--modal-text-muted);
-  margin-top: 0.25rem;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: rgba(26, 26, 26, .5);
+  margin-top: 0;
 }
 
 /* ============================================

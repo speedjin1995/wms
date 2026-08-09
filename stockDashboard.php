@@ -514,53 +514,227 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
 }
 
 /* ── Table styles ──────────────────────────────────────── */
-.sd-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table-responsive {
+  padding: 25px;
+}
+
+.sd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
 .sd-table thead th {
-  padding: 10px 16px; text-align: left;
-  background: #E8EDF5; border-bottom: 1px solid var(--sd-border);
-  color: #1E293B; font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
-  font-weight: 700; white-space: nowrap;
+  padding: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #D9A82D;
+  color: #fff;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid #fff;
+  border-top: 1px solid #D9A82D;
+  border-bottom: 1px solid #D9A82D;
 }
-.sd-table thead th.text-right { text-align: right; }
-.sd-table tbody tr { border-bottom: 1px solid rgba(226,232,240,.6); transition: background .1s; }
-.sd-table tbody tr:hover { background: rgba(241,245,249,.5); }
-.sd-table tbody td { padding: 10px 16px; color: var(--sd-fg); vertical-align: middle; }
-.sd-table tbody td.text-right { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+
+.sd-table thead th:first-child {
+  border-left: 1px solid #D9A82D;
+}
+
+.sd-table thead th:last-child {
+  border-right: 1px solid #D9A82D;
+}
+
+.sd-table thead th.text-right {
+  /*text-align: right;*/
+}
+
+.sd-table tbody tr {
+  border-bottom: 1px solid rgba(226,232,240,.6);
+  transition: background .1s;
+}
+
+.sd-table tbody tr:hover {
+  /*background: rgba(241,245,249,.5);*/
+}
+
+.sd-table tbody tr:nth-of-type(odd) {
+  background: rgba(26, 26, 26, .15);
+}
+
+.sd-table tbody tr:nth-of-type(even) {
+  background: #fff;
+}
+
+.sd-table tbody td {
+  padding: 10px;
+  color: #1a1a1a;
+  vertical-align: middle;
+  border: 1px solid #D9A82D;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+}
+
+.sd-table tbody td.text-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.sd-table tfoot tr:nth-of-type(odd),
+.sd-table tfoot tr:nth-of-type(even) {
+  background: rgba(227, 198, 106, .25);
+  border: 1px solid #D9A82D;
+}
+
+.sd-table tfoot tfoot tr th, .sd-table tfoot td {
+  border: 1px solid #D9A82D;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
 .sd-table tfoot td {
-  padding: 10px 16px; background: rgba(241,245,249,.4);
+  /*padding: 10px;
+  background: rgba(241,245,249,.4);
   border-top: 2px solid var(--sd-border);
-  font-weight: 600; color: var(--sd-fg); font-size: 12px;
+  font-weight: 600;
+  color: var(--sd-fg);
+  font-size: 12px;*/
 }
-.sd-table tfoot td.text-right { text-align: right; font-variant-numeric: tabular-nums; }
-.sd-product-cell { display: flex; align-items: center; gap: 6px; }
+
+.sd-table tfoot td.text-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sd-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .sd-grade-badge {
-  display: inline-block; font-size: 11px; padding: 2px 7px;
-  border-radius: 5px; background: var(--sd-secondary); color: var(--sd-muted);
+  display: inline-block;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  border-radius: 5px;
+  background: #F9F7F2;
+  color: #1a1a1a;
+  padding: 5px 15px;
 }
-.sd-empty { padding: 40px 16px; text-align: center; color: var(--sd-muted); font-size: 13px; }
+
+.sd-empty {
+  padding: 10px;
+  text-align: left;
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+}
 
 /* ── Pagination ────────────────────────────────────────── */
 .sd-pagination {
-  padding: 10px 16px; border-top: 1px solid var(--sd-border);
-  background: rgba(241,245,249,.3);
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 25px;
+  border-top: 1px solid #fff;
+  background: #F9F7F2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
-.sd-pag-info { font-size: 11px; color: var(--sd-muted); }
-.sd-pag-size { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--sd-muted); }
+
+.sd-pagination-box {
+  gap: 10px;
+}
+
+.sd-pag-info {
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.sd-pag-size {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
 .sd-pag-size select {
-  font-size: 11px; border: 1px solid var(--sd-border); border-radius: 6px;
-  padding: 2px 6px; background: var(--sd-card); color: var(--sd-fg); cursor: pointer;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 400;
+  border: 1px solid #E3C66A;
+  border-radius: 5px;
+  padding: 2.5px;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
 }
-.sd-pag-btns { display: flex; align-items: center; gap: 2px; }
+
+.sd-pag-btns {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .sd-pag-btn {
-  width: 28px; height: 28px; border-radius: 7px; border: none; background: transparent;
-  color: var(--sd-muted); cursor: pointer; font-size: 11px;
-  display: flex; align-items: center; justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: #1a1a1a;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all .1s;
 }
-.sd-pag-btn:hover:not(:disabled) { background: var(--sd-secondary); color: var(--sd-fg); }
-.sd-pag-btn:disabled { opacity: .3; pointer-events: none; }
-.sd-pag-btn.active { background: var(--sd-accent); color: #fff; font-weight: 600; }
+
+.sd-pag-btn:hover:not(:disabled) {
+  background: transparent;
+  color: #1a1a1a;
+}
+
+.sd-pag-btn:disabled {
+  opacity: .5;
+  pointer-events: none;
+}
+
+.sd-pag-btn.active {
+  background: #1a1a1a;
+  color: #fff;
+  font-weight: 700;
+}
 </style>
 
 <!-- Content Header hidden - title handled in action bar -->
@@ -801,7 +975,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
           <span class="sd-count-badge" id="gradedCount">0 <?=$languageArray['items_code'][$language]?></span>
         </div>
         <div class="sd-filter-bar">
-          <div class="row align-items-center g-2">
+          <div class="row align-items-center">
             <div class="col-12 col-sm-3">
               <div class="sd-search-wrap">
                 <i class="fas fa-search sd-search-icon"></i>
@@ -841,7 +1015,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
             <tbody id="gradedBody">
               <tr>
                 <td colspan="4" class="sd-empty">
-                  <i class="fas fa-spinner fa-spin mr-1"></i><?=$languageArray['loading_code'][$language]?>...
+                  <i class="fas fa-spinner fa-spin"></i><?=$languageArray['loading_code'][$language]?>...
                 </td>
               </tr>
             </tbody>
@@ -866,7 +1040,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
           <span class="sd-count-badge" id="packedCount">0 <?=$languageArray['items_code'][$language]?></span>
         </div>
         <div class="sd-filter-bar">
-          <div class="row align-items-center g-2">
+          <div class="row align-items-center">
             <div class="col-12 col-sm-3">
               <div class="sd-search-wrap">
                 <i class="fas fa-search sd-search-icon"></i>
@@ -907,7 +1081,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
             <tbody id="packedBody">
               <tr>
                 <td colspan="5" class="sd-empty">
-                  <i class="fas fa-spinner fa-spin mr-1"></i><?=$languageArray['loading_code'][$language]?>...
+                  <i class="fas fa-spinner fa-spin"></i><?=$languageArray['loading_code'][$language]?>...
                 </td>
               </tr>
             </tbody>
@@ -923,7 +1097,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
       </div>
     </div><!-- /sectionPacked -->
 
-    <div class="text-center pb-2" style="font-size:11px; color:var(--sd-muted);">
+    <div class="text-center" style="font-size: 12px; line-height: 20px; letter-spacing: 0.75px; font-weight: 400; color: #1a1a1a;">
       <?=$languageArray['stockos_code'][$language]?> &middot; <?=$languageArray['data_refreshed_code'][$language]?> <span id="footerUpdated"></span>
     </div>
 
@@ -1080,7 +1254,7 @@ function renderPagination(containerId, total, page, pageSize, onPage, onSize) {
   var from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   var to   = Math.min(page * pageSize, total);
 
-  var html = '<div class="d-flex align-items-center gap-2">' +
+  var html = '<div class="d-flex align-items-center sd-pagination-box">' +
               '<span class="sd-pag-info">Showing ' + from + '–' + to + ' of ' + total + '</span>' +
               '<div class="sd-pag-size"><span>Rows:</span>' +
               '<select onchange="(' + onSize.toString() + ')(this.value)">' +
