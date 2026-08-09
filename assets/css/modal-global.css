@@ -173,11 +173,11 @@
 }
 
 .modal-modern .select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: calc(1.5em + 0.75rem);
+  line-height: calc(1.5em + 0.5rem);
 }
 
 .modal-modern .select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: calc(1.5em + 0.75rem);
+  height: calc(1.5em + 0.5rem);
 }
 
 .modal-modern .select2-container--default.select2-container--focus .select2-selection--single {

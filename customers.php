@@ -44,6 +44,7 @@ else{
   }
 }
 ?>
+<link rel="stylesheet" href="assets/css/modal-global.css">
 
 <div class="content-header">
     <div class="container-fluid">
@@ -174,13 +175,13 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="addModal">
+<div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <form role="form" id="customerForm">
-            <div class="modal-header bg-gray-dark color-palette">
+            <div class="modal-header">
               <h4 class="modal-title"><?=$languageArray['add_customers_code'][$language]?></h4>
-              <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
@@ -188,212 +189,204 @@ else{
               <input type="hidden" id="id" name="id">
 
               <!-- Company (SADMIN only) -->
-              <div class="row" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
-                    <select class="form-control select2" style="width:100%;" id="company" name="company" required>
-                      <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                        <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
+              <div class="modal-section" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
               </div>
 
-              <!-- Row 1: Code, Reg No, Parent -->
-              <div class="row">
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label><?=$languageArray['customer_code_code'][$language]?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_customer_code_code'][$language]?>" maxlength="10" required>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label><?=$languageArray['reg_no_code'][$language]?></label>
-                    <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="<?=$languageArray['enter_reg_no_code'][$language]?>">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label><?=$languageArray['parent_code'][$language]?></label>
-                    <select class="form-control select2" style="width:100%;" id="parent" name="parent">
-                      <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
-                        <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Row 2: Name -->
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label><?=$languageArray['customer_name_code'][$language]?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_customer_name_code'][$language]?>" required>
-                  </div>
-                </div>
-              </div>
-
-              <hr>
-
-              <!-- Row 3: Address 1 & 2 -->
-              <p class="font-weight-bold mb-2"><?=$languageArray['delivery_address_code'][$language]?></p>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label><?=$languageArray['address_code'][$language]?></label>
-                    <input type="text" class="form-control" name="address" id="address" placeholder="<?=$languageArray['enter_address_code'][$language]?>">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label><?=$languageArray['address_code'][$language]?> 2</label>
-                    <input type="text" class="form-control" name="address2" id="address2" placeholder="<?=$languageArray['enter_address_code'][$language]?> 2">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Row 5: Address 3, 4, State -->
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['address_code'][$language]?> 3</label>
-                    <input type="text" class="form-control" name="address3" id="address3" placeholder="<?=$languageArray['enter_address_code'][$language]?> 3">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['address_code'][$language]?> 4</label>
-                    <input type="text" class="form-control" name="address4" id="address4" placeholder="<?=$languageArray['enter_address_code'][$language]?> 4">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['states_code'][$language]?></label>
-                    <select class="form-control select2" style="width:100%;" id="states" name="states">
-                      <option selected="selected">-</option>
-                      <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
-                        <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Row 3: Phone, Fax, PIC -->
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['phone_code'][$language]?></label>
-                    <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['fax_code'][$language]?></label>
-                    <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label><?=$languageArray['pic_code'][$language]?></label>
-                    <input type="text" class="form-control" id="email" name="email" placeholder="PIC">
-                  </div>
-                </div>
-              </div>
-
-              <hr>
-
-              <!-- Row 6: Billing Address -->
-              <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
-                <p class="font-weight-bold mb-2"><?=$languageArray['billing_address_code'][$language]?></p>
-                <div class="row">
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <label><?=$languageArray['billing_name_code'][$language]?></label>
-                      <input type="text" class="form-control" name="billingName" id="billingName" placeholder="<?=$languageArray['billing_name_code'][$language]?>">
-                    </div>
-                  </div>
-                </div>
+              <!-- Basic Information Section -->
+              <div class="modal-section">
+                <div class="section-title"><i class="fas fa-user mr-2"></i><?=$languageArray['basic_info_code'][$language] ?? 'Basic Information'?></div>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label><?=$languageArray['billing_address_code'][$language]?></label>
-                      <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 1">
+                      <label class="form-label-modern"><?=$languageArray['customer_name_code'][$language]?> <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_customer_name_code'][$language]?>" required>
                     </div>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-3">
                     <div class="form-group">
-                      <label><?=$languageArray['billing_address_code'][$language]?> 2</label>
-                      <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 2">
+                      <label class="form-label-modern"><?=$languageArray['customer_code_code'][$language]?> <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="code" id="code" placeholder="Code" maxlength="10" required>
                     </div>
                   </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <div class="form-group">
-                      <label><?=$languageArray['billing_address_code'][$language]?> 3</label>
-                      <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 3">
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label><?=$languageArray['billing_address_code'][$language]?> 4</label>
-                      <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 4">
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label><?=$languageArray['billing_state_code'][$language]?></label>
-                      <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
-                        <option selected="selected">-</option>
-                        <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
-                          <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
-                        <?php } ?>
+                      <label class="form-label-modern"><?=$languageArray['customer_type_code'][$language] ?? 'Customer Type'?></label>
+                      <select class="form-control select2" style="width:100%;" id="customerType" name="customerType">
+                        <option value="Normal" selected>Normal</option>
+                        <option value="Packing">Packing</option>
                       </select>
                     </div>
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label><?=$languageArray['billing_phone_code'][$language]?></label>
-                      <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['reg_no_code'][$language]?></label>
+                      <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="Registration No.">
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label><?=$languageArray['billing_fax_code'][$language]?></label>
-                      <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['parent_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="parent" name="parent">
+                        <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
+                          <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name'] ?></option>
+                        <?php } ?>
+                      </select>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label><?=$languageArray['billing_pic_code'][$language]?></label>
-                      <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
                     </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="email" name="email" placeholder="Person In Charge">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Delivery Address Section -->
+              <div class="modal-section">
+                <div class="section-title"><i class="fas fa-map-marker-alt mr-2"></i><?=$languageArray['delivery_address_code'][$language]?></div>
+                <div class="row">
+                  <div class="col-md-6">
                     <div class="form-group">
-                      <label><?=$languageArray['currency_code'][$language]?></label>
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?></label>
+                      <input type="text" class="form-control" name="address" id="address" placeholder="Street address">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 2</label>
+                      <input type="text" class="form-control" name="address2" id="address2" placeholder="Apartment, suite, etc.">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 3</label>
+                      <input type="text" class="form-control" name="address3" id="address3" placeholder="City">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 4</label>
+                      <input type="text" class="form-control" name="address4" id="address4" placeholder="Postcode">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="states" name="states">
+                        <option value="">Select State</option>
+                        <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
+                          <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['fax_code'][$language]?></label>
+                      <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Billing Address Section -->
+              <div class="modal-section" <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
+                <div class="section-title"><i class="fas fa-file-invoice mr-2"></i><?=$languageArray['billing_address_code'][$language]?></div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_name_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['currency_code'][$language]?></label>
                       <select class="form-control select2" style="width:100%;" id="currency" name="currency">
-                        <option selected="selected">-</option>
+                        <option value="">Select Currency</option>
                         <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
                           <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
                         <?php } ?>
                       </select>
                     </div>
                   </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="Street address">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 2</label>
+                      <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="Apartment, suite, etc.">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 3</label>
+                      <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="City">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 4</label>
+                      <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="Postcode">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_state_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
+                        <option value="">Select State</option>
+                        <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
+                          <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="Person In Charge">
+                    </div>
+                  </div>
                 </div>
               </div>
               
             </div>
-            <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -568,13 +561,11 @@ $(function () {
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
-  $('.select2').each(function() {
-    $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-    });
+  // Initialize Select2 for modal elements
+  $('#addModal .select2').select2({
+    allowClear: true,
+    placeholder: "Please Select",
+    dropdownParent: $('#addModal')
   });
 
   $("#customerTable").DataTable({
@@ -705,6 +696,7 @@ $(function () {
     $('#addModal').find('#code').val("");
     $('#addModal').find('#reg_no').val("");
     $('#addModal').find('#name').val("");
+    $('#addModal').find('#customerType').val("Normal").trigger('change');
     $('#addModal').find('#address').val("");
     $('#addModal').find('#address2').val("");
     $('#addModal').find('#address3').val("");
@@ -943,6 +935,7 @@ function edit(id){
           $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
+          $('#addModal').find('#customerType').val(obj.message.customer_type || 'Normal').trigger('change');
           $('#addModal').modal('show');
           
           $('#customerForm').validate({
