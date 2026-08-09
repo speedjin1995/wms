@@ -220,8 +220,8 @@ else{
                     <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['customer_type_code'][$language] ?? 'Customer Type'?></label>
                       <select class="form-control select2" style="width:100%;" id="customerType" name="customerType">
-                        <option value="Normal" selected>Normal</option>
-                        <option value="Packing">Packing</option>
+                        <option value="Normal" selected><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+                        <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
                       </select>
                     </div>
                   </div>

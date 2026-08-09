@@ -199,10 +199,10 @@ else{
                 </div>
                 <div class="col-md-3">
                   <div class="form-group">
-                    <label class="form-label-modern">Supplier Type</label>
+                    <label class="form-label-modern"><?=$languageArray['supplier_type_code'][$language] ?? 'Supplier Type'?></label>
                     <select class="form-control select2" style="width:100%;" id="supplierType" name="supplierType">
-                      <option value="Normal" selected>Normal</option>
-                      <option value="Packing">Packing</option>
+                      <option value="Normal" selected><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+                      <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
                     </select>
                   </div>
                 </div>
