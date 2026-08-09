@@ -202,12 +202,12 @@
   <!-- Export Type Modal -->
   <div class="modal fade" id="wsExportTypeModal" tabindex="-1">
     <div class="modal-dialog" style="max-width:380px;">
-      <div class="modal-content">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h5 class="modal-title">Export Options</h5>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+      <div class="modal-content custom-model-content-box">
+        <div class="modal-header custom-model-header-box">
+          <h5 class="modal-title custom-model-title-txt"><i class="fas fa-file-export"></i> Export Options</h5>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body custom-model-body-box">
           <input type="hidden" id="wsExportParty">
           <div class="form-group mb-0">
             <label>Export Type</label>
@@ -217,9 +217,9 @@
             </select>
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" onclick="doExportBreakdown()">Export</button>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="custom-close-btn" data-dismiss="modal"><i class="fas fa-times"></i> Cancel</button>
+          <button type="button" class="custom-save-btn" onclick="doExportBreakdown()"><i class="fas fa-file-export"></i> Export</button>
         </div>
       </div>
     </div>
