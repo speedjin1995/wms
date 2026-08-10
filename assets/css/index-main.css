@@ -1462,6 +1462,23 @@ div.loading {
   margin-top: 0px !important;
 }
 
+.custom-download-btn {
+  padding: 10px 25px;
+  border: unset;
+  border-radius: 5px;
+  background: #008080;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  margin-top: 0px !important;
+}
+
 .custom-delete-btn {
   padding: 10px 25px;
   border: unset;
