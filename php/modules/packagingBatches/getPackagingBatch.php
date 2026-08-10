@@ -34,6 +34,7 @@ if(isset($_POST['userID'])){
                 $message['remarks'] = $row['remarks'];
                 $message['status'] = $row['status'];
                 $message['company'] = $row['company'];
+                $message['type'] = $row['type'] ?? 'Local';
 
                 // Query packaging_batch_items table
                 $weightDetails = array();

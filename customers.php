@@ -47,6 +47,7 @@ if (!isset($_SESSION['userID'])) {
   }
 }
 ?>
+<link rel="stylesheet" href="assets/css/modal-global.css">
 
 <div class="content-header custom-title-content-box">
   <div class="container-fluid">
@@ -67,21 +68,16 @@ if (!isset($_SESSION['userID'])) {
         <div class="card">
           <div class="card-header custom-card-header">
             <div class="row custom-card-header-row">
-              <?php if (in_array('basket', $_SESSION['products'])) { ?>
-                <div class="col-1 custom-card-header-title-col"></div>
-                
-                <div class="col-11 custom-card-header-btn-col">
+              <div class="col-1 custom-card-header-title-col"></div>
+              <div class="col-11 custom-card-header-btn-col">
+                <?php if (in_array('basket', $_SESSION['products'])) { ?>
                   <a href="php/modules/customers/exportBinReport.php" target="_blank" class="custom-card-header-btn-size">
                     <button type="button" class="btn btn-block custom-export-btn btn-sm"><?=$languageArray['export_bin_report_code'][$language]?></button>
                   </a>
-                </div>
-              <?php } else { ?>
-                <div class="col-1 custom-card-header-title-col"></div>
-              <?php }?>
-              <div class="col-11 custom-card-header-btn-col">
+                <?php } ?>
                 <button type="button" id="multiDeactivate" class="btn btn-block custom-delete-btn custom-card-header-btn-size btn-sm"><?=$languageArray['delete_customer_code'][$language]?></button>
                 <a href="template/Customer_Template.xlsx" download class="custom-card-header-btn-size">
-                  <button type="button" class="btn btn-block custom-export-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
+                  <button type="button" class="btn btn-block custom-download-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
                 </a>
                 <button type="button" id="uploadExcel" class="btn btn-block custom-upload-btn custom-card-header-btn-size btn-sm"><?=$languageArray['upload_excel_code'][$language]?></button>
                 <button type="button" class="btn btn-block custom-add-btn custom-card-header-btn-size btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
@@ -164,268 +160,242 @@ if (!isset($_SESSION['userID'])) {
   </div><!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="addModal">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content custom-model-content-box">
-      <form role="form" id="customerForm">
-        <div class="modal-header custom-model-header-box">
-          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_customers_code'][$language]?></h4>
-          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        
-        <div class="modal-body custom-model-body-box">
-          <input type="hidden" id="id" name="id">
-          
-          <!-- Company (SADMIN only) -->
-          <div class="row" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
-                <select class="form-control select2" style="width:100%;" id="company" name="company" required>
-                  <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                    <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
+<div class="modal fade modal-modern" id="addModal">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <form role="form" id="customerForm">
+            <div class="modal-header custom-model-header-box">
+              <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_customers_code'][$language]?></h4>
+              <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-          </div>
-          
-          <!-- Row 1: Code, Reg No, Parent -->
-          <div class="row">
-            <div class="col-md-3">
-              <div class="form-group">
-                <label><?=$languageArray['customer_code_code'][$language]?> <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_customer_code_code'][$language]?>" maxlength="10" required>
-              </div>
-            </div>
-            
-            <div class="col-md-3">
-              <div class="form-group">
-                <label><?=$languageArray['reg_no_code'][$language]?></label>
-                <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="<?=$languageArray['enter_reg_no_code'][$language]?>">
-              </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><?=$languageArray['parent_code'][$language]?></label>
-                <select class="form-control select2" style="width:100%;" id="parent" name="parent">
-                  <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
-                    <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Row 2: Name -->
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['customer_name_code'][$language]?> <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_customer_name_code'][$language]?>" required>
-              </div>
-            </div>
-          </div>
-          
-          <hr class="custom-model-inner-line">
-          
-          <!-- Row 3: Address 1 & 2 -->
-          <p class="custom-model-inner-title"><?=$languageArray['delivery_address_code'][$language]?></p>
-          
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?></label>
-                <input type="text" class="form-control" name="address" id="address" placeholder="<?=$languageArray['enter_address_code'][$language]?>">
-              </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?> 2</label>
-                <input type="text" class="form-control" name="address2" id="address2" placeholder="<?=$languageArray['enter_address_code'][$language]?> 2">
-              </div>
-            </div>
-          </div>
-          
-          <!-- Row 5: Address 3, 4, State -->
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?> 3</label>
-                <input type="text" class="form-control" name="address3" id="address3" placeholder="<?=$languageArray['enter_address_code'][$language]?> 3">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?> 4</label>
-                <input type="text" class="form-control" name="address4" id="address4" placeholder="<?=$languageArray['enter_address_code'][$language]?> 4">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['states_code'][$language]?></label>
-                <select class="form-control select2" style="width:100%;" id="states" name="states">
-                  <option selected="selected">-</option>
-                  <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
-                    <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Row 3: Phone, Fax, PIC -->
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['phone_code'][$language]?></label>
-                <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['fax_code'][$language]?></label>
-                <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['pic_code'][$language]?></label>
-                <input type="text" class="form-control" id="email" name="email" placeholder="PIC">
-              </div>
-            </div>
-          </div>
-          
-          <hr class="custom-model-inner-line">
-          
-          <!-- Row 6: Billing Address -->
-          <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
-            <p class="custom-model-inner-title"><?=$languageArray['billing_address_code'][$language]?></p>
-            
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_name_code'][$language]?></label>
-                  <input type="text" class="form-control" name="billingName" id="billingName" placeholder="<?=$languageArray['billing_name_code'][$language]?>">
-                </div>
-              </div>
-            </div>
-            
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?></label>
-                  <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 1">
-                </div>
-              </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?> 2</label>
-                  <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 2">
-                </div>
-              </div>
-            </div>
-            
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?> 3</label>
-                  <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 3">
-                </div>
-              </div>
-              
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?> 4</label>
-                  <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 4">
-                </div>
-              </div>
-              
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_state_code'][$language]?></label>
-                  <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
-                    <option selected="selected">-</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+            <div class="modal-body">
+              <input type="hidden" id="id" name="id">
+
+              <!-- Company (SADMIN only) -->
+              <div class="modal-section" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
+
+              <!-- Basic Information Section -->
+              <div class="modal-section">
+                <div class="section-title"><i class="fas fa-user mr-2"></i><?=$languageArray['basic_info_code'][$language] ?? 'Basic Information'?></div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['customer_name_code'][$language]?> <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_customer_name_code'][$language]?>" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['customer_code_code'][$language]?> <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="code" id="code" placeholder="Code" maxlength="10" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['customer_type_code'][$language] ?? 'Customer Type'?></label>
+                      <select class="form-control select2" style="width:100%;" id="customerType" name="customerType">
+                        <option value="Normal" selected><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+                        <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['reg_no_code'][$language]?></label>
+                      <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="Registration No.">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['parent_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="parent" name="parent">
+                        <?php while($rowCustomer=mysqli_fetch_assoc($customers)){ ?>
+                          <option value="<?=$rowCustomer['id'] ?>"><?=$rowCustomer['customer_name'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="email" name="email" placeholder="Person In Charge">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Delivery Address Section -->
+              <div class="modal-section">
+                <div class="section-title"><i class="fas fa-map-marker-alt mr-2"></i><?=$languageArray['delivery_address_code'][$language]?></div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?></label>
+                      <input type="text" class="form-control" name="address" id="address" placeholder="Street address">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 2</label>
+                      <input type="text" class="form-control" name="address2" id="address2" placeholder="Apartment, suite, etc.">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 3</label>
+                      <input type="text" class="form-control" name="address3" id="address3" placeholder="City">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 4</label>
+                      <input type="text" class="form-control" name="address4" id="address4" placeholder="Postcode">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="states" name="states">
+                        <option value="">Select State</option>
+                        <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
+                          <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['fax_code'][$language]?></label>
+                      <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Billing Address Section -->
+              <div class="modal-section" <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
+                <div class="section-title"><i class="fas fa-file-invoice mr-2"></i><?=$languageArray['billing_address_code'][$language]?></div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_name_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['currency_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="currency" name="currency">
+                        <option value="">Select Currency</option>
+                        <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
+                          <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?></label>
+                      <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="Street address">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 2</label>
+                      <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="Apartment, suite, etc.">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 3</label>
+                      <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="City">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 4</label>
+                      <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="Postcode">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_state_code'][$language]?></label>
+                      <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
+                        <option value="">Select State</option>
+                        <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
+                          <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                        <?php } ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['billing_pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="Person In Charge">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
             </div>
-            
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_phone_code'][$language]?></label>
-                  <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
-                </div>
-              </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_fax_code'][$language]?></label>
-                  <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
-                </div>
-              </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_pic_code'][$language]?></label>
-                  <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
-                </div>
-              </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['currency_code'][$language]?></label>
-                  <select class="form-control select2" style="width:100%;" id="currency" name="currency">
-                    <option selected="selected">-</option>
-                    <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
-                      <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
+            <div class="modal-footer custom-model-fotter-box">
+              <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
-          </div>
-        </div>
-        
-        <div class="modal-footer custom-model-fotter-box">
-          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
-        </div>
-      </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 
 <!-- Bin Modal -->
 <div class="modal fade" id="binModal">
   <div class="modal-dialog">
-    <div class="modal-content custom-model-content-box">
+    <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
       <form id="binForm">
-        <div class="modal-header custom-model-header-box">
+        <div class="modal-header" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border:none;">
           <div>
-            <h5 class="modal-title custom-model-title-txt"></i><?=$languageArray['manage_bins_code'][$language]?></h5>
+            <h5 class="modal-title font-weight-bold mb-0" style="color:#1a1a2e;"><i class="fas fa-shopping-basket mr-2"></i><?=$languageArray['manage_bins_code'][$language]?></h5>
             <small style="color:#1a1a2e;"><span id="binCustomerName"></span></small>
           </div>
-          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
+          <button type="button" class="close" style="color:#1a1a2e;" data-dismiss="modal"><span>&times;</span></button>
         </div>
-        
-        <div class="modal-body custom-model-body-box">
+        <div class="modal-body" style="background:#f8f9fa; color:#333;">
           <input type="hidden" id="binCustomerId" name="binCustomerId">
           <input type="hidden" id="binTypeId" name="binTypeId">
-          
+
           <!-- Bin Type dropdown -->
           <div class="form-group">
             <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;">Bin Type <span class="text-danger">*</span></label>
@@ -436,9 +406,10 @@ if (!isset($_SESSION['userID'])) {
               <?php endforeach; ?>
             </select>
           </div>
-          
+
           <!-- Everything below hidden until bin type selected -->
           <div id="binDetails" style="display:none;">
+
             <!-- Loading skeleton -->
             <div id="binLoadingSkeleton" class="text-center mb-4" style="display:none;">
               <div style="display:inline-block; background:#fff; border-radius:12px; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
@@ -447,7 +418,7 @@ if (!isset($_SESSION['userID'])) {
                 <div style="height:10px; width:40px; background:#e9ecef; border-radius:4px; margin:0 auto;"></div>
               </div>
             </div>
-            
+
             <!-- Pending count banner -->
             <div class="text-center mb-4" id="binPendingCard">
               <div style="display:inline-block; background:#fff; border-radius:12px; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
@@ -456,11 +427,10 @@ if (!isset($_SESSION['userID'])) {
                 <div style="font-size:0.85rem; color:#666;"><?=$languageArray['bins_code'][$language]?></div>
               </div>
             </div>
-            
+
             <!-- IN / OUT toggle -->
             <div class="form-group">
               <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['actions_code'][$language]?></label>
-              
               <div class="d-flex" style="gap:10px;">
                 <div class="flex-fill">
                   <input type="radio" name="binAction" id="binActionOut" value="OUT" class="d-none" checked>
@@ -469,7 +439,6 @@ if (!isset($_SESSION['userID'])) {
                     <div style="font-size:0.8rem; color:#888; font-weight:400;"><?=$languageArray['customer_takes_bins_code'][$language]?></div>
                   </label>
                 </div>
-                
                 <div class="flex-fill">
                   <input type="radio" name="binAction" id="binActionIn" value="IN" class="d-none">
                   <label for="binActionIn" class="btn btn-block bin-type-btn" style="border:2px solid #dee2e6; border-radius:10px; padding:12px; cursor:pointer; transition:all 0.2s;">
@@ -479,19 +448,19 @@ if (!isset($_SESSION['userID'])) {
                 </div>
               </div>
             </div>
-            
+
             <div class="form-group">
               <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['quantity_code'][$language]?> <span class="text-danger">*</span></label>
               <input type="number" class="form-control" id="binQty" name="binQty" min="1" placeholder="e.g. 5" style="border-radius:8px; font-size:0.9rem; height:48px;">
             </div>
-            
+
             <div class="form-group mb-0">
               <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;"><?=$languageArray['remark_code'][$language]?></label>
               <input type="text" class="form-control" id="binRemark" name="binRemark" placeholder="Optional note..." style="border-radius:8px;">
             </div>
+
           </div><!-- /#binDetails -->
         </div>
-        
         <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
           <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px;"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn btn-warning" name="submit" id="submitBin" style="border-radius:8px; min-width:90px; font-weight:600;"><?=$languageArray['submit_code'][$language]?></button>
@@ -502,36 +471,23 @@ if (!isset($_SESSION['userID'])) {
 </div>
 
 <style>
-  .bin-type-btn {
-    background: #fff;
-    text-align: center;
-    font-weight: 600;
-  }
-  
-  input[type="radio"]:checked + .bin-type-btn {
-    border-color: #fda085 !important;
-    background: #fff8f5;
-    color: #fda085;
-  }
-  
-  #binDetails {
-    transition: none;
-  }
+.bin-type-btn { background:#fff; text-align:center; font-weight:600; }
+input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
+#binDetails { transition: none; }
 </style>
 
 <!-- Bin History Modal -->
 <div class="modal fade" id="binHistoryModal">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content custom-model-content-box">
-      <div class="modal-header custom-model-header-box">
+    <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); border:none;">
         <div>
-          <h5 class="modal-title custom-model-title-txt"><i class="fas fa-history mr-2"></i><?=$languageArray['bin_history_code'][$language]?></h5>
+          <h5 class="modal-title font-weight-bold mb-0" style="color:#1a1a2e;"><i class="fas fa-history mr-2"></i><?=$languageArray['bin_history_code'][$language]?></h5>
           <small style="color:#1a1a2e;"><span id="binHistoryCustomerName"></span></small>
         </div>
-        <button type="button" class="close custom-btn-close-icon" data-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="close" style="color:#1a1a2e;" data-dismiss="modal"><span>&times;</span></button>
       </div>
-      
-      <div class="modal-body custom-model-body-box">
+      <div class="modal-body" style="background:#f0f2f5; color:#333; padding:16px;">
         <div class="form-group mb-3">
           <label style="font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:#555;">Bin Type <span class="text-danger">*</span></label>
           <select class="form-control" id="binHistoryTypeSelect" style="border-radius:8px; height:48px;">
@@ -541,18 +497,15 @@ if (!isset($_SESSION['userID'])) {
             <?php endforeach; ?>
           </select>
         </div>
-        
         <div id="binHistoryContent" style="display:none; max-height:55vh; overflow-y:auto;">
           <div id="binHistoryList"></div>
           <div id="binHistoryPager" class="d-flex justify-content-between align-items-center mt-2"></div>
         </div>
-        
         <div id="binHistoryPrompt" class="text-center text-muted py-5">
           <i class="fas fa-hand-point-up fa-2x mb-2"></i>
           <div>Select a bin type to view history</div>
         </div>
       </div>
-      
       <div class="modal-footer" style="background:#f8f9fa; border-top:1px solid #eee;">
         <button type="button" class="btn btn-light" data-dismiss="modal" style="border-radius:8px; min-width:90px; font-size:0.9rem;"><?=$languageArray['close_code'][$language]?></button>
       </div>
@@ -584,371 +537,359 @@ if (!isset($_SESSION['userID'])) {
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 
 <script>
-  var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
-  var binTypeNames = <?= json_encode(array_column($binTypesArr, 'bin_type', 'id')) ?>;
-  
-  $(function () {
-    $('#selectAllCheckbox').on('change', function() {
-      var checkboxes = $('#customerTable tbody input[type="checkbox"]');
-      checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
-    });
-    
-    $('.select2').each(function() {
-      $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-      });
-    });
-    
-    $("#customerTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'ajax': {
-        'url':'php/modules/customers/loadCustomers.php',
-      },
-      'columns': [
-        {
-          // Add a checkbox with a unique ID for each row
-          data: 'id', // Assuming 'serialNo' is a unique identifier for each row
-          className: 'select-checkbox',
-          orderable: false,
-          render: function (data, type, row) {
+
+var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
+var binTypeNames = <?= json_encode(array_column($binTypesArr, 'bin_type', 'id')) ?>;
+
+$(function () {
+  $('#selectAllCheckbox').on('change', function() {
+    var checkboxes = $('#customerTable tbody input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+  });
+
+  // Initialize Select2 for modal elements
+  $('#addModal .select2').select2({
+    allowClear: true,
+    placeholder: "Please Select",
+    dropdownParent: $('#addModal')
+  });
+
+  $("#customerTable").DataTable({
+    "responsive": true,
+    "autoWidth": false,
+    'processing': true,
+    'serverSide': true,
+    'serverMethod': 'post',
+    'ajax': {
+      'url':'php/modules/customers/loadCustomers.php',
+    },
+    'columns': [
+      {
+        // Add a checkbox with a unique ID for each row
+        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        className: 'select-checkbox',
+        orderable: false,
+        render: function (data, type, row) {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+        }
+      },
+      { data: 'customer_code' },
+      { data: 'reg_no' },
+      { data: 'parent' },
+      { data: 'customer_name' },
+      { data: 'customer_address' },
+      { data: 'customer_phone' },
+      { data: 'pic' },
+      {
+        data: 'pending_bins',
+        render: function (data) {
+          if (!data) return '<span class="text-muted">—</span>';
+
+          var map = {};
+          try { map = (typeof data === 'string') ? JSON.parse(data) : data; } catch(e) {}
+
+          if (typeof map !== 'object' || Array.isArray(map)) {
+            return '<span class="text-muted">—</span>';
           }
-        },
-        { data: 'customer_code' },
-        { data: 'reg_no' },
-        { data: 'parent' },
-        { data: 'customer_name' },
-        { data: 'customer_address' },
-        { data: 'customer_phone' },
-        { data: 'pic' },
-        {
-          data: 'pending_bins',
-          render: function (data) {
-            if (!data) return '<span class="text-muted">—</span>';
-            
-            var map = {};
-            
-            try { map = (typeof data === 'string') ? JSON.parse(data) : data; } catch(e) {}
-            
-            if (typeof map !== 'object' || Array.isArray(map)) {
-              return '<span class="text-muted">—</span>';
-            }
-            
-            var keys = Object.keys(map).filter(function(k) { return map[k] > 0; });
-            
-            if (keys.length === 0) return '<span class="text-muted">—</span>';
-            
-            var html = '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
-            
-            keys.forEach(function(typeId) {
-              var count = map[typeId];
-              var label = binTypeNames[typeId] || 'Type ' + typeId;
-              
-              html += '<span style="'
+
+          var keys = Object.keys(map).filter(function(k) { return map[k] > 0; });
+          if (keys.length === 0) return '<span class="text-muted">—</span>';
+
+          var html = '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
+          keys.forEach(function(typeId) {
+            var count = map[typeId];
+            var label = binTypeNames[typeId] || 'Type ' + typeId;
+            html += '<span style="'
               + 'display:inline-flex;align-items:center;gap:5px;'
               + 'background:linear-gradient(135deg,#f6d365,#fda085);'
               + 'color:#7a3e00;font-size:0.75rem;font-weight:700;'
               + 'padding:3px 8px 3px 10px;border-radius:20px;'
               + 'box-shadow:0 1px 3px rgba(253,160,133,0.4);white-space:nowrap;">';
-              html +=   '<span>' + label + '</span>';
-              html +=   '<span style="background:rgba(0,0,0,0.15);border-radius:20px;padding:1px 6px;font-size:0.85em;">' + count + '</span>';
-              html += '</span>';
-            });
-            html += '</div>';
-            return html;
-          }
-        },
-        { 
-          data: 'deleted',
-          render: function (data, type, row) {
-            if (data == 0) {
-              return '<div class="row custom-tbl-btn-icon">'
-              + '<button onclick="edit(' + row.id + ')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button>'
-              + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\')" class="btn custom-reject-btn-icon btn-sm"><i class="fas fa-shopping-basket"></i></button>'
-              + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
-              + '<button onclick="deactivate(' + row.id + ')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button>'
-              + '</div>';
-            } else {
-              return '<button onclick="reactivate(' + row.id + ')" class="btn custom-reject-btn-icon btn-sm">Reactivate</button>';
-            }
-          }
-        }
-      ],
-      "rowCallback": function( row, data, index ) {
-        if (data.is_manual == 'Y') {
-          $(row).css('background-color', '#f8d7da');
+            html +=   '<span>' + label + '</span>';
+            html +=   '<span style="background:rgba(0,0,0,0.15);border-radius:20px;padding:1px 6px;font-size:0.85em;">' + count + '</span>';
+            html += '</span>';
+          });
+          html += '</div>';
+          return html;
         }
       },
-    });
-    
-    $.validator.setDefaults({
-      submitHandler: function () {
-        if ($('#addModal').hasClass('show')) {
-          $('#spinnerLoading').show();
-          
-          $.post('php/modules/customers/customers.php', $('#customerForm').serialize(), function(data) {
-            var obj = JSON.parse(data);
-            
-            if (obj.status === 'success') {
-              $('#addModal').modal('hide');
-              toastr["success"](obj.message, "Success:");
-              $('#customerTable').DataTable().ajax.reload();
-              
-              $.get('php/modules/customers/getCustomers.php', function(customers) {
-                $('#parent').empty().append('<option value="">Please Select</option>');
-                
-                customers.forEach(function(customer) {
-                  $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
-                });
-              });
-            } else if (obj.status === 'failed') {
-              toastr["error"](obj.message, "Failed:");
-            } else {
-              toastr["error"]("Something wrong when edit", "Failed:");
-            }
-            
-            $('#spinnerLoading').hide();
-          });
-        } else if ($('#binModal').hasClass('show')) {
-          $('#spinnerLoading').show();
-          
-          $.post('php/modules/customers/updateBin.php', $('#binForm').serialize(), function(data) {
-            var obj = JSON.parse(data);
-            
-            if (obj.status === 'success') {
-              $('#binModal').modal('hide');
-              toastr['success'](obj.message, 'Success:');
-              $('#binModal').find('#binCurrent').text(obj.pending_bins);
-              $('#customerTable').DataTable().ajax.reload();
-            } else {
-              toastr['error'](obj.message, 'Failed:');
-            }
-            
-            $('#spinnerLoading').hide();
-          });
+      { 
+        data: 'deleted',
+        render: function (data, type, row) {
+          if (data == 0) {
+            return '<div style="display:flex;gap:4px;">'
+              + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
+              + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
+                          + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
+              + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+              + '</div>';
+          } else {
+            return '<button onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+          }
         }
       }
-    });
+    ],
+    "rowCallback": function( row, data, index ) {
+      if (data.is_manual == 'Y') {
+        $(row).css('background-color', '#f8d7da');
+      }
+    },        
+  });
     
-    $('#addCustomers').on('click', function() {
-      $('#addModal').find('#id').val("");
-      $('#addModal').find('#code').val("");
-      $('#addModal').find('#reg_no').val("");
-      $('#addModal').find('#name').val("");
-      $('#addModal').find('#address').val("");
-      $('#addModal').find('#address2').val("");
-      $('#addModal').find('#address3').val("");
-      $('#addModal').find('#address4').val("");
-      $('#addModal').find('#states').val("").trigger('change');
-      $('#addModal').find('#phone').val("");
-      $('#addModal').find('#fax').val("");
-      $('#addModal').find('#email').val("");
-      $('#addModal').find('#billingName').val("");
-      $('#addModal').find('#billingAddress').val("");
-      $('#addModal').find('#billingAddress2').val("");
-      $('#addModal').find('#billingAddress3').val("");
-      $('#addModal').find('#billingAddress4').val("");
-      $('#addModal').find('#billingStates').val("").trigger('change');
-      $('#addModal').find('#billingPhone').val("");
-      $('#addModal').find('#billingFax').val("");
-      $('#addModal').find('#billingPic').val("");
-      $('#addModal').find('#currency').val("").trigger('change');
-      $('#addModal').find('#parent').val("").trigger('change');
-      $('#addModal').modal('show');
-      
-      $('#customerForm').validate({
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-        }
-      });
-    });
-    
-    $('#uploadExcel').on('click', function() {
-      $('#uploadModal').modal('show');
-      
-      $('#uploadForm').validate({
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-        }
-      });
-    });
-    
-    $('#uploadModal').find('#previewButton').on('click', function() {
-      var fileInput = document.getElementById('fileInput');
-      var file = fileInput.files[0];
-      var reader = new FileReader();
-      
-      reader.onload = function(e) {
-        var data = e.target.result;
-        // Process data and display preview
-        displayPreview(data);
-      };
-      
-      reader.readAsBinaryString(file);
-    });
-    
-    $('#uploadCustomer').on('click', function() {
-      $('#spinnerLoading').show();
-      var formData = $('#uploadForm').serializeArray();
-      var data = [];
-      var rowIndex = -1;
-      formData.forEach(function(field) {
-        var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
-        if (match) {
-          var fieldName = match[1];
-          var index = parseInt(match[2], 10);
-          if (index !== rowIndex) {
-            rowIndex = index;
-            data.push({});
-          }
-          data[index][fieldName] = field.value;
-        }
-      });
-      
-      // Send the JSON array to the server
-      $.ajax({
-        url: 'php/modules/customers/uploadCustomer.php',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function(response) {
-          var obj = JSON.parse(response);
+  $.validator.setDefaults({
+    submitHandler: function () {
+      if ($('#addModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/customers.php', $('#customerForm').serialize(), function(data){
+          var obj = JSON.parse(data);
           if (obj.status === 'success') {
-            $('#spinnerLoading').hide();
-            $('#uploadModal').modal('hide');
+            $('#addModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
             $('#customerTable').DataTable().ajax.reload();
+            $.get('php/modules/customers/getCustomers.php', function(customers) {
+              $('#parent').empty().append('<option value="">Please Select</option>');
+              customers.forEach(function(customer) {
+                $('#parent').append('<option value="' + customer.id + '">' + customer.customer_name + '</option>');
+              });
+            });
           } else if (obj.status === 'failed') {
-            $('#spinnerLoading').hide();
-          } else if (obj.status === 'error') {
-            $('#spinnerLoading').hide();
-            $('#uploadModal').modal('hide');
-            $('#errorModal').find('#errorList').empty();
-            var errorMessage = obj.message;
-            for (var i = 0; i < errorMessage.length; i++) {
-              $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);
-            }
-            $('#errorModal').modal('show');
+            toastr["error"](obj.message, "Failed:");
           } else {
-            $('#spinnerLoading').hide();
+            toastr["error"]("Something wrong when edit", "Failed:");
           }
-        }
-      });
-    });
+          $('#spinnerLoading').hide();
+        });
+      } else if ($('#binModal').hasClass('show')) {
+        $('#spinnerLoading').show();
+        $.post('php/modules/customers/updateBin.php', $('#binForm').serialize(), function(data) {
+          var obj = JSON.parse(data);
+          if (obj.status === 'success') {
+            $('#binModal').modal('hide');
+            toastr['success'](obj.message, 'Success:');
+            $('#binModal').find('#binCurrent').text(obj.pending_bins);
+            $('#customerTable').DataTable().ajax.reload();
+          } else {
+            toastr['error'](obj.message, 'Failed:');
+          }
+          $('#spinnerLoading').hide();
+        });
+      }
+    }
+  });
+
+  $('#addCustomers').on('click', function(){
+    $('#addModal').find('#id').val("");
+    $('#addModal').find('#code').val("");
+    $('#addModal').find('#reg_no').val("");
+    $('#addModal').find('#name').val("");
+    $('#addModal').find('#customerType').val("Normal").trigger('change');
+    $('#addModal').find('#address').val("");
+    $('#addModal').find('#address2').val("");
+    $('#addModal').find('#address3').val("");
+    $('#addModal').find('#address4').val("");
+    $('#addModal').find('#states').val("").trigger('change');
+    $('#addModal').find('#phone').val("");
+    $('#addModal').find('#fax').val("");
+    $('#addModal').find('#email').val("");
+    $('#addModal').find('#billingName').val("");
+    $('#addModal').find('#billingAddress').val("");
+    $('#addModal').find('#billingAddress2').val("");
+    $('#addModal').find('#billingAddress3').val("");
+    $('#addModal').find('#billingAddress4').val("");
+    $('#addModal').find('#billingStates').val("").trigger('change');
+    $('#addModal').find('#billingPhone').val("");
+    $('#addModal').find('#billingFax').val("");
+    $('#addModal').find('#billingPic').val("");
+    $('#addModal').find('#currency').val("").trigger('change');
+    $('#addModal').find('#parent').val("").trigger('change');
+    $('#addModal').modal('show');
     
-    $('#multiDeactivate').on('click', function () {
-      $('#spinnerLoading').show();
-      var selectedIds = []; // An array to store the selected 'id' values
-      
-      $("#customerTable tbody input[type='checkbox']").each(function () {
-        if (this.checked) {
-          selectedIds.push($(this).val());
+    $('#customerForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
         }
-      });
-      
-      if (selectedIds.length > 0) {
-        if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/customers/deleteCustomer.php', {userID: selectedIds, type: 'MULTI'}, function(data) {
-            var obj = JSON.parse(data);
-            
-            if (obj.status === 'success') {
-              $('#customerTable').DataTable().ajax.reload();
-              $('#spinnerLoading').hide();
-            } else if (obj.status === 'failed') {
-              $('#spinnerLoading').hide();
-            } else {
-              $('#spinnerLoading').hide();
-            }
-          });
-        }
-        $('#spinnerLoading').hide();
-      } else {
-        // Optionally, you can display a message or take another action if no IDs are selected
-        alert("Please select at least one customer to delete.");
-        $('#spinnerLoading').hide();
+    });
+  });
+    
+  $('#uploadExcel').on('click', function() {
+    $('#uploadModal').modal('show');
+    
+    $('#uploadForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
       }
     });
   });
   
-  function displayPreview(data) {
-    // Parse the Excel data
-    var workbook = XLSX.read(data, { type: 'binary' });
-
-    // Get the first sheet
-    var sheetName = workbook.SheetNames[0];
-    var sheet = workbook.Sheets[sheetName];
-
-    // Convert the sheet to an array of objects
-    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 20 });
-
-    // Get the headers
-    var headers = Object.keys(jsonData[0] || {});
+  $('#uploadModal').find('#previewButton').on('click', function() {
+    var fileInput = document.getElementById('fileInput');
+    var file = fileInput.files[0];
+    var reader = new FileReader();
     
-    // Ensure we handle cases where there may be less than 20 columns
-    while (headers.length < 20) {
-      headers.push(''); // Adding empty headers to reach 20 columns
-    }
-
-    // Create HTML table headers
-    var htmlTable = '<table style="width:20%;"><thead><tr>';
-    headers.forEach(function(header) {
-      htmlTable += '<th>' + header + '</th>';
-    });
-    htmlTable += '</tr></thead><tbody>';
+    reader.onload = function(e) {
+      var data = e.target.result;
+      // Process data and display preview
+      displayPreview(data);
+    };
     
-    // Iterate over the data and create table rows
-    for (var i = 0; i < jsonData.length; i++) {
-      htmlTable += '<tr>';
-      var rowData = jsonData[i];
-
-      for (var j = 0; j < 20 && j < headers.length; j++) {
-        var cellData = rowData[headers[j]];
-        var formattedData = cellData;
-        
-        // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
-        if (typeof cellData === 'number' && cellData > 0) {
-          var excelDate = XLSX.SSF.parse_date_code(cellData);
+    reader.readAsBinaryString(file);
+  });
+  
+  $('#uploadCustomer').on('click', function() {
+    $('#spinnerLoading').show();
+    var formData = $('#uploadForm').serializeArray();
+    var data = [];
+    var rowIndex = -1;
+    formData.forEach(function(field) {
+      var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
+      if (match) {
+        var fieldName = match[1];
+        var index = parseInt(match[2], 10);
+        if (index !== rowIndex) {
+          rowIndex = index;
+          data.push({});
         }
-        htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
+        data[index][fieldName] = field.value;
       }
-      htmlTable += '</tr>';
+    });
+    
+    // Send the JSON array to the server
+    $.ajax({
+      url: 'php/modules/customers/uploadCustomer.php',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(data),
+      success: function(response) {
+        var obj = JSON.parse(response);
+        if (obj.status === 'success') {
+          $('#spinnerLoading').hide();
+          $('#uploadModal').modal('hide');
+          $('#customerTable').DataTable().ajax.reload();
+        } else if (obj.status === 'failed') {
+          $('#spinnerLoading').hide();
+        } else if (obj.status === 'error') {
+          $('#spinnerLoading').hide();
+          $('#uploadModal').modal('hide');
+          $('#errorModal').find('#errorList').empty();
+          var errorMessage = obj.message;
+          for (var i = 0; i < errorMessage.length; i++) {
+            $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);
+          }
+          $('#errorModal').modal('show');
+        } else {
+          $('#spinnerLoading').hide();
+        }
+      }
+    });
+  });
+  
+  $('#multiDeactivate').on('click', function () {
+    $('#spinnerLoading').show();
+    var selectedIds = []; // An array to store the selected 'id' values
+    
+    $("#customerTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+        selectedIds.push($(this).val());
+      }
+    });
+    
+    if (selectedIds.length > 0) {
+      if (confirm('Are you sure you want to cancel these items?')) {
+        $.post('php/modules/customers/deleteCustomer.php', {userID: selectedIds, type: 'MULTI'}, function(data) {
+          var obj = JSON.parse(data);
+          
+          if (obj.status === 'success') {
+            $('#customerTable').DataTable().ajax.reload();
+            $('#spinnerLoading').hide();
+          } else if (obj.status === 'failed') {
+            $('#spinnerLoading').hide();
+          } else {
+            $('#spinnerLoading').hide();
+          }
+        });
+      }
+      $('#spinnerLoading').hide();
+    } else {
+      // Optionally, you can display a message or take another action if no IDs are selected
+      alert("Please select at least one customer to delete.");
+      $('#spinnerLoading').hide();
     }
-    
-    htmlTable += '</tbody></table>';
-    
-    var previewTable = document.getElementById('previewTable');
-    previewTable.innerHTML = htmlTable;
+  });
+});
+  
+function displayPreview(data) {
+  // Parse the Excel data
+  var workbook = XLSX.read(data, { type: 'binary' });
+
+  // Get the first sheet
+  var sheetName = workbook.SheetNames[0];
+  var sheet = workbook.Sheets[sheetName];
+
+  // Convert the sheet to an array of objects
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 20 });
+
+  // Get the headers
+  var headers = Object.keys(jsonData[0] || {});
+  
+  // Ensure we handle cases where there may be less than 20 columns
+  while (headers.length < 20) {
+    headers.push(''); // Adding empty headers to reach 20 columns
+  }
+
+  // Create HTML table headers
+  var htmlTable = '<table style="width:20%;"><thead><tr>';
+  headers.forEach(function(header) {
+    htmlTable += '<th>' + header + '</th>';
+  });
+  htmlTable += '</tr></thead><tbody>';
+  
+  // Iterate over the data and create table rows
+  for (var i = 0; i < jsonData.length; i++) {
+    htmlTable += '<tr>';
+    var rowData = jsonData[i];
+
+    for (var j = 0; j < 20 && j < headers.length; j++) {
+      var cellData = rowData[headers[j]];
+      var formattedData = cellData;
+      
+      // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
+      if (typeof cellData === 'number' && cellData > 0) {
+        var excelDate = XLSX.SSF.parse_date_code(cellData);
+      }
+      htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
+    }
+    htmlTable += '</tr>';
   }
   
-  function edit(id) {
-    $('#spinnerLoading').show();
+  htmlTable += '</tbody></table>';
+  
+  var previewTable = document.getElementById('previewTable');
+  previewTable.innerHTML = htmlTable;
+}
+
+function edit(id) {
+  $('#spinnerLoading').show();
+  
+  $.post('php/modules/customers/getCustomer.php', {userID: id}, function(data) {
+    var obj = JSON.parse(data);
     
-    $.post('php/modules/customers/getCustomer.php', {userID: id}, function(data) {
-      var obj = JSON.parse(data);
-      
-      if(obj.status === 'success') {
+    if(obj.status === 'success'){
         $('#addModal').find('#id').val(obj.message.id);
         $('#addModal').find('#code').val(obj.message.customer_code);
         $('#addModal').find('#reg_no').val(obj.message.reg_no);
@@ -973,234 +914,237 @@ if (!isset($_SESSION['userID'])) {
         $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
         $('#addModal').find('#company').val(obj.message.customer).trigger('change');
         $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
+        $('#addModal').find('#customerType').val(obj.message.customer_type || 'Normal').trigger('change');
         $('#addModal').modal('show');
         
         $('#customerForm').validate({
-          errorElement: 'span',
-          errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
-          },
-          highlight: function (element, errorClass, validClass) {
-            $(element).addClass('is-invalid');
-          },
-          unhighlight: function (element, errorClass, validClass) {
-            $(element).removeClass('is-invalid');
-          }
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
         });
+    }
+    else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+    }
+    else{
+        toastr["error"]("Something wrong when activate", "Failed:");
+    }
+    $('#spinnerLoading').hide();
+  });
+}
+
+function deactivate(id) {
+  if (confirm('Are you sure you want to delete this items?')) {
+    $('#spinnerLoading').show();
+    
+    $.post('php/modules/customers/deleteCustomer.php', {userID: id}, function(data) {
+      var obj = JSON.parse(data);
+      
+      if(obj.status === 'success') {
+        toastr["success"](obj.message, "Success:");
+        $('#customerTable').DataTable().ajax.reload();
+        $('#spinnerLoading').hide();
       } else if (obj.status === 'failed') {
         toastr["error"](obj.message, "Failed:");
+        $('#spinnerLoading').hide();
       } else {
         toastr["error"]("Something wrong when activate", "Failed:");
-      }
-      $('#spinnerLoading').hide();
-    });
-  }
-  
-  function deactivate(id) {
-    if (confirm('Are you sure you want to delete this items?')) {
-      $('#spinnerLoading').show();
-      
-      $.post('php/modules/customers/deleteCustomer.php', {userID: id}, function(data) {
-        var obj = JSON.parse(data);
-        
-        if(obj.status === 'success') {
-          toastr["success"](obj.message, "Success:");
-          $('#customerTable').DataTable().ajax.reload();
-          $('#spinnerLoading').hide();
-        } else if (obj.status === 'failed') {
-          toastr["error"](obj.message, "Failed:");
-          $('#spinnerLoading').hide();
-        } else {
-          toastr["error"]("Something wrong when activate", "Failed:");
-          $('#spinnerLoading').hide();
-        }
-      });
-    }
-  }
-  
-  function reactivate(id) {
-    if (confirm('Are you sure you want to reactivate this items?')) {
-      $('#spinnerLoading').show();
-      
-      $.post('php/modules/customers/reactivateCustomer.php', {userID: id}, function(data) {
-        var obj = JSON.parse(data);
-        
-        if(obj.status === 'success') {
-          toastr["success"](obj.message, "Success:");
-          $('#customerTable').DataTable().ajax.reload();
-          $('#spinnerLoading').hide();
-        } else if (obj.status === 'failed') {
-          toastr["error"](obj.message, "Failed:");
-          $('#spinnerLoading').hide();
-        } else {
-          toastr["error"]("Something wrong when activate", "Failed:");
-          $('#spinnerLoading').hide();
-        }
-      });
-    }
-  }
-  
-  function openBinModal(id, name) {
-    $('#binModal').find('#binCustomerId').val(id);
-    $('#binModal').find('#binCustomerName').text(name);
-    $('#binModal').find('#binTypeId').val('');
-    $('#binModal').find('#binTypeSelect').val('');
-    $('#binModal').find('#binQty').val('');
-    $('#binModal').find('#binRemark').val('');
-    $('input[name="binAction"][value="OUT"]').prop('checked', true);
-    $('#binDetails').hide();
-    $('#binCurrent').text('0');
-    $('#binModal').modal('show');
-    
-    $('#binForm').validate({
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-        error.addClass('invalid-feedback');
-        element.closest('.form-group').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-        $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-        $(element).removeClass('is-invalid');
-      },
-      rules: {
-        binTypeId:  { required: true },
-        binQty:     { required: true, min: 1 }
+        $('#spinnerLoading').hide();
       }
     });
   }
-  
-  $('#binTypeSelect').on('change', function() {
-    var typeId = $(this).val();
-    var customerId = $('#binCustomerId').val();
-    $('#binTypeId').val(typeId);
-    $('#binQty').val('');
-    $('#binRemark').val('');
-    $('input[name="binAction"][value="OUT"]').prop('checked', true);
+}
+
+function reactivate(id) {
+  if (confirm('Are you sure you want to reactivate this items?')) {
+    $('#spinnerLoading').show();
     
-    if (!typeId) {
-      $('#binDetails').slideUp(150);
-      return;
-    }
-    
-    // Show skeleton, hide pending card while loading
-    $('#binLoadingSkeleton').show();
-    $('#binPendingCard').hide();
-    if (!$('#binDetails').is(':visible')) {
-      $('#binDetails').slideDown(200);
-    }
-    
-    $.post('php/modules/customers/getBinPending.php', { customer_id: customerId, bin_type_id: typeId }, function(data) {
+    $.post('php/modules/customers/reactivateCustomer.php', {userID: id}, function(data) {
       var obj = JSON.parse(data);
-      var count = (obj.status === 'success') ? obj.pending_bins : 0;
-      $('#binCurrent').text(count);
-      $('#binLoadingSkeleton').hide();
-      $('#binPendingCard').show();
-    }).fail(function() {
-      $('#binCurrent').text('0');
-      $('#binLoadingSkeleton').hide();
-      $('#binPendingCard').show();
+      
+      if(obj.status === 'success') {
+        toastr["success"](obj.message, "Success:");
+        $('#customerTable').DataTable().ajax.reload();
+        $('#spinnerLoading').hide();
+      } else if (obj.status === 'failed') {
+        toastr["error"](obj.message, "Failed:");
+        $('#spinnerLoading').hide();
+      } else {
+        toastr["error"]("Something wrong when activate", "Failed:");
+        $('#spinnerLoading').hide();
+      }
     });
-  });
+  }
+}
+
+function openBinModal(id, name) {
+  $('#binModal').find('#binCustomerId').val(id);
+  $('#binModal').find('#binCustomerName').text(name);
+  $('#binModal').find('#binTypeId').val('');
+  $('#binModal').find('#binTypeSelect').val('');
+  $('#binModal').find('#binQty').val('');
+  $('#binModal').find('#binRemark').val('');
+  $('input[name="binAction"][value="OUT"]').prop('checked', true);
+  $('#binDetails').hide();
+  $('#binCurrent').text('0');
+  $('#binModal').modal('show');
   
-  function openBinHistory(id, name) {
-    $('#binHistoryModal').find('#binHistoryCustomerName').text(name);
-    $('#binHistoryModal').find('#binHistoryTypeSelect').val('');
+  $('#binForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+      error.addClass('invalid-feedback');
+      element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass('is-invalid');
+    },
+    rules: {
+      binTypeId:  { required: true },
+      binQty:     { required: true, min: 1 }
+    }
+  });
+}
+
+$('#binTypeSelect').on('change', function() {
+  var typeId = $(this).val();
+  var customerId = $('#binCustomerId').val();
+  $('#binTypeId').val(typeId);
+  $('#binQty').val('');
+  $('#binRemark').val('');
+  $('input[name="binAction"][value="OUT"]').prop('checked', true);
+  
+  if (!typeId) {
+    $('#binDetails').slideUp(150);
+    return;
+  }
+  
+  // Show skeleton, hide pending card while loading
+  $('#binLoadingSkeleton').show();
+  $('#binPendingCard').hide();
+  if (!$('#binDetails').is(':visible')) {
+    $('#binDetails').slideDown(200);
+  }
+  
+  $.post('php/modules/customers/getBinPending.php', { customer_id: customerId, bin_type_id: typeId }, function(data) {
+    var obj = JSON.parse(data);
+    var count = (obj.status === 'success') ? obj.pending_bins : 0;
+    $('#binCurrent').text(count);
+    $('#binLoadingSkeleton').hide();
+    $('#binPendingCard').show();
+  }).fail(function() {
+    $('#binCurrent').text('0');
+    $('#binLoadingSkeleton').hide();
+    $('#binPendingCard').show();
+  });
+});
+
+function openBinHistory(id, name) {
+  $('#binHistoryModal').find('#binHistoryCustomerName').text(name);
+  $('#binHistoryModal').find('#binHistoryTypeSelect').val('');
+  $('#binHistoryContent').hide();
+  $('#binHistoryPrompt').show();
+  $('#binHistoryList').html('');
+  $('#binHistoryPager').html('');
+  $('#binHistoryModal').data('customerId', id).modal('show');
+}
+
+$('#binHistoryTypeSelect').on('change', function() {
+  var typeId = $(this).val();
+  var customerId = $('#binHistoryModal').data('customerId');
+  
+  if (!typeId) {
     $('#binHistoryContent').hide();
     $('#binHistoryPrompt').show();
-    $('#binHistoryList').html('');
-    $('#binHistoryPager').html('');
-    $('#binHistoryModal').data('customerId', id).modal('show');
+    return;
   }
+
+  $('#binHistoryPrompt').hide();
+  $('#binHistoryContent').show();
+  $('#binHistoryList').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>');
+  $('#binHistoryPager').html('');
   
-  $('#binHistoryTypeSelect').on('change', function() {
-    var typeId = $(this).val();
-    var customerId = $('#binHistoryModal').data('customerId');
+  $.post('php/modules/customers/getBinHistory.php', {
+    draw: 1, start: 0, length: 1000,
+    order: [{column: 0, dir: 'desc'}],
+    columns: [{data: 'created_at'}],
+    search: {value: ''},
+    customer_id: customerId,
+    bin_type_id: typeId
+  }, function(data) {
+    var obj = JSON.parse(data);
+    var rows = obj.aaData;
     
-    if (!typeId) {
-      $('#binHistoryContent').hide();
-      $('#binHistoryPrompt').show();
+    if (!rows || rows.length === 0) {
+      $('#binHistoryList').html('<div class="text-center text-muted py-5"><i class="fas fa-inbox fa-2x mb-2"></i><div>No records found</div></div>');
       return;
     }
 
-    $('#binHistoryPrompt').hide();
-    $('#binHistoryContent').show();
-    $('#binHistoryList').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>');
-    $('#binHistoryPager').html('');
+    var perPage = 5;
+    var currentPage = 1;
+    var totalPages = Math.ceil(rows.length / perPage);
     
-    $.post('php/modules/customers/getBinHistory.php', {
-      draw: 1, start: 0, length: 1000,
-      order: [{column: 0, dir: 'desc'}],
-      columns: [{data: 'created_at'}],
-      search: {value: ''},
-      customer_id: customerId,
-      bin_type_id: typeId
-    }, function(data) {
-      var obj = JSON.parse(data);
-      var rows = obj.aaData;
+    function renderCards(page) {
+      var start = (page - 1) * perPage;
+      var pageRows = rows.slice(start, start + perPage);
+      var html = '';
       
-      if (!rows || rows.length === 0) {
-        $('#binHistoryList').html('<div class="text-center text-muted py-5"><i class="fas fa-inbox fa-2x mb-2"></i><div>No records found</div></div>');
-        return;
-      }
-
-      var perPage = 5;
-      var currentPage = 1;
-      var totalPages = Math.ceil(rows.length / perPage);
-      
-      function renderCards(page) {
-        var start = (page - 1) * perPage;
-        var pageRows = rows.slice(start, start + perPage);
-        var html = '';
-        
-        pageRows.forEach(function(r) {
-          var isOut = r.type === 'OUT';
-          var icon       = isOut ? 'fa-arrow-up' : 'fa-arrow-down';
-          var iconClass  = isOut ? 'text-warning' : 'text-success';
-          var badgeClass = isOut ? 'badge-warning' : 'badge-success';
-          var label      = isOut ? 'OUT' : 'IN';
-          html += '<div class="card mb-2 border-0 shadow-sm">';
-          html +=   '<div class="card-body py-2 px-3 d-flex align-items-center">';
-          html +=     '<div class="mr-3"><i class="fas ' + icon + ' fa-lg ' + iconClass + '"></i></div>';
-          html +=     '<div class="flex-fill">';
-          html +=       '<div class="d-flex justify-content-between align-items-center">';
-          html +=         '<span class="font-weight-bold"><span class="badge ' + badgeClass + ' mr-1">' + label + '</span>' + r.qty + ' baskets</span>';
-          html +=         '<small class="text-muted">' + r.created_at + '</small>';
-          html +=       '</div>';
-          html +=       '<small class="text-muted"><i class="fas fa-user mr-1"></i>' + (r.user_name || '-');
-          if (r.remark) html += ' &middot; <i class="fas fa-comment mr-1"></i>' + r.remark;
-          html +=       '</small>';
-          html +=     '</div>';
-          html +=   '</div>';
-          html += '</div>';
-        });
-        
-        $('#binHistoryList').html(html);
-        
-        var pager = '<small class="text-muted">Showing ' + (start + 1) + '-' + Math.min(start + perPage, rows.length) + ' of ' + rows.length + '</small>';
-        pager += '<ul class="pagination pagination-sm mb-0">';
-        pager += '<li class="page-item ' + (page === 1 ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page - 1) + '">&laquo;</a></li>';
-        
-        for (var i = 1; i <= totalPages; i++) {
-          pager += '<li class="page-item ' + (i === page ? 'active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
-        }
-        
-        pager += '<li class="page-item ' + (page === totalPages ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page + 1) + '">&raquo;</a></li>';
-        pager += '</ul>';
-        $('#binHistoryPager').html(pager);
-      }
-      
-      renderCards(currentPage);
-      
-      $('#binHistoryPager').off('click').on('click', 'a.page-link', function(e) {
-        e.preventDefault();
-        var page = parseInt($(this).data('page'));
-        if (page < 1 || page > totalPages) return;
-        currentPage = page;
-        renderCards(currentPage);
+      pageRows.forEach(function(r) {
+        var isOut = r.type === 'OUT';
+        var icon       = isOut ? 'fa-arrow-up' : 'fa-arrow-down';
+        var iconClass  = isOut ? 'text-warning' : 'text-success';
+        var badgeClass = isOut ? 'badge-warning' : 'badge-success';
+        var label      = isOut ? 'OUT' : 'IN';
+        html += '<div class="card mb-2 border-0 shadow-sm">';
+        html +=   '<div class="card-body py-2 px-3 d-flex align-items-center">';
+        html +=     '<div class="mr-3"><i class="fas ' + icon + ' fa-lg ' + iconClass + '"></i></div>';
+        html +=     '<div class="flex-fill">';
+        html +=       '<div class="d-flex justify-content-between align-items-center">';
+        html +=         '<span class="font-weight-bold"><span class="badge ' + badgeClass + ' mr-1">' + label + '</span>' + r.qty + ' baskets</span>';
+        html +=         '<small class="text-muted">' + r.created_at + '</small>';
+        html +=       '</div>';
+        html +=       '<small class="text-muted"><i class="fas fa-user mr-1"></i>' + (r.user_name || '-');
+        if (r.remark) html += ' &middot; <i class="fas fa-comment mr-1"></i>' + r.remark;
+        html +=       '</small>';
+        html +=     '</div>';
+        html +=   '</div>';
+        html += '</div>';
       });
+      
+      $('#binHistoryList').html(html);
+      
+      var pager = '<small class="text-muted">Showing ' + (start + 1) + '-' + Math.min(start + perPage, rows.length) + ' of ' + rows.length + '</small>';
+      pager += '<ul class="pagination pagination-sm mb-0">';
+      pager += '<li class="page-item ' + (page === 1 ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page - 1) + '">&laquo;</a></li>';
+      
+      for (var i = 1; i <= totalPages; i++) {
+        pager += '<li class="page-item ' + (i === page ? 'active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>';
+      }
+      
+      pager += '<li class="page-item ' + (page === totalPages ? 'disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page + 1) + '">&raquo;</a></li>';
+      pager += '</ul>';
+      $('#binHistoryPager').html(pager);
+    }
+    
+    renderCards(currentPage);
+    
+    $('#binHistoryPager').off('click').on('click', 'a.page-link', function(e) {
+      e.preventDefault();
+      var page = parseInt($(this).data('page'));
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderCards(currentPage);
     });
   });
+});
 </script>

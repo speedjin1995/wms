@@ -43,10 +43,10 @@ if (!isset($_SESSION['userID'])) {
     $products2 = $db->query($productQuery);
     $products3 = $db->query($productQuery);
     $products4 = $db->query($productQuery);
-    $grades = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades2 = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades3 = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades4 = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades2 = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades3 = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $grades4 = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
     $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
@@ -70,10 +70,10 @@ if (!isset($_SESSION['userID'])) {
     $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $products4 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $grades = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades2 = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades3 = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades4 = $db->query("SELECT DISTINCT g.*, pg.product_id FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades2 = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades3 = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $grades4 = $db->query("SELECT DISTINCT g.*, pg.product_id, pg.type AS grade_type FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
     $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
@@ -274,6 +274,15 @@ if (!isset($_SESSION['userID'])) {
                       <option value="<?=$rowProdLine['id'] ?>"><?=$rowProdLine['production_line'] ?></option>
                     <?php } ?>
                   </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                <select class="form-control" id="gradeType" name="gradeType">
+                  <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                  <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                </select>
               </div>
             </div>
           </div>
@@ -504,13 +513,13 @@ if (!isset($_SESSION['userID'])) {
 </div>
 
 <script>
-  // Values
-  var weightCount = 0;
-  var allowPhoto = '<?=$allowPhoto?>';
-  var categoryOptions = `<?php while($rowCat=mysqli_fetch_assoc($categories)){ ?><option value="<?=$rowCat['id'] ?>"><?=$rowCat['category_name'] ?></option><?php } ?>`;
-  var productOptions = `<?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?><option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option><?php } ?>`;
-  var packagingOptions = `<?php while($rowPkg=mysqli_fetch_assoc($packagings2)){ ?><option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option><?php } ?>`;
-  var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
+// Values
+var weightCount = 0;
+var allowPhoto = '<?=$allowPhoto?>';
+var categoryOptions = `<?php while($rowCat=mysqli_fetch_assoc($categories)){ ?><option value="<?=$rowCat['id'] ?>"><?=$rowCat['category_name'] ?></option><?php } ?>`;
+var productOptions = `<?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?><option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option><?php } ?>`;
+var packagingOptions = `<?php while($rowPkg=mysqli_fetch_assoc($packagings2)){ ?><option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option><?php } ?>`;
+var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-type="<?=$rowGrade['grade_type'] ?? 'Local'?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
 
   $(function () {
     $('#uomhidden').hide();
@@ -699,10 +708,9 @@ if (!isset($_SESSION['userID'])) {
 
     $.validator.setDefaults({
       submitHandler: function () {
-        if ($('#extendModal').hasClass('show')) {
+        if($('#extendModal').hasClass('show')){
           var valid = true;
           var errorMsg = '';
-
           $('#weightDetailsTable tr').each(function(i) {
             var rowNum = i + 1;
 
@@ -731,7 +739,6 @@ if (!isset($_SESSION['userID'])) {
             }
 
             var gross = parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
-
             if (gross <= 0) {
               errorMsg = 'Row ' + rowNum + ': Gross must be greater than 0.';
               valid = false;
@@ -739,7 +746,6 @@ if (!isset($_SESSION['userID'])) {
             }
 
             var net = parseFloat($(this).find('input[name*="[weight]"]').val() || 0);
-
             if (net < 0) {
               errorMsg = 'Row ' + rowNum + ': Net weight cannot be negative.';
               valid = false;
@@ -760,34 +766,31 @@ if (!isset($_SESSION['userID'])) {
 
           $('#spinnerLoading').show();
           var formData = new FormData($('#extendForm')[0]);
-
           $.ajax({
             url: 'php/modules/packagingBatches/packagingBatch.php',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
-            success: function(data) {
+            success: function(data){
               var obj = JSON.parse(data); 
-
-              if (obj.status === 'success') {
+              if(obj.status === 'success'){
                 $('#extendModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
                 $('#weightTable').DataTable().ajax.reload();
-              } else if (obj.status === 'failed') {
+              } else if(obj.status === 'failed'){
                 toastr["error"](obj.message, "Failed:");
               } else {
                 toastr["error"]("Something wrong when edit", "Failed:");
               }
-
               $('#spinnerLoading').hide();
             },
-            error: function() {
+            error: function(){
               toastr["error"]("Something wrong when saving", "Failed:");
               $('#spinnerLoading').hide();
             }
           });
-        } else if ($('#shipmentModal').hasClass('show')) {
+        } else if($('#shipmentModal').hasClass('show')){
           $('#spinnerLoading').show();
           var loadingDate = $('#shipmentLoadingDate').val();
           var customerId  = $('#shipmentCustomer').val();
@@ -808,49 +811,350 @@ if (!isset($_SESSION['userID'])) {
             postData['items[' + i + '][loading_time]'] = moment().format('HH:mm');
             postData['items[' + i + '][remarks]'] = $('#shipmentRemark').val();
           });
-          $.post('php/modules/loading/loadingOrder.php', postData, function(data) {
+          $.post('php/modules/loading/loadingOrder.php', postData, function(data){
             var obj = JSON.parse(data);
-
-            if (obj.status === 'success') {
+            if(obj.status === 'success'){
               $('#shipmentModal').modal('hide');
               toastr["success"](obj.message, "Success:");
               $('#weightTable').DataTable().ajax.reload();
-            } else if (obj.status === 'failed') {
+            } else if(obj.status === 'failed'){
               toastr["error"](obj.message, "Failed:");
             } else {
               toastr["error"]("Something went wrong", "Failed:");
             }
-
             $('#spinnerLoading').hide();
           });
-        } else if ($('#cancelModal').hasClass('show')) {
+        } else if($('#cancelModal').hasClass('show')){
           $('#spinnerLoading').show();
-
-          $.post('php/modules/packagingBatches/deletePackagingBatch.php', $('#cancelForm').serialize(), function(data) {
+          $.post('php/modules/packagingBatches/deletePackagingBatch.php', $('#cancelForm').serialize(), function(data){
             var obj = JSON.parse(data);
-
-            if (obj.status === 'success') {
+            if(obj.status === 'success'){
               $('#cancelModal').modal('hide');
               toastr["success"](obj.message, "Success:");
               $('#weightTable').DataTable().ajax.reload();
-            } else if (obj.status === 'failed') {
+            } else if(obj.status === 'failed'){
               toastr["error"](obj.message, "Failed:");
             } else {
               toastr["error"]("Something wrong when delete", "Failed:");
             }
-
             $('#spinnerLoading').hide();
           });
         }
       }
     });
+  });
+
+
+  $('#addWeightBtn').on('click', function() {
+    var idx = weightCount++;
+    var now = new Date();
+    var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                      now.getMinutes().toString().padStart(2, '0') + ':' + 
+                      now.getSeconds().toString().padStart(2, '0');
+    var gradeTypeFilter = $('#gradeType').val();
+    
+    // Filter grade options by type
+    var filteredGradeOptions = gradeOptions;
+    if(gradeTypeFilter) {
+      var $temp = $('<select>').html(gradeOptions);
+      $temp.find('option').each(function() {
+        var gradeType = $(this).attr('data-type');
+        if(gradeType && gradeType != gradeTypeFilter) {
+          $(this).remove();
+        }
+      });
+      filteredGradeOptions = $temp.html();
+    }
+    
+    var row = `
+      <tr class="details">
+        <input type="hidden" name="weightDetails[${idx}][batchItemId]" value="">
+        <td>
+          <select class="form-control select2" id="category${idx}" name="weightDetails[${idx}][category]" required>
+            <option value="" selected disabled>Select Category</option>
+            ${categoryOptions}
+          </select>
+        </td>
+        <td>
+          <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
+            <option value="" selected disabled>Select Product</option>
+            ${productOptions}
+          </select>
+        </td>
+        <td>
+          <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]" required>
+            ${filteredGradeOptions}
+          </select>
+        </td>
+        <td>
+          <select class="form-control select2" id="packagingSize${idx}" name="weightDetails[${idx}][packaging_size]" required>
+            <option value="" selected disabled>Select Packaging</option>
+            <?php while($rowPkg=mysqli_fetch_assoc($packagings3)){ ?>
+              <option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option>
+            <?php } ?>
+          </select>
+        </td>
+        <td><input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]"></td>
+        <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="0" min="1" required></td>
+        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" min="0.01" required></td>
+        <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
+        <td><input type="number" class="form-control" id="weight${idx}" name="weightDetails[${idx}][weight]" step="0.01" value="0.00" readonly></td>
+        <td>
+          <input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}" required/>
+        </td>
+        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
+          <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
+          <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
+          <span id="photoStatus${idx}"></span>
+        </td>
+        <td>
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `;
+    $('#weightDetailsTable').append(row);
+    
+    // Store original options for the new grade select
+    var newGradeSelect = $(`#grade${idx}`);
+    newGradeSelect.data('original-options', gradeOptions);
+
+    $('.select2').select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+  });
+
+  $('#weightDetailsTable').on('input', 'input[id^="gross"], input[id^="tare"]', function() {
+    var row = $(this).closest('tr');
+    var gross = parseFloat(row.find('input[id^="gross"]').val()) || 0;
+    var tare  = parseFloat(row.find('input[id^="tare"]').val()) || 0;
+    var net   = gross - tare;
+    row.find('input[id^="weight"]').val(net.toFixed(2));
+  });
+
+  $('#weightDetailsTable').on('change', 'select[name*="[category]"]', function() {
+    $(this).removeClass('is-invalid').closest('td').find('.invalid-feedback').remove();
+    var row = $(this).closest('tr');
+    var selectedCategory = $(this).val();
+    var productSelect = row.find('select[name*="[product]"]');
+
+    productSelect.select2('destroy');
+    if (!productSelect.data('original-options')) {
+      productSelect.data('original-options', productSelect.html());
+    }
+    productSelect.html(productSelect.data('original-options'));
+
+    if (selectedCategory) {
+      productSelect.find('option').each(function() {
+        if ($(this).val() && $(this).data('category') != selectedCategory) {
+          $(this).remove();
+        }
+      });
+    }
+
+    productSelect.val('').select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+  });
+
+  $('#weightDetailsTable').on('change', 'select[name*="[product]"]', function() {
+    $(this).removeClass('is-invalid').closest('td').find('.invalid-feedback').remove();
+    var row = $(this).closest('tr');
+    var productId = $(this).val();
+    var productName = $(this).find('option:selected').text();
+    var gradeTypeFilter = $('#gradeType').val();
+    
+    // Filter grades by selected product and type
+    var gradeSelect = row.find('select[name*="[grade]"]');
+    var currentGrade = gradeSelect.val();
+    var currentGradeId = gradeSelect.find(':selected').data('id');
+
+    // Destroy Select2 before modifying options
+    gradeSelect.select2('destroy');
+    
+    // Store all original options if not already stored
+    if (!gradeSelect.data('original-options')) {
+      gradeSelect.data('original-options', gradeSelect.html());
+    }
+    
+    // Reset to original options
+    gradeSelect.html(gradeSelect.data('original-options'));
+    
+    // Remove options that don't match the selected product and type
+    gradeSelect.find('option').each(function() {
+      var gradeProduct = $(this).attr('data-product');
+      var gradeType = $(this).attr('data-type');
+      var productMatch = !productId || !gradeProduct || gradeProduct == productId;
+      var typeMatch = !gradeTypeFilter || !gradeType || gradeType == gradeTypeFilter;
+      if(!productMatch || !typeMatch) {
+        $(this).remove();
+      }
+    });
+    
+    // Recreate Select2
+    gradeSelect.select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-body'),
+      width: '100%'
+    });
+    
+    gradeSelect.val(currentGrade).trigger('change');
+  });
+
+  // Filter grades when type changes
+  $('#gradeType').on('change', function() {
+    var gradeTypeFilter = $(this).val();
+    
+    // Update all existing grade selects in the table
+    $('#weightDetailsTable tr').each(function() {
+      var row = $(this);
+      var productId = row.find('select[name*="[product]"]').val();
+      var gradeSelect = row.find('select[name*="[grade]"]');
+      var currentGrade = gradeSelect.val();
+      
+      gradeSelect.select2('destroy');
+      
+      if (!gradeSelect.data('original-options')) {
+        gradeSelect.data('original-options', gradeOptions);
+      }
+      
+      gradeSelect.html(gradeSelect.data('original-options'));
+      
+      gradeSelect.find('option').each(function() {
+        var gradeProduct = $(this).attr('data-product');
+        var gradeType = $(this).attr('data-type');
+        var productMatch = !productId || !gradeProduct || gradeProduct == productId;
+        var typeMatch = !gradeTypeFilter || !gradeType || gradeType == gradeTypeFilter;
+        if(!productMatch || !typeMatch) {
+          $(this).remove();
+        }
+      });
+      
+      gradeSelect.select2({
+        allowClear: true,
+        placeholder: "Please Select",
+        dropdownParent: $('#extendModal .modal-body'),
+        width: '100%'
+      });
+      
+      // Keep current value if still valid
+      if(gradeSelect.find('option[value="'+currentGrade+'"]').length) {
+        gradeSelect.val(currentGrade).trigger('change.select2');
+      }
+    });
+  });
+
+  // Auto-fill gross from selected packaging size
+  $('#weightDetailsTable').on('change', 'select[name*="[packaging_size]"]', function() {
+    var row = $(this).closest('tr');
+    var gross = parseFloat(row.find('input[name*="[gross]"]').val()) || 0;
+    var weight = $(this).find('option:selected').data('weight');
+    if (weight && !gross) {
+      row.find('input[name*="[gross]"]').val(parseFloat(weight).toFixed(2)).trigger('input');
+    }
+  });
+
+  $('#bulkPackagingSize').on('change', function() {
+    var weight = $(this).find('option:selected').data('weight');
+    if (weight) $('#bulkWeight').val(parseFloat(weight).toFixed(2));
+  });
+
+  // Fix scroll when nested modal opens
+  $('#bulkAddModal, #shipmentModal').on('show.bs.modal', function() {
+    $('body').addClass('modal-open');
+  }).on('hidden.bs.modal', function() {
+    $('body').addClass('modal-open');
+  });
+
+  // Bulk Add
+  var now = new Date();
+  $('#bulkAddBtn').on('click', function() {
+    $('#bulkCategory').html('<option value="" selected disabled>Select Category</option>' + categoryOptions);
+    $('#bulkProduct').html('<option value="" selected disabled>Select Product</option>' + productOptions);
+    $('#bulkGrade').html(gradeOptions);
+    $('#bulkPackagingSize').html('<option value="" selected disabled>Select Packaging</option>' + packagingOptions);
+
+    ['#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize'].forEach(function(id) {
+      $(id).val(null).select2({ allowClear: true, placeholder: 'Please Select', dropdownParent: $('#bulkAddModal .modal-body'), width: '100%' });
+    });
+
+    $('#bulkAddModal').find('#bulkNo').val(1);
+    $('#bulkAddModal').find('#bulkUnitPerBox').val(0);
+    $('#bulkAddModal').find('#bulkWeight').val(0);
+    $('#bulkAddModal').find('#bulkTime').val(now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0'));
+
+    $('#bulkAddModal').modal('show');
+  });
+
+  $('#bulkCategory').on('change', function() {
+    var selectedCategory = $(this).val();
+    var productSelect = $('#bulkProduct');
+    productSelect.html('<option value="" selected disabled>Select Product</option>' + productOptions);
+    productSelect.find('option').each(function() {
+      if ($(this).val() && $(this).data('category') != selectedCategory) {
+        $(this).remove();
+      }
+    });
+    productSelect.val('').select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#bulkAddModal .modal-body'), width: '100%' });
+    $('#bulkGrade').val('').trigger('change');
+  });
+
+  $('#bulkProduct').on('change', function() {
+    var productId = $(this).val();
+    var gradeTypeFilter = $('#gradeType').val();
+    var gradeSelect = $('#bulkGrade');
+    gradeSelect.html(gradeOptions);
+    gradeSelect.find('option').each(function() {
+      var gradeProduct = $(this).attr('data-product');
+      var gradeType = $(this).attr('data-type');
+      var productMatch = !productId || !gradeProduct || gradeProduct == productId;
+      var typeMatch = !gradeTypeFilter || !gradeType || gradeType == gradeTypeFilter;
+      if(!productMatch || !typeMatch) {
+        $(this).remove();
+      }
+    });
+    gradeSelect.val('').select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#bulkAddModal .modal-body'), width: '100%' });
+  });
+
+  $('#bulkAddForm').on('submit', function(e) {
+    e.preventDefault();
+    var valid = true;
+    ['#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize'].forEach(function(id) {
+      var el = $(id);
+      if (!el.val()) {
+        el.addClass('is-invalid').next('.select2-container').find('.select2-selection').addClass('is-invalid');
+        el.closest('.form-group').find('.invalid-feedback').show();
+        valid = false;
+      } else {
+        el.removeClass('is-invalid');
+        el.closest('.form-group').find('.invalid-feedback').hide();
+      }
+    });
 
     $('#addWeightBtn').on('click', function() {
       var idx = weightCount++;
-      var now = new Date();
-      var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                        now.getMinutes().toString().padStart(2, '0') + ':' + 
-                        now.getSeconds().toString().padStart(2, '0');
+      var gradeTypeFilter = $('#gradeType').val();
+      
+      // Filter grade options by type
+      var filteredGradeOptions = gradeOptions;
+      if(gradeTypeFilter) {
+        var $temp = $('<select>').html(gradeOptions);
+        $temp.find('option').each(function() {
+          var gradeType = $(this).attr('data-type');
+          if(gradeType && gradeType != gradeTypeFilter) {
+            $(this).remove();
+          }
+        });
+        filteredGradeOptions = $temp.html();
+      }
+      
       var row = `
         <tr class="details">
           <input type="hidden" name="weightDetails[${idx}][batchItemId]" value="">
@@ -868,9 +1172,7 @@ if (!isset($_SESSION['userID'])) {
           </td>
           <td>
             <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]" required>
-              <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-                <option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
-              <?php } ?>
+              ${filteredGradeOptions}
             </select>
           </td>
           <td>

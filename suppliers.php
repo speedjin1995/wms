@@ -141,249 +141,233 @@ if (!isset($_SESSION['userID'])) {
   </div><!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="addModal">
+<div class="modal fade modal-modern" id="addModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content custom-model-content-box">
+    <div class="modal-content">
       <form role="form" id="supplierForm">
-        <div class="modal-header custom-model-header-box">
-          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_suppliers_code'][$language]?></h4>
-          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        
-        <div class="modal-body custom-model-body-box">
-          <input type="hidden" id="id" name="id">
-          
-          <!-- Company (SADMIN only) -->
-          <div class="row" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
-                <select class="form-control select2" style="width:100%;" id="company" name="company" required>
-                  <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                    <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
+          <div class="modal-header custom-model-header-box">
+            <h5 class="modal-title custom-model-title-txt"><?=$languageArray['add_suppliers_code'][$language]?></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          
-          <!-- Row 1: Code, Reg No, Parent -->
-          <div class="row">
-            <div class="col-md-3">
-              <div class="form-group">
-                <label><?=$languageArray['supplier_code_code'][$language]?> <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="code" id="code" placeholder="<?=$languageArray['enter_supplier_code_code'][$language]?>" required>
-              </div>
-            </div>
-            
-            <div class="col-md-3">
-              <div class="form-group">
-                <label><?=$languageArray['reg_no_code'][$language]?></label>
-                <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="<?=$languageArray['enter_reg_no_code'][$language]?>">
-              </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><?=$languageArray['parent_code'][$language]?></label>
-                <select class="form-control select2" style="width:100%;" id="parent" name="parent">
-                  <?php while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
-                    <option value="<?=$rowSupplier['id'] ?>"><?=$rowSupplier['supplier_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Row 2: Name -->
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['supplier_name_code'][$language]?> <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_supplier_name_code'][$language]?>" required>
-              </div>
-            </div>
-          </div>
-          
-          <hr class="custom-model-inner-line">
-          
-          <!-- Row 3: Address 1 & 2 -->
-          <p class="custom-model-inner-title"><?=$languageArray['delivery_address_code'][$language]?></p>
-          
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?></label>
-                <input type="text" class="form-control" name="address" id="address" placeholder="<?=$languageArray['enter_address_code'][$language]?>">
-              </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?> 2</label>
-                <input type="text" class="form-control" name="address2" id="address2" placeholder="<?=$languageArray['enter_address_code'][$language]?> 2">
-              </div>
-            </div>
-          </div>
-          
-          <!-- Row 4: Address 3, 4, State -->
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?> 3</label>
-                <input type="text" class="form-control" name="address3" id="address3" placeholder="<?=$languageArray['enter_address_code'][$language]?> 3">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['address_code'][$language]?> 4</label>
-                <input type="text" class="form-control" name="address4" id="address4" placeholder="<?=$languageArray['enter_address_code'][$language]?> 4">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['states_code'][$language]?></label>
-                <select class="form-control select2" style="width:100%;" id="states" name="states">
-                  <option selected="selected">-</option>
-                  <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
-                    <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Row 5: Phone, Fax, PIC -->
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['phone_code'][$language]?></label>
-                <input type="text" class="form-control" name="phone" id="phone" placeholder="<?=$languageArray['enter_phone_code'][$language]?>">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>Fax</label>
-                <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
-              </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['pic_code'][$language]?></label>
-                <input type="text" class="form-control" id="email" name="email" placeholder="<?=$languageArray['enter_pic_code'][$language]?>">
-              </div>
-            </div>
-          </div>
-          
-          <hr class="custom-model-inner-line">
-          
-          <!-- Row 6: Billing Address -->
-          <div <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
-            <p class="custom-model-inner-title"><?=$languageArray['billing_address_code'][$language]?></p>
-            
-            <div class="row">
+          <div class="modal-body">
+            <input type="hidden" id="id" name="id">
+
+            <!-- Company (SADMIN only) -->
+            <div class="row" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
               <div class="col-md-12">
                 <div class="form-group">
-                  <label>Billing Name</label>
-                  <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
-                </div>
-              </div>
-            </div>
-            
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?></label>
-                  <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 1">
-                </div>
-              </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?> 2</label>
-                  <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 2">
-                </div>
-              </div>
-            </div>
-            
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?> 3</label>
-                  <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 3">
-                </div>
-              </div>
-              
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_address_code'][$language]?> 4</label>
-                  <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="<?=$languageArray['enter_billing_address_code'][$language]?> 4">
-                </div>
-              </div>
-              
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_state_code'][$language]?></label>
-                  <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
-                    <option selected="selected">-</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                  <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" style="width:100%;" id="company" name="company" required>
+                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
             </div>
-            
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_phone_code'][$language]?></label>
-                  <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="01x-xxxxxxx">
+
+            <!-- Basic Information -->
+            <div class="modal-section">
+              <p class="section-title"><?=$languageArray['basic_information_code'][$language] ?? 'Basic Information'?></p>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['supplier_name_code'][$language]?> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Supplier name" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['supplier_code_code'][$language]?> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="code" id="code" placeholder="Supplier code" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['supplier_type_code'][$language] ?? 'Supplier Type'?></label>
+                    <select class="form-control select2" style="width:100%;" id="supplierType" name="supplierType">
+                      <option value="Normal" selected><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+                      <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+                    </select>
+                  </div>
                 </div>
               </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_fax_code'][$language]?></label>
-                  <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['reg_no_code'][$language]?></label>
+                    <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="Registration number">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['parent_code'][$language]?></label>
+                    <select class="form-control select2" style="width:100%;" id="parent" name="parent">
+                      <option value="">Select Parent</option>
+                      <?php while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
+                        <option value="<?=$rowSupplier['id'] ?>"><?=$rowSupplier['supplier_name'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['phone_code'][$language]?></label>
+                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone number">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['pic_code'][$language]?></label>
+                    <input type="text" class="form-control" id="email" name="email" placeholder="Person In Charge">
+                  </div>
                 </div>
               </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['billing_pic_code'][$language]?></label>
-                  <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="PIC">
+            </div>
+
+            <!-- Delivery Address -->
+            <div class="modal-section">
+              <p class="section-title"><?=$languageArray['delivery_address_code'][$language]?></p>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['address_code'][$language]?></label>
+                    <input type="text" class="form-control" name="address" id="address" placeholder="Street address">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 2</label>
+                    <input type="text" class="form-control" name="address2" id="address2" placeholder="City">
+                  </div>
                 </div>
               </div>
-              
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label><?=$languageArray['currency_code'][$language]?></label>
-                  <select class="form-control select2" style="width:100%;" id="currency" name="currency">
-                    <option selected="selected">-</option>
-                    <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
-                      <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
-                    <?php } ?>
-                  </select>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 3</label>
+                    <input type="text" class="form-control" name="address3" id="address3" placeholder="Postcode">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 4</label>
+                    <input type="text" class="form-control" name="address4" id="address4" placeholder="Country">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
+                    <select class="form-control select2" style="width:100%;" id="states" name="states">
+                      <option value="">Select State</option>
+                      <?php while($rowCustomer2=mysqli_fetch_assoc($states)){ ?>
+                        <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern">Fax</label>
+                    <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Billing Address -->
+            <div class="modal-section" <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
+              <p class="section-title"><?=$languageArray['billing_address_code'][$language]?></p>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label-modern">Billing Name</label>
+                    <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['currency_code'][$language]?></label>
+                    <select class="form-control select2" style="width:100%;" id="currency" name="currency">
+                      <option value="">Select Currency</option>
+                      <?php while($rowCurrency=mysqli_fetch_assoc($currencies)){ ?>
+                        <option value="<?=$rowCurrency['id'] ?>"><?=$rowCurrency['currency'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_pic_code'][$language]?></label>
+                    <input type="text" class="form-control" id="billingPic" name="billingPic" placeholder="Person In Charge">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?></label>
+                    <input type="text" class="form-control" name="billingAddress" id="billingAddress" placeholder="Street address">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 2</label>
+                    <input type="text" class="form-control" name="billingAddress2" id="billingAddress2" placeholder="City">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 3</label>
+                    <input type="text" class="form-control" name="billingAddress3" id="billingAddress3" placeholder="Postcode">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_address_code'][$language]?> 4</label>
+                    <input type="text" class="form-control" name="billingAddress4" id="billingAddress4" placeholder="Country">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_state_code'][$language]?></label>
+                    <select class="form-control select2" style="width:100%;" id="billingStates" name="billingStates">
+                      <option value="">Select State</option>
+                      <?php while($rowCustomer2=mysqli_fetch_assoc($states2)){ ?>
+                        <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['states'] ?></option>
+                      <?php } ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_fax_code'][$language]?></label>
+                    <input type="text" class="form-control" name="billingFax" id="billingFax" placeholder="Fax number">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label-modern"><?=$languageArray['billing_phone_code'][$language]?></label>
+                    <input type="text" class="form-control" name="billingPhone" id="billingPhone" placeholder="Phone number">
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div class="modal-footer custom-model-fotter-box">
-          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
-        </div>
+            <div class="modal-footer custom-model-fotter-box">
+            <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="submit" class="btn custom-save-btn" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+          </div>
       </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
 </div>
 
 <!-- jQuery -->
@@ -410,130 +394,130 @@ if (!isset($_SESSION['userID'])) {
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 
 <script>
-  $(function () {
-    $('#selectAllCheckbox').on('change', function() {
-      var checkboxes = $('#supplierTable tbody input[type="checkbox"]');
-      checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
-    });
+$(function () {
+  $('#selectAllCheckbox').on('change', function() {
+    var checkboxes = $('#supplierTable tbody input[type="checkbox"]');
+    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
+  });
 
-    $('.select2').each(function() {
-      $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-      });
+  $('.select2').each(function() {
+    $(this).select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      // Conditionally set dropdownParent based on the element’s location
+      dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : undefined
     });
+  });
 
-    $("#supplierTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'ajax': {
-        'url':'php/modules/suppliers/loadSupplier.php'
-      },
-      'columns': [
-        {
-          // Add a checkbox with a unique ID for each row
-          data: 'id', // Assuming 'serialNo' is a unique identifier for each row
-          className: 'select-checkbox',
-          orderable: false,
-          render: function (data, type, row) {
-              return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
-          }
-        },
-        { data: 'supplier_code' },
-        { data: 'reg_no' },
-        { data: 'parent' },
-        { data: 'supplier_name' },
-        { data: 'supplier_address' },
-        { data: 'supplier_phone' },
-        { data: 'pic' },
-        { 
-          data: 'id',
-          render: function ( data, type, row ) {
-            return '<div class="row custom-tbl-btn-icon"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
-          }
-        }
-      ],
-      "rowCallback": function( row, data, index ) {
-        if (data.is_manual == 'Y') {
-          $(row).css('background-color', '#f8d7da');
+  $("#supplierTable").DataTable({
+    "responsive": true,
+    "autoWidth": false,
+    'processing': true,
+    'serverSide': true,
+    'serverMethod': 'post',
+    'ajax': {
+      'url':'php/modules/suppliers/loadSupplier.php'
+    },
+    'columns': [
+      {
+        // Add a checkbox with a unique ID for each row
+        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        className: 'select-checkbox',
+        orderable: false,
+        render: function (data, type, row) {
+            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
-    });
-    
-    $.validator.setDefaults({
-      submitHandler: function () {
-        //$('#spinnerLoading').show();
-        $.post('php/modules/suppliers/suppliers.php', $('#supplierForm').serialize(), function(data) {
-          var obj = JSON.parse(data);
-          
-          if (obj.status === 'success') {
-            $('#addModal').modal('hide');
-            toastr["success"](obj.message, "Success:");
-            $('#supplierTable').DataTable().ajax.reload();
-            // Refresh the parent dropdown
-            $.get('php/modules/suppliers/getSuppliers.php', function(data) {
-              var suppliers = JSON.parse(data);
-              $('#parent').empty().append('<option value="">Please Select</option>');
-              suppliers.forEach(function(supplier) {
-                $('#parent').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
-              });
-            });
-            //$('#spinnerLoading').hide();
-          } else if (obj.status === 'failed') {
-            toastr["error"](obj.message, "Failed:");
-            //$('#spinnerLoading').hide();
-          } else {
-            toastr["error"]("Something wrong when edit", "Failed:");
-            //$('#spinnerLoading').hide();
-          }
-        });
+      { data: 'supplier_code' },
+      { data: 'reg_no' },
+      { data: 'parent' },
+      { data: 'supplier_name' },
+      { data: 'supplier_address' },
+      { data: 'supplier_phone' },
+      { data: 'pic' },
+      { 
+        data: 'id',
+        render: function ( data, type, row ) {
+          return '<div class="row custom-tbl-btn-icon"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
+        }
       }
-    });
-
-    $('#addSuppliers').on('click', function() {
-      $('#addModal').find('#id').val("");
-      $('#addModal').find('#code').val("");
-      $('#addModal').find('#reg_no').val("");
-      $('#addModal').find('#name').val("");
-      $('#addModal').find('#address').val("");
-      $('#addModal').find('#address2').val("");
-      $('#addModal').find('#address3').val("");
-      $('#addModal').find('#address4').val("");
-      $('#addModal').find('#states').val("").trigger('change');
-      $('#addModal').find('#phone').val("");
-      $('#addModal').find('#fax').val("");
-      $('#addModal').find('#email').val("");
-      $('#addModal').find('#billingName').val("");
-      $('#addModal').find('#billingAddress').val("");
-      $('#addModal').find('#billingAddress2').val("");
-      $('#addModal').find('#billingAddress3').val("");
-      $('#addModal').find('#billingAddress4').val("");
-      $('#addModal').find('#billingStates').val("").trigger('change');
-      $('#addModal').find('#billingPhone').val("");
-      $('#addModal').find('#billingFax').val("");
-      $('#addModal').find('#billingPic').val("");
-      $('#addModal').find('#currency').val("").trigger('change');
-      $('#addModal').find('#parent').val("").trigger('change');
-      $('#addModal').modal('show');
-      
-      $('#supplierForm').validate({
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
+    ],
+    "rowCallback": function( row, data, index ) {
+      if (data.is_manual == 'Y') {
+        $(row).css('background-color', '#f8d7da');
+      }
+    },
+  });
+  
+  $.validator.setDefaults({
+    submitHandler: function () {
+      //$('#spinnerLoading').show();
+      $.post('php/modules/suppliers/suppliers.php', $('#supplierForm').serialize(), function(data) {
+        var obj = JSON.parse(data);
+        
+        if (obj.status === 'success') {
+          $('#addModal').modal('hide');
+          toastr["success"](obj.message, "Success:");
+          $('#supplierTable').DataTable().ajax.reload();
+          // Refresh the parent dropdown
+          $.get('php/modules/suppliers/getSuppliers.php', function(data) {
+            var suppliers = JSON.parse(data);
+            $('#parent').empty().append('<option value="">Please Select</option>');
+            suppliers.forEach(function(supplier) {
+              $('#parent').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
+            });
+          });
+          //$('#spinnerLoading').hide();
+        } else if (obj.status === 'failed') {
+          toastr["error"](obj.message, "Failed:");
+          //$('#spinnerLoading').hide();
+        } else {
+          toastr["error"]("Something wrong when edit", "Failed:");
+          //$('#spinnerLoading').hide();
         }
       });
+    }
+  });
+
+  $('#addSuppliers').on('click', function() {
+    $('#addModal').find('#id').val("");
+    $('#addModal').find('#code').val("");
+    $('#addModal').find('#reg_no').val("");
+    $('#addModal').find('#name').val("");
+    $('#addModal').find('#address').val("");
+    $('#addModal').find('#address2').val("");
+    $('#addModal').find('#address3').val("");
+    $('#addModal').find('#address4').val("");
+    $('#addModal').find('#states').val("").trigger('change');
+    $('#addModal').find('#phone').val("");
+    $('#addModal').find('#fax').val("");
+    $('#addModal').find('#email').val("");
+    $('#addModal').find('#billingName').val("");
+    $('#addModal').find('#billingAddress').val("");
+    $('#addModal').find('#billingAddress2').val("");
+    $('#addModal').find('#billingAddress3').val("");
+    $('#addModal').find('#billingAddress4').val("");
+    $('#addModal').find('#billingStates').val("").trigger('change');
+    $('#addModal').find('#billingPhone').val("");
+    $('#addModal').find('#billingFax').val("");
+    $('#addModal').find('#billingPic').val("");
+    $('#addModal').find('#currency').val("").trigger('change');
+    $('#addModal').find('#parent').val("").trigger('change');
+    $('#addModal').find('#supplierType').val("Normal").trigger('change');
+    $('#addModal').modal('show');
+    
+    $('#supplierForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+      }
     });
   });
 
@@ -649,64 +633,65 @@ if (!isset($_SESSION['userID'])) {
       $('#spinnerLoading').hide();
     }
   });
+});
 
-  function displayPreview(data) {
-    // Parse the Excel data
-    var workbook = XLSX.read(data, { type: 'binary' });
+function displayPreview(data) {
+  // Parse the Excel data
+  var workbook = XLSX.read(data, { type: 'binary' });
 
-    // Get the first sheet
-    var sheetName = workbook.SheetNames[0];
-    var sheet = workbook.Sheets[sheetName];
+  // Get the first sheet
+  var sheetName = workbook.SheetNames[0];
+  var sheet = workbook.Sheets[sheetName];
 
-    // Convert the sheet to an array of objects
-    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 20 });
+  // Convert the sheet to an array of objects
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 20 });
 
-    // Get the headers
-    var headers = Object.keys(jsonData[0] || {});
+  // Get the headers
+  var headers = Object.keys(jsonData[0] || {});
 
-    // Ensure we handle cases where there may be less than 20 columns
-    while (headers.length < 20) {
-      headers.push(''); // Adding empty headers to reach 20 columns
-    }
-
-    // Create HTML table headers
-    var htmlTable = '<table style="width:20%;"><thead><tr>';
-    headers.forEach(function(header) {
-      htmlTable += '<th>' + header + '</th>';
-    });
-    htmlTable += '</tr></thead><tbody>';
-
-    // Iterate over the data and create table rows
-    for (var i = 0; i < jsonData.length; i++) {
-      htmlTable += '<tr>';
-      var rowData = jsonData[i];
-      
-      for (var j = 0; j < 20 && j < headers.length; j++) {
-        var cellData = rowData[headers[j]];
-        var formattedData = cellData;
-        
-        // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
-        if (typeof cellData === 'number' && cellData > 0) {
-          var excelDate = XLSX.SSF.parse_date_code(cellData);
-        }
-        
-        htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
-      }
-      htmlTable += '</tr>';
-    }
-    
-    htmlTable += '</tbody></table>';
-    
-    var previewTable = document.getElementById('previewTable');
-    previewTable.innerHTML = htmlTable;
+  // Ensure we handle cases where there may be less than 20 columns
+  while (headers.length < 20) {
+    headers.push(''); // Adding empty headers to reach 20 columns
   }
 
-  function edit(id) {
-    $('#spinnerLoading').show();
-    $.post('php/modules/suppliers/getSupplier.php', {userID: id}, function(data) {
-      var obj = JSON.parse(data);
+  // Create HTML table headers
+  var htmlTable = '<table style="width:20%;"><thead><tr>';
+  headers.forEach(function(header) {
+    htmlTable += '<th>' + header + '</th>';
+  });
+  htmlTable += '</tr></thead><tbody>';
+
+  // Iterate over the data and create table rows
+  for (var i = 0; i < jsonData.length; i++) {
+    htmlTable += '<tr>';
+    var rowData = jsonData[i];
+    
+    for (var j = 0; j < 20 && j < headers.length; j++) {
+      var cellData = rowData[headers[j]];
+      var formattedData = cellData;
       
-      if (obj.status === 'success') {
+      // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
+      if (typeof cellData === 'number' && cellData > 0) {
+        var excelDate = XLSX.SSF.parse_date_code(cellData);
+      }
+      
+      htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
+    }
+    htmlTable += '</tr>';
+  }
+  
+  htmlTable += '</tbody></table>';
+  
+  var previewTable = document.getElementById('previewTable');
+  previewTable.innerHTML = htmlTable;
+}
+
+function edit(id){
+  $('#spinnerLoading').show();
+  $.post('php/modules/suppliers/getSupplier.php', {userID: id}, function(data){
+    var obj = JSON.parse(data);
+    
+    if(obj.status === 'success'){
         $('#addModal').find('#id').val(obj.message.id);
         $('#addModal').find('#code').val(obj.message.supplier_code);
         $('#addModal').find('#reg_no').val(obj.message.reg_no);
@@ -731,71 +716,74 @@ if (!isset($_SESSION['userID'])) {
         $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
         $('#addModal').find('#company').val(obj.message.customer).trigger('change');
         $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
+        $('#addModal').find('#supplierType').val(obj.message.supplier_type || 'Normal').trigger('change');
         $('#addModal').modal('show');
         
         $('#supplierForm').validate({
           errorElement: 'span',
           errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
+              error.addClass('invalid-feedback');
+              element.closest('.form-group').append(error);
           },
           highlight: function (element, errorClass, validClass) {
-            $(element).addClass('is-invalid');
+              $(element).addClass('is-invalid');
           },
           unhighlight: function (element, errorClass, validClass) {
-            $(element).removeClass('is-invalid');
+              $(element).removeClass('is-invalid');
           }
         });
+    }
+    else if(obj.status === 'failed'){
+      alert(obj.message);
+      toastr["error"](obj.message, "Failed:");
+    }
+    else{
+      alert(obj.message);
+      toastr["error"]("Something wrong when activate", "Failed:");
+    }
+    $('#spinnerLoading').hide();
+  });
+}
+
+function deactivate(id) {
+  if (confirm('Are you sure you want to delete this items?')) {
+    //$('#spinnerLoading').show();
+    $.post('php/modules/suppliers/deleteSupplier.php', {userID: id}, function(data) {
+      var obj = JSON.parse(data);
+      
+      if (obj.status === 'success') {
+        toastr["success"](obj.message, "Success:");
+        $('#supplierTable').DataTable().ajax.reload();
+        //$('#spinnerLoading').hide();
       } else if (obj.status === 'failed') {
-        alert(obj.message);
         toastr["error"](obj.message, "Failed:");
+        //$('#spinnerLoading').hide();
       } else {
-        alert(obj.message);
         toastr["error"]("Something wrong when activate", "Failed:");
+        //$('#spinnerLoading').hide();
       }
-      $('#spinnerLoading').hide();
     });
   }
-  
-  function deactivate(id) {
-    if (confirm('Are you sure you want to delete this items?')) {
-      //$('#spinnerLoading').show();
-      $.post('php/modules/suppliers/deleteSupplier.php', {userID: id}, function(data) {
-        var obj = JSON.parse(data);
-        
-        if (obj.status === 'success') {
-          toastr["success"](obj.message, "Success:");
-          $('#supplierTable').DataTable().ajax.reload();
-          //$('#spinnerLoading').hide();
-        } else if (obj.status === 'failed') {
-          toastr["error"](obj.message, "Failed:");
-          //$('#spinnerLoading').hide();
-        } else {
-          toastr["error"]("Something wrong when activate", "Failed:");
-          //$('#spinnerLoading').hide();
-        }
-      });
-    }
-  }
+}
 
-  function reactivate(id) {
-    if (confirm('Are you sure you want to reactivate this items?')) {
-      //$('#spinnerLoading').show();
-      $.post('php/modules/suppliers/reactivateSupplier.php', {userID: id}, function(data) {
-        var obj = JSON.parse(data);
-        
-        if (obj.status === 'success') {
-          toastr["success"](obj.message, "Success:");
-          $('#supplierTable').DataTable().ajax.reload();
-          //$('#spinnerLoading').hide();
-        } else if (obj.status === 'failed') {
-          toastr["error"](obj.message, "Failed:");
-          //$('#spinnerLoading').hide();
-        } else {
-          toastr["error"]("Something wrong when activate", "Failed:");
-          //$('#spinnerLoading').hide();
-        }
-      });
-    }
+function reactivate(id) {
+  if (confirm('Are you sure you want to reactivate this items?')) {
+    //$('#spinnerLoading').show();
+    $.post('php/modules/suppliers/reactivateSupplier.php', {userID: id}, function(data) {
+      var obj = JSON.parse(data);
+      
+      if (obj.status === 'success') {
+        toastr["success"](obj.message, "Success:");
+        $('#supplierTable').DataTable().ajax.reload();
+        //$('#spinnerLoading').hide();
+      } else if (obj.status === 'failed') {
+        toastr["error"](obj.message, "Failed:");
+        //$('#spinnerLoading').hide();
+      } else {
+        toastr["error"]("Something wrong when activate", "Failed:");
+        //$('#spinnerLoading').hide();
+      }
+    });
   }
+}
 </script>
