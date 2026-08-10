@@ -77,7 +77,7 @@ if (!isset($_SESSION['userID'])) {
                 <?php } ?>
                 <button type="button" id="multiDeactivate" class="btn btn-block custom-delete-btn custom-card-header-btn-size btn-sm"><?=$languageArray['delete_customer_code'][$language]?></button>
                 <a href="template/Customer_Template.xlsx" download class="custom-card-header-btn-size">
-                  <button type="button" class="btn btn-block custom-download-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
+                  <button type="button" class="btn btn-block custom-export-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
                 </a>
                 <button type="button" id="uploadExcel" class="btn btn-block custom-upload-btn custom-card-header-btn-size btn-sm"><?=$languageArray['upload_excel_code'][$language]?></button>
                 <button type="button" class="btn btn-block custom-add-btn custom-card-header-btn-size btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>

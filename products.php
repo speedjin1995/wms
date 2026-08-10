@@ -92,7 +92,7 @@ else{
                 <?=$languageArray['delete_product_code'][$language]?>
               </button>
               <a href="template/Product_Template.xlsx" download class="custom-card-header-btn-size">
-                <button type="button" class="btn btn-block custom-download-btn btn-sm">
+                <button type="button" class="btn btn-block custom-export-btn btn-sm">
                   <?=$languageArray['download_template_code'][$language]?>
                 </button>
               </a>
