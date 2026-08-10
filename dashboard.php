@@ -142,7 +142,7 @@ if (!isset($_SESSION['userID'])) {
 <!-- ── JS — load shared utils first, then per-tab logic ── -->
 <script src="modules/dashboard/js/dashboard.js"></script>
 <script src="modules/dashboard/js/tab_wholesales.js?v=<?=time()?>"></script>
-<script src="modules/dashboard/js/tab_grading.js"></script>
+<script src="modules/dashboard/js/tab_grading.js?v=<?=time()?>"></script>
 <script src="modules/dashboard/js/tab_packaging.js?v=<?=time()?>" ></script>
 <script src="modules/dashboard/js/tab_pulppaste.js"></script>
 <script>
