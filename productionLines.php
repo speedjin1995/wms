@@ -19,49 +19,36 @@ else{
 }
 ?>
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><?=$languageArray['production_lines_code'][$language]?></h1>
-			</div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<div class="content-header custom-title-content-box">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-6">
+        <h1 class="custom-title"><?=$languageArray['production_lines_code'][$language]?></h1>
+      </div>
+    </div>
+  </div>
 </div>
-<!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
-	<div class="container-fluid">
-        <div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-              <div class="row">
-                  <div class="col-4"></div>
-                  <div class="col-2">
-                    <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                      <?=$languageArray['delete_production_line_code'][$language]?>
-                    </button>
-                  </div>                  
-                  <div class="col-2">
-                    <a href="template/Production_Line_Template.xlsx" download>
-                      <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                        <?=$languageArray['download_template_code'][$language]?>
-                      </button>
-                    </a>
-                  </div>
-                  <div class="col-2">
-                    <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                      <?=$languageArray['upload_excel_code'][$language]?>
-                    </button>
-                  </div>
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProductionLine"><?=$languageArray['add_production_line_code'][$language]?></button>
-                  </div>
+<section class="content custom-table-content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header custom-card-header">
+            <div class="row custom-card-header-row">
+              <div class="col-1 custom-card-header-title-col"></div>
+              <div class="col-11 custom-card-header-btn-col">
+                <button type="button" id="multiDeactivate" class="btn btn-block custom-delete-btn custom-card-header-btn-size btn-sm"><?=$languageArray['delete_production_line_code'][$language]?></button>
+                <a href="template/Production_Line_Template.xlsx" download class="custom-card-header-btn-size">
+                  <button type="button" class="btn btn-block custom-download-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
+                </a>
+                <button type="button" id="uploadExcel" class="btn btn-block custom-upload-btn custom-card-header-btn-size btn-sm"><?=$languageArray['upload_excel_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-add-btn custom-card-header-btn-size btn-sm" id="addProductionLine"><?=$languageArray['add_production_line_code'][$language]?></button>
               </div>
+            </div>
           </div>
-					<div class="card-body">
+          <div class="card-body custom-table-card-body">
 						<table id="productionLineTable" class="table table-bordered table-striped">
 							<thead>
 								<tr>
@@ -72,102 +59,96 @@ else{
 							</thead>
 						</table>
 					</div><!-- /.card-body -->
-				</div><!-- /.card -->
-			</div><!-- /.col -->
-		</div><!-- /.row -->
-	</div><!-- /.container-fluid -->
+        </div><!-- /.card -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
 <div class="modal fade" id="uploadModal">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
-          <div class="modal-header">
-            <h4 class="modal-title"><?=$languageArray['upload_excel_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['upload_excel_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body custom-model-body-box">
+          <div class="card-body custom-preview-model-box">
+            <input type="file" id="fileInput">
+            <button type="button" id="previewButton" class="custom-preview-btn"><?=$languageArray['preview_data_code'][$language]?></button>
+            <div id="previewTable" style="overflow: auto;"></div>
           </div>
-          <div class="modal-body">
-            <div class="card-body">
-              <input type="file" id="fileInput">
-              <button type="button" id="previewButton"><?=$languageArray['preview_data_code'][$language]?></button>
-              <div id="previewTable" style="overflow: auto;"></div>
-            </div>
-          </div>
-          <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadShipmentType"><?=$languageArray['submit_code'][$language]?></button>
-          </div>
+        </div>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="button" class="btn custom-save-btn" id="uploadShipmentType"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
       </form>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>
 
 <div class="modal fade" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
-    <div class="modal-content">
+    <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
-          <div class="modal-header">
-            <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="form-group">
-                <ol id="errorList" class="text-danger mt-2" style="padding-left: 20px;"></ol>
-              </div>
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['error_log_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body custom-model-body-box">
+          <div class="row">
+            <div class="form-group">
+              <ol id="errorList" class="text-danger mt-2" style="padding-left: 20px;"></ol>
             </div>
           </div>
+        </div>
       </form>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>
 
 <div class="modal fade" id="addModal">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <form role="form" id="productionLineForm">
-            <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_production_line_code'][$language]?></h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content custom-model-content-box">
+      <form role="form" id="productionLineForm">
+        <div class="modal-header custom-model-header-box">
+          <h4 class="modal-title custom-model-title-txt"><?=$languageArray['add_production_line_code'][$language]?></h4>
+          <button type="button" class="close custom-btn-close-icon" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body custom-model-body-box">
+          <div class="card-body">
+            <div class="form-group">
+              <input type="hidden" class="form-control" id="id" name="id">
             </div>
-            <div class="modal-body">
-              <div class="card-body">
-                <div class="form-group">
-                  <input type="hidden" class="form-control" id="id" name="id">
-                </div>
-                <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
-                  <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
-                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="productionLine"><?=$languageArray['production_lines_code'][$language]?> *</label>
-                  <input type="text" class="form-control" name="productionLine" id="productionLine" placeholder="<?=$languageArray['enter_production_line_code'][$language]?>" required>
-                </div>
-              </div>
+            <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+              <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
+              <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
+                <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                  <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
+                <?php } ?>
+              </select>
             </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
+            <div class="form-group">
+              <label for="productionLine"><?=$languageArray['production_lines_code'][$language]?> *</label>
+              <input type="text" class="form-control" name="productionLine" id="productionLine" placeholder="<?=$languageArray['enter_production_line_code'][$language]?>" required>
             </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
+          </div>
+        </div>
+        <div class="modal-footer custom-model-fotter-box">
+          <button type="button" class="btn custom-close-btn" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn custom-save-btn" name="submit"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
 </div>
 
 <!-- jQuery -->
@@ -233,10 +214,10 @@ $(function () {
         data: 'deleted',
         render: function (data, type, row) {
           if (data == 0) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+            return '<div class="row custom-tbl-btn-icon"><button type="button" onclick="edit(' + row.id + ')" class="btn custom-edit-btn-icon btn-sm"><i class="fas fa-pen"></i></button><button type="button" onclick="deactivate(' + row.id + ')" class="btn custom-delete-btn-icon btn-sm"><i class="fas fa-trash"></i></button></div>';
           } 
           else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+            return '<button type="button" onclick="reactivate(' + row.id + ')" class="btn custom-reject-btn-icon btn-sm">Reactivate</button>';
           }
         }
       }

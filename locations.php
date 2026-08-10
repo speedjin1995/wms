@@ -40,7 +40,7 @@ if (!isset($_SESSION['userID'])) {
                             <div class="col-11 custom-card-header-btn-col">
                                 <button type="button" id="multiDeactivate" class="btn btn-block custom-delete-btn custom-card-header-btn-size btn-sm"><?=$languageArray['delete_location_code'][$language]?></button>
                                 <a href="template/Location_Template.xlsx" download class="custom-card-header-btn-size">
-                                    <button type="button" class="btn btn-block custom-export-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
+                                    <button type="button" class="btn btn-block custom-download-btn btn-sm"><?=$languageArray['download_template_code'][$language]?></button>
                                 </a>
                                 <button type="button" id="uploadExcel" class="btn btn-block custom-upload-btn custom-card-header-btn-size btn-sm"><?=$languageArray['upload_excel_code'][$language]?></button>
                                 <button type="button" class="btn btn-block custom-add-btn custom-card-header-btn-size btn-sm" id="addLocation"><?=$languageArray['add_location_code'][$language]?></button>
