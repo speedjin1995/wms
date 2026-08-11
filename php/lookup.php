@@ -486,3 +486,20 @@ function getSupplierDetailsById($value, $db) {
 
     return $id;
 }
+
+function getGradeIdByName($value, $customer, $db) {
+    $id = null;
+    if(isset($value, $customer)){
+        if ($select_stmt = $db->prepare("SELECT id FROM grades WHERE units = ? AND customer = ? AND deleted='0'")) {
+            $select_stmt->bind_param('ss', $value, $customer);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $id = $row['id'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $id;
+}
