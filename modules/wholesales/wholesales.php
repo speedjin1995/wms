@@ -1348,7 +1348,7 @@ $(function () {
         <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" required>
+          <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
             <option value="" selected disabled>Select Currency</option>
             <?php while($rowCurrency=mysqli_fetch_assoc($currency2)){ ?>
               <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
@@ -1430,7 +1430,7 @@ $(function () {
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
         <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" required>
+          <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
             <option value="" selected disabled>Select Currency</option>
             <?php while($rowCurrency=mysqli_fetch_assoc($currency)){ ?>
               <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
@@ -2304,7 +2304,7 @@ function edit(id) {
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01" readonly></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" required>
+                <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
                   <option value="" selected disabled>Select Currency</option>
                   <?php while($rowCurrency=mysqli_fetch_assoc($currency3)){ ?>
                     <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
@@ -2414,7 +2414,7 @@ function edit(id) {
               <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${(parseFloat(detail.net)||0).toFixed(2)} ${detail.unit}</td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" required>
+                <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
                   <option value="" selected disabled>Select Currency</option>
                   <?php while($rowCurrency=mysqli_fetch_assoc($currency4)){ ?>
                     <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
