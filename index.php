@@ -85,6 +85,7 @@ else{
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/modal-global.css">
+  <link rel="stylesheet" href="assets/css/index-main.css">
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -755,7 +756,5 @@ function convertUnits(value, fromUnit, toUnit) {
 }
 
 </script>
-<!-- Custom CSS moved here to test loading order -->
-<link rel="stylesheet" href="assets/css/index-main.css">
 </body>
 </html>
