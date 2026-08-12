@@ -85,7 +85,7 @@ else{
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/modal-global.css">
-  <link rel="stylesheet" href="assets/css/index-main.css">
+  <link rel="stylesheet" href="assets/css/index-main.css?v=<?=filemtime('assets/css/index-main.css')?>">
 </head>
 <!--
 BODY TAG OPTIONS:

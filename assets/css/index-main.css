@@ -3147,11 +3147,9 @@ div.loading {
   margin-right: 5px;
 }
 
-
-/* ============================================
-   FIX FOR EXPANDED ROW CARD LAYOUT
-   ============================================ */
-.custom-table-card-body #weightTable_wrapper .table-bordered tbody tr td .card-body > .row {
+/* Fix expanded row card grid */
+#weightTable_wrapper tr.shown + tr  .row {
   flex-direction: row !important;
   flex-wrap: wrap !important;
 }
+
