@@ -138,7 +138,7 @@ $message = '
 <style>
     @page { size: A5 landscape; margin: 8mm; }
     body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; }
-    .slip-border { border: 2px solid #000; padding: 8px; box-sizing: border-box; width: 100%; min-height: calc(142mm); position: relative; }
+    .slip-border { border: 2px solid #000; padding: 8px; box-sizing: border-box; width: 100%; min-height: calc(140mm); position: relative; }
     .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
     .company-name { font-size: 16px; font-weight: bold; }
     .slip-title { font-size: 18px; font-weight: bold; text-decoration: underline; text-align: right; margin-right: 50px; }

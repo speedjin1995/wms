@@ -2,255 +2,289 @@
 // Variables expected from print.php:
 // $wholesale, $companyDetail, $companyLogoSrc, $weighingDetails, $status, $withPhoto, $db
 
-$arrangedData = arrangeByGrade($weighingDetails);
+// Fetch default currency (same as printA5)
+$defaultCurrency = 'MYR';
+$defCurrStmt = $db->prepare("SELECT currency FROM currency WHERE customer = ? AND is_default = 1 AND deleted = 0 LIMIT 1");
+$defCurrStmt->bind_param('s', $wholesale['company']);
+$defCurrStmt->execute();
+if ($defCurrRow = $defCurrStmt->get_result()->fetch_assoc()) {
+    $defaultCurrency = $defCurrRow['currency'];
+}
+$defCurrStmt->close();
+$currencyNameCache = [];
 
-$expandedGrades = [];
-foreach($arrangedData['arranged'] as $key => $items) {
-    $chunks = array_chunk($items, 10);
-    foreach($chunks as $chunk) {
-        $expandedGrades[] = ['key' => $key, 'items' => $chunk];
+// Group by product_id + grade_id (same logic as printA5)
+$groups = [];
+if (!empty($weighingDetails)) {
+    foreach ($weighingDetails as $detail) {
+        $productId  = $detail['product'] ?? '';
+        $gradeId    = $detail['grade_id'] ?? '';
+        $gradeKey   = !empty($gradeId) ? $gradeId : ($detail['grade'] ?? '');
+        $key        = $productId . '_' . $gradeKey;
+        $net        = floatval($detail['net'] ?? 0);
+        $tare       = floatval($detail['tare'] ?? 0);
+        $price      = floatval($detail['price'] ?? 0);
+        $fixedfloat = $detail['fixedfloat'] ?? 'Float';
+        $total      = (strtolower($fixedfloat) == 'fixed') ? $price : $price * $net;
+        $curName    = searchCurrencyNameById($detail['currency'] ?? '', $db, $currencyNameCache);
+        if (empty($curName)) $curName = $defaultCurrency;
+
+        if (!isset($groups[$key])) {
+            $groups[$key] = [
+                'product_id' => $productId,
+                'grade_id'   => $gradeId,
+                'grade'      => $detail['grade'] ?? '',
+                'count'      => 0,
+                'net'        => 0.0,
+                'tare'       => 0.0,
+                'unitPrice'  => [],
+                'totalByCur' => [],
+                'nets'       => [],
+            ];
+        }
+        $groups[$key]['count']++;
+        $groups[$key]['net']  += $net;
+        $groups[$key]['tare'] += $tare;
+        $groups[$key]['unitPrice'][$curName] = $price;
+        if (!isset($groups[$key]['totalByCur'][$curName])) $groups[$key]['totalByCur'][$curName] = 0.0;
+        $groups[$key]['totalByCur'][$curName] += $total;
+        $groups[$key]['nets'][] = $net;
     }
 }
 
-if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) && $wholesale['reject_details'] != '[]') {
-    $rejectDetails = json_decode($wholesale['reject_details'], true);
-    $rejectGross = $rejectTare = $rejectNet = $rejectPrice = $rejectUnitPrice = 0;
-    $rejectPricingType = null;
-    $rejectHtml = '<table class="grade-table">';
-    $rejectHtml .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">REJECT</td></tr>';
-    $rejectHtml .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
-    for ($i = 0; $i < 10; $i++) {
-        if ($i < count($rejectDetails)) {
-            $item = $rejectDetails[$i];
-            $gross = floatval($item['gross'] ?? 0);
-            $tare = floatval($item['tare'] ?? 0);
-            $net = floatval($item['net'] ?? 0);
-            $price = floatval($item['price'] ?? 0);
-            $rejectUnitPrice = $price;
-            $rejectPricingType = $item['fixedfloat'];
-            $rejectPrice += (strtolower($rejectPricingType) == 'fixed') ? $price : $net * $price;
-        } else { $gross = $tare = $net = ''; }
-        $rejectGross += $gross != '' ? $gross : 0;
-        $rejectTare += $tare != '' ? $tare : 0;
-        $rejectNet += $net != '' ? $net : 0;
-        $rejectHtml .= '<tr><td>'.($i+1).'</td><td>'.($gross != '' ? number_format($gross,2).' kg' : '').'</td><td>'.($tare != '' ? number_format($tare,2).' kg' : '').'</td><td>'.($net != '' ? number_format($net,2).' kg' : '').'</td></tr>';
-    }
-    $rejectHtml .= '<tr style="font-weight:bold;"><td style="border-right:none;">T</td><td style="border-left:none;border-right:none;">'.number_format($rejectGross,2).' kg</td><td style="border-left:none;border-right:none;">'.number_format($rejectTare,2).' kg</td><td style="border-left:none;">'.number_format($rejectNet,2).' kg</td></tr>';
-    if ($companyDetail['include_price'] == 'Y') {
-        $rejectHtml .= '<tr><td colspan="2">Unit Price</td><td colspan="2">RM '.number_format($rejectUnitPrice,2).'</td></tr>';
-        $rejectHtml .= '<tr><td colspan="2">Total Price</td><td colspan="2">RM '.number_format($rejectPrice,2).(!empty($rejectPricingType) && $rejectPricingType !== 'null' ? ' ('.$rejectPricingType.')' : '').'</td></tr>';
-    } else {
-        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td colspan="2" style="border:none;">Unit Price</td><td colspan="2" style="border:none;">RM 0.00</td></tr>';
-        $rejectHtml .= '<tr style="visibility:hidden;border:none;"><td colspan="2" style="border:none;">Total Price</td><td colspan="2" style="border:none;">RM 0.00</td></tr>';
-    }
-    $rejectHtml .= '</table>';
-    $expandedGrades[] = ['html' => $rejectHtml];
-}
-
-$totalExpandedGrades = count($expandedGrades);
-$rowsNeeded = ceil($totalExpandedGrades / 3);
-$weightDetails = '';
-$totalCages = 0;
+$includePrice    = ($companyDetail['include_price'] == 'Y');
+$weightDetails   = '';
+$totalCages      = 0;
 $totalCagesWeight = 0;
-$grandTotalPrice = 0;
+$grandTotalByCur = [];
 
-for($row = 0; $row < $rowsNeeded; $row++) {
-    $weightDetails .= ($row > 0 && $row % 2 == 0)
-        ? '<div class="row mb-3 page-break">'
-        : '<div class="row mb-3">';
+foreach ($groups as $g) {
+    $productName = searchProductNameById($g['product_id'], $db);
+    $gradeName   = searchGradeNameById($g['grade_id'], $db);
+    if (empty($gradeName)) $gradeName = $g['grade'] ?? '';
 
-    for($col = 0; $col < 3; $col++) {
-        $gradeIndex = $row * 3 + $col;
-        if($gradeIndex < $totalExpandedGrades) {
-            $gradeData = $expandedGrades[$gradeIndex];
-            $weightDetails .= '<div class="col-4">';
-            if (isset($gradeData['html'])) {
-                $weightDetails .= $gradeData['html'];
-                $weightDetails .= '</div>';
-                continue;
-            }
+    $totalCages       += $g['count'];
+    $totalCagesWeight += $g['tare'];
 
-            $key = $gradeData['key'];
-            $items = $gradeData['items'];
-            $product = searchProductNameById(explode(' - ', $key)[0], $db);
-            $grade = explode(' - ', $key)[1];
-            $weightDetails .= '<table class="grade-table">';
-            $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">'.$product.' GRADE : ' . $grade . '</td></tr>';
-            $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
+    // Accumulate grand totals by currency
+    foreach ($g['totalByCur'] as $cur => $amt) {
+        if (!isset($grandTotalByCur[$cur])) $grandTotalByCur[$cur] = 0.0;
+        $grandTotalByCur[$cur] += $amt;
+    }
 
-            $totalGross = $totalTare = $totalNet = $totalPrice = $unitPrice = 0;
-            $pricingType = null;
+    // Build net weight rows — 10 per row, sequential numbering
+    $chunks  = array_chunk($g['nets'], 10);
+    $netRows = '';
+    $seqNum  = 1;
+    foreach ($chunks as $chunk) {
+        $netRows .= '<tr>';
+        foreach ($chunk as $n) {
+            $netRows .= '<td>' . $seqNum++ . ').&nbsp;' . number_format($n, 2) . '&nbsp;kg</td>';
+        }
+        for ($p = count($chunk); $p < 10; $p++) { $netRows .= '<td></td>'; }
+        $netRows .= '</tr>';
+    }
 
-            for($i = 0; $i < 10; $i++) {
-                if($i < count($items)) {
-                    $totalCages += 1;
-                    $item = $items[$i];
-                    $gross = floatval($item['gross'] ?? 0);
-                    $tare = floatval($item['tare'] ?? 0);
-                    $net = floatval($item['net'] ?? 0);
-                    $price = floatval($item['price'] ?? 0);
-                    $unitPrice = floatval($item['price'] ?? 0);
-                    $pricingType = $item['fixedfloat'];
-                    $totalPrice += (strtolower($pricingType) == 'fixed') ? $price : $net * ($price ?? 0);
-                    $totalCagesWeight += $tare;
-                } else {
-                    $gross = $tare = $net = $price = '';
-                }
-
-                $totalGross += $gross != '' ? $gross : 0;
-                $totalTare += $tare != '' ? $tare : 0;
-                $totalNet += $net != '' ? $net : 0;
-
-                $weightDetails .= '<tr>';
-                $weightDetails .= '<td>' . ($i + 1) . '</td>';
-                $weightDetails .= '<td>' . ($gross != '' ? number_format($gross, 2) . ' kg' : '') . '</td>';
-                $weightDetails .= '<td>' . ($tare != '' ? number_format($tare, 2) . ' kg' : '') . '</td>';
-                $weightDetails .= '<td>' . ($net != '' ? number_format($net, 2) . ' kg' : '') . '</td>';
-                $weightDetails .= '</tr>';
-            }
-
-            $weightDetails .= '<tr style="font-weight: bold;">';
-            $weightDetails .= '<td style="border-right: none;">T</td>';
-            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalGross, 2) . ' kg</td>';
-            $weightDetails .= '<td style="border-left: none; border-right: none;">' . number_format($totalTare, 2) . ' kg</td>';
-            $weightDetails .= '<td style="border-left: none;">' . number_format($totalNet, 2) . ' kg</td>';
-            $weightDetails .= '</tr>';
-
-            if ($companyDetail['include_price'] == 'Y') {
-                $weightDetails .= '<tr><td colspan="2">Unit Price</td><td colspan="2">RM ' . number_format($unitPrice, 2) . '</td></tr>';
-                $weightDetails .= '<tr><td colspan="2">Total Price</td><td colspan="2">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td></tr>';
-            } else {
-                $weightDetails .= '<tr style="visibility: hidden; border: none;"><td colspan="2" style="border: none;">Unit Price</td><td colspan="2" style="border: none;">RM ' . number_format($unitPrice, 2) . '</td></tr>';
-                $weightDetails .= '<tr style="visibility: hidden; border: none;"><td colspan="2" style="border: none;">Total Price</td><td colspan="2" style="border: none;">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td></tr>';
-            }
-
-            $grandTotalPrice += $totalPrice;
-            $weightDetails .= '</table>';
-            $weightDetails .= '</div>';
+    // Build multi-currency price cells
+    $unitPriceStr = '';
+    $totalAmtStr  = '';
+    if ($includePrice) {
+        foreach ($g['totalByCur'] as $cur => $amt) {
+            $unitPriceStr .= ($unitPriceStr ? '<br>' : '') . $cur . '&nbsp;' . number_format($g['unitPrice'][$cur] ?? 0, 2);
+            $totalAmtStr  .= ($totalAmtStr  ? '<br>' : '') . $cur . '&nbsp;' . number_format($amt, 2);
         }
     }
-    $weightDetails .= '</div>';
+
+    $unitPriceStr2 = $includePrice ? '&nbsp;&nbsp;&nbsp;Unit Price : ' . $unitPriceStr . '&nbsp;&nbsp;&nbsp;Total Amount : ' . $totalAmtStr : '';
+
+    $weightDetails .= '
+    <table class="grade-table">
+        <thead>
+            <tr class="grade-header">
+                <td colspan="10"><strong>Item Decs : ' . htmlspecialchars($productName) . '&nbsp;&nbsp;&nbsp;Grade : ' . htmlspecialchars($gradeName) . '&nbsp;&nbsp;&nbsp;Total Bin : ' . $g['count'] . '&nbsp;&nbsp;&nbsp;Total Weight : ' . number_format($g['net'], 2) . 'kg.' . $unitPriceStr2 . '</strong></td>
+            </tr>
+            <tr class="net-header"><td colspan="10">Item Weight</td></tr>
+        </thead>
+        <tbody>' . $netRows . '</tbody>
+    </table>';
 }
 
+// Grand total price string for info section
+$grandTotalPriceStr = implode(' / ', array_map(
+    fn($cur, $amt) => $cur . ' ' . number_format($amt, 2),
+    array_keys($grandTotalByCur), array_values($grandTotalByCur)
+));
+
+// Reject block
+if (isset($wholesale['reject_details']) && !empty($wholesale['reject_details']) && $wholesale['reject_details'] != '[]') {
+    $rejectDetails     = json_decode($wholesale['reject_details'], true);
+    $rejectNet         = 0.0;
+    $rejectByCur       = [];
+    $rejectUnitByCur   = [];
+    $rejectWeights     = [];
+    $rejectCacheLocal  = [];
+
+    foreach ($rejectDetails as $item) {
+        $net        = floatval($item['net']   ?? 0);
+        $price      = floatval($item['price'] ?? 0);
+        $fixedfloat = $item['fixedfloat'] ?? 'Float';
+        $total      = (strtolower($fixedfloat) == 'fixed') ? $price : $net * $price;
+        $curName    = searchCurrencyNameById($item['currency'] ?? '', $db, $currencyNameCache);
+        if (empty($curName)) $curName = $defaultCurrency;
+        $rejectNet += $net;
+        $rejectUnitByCur[$curName] = $price;
+        if (!isset($rejectByCur[$curName])) $rejectByCur[$curName] = 0.0;
+        $rejectByCur[$curName] += $total;
+        $rejectWeights[] = $net;
+    }
+
+    $chunks  = array_chunk($rejectWeights, 10);
+    $netRows = '';
+    $seqNum  = 1;
+    foreach ($chunks as $chunk) {
+        $netRows .= '<tr>';
+        foreach ($chunk as $n) {
+            $netRows .= '<td>' . $seqNum++ . ').&nbsp;' . number_format($n, 2) . '&nbsp;kg</td>';
+        }
+        for ($p = count($chunk); $p < 10; $p++) { $netRows .= '<td></td>'; }
+        $netRows .= '</tr>';
+    }
+
+    $unitPriceStr = '';
+    $totalAmtStr  = '';
+    if ($includePrice) {
+        foreach ($rejectByCur as $cur => $amt) {
+            $unitPriceStr .= ($unitPriceStr ? '<br>' : '') . $cur . '&nbsp;' . number_format($rejectUnitByCur[$cur] ?? 0, 2);
+            $totalAmtStr  .= ($totalAmtStr  ? '<br>' : '') . $cur . '&nbsp;' . number_format($amt, 2);
+            if (!isset($grandTotalByCur[$cur])) $grandTotalByCur[$cur] = 0.0;
+            $grandTotalByCur[$cur] += $amt;
+        }
+    }
+
+    $unitPriceStr2 = $includePrice ? '&nbsp;&nbsp;&nbsp;Unit Price : ' . $unitPriceStr . '&nbsp;&nbsp;&nbsp;Total Amount : ' . $totalAmtStr : '';
+
+    $weightDetails .= '
+    <table class="grade-table">
+        <thead>
+            <tr class="grade-header">
+                <td colspan="10"><strong>Item Decs : REJECT&nbsp;&nbsp;&nbsp;Grade : -&nbsp;&nbsp;&nbsp;Total Bin : ' . count($rejectWeights) . '&nbsp;&nbsp;&nbsp;Total Weight : ' . number_format($rejectNet, 2) . 'kg.' . $unitPriceStr2 . '</strong></td>
+            </tr>
+            <tr class="net-header"><td colspan="10">Item Weight</td></tr>
+        </thead>
+        <tbody>' . $netRows . '</tbody>
+    </table>';
+}
+
+$isDispatch   = ($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL');
+$partyLabel   = $isDispatch ? 'To Customer' : 'To Supplier';
+$partyName    = $isDispatch
+    ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db)
+    : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db);
+$poLabel      = $isDispatch ? 'Delivery No' : 'Purchase No';
+$weightedBy   = searchUserNameById($wholesale['weighted_by'], $db);
+$checkedBy    = ($wholesale['checked_by'] == 'JACKY') ? '' : $wholesale['checked_by'];
+$actualWeight = number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2);
+
 $message = '
-    <html>
-    <head>
-        <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
-        <style>
-            .container-fluid { width: 100%; padding-right: 10px; padding-left: 10px; margin-right: auto; margin-left: auto; }
-            .row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }
-            .col-1 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 8.333333%; max-width: 8.333333%; box-sizing: border-box; }
-            .col-2 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 16.666667%; max-width: 16.666667%; box-sizing: border-box; }
-            .col-3 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 25%; max-width: 25%; box-sizing: border-box; }
-            .col-4 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 33.333333%; max-width: 33.333333%; box-sizing: border-box; }
-            .col-5 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 41.666667%; max-width: 41.666667%; box-sizing: border-box; }
-            .col-6 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 50%; max-width: 50%; box-sizing: border-box; }
-            .col-7 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 58.333333%; max-width: 58.333333%; box-sizing: border-box; }
-            .col-8 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 66.666667%; max-width: 66.666667%; box-sizing: border-box; }
-            .col-9 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 75%; max-width: 75%; box-sizing: border-box; }
-            .col-10 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 83.333333%; max-width: 83.333333%; box-sizing: border-box; }
-            .col-11 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 91.666667%; max-width: 91.666667%; box-sizing: border-box; }
-            .col-12 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 100%; max-width: 100%; box-sizing: border-box; }
-            .d-flex { display: flex !important; }
-            .justify-content-between { justify-content: space-between !important; }
-            .align-items-center { align-items: center !important; }
-            .mb-2 { margin-bottom: 0.5rem !important; }
-            .mb-3 { margin-bottom: 1rem !important; }
-            .text-center { text-align: center !important; }
-            .font-weight-bold { font-weight: 700 !important; }
-            .text-danger { color: #dc3545 !important; }
-            body { font-family: Arial, sans-serif; margin-left: 10px; margin-right: 30px; }
-            .company-name { font-weight: bold; font-size: 16px; }
-            .address { font-size: 14px; }
-            .title { font-size: 18px; }
-            .transaction-id { font-size: 14px; }
-            .info-row { margin-bottom: 5px; font-size: 14px; display: flex; }
-            .info-label { width: 120px; flex-shrink: 0; }
-            .info-value { flex: 1; }
-            .header-row { margin-bottom: 5px; font-size: 14px; display: flex; }
-            .header-label { width: 120px; flex-shrink: 0; }
-            .header-value { flex: 1; }
-            .grade-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-            .grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }
-            .grade-table th { background-color: #f0f0f0; }
-            @page {
-                size: A4;
-                margin: 90mm 5mm 5mm 5mm;
-                @top-left { content: element(running-header); }
-            }
-            .running-header { position: running(running-header); width: 100%; text-align: left; }
-            .page-content { margin-top: 0; }
-            .page-break { page-break-before: always; break-before: page; }
-        </style>
-    </head>
-    <body>
-        <div class="running-header">
-            <div class="row mb-1">
-                <div class="col-8" style="display:flex;align-items:flex-start;gap:10px;">
-                    '.($companyLogoSrc ? '<img src="'.$companyLogoSrc.'" alt="Logo" style="width:130px;height:auto;flex-shrink:0;">' : '').'
-                    <div>
-                        <div class="company-name">'.$wholesale['name'].'</div>
-                        <div class="address">'.$wholesale['address'].'</div>
-                        <div class="address">'.$wholesale['address2'].'</div>
-                        <div class="address">'.$wholesale['address3'].'</div>
-                        <div class="address">'.$wholesale['address4'].'</div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>
-                    <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.$status.'</span></div>
-                    <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['start_time'])).'</span></div>
-                    <div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Delivery' : 'Purchase').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div>';
-
-                    if ($wholesale['status'] == 'RECEIVING') {
-                        $message .= '
-                            <div class="header-row"><span class="header-label">Security Bill No</span><span class="header-value">: '.$wholesale['security_bills'].'</span></div>
-                        ';
-                    }
-
-                    $message .= '
+<html>
+<head>
+    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 11px; margin: 10px 15px; }
+        .page-header { width: 100%; }
+        .header-top { display: flex; width: 100%; margin-bottom: 10px; align-items: center; border-bottom: 1px solid black}
+        .header-logo { width: 150px; min-height: 80px; display: flex; align-items: center; justify-content: flex-start; padding: 0 8px 0 0; flex-shrink: 0; }
+        .header-company { flex: 0 0 320px; display: flex; align-items: center; padding: 0 10px 0 0; font-size: 12px; text-align: left; }
+        .header-status { padding: 6px 10px; flex: 1; }
+        .status-title { font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 4px; }
+        .hrow { display: flex; font-size: 11px; margin-bottom: 2px; }
+        .hlabel { width: 90px; flex-shrink: 0; }
+        .hvalue { flex: 1; }
+        .info-section { display: flex; width: 100%; margin-bottom: 6px; border-bottom: 1px solid #000; padding-bottom: 6px; }
+        .info-col { flex: 1; padding-right: 8px; }
+        .info-col:nth-child(1) { flex: 1.5; }
+        .irow { display: flex; margin-bottom: 2px; font-size: 11px; }
+        .ilabel { width: 90px; flex-shrink: 0; font-weight: bold; }
+        .ivalue { flex: 1; }
+        table.grade-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 10px; }
+        table.grade-table td { border: 1px solid #000; padding: 3px 5px; }
+        tr.grade-header { background: #e8e8e8; font-size: 10px; }
+        tr.grade-header td { border: 1px solid #000; padding: 4px 6px; }
+        tr.net-header td { border: 1px solid #000; padding: 2px 6px; font-weight: bold; text-align: center; background: #f5f5f5; font-size: 10px; }
+        table.grade-table tbody td { text-align: center; font-size: 10px; width: 10%; }
+        .footer-text { text-align: center; font-size: 11px; font-weight: bold; margin-top: 20px; }
+        @page { size: A4; margin: 10mm 10mm 18mm 10mm; @bottom-center { content: "Powered by SYNCTRONIX"; font-size: 9px; color: #555; letter-spacing: 1px; border-top: 1px solid #ccc; padding-top: 4px; } }
+        .page-break { page-break-before: always; break-before: page; }
+        @media print { @page { size: A4; margin: 8mm 8mm 18mm 8mm; } }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="header-top">
+            <div class="header-logo">
+                ' . ($companyLogoSrc ? '<img src="' . $companyLogoSrc . '" alt="Logo" style="width:100%;height:100%;object-fit:cover;">' : '<span style="font-size:10px;color:#aaa;">LOGO</span>') . '
+            </div>
+            <div class="header-company">
+                <div>
+                    <div style="font-weight:bold;font-size:13px;">' . htmlspecialchars($wholesale['name']) . '</div>
+                    <div>' . htmlspecialchars($wholesale['address']) . '</div>
+                    <div>' . htmlspecialchars($wholesale['address2']) . '</div>
+                    <div>' . htmlspecialchars($wholesale['address3']) . '</div>
+                    <div>' . htmlspecialchars($wholesale['address4']) . '</div>
+                    ' . (!empty($wholesale['phone']) ? '<div>Tel: ' . htmlspecialchars($wholesale['phone']) . '</div>' : '') . '
+                    ' . (!empty($wholesale['email']) ? '<div>Email: ' . htmlspecialchars($wholesale['email']) . '</div>' : '') . '
                 </div>
             </div>
-            <hr>
-            <div class="row mb-1">
-                <div class="col-8">
-                    <div class="info-row"><span class="info-label">To '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
-                    <div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">: '.$wholesale['driver'].'</span></div>
-                    <div class="info-row"><span class="info-label">Driver IC</span><span class="info-value">: '.$wholesale['driver_ic'].'</span></div>
-                    <div class="info-row"><span class="info-label">Actual Weight</span><span class="info-value">: '.number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2).' kg</span></div>
-                    <div class="info-row"><span class="info-label">Reject Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_reject'], 2).' kg</span></div>
-                    <div class="info-row"><span class="info-label">Total Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_weight'], 2).' kg</span></div>
-                    '.($companyDetail['include_price'] == 'Y' ? '<div class="info-row"><span class="info-label">Total Price</span><span class="info-value">: RM '.number_format($grandTotalPrice, 2).'</span></div>' : '').'
-                    <div class="info-row"><span class="info-label">Remark</span><span class="info-value">: '.$wholesale['remark'].'</span></div>
-                </div>
-                <div class="col-4">
-                    <div class="info-row"><span class="info-label">To Vehicle No</span><span class="info-value">: '.$wholesale['vehicle_no'].'</span></div>
-                    <div class="info-row"><span class="info-label">Total Cages</span><span class="info-value">: '.number_format($totalCages).'</span></div>
-                    <div class="info-row"><span class="info-label">Cages Weight</span><span class="info-value">: '.number_format($totalCagesWeight, 2).' kg</span></div>
-                    <div class="info-row"><span class="info-label">Weight By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
-                    <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: '.($wholesale['checked_by'] == 'JACKY' ? '' : $wholesale['checked_by']).'</span></div>
-                    <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['start_time'])).'</span></div>
-                    <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['end_time'])).'</span></div>
-                </div>
+            <div class="header-status">
+                <div class="status-title">' . htmlspecialchars($status) . '</div>
+                <div class="hrow"><span class="hlabel">Transaction ID</span><span class="hvalue">: ' . htmlspecialchars($wholesale['serial_no']) . '</span></div>
+                <div class="hrow"><span class="hlabel">Status</span><span class="hvalue">: ' . htmlspecialchars($wholesale['status']) . '</span></div>
+                <div class="hrow"><span class="hlabel">From Date</span><span class="hvalue">: ' . date('d/m/Y', strtotime($wholesale['start_time'])) . '</span></div>
+                <div class="hrow"><span class="hlabel">' . htmlspecialchars($poLabel) . '</span><span class="hvalue">: ' . htmlspecialchars($wholesale['po_no']) . '</span></div>
+                ' . ($wholesale['status'] == 'RECEIVING' ? '<div class="hrow"><span class="hlabel">Security Bill No</span><span class="hvalue">: ' . htmlspecialchars($wholesale['security_bills']) . '</span></div>' : '') . '
             </div>
-            <hr>
         </div>
 
-        <div class="container-fluid">
-            <div class="grade-section page-content">'.$weightDetails.'</div>
-        </div>';
+        <div class="info-section">
+            <div class="info-col">
+                <div class="irow"><span class="ilabel">' . $partyLabel . '</span><span class="ivalue">: ' . htmlspecialchars($partyName) . '</span></div>
+                <div class="irow"><span class="ilabel">Driver Name</span><span class="ivalue">: ' . htmlspecialchars($wholesale['driver']) . '</span></div>
+                <div class="irow"><span class="ilabel">Driver IC</span><span class="ivalue">: ' . htmlspecialchars($wholesale['driver_ic']) . '</span></div>
+                <div class="irow"><span class="ilabel">Vehicle No</span><span class="ivalue">: ' . htmlspecialchars($wholesale['vehicle_no']) . '</span></div>
+                <div class="irow"><span class="ilabel">Cages Weight</span><span class="ivalue">: ' . number_format($totalCagesWeight, 2) . ' kg</span></div>
+            </div>
+            <div class="info-col">
+                ' . ($includePrice ? '<div class="irow"><span class="ilabel">Total Price</span><span class="ivalue">: ' . $grandTotalPriceStr . '</span></div>' : '') . '
+                <div class="irow"><span class="ilabel">Actual Weight</span><span class="ivalue">: ' . $actualWeight . ' kg</span></div>
+                <div class="irow"><span class="ilabel">Total Cages</span><span class="ivalue">: ' . number_format($totalCages) . '</span></div>
+                <div class="irow"><span class="ilabel">Weight By</span><span class="ivalue">: ' . htmlspecialchars($weightedBy) . '</span></div>
+                <div class="irow"><span class="ilabel">Total Weight (kg)</span><span class="ivalue">: ' . number_format($wholesale['total_weight'], 2) . ' kg</span></div>
+            </div>
+            <div class="info-col">
+                <div class="irow"><span class="ilabel">Time Start</span><span class="ivalue">: ' . date('h:i:s A', strtotime($wholesale['start_time'])) . '</span></div>
+                <div class="irow"><span class="ilabel">Time End</span><span class="ivalue">: ' . date('h:i:s A', strtotime($wholesale['end_time'])) . '</span></div>
+                <div class="irow"><span class="ilabel">Check By</span><span class="ivalue">: ' . htmlspecialchars($checkedBy) . '</span></div>
+                <div class="irow"><span class="ilabel">Remark</span><span class="ivalue">: ' . htmlspecialchars($wholesale['remark']) . '</span></div>
+            </div>
+        </div>
+    </div>
+
+    ' . $weightDetails . '
+
+    ';
 
 if ($withPhoto == 'Y') {
     $photoItems = array_filter($weighingDetails ?? [], fn($d) => !empty($d['photoPath']));
     if (!empty($photoItems)) {
-        $message .= '<div class="page-break"><h3 style="font-size:14px;margin-bottom:10px;">Photos</h3><div class="row">';
+        $message .= '<div class="page-break"><h3 style="font-size:14px;margin-bottom:10px;">Photos</h3><div style="display:flex;flex-wrap:wrap;">';
         foreach ($photoItems as $item) {
             $photoSrc = 'php/viewPhoto.php?file=' . urlencode($item['photoPath']) . '&type=photo';
-            $label = 'Product: ' . searchProductNameById($item['product'], $db) . ', Grade: ' . searchGradeNameById($item['grade_id'], $db);
+            $label    = 'Product: ' . searchProductNameById($item['product'], $db) . ', Grade: ' . searchGradeNameById($item['grade_id'], $db);
             $message .= '
-                <div class="col-4" style="margin-bottom:10px;text-align:center;">
-                    <img src="'.$photoSrc.'" style="width:100%;height:auto;border:1px solid #ccc;">
-                    <div style="font-size:12px;margin-top:4px;">'.htmlspecialchars($label).'</div>
+                <div style="width:33%;margin-bottom:10px;text-align:center;padding:4px;">
+                    <img src="' . $photoSrc . '" style="width:100%;height:auto;border:1px solid #ccc;">
+                    <div style="font-size:12px;margin-top:4px;">' . htmlspecialchars($label) . '</div>
                 </div>';
         }
         $message .= '</div></div>';
@@ -258,5 +292,5 @@ if ($withPhoto == 'Y') {
 }
 
 $message .= '
-    </body>
-    </html>';
+</body>
+</html>';
