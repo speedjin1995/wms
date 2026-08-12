@@ -191,9 +191,9 @@ $message = '
     <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; font-size: 11px; margin: 10px 15px; }
-        .page-header { width: 100%; }
-        .header-top { display: flex; width: 100%; margin-bottom: 10px; align-items: center; border-bottom: 1px solid black}
+        body { font-family: Arial, sans-serif; font-size: 11px; }
+        .running-header { position: running(running-header); width: 100%; }
+        .header-top { display: flex; width: 100%; margin-bottom: 4px; align-items: center; border-bottom: 1px solid black; }
         .header-logo { width: 150px; min-height: 80px; display: flex; align-items: center; justify-content: flex-start; padding: 0 8px 0 0; flex-shrink: 0; }
         .header-company { flex: 0 0 320px; display: flex; align-items: center; padding: 0 10px 0 0; font-size: 12px; text-align: left; }
         .header-status { padding: 6px 10px; flex: 1; }
@@ -201,10 +201,10 @@ $message = '
         .hrow { display: flex; font-size: 11px; margin-bottom: 2px; }
         .hlabel { width: 90px; flex-shrink: 0; }
         .hvalue { flex: 1; }
-        .info-section { display: flex; width: 100%; margin-bottom: 6px; border-bottom: 1px solid #000; padding-bottom: 6px; }
-        .info-col { flex: 1; padding-right: 8px; }
+        .info-section { display: flex; width: 100%; margin-bottom: 3px; border-bottom: 1px solid #000; padding-bottom: 3px; }
+        .info-col { flex: 1; padding-right: 6px; }
         .info-col:nth-child(1) { flex: 1.5; }
-        .irow { display: flex; margin-bottom: 2px; font-size: 11px; }
+        .irow { display: flex; margin-bottom: 1px; font-size: 11px; }
         .ilabel { width: 90px; flex-shrink: 0; font-weight: bold; }
         .ivalue { flex: 1; }
         table.grade-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 10px; }
@@ -213,14 +213,18 @@ $message = '
         tr.grade-header td { border: 1px solid #000; padding: 4px 6px; }
         tr.net-header td { border: 1px solid #000; padding: 2px 6px; font-weight: bold; text-align: center; background: #f5f5f5; font-size: 10px; }
         table.grade-table tbody td { text-align: center; font-size: 10px; width: 10%; }
-        .footer-text { text-align: center; font-size: 11px; font-weight: bold; margin-top: 20px; }
-        @page { size: A4; margin: 10mm 10mm 18mm 10mm; @bottom-center { content: "Powered by SYNCTRONIX"; font-size: 9px; color: #555; letter-spacing: 1px; border-top: 1px solid #ccc; padding-top: 4px; } }
+        @page {
+            size: A4;
+            margin: 58mm 10mm 18mm 10mm;
+            @top-left { content: element(running-header); }
+            @bottom-center { content: "Powered by SYNCTRONIX"; font-size: 9px; color: #555; letter-spacing: 1px; border-top: 1px solid #ccc; padding-top: 4px; }
+        }
         .page-break { page-break-before: always; break-before: page; }
-        @media print { @page { size: A4; margin: 8mm 8mm 18mm 8mm; } }
+        @media print { @page { size: A4; margin: 58mm 8mm 18mm 8mm; } }
     </style>
 </head>
 <body>
-    <div class="page-header">
+    <div class="running-header">
         <div class="header-top">
             <div class="header-logo">
                 ' . ($companyLogoSrc ? '<img src="' . $companyLogoSrc . '" alt="Logo" style="width:100%;height:100%;object-fit:cover;">' : '<span style="font-size:10px;color:#aaa;">LOGO</span>') . '
@@ -245,7 +249,6 @@ $message = '
                 ' . ($wholesale['status'] == 'RECEIVING' ? '<div class="hrow"><span class="hlabel">Security Bill No</span><span class="hvalue">: ' . htmlspecialchars($wholesale['security_bills']) . '</span></div>' : '') . '
             </div>
         </div>
-
         <div class="info-section">
             <div class="info-col">
                 <div class="irow"><span class="ilabel">' . $partyLabel . '</span><span class="ivalue">: ' . htmlspecialchars($partyName) . '</span></div>

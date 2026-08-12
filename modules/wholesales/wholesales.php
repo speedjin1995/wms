@@ -739,6 +739,13 @@ else{
               <option value="A5">A5</option>
             </select>
           </div>
+          <div class="form-group mb-0" id="a4TemplateDiv">
+            <label>A4 <?=$languageArray['template_code'][$language]?></label>
+            <select class="form-control" id="a4Template" name="a4Template">
+              <option value="A4"><?=$languageArray['default_code'][$language]?></option>
+              <option value="A4Classic"><?=$languageArray['classic_code'][$language]?></option>
+            </select>
+          </div>
           <div class="form-group mb-0" id="withDetailsDiv" style="display:none;">
             <label><?=$languageArray['with_details_code'][$language]?></label>
             <select class="form-control" id="printWithDetails" name="withDetails">
@@ -1305,7 +1312,9 @@ $(function () {
   });
 
   $('#paperSize').on('change', function() {
-    $('#withDetailsDiv').toggle($(this).val() === 'A5');
+    var val = $(this).val();
+    $('#withDetailsDiv').toggle(val === 'A5');
+    $('#a4TemplateDiv').toggle(val === 'A4');
   });
 
   $('#vehicleNoFilter').on('change', function () {
