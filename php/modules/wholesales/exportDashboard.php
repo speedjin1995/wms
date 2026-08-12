@@ -8,19 +8,19 @@ $type = $_GET['type'] ?? '';
 
 switch ($type) {
     case 'customer':
-        require_once 'partial/exportCustomerBreakdown.php';
+        require_once 'partial/export/exportCustomerBreakdown.php';
         break;
     case 'supplier':
-        require_once 'partial/exportSupplierBreakdown.php';
+        require_once 'partial/export/exportSupplierBreakdown.php';
         break;
     case 'customer_individual':
-        require_once 'partial/exportCustomerIndividual.php';
+        require_once 'partial/export/exportCustomerIndividual.php';
         break;
     case 'supplier_individual':
-        require_once 'partial/exportSupplierIndividual.php';
+        require_once 'partial/export/exportSupplierIndividual.php';
         break;
     case 'grade':
-        require_once 'partial/exportGradeDistribution.php';
+        require_once 'partial/export/exportGradeDistribution.php';
         break;
     default:
         echo json_encode(['status' => 'error', 'message' => 'Invalid export type']);
