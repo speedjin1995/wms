@@ -740,10 +740,10 @@ else{
             </select>
           </div>
           <div class="form-group mb-0" id="a4TemplateDiv">
-            <label>A4 Template</label>
+            <label>A4 <?=$languageArray['template_code'][$language]?></label>
             <select class="form-control" id="a4Template" name="a4Template">
-              <option value="A4">Default</option>
-              <option value="A4Classic">Classic</option>
+              <option value="A4"><?=$languageArray['default_code'][$language]?></option>
+              <option value="A4Classic"><?=$languageArray['classic_code'][$language]?></option>
             </select>
           </div>
           <div class="form-group mb-0" id="withDetailsDiv" style="display:none;">
