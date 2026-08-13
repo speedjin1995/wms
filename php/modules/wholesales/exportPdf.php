@@ -140,8 +140,8 @@ try {
     $mpdf = new Mpdf($mpdfConfig);
 
     $partialMap = [
-        'summary' => __DIR__ . '/partial/pdfSummary.php',
-        'invoice' => __DIR__ . '/partial/pdfInvoiceListing.php',
+        'summary' => __DIR__ . '/partial/pdf/pdfSummary.php',
+        'invoice' => __DIR__ . '/partial/pdf/pdfInvoiceListing.php',
     ];
 
     $partial = $partialMap[$reportType] ?? $partialMap['summary'];

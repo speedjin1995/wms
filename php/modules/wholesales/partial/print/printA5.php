@@ -136,9 +136,10 @@ $message = '
 <html>
 <head>
 <style>
-    @page { size: A5 landscape; margin: 8mm; }
-    body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; }
-    .slip-border { border: 2px solid #000; padding: 8px; box-sizing: border-box; width: 100%; min-height: calc(142mm); position: relative; }
+    @page { size: A4 portrait; margin: 0; }
+    body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; background: #fff; display: flex; justify-content: center; align-items: flex-start; min-height: 297mm; padding: 0 1mm; }
+    .a5-wrapper { width: 210mm; height: 148mm; overflow: hidden; }
+    .slip-border { border: 2px solid #000; padding: 8px; box-sizing: border-box; width: 100%; height: 100%; position: relative; }
     .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
     .company-name { font-size: 16px; font-weight: bold; }
     .slip-title { font-size: 18px; font-weight: bold; text-decoration: underline; text-align: right; margin-right: 50px; }
@@ -149,19 +150,21 @@ $message = '
     .info-label { font-weight: bold; width: 90px; flex-shrink: 0; }
     .info-value { flex: 1; }
     table.items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-    table.items th { border-bottom: 2px solid #000; padding: 4px 6px; text-decoration: underline; font-weight: bold; text-align: center; }
-    table.items td { padding: 3px 6px; text-align: center; }
+    table.items th { border-bottom: 2px solid #000; padding: 3px 4px; text-decoration: underline; font-weight: bold; text-align: center; font-size: 14px; }
+    table.items td { padding: 2px 4px; text-align: center; font-size: 14px; }
     .footer-row { position: absolute; bottom: 8px; right: 8px; }
     .qr-block { position: absolute; bottom: 8px; left: 8px; }
     table.summary { border-collapse: collapse; }
     table.summary th, table.summary td { border: 1px solid #000; padding: 6px 8px; text-align: center; }
     table.summary th { font-weight: bold; }
     @media print {
-        @page { size: A5 landscape; margin: 2mm; }
+        @page { size: A4 portrait; margin: 0; }
+        body { padding: 0 1mm; }
     }
 </style>
 </head>
 <body>
+<div class="a5-wrapper">
 <div class="slip-border">
     <div class="header-top">
         <div class="company-name">'.htmlspecialchars($wholesale['name']).'</div>
@@ -218,6 +221,7 @@ $message = '
     <div class="qr-block">
         <img src="'.$qrSrc.'" width="70" height="70">
     </div>
+</div>
 </div>
 </body>
 </html>';

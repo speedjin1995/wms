@@ -83,7 +83,7 @@ try {
         'default_font'  => 'sunexta',
     ]);
 
-    require __DIR__ . '/partial/pdfStockBalance.php';
+    require __DIR__ . '/partial/pdf/pdfStockBalance.php';
 
     $mpdf->Output($fileName, 'I');
 } catch (\Mpdf\MpdfException $e) {

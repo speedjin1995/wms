@@ -83,9 +83,6 @@ else{
                 <label><?=$languageArray['grade_code'][$language]?> <span class="text-danger">*</span></label>
                 <select class="form-control select2" id="gradeFilter" required>
                   <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                  <?php while($g = mysqli_fetch_assoc($grades)){ ?>
-                    <option value="<?=$g['units']?>" data-product="<?=$g['product_name']?>"><?=$g['units']?></option>
-                  <?php } ?>
                 </select>
               </div>
 
@@ -302,24 +299,23 @@ $(function() {
   });
 
   $('#productFilter').on('change', function() {
-    var productName = $(this).find('option:selected').text();
-
-    $('#gradeFilter').select2('destroy');
-
-    if (!$('#gradeFilter').data('original-options')) {
-      $('#gradeFilter').data('original-options', $('#gradeFilter').html());
+    var productId = $(this).val();
+    $('#gradeFilter').select2('destroy').html('<option value="" selected disabled hidden><?=$languageArray["please_select_code"][$language]?></option>').val('');
+    if (!productId) {
+      $('#gradeFilter').select2({ allowClear: true, placeholder: "Please Select" });
+      return;
     }
-
-    $('#gradeFilter').html($('#gradeFilter').data('original-options'));
-
-    $('#gradeFilter option[data-product]').each(function() {
-      if ($(this).data('product') !== productName) {
-        $(this).remove();
+    $('#spinnerLoading').show();
+    $.post('php/modules/wholesales/bulkPriceUpdate/getGradesByProduct.php', { product_id: productId }, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        $.each(obj.grades, function(i, g) {
+          $('#gradeFilter').append('<option value="' + g.units + '">' + g.units + '</option>');
+        });
       }
+      $('#gradeFilter').select2({ allowClear: true, placeholder: "Please Select" });
+      $('#spinnerLoading').hide();
     });
-
-    $('#gradeFilter').val('');
-    $('#gradeFilter').select2({ allowClear: true, placeholder: "Please Select" });
   });
 
   $('#filterSearch').on('click', function() {
