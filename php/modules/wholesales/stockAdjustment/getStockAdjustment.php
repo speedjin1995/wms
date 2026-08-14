@@ -55,8 +55,8 @@ while ($wRow = $query->fetch_assoc()) {
     $details = json_decode($wRow['weight_details'], true) ?? [];
     foreach ($details as $detail) {
         $productId = $detail['product']  ?? '';
-        $gradeId = $detail['grade_id'] ?? '';
         $gradeName = $detail['grade'] ?? '';
+        $gradeId = $detail['grade_id'] ?? getGradeIdByName($detail['grade'], $company, $db);
         if (empty($productId)) continue;
 
         // Detail-level filters
@@ -67,7 +67,8 @@ while ($wRow = $query->fetch_assoc()) {
             if (($pRow['category'] ?? '') != $categoryFilter) continue;
         }
 
-        $key = $productId . '_' . $gradeId;
+        $gradeKey   = !empty($gradeId) ? $gradeId : ($detail['grade'] ?? '');
+        $key = $productId . '_' . $gradeKey;
         $seen[$key] = ['product_id' => $productId, 'grade_id' => $gradeId, 'grade' => $gradeName];
     }
 }
@@ -77,6 +78,7 @@ $data = [];
 foreach ($seen as $item) {
     $pRow = getProductById($item['product_id'], $db, $productCache);
     $gradeName = searchGradeNameById($item['grade_id'], $db);
+
     if (empty($gradeName)) $gradeName = $item['grade'] ?? '';
     $catId   = $pRow['category'] ?? '';
     $catName = '';

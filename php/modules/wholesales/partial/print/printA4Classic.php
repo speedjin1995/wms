@@ -139,37 +139,19 @@ $message = '
         <style>
             .container-fluid { width: 100%; padding-right: 10px; padding-left: 10px; margin-right: auto; margin-left: auto; }
             .row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }
-            .col-1 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 8.333333%; max-width: 8.333333%; box-sizing: border-box; }
-            .col-2 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 16.666667%; max-width: 16.666667%; box-sizing: border-box; }
-            .col-3 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 25%; max-width: 25%; box-sizing: border-box; }
             .col-4 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 33.333333%; max-width: 33.333333%; box-sizing: border-box; }
-            .col-5 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 41.666667%; max-width: 41.666667%; box-sizing: border-box; }
-            .col-6 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 50%; max-width: 50%; box-sizing: border-box; }
-            .col-7 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 58.333333%; max-width: 58.333333%; box-sizing: border-box; }
             .col-8 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 66.666667%; max-width: 66.666667%; box-sizing: border-box; }
-            .col-9 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 75%; max-width: 75%; box-sizing: border-box; }
-            .col-10 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 83.333333%; max-width: 83.333333%; box-sizing: border-box; }
-            .col-11 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 91.666667%; max-width: 91.666667%; box-sizing: border-box; }
-            .col-12 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 100%; max-width: 100%; box-sizing: border-box; }
-            .d-flex { display: flex !important; }
-            .justify-content-between { justify-content: space-between !important; }
-            .align-items-center { align-items: center !important; }
-            .mb-2 { margin-bottom: 0.5rem !important; }
+            .mb-1 { margin-bottom: 0.25rem !important; }
             .mb-3 { margin-bottom: 1rem !important; }
-            .text-center { text-align: center !important; }
-            .font-weight-bold { font-weight: 700 !important; }
-            .text-danger { color: #dc3545 !important; }
             body { font-family: Arial, sans-serif; margin-left: 10px; margin-right: 30px; }
             .company-name { font-weight: bold; font-size: 16px; }
             .address { font-size: 14px; }
-            .title { font-size: 18px; }
-            .transaction-id { font-size: 14px; }
-            .info-row { margin-bottom: 5px; font-size: 14px; display: flex; }
-            .info-label { width: 120px; flex-shrink: 0; }
-            .info-value { flex: 1; }
             .header-row { margin-bottom: 5px; font-size: 14px; display: flex; }
             .header-label { width: 120px; flex-shrink: 0; }
             .header-value { flex: 1; }
+            .info-row { margin-bottom: 5px; font-size: 14px; display: flex; }
+            .info-label { width: 120px; flex-shrink: 0; }
+            .info-value { flex: 1; }
             .grade-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
             .grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }
             .grade-table th { background-color: #f0f0f0; }

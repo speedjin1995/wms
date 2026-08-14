@@ -577,12 +577,14 @@ to get the desired effect
                   <p><?=$languageArray['weighing_code'][$language]?></p>
                 </a>
               </li>
+              <?php if (in_array('stocks', $products)) { ?>
               <li class="nav-item">
                 <a href="#stockBalanceReport" data-file="modules/wholesales/stockBalanceReport.php" class="nav-link link">
                   <i class="nav-icon fas fa-balance-scale"></i>
                   <p><?=$languageArray['stock_balance_code'][$language]?></p>
                 </a>
               </li>
+              <?php } ?>
             </ul>
           </li>
           <?php } ?>

@@ -36,6 +36,7 @@ if(isset($_POST['userID'], $_POST['withPhoto'], $_POST['paperSize'])){
     $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
     $withPhoto = filter_input(INPUT_POST, 'withPhoto', FILTER_SANITIZE_STRING);
     $paperSize = filter_input(INPUT_POST, 'paperSize', FILTER_SANITIZE_STRING);
+    $a4Template = filter_input(INPUT_POST, 'a4Template', FILTER_SANITIZE_STRING) ?? 'A4';
     $withDetails = filter_input(INPUT_POST, 'withDetails', FILTER_SANITIZE_STRING) ?? 'N';
 
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
@@ -58,9 +59,11 @@ if(isset($_POST['userID'], $_POST['withPhoto'], $_POST['paperSize'])){
                 }
 
                 if ($paperSize == 'A5') {
-                    require __DIR__ . '/partial/printA5.php';
+                    require __DIR__ . '/partial/print/printA5.php';
+                } elseif ($paperSize == 'A4' && $a4Template == 'A4Classic') {
+                    require __DIR__ . '/partial/print/printA4Classic.php';
                 } else {
-                    require __DIR__ . '/partial/printA4.php';
+                    require __DIR__ . '/partial/print/printA4.php';
                 }
 
                 echo json_encode(['status' => 'success', 'message' => $message]);

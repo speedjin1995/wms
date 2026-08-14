@@ -235,18 +235,18 @@ if(isset($_GET['id'])){
                             .company-contact { font-size: 13px; }
 
                             /* Bill/Delivery Section */
-                            .info-section { display: flex; flex-wrap: wrap; padding: 6px 0; }
-                            .bill-to, .deliver-to { width: 33%; padding-right: 10px; }
+                            .info-section { display: flex; flex-wrap: wrap; padding: 4px 0; }
+                            .bill-to, .deliver-to { width: 35%; padding-right: 10px; }
                             .so-section { width: 30%; margin-left: auto; }
                             .payment-method-row { width: 66%; padding-right: 10px; margin-top: 4px; }
                             .section-title { font-weight: bold; margin-bottom: 3px; font-size: 12px; }
-                            .so-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 3px; white-space: nowrap; }
+                            .so-title { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 3px; white-space: nowrap; }
                             .so-detail { display: flex; font-size: 11px; line-height: 1.5; }
                             .so-label { width: 100px; flex-shrink: 0; }
                             .so-colon { width: 10px; flex-shrink: 0; }
                             .so-value { flex: 1; }
-                            .addr-name { font-weight: bold; font-size: 11px; }
-                            .addr-line { font-size: 11px; line-height: 1.3; }
+                            .addr-name { font-weight: bold; font-size: 10px; }
+                            .addr-line { font-size: 10px; line-height: 1.3; }
 
                             /* Contact row */
                             .contact-row { display: flex; font-size: 11px; line-height: 1.5; }
