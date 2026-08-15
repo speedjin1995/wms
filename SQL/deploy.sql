@@ -3054,3 +3054,22 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_
 END
 $$
 DELIMITER ;
+
+-- 15/08/2026 --
+CREATE TABLE `integration_configs` (
+  `id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  `integration_type` varchar(30) NOT NULL,
+  `module` varchar(20) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `config_json` longtext NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_datetime` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `integration_configs` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `integration_configs` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
