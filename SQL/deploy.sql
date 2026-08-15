@@ -3062,6 +3062,8 @@ CREATE TABLE `integration_configs` (
   `integration_type` varchar(30) NOT NULL,
   `module` varchar(20) NOT NULL,
   `status` varchar(20) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `description` text DEFAULT NULL,
   `config_json` longtext NOT NULL,
   `created_by` int(11) DEFAULT NULL,
   `created_datetime` datetime DEFAULT current_timestamp(),
