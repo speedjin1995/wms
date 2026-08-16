@@ -332,6 +332,7 @@ $(function() {
   });
 
   $(document).on('init.dt draw.dt', '#weightTable', function() {
+    if (!table) return;
     var info = table.page.info();
     $('#resultsCard').toggle(info.recordsTotal > 0);
   });

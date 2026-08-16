@@ -136,7 +136,7 @@ $message = '
 <html>
 <head>
 <style>
-    @page { size: A4 portrait; margin: 0; }
+    @page { size: A4 portrait; margin: 0; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; background: #fff; display: flex; justify-content: center; align-items: flex-start; min-height: 297mm; padding: 0 1mm; }
     .a5-wrapper { width: 210mm; height: 138mm; overflow: hidden; }
     .slip-border { border: 2px solid #000; padding: 8px; box-sizing: border-box; width: 100%; height: 100%; position: relative; }
@@ -158,10 +158,11 @@ $message = '
     table.summary th, table.summary td { border: 1px solid #000; padding: 6px 8px; text-align: center; }
     table.summary th { font-weight: bold; }
     @media print {
-        @page { size: A4 portrait; margin: 0; }
+        @page { size: A4 portrait; margin: 0; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         body { padding: 0 1mm; }
     }
 </style>
+<script>document.title = ""; window.onbeforeprint = function() { document.title = ""; };</script>
 </head>
 <body>
 <div class="a5-wrapper">

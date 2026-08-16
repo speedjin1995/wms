@@ -151,6 +151,7 @@ else{
   </div><!-- /.modal-dialog -->
 </div>
 
+<!-- jQuery -->
 <script>
 
 $(function () {

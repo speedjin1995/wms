@@ -190,7 +190,7 @@ $message = '
 <head>
     <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         body { font-family: Arial, sans-serif; font-size: 11px; }
         .running-header { position: running(running-header); width: 100%; }
         .header-top { display: flex; width: 100%; margin-bottom: 4px; align-items: center; border-bottom: 1px solid black; }
@@ -214,14 +214,15 @@ $message = '
         tr.net-header td { border: 1px solid #000; padding: 2px 6px; font-weight: bold; text-align: center; background: #f5f5f5; font-size: 10px; }
         table.grade-table tbody td { text-align: center; font-size: 10px; width: 10%; }
         @page {
-            size: A4;
+            size: A4 portrait;
             margin: 58mm 10mm 18mm 10mm;
             @top-left { content: element(running-header); }
             @bottom-center { content: "Powered by SYNCTRONIX"; font-size: 9px; color: #555; letter-spacing: 1px; border-top: 1px solid #ccc; padding-top: 4px; }
         }
         .page-break { page-break-before: always; break-before: page; }
-        @media print { @page { size: A4; margin: 58mm 8mm 18mm 8mm; } }
+        @media print { @page { size: A4 portrait; margin: 58mm 8mm 18mm 8mm; } body { margin: 0; } }
     </style>
+    <script>document.title = ""; window.onbeforeprint = function() { document.title = ""; };</script>
 </head>
 <body>
     <div class="running-header">
