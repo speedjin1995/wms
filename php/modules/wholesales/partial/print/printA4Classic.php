@@ -143,7 +143,7 @@ $message = '
             .col-8 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 66.666667%; max-width: 66.666667%; box-sizing: border-box; }
             .mb-1 { margin-bottom: 0.25rem !important; }
             .mb-3 { margin-bottom: 1rem !important; }
-            body { font-family: Arial, sans-serif; margin-left: 10px; margin-right: 30px; }
+            body { font-family: Arial, sans-serif; margin-left: 10px; margin-right: 30px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .company-name { font-weight: bold; font-size: 16px; }
             .address { font-size: 14px; }
             .header-row { margin-bottom: 5px; font-size: 14px; display: flex; }
@@ -156,7 +156,7 @@ $message = '
             .grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }
             .grade-table th { background-color: #f0f0f0; }
             @page {
-                size: A4;
+                size: A4 portrait;
                 margin: 90mm 5mm 5mm 5mm;
                 @top-left { content: element(running-header); }
             }
@@ -164,6 +164,7 @@ $message = '
             .page-content { margin-top: 0; }
             .page-break { page-break-before: always; break-before: page; }
         </style>
+        <script>document.title = ""; window.onbeforeprint = function() { document.title = ""; };</script>
     </head>
     <body>
         <div class="running-header">
