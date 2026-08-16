@@ -506,10 +506,17 @@ else{
                 <label><?=$languageArray['driver_code'][$language]?> *</label>
                 <select class="form-control select2" id="driver" name="driver" required>
                   <option value="" selected disabled hidden>Please Select</option>
+                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                   <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
                     <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-md-4" id="driverOtherDiv" style="display: none;">
+              <div class="form-group">
+                <label><?=$languageArray['other_driver_code'][$language]?> *</label>
+                <input type="text" class="form-control" id="otherDriver" name="otherDriver" placeholder="<?=$languageArray['please_enter_driver_code'][$language]?>">
               </div>
             </div>
             <div class="col-md-4">
@@ -1308,6 +1315,16 @@ $(function () {
     }
     else{
       $('#extendModal').find('#vehicleNoOtherDiv').hide();
+    }
+  });
+
+  $('#extendModal').find('#driver').on('change', function () {
+    var driver = $(this).val();
+    if(driver == "UNKOWN NO" || driver == "OTHERS" || driver == "UNKNOWN"){
+      $('#extendModal').find('#driverOtherDiv').show();
+    }
+    else{
+      $('#extendModal').find('#driverOtherDiv').hide();
     }
   });
 
