@@ -164,7 +164,7 @@ $message = '
             .page-content { margin-top: 0; }
             .page-break { page-break-before: always; break-before: page; }
         </style>
-    <script>document.title = ""; window.onbeforeprint = function() { document.title = ""; };</script>
+        <script>document.title = ""; window.onbeforeprint = function() { document.title = ""; };</script>
     </head>
     <body>
         <div class="running-header">

@@ -528,6 +528,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
   </div>
 </div>
 
+<!-- jQuery -->
 <script>
 
 var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;

@@ -383,6 +383,7 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
+<!-- jQuery -->
 <script>
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
