@@ -2053,10 +2053,10 @@ function format (row) {
             <tfoot class="bg-light font-weight-bold">
               <tr>
                 <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
-                <td class="text-right text-monospace">${totalWeightGross.toFixed(2)}</td>
-                <td class="text-right text-monospace">${totalWeightTare.toFixed(2)}</td>
-                <td class="text-right text-monospace text-primary">${totalWeightNet.toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-monospace text-success">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
+                <td class="text-right text-monospace" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
+                <td class="text-right text-monospace" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
+                <td class="text-right text-monospace text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
+                ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-monospace text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
                 <td></td>
                 ${allowPhoto == 'Y' ? '<td></td>' : ''}
               </tr>
@@ -2742,75 +2742,47 @@ function printInvoice(id) {
 function filterWeightTable(rowId) {
   var productFilter = $('#productFilter_' + rowId).val();
   var gradeFilter = $('#gradeFilter_' + rowId).val();
-  
+
   var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0;
-  
+
   $('#weightTable_' + rowId + ' tbody tr').each(function() {
-    var product = $(this).find('td:eq(0)').text();
-    var grade = $(this).find('td:eq(1)').text();
-    var showProduct = !productFilter || product == productFilter;
-    var showGrade = !gradeFilter || grade == gradeFilter;
+    var product = $(this).find('td:eq(0)').text().trim();
+    var grade = $(this).find('td:eq(1)').text().trim();
+    var showProduct = !productFilter || product === productFilter;
+    var showGrade = !gradeFilter || grade === gradeFilter;
     var show = showProduct && showGrade;
     $(this).toggle(show);
-    
-    if(show) {
-      var grossText = $(this).find('td:eq(2)').text().split(' ')[0];
-      var tareText = $(this).find('td:eq(3)').text().split(' ')[0];
-      var netText = $(this).find('td:eq(4)').text().split(' ')[0];
-      var totalText = $(this).find('td:eq(6)').text().replace('RM', '').trim();
-      
-      totalGross += parseFloat(grossText) || 0;
-      totalTare += parseFloat(tareText) || 0;
-      totalNet += parseFloat(netText) || 0;
-      totalPrice += parseFloat(totalText) || 0;
+
+    if (show) {
+      totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
+      totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
+      totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
+      totalPrice += parseFloat($(this).find('td:eq(7)').text()) || 0;
     }
   });
-  
-  $('#weightTable_' + rowId + ' tfoot tr th:eq(1)').text(totalGross.toFixed(2));
-  $('#weightTable_' + rowId + ' tfoot tr th:eq(2)').text(totalTare.toFixed(2));
-  $('#weightTable_' + rowId + ' tfoot tr th:eq(3)').text(totalNet.toFixed(2));
-  $('#weightTable_' + rowId + ' tfoot tr th:eq(5)').text('RM ' + totalPrice.toFixed(2));
-  
-  if(productFilter) {
-    var gradeSelect = $('#gradeFilter_' + rowId);
-    var currentGrade = gradeSelect.val();
-    gradeSelect.find('option:not(:first)').remove();
-    
-    var grades = [];
-    $('#weightTable_' + rowId + ' tbody tr').each(function() {
-      var product = $(this).find('td:eq(0)').text();
-      if(product === productFilter) {
-        var grade = $(this).find('td:eq(1)').text();
-        if(grades.indexOf(grade) === -1) {
-          grades.push(grade);
-        }
-      }
-    });
-    
-    grades.sort();
-    grades.forEach(function(grade) {
-      gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-    });
-    gradeSelect.val(currentGrade);
-  } else {
-    var gradeSelect = $('#gradeFilter_' + rowId);
-    var currentGrade = gradeSelect.val();
-    gradeSelect.find('option:not(:first)').remove();
-    
-    var grades = [];
-    $('#weightTable_' + rowId + ' tbody tr').each(function() {
-      var grade = $(this).find('td:eq(1)').text();
-      if(grades.indexOf(grade) === -1) {
-        grades.push(grade);
-      }
-    });
-    
-    grades.sort();
-    grades.forEach(function(grade) {
-      gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-    });
-    gradeSelect.val(currentGrade);
-  }
+
+  $('#footGross_' + rowId).text(totalGross.toFixed(2));
+  $('#footTare_'  + rowId).text(totalTare.toFixed(2));
+  $('#footNet_'   + rowId).text(totalNet.toFixed(2));
+  $('#footPrice_' + rowId).text(totalPrice.toFixed(2));
+
+  var gradeSelect = $('#gradeFilter_' + rowId);
+  var currentGrade = gradeSelect.val();
+  gradeSelect.find('option:not(:first)').remove();
+
+  var grades = [];
+  $('#weightTable_' + rowId + ' tbody tr').each(function() {
+    if (!productFilter || $(this).find('td:eq(0)').text().trim() === productFilter) {
+      var grade = $(this).find('td:eq(1)').text().trim();
+      if (grades.indexOf(grade) === -1) grades.push(grade);
+    }
+  });
+
+  grades.sort();
+  $.each(grades, function(i, grade) {
+    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  });
+  gradeSelect.val(currentGrade);
 }
 
 function populateFilters(rowId, weightDetails) {
