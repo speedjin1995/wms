@@ -178,18 +178,18 @@ if(isset($_GET['id'])){
 
                     $tareOverBin = $tareWeight/floatval($item['bin']);
                     $itemRowsHtml .= '
-                                    <tr style="break-inside:avoid; page-break-inside:avoid;">
-                                        <td style="width:30px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $no . '</td>
-                                        <td style="width:400px; text-align:left; border:0; vertical-align:top; padding-top:8px;">
-                                            <span style="vertical-align:top; display:inline-block; width:170px; font-weight:bold;">' . $item['product'] . '</span><span style="display:inline-block; width:150px;">GRADE : ' . $item['grade'] . '</span><br>
-                                            <span style="display:inline-block; width:170px;">TARE / BIN : ' . $tareOverBin . $item['uom'].'</span><span style="display:inline-block; width:150px;">BIN : ' . $item['bin'] . '</span><br>
+                                    <div class="item-row">
+                                        <div class="item-col-no">' . $no . '</div>
+                                        <div class="item-col-desc">
+                                            <span class="item-col-desc-product">' . $item['product'] . '</span><br><span class="item-col-desc-grade">GRADE : ' . $item['grade'] . '</span><br>
+                                            <span class="item-col-desc-product">TARE / BIN : ' . $tareOverBin . $item['uom'] . '</span><span class="item-col-desc-grade">BIN : ' . $item['bin'] . '</span><br>
                                             <span>' . $weightLines . '</span>
-                                        </td>
-                                        <td style="width:72px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $qty . '</td>
-                                        <td style="width:58px; text-align:center; border:0; vertical-align:top; padding-top:8px;">' . $item['uom'] . '</td>
-                                        <td style="width:145px; text-align:center; border:0; vertical-align:top; padding-top:8px;">RM&nbsp;&nbsp;' . $unitPrice . '</td>
-                                        <td style="width:145px; text-align:center; border:0; vertical-align:top; padding-top:8px;">RM' . $totalPrice . '</td>
-                                    </tr>';
+                                        </div>
+                                        <div class="item-col-qty">' . $qty . '</div>
+                                        <div class="item-col-uom">' . $item['uom'] . '</div>
+                                        <div class="item-col-unit-price">RM&nbsp;&nbsp;' . $unitPrice . '</div>
+                                        <div class="item-col-total-price">RM' . $totalPrice . '</div>
+                                    </div>';
                 }
 
                 // Footer data
@@ -262,6 +262,28 @@ if(isset($_GET['id'])){
                             table.items th { text-align: center; }
                             table.items .border-top-bottom-dashed { border-top: 1px dashed #000; border-bottom: 1px dashed #000; border-left: none; border-right: none; }
                             .border-top-bottom-dashed { border:0; border-top: 1px solid black; border-bottom: 1px dashed black; }
+
+                            /* Item rows */
+                            .item-row { display: flex; break-inside: avoid; page-break-inside: avoid; padding-top: 8px; width: 100%; box-sizing: border-box; }
+                            .item-col-no { width: 30px; min-width: 30px; max-width: 30px; text-align: center; overflow: hidden; }
+                            .item-col-desc { flex: 1; min-width: 0; text-align: left; overflow: hidden; }
+                            .item-col-desc-product { vertical-align: top; display: inline-block; width: 55%; font-weight: bold; }
+                            .item-col-desc-grade { display: inline-block; width: 44%; }
+                            .item-col-qty { width: 72px; min-width: 72px; max-width: 72px; text-align: center; overflow: hidden; }
+                            .item-col-uom { width: 58px; min-width: 58px; max-width: 58px; text-align: center; overflow: hidden; }
+                            .item-col-unit-price { width: 120px; min-width: 120px; max-width: 120px; text-align: center; overflow: hidden; }
+                            .item-col-total-price { width: 120px; min-width: 120px; max-width: 120px; text-align: center; overflow: hidden; }
+                            .item-col-no-empty { width: 30px; min-width: 30px; max-width: 30px; flex-shrink: 0; }
+                            .item-col-qty-empty { width: 72px; min-width: 72px; max-width: 72px; flex-shrink: 0; }
+                            .item-col-uom-empty { width: 58px; min-width: 58px; max-width: 58px; flex-shrink: 0; }
+                            .item-col-price-empty { width: 120px; min-width: 120px; max-width: 120px; flex-shrink: 0; }
+                            .summary-desc { flex: 1; min-width: 0; padding-top: 8px; }
+                            .summary-title { font-weight: bold; text-decoration: underline; font-size: 12px; }
+                            .summary-list { font-size: 11px; line-height: 1.6; }
+                            .summary-list-row { display: flex; }
+                            .summary-list-bullet { width: 10px; }
+                            .summary-list-label { width: 140px; }
+                            .summary-list-colon { width: 10px; }
 
                             /* Footer */
                             .footer-block { font-size: 11px; line-height: 1.4; }
@@ -400,28 +422,24 @@ if(isset($_GET['id'])){
 
                         <!-- BODY - Items Table -->
                         <div class="body-section">
-                            <table class="items">
-                                <tbody>
-                                    ' . $itemRowsHtml . '
-                                    <tr style="break-inside:avoid; page-break-inside:avoid;">
-                                        <td style="width:30px; border:0;"></td>
-                                        <td style="width:268px; border:0; padding-top:8px;">
-                                            <div style="font-weight:bold; text-decoration:underline; font-size:12px;">SUMMERY DETAILS</div>
-                                            <div style="font-size:11px; line-height:1.6;">
-                                                <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Bin Count</span><span style="width:10px;">:</span><span>' . $totalBinCount . '</span></div>
-                                                <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Actual Weight</span><span style="width:10px;">:</span><span>' . $totalActualWeight . ' kg</span></div>
-                                                <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Total Tare Weight</span><span style="width:10px;">:</span><span>' . $totalTareWeight . ' kg</span></div>
-                                                <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">Start Weight Time</span><span style="width:10px;">:</span><span>' . $startWeightTime . '</span></div>
-                                                <div style="display:flex;"><span style="width:10px;">*</span><span style="width:140px;">End Weight Time</span><span style="width:10px;">:</span><span>' . $endWeightTime . '</span></div>
-                                            </div>
-                                        </td>
-                                        <td style="width:72px; border:0;"></td>
-                                        <td style="width:58px; border:0;"></td>
-                                        <td style="width:145px; border:0;"></td>
-                                        <td style="width:145px; border:0;"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            ' . $itemRowsHtml . '
+                            <div class="item-row">
+                                <div class="item-col-no-empty"></div>
+                                <div class="summary-desc">
+                                    <div class="summary-title">SUMMARY DETAILS</div>
+                                    <div class="summary-list">
+                                        <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">Total Bin Count</span><span class="summary-list-colon">:</span><span>' . $totalBinCount . '</span></div>
+                                        <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">Total Actual Weight</span><span class="summary-list-colon">:</span><span>' . $totalActualWeight . ' kg</span></div>
+                                        <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">Total Tare Weight</span><span class="summary-list-colon">:</span><span>' . $totalTareWeight . ' kg</span></div>
+                                        <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">Start Weight Time</span><span class="summary-list-colon">:</span><span>' . $startWeightTime . '</span></div>
+                                        <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">End Weight Time</span><span class="summary-list-colon">:</span><span>' . $endWeightTime . '</span></div>
+                                    </div>
+                                </div>
+                                <div class="item-col-qty-empty"></div>
+                                <div class="item-col-uom-empty"></div>
+                                <div class="item-col-price-empty"></div>
+                                <div class="item-col-price-empty"></div>
+                            </div>
                         </div>
 
                         <!-- Print Button -->
