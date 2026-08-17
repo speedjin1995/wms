@@ -291,11 +291,17 @@ else{
             </div>
             <!-- Billing Address -->
             <div class="modal-section" <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
-              <p class="section-title"><?=$languageArray['billing_address_code'][$language]?></p>
+              <div class="section-title d-flex align-items-center justify-content-between">
+                <span><i class="fas fa-file-invoice mr-2"></i><?=$languageArray['billing_address_code'][$language]?></span>
+                <div class="form-check mb-0">
+                  <input type="checkbox" class="form-check-input" id="sameAsDelivery">
+                  <label class="form-check-label font-weight-normal" for="sameAsDelivery"><?=$languageArray['same_as_delivery_address_code'][$language]?></label>
+                </div>
+              </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label class="form-label-modern">Billing Name</label>
+                    <label class="form-label-modern"><?=$languageArray['billing_name_code'][$language]?></label>
                     <input type="text" class="form-control" name="billingName" id="billingName" placeholder="Billing name">
                   </div>
                 </div>
@@ -470,6 +476,29 @@ $(function () {
               }
           });
       }
+  });
+
+  $('#sameAsDelivery').on('change', function() {
+    var isSame = $(this).is(':checked');
+    var billingFields = ['#billingAddress', '#billingAddress2', '#billingAddress3', '#billingAddress4'];
+    if (isSame) {
+      $('#billingAddress').val($('#address').val());
+      $('#billingAddress2').val($('#address2').val());
+      $('#billingAddress3').val($('#address3').val());
+      $('#billingAddress4').val($('#address4').val());
+      $('#billingStates').val($('#states').val()).trigger('change');
+      $.each(billingFields, function(i, sel) { $(sel).prop('readonly', true); });
+      $('#billingStates').next('.select2-container').css('pointer-events', 'none').css('opacity', '0.6');
+    } else {
+      $.each(billingFields, function(i, sel) { $(sel).prop('readonly', false); });
+      $('#billingStates').next('.select2-container').css('pointer-events', '').css('opacity', '');
+    }
+  });
+
+  $('#addModal').on('hidden.bs.modal', function() {
+    $('#sameAsDelivery').prop('checked', false);
+    ['#billingAddress','#billingAddress2','#billingAddress3','#billingAddress4'].forEach(function(sel) { $(sel).prop('readonly', false); });
+    $('#billingStates').next('.select2-container').css('pointer-events', '').css('opacity', '');
   });
 
   $('#addSuppliers').on('click', function(){
