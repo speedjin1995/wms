@@ -48,6 +48,18 @@ else{
     $allowIntegration = 'Y';
   }
 
+  // Integration Configs
+  $integrationConfigs = [];
+  if ($allowIntegration == 'Y') {
+    $intStmt = $db->prepare("SELECT id, integration_type, status, name, config_json FROM integration_configs WHERE company_id = ? AND module = 'wholesale' AND deleted = 0");
+    $intStmt->bind_param('i', $company);
+    $intStmt->execute();
+    $intResult = $intStmt->get_result();
+    while ($intRow = $intResult->fetch_assoc()) {
+      $integrationConfigs[] = $intRow;
+    }
+  }
+
   // Language
   $language = $_SESSION['language'];
   $languageArray = $_SESSION['languageArray'];
@@ -231,14 +243,12 @@ else{
     <div class="row">
       <div class="col-lg-12">
         <div class="card card-info">
-          <div class="card-header custom-card-header">
-            <div class="row custom-card-header-row">
-              <div class="<?=$allowIntegration == 'Y' ? 'col-3' : 'col-5'?>">
-                <h5 class="custom-card-header-title"><?=$languageArray['reports_code'][$language]?></h5>
-              </div>
-              <?php if($allowIntegration == 'Y') { ?>
-              <div class="col-3">
-                <button type="button" class="btn btn-block custom-delete-btn btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
+          <div class="card-header">
+            <div class="row">
+              <div class="<?=$allowIntegration == 'Y' ? 'col-6' : 'col-8'?>"></div>
+              <?php if($allowIntegration == 'Y' && !empty($integrationConfigs)) { ?>
+              <div class="col-2">
+                <button type="button" class="btn btn-block bg-gradient-danger btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
               </div>
               <?php } ?>
               <div class="col-3">
@@ -331,8 +341,14 @@ else{
       </div>
       <div class="modal-body custom-model-body-box">
         <div class="form-group">
+          <label><?=$languageArray['integration_type_code'][$language]?></label>
+          <select class="form-control" id="integrationType">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label><?=$languageArray['document_type_code'][$language]?></label>
-          <select class="form-control" id="integrationDocType">
+          <select class="form-control" id="integrationDocType" disabled>
             <option value="">-- Select --</option>
           </select>
         </div>
@@ -348,7 +364,7 @@ else{
 <script>
 var allowPrice = '<?=$allowPrice?>';
 var allowIntegration = '<?=$allowIntegration?>';
-var integrationList = '<?=$allowIntegration == 'Y' ? $companyDetail['integration_list'] : ''?>';
+var integrationConfigs = <?=json_encode($integrationConfigs)?>;
 
 $(function () {
   const today = new Date();
@@ -705,33 +721,53 @@ $(function () {
   if (allowIntegration === 'Y') {
     $('#exportIntegration').on('click', function() {
       var transactionStatusI = $('#transactionStatusFilter').val();
-      var $docType = $('#integrationDocType');
-
-      $docType.empty();
-      $docType.append('<option value="">-- Select --</option>');
-      if (transactionStatusI === 'DISPATCH' || transactionStatusI === 'STOCK-BAL') {
-        if (integrationList === 'AutoCount') {
-          $docType.append('<option value="quotation">Quotation</option>');
-          $docType.append('<option value="sales_order">Sales Order</option>');
-          $docType.append('<option value="delivery_order">Delivery Order</option>');
-          $docType.append('<option value="invoice">Invoice</option>');
-          $docType.append('<option value="cash_sale">Cash Sale</option>');
+      var statusFilter = (transactionStatusI === 'STOCK-BAL') ? 'DISPATCH' : transactionStatusI;
+      
+      // Reset dropdowns
+      $('#integrationType').empty().append('<option value="">-- Select --</option>');
+      $('#integrationDocType').empty().append('<option value="">-- Select --</option>').prop('disabled', true);
+      
+      // Get unique integration types for current status
+      var types = [];
+      integrationConfigs.forEach(function(config) {
+        if (config.status === statusFilter && types.indexOf(config.integration_type) === -1) {
+          types.push(config.integration_type);
         }
-      } else {
-        if (integrationList === 'AutoCount') {
-          $docType.append('<option value="request_quotation">Request Quotation</option>');
-          $docType.append('<option value="purchase_order">Purchase Order</option>');
-          $docType.append('<option value="goods_received_note">Goods Received Note</option>');
-          $docType.append('<option value="purchase_invoice">Purchase Invoice</option>');
-          $docType.append('<option value="cash_purchase">Cash Purchase</option>');
-        }
-      }
+      });
+      types.forEach(function(type) {
+        $('#integrationType').append('<option value="' + type + '">' + type + '</option>');
+      });
+      
       $('#integrationModal').modal('show');
     });
 
+    $('#integrationType').on('change', function() {
+      var selectedType = $(this).val();
+      var transactionStatusI = $('#transactionStatusFilter').val();
+      var statusFilter = (transactionStatusI === 'STOCK-BAL') ? 'DISPATCH' : transactionStatusI;
+      var $docType = $('#integrationDocType');
+      
+      $docType.empty().append('<option value="">-- Select --</option>');
+      
+      if (selectedType) {
+        $docType.prop('disabled', false);
+        integrationConfigs.forEach(function(config) {
+          if (config.integration_type === selectedType && config.status === statusFilter) {
+            $docType.append('<option value="' + config.id + '">' + config.name + '</option>');
+          }
+        });
+      } else {
+        $docType.prop('disabled', true);
+      }
+    });
+
     $('#integrationExportBtn').on('click', function() {
-      var docType = $('#integrationDocType').val();
-      if (!docType) {
+      var configId = $('#integrationDocType').val();
+      if (!$('#integrationType').val()) {
+        toastr["error"]("Please select an integration type.", "Validation Error:");
+        return;
+      }
+      if (!configId) {
         toastr["error"]("Please select a document type.", "Validation Error:");
         return;
       }
@@ -757,7 +793,7 @@ $(function () {
         }
       });
 
-      var base = "php/modules/wholesales/exportIntegration.php?docType="+docType+"&fromDate="+fromDateI+"&toDate="+toDateI+
+      var base = "php/modules/wholesales/exportIntegration.php?configId="+configId+"&fromDate="+fromDateI+"&toDate="+toDateI+
         "&transactionStatus="+transactionStatusI+"&status="+statusI+
         "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
         "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+

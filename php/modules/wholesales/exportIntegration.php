@@ -9,28 +9,33 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 session_start();
 
 $company = $_SESSION['customer'];
-$companyDetail = searchCompanyById($company, $db);
-$integrationList = $companyDetail['integration_list'] ?? '';
-
-$docType = $_GET['docType'] ?? '';
+$configId = $_GET['configId'] ?? '';
 $transactionStatus = $_GET['transactionStatus'] ?? '';
 $recordType = $_GET['recordType'] ?? '';
 
-if (empty($docType) || empty($integrationList)) {
+if (empty($configId)) {
     die('Invalid request.');
 }
 
-// ─── Resolve mapping folder ───────────────────────────────────────────────────
+// ─── Fetch integration config from database ───────────────────────────────────
 
-$folder = ($transactionStatus === 'RECEIVING' || $transactionStatus === 'INCOMING') ? 'Receiving' : 'Dispatch';
-$mappingFile = __DIR__ . '/../../../export-mapping/' . strtolower($integrationList) . '/' . $folder . '/' . $docType . '.json';
+$configStmt = $db->prepare("SELECT * FROM integration_configs WHERE id = ? AND company_id = ? AND deleted = 0");
+$configStmt->bind_param('ii', $configId, $company);
+$configStmt->execute();
+$configResult = $configStmt->get_result();
+$configRow = $configResult->fetch_assoc();
+$configStmt->close();
 
-if (!file_exists($mappingFile)) {
-    die('Mapping not found for: ' . htmlspecialchars($docType));
+if (!$configRow) {
+    die('Integration config not found.');
 }
 
-$mapping = json_decode(file_get_contents($mappingFile), true);
-$columns = $mapping['columns'];
+$mapping = json_decode($configRow['config_json'], true);
+$columns = $mapping['columns'] ?? [];
+
+if (empty($columns)) {
+    die('Invalid mapping configuration.');
+}
 
 // ─── Build search query (same as export.php) ──────────────────────────────────
 
@@ -227,7 +232,7 @@ foreach ($dataRows as $rowIndex => $dataRow) {
 
 // ─── Output ───────────────────────────────────────────────────────────────────
 
-$label    = $mapping['label'] ?? $docType;
+$label    = $mapping['label'] ?? $configRow['name'];
 $fileName = $label . '_' . date('Y-m-d') . '.xlsx';
 
 $writer = new Xlsx($spreadsheet);
