@@ -31,9 +31,13 @@ else{
     }
     $products = $db->query($productQuery);
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
+    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
   } else {
     $products = $db->query("SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0' ORDER BY p.product_name ASC");
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
+    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
   }
 
   // Language
@@ -70,9 +74,40 @@ else{
               </div>
 
               <div class="form-group col-md-3 col-sm-6">
-                <label><?=$languageArray['product_code'][$language]?> <span class="text-danger">*</span></label>
-                <select class="form-control select2" id="productFilter" required>
-                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+                <label><?=$languageArray['transaction_status_code'][$language]?></label>
+                <select class="form-control" id="transactionStatusFilter">
+                  <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                  <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                  <!-- <?php if (in_array('stocks', $companyProducts)) { ?>
+                  <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                  <?php } ?> -->
+                </select>
+              </div>
+
+              <div class="form-group col-md-3 col-sm-6" id="customerFilterGroup">
+                <label><?=$languageArray['customer_code'][$language] ?? 'Customer'?> <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="customerFilter">
+                  <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+                  <?php while($c = mysqli_fetch_assoc($customers)){ ?>
+                    <option value="<?=$c['id']?>"><?=$c['customer_name']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="form-group col-md-3 col-sm-6" id="supplierFilterGroup" style="display:none;">
+                <label><?=$languageArray['supplier_code'][$language] ?? 'Supplier'?> <span class="text-danger">*</span></label>
+                <select class="form-control select2" id="supplierFilter">
+                  <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+                  <?php while($s = mysqli_fetch_assoc($suppliers)){ ?>
+                    <option value="<?=$s['id']?>"><?=$s['supplier_name']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="form-group col-md-3 col-sm-6">
+                <label><?=$languageArray['product_code'][$language]?></label>
+                <select class="form-control select2" id="productFilter">
+                  <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
                   <?php while($p = mysqli_fetch_assoc($products)){ ?>
                     <option value="<?=$p['id']?>"><?=$p['product_name']?></option>
                   <?php } ?>
@@ -80,20 +115,9 @@ else{
               </div>
 
               <div class="form-group col-md-3 col-sm-6">
-                <label><?=$languageArray['grade_code'][$language]?> <span class="text-danger">*</span></label>
-                <select class="form-control select2" id="gradeFilter" required>
-                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                </select>
-              </div>
-
-              <div class="form-group col-md-3 col-sm-6">
-                <label><?=$languageArray['transaction_status_code'][$language]?></label>
-                <select class="form-control" id="transactionStatusFilter">
-                  <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
-                  <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                  <?php if (in_array('stocks', $companyProducts)) { ?>
-                  <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
-                  <?php } ?>
+                <label><?=$languageArray['grade_code'][$language]?></label>
+                <select class="form-control select2" id="gradeFilter">
+                  <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
                 </select>
               </div>
             </div>
@@ -298,9 +322,22 @@ $(function() {
     placeholder: "Please Select" 
   });
 
+  $('#transactionStatusFilter').on('change', function() {
+    var status = $(this).val();
+    if (status === 'RECEIVING') {
+      $('#customerFilterGroup').hide();
+      $('#supplierFilterGroup').show();
+      $('#customerFilter').val('').trigger('change');
+    } else {
+      $('#customerFilterGroup').show();
+      $('#supplierFilterGroup').hide();
+      $('#supplierFilter').val('').trigger('change');
+    }
+  });
+
   $('#productFilter').on('change', function() {
     var productId = $(this).val();
-    $('#gradeFilter').select2('destroy').html('<option value="" selected disabled hidden><?=$languageArray["please_select_code"][$language]?></option>').val('');
+    $('#gradeFilter').select2('destroy').html('<option value=""><?=$languageArray["all_code"][$language] ?? "All"?></option>').val('');
     if (!productId) {
       $('#gradeFilter').select2({ allowClear: true, placeholder: "Please Select" });
       return;
@@ -319,12 +356,13 @@ $(function() {
   });
 
   $('#filterSearch').on('click', function() {
-    if (!$('#productFilter').val()) {
-      toastr["error"]("Please select a product.", "Validation Error:");
+    var status = $('#transactionStatusFilter').val();
+    if (status !== 'RECEIVING' && !$('#customerFilter').val()) {
+      toastr["error"]("Please select a customer.", "Validation Error:");
       return;
     }
-    if (!$('#gradeFilter').val()) {
-      toastr["error"]("Please select a grade.", "Validation Error:");
+    if (status === 'RECEIVING' && !$('#supplierFilter').val()) {
+      toastr["error"]("Please select a supplier.", "Validation Error:");
       return;
     }
     if (table) { table.clear().destroy(); }
@@ -359,6 +397,8 @@ $(function() {
           product: $('#productFilter').val(),
           grade: $('#gradeFilter').val(),
           status: $('#transactionStatusFilter').val(),
+          customer: $('#customerFilter').val(),
+          supplier: $('#supplierFilter').val(),
           pricingType: $('#bulkPricingType').val(),
           newPrice: $('#bulkNewPrice').val()
         }, function(data) {
@@ -418,7 +458,9 @@ function buildTable(){
         date: $('#date').val(),
         product: $('#productFilter').val(),
         grade: $('#gradeFilter').val(),
-        status: $('#transactionStatusFilter').val()
+        status: $('#transactionStatusFilter').val(),
+        customer: $('#customerFilter').val(),
+        supplier: $('#supplierFilter').val()
       }
     },
     'columns': [
@@ -488,6 +530,8 @@ function confirmBulkUpdate() {
     product: $('#productFilter').val(),
     grade: $('#gradeFilter').val(),
     status: $('#transactionStatusFilter').val(),
+    customer: $('#customerFilter').val(),
+    supplier: $('#supplierFilter').val(),
     pricingType: $('#bulkPricingType').val(),
     newPrice: $('#bulkNewPrice').val()
   }, function(data) {

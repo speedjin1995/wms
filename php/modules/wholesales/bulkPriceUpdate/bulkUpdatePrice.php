@@ -13,6 +13,8 @@ $dateInput     = $_POST['date']        ?? '';
 $productFilter = $_POST['product']     ?? '';
 $gradeFilter   = $_POST['grade']       ?? '';
 $statusInput   = $_POST['status']      ?? '';
+$customerFilter = isset($_POST['customer']) ? mysqli_real_escape_string($db, $_POST['customer']) : '';
+$supplierFilter = isset($_POST['supplier']) ? mysqli_real_escape_string($db, $_POST['supplier']) : '';
 
 if ($newPrice < 0) {
   echo json_encode(['status' => 'failed', 'message' => 'Price cannot be negative.']);
@@ -41,9 +43,16 @@ if ($role != 'SADMIN') {
   $companyFilter = " AND company = '$company'";
 }
 
+$partyFilter = '';
+if ($customerFilter !== '') {
+  $partyFilter = " AND customer = '$customerFilter'";
+} elseif ($supplierFilter !== '') {
+  $partyFilter = " AND supplier = '$supplierFilter'";
+}
+
 $sql = "SELECT id, serial_no, start_time, weight_details FROM wholesales
         WHERE deleted = '0' AND records_type = 'wholesales'
-        $companyFilter $dateFilter $statusFilter";
+        $companyFilter $dateFilter $statusFilter $partyFilter";
 
 $result = mysqli_query($db, $sql);
 if (!$result) {
