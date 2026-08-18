@@ -329,9 +329,14 @@ else{
         <div class="card card-info">
           <div class="card-header">
             <div class="row">
-              <div class="col-10"><?=$languageArray['wholesales_code'][$language]?></div>
+              <div class="col-6"><?=$languageArray['wholesales_code'][$language]?></div>
+              <?php if($allowInvoice == 'Y'){ ?>
+              <div class="col-3">
+                <button type="button" class="btn btn-block bg-gradient-info btn-sm" onclick="exportInvoices()"><i class="fas fa-file-invoice"></i> Export Invoice</button>
+              </div>
+              <?php } ?>
               <?php if($allowAdd == 'Y'){ ?>
-              <div class="col-2">
+              <div class="col-3">
                 <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
               </div>
               <?php } ?>
@@ -351,6 +356,7 @@ else{
             <table id="weightTable" class="table table-bordered table-striped display">
               <thead>
                 <tr>
+                  <th><input type="checkbox" id="selectAllRows"></th>
                   <th><?=$languageArray['serial_no_code'][$language]?></th>
                   <th><?=$languageArray['do_po_no_code'][$language]?></th>
                   <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
@@ -881,6 +887,17 @@ $(function () {
       } 
     },
     'columns': [
+      {
+        data: 'id',
+        orderable: false,
+        class: 'select-checkbox',
+        render: function(data, type, row) {
+          if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
+            return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
+          }
+          return '';
+        }
+      },
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'security_bills' },
@@ -919,6 +936,10 @@ $(function () {
         }
       }
     ]
+  });
+
+  $('#selectAllRows').on('change', function() {
+    $('#weightTable tbody .rowCheckbox').prop('checked', $(this).prop('checked'));
   });
 
   // Add event listener for opening and closing details on row click
@@ -1000,6 +1021,17 @@ $(function () {
         } 
       },
       'columns': [
+        {
+          data: 'id',
+          orderable: false,
+          class: 'select-checkbox',
+          render: function(data, type, row) {
+            if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
+              return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
+            }
+            return '';
+          }
+        },
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'security_bills' },
@@ -2804,6 +2836,20 @@ function populateFilters(rowId, weightDetails) {
   var gradeSelect = $('#gradeFilter_' + rowId);
   grades.forEach(function(grade) {
     gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  });
+}
+
+function exportInvoices() {
+  var ids = [];
+  $('#weightTable tbody .rowCheckbox:checked').each(function() {
+    ids.push($(this).val());
+  });
+  if (ids.length === 0) {
+    toastr["warning"]("Please select at least one invoice.", "Warning:");
+    return;
+  }
+  $.each(ids, function(i, id) {
+    printInvoice(id);
   });
 }
 
