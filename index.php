@@ -85,6 +85,7 @@ else{
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/modal-global.css">
+  <link rel="stylesheet" href="assets/css/page-global.css">
 
   <style>
     body {

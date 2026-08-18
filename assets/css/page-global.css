@@ -1,0 +1,631 @@
+/**
+ * Global Page Styles - Filter Bar & Data Tables
+ * Usage: Add class "page-modern" to the .content wrapper
+ * Works with Bootstrap 4 + AdminLTE 3 + DataTables
+ */
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+.page-modern {
+  --page-bg: #f1f5f9;
+  --page-surface: #ffffff;
+  --page-border: #e2e8f0;
+  --page-border-light: #f1f5f9;
+  --page-text: #0f172a;
+  --page-text-secondary: #475569;
+  --page-text-muted: #94a3b8;
+  --page-primary: #3b82f6;
+  --page-primary-hover: #2563eb;
+  --page-primary-light: #eff6ff;
+  --page-success: #10b981;
+  --page-success-light: #d1fae5;
+  --page-warning: #f59e0b;
+  --page-warning-light: #fef3c7;
+  --page-danger: #ef4444;
+  --page-radius: 0.5rem;
+  --page-radius-lg: 0.75rem;
+  --page-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  --page-shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.page-modern .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--page-primary);
+}
+
+.page-modern .page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--page-text);
+  margin: 0;
+}
+
+.page-modern .page-title i {
+  color: var(--page-text-muted);
+}
+
+/* ============================================
+   FILTER CARD
+   ============================================ */
+.page-modern .filter-card {
+  background: var(--page-surface);
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius-lg);
+  box-shadow: var(--page-shadow);
+  margin-bottom: 1.5rem;
+  overflow: visible;
+  position: relative;
+  z-index: 2;
+}
+
+.page-modern .filter-card .card-body {
+  padding: 1.25rem;
+}
+
+/* Filter Row Layout */
+.page-modern .filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.page-modern .filter-group {
+  flex: 1 1 180px;
+  min-width: 150px;
+  max-width: 220px;
+}
+
+.page-modern .filter-group.filter-group-action {
+  flex: 0 0 auto;
+  min-width: auto;
+  max-width: none;
+}
+
+/* Filter Labels */
+.page-modern .filter-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--page-text-secondary);
+  margin-bottom: 0.375rem;
+}
+
+.page-modern .filter-label.text-muted {
+  color: var(--page-text-muted) !important;
+}
+
+.page-modern .filter-label .required {
+  color: var(--page-danger);
+  margin-left: 2px;
+}
+
+.page-modern .filter-label small {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--page-text-muted);
+}
+
+/* Filter Form Controls */
+.page-modern .filter-card .form-control {
+  height: 38px;
+  font-size: 0.875rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+  background: var(--page-surface);
+  color: var(--page-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-modern .filter-card .form-control:focus {
+  border-color: var(--page-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.page-modern .filter-card .form-control::placeholder {
+  color: var(--page-text-muted);
+}
+
+/* Input Group */
+.page-modern .filter-card .input-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.page-modern .filter-card .input-group-text {
+  background: var(--page-border-light);
+  border: 1px solid var(--page-border);
+  border-left: none;
+  color: var(--page-text-muted);
+  border-radius: 0 var(--page-radius) var(--page-radius) 0;
+}
+
+/* Select2 in Filter */
+.page-modern .filter-card .select2-container {
+  width: 100% !important;
+}
+
+.page-modern .filter-card .select2-container--default .select2-selection--single {
+  height: 38px;
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+  background: var(--page-surface);
+}
+
+.page-modern .filter-card .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 30px;
+  padding-left: 0;
+  padding-top: 0;
+  color: var(--page-text);
+  font-size: 0.875rem;
+}
+
+.page-modern .filter-card .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 36px;
+  top: 0;
+  right: 8px;
+}
+
+.page-modern .filter-card .select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: var(--page-text-muted);
+}
+
+.page-modern .filter-card .select2-container--default.select2-container--focus .select2-selection--single {
+  border-color: var(--page-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Filter Buttons */
+.page-modern .filter-card .btn-filter {
+  height: 38px;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--page-radius);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.page-modern .filter-card .btn-filter-primary {
+  background: var(--page-primary);
+  border: none;
+  color: #fff;
+}
+
+.page-modern .filter-card .btn-filter-primary:hover {
+  background: var(--page-primary-hover);
+}
+
+.page-modern .filter-card .btn-filter-secondary {
+  background: transparent;
+  border: 1px solid var(--page-border);
+  color: var(--page-text-secondary);
+}
+
+.page-modern .filter-card .btn-filter-secondary:hover {
+  background: var(--page-border-light);
+  color: var(--page-text);
+}
+
+/* Date Picker z-index fix */
+.page-modern .filter-card {
+  position: relative;
+  z-index: 2;
+}
+
+.page-modern .bootstrap-datetimepicker-widget {
+  z-index: 1050 !important;
+}
+
+/* ============================================
+   RESULTS CARD
+   ============================================ */
+.page-modern .results-card {
+  background: var(--page-surface);
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius-lg);
+  box-shadow: var(--page-shadow);
+  overflow: hidden;
+}
+
+.page-modern .results-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  background: var(--page-surface);
+  border-bottom: 1px solid var(--page-border);
+}
+
+.page-modern .results-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-modern .results-header-right {
+  margin-left: auto;
+}
+
+.page-modern .results-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--page-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-modern .results-title i {
+  color: var(--page-text-muted);
+}
+
+.page-modern .results-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--page-primary);
+  background: var(--page-primary-light);
+  border-radius: 12px;
+}
+
+.page-modern .results-card .card-body {
+  padding: 0;
+}
+
+/* Action Button in Header */
+.page-modern .btn-action {
+  height: 34px;
+  padding: 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: var(--page-radius);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  transition: all 0.15s ease;
+}
+
+.page-modern .btn-action-warning {
+  background: var(--page-warning);
+  border: none;
+  color: #fff;
+}
+
+.page-modern .btn-action-warning:hover {
+  background: #d97706;
+  color: #fff;
+}
+
+.page-modern .btn-action-primary {
+  background: var(--page-primary);
+  border: none;
+  color: #fff;
+}
+
+.page-modern .btn-action-primary:hover {
+  background: var(--page-primary-hover);
+  color: #fff;
+}
+
+/* ============================================
+   DATA TABLE STYLING
+   ============================================ */
+.page-modern .results-card .dataTables_wrapper {
+  padding: 0;
+}
+
+/* Hide default DataTables controls */
+.page-modern .results-card .dataTables_length,
+.page-modern .results-card .dataTables_filter {
+  display: none;
+}
+
+/* Table */
+.page-modern .data-table {
+  width: 100% !important;
+  margin: 0 !important;
+  border-collapse: collapse;
+}
+
+.page-modern .data-table thead th {
+  background: #f8fafc;
+  border-bottom: 2px solid var(--page-border);
+  padding: 0.875rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--page-text-secondary);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.page-modern .data-table thead th:first-child {
+  padding-left: 1.25rem;
+}
+
+.page-modern .data-table thead th:last-child {
+  padding-right: 1.25rem;
+}
+
+.page-modern .data-table tbody td {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  color: var(--page-text);
+  border-bottom: 1px solid var(--page-border-light);
+  vertical-align: middle;
+}
+
+.page-modern .data-table tbody td:first-child {
+  padding-left: 1.25rem;
+}
+
+.page-modern .data-table tbody td:last-child {
+  padding-right: 1.25rem;
+}
+
+.page-modern .data-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.page-modern .data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Expand Icon */
+.page-modern .expand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--page-radius);
+  color: var(--page-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-modern .expand-icon:hover {
+  background: var(--page-border-light);
+  color: var(--page-text-secondary);
+}
+
+.page-modern .expand-icon.expanded {
+  background: var(--page-primary-light);
+  color: var(--page-primary);
+}
+
+/* Status Badges */
+.page-modern .badge-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+}
+
+.page-modern .badge-dispatch {
+  background: var(--page-success-light);
+  color: #065f46;
+}
+
+.page-modern .badge-receiving {
+  background: var(--page-primary-light);
+  color: #1e40af;
+}
+
+.page-modern .badge-stockbal {
+  background: var(--page-warning-light);
+  color: #92400e;
+}
+
+/* Item Count Badge */
+.page-modern .badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--page-text-secondary);
+  background: var(--page-border-light);
+  border-radius: 4px;
+}
+
+/* DataTables Info & Pagination */
+.page-modern .results-card .dataTables_info {
+  padding: 1rem 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--page-text-muted);
+  border-top: 1px solid var(--page-border-light);
+}
+
+.page-modern .results-card .dataTables_paginate {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--page-border-light);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.page-modern .results-card .dataTables_paginate .paginate_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.5rem;
+  margin: 0 2px;
+  font-size: 0.8125rem;
+  color: var(--page-text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--page-radius);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-modern .results-card .dataTables_paginate .paginate_button:hover {
+  background: var(--page-border-light);
+  color: var(--page-text);
+  border-color: var(--page-border);
+}
+
+.page-modern .results-card .dataTables_paginate .paginate_button.current {
+  background: var(--page-primary);
+  color: #fff;
+  border-color: var(--page-primary);
+  font-weight: 600;
+}
+
+.page-modern .results-card .dataTables_paginate .paginate_button.disabled {
+  color: var(--page-text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.page-modern .results-card .dataTables_paginate .paginate_button.disabled:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* ============================================
+   CHILD ROW (Expanded Details)
+   ============================================ */
+.page-modern .child-row-wrapper {
+  background: #f8fafc;
+  padding: 1rem 1.25rem 1rem 3.5rem;
+  border-bottom: 1px solid var(--page-border);
+}
+
+.page-modern .child-table {
+  width: 100%;
+  background: var(--page-surface);
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+  overflow: hidden;
+  font-size: 0.8125rem;
+}
+
+.page-modern .child-table thead th {
+  background: #f1f5f9;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--page-text-secondary);
+  border-bottom: 1px solid var(--page-border);
+}
+
+.page-modern .child-table tbody td {
+  padding: 0.625rem 0.875rem;
+  color: var(--page-text);
+  border-bottom: 1px solid var(--page-border-light);
+}
+
+.page-modern .child-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.page-modern .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.page-modern .empty-state-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--page-border-light);
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.page-modern .empty-state-icon i {
+  font-size: 1.5rem;
+  color: var(--page-text-muted);
+}
+
+.page-modern .empty-state-text {
+  font-size: 0.9375rem;
+  color: var(--page-text-secondary);
+  margin: 0;
+}
+
+.page-modern .empty-state-hint {
+  font-size: 0.8125rem;
+  color: var(--page-text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 991.98px) {
+  .page-modern .filter-group {
+    flex: 1 1 calc(50% - 0.5rem);
+    max-width: none;
+  }
+  
+  .page-modern .filter-group.filter-group-action {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .page-modern .filter-group {
+    flex: 1 1 100%;
+  }
+  
+  .page-modern .results-card .card-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  
+  .page-modern .results-header-left {
+    justify-content: space-between;
+  }
+  
+  .page-modern .data-table thead th,
+  .page-modern .data-table tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+}
