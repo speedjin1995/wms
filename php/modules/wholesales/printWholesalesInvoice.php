@@ -161,7 +161,7 @@ if(isset($_GET['id'])){
                     // echo json_encode($item);exit;
 
                     $weightLines = '';
-                    $chunks = array_chunk($item['weights'], 5);
+                    $chunks = array_chunk($item['weights'], 7);
                     foreach ($chunks as $chunk) {
                         $weightLines .= implode('&nbsp;&nbsp;', array_map(function($w) { return number_format($w, 2); }, $chunk)) . '<br>';
                     }
@@ -176,7 +176,7 @@ if(isset($_GET['id'])){
                         $totalTareWeight += floatval($tare);
                     }
 
-                    $tareOverBin = $tareWeight/floatval($item['bin']);
+                    $tareOverBin = number_format($tareWeight/floatval($item['bin']), 2);
                     $itemRowsHtml .= '
                                     <div class="item-row">
                                         <div class="item-col-no">' . $no . '</div>
@@ -217,7 +217,7 @@ if(isset($_GET['id'])){
                             /* Paged.js */
                             @page {
                                 size: A4;
-                                margin: 95mm 10mm 78mm 10mm;
+                                margin: 85mm 10mm 78mm 10mm;
                                 @top-left { content: element(running-header); }
                                 @bottom-left { content: element(running-footer); }
                             }
@@ -392,8 +392,8 @@ if(isset($_GET['id'])){
                                     <th style="width:400px; text-align:left;" class="border-top-bottom-dashed">DESCRIPTION ITEM / GRADE</th>
                                     <th style="width:72px;" class="border-top-bottom-dashed">QTY/kg</th>
                                     <th style="width:58px;" class="border-top-bottom-dashed">UOM</th>
-                                    <th style="width:145px;" class="border-top-bottom-dashed">UNIT PRICE (RM)</th>
-                                    <th style="width:145px;" class="border-top-bottom-dashed">TOTAL PRICE (RM)</th>
+                                    <th style="width:145px;" class="border-top-bottom-dashed">UNIT PRICE</th>
+                                    <th style="width:145px;" class="border-top-bottom-dashed">TOTAL PRICE</th>
                                 </tr>
                             </table>
                         </div>
