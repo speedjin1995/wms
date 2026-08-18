@@ -221,6 +221,11 @@ if(isset($_GET['id'])){
                                 @top-left { content: element(running-header); }
                                 @bottom-left { content: element(running-footer); }
                             }
+                            @page :not(:last) {
+                                @bottom-left { content: none; }
+                                margin-bottom: 10mm;
+                            }
+                            .pagedjs_page.not-last-page .pagedjs_margin-bottom-left { display: none !important; }
                             .running-header { position: running(running-header); width: 100%; }
                             .running-footer { position: running(running-footer); width: 100%; }
 
@@ -449,6 +454,16 @@ if(isset($_GET['id'])){
 
                         <script>
                             window.PagedConfig = { auto: true };
+                            class HideFooterHandler extends Paged.Handler {
+                                afterRendered(pages) {
+                                    pages.forEach(function(page, i) {
+                                        if (i < pages.length - 1) {
+                                            page.element.classList.add("not-last-page");
+                                        }
+                                    });
+                                }
+                            }
+                            Paged.registerHandlers(HideFooterHandler);
                         </script>
 
                     </body>
