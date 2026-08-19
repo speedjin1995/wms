@@ -233,6 +233,15 @@
   z-index: 1050 !important;
 }
 
+/* Select2 in Modal - Fix dropdown position on scroll */
+.modal-body {
+  position: relative;
+}
+
+.modal .select2-container--open .select2-dropdown {
+  position: absolute !important;
+}
+
 /* ============================================
    RESULTS CARD
    ============================================ */
@@ -613,6 +622,53 @@
   font-size: 0.8125rem;
   color: var(--page-text-muted);
   margin-top: 0.25rem;
+}
+
+/* DataTables Empty State */
+.page-modern .data-table tbody td.dataTables_empty {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.page-modern .datatable-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.page-modern .datatable-empty-state .empty-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--page-border-light);
+  border-radius: 50%;
+  margin-bottom: 1.25rem;
+}
+
+.page-modern .datatable-empty-state .empty-icon i {
+  font-size: 2rem;
+  color: var(--page-text-muted);
+}
+
+.page-modern .datatable-empty-state .empty-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--page-text);
+  margin: 0 0 0.5rem 0;
+}
+
+.page-modern .datatable-empty-state .empty-message {
+  font-size: 0.875rem;
+  color: var(--page-text-muted);
+  margin: 0;
+  max-width: 320px;
 }
 
 /* ============================================

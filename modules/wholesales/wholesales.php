@@ -799,7 +799,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length > 0 ? $('#extendModal .modal-content') : $(this).parent()
     });
   });
 
@@ -828,6 +828,10 @@ $(function () {
     'serverMethod': 'post',
     'searching': true,
     'order': [[ 0, 'asc' ]],
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     'drawCallback': function(settings) {
       $('#resultsCount').text(settings._iRecordsTotal || 0);
     },
@@ -965,6 +969,10 @@ $(function () {
       'serverMethod': 'post',
       'searching': true,
       'order': [[ 0, 'asc' ]],
+      'language': {
+        'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+        'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+      },
       'drawCallback': function(settings) {
         $('#resultsCount').text(settings._iRecordsTotal || 0);
       },
@@ -1254,7 +1262,7 @@ $(function () {
         select.select2({
             allowClear: true,
             placeholder: "Please Select",
-            dropdownParent: $('#extendModal .modal-body'),
+            dropdownParent: $('#extendModal .modal-content'),
             width: '100%'
         });
     });
@@ -1494,11 +1502,15 @@ $(function () {
         });
     }
 
-    $('.select2').select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
-      width: '100%'
+    // Initialize Select2 for the newly added row's select elements
+    var newRow = $('#weightDetailsTable tr:last');
+    newRow.find('.select2').each(function() {
+      $(this).select2({
+        allowClear: true,
+        placeholder: "Please Select",
+        dropdownParent: $('#extendModal .modal-content'),
+        width: '100%'
+      });
     });
 
     var status = $('#extendModal').find('#status').val();
@@ -1549,7 +1561,7 @@ $(function () {
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
     
@@ -1703,7 +1715,7 @@ $(function () {
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
     
@@ -2383,7 +2395,7 @@ function edit(id) {
           allowClear: true,
           placeholder: "Please Select",
           // Conditionally set dropdownParent based on the element’s location
-          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+          dropdownParent: $('#extendModal .modal-content')
         });
       });
       
@@ -2508,11 +2520,14 @@ function acceptRow(button) {
   reindexWeightDetails();
   reindexRejectDetails();
   updateTotals();
-  $('.select2').select2({
-    allowClear: true,
-    placeholder: "Please Select",
-    dropdownParent: $('#extendModal .modal-body'),
-    width: '100%'
+  // Initialize Select2 for the moved row's select elements
+  row.find('.select2').each(function() {
+    $(this).select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-content'),
+      width: '100%'
+    });
   });
 }
 
@@ -2751,11 +2766,13 @@ function exportInvoices() {
 function buildColumnToggleMenu() {
   var menu = $('#columnToggleMenu');
   menu.empty();
+  // Start from column 1 (skip checkbox column 0)
   for (var i = 0; i < columnNames.length; i++) {
+    var colIndex = i + 1; // Offset by 1 for checkbox column
     menu.append(
       '<div class="form-check">' +
-        '<input class="form-check-input column-toggle" type="checkbox" id="colToggle' + i + '" data-col="' + i + '" checked>' +
-        '<label class="form-check-label" for="colToggle' + i + '">' + columnNames[i] + '</label>' +
+        '<input class="form-check-input column-toggle" type="checkbox" id="colToggle' + colIndex + '" data-col="' + colIndex + '" checked>' +
+        '<label class="form-check-label" for="colToggle' + colIndex + '">' + columnNames[i] + '</label>' +
       '</div>'
     );
   }
