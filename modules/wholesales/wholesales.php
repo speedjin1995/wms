@@ -2848,8 +2848,38 @@ function exportInvoices() {
     toastr["warning"]("Please select at least one invoice.", "Warning:");
     return;
   }
-  $.each(ids, function(i, id) {
-    printInvoice(id);
+  if (ids.length === 1) {
+    printInvoice(ids[0]);
+    return;
+  }
+  $('#spinnerLoading').show();
+  var requests = ids.map(function(id) {
+    return $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id);
+  });
+  $.when.apply($, requests).then(function() {
+    var responses = ids.length === 1 ? [arguments] : Array.from(arguments);
+    var combined = '';
+    responses.forEach(function(args) {
+      var obj = JSON.parse(args[0]);
+      if (obj.status === 'success') {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(obj.message, 'text/html');
+        var body = doc.body.innerHTML;
+        combined += '<div style="page-break-after: always;">' + body + '</div>';
+      }
+    });
+    if (combined) {
+      var firstObj = JSON.parse(responses[0][0]);
+      var firstDoc = new DOMParser().parseFromString(firstObj.message, 'text/html');
+      var head = firstDoc.head.innerHTML;
+      var printWindow = window.open('', '_blank');
+      printWindow.document.write('<html><head>' + head + '</head><body>' + combined + '</body></html>');
+      printWindow.document.close();
+    }
+    $('#spinnerLoading').hide();
+  }).fail(function() {
+    toastr["error"]("Failed to load invoices.", "Error:");
+    $('#spinnerLoading').hide();
   });
 }
 
