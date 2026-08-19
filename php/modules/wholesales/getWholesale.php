@@ -78,7 +78,12 @@ if(isset($_POST['userID'])){
                     $weightDetailsOut = [];
                     foreach ($weightDetails as $weight){
                         $weight['product_name'] = searchProductNameById($weight['product'], $db);
-                        $weight['currency_name'] = (isset($weight['currency']) && !empty($weight['currency'])) ? searchCurrencyNameById($weight['currency'], $db) : '';
+                        $currencyId = $weight['currency'] ?? null;
+                        if (!$currencyId || $currencyId == '0' || $currencyId == 'null') {
+                            $currencyId = null;
+                        }
+                        $weight['currency'] = $currencyId;
+                        $weight['currency_name'] = $currencyId ? searchCurrencyNameById($currencyId, $db) : '';
                         
                         // Backward compatibility: if grade_id is missing, lookup by grade name
                         if (empty($weight['grade_id']) && !empty($weight['grade'])) {
@@ -105,7 +110,10 @@ if(isset($_POST['userID'])){
                     $rejectDetailsOut = [];
 
                     foreach ($rejectDetails as $reject){
-                        $reject['currency_name'] = (isset($reject['currency']) && !empty($reject['currency'])) ? searchCurrencyNameById($reject['currency'], $db) : '';
+                        $currencyId = $reject['currency'] ?? null;
+                        if (!$currencyId || $currencyId === '0' || $currencyId === 'null') $currencyId = null;
+                        $reject['currency'] = $currencyId;
+                        $reject['currency_name'] = $currencyId ? searchCurrencyNameById($currencyId, $db) : '';
 
                         $totalReject += floatval($reject['net']);
                         $rejectDetailsOut[] = $reject;
