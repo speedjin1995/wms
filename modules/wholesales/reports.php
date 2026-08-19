@@ -248,13 +248,13 @@ else{
               <div class="<?=$allowIntegration == 'Y' ? 'col-6' : 'col-8'?>"></div>
               <?php if($allowIntegration == 'Y' && !empty($integrationConfigs)) { ?>
               <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-danger btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
+                <button type="button" class="btn btn-block custom-delete-btn btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
               </div>
               <?php } ?>
-              <div class="col-3">
+              <div class="col-2">
                 <button type="button" class="btn btn-block custom-search-btn btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
               </div>
-              <div class="col-3">
+              <div class="col-2">
                 <button type="button" class="btn btn-block custom-add-btn btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
               </div>
             </div>

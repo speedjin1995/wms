@@ -319,7 +319,7 @@ if(isset($_GET['id'])){
                                         <div class="company-en">' . $companyName . '</div>
                                         <div class="company-addr">' . $companyAddress1 . ' ' . $companyAddress2 . '</div>
                                         <div class="company-addr">' . $companyAddress3 . ' ' . $companyAddress4 . '</div>
-                                        <div class="company-contact">Tel: ' . $companyTel . '&nbsp;&nbsp;&nbsp;E-INVOICE TIN No. : ' . $companyTin . '</div>
+                                        <div class="company-contact">Tel: ' . $companyTel . '<span style="display:none">&nbsp;&nbsp;&nbsp;E-INVOICE TIN No. : ' . $companyTin . '<span></div>
                                         <div class="company-contact">EMAIL : ' . $companyEmail . '</div>
                                     </div>
                                 </div>
