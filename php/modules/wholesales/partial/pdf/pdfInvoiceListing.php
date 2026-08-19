@@ -85,6 +85,11 @@ function buildInvoiceRows($query, $isDispatchStatus, $defaultCurrency, $db) {
 
 [$grouped, $grandTotal] = buildInvoiceRows($query, $isDispatchStatus, $defaultCurrency, $db);
 
+// Sort grouped by party code
+uasort($grouped, function($a, $b) {
+  return strcasecmp($a['code'], $b['code']);
+});
+
 // Transaction summary: group by currency
 $transactionSummaryRows = [];
 foreach ($grandTotal as $cur => $amt) {
