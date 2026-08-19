@@ -287,7 +287,6 @@ else{
       <div class="card-header">
         <div class="results-header-left">
           <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['wholesales_code'][$language]?></h3>
-          <span class="results-count" id="resultsCount">0</span>
         </div>
         <div class="results-header-right d-flex" style="gap: 0.5rem;">
           <div class="dropdown">
@@ -833,7 +832,6 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'drawCallback': function(settings) {
-      $('#resultsCount').text(settings._iRecordsTotal || 0);
     },
     'ajax': {
       'url':'php/modules/wholesales/filterWholesale.php',
@@ -974,7 +972,6 @@ $(function () {
         'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
       },
       'drawCallback': function(settings) {
-        $('#resultsCount').text(settings._iRecordsTotal || 0);
       },
       'ajax': {
         'url':'php/modules/wholesales/filterWholesale.php',
@@ -1855,14 +1852,14 @@ function applyCustomerCurrency(currencyId) {
 
 function format (row) {
   var returnString = `
-  <div class="expanded-row-content" style="padding:1.25rem;background:#fff;border:1px solid #e2e8f0;border-radius:0.5rem;margin:0.5rem 0;">
+  <div class="expanded-row-content">
     <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #e2e8f0;">
+    <div class="expanded-header">
       <div>
-        <div style="font-size:1.1rem;font-weight:600;color:#0f172a;">${row.serial_no}</div>
-        <div style="font-size:0.8125rem;color:#64748b;">${row.customer_supplier || '-'}</div>
+        <div class="expanded-header-title">${row.serial_no}</div>
+        <div class="expanded-header-subtitle">${row.customer_supplier || '-'}</div>
       </div>
-      <div style="display:flex;gap:0.375rem;">
+      <div class="expanded-actions">
         ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
         <button type="button" onclick="print(${row.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
         ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-sm btn-outline-info"><i class="fas fa-file-invoice"></i></button>' : ''}
@@ -1871,64 +1868,65 @@ function format (row) {
     </div>
 
     <!-- KPI Summary -->
-    <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
-      <div style="flex:1;min-width:120px;padding:0.75rem 1rem;background:#f8fafc;border-radius:0.375rem;border:1px solid #e2e8f0;">
-        <div style="font-size:0.6875rem;text-transform:uppercase;color:#64748b;margin-bottom:0.25rem;"><?=$languageArray['total_item_code'][$language]?></div>
-        <div style="font-size:1.25rem;font-weight:700;color:#0f172a;">${row.totalItems || 0}</div>
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_item_code'][$language]?></div>
+        <div class="kpi-value">${row.totalItems || 0}</div>
       </div>
-      <div style="flex:1;min-width:120px;padding:0.75rem 1rem;background:#f8fafc;border-radius:0.375rem;border:1px solid #e2e8f0;">
-        <div style="font-size:0.6875rem;text-transform:uppercase;color:#64748b;margin-bottom:0.25rem;"><?=$languageArray['total_weight_code'][$language]?></div>
-        <div style="font-size:1.25rem;font-weight:700;color:#3b82f6;">${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'} <span style="font-size:0.75rem;font-weight:400;">Kg</span></div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_weight_code'][$language]?></div>
+        <div class="kpi-value kpi-value-primary">${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'} <span class="kpi-unit">Kg</span></div>
       </div>
-      <div style="flex:1;min-width:120px;padding:0.75rem 1rem;background:#f8fafc;border-radius:0.375rem;border:1px solid #e2e8f0;">
-        <div style="font-size:0.6875rem;text-transform:uppercase;color:#64748b;margin-bottom:0.25rem;"><?=$languageArray['total_reject_code'][$language]?></div>
-        <div style="font-size:1.25rem;font-weight:700;color:#ef4444;">${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'} <span style="font-size:0.75rem;font-weight:400;">Kg</span></div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_reject_code'][$language]?></div>
+        <div class="kpi-value kpi-value-danger">${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'} <span class="kpi-unit">Kg</span></div>
       </div>
       ${allowPrice == 'Y' ? `
-      <div style="flex:1;min-width:120px;padding:0.75rem 1rem;background:#10b981;border-radius:0.375rem;">
-        <div style="font-size:0.6875rem;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:0.25rem;"><?=$languageArray['total_price_code'][$language]?></div>
-        <div style="font-size:1.25rem;font-weight:700;color:#fff;">${parseFloat(row.totalPrice).toFixed(2)}</div>
+      <div class="kpi-card kpi-card-success">
+        <div class="kpi-label"><?=$languageArray['total_price_code'][$language]?></div>
+        <div class="kpi-value">${parseFloat(row.totalPrice).toFixed(2)}</div>
       </div>` : ''}
     </div>
 
     <!-- Order Info -->
-    <div style="margin-bottom:1rem;padding:1rem;background:#f8fafc;border-radius:0.375rem;border:1px solid #e2e8f0;">
-      <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:#64748b;margin-bottom:0.75rem;"><?=$languageArray['wholesale_order_information_code'][$language]?></div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;">
-        <div><span style="font-size:0.6875rem;color:#94a3b8;display:block;"><?=$languageArray['serial_no_code'][$language]?></span><span style="font-weight:500;">${row.serial_no || '-'}</span></div>
-        <div><span style="font-size:0.6875rem;color:#94a3b8;display:block;"><?=$languageArray['do_po_no_code'][$language]?></span><span style="font-weight:500;">${row.po_no || '-'}</span></div>
-        <div><span style="font-size:0.6875rem;color:#94a3b8;display:block;"><?=$languageArray['vehicle_no_code'][$language]?></span><span style="font-weight:500;">${row.vehicle_no || '-'}</span></div>
-        <div><span style="font-size:0.6875rem;color:#94a3b8;display:block;"><?=$languageArray['driver_code'][$language]?></span><span style="font-weight:500;">${row.driver || '-'}</span></div>
-        <div><span style="font-size:0.6875rem;color:#94a3b8;display:block;"><?=$languageArray['weighed_by_code'][$language]?></span><span style="font-weight:500;">${row.weighted_by || '-'}</span></div>
-        <div><span style="font-size:0.6875rem;color:#94a3b8;display:block;"><?=$languageArray['locations_code'][$language]?></span><span style="font-weight:500;">${row.location_name || '-'}</span></div>
+    <div class="info-section">
+      <div class="info-section-title"><?=$languageArray['wholesale_order_information_code'][$language]?></div>
+      <div class="info-grid">
+        <div><span class="info-item-label"><?=$languageArray['serial_no_code'][$language]?></span><span class="info-item-value">${row.serial_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['do_po_no_code'][$language]?></span><span class="info-item-value">${row.po_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['vehicle_no_code'][$language]?></span><span class="info-item-value">${row.vehicle_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['driver_code'][$language]?></span><span class="info-item-value">${row.driver || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['weighed_by_code'][$language]?></span><span class="info-item-value">${row.weighted_by || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['locations_code'][$language]?></span><span class="info-item-value">${row.location_name || '-'}</span></div>
       </div>
-      ${row.remark ? '<div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid #e2e8f0;"><span style="font-size:0.6875rem;color:#94a3b8;display:block;"><?=$languageArray['remark_code'][$language]?></span><span style="font-weight:500;">' + row.remark + '</span></div>' : ''}
+      ${row.remark ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + row.remark + '</span></div>' : ''}
     </div>
+
     <!-- Weighing Details -->
-    <div style="margin-bottom:1rem;border:1px solid #e2e8f0;border-radius:0.375rem;overflow:hidden;">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:#f8fafc;border-bottom:1px solid #e2e8f0;">
-        <span style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:#64748b;"><?=$languageArray['weighing_details_code'][$language]?></span>
-        <div style="display:flex;gap:0.5rem;">
-          <select class="form-control form-control-sm" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')" style="min-width:130px;font-size:0.75rem;">
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title"><?=$languageArray['weighing_details_code'][$language]?></span>
+        <div class="details-filters">
+          <select class="form-control form-control-sm details-filter-select" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
             <option value=""><?=$languageArray['all_products_code'][$language]?></option>
           </select>
-          <select class="form-control form-control-sm" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')" style="min-width:100px;font-size:0.75rem;">
+          <select class="form-control form-control-sm details-filter-select" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
             <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
           </select>
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-sm mb-0" id="weightTable_${row.id}" style="font-size:0.8125rem;">
-          <thead style="background:#f8fafc;">
+        <table class="table details-table mb-0" id="weightTable_${row.id}">
+          <thead>
             <tr>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;"><?=$languageArray['product_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;"><?=$languageArray['grade_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['gross_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['tare_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['net_code'][$language]?></th>
-              ${allowPrice == 'Y' ? '<th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;"><?=$languageArray['currency_code'][$language]?></th><th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['price_code'][$language]?></th><th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['total_code'][$language]?></th>' : ''}
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:center;"><?=$languageArray['time_code'][$language]?></th>
-              ${allowPhoto == 'Y' ? '<th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:center;"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
+              ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
+              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
             </tr>
           </thead>
           <tbody>`;
@@ -1941,16 +1939,15 @@ function format (row) {
         var detail = row.weightDetails[i];
         
         returnString += `
-              <tr style="border-bottom:1px solid #f1f5f9;">
-                <td style="padding:0.5rem 0.75rem;">${detail.product_name}</td>
-                <td style="padding:0.5rem 0.75rem;"><span style="background:#e2e8f0;padding:0.125rem 0.5rem;border-radius:0.25rem;font-size:0.75rem;">${detail.grade}</span></td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">${parseFloat(detail.gross).toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">${parseFloat(detail.tare).toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;font-weight:600;color:#3b82f6;">${parseFloat(detail.net).toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td style="padding:0.5rem 0.75rem;">'+detail.currency_name+'</td><td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">' + parseFloat(detail.price).toFixed(2) + '</td><td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;font-weight:600;color:#10b981;">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
-                <td style="padding:0.5rem 0.75rem;text-align:center;color:#64748b;">${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td style="padding:0.5rem 0.75rem;text-align:center;">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm" style="padding:0.125rem 0.375rem;"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}`;
-        returnString += `
+              <tr>
+                <td>${detail.product_name}</td>
+                <td><span class="grade-badge">${detail.grade}</span></td>
+                <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
+                <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
+                <td class="text-right text-mono text-primary font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
+                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono text-success font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                <td class="text-center text-muted">${detail.time}</td>
+                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
               </tr>`;
 
         totalWeightGross += parseFloat(detail.gross);
@@ -1960,39 +1957,39 @@ function format (row) {
       }
 
       returnString += `
-            </tbody>
-            <tfoot style="background:#f8fafc;font-weight:600;">
-              <tr>
-                <td colspan="2" style="padding:0.5rem 0.75rem;"><?=$languageArray['total_code'][$language]?></td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;color:#3b82f6;" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td></td><td></td><td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;color:#10b981;" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
-                <td></td>
-                ${allowPhoto == 'Y' ? '<td></td>' : ''}
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
+              <td class="text-right text-mono" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
+              <td class="text-right text-mono" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
+              <td class="text-right text-mono text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
+              ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
+              <td></td>
+              ${allowPhoto == 'Y' ? '<td></td>' : ''}
+            </tr>
+          </tfoot>
+        </table>
       </div>
+    </div>
 
     <!-- Reject Details -->
-    <div style="border:1px solid #e2e8f0;border-radius:0.375rem;overflow:hidden;">
-      <div style="padding:0.75rem 1rem;background:#f8fafc;border-bottom:1px solid #e2e8f0;">
-        <span style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:#ef4444;"><i class="fas fa-times-circle mr-1"></i><?=$languageArray['reject_details_code'][$language]?></span>
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title details-title-danger"><i class="fas fa-times-circle mr-1"></i><?=$languageArray['reject_details_code'][$language]?></span>
       </div>
       <div class="table-responsive">
-        <table class="table table-sm mb-0" style="font-size:0.8125rem;">
-          <thead style="background:#f8fafc;">
+        <table class="table details-table mb-0">
+          <thead>
             <tr>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;"><?=$languageArray['product_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;"><?=$languageArray['grade_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['gross_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['tare_code'][$language]?></th>
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['net_code'][$language]?></th>
-              ${allowPrice == 'Y' ? '<th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;"><?=$languageArray['currency_code'][$language]?></th><th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['price_code'][$language]?></th><th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:right;"><?=$languageArray['total_code'][$language]?></th>' : ''}
-              <th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:center;"><?=$languageArray['time_code'][$language]?></th>
-              ${allowPhoto == 'Y' ? '<th style="padding:0.5rem 0.75rem;font-size:0.6875rem;font-weight:600;text-transform:uppercase;color:#64748b;border:none;text-align:center;"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
+              ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
+              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
             </tr>
           </thead>
           <tbody>`;
@@ -2005,8 +2002,8 @@ function format (row) {
       if (row.rejectDetails.length === 0) {
         returnString += `
               <tr>
-                <td colspan="${allowPrice == 'Y' ? (allowPhoto == 'Y' ? '10' : '9') : (allowPhoto == 'Y' ? '7' : '6')}" style="padding:2rem;text-align:center;color:#64748b;">
-                  <i class="fas fa-check-circle" style="font-size:1.5rem;color:#10b981;display:block;margin-bottom:0.5rem;"></i>
+                <td colspan="${allowPrice == 'Y' ? (allowPhoto == 'Y' ? '10' : '9') : (allowPhoto == 'Y' ? '7' : '6')}" class="details-empty">
+                  <i class="fas fa-check-circle"></i>
                   <?=$languageArray['no_reject_items_code'][$language] ?? 'No rejected items'?>
                 </td>
               </tr>`;
@@ -2015,16 +2012,15 @@ function format (row) {
           var detail = row.rejectDetails[i];
           
           returnString += `
-              <tr style="border-bottom:1px solid #f1f5f9;">
-                <td style="padding:0.5rem 0.75rem;">${detail.product_name}</td>
-                <td style="padding:0.5rem 0.75rem;"><span style="background:#fee2e2;color:#dc2626;padding:0.125rem 0.5rem;border-radius:0.25rem;font-size:0.75rem;">${detail.grade}</span></td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">${parseFloat(detail.gross).toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">${parseFloat(detail.tare).toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;font-weight:600;color:#ef4444;">${parseFloat(detail.net).toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td style="padding:0.5rem 0.75rem;">'+detail.currency_name+'</td><td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">' + parseFloat(detail.price).toFixed(2) + '</td><td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;font-weight:600;color:#ef4444;">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
-                <td style="padding:0.5rem 0.75rem;text-align:center;color:#64748b;">${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td style="padding:0.5rem 0.75rem;text-align:center;">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm" style="padding:0.125rem 0.375rem;"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}`;
-          returnString += `
+              <tr>
+                <td>${detail.product_name}</td>
+                <td><span class="grade-badge grade-badge-danger">${detail.grade}</span></td>
+                <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
+                <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
+                <td class="text-right text-mono text-danger font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
+                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono text-danger font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                <td class="text-center text-muted">${detail.time}</td>
+                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
               </tr>`;
 
           totalRejectGross += parseFloat(detail.gross);
@@ -2035,27 +2031,28 @@ function format (row) {
       }
 
       returnString += `
-            </tbody>
-            ${row.rejectDetails.length > 0 ? `
-            <tfoot style="background:#f8fafc;font-weight:600;">
-              <tr>
-                <td colspan="2" style="padding:0.5rem 0.75rem;"><?=$languageArray['total_code'][$language]?></td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">${totalRejectGross.toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;">${totalRejectTare.toFixed(2)}</td>
-                <td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;color:#ef4444;">${totalRejectNet.toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td></td><td></td><td style="padding:0.5rem 0.75rem;text-align:right;font-family:monospace;color:#ef4444;">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
-                <td></td>
-                ${allowPhoto == 'Y' ? '<td></td>' : ''}
-              </tr>
-            </tfoot>` : ''}
-          </table>
-        </div>
+          </tbody>
+          ${row.rejectDetails.length > 0 ? `
+          <tfoot>
+            <tr>
+              <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
+              <td class="text-right text-mono">${totalRejectGross.toFixed(2)}</td>
+              <td class="text-right text-mono">${totalRejectTare.toFixed(2)}</td>
+              <td class="text-right text-mono text-danger">${totalRejectNet.toFixed(2)}</td>
+              ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono text-danger">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
+              <td></td>
+              ${allowPhoto == 'Y' ? '<td></td>' : ''}
+            </tr>
+          </tfoot>` : ''}
+        </table>
       </div>
+    </div>
   </div>
   `;
   
   return returnString;
 }
+
 
 function newEntry(){
   $('#extendModal').find('#id').val("");

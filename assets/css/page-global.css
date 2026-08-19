@@ -167,7 +167,7 @@
 }
 
 .page-modern .filter-card .select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: 38px;
+  line-height: 30px;
   padding-left: 0;
   padding-top: 0;
   color: var(--page-text);
@@ -175,7 +175,7 @@
 }
 
 .page-modern .filter-card .select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: 38px;
+  height: 35px;
   top: 0;
   right: 8px;
 }
@@ -669,6 +669,274 @@
   color: var(--page-text-muted);
   margin: 0;
   max-width: 320px;
+}
+
+/* ============================================
+   EXPANDED ROW CONTENT
+   ============================================ */
+.page-modern .expanded-row-content {
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+  margin: 0.5rem 0;
+}
+
+.page-modern .expanded-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--page-border);
+}
+
+.page-modern .expanded-header-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--page-text);
+}
+
+.page-modern .expanded-header-subtitle {
+  font-size: 0.8125rem;
+  color: var(--page-text-muted);
+}
+
+.page-modern .expanded-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+
+/* KPI Summary Cards */
+.page-modern .kpi-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-modern .kpi-card {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 0.375rem;
+  border: 1px solid var(--page-border);
+}
+
+.page-modern .kpi-card-success {
+  background: var(--page-success);
+  border: none;
+}
+
+.page-modern .kpi-label {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  color: var(--page-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.page-modern .kpi-card-success .kpi-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.page-modern .kpi-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--page-text);
+}
+
+.page-modern .kpi-value-primary {
+  color: var(--page-primary);
+}
+
+.page-modern .kpi-value-danger {
+  color: var(--page-danger);
+}
+
+.page-modern .kpi-card-success .kpi-value {
+  color: #fff;
+}
+
+.page-modern .kpi-unit {
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+/* Order Info Section */
+.page-modern .info-section {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0.375rem;
+  border: 1px solid var(--page-border);
+}
+
+.page-modern .info-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--page-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.page-modern .info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.page-modern .info-item-label {
+  font-size: 0.6875rem;
+  color: var(--page-text-muted);
+  display: block;
+}
+
+.page-modern .info-item-value {
+  font-weight: 500;
+}
+
+.page-modern .info-remark {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--page-border);
+}
+
+/* Details Table Section */
+.page-modern .details-section {
+  margin-bottom: 1rem;
+  border: 1px solid var(--page-border);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.page-modern .details-section:last-child {
+  margin-bottom: 0;
+}
+
+.page-modern .details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--page-border);
+}
+
+.page-modern .details-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--page-text-muted);
+}
+
+.page-modern .details-title-danger {
+  color: var(--page-danger);
+}
+
+.page-modern .details-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.page-modern .details-filter-select {
+  min-width: 100px;
+  font-size: 0.75rem;
+}
+
+/* Details Table */
+.page-modern .details-table {
+  width: 100%;
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.page-modern .details-table thead {
+  background: #f8fafc;
+}
+
+.page-modern .details-table th {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--page-text-muted);
+  border: none;
+}
+
+.page-modern .details-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--page-border-light);
+}
+
+.page-modern .details-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.page-modern .details-table tfoot {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.page-modern .details-table .text-right {
+  text-align: right;
+}
+
+.page-modern .details-table .text-center {
+  text-align: center;
+}
+
+.page-modern .details-table .text-mono {
+  font-family: monospace;
+}
+
+.page-modern .details-table .text-primary {
+  color: var(--page-primary) !important;
+}
+
+.page-modern .details-table .text-success {
+  color: var(--page-success) !important;
+}
+
+.page-modern .details-table .text-danger {
+  color: var(--page-danger) !important;
+}
+
+.page-modern .details-table .text-muted {
+  color: var(--page-text-muted) !important;
+}
+
+/* Grade Badge */
+.page-modern .grade-badge {
+  display: inline-block;
+  background: var(--page-border);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.page-modern .grade-badge-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Empty Details State */
+.page-modern .details-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--page-text-muted);
+}
+
+.page-modern .details-empty i {
+  font-size: 1.5rem;
+  color: var(--page-success);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Photo Button */
+.page-modern .btn-photo {
+  padding: 0.125rem 0.375rem;
 }
 
 /* ============================================
