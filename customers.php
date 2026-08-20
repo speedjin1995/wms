@@ -243,18 +243,6 @@ else{
                       </select>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['phone_code'][$language]?></label>
-                      <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['pic_code'][$language]?></label>
-                      <input type="text" class="form-control" id="email" name="email" placeholder="Person In Charge">
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -277,19 +265,19 @@ else{
                 </div>
                 <div class="row">
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 3</label>
                       <input type="text" class="form-control" name="address3" id="address3" placeholder="City">
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 4</label>
                       <input type="text" class="form-control" name="address4" id="address4" placeholder="Postcode">
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
                       <select class="form-control select2" style="width:100%;" id="states" name="states">
                         <option value="">Select State</option>
@@ -300,9 +288,23 @@ else{
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['fax_code'][$language]?></label>
                       <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="email" name="email" placeholder="Person In Charge">
                     </div>
                   </div>
                 </div>
@@ -310,7 +312,13 @@ else{
 
               <!-- Billing Address Section -->
               <div class="modal-section" <?= ($includeInvoice == 'Y' ? '' : 'style="display:none;"') ?>>
-                <div class="section-title"><i class="fas fa-file-invoice mr-2"></i><?=$languageArray['billing_address_code'][$language]?></div>
+                <div class="section-title d-flex align-items-center justify-content-between">
+                  <span><i class="fas fa-file-invoice mr-2"></i><?=$languageArray['billing_address_code'][$language]?></span>
+                  <div class="form-check mb-0">
+                    <input type="checkbox" class="form-check-input" id="sameAsDelivery">
+                    <label class="form-check-label font-weight-normal" for="sameAsDelivery"><?=$languageArray['same_as_delivery_address_code'][$language]?></label>
+                  </div>
+                </div>
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
@@ -830,6 +838,32 @@ $(function () {
         alert("Please select at least one customer to delete.");
         $('#spinnerLoading').hide();
     }     
+  });
+
+  $('#sameAsDelivery').on('change', function() {
+    var isSame = $(this).is(':checked');
+    var billingFields = ['#billingAddress', '#billingAddress2', '#billingAddress3', '#billingAddress4', '#billingName', '#billingPhone', '#billingPic'];
+    if (isSame) {
+      $('#billingName').val($('#name').val());
+      $('#billingPhone').val($('#phone').val());
+      $('#billingPic').val($('#email').val());
+      $('#billingAddress').val($('#address').val());
+      $('#billingAddress2').val($('#address2').val());
+      $('#billingAddress3').val($('#address3').val());
+      $('#billingAddress4').val($('#address4').val());
+      $('#billingStates').val($('#states').val()).trigger('change');
+      $.each(billingFields, function(i, sel) { $(sel).prop('readonly', true); });
+      $('#billingStates').next('.select2-container').css('pointer-events', 'none').css('opacity', '0.6');
+    } else {
+      $.each(billingFields, function(i, sel) { $(sel).prop('readonly', false); });
+      $('#billingStates').next('.select2-container').css('pointer-events', '').css('opacity', '');
+    }
+  });
+
+  $('#addModal').on('hidden.bs.modal', function() {
+    $('#sameAsDelivery').prop('checked', false);
+    ['#billingAddress','#billingAddress2','#billingAddress3','#billingAddress4','#billingName','#billingPhone','#billingPic'].forEach(function(sel) { $(sel).prop('readonly', false); });
+    $('#billingStates').next('.select2-container').css('pointer-events', '').css('opacity', '');
   });
 });
 

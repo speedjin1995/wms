@@ -153,57 +153,222 @@ else{
 }
 ?>
 
-<style>
-  @media screen and (min-width: 676px) {
-    .modal-dialog {
-      max-width: 1800px; /* New width for default modal */
-    }
-  }
-</style>
-
-<div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['wholesales_code'][$language]?></h1>
-      </div><!-- /.col -->
-    </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
-
 <!-- Main content -->
-<div class="content">
+<div class="content page-modern">
   <div class="container-fluid">
-  <div class="row">
-      <div class="col-lg-12">
-        <div class="card">
-          <div class="card-body">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title"><i class="fas fa-weight"></i> <?=$languageArray['wholesales_code'][$language]?></h1>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['from_date_code'][$language]?></label>
+            <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
+              <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['to_date_code'][$language]?></label>
+            <div class="input-group date" id="toDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
+              <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['transaction_status_code'][$language]?></label>
+            <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
+              <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
+              <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+              <?php if (in_array('stocks', $companyProducts)) { ?>
+              <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group" id="customerStatusDiv">
+            <label class="filter-label"><?=$languageArray['customer_code'][$language]?></label>
+            <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
+                <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group" id="supplierStatusDiv" style="display: none;">
+            <label class="filter-label"><?=$languageArray['supplier_code'][$language]?></label>
+            <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
+                <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['vehicle_no_code'][$language]?></label>
+            <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
+              <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
+                <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group" id="otherVehicleFilterDiv" style="display: none;">
+            <label class="filter-label"><?=$languageArray['other_vehicle_no_code'][$language]?></label>
+            <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
+          </div>
+        </div>
+
+        <div class="filter-row mt-3">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
+            <select class="form-control select2" id="categoryFilter" name="categoryFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowCategory=mysqli_fetch_assoc($categories)){ ?>
+                <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['locations_code'][$language]?></label>
+            <select class="form-control select2" id="locationFilter" name="locationFilter">
+              <option value="">-</option>
+              <?php while($rowLocation=mysqli_fetch_assoc($locations2)){ ?>
+                <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
+            <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
+            <select class="form-control select2" id="weightByFilter" name="weightByFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
+                <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group filter-group-action">
+            <label class="filter-label">&nbsp;</label>
+            <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
+              <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hidden status filter -->
+        <input type="hidden" id="statusFilter" name="statusFilter" value="active">
+      </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card results-card">
+      <div class="card-header">
+        <div class="results-header-left">
+          <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['wholesales_code'][$language]?></h3>
+        </div>
+        <div class="results-header-right d-flex" style="gap: 0.5rem;">
+          <div class="dropdown">
+            <button class="btn btn-action btn-action-secondary dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown">
+              <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;"></div>
+          </div>
+          <?php if($allowInvoice == 'Y'){ ?>
+          <button type="button" class="btn btn-action btn-action-warning" onclick="exportInvoices()">
+            <i class="fas fa-file-invoice"></i> <?=$languageArray['export_invoice_code'][$language] ?? 'Export Invoice'?>
+          </button>
+          <?php } ?>
+          <?php if($allowAdd == 'Y'){ ?>
+          <button type="button" class="btn btn-action btn-action-primary" onclick="newEntry()">
+            <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
+          </button>
+          <?php } ?>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <table id="weightTable" class="table data-table">
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox" id="selectAllRows"></th>
+              <th><?=$languageArray['serial_no_code'][$language]?></th>
+              <th><?=$languageArray['do_po_no_code'][$language]?></th>
+              <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
+              <th><?=$languageArray['start_time_code'][$language]?></th>
+              <th><?=$languageArray['end_time_code'][$language]?></th>
+              <th><?=$languageArray['parent_code'][$language]?></th>
+              <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+              <th><?=$languageArray['vehicle_no_code'][$language]?></th>
+              <th><?=$languageArray['driver_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['total_item_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['total_weight_code'][$language]?></th>
+              <th class="text-right"><?=$allowPrice == 'Y' ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language]?></th>
+              <th><?=$languageArray['weighed_by_code'][$language]?></th>
+              <th><?=$languageArray['checked_by_code'][$language]?></th>
+              <?php if ($secRemarksExists) { ?>
+              <th><?=$languageArray['second_remarks_code'][$language]?></th>
+              <?php }?>
+              <th style="width:120px;"><?=$languageArray['actions_code'][$language]?></th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modal-modern" id="extendModal">
+  <div class="modal-dialog modal-xl" style="max-width: 1400px;">
+    <div class="modal-content">
+      <form role="form" id="extendForm">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-weight mr-2 text-muted"></i><?=$languageArray['add_new_entry_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" class="form-control" id="id" name="id">
+          <input type="hidden" class="form-control" id="recordType" name="recordType" value="wholesales">
+
+          <!-- Order Information Section -->
+          <div class="modal-section">
+            <h6 class="section-title"><i class="fas fa-info-circle mr-2"></i><?=$languageArray['order_information_code'][$language] ?? 'Order Information'?></h6>
             <div class="row">
-              <div class="form-group col-3">
-                <label><?=$languageArray['from_date_code'][$language]?>:</label>
-                <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
-                  <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
-                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['serial_no_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="serialNo" name="serialNo" readonly>
                 </div>
               </div>
-
-              <div class="form-group col-3">
-                <label><?=$languageArray['to_date_code'][$language]?>:</label>
-                <div class="input-group date" id="toDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
-                  <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
-                  <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['status_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control" id="status" name="status" required>
+                    <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
                     <?php if (in_array('stocks', $companyProducts)) { ?>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
@@ -211,559 +376,359 @@ else{
                   </select>
                 </div>
               </div>
-
-              <div class="col-3" id="customerStatusDiv">
-                <div class="form-group">
-                  <label><?=$languageArray['customer_code'][$language]?></label>
-                  <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
-                    <?php } ?>
-                  </select>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['start_time_code'][$language]?> <span class="text-danger">*</span></label>
+                  <div class="input-group date" id="startTimePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#startTimePicker" id="startTime" name="startTime" required/>
+                    <div class="input-group-append" data-target="#startTimePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div class="col-3" id="supplierStatusDiv" style="display: none;">
-                <div class="form-group">
-                  <label><?=$languageArray['supplier_code'][$language]?></label>
-                  <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
-                    <?php } ?>
-                  </select>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['end_time_code'][$language]?></label>
+                  <div class="input-group date" id="endTimePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#endTimePicker" id="endTime" name="endTime"/>
+                    <div class="input-group-append" data-target="#endTimePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['vehicle_no_code'][$language]?></label>
-                  <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                    <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
-                      <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
-                    <?php } ?>
-                  </select>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['do_po_no_code'][$language]?></label>
+                  <input type="text" class="form-control" id="doPoNo" name="doPoNo">
                 </div>
               </div>
-
-              <div class="col-3" id="otherVehicleFilterDiv" style="display: none;">
-                <div class="form-group">
-                  <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
-                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
+              <div class="col-md-3" id="securityBillDiv">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['sec_bill_no_code'][$language]?></label>
+                  <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
                 </div>
               </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['checked_by_code'][$language]?></label>
-                  <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['weighed_by_code'][$language]?></label>
-                  <select class="form-control select2" id="weightByFilter" name="weightByFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
-                      <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['category_code'][$language]?></label>
-                  <select class="form-control select2" id="categoryFilter" name="categoryFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowCategory=mysqli_fetch_assoc($categories)){ ?>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['category_code'][$language]?></label>
+                  <select class="form-control select2" id="category" name="category">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php while($rowCategory=mysqli_fetch_assoc($categories2)){ ?>
                       <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['locations_code'][$language]?></label>
-                  <select class="form-control select2" id="locationFilter" name="locationFilter">
-                    <option value="" selected>-</option>
-                    <?php while($rowLocation=mysqli_fetch_assoc($locations2)){ ?>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['locations_code'][$language]?></label>
+                  <select class="form-control select2" id="location" name="location">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
                       <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div class="col-3" style="display:none;">
-                <div class="form-group">
-                  <label><?=$languageArray['status_code'][$language]?></label>
-                  <select class="form-control" id="statusFilter" name="statusFilter">
-                    <option value="active" selected><?=$languageArray['active_code'][$language]?></option>
-                    <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
+          <!-- Customer/Supplier & Transport Section -->
+          <div class="modal-section">
+            <h6 class="section-title"><i class="fas fa-truck mr-2"></i><?=$languageArray['transport_details_code'][$language] ?? 'Transport Details'?></h6>
+            <div class="row">
+              <div class="col-md-3" id="customerDiv">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['customer_code'][$language]?></label>
+                  <select class="form-control select2" id="customer" name="customer">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
+                    <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
+                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3" id="customerOtherDiv" style="display:none;">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['customer_other_code'][$language]?></label>
+                  <input type="text" class="form-control" id="customerOther" name="customerOther">
+                </div>
+              </div>
+              <div class="col-md-3" id="supplierDiv" style="display:none;">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['supplier_code'][$language]?></label>
+                  <select class="form-control select2" id="supplier" name="supplier">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
+                    <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
+                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3" id="supplierOtherDiv" style="display:none;">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['supplier_other_code'][$language]?></label>
+                  <input type="text" class="form-control" id="supplierOther" name="supplierOther">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['vehicle_no_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" id="vehicle" name="vehicle" required>
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
+                    <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
+                      <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3" id="vehicleNoOtherDiv" style="display:none;">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['other_vehicle_no_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['driver_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" id="driver" name="driver" required>
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
+                    <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
+                      <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3" id="driverOtherDiv" style="display:none;">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['other_driver_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="otherDriver" name="otherDriver">
+                </div>
+              </div>
+              <div class="col-md-3" <?=$allowPayment == 'Y' ? '' : 'style="display:none;"'?>>
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['payment_method_code'][$language]?></label>
+                  <select class="form-control select2" id="paymentMethod" name="paymentMethod">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <option value="Cash"><?=$languageArray['cash_code'][$language]?></option>
+                    <option value="Bank Transfer"><?=$languageArray['bank_transfer_code'][$language]?></option>
                   </select>
                 </div>
               </div>
             </div>
-
-            <div class="row">
-              <div class="col-9"></div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
-                  <i class="fas fa-search"></i>
-                  <?=$languageArray['search_code'][$language]?>
-                </button>
-              </div>
-            </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card card-info">
-          <div class="card-header">
+          <!-- Remarks Section -->
+          <div class="modal-section">
+            <h6 class="section-title"><i class="fas fa-comment-alt mr-2"></i><?=$languageArray['remark_code'][$language]?></h6>
             <div class="row">
-              <div class="col-10"><?=$languageArray['wholesales_code'][$language]?></div>
-              <?php if($allowAdd == 'Y'){ ?>
-              <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
+              <div class="col-md-<?=$secRemarksExists ? '6' : '12'?>">
+                <div class="form-group-modern">
+                  <textarea class="form-control" id="remarks" name="remarks" rows="2" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+                </div>
+              </div>
+              <?php if ($secRemarksExists) { ?>
+              <div class="col-md-6">
+                <div class="form-group-modern">
+                  <textarea class="form-control" id="remarks2" name="remarks2" rows="2" placeholder="<?=$languageArray['second_remarks_code'][$language]?>"></textarea>
+                </div>
               </div>
               <?php } ?>
             </div>
           </div>
-
-          <div class="card-body">
-            <div class="mb-2">
-              <div class="dropdown d-inline-block">
-                <button class="btn btn-success btn-sm dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
-                </button>
-                <div class="dropdown-menu p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;">
-                </div>
-              </div>
-            </div>
-            <table id="weightTable" class="table table-bordered table-striped display">
-              <thead>
-                <tr>
-                  <th><?=$languageArray['serial_no_code'][$language]?></th>
-                  <th><?=$languageArray['do_po_no_code'][$language]?></th>
-                  <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
-                  <th><?=$languageArray['start_time_code'][$language]?></th>
-                  <th><?=$languageArray['end_time_code'][$language]?></th>
-                  <th><?=$languageArray['parent_code'][$language]?></th>
-                  <th><?=$languageArray['customer_supplier_code'][$language]?></th>
-                  <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-                  <th><?=$languageArray['driver_code'][$language]?></th>
-                  <th><?=$languageArray['total_item_code'][$language]?></th>
-                  <th><?=$languageArray['total_weight_code'][$language]?></th>
-                  <th><?=$allowPrice == 'Y' ? 'Total Price' : $languageArray['total_reject_code'][$language]?></th>
-                  <th><?=$languageArray['weighed_by_code'][$language]?></th>
-                  <th><?=$languageArray['checked_by_code'][$language]?></th>
-                  <?php if ($secRemarksExists) { ?>
-                    <th><?=$languageArray['second_remarks_code'][$language]?></th>
-                  <?php }?>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="extendModal">
-  <div class="modal-dialog modal-xl" style="max-width: 98%;">
-    <div class="modal-content">
-      <form role="form" id="extendForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-
-        <div class="modal-body" >
-          <input type="hidden" class="form-control" id="id" name="id">
-          <input type="hidden" class="form-control" id="recordType" name="recordType" value="wholesales">
-
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['serial_no_code'][$language]?> *</label>
-                <input type="text" class="form-control" id="serialNo" name="serialNo" readonly>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['start_time_code'][$language]?> *</label>
-                <div class="input-group date" id="startTimePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#startTimePicker" id="startTime" name="startTime" required/>
-                  <div class="input-group-append" data-target="#startTimePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['end_time_code'][$language]?></label>
-                <div class="input-group date" id="endTimePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#endTimePicker" id="endTime" name="endTime"/>
-                  <div class="input-group-append" data-target="#endTimePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['status_code'][$language]?> *</label>
-                <select class="form-control" id="status" name="status" required>
-                  <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
-                  <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                  <?php if (in_array('stocks', $companyProducts)) { ?>
-                  <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['do_po_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="doPoNo" name="doPoNo">
-              </div>
-            </div>
-            <div class="col-md-4" id="securityBillDiv">
-              <div class="form-group">
-                <label><?=$languageArray['sec_bill_no_code'][$language]?></label>
-                <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
-              </div>
-            </div>
-            <div class="col-md-4" id="customerDiv">
-              <div class="form-group">
-                <label><?=$languageArray['customer_code'][$language]?></label>
-                <select class="form-control select2" id="customer" name="customer">
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                  <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
-                    <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4" id="customerOtherDiv">
-              <div class="form-group">
-                <label><?=$languageArray['customer_other_code'][$language]?></label>
-                <input type="text" class="form-control" id="customerOther" name="customerOther">
-              </div>
-            </div>
-            <div class="col-md-4" id="supplierDiv">
-              <div class="form-group">
-                <label><?=$languageArray['supplier_code'][$language]?></label>
-                <select class="form-control select2" id="supplier" name="supplier">
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                  <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
-                    <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4" id="supplierOtherDiv">
-              <div class="form-group">
-                <label><?=$languageArray['supplier_other_code'][$language]?></label>
-                <input type="text" class="form-control" id="supplierOther" name="supplierOther">
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['vehicle_no_code'][$language]?> *</label>
-                <select class="form-control select2" id="vehicle" name="vehicle" required>
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                  <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
-                    <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4" id="vehicleNoOtherDiv" style="display: none;">
-              <div class="form-group">
-                <label><?=$languageArray['other_vehicle_no_code'][$language]?> *</label>
-                <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['driver_code'][$language]?> *</label>
-                <select class="form-control select2" id="driver" name="driver" required>
-                  <option value="" selected disabled hidden>Please Select</option>
-                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                  <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
-                    <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4" id="driverOtherDiv" style="display: none;">
-              <div class="form-group">
-                <label><?=$languageArray['other_driver_code'][$language]?> *</label>
-                <input type="text" class="form-control" id="otherDriver" name="otherDriver" placeholder="<?=$languageArray['please_enter_driver_code'][$language]?>">
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['locations_code'][$language]?></label>
-                <select class="form-control select2" id="location" name="location">
-                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                  <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
-                    <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['category_code'][$language]?></label>
-                <select class="form-control select2" id="category" name="category">
-                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                  <?php while($rowCategory=mysqli_fetch_assoc($categories2)){ ?>
-                    <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4" <?php if($allowPayment == 'Y') { echo 'style="display: block;"'; } else { echo 'style="display: none;"'; } ?>>
-              <div class="form-group">
-                <label><?=$languageArray['payment_method_code'][$language]?></label>
-                <select class="form-control select2" id="paymentMethod" name="paymentMethod">
-                  <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                  <option value="Cash"><?=$languageArray['cash_code'][$language]?></option>
-                  <option value="Bank Transfer"><?=$languageArray['bank_transfer_code'][$language]?></option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['remark_code'][$language]?></label>
-                <textarea colspan="3" class="form-control" id="remarks" name="remarks" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <?php if ($secRemarksExists) { ?>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group">
-                  <label><?=$languageArray['second_remarks_code'][$language]?></label>
-                  <textarea colspan="3" class="form-control" id="remarks2" name="remarks2" placeholder="<?=$languageArray['enter_remark_code'][$language]?> 2"></textarea>
-                </div>
-              </div>
-            </div>
-          <?php } ?>
           
-          <hr>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
-            <div class="d-flex align-items-center gap-2">
-              <label class="mb-0 mr-1 text-muted small"><?=$languageArray['unit_price_code'][$language]?></label>
-              <input type="number" class="form-control form-control-sm mr-2" id="bulkUnitPrice" step="0.01" placeholder="0.00" style="width:120px;">
-              <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
-                <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
+          <!-- Weight Details Section -->
+          <div class="modal-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="section-title mb-0"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['weight_details_code'][$language]?></h6>
+              <div class="d-flex align-items-center" style="gap:0.5rem;">
+                <div class="d-flex align-items-center">
+                  <label class="form-label-modern mb-0 mr-2" style="font-size:0.75rem;"><?=$languageArray['unit_price_code'][$language]?></label>
+                  <input type="number" class="form-control form-control-sm" id="bulkUnitPrice" step="0.01" placeholder="0.00" style="width:100px;">
+                </div>
+                <button type="button" class="btn btn-modern btn-modern-primary btn-sm" id="addWeightBtn">
+                  <i class="fas fa-plus mr-1"></i><?=$languageArray['add_weight_code'][$language]?>
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0" style="font-size:0.8125rem;">
+                <thead class="thead-light">
+                  <tr class="text-center">
+                    <th style="width:40px;"><input type="checkbox" id="selectAllWeightCheckbox"></th>
+                    <th style="width:12%;"><?=$languageArray['product_code'][$language]?></th>
+                    <th style="width:10%;"><?=$languageArray['grade_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['gross_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['tare_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['net_code'][$language]?></th>
+                    <?php if($allowPrice == 'Y') { ?>
+                    <th style="width:9%;"><?=$languageArray['currency_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['price_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['total_code'][$language]?></th>
+                    <?php } ?>
+                    <th style="width:90px;"><?=$languageArray['time_code'][$language]?></th>
+                    <?php if($allowPhoto == 'Y') { ?>
+                    <th style="width:50px;"><?=$languageArray['photo_code'][$language]?></th>
+                    <?php } ?>
+                    <th style="width:100px;"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="weightDetailsTable"></tbody>
+                <tfoot class="bg-light font-weight-bold" id="weightDetailsFooter">
+                  <tr class="text-center">
+                    <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                    <td id="totalWeightGross">0.00</td>
+                    <td id="totalWeightTare">0.00</td>
+                    <td class="text-primary font-weight-bold" id="totalWeightNet">0.00</td>
+                    <?php if($allowPrice == 'Y') { ?>
+                    <td></td>
+                    <td></td>
+                    <td class="text-success font-weight-bold" id="totalWeightPrice">0.00</td>
+                    <?php } ?>
+                    <td></td>
+                    <?php if($allowPhoto == 'Y') { ?><td></td><?php } ?>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Reject Details Section -->
+          <div class="modal-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="section-title mb-0 text-danger"><i class="fas fa-times-circle mr-2"></i><?=$languageArray['reject_details_code'][$language]?></h6>
+              <button type="button" class="btn btn-modern btn-modern-danger btn-sm" id="addRejectWeightBtn">
+                <i class="fas fa-plus mr-1"></i><?=$languageArray['add_reject_weight_code'][$language]?>
               </button>
             </div>
-          </div>
-          <div class="row">
-            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-              <thead>
-                <tr>
-                  <th><input type="checkbox" id="selectAllWeightCheckbox" class="selectAllCheckbox"></th>
-                  <th width="10%"><?=$languageArray['product_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
-                  <th><?=$languageArray['gross_code'][$language]?></th>
-                  <th><?=$languageArray['tare_code'][$language]?></th>
-                  <th><?=$languageArray['net_code'][$language]?></th>
-                  <?php if($allowPrice == 'Y') { ?>
-                  <th width="8%"><?=$languageArray['currency_code'][$language]?></th>
-                  <th><?=$languageArray['price_code'][$language]?></th>
-                  <th><?=$languageArray['total_code'][$language]?></th>
-                  <?php } ?>
-                  <th><?=$languageArray['time_code'][$language]?></th>
-                  <?php if($allowPhoto == 'Y') { ?>
-                  <th><?=$languageArray['photo_code'][$language]?></th>
-                  <?php } ?>
-                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-              <tbody id="weightDetailsTable">
-                <!-- Weight details will be populated here -->
-              </tbody>
-              <tfoot id="weightDetailsFooter">
-                <tr>
-                  <th colspan="3"><?=$languageArray['total_code'][$language]?></th>
-                  <th id="totalWeightGross">0.00</th>
-                  <th id="totalWeightTare">0.00</th>
-                  <th id="totalWeightNet">0.00</th>
-                  <?php if($allowPrice == 'Y') { ?>
-                  <th></th>
-                  <th></th>
-                  <th id="totalWeightPrice">0.00</th>
-                  <?php } ?>
-                  <th></th>
-                  <th></th>
-                  <?php if($allowPhoto == 'Y') { ?>
-                  <th></th>
-                  <?php } ?>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-
-          <hr>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0"><?=$languageArray['reject_details_code'][$language]?></h5>
-            <button type="button" class="btn btn-danger btn-sm" id="addRejectWeightBtn">
-              <i class="fas fa-plus"></i> <?=$languageArray['add_reject_weight_code'][$language]?>
-            </button>
-          </div>
-          <div class="row">
-            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-              <thead>
-                <tr>
-                  <th><?=$languageArray['number_short_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['product_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
-                  <th><?=$languageArray['gross_code'][$language]?></th>
-                  <th><?=$languageArray['tare_code'][$language]?></th>
-                  <th><?=$languageArray['net_code'][$language]?></th>
-                  <?php if($allowPrice == 'Y') { ?>
-                  <th width="8%"><?=$languageArray['currency_code'][$language]?></th>
-                  <th><?=$languageArray['price_code'][$language]?></th>
-                  <th><?=$languageArray['total_code'][$language]?></th>
-                  <?php } ?>
-                  <th><?=$languageArray['time_code'][$language]?></th>
-                  <?php if($allowPhoto == 'Y') { ?>
-                  <th><?=$languageArray['photo_code'][$language]?></th>
-                  <?php } ?>
-                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-              <tbody id="rejectDetailsTable">
-                <!-- Weight details will be populated here -->
-              </tbody>
-              <tfoot id="rejectDetailsFooter">
-                <tr>
-                  <th colspan="3"><?=$languageArray['total_code'][$language]?></th>
-                  <th id="totalRejectGross">0.00</th>
-                  <th id="totalRejectTare">0.00</th>
-                  <th id="totalRejectNet">0.00</th>
-                  <?php if($allowPrice == 'Y') { ?>
-                  <th></th>
-                  <th></th>
-                  <th id="totalRejectPrice">0.00</th>
-                  <?php } ?>
-                  <th></th>
-                  <?php if($allowPhoto == 'Y') { ?>
-                  <th></th>
-                  <?php } ?>
-                </tr>
-              </tfoot>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0" style="font-size:0.8125rem;">
+                <thead class="thead-light">
+                  <tr class="text-center">
+                    <th style="width:40px;">#</th>
+                    <th style="width:12%;"><?=$languageArray['product_code'][$language]?></th>
+                    <th style="width:10%;"><?=$languageArray['grade_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['gross_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['tare_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['net_code'][$language]?></th>
+                    <?php if($allowPrice == 'Y') { ?>
+                    <th style="width:9%;"><?=$languageArray['currency_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['price_code'][$language]?></th>
+                    <th style="width:9%;"><?=$languageArray['total_code'][$language]?></th>
+                    <?php } ?>
+                    <th style="width:90px;"><?=$languageArray['time_code'][$language]?></th>
+                    <?php if($allowPhoto == 'Y') { ?>
+                    <th style="width:50px;"><?=$languageArray['photo_code'][$language]?></th>
+                    <?php } ?>
+                    <th style="width:100px;"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="rejectDetailsTable"></tbody>
+                <tfoot class="bg-light font-weight-bold" id="rejectDetailsFooter">
+                  <tr class="text-center">
+                    <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                    <td id="totalRejectGross">0.00</td>
+                    <td id="totalRejectTare">0.00</td>
+                    <td class="text-danger font-weight-bold" id="totalRejectNet">0.00</td>
+                    <?php if($allowPrice == 'Y') { ?>
+                    <td></td>
+                    <td></td>
+                    <td class="text-danger font-weight-bold" id="totalRejectPrice">0.00</td>
+                    <?php } ?>
+                    <td></td>
+                    <?php if($allowPhoto == 'Y') { ?><td></td><?php } ?>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
 
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary" id="saveButton"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
-    </div> <!-- /.modal-content -->
-  </div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->   
+    </div>
+  </div>
+</div>   
 
-<div class="modal fade" id="cancelModal">
-  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+<div class="modal fade modal-modern" id="cancelModal">
+  <div class="modal-dialog" style="max-width:500px;">
     <div class="modal-content">
       <form role="form" id="cancelForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-trash-alt mr-2 text-danger"></i><?=$languageArray['delete_reason_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
-              </div>
-            </div>
-            <input type="hidden" class="form-control" id="id" name="id">
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['delete_reason_code'][$language]?> <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required placeholder="<?=$languageArray['enter_reason_code'][$language] ?? 'Enter reason for deletion...'?>"></textarea>
           </div>
+          <input type="hidden" id="id" name="id">
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-danger" id="submitCancel"><i class="fas fa-trash mr-1"></i><?=$languageArray['delete_code'][$language] ?? 'Delete'?></button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="printOptionsModal" tabindex="-1">
-  <div class="modal-dialog" style="max-width:500px;">
+<div class="modal fade modal-modern" id="printOptionsModal" tabindex="-1">
+  <div class="modal-dialog" style="max-width:400px;">
     <div class="modal-content">
       <form id="printOptionsForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h5 class="modal-title"><?=$languageArray['print_options_code'][$language]?></h5>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-print mr-2 text-muted"></i><?=$languageArray['print_options_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="printID" name="userID">
-          <div class="form-group mb-0">
-            <label><?=$languageArray['print_with_photo_code'][$language]?></label>
-            <select class="form-control" id="printWithPhoto" name="withPhoto">
-              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
-              <option value="N"><?=$languageArray['no_code'][$language]?></option>
-            </select>
-          </div>
-          <div class="form-group mb-0">
-            <label><?=$languageArray['paper_size_code'][$language]?></label>
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['paper_size_code'][$language]?></label>
             <select class="form-control" id="paperSize" name="paperSize">
               <option value="A4">A4</option>
               <option value="A5">A5</option>
             </select>
           </div>
-          <div class="form-group mb-0" id="a4TemplateDiv">
-            <label>A4 <?=$languageArray['template_code'][$language]?></label>
+          <div class="form-group-modern" id="a4TemplateDiv">
+            <label class="form-label-modern">A4 <?=$languageArray['template_code'][$language]?></label>
             <select class="form-control" id="a4Template" name="a4Template">
               <option value="A4"><?=$languageArray['default_code'][$language]?></option>
               <option value="A4Classic"><?=$languageArray['classic_code'][$language]?></option>
             </select>
           </div>
-          <div class="form-group mb-0" id="withDetailsDiv" style="display:none;">
-            <label><?=$languageArray['with_details_code'][$language]?></label>
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['print_with_photo_code'][$language]?></label>
+            <select class="form-control" id="printWithPhoto" name="withPhoto">
+              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+            </select>
+          </div>
+          <div class="form-group-modern" id="withDetailsDiv" style="display:none;">
+            <label class="form-label-modern"><?=$languageArray['with_details_code'][$language]?></label>
             <select class="form-control" id="printWithDetails" name="withDetails">
               <option value="N"><?=$languageArray['no_code'][$language]?></option>
               <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
             </select>
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary"><?=$languageArray['print_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary"><i class="fas fa-print mr-1"></i><?=$languageArray['print_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -833,7 +798,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length > 0 ? $('#extendModal .modal-content') : $(this).parent()
     });
   });
 
@@ -862,6 +827,12 @@ $(function () {
     'serverMethod': 'post',
     'searching': true,
     'order': [[ 0, 'asc' ]],
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
+    'drawCallback': function(settings) {
+    },
     'ajax': {
       'url':'php/modules/wholesales/filterWholesale.php',
       'data': {
@@ -881,6 +852,17 @@ $(function () {
       } 
     },
     'columns': [
+      {
+        data: 'id',
+        orderable: false,
+        class: 'select-checkbox',
+        render: function(data, type, row) {
+          if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
+            return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
+          }
+          return '';
+        }
+      },
       { data: 'serial_no' },
       { data: 'po_no' },
       { data: 'security_bills' },
@@ -903,22 +885,26 @@ $(function () {
         class: 'action-button',
         orderable: false,
         render: function ( data, type, row ) {
-          var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+          var buttons = '<div class="d-flex" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
           if(allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
-            buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
+            buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
           }
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
         }
       }
     ]
+  });
+
+  $('#selectAllRows').on('change', function() {
+    $('#weightTable tbody .rowCheckbox').prop('checked', $(this).prop('checked'));
   });
 
   // Add event listener for opening and closing details on row click
@@ -981,6 +967,12 @@ $(function () {
       'serverMethod': 'post',
       'searching': true,
       'order': [[ 0, 'asc' ]],
+      'language': {
+        'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+        'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+      },
+      'drawCallback': function(settings) {
+      },
       'ajax': {
         'url':'php/modules/wholesales/filterWholesale.php',
         'data': {
@@ -1000,6 +992,17 @@ $(function () {
         } 
       },
       'columns': [
+        {
+          data: 'id',
+          orderable: false,
+          class: 'select-checkbox',
+          render: function(data, type, row) {
+            if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
+              return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
+            }
+            return '';
+          }
+        },
         { data: 'serial_no' },
         { data: 'po_no' },
         { data: 'security_bills' },
@@ -1022,16 +1025,16 @@ $(function () {
           class: 'action-button',
           orderable: false,
           render: function ( data, type, row ) {
-            var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+            var buttons = '<div class="d-flex" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
             }
-            buttons += '<button type="button" id="print'+data+'" onclick="print('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
             if(allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
-              buttons += '<button type="button" id="printInvoice'+data+'" onclick="printInvoice('+data+')" class="btn btn-info btn-sm"><i class="fas fa-file-invoice"></i></button>';
+              buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
             return buttons;
@@ -1256,7 +1259,7 @@ $(function () {
         select.select2({
             allowClear: true,
             placeholder: "Please Select",
-            dropdownParent: $('#extendModal .modal-body'),
+            dropdownParent: $('#extendModal .modal-content'),
             width: '100%'
         });
     });
@@ -1496,11 +1499,15 @@ $(function () {
         });
     }
 
-    $('.select2').select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
-      width: '100%'
+    // Initialize Select2 for the newly added row's select elements
+    var newRow = $('#weightDetailsTable tr:last');
+    newRow.find('.select2').each(function() {
+      $(this).select2({
+        allowClear: true,
+        placeholder: "Please Select",
+        dropdownParent: $('#extendModal .modal-content'),
+        width: '100%'
+      });
     });
 
     var status = $('#extendModal').find('#status').val();
@@ -1551,7 +1558,7 @@ $(function () {
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
     
@@ -1705,7 +1712,7 @@ $(function () {
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
     
@@ -1845,181 +1852,84 @@ function applyCustomerCurrency(currencyId) {
 
 function format (row) {
   var returnString = `
-  <div class="p-3 bg-light rounded">
-    <!-- Header with Title and Actions -->
-    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+  <div class="expanded-row-content">
+    <!-- Header -->
+    <div class="expanded-header">
       <div>
-        <h5 class="mb-0 font-weight-bold">${row.serial_no}</h5>
-        <small class="text-muted">${row.customer_supplier || '<?=$languageArray['no_customer_code'][$language] ?? 'No Customer'?>'}</small>
+        <div class="expanded-header-title">${row.serial_no}</div>
+        <div class="expanded-header-subtitle">${row.customer_supplier || '-'}</div>
       </div>
-      <div class="d-flex" style="gap:4px;">
-        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-success btn-sm" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>' : ''}
-        <button type="button" onclick="print(${row.id})" class="btn btn-warning btn-sm" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>
-        ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-info btn-sm" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>' : ''}
-        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-danger btn-sm" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>' : ''}
-      </div>
-    </div>
-
-    <!-- KPI Summary Cards -->
-    <div class="row mb-4">
-      <div class="col-md-3 col-6 mb-2">
-        <div class="card shadow-sm h-100">
-          <div class="card-body py-3">
-            <small class="text-muted text-uppercase"><?=$languageArray['total_item_code'][$language]?></small>
-            <h3 class="mb-0 font-weight-bold">${row.totalItems || 0}</h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-2">
-        <div class="card shadow-sm h-100">
-          <div class="card-body py-3">
-            <small class="text-muted text-uppercase"><?=$languageArray['total_weight_code'][$language]?></small>
-            <h3 class="mb-0 font-weight-bold text-primary">${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'} <small class="font-weight-normal">Kg</small></h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-2">
-        <div class="card shadow-sm h-100">
-          <div class="card-body py-3">
-            <small class="text-muted text-uppercase"><?=$languageArray['total_reject_code'][$language]?></small>
-            <h3 class="mb-0 font-weight-bold text-danger">${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'} <small class="font-weight-normal">Kg</small></h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-6 mb-2">
-        ${allowPrice == 'Y' ? `
-        <div class="card shadow-sm h-100 bg-success text-white">
-          <div class="card-body py-3">
-            <small class="text-uppercase" style="opacity:0.8"><?=$languageArray['total_price_code'][$language]?></small>
-            <h3 class="mb-0 font-weight-bold">RM ${parseFloat(row.totalPrice).toFixed(2)}</h3>
-          </div>
-        </div>` : `
-        <div class="card shadow-sm h-100">
-          <div class="card-body py-3">
-            <small class="text-muted text-uppercase"><?=$languageArray['status_code'][$language]?></small>
-            <h4 class="mb-0 font-weight-bold">${row.status}</h4>
-          </div>
-        </div>`}
+      <div class="expanded-actions">
+        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
+        <button type="button" onclick="print(${row.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
+        ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-sm btn-outline-info"><i class="fas fa-file-invoice"></i></button>' : ''}
+        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
       </div>
     </div>
 
-    <!-- Order Details Card -->
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-white py-3">
-        <h6 class="mb-0 font-weight-bold text-uppercase"><?=$languageArray['wholesale_order_information_code'][$language]?></h6>
+    <!-- KPI Summary -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_item_code'][$language]?></div>
+        <div class="kpi-value">${row.totalItems || 0}</div>
       </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['serial_no_code'][$language]?></small>
-              <span class="font-weight-bold">${row.serial_no || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['parent_code'][$language]?></small>
-              <span class="font-weight-bold">${row.parent || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['customer_supplier_code'][$language]?></small>
-              <span class="font-weight-bold">${row.customer_supplier || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['do_po_no_code'][$language]?></small>
-              <span class="font-weight-bold">${row.po_no || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['sec_bill_no_code'][$language]?></small>
-              <span class="font-weight-bold">${row.security_bills || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['vehicle_no_code'][$language]?></small>
-              <span class="font-weight-bold">${row.vehicle_no || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['driver_code'][$language]?></small>
-              <span class="font-weight-bold">${row.driver || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['weighed_by_code'][$language]?></small>
-              <span class="font-weight-bold">${row.weighted_by || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['checked_by_code'][$language]?></small>
-              <span class="font-weight-bold">${row.checked_by || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['category_name_code'][$language]?></small>
-              <span class="font-weight-bold">${row.category_name || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['locations_code'][$language]?></small>
-              <span class="font-weight-bold">${row.location_name || '-'}</span>
-            </div>
-          </div>
-          <div class="col-md-4 col-6 mb-3">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['payment_method_code'][$language]?></small>
-              <span class="font-weight-bold">${row.payment_method || '-'}</span>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="bg-light rounded p-2">
-              <small class="text-muted d-block"><?=$languageArray['remark_code'][$language]?></small>
-              <span class="font-weight-bold">${row.remark || '-'}</span>
-            </div>
-          </div>
-        </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_weight_code'][$language]?></div>
+        <div class="kpi-value kpi-value-primary">${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'} <span class="kpi-unit">Kg</span></div>
       </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_reject_code'][$language]?></div>
+        <div class="kpi-value kpi-value-danger">${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'} <span class="kpi-unit">Kg</span></div>
+      </div>
+      ${allowPrice == 'Y' ? `
+      <div class="kpi-card kpi-card-success">
+        <div class="kpi-label"><?=$languageArray['total_price_code'][$language]?></div>
+        <div class="kpi-value">${parseFloat(row.totalPrice).toFixed(2)}</div>
+      </div>` : ''}
     </div>
-    <!-- Weighing Details Card -->
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 font-weight-bold text-uppercase"><?=$languageArray['weighing_details_code'][$language]?></h6>
-        <div class="d-flex">
-          <select class="form-control form-control-sm mr-2" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')" style="min-width:150px;">
+
+    <!-- Order Info -->
+    <div class="info-section">
+      <div class="info-section-title"><?=$languageArray['wholesale_order_information_code'][$language]?></div>
+      <div class="info-grid">
+        <div><span class="info-item-label"><?=$languageArray['serial_no_code'][$language]?></span><span class="info-item-value">${row.serial_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['do_po_no_code'][$language]?></span><span class="info-item-value">${row.po_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['vehicle_no_code'][$language]?></span><span class="info-item-value">${row.vehicle_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['driver_code'][$language]?></span><span class="info-item-value">${row.driver || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['weighed_by_code'][$language]?></span><span class="info-item-value">${row.weighted_by || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['locations_code'][$language]?></span><span class="info-item-value">${row.location_name || '-'}</span></div>
+      </div>
+      ${row.remark ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + row.remark + '</span></div>' : ''}
+    </div>
+
+    <!-- Weighing Details -->
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title"><?=$languageArray['weighing_details_code'][$language]?></span>
+        <div class="details-filters">
+          <select class="form-control form-control-sm details-filter-select" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
             <option value=""><?=$languageArray['all_products_code'][$language]?></option>
           </select>
-          <select class="form-control form-control-sm" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')" style="min-width:150px;">
+          <select class="form-control form-control-sm details-filter-select" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
             <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
           </select>
         </div>
       </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0" id="weightTable_${row.id}">
-            <thead class="thead-light">
-              <tr>
-                <th class="border-0"><?=$languageArray['product_code'][$language]?></th>
-                <th class="border-0"><?=$languageArray['grade_code'][$language]?></th>
-                <th class="border-0 text-right"><?=$languageArray['gross_code'][$language]?></th>
-                <th class="border-0 text-right"><?=$languageArray['tare_code'][$language]?></th>
-                <th class="border-0 text-right"><?=$languageArray['net_code'][$language]?></th>
-                ${allowPrice == 'Y' ? '<th class="border-0"><?=$languageArray['currency_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['price_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
-                <th class="border-0 text-center"><?=$languageArray['time_code'][$language]?></th>
-                ${allowPhoto == 'Y' ? '<th class="border-0 text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
-              </tr>
-            </thead>
-            <tbody>`;
+      <div class="table-responsive">
+        <table class="table details-table mb-0" id="weightTable_${row.id}">
+          <thead>
+            <tr>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
+              ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
+              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+            </tr>
+          </thead>
+          <tbody>`;
 
       var totalWeightGross = 0;
       var totalWeightTare = 0;
@@ -2031,14 +1941,13 @@ function format (row) {
         returnString += `
               <tr>
                 <td>${detail.product_name}</td>
-                <td><span class="badge badge-secondary">${detail.grade}</span></td>
-                <td class="text-right text-monospace">${parseFloat(detail.gross).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
-                <td class="text-right text-monospace">${parseFloat(detail.tare).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
-                <td class="text-right text-monospace font-weight-bold text-primary">${parseFloat(detail.net).toFixed(2)} <small class="text-muted font-weight-normal">${detail.unit}</small></td>
-                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-monospace">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-monospace font-weight-bold text-success">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                <td><span class="grade-badge">${detail.grade}</span></td>
+                <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
+                <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
+                <td class="text-right text-mono text-primary font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
+                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono text-success font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td class="text-center text-muted">${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '<span class="text-muted">-</span>') + '</td>' : ''}`;
-        returnString += `
+                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
               </tr>`;
 
         totalWeightGross += parseFloat(detail.gross);
@@ -2048,44 +1957,42 @@ function format (row) {
       }
 
       returnString += `
-            </tbody>
-            <tfoot class="bg-light font-weight-bold">
-              <tr>
-                <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
-                <td class="text-right text-monospace" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
-                <td class="text-right text-monospace" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
-                <td class="text-right text-monospace text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-monospace text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
-                <td></td>
-                ${allowPhoto == 'Y' ? '<td></td>' : ''}
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
+              <td class="text-right text-mono" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
+              <td class="text-right text-mono" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
+              <td class="text-right text-mono text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
+              ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
+              <td></td>
+              ${allowPhoto == 'Y' ? '<td></td>' : ''}
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
 
-    <!-- Reject Details Card -->
-    <div class="card shadow-sm">
-      <div class="card-header bg-white py-3">
-        <h6 class="mb-0 font-weight-bold text-uppercase text-danger"><i class="fas fa-times-circle mr-2"></i><?=$languageArray['reject_details_code'][$language]?></h6>
+    <!-- Reject Details -->
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title details-title-danger"><i class="fas fa-times-circle mr-1"></i><?=$languageArray['reject_details_code'][$language]?></span>
       </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="thead-light">
-              <tr>
-                <th class="border-0"><?=$languageArray['product_code'][$language]?></th>
-                <th class="border-0"><?=$languageArray['grade_code'][$language]?></th>
-                <th class="border-0 text-right"><?=$languageArray['gross_code'][$language]?></th>
-                <th class="border-0 text-right"><?=$languageArray['tare_code'][$language]?></th>
-                <th class="border-0 text-right"><?=$languageArray['net_code'][$language]?></th>
-                ${allowPrice == 'Y' ? '<th class="border-0"><?=$languageArray['currency_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['price_code'][$language]?></th><th class="border-0 text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
-                <th class="border-0 text-center"><?=$languageArray['time_code'][$language]?></th>
-                ${allowPhoto == 'Y' ? '<th class="border-0 text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
-              </tr>
-            </thead>
-            <tbody>`;
+      <div class="table-responsive">
+        <table class="table details-table mb-0">
+          <thead>
+            <tr>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
+              ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
+              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+            </tr>
+          </thead>
+          <tbody>`;
 
       var totalRejectGross = 0;
       var totalRejectTare = 0;
@@ -2095,8 +2002,8 @@ function format (row) {
       if (row.rejectDetails.length === 0) {
         returnString += `
               <tr>
-                <td colspan="${allowPrice == 'Y' ? (allowPhoto == 'Y' ? '10' : '9') : (allowPhoto == 'Y' ? '7' : '6')}" class="text-center py-5 text-muted">
-                  <i class="fas fa-check-circle fa-2x text-success d-block mb-2"></i>
+                <td colspan="${allowPrice == 'Y' ? (allowPhoto == 'Y' ? '10' : '9') : (allowPhoto == 'Y' ? '7' : '6')}" class="details-empty">
+                  <i class="fas fa-check-circle"></i>
                   <?=$languageArray['no_reject_items_code'][$language] ?? 'No rejected items'?>
                 </td>
               </tr>`;
@@ -2107,14 +2014,13 @@ function format (row) {
           returnString += `
               <tr>
                 <td>${detail.product_name}</td>
-                <td><span class="badge badge-danger">${detail.grade}</span></td>
-                <td class="text-right text-monospace">${parseFloat(detail.gross).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
-                <td class="text-right text-monospace">${parseFloat(detail.tare).toFixed(2)} <small class="text-muted">${detail.unit}</small></td>
-                <td class="text-right text-monospace font-weight-bold text-danger">${parseFloat(detail.net).toFixed(2)} <small class="text-muted font-weight-normal">${detail.unit}</small></td>
-                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-monospace">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-monospace font-weight-bold text-danger">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                <td><span class="grade-badge grade-badge-danger">${detail.grade}</span></td>
+                <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
+                <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
+                <td class="text-right text-mono text-danger font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
+                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono text-danger font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td class="text-center text-muted">${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Photo"><i class="fas fa-image"></i></a>' : '<span class="text-muted">-</span>') + '</td>' : ''}`;
-          returnString += `
+                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
               </tr>`;
 
           totalRejectGross += parseFloat(detail.gross);
@@ -2125,21 +2031,20 @@ function format (row) {
       }
 
       returnString += `
-            </tbody>
-            ${row.rejectDetails.length > 0 ? `
-            <tfoot class="bg-light font-weight-bold">
-              <tr>
-                <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
-                <td class="text-right text-monospace">${totalRejectGross.toFixed(2)}</td>
-                <td class="text-right text-monospace">${totalRejectTare.toFixed(2)}</td>
-                <td class="text-right text-monospace text-danger">${totalRejectNet.toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-monospace text-danger">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
-                <td></td>
-                ${allowPhoto == 'Y' ? '<td></td>' : ''}
-              </tr>
-            </tfoot>` : ''}
-          </table>
-        </div>
+          </tbody>
+          ${row.rejectDetails.length > 0 ? `
+          <tfoot>
+            <tr>
+              <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
+              <td class="text-right text-mono">${totalRejectGross.toFixed(2)}</td>
+              <td class="text-right text-mono">${totalRejectTare.toFixed(2)}</td>
+              <td class="text-right text-mono text-danger">${totalRejectNet.toFixed(2)}</td>
+              ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono text-danger">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
+              <td></td>
+              ${allowPhoto == 'Y' ? '<td></td>' : ''}
+            </tr>
+          </tfoot>` : ''}
+        </table>
       </div>
     </div>
   </div>
@@ -2147,6 +2052,7 @@ function format (row) {
   
   return returnString;
 }
+
 
 function newEntry(){
   $('#extendModal').find('#id').val("");
@@ -2486,7 +2392,7 @@ function edit(id) {
           allowClear: true,
           placeholder: "Please Select",
           // Conditionally set dropdownParent based on the element’s location
-          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+          dropdownParent: $('#extendModal .modal-content')
         });
       });
       
@@ -2611,11 +2517,14 @@ function acceptRow(button) {
   reindexWeightDetails();
   reindexRejectDetails();
   updateTotals();
-  $('.select2').select2({
-    allowClear: true,
-    placeholder: "Please Select",
-    dropdownParent: $('#extendModal .modal-body'),
-    width: '100%'
+  // Initialize Select2 for the moved row's select elements
+  row.find('.select2').each(function() {
+    $(this).select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-content'),
+      width: '100%'
+    });
   });
 }
 
@@ -2807,14 +2716,60 @@ function populateFilters(rowId, weightDetails) {
   });
 }
 
+function exportInvoices() {
+  var ids = [];
+  $('#weightTable tbody .rowCheckbox:checked').each(function() {
+    ids.push($(this).val());
+  });
+  if (ids.length === 0) {
+    toastr["warning"]("Please select at least one invoice.", "Warning:");
+    return;
+  }
+  if (ids.length === 1) {
+    printInvoice(ids[0]);
+    return;
+  }
+  $('#spinnerLoading').show();
+  var requests = ids.map(function(id) {
+    return $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id);
+  });
+  $.when.apply($, requests).then(function() {
+    var responses = ids.length === 1 ? [arguments] : Array.from(arguments);
+    var combined = '';
+    responses.forEach(function(args) {
+      var obj = JSON.parse(args[0]);
+      if (obj.status === 'success') {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(obj.message, 'text/html');
+        var body = doc.body.innerHTML;
+        combined += '<div style="page-break-after: always;">' + body + '</div>';
+      }
+    });
+    if (combined) {
+      var firstObj = JSON.parse(responses[0][0]);
+      var firstDoc = new DOMParser().parseFromString(firstObj.message, 'text/html');
+      var head = firstDoc.head.innerHTML;
+      var printWindow = window.open('', '_blank');
+      printWindow.document.write('<html><head>' + head + '</head><body>' + combined + '</body></html>');
+      printWindow.document.close();
+    }
+    $('#spinnerLoading').hide();
+  }).fail(function() {
+    toastr["error"]("Failed to load invoices.", "Error:");
+    $('#spinnerLoading').hide();
+  });
+}
+
 function buildColumnToggleMenu() {
   var menu = $('#columnToggleMenu');
   menu.empty();
+  // Start from column 1 (skip checkbox column 0)
   for (var i = 0; i < columnNames.length; i++) {
+    var colIndex = i + 1; // Offset by 1 for checkbox column
     menu.append(
       '<div class="form-check">' +
-        '<input class="form-check-input column-toggle" type="checkbox" id="colToggle' + i + '" data-col="' + i + '" checked>' +
-        '<label class="form-check-label" for="colToggle' + i + '">' + columnNames[i] + '</label>' +
+        '<input class="form-check-input column-toggle" type="checkbox" id="colToggle' + colIndex + '" data-col="' + colIndex + '" checked>' +
+        '<label class="form-check-label" for="colToggle' + colIndex + '">' + columnNames[i] + '</label>' +
       '</div>'
     );
   }

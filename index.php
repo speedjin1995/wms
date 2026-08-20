@@ -85,6 +85,7 @@ else{
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/modal-global.css">
+  <link rel="stylesheet" href="assets/css/page-global.css">
 
   <style>
     body {
@@ -334,29 +335,42 @@ to get the desired effect
 
 <div class="wrapper">
   <!-- Navbar -->
-  <nav class="main-header navbar navbar-expand navbar-primary navbar-light" style="background-color: white;">
+  <nav class="main-header navbar navbar-expand navbar-modern">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars bg-success" style="background: #003392 !important;"></i></a>
+        <a class="nav-link pushmenu-btn" data-widget="pushmenu" href="#" role="button">
+          <i class="fas fa-bars"></i>
+        </a>
       </li>
     </ul>
     
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#" role="button" style="background-color: #f4f4f4; border-radius: 50%; padding: 8px; margin-right: 15px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-          <i class="fas fa-user" style="font-size: 16px; color: #666;"></i>
+        <a class="nav-link user-dropdown-toggle" data-toggle="dropdown" href="#" role="button">
+          <div class="user-avatar">
+            <?=strtoupper(substr($name, 0, 1))?>
+          </div>
+          <div class="user-info d-none d-md-block">
+            <span class="user-info-name"><?=$name?></span>
+            <span class="user-info-role"><?=$role?></span>
+          </div>
+          <i class="fas fa-chevron-down ml-2" style="font-size: 0.625rem; color: #94a3b8;"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-right">
-          <h6 class="dropdown-header"><?=$languageArray['welcome_code'][$language]?> <?=$username ?>!</h6>
+          <h6 class="dropdown-header"><?=$languageArray['welcome_code'][$language]?>, <?=$username?>!</h6>
           <a href="#myprofile" data-file="myprofile.php" class="dropdown-item link">
-            <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> 
-            <span class="align-middle"><?=$languageArray['profile_code'][$language]?></span>
+            <i class="fas fa-user-circle"></i>
+            <span><?=$languageArray['profile_code'][$language]?></span>
           </a>
-          <a class="dropdown-item" href="php/logout.php">
-            <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> 
-            <span class="align-middle"><?=$languageArray['logout_code'][$language]?></span>
+          <a href="#changepassword" data-file="changePassword.php" class="dropdown-item link">
+            <i class="fas fa-key"></i>
+            <span><?=$languageArray['change_password_code'][$language]?></span>
+          </a>
+          <a class="dropdown-item dropdown-item-logout" href="php/logout.php">
+            <i class="fas fa-sign-out-alt"></i>
+            <span><?=$languageArray['logout_code'][$language]?></span>
           </a>
         </div>
       </li>
@@ -364,25 +378,24 @@ to get the desired effect
   </nav>
 
   <!-- Main Sidebar Container -->
-  <!--aside class="main-sidebar sidebar-dark-primary elevation-4"  style="background-color: #ffffff;"-->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #003392;">
+  <aside class="main-sidebar elevation-4 sidebar-modern">
     <!-- Brand Logo -->
-    <a href="#" class="brand-link logo-switch" style="line-height: 3.5; border-bottom-color: #ffffff;">
-      <img src="assets/wms-logo-white-site-icon.png" alt="Sneakercube Logo" class="brand-image-xl logo-xs" style="left: 15px; top: 15px; line-height: 5.5;">
-      <img src="assets/wms-logo-white-2.png" alt="Sneakercube Logo" class="brand-image-xl logo-xl" style="width: 25%;max-height: max-content; left: 25px; top: 15px;">
+    <a href="#" class="brand-link logo-switch">
+      <img src="assets/wms-logo-white-site-icon.png" alt="WMS Logo" class="brand-image-xl logo-xs">
+      <img src="assets/wms-logo-white-2.png" alt="WMS Logo" class="brand-image-xl logo-xl">
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex" style="border-bottom-color: #fff;">
-          <div class="image" style="align-self: center;">
-            <img src="assets/user-avatar.png" class="img-circle elevation-2" alt="User Image">
-          </div>
-          <div class="info" style="white-space: nowrap;">
-            <p style="font-size:0.75rem; color:#E3E3E3; margin-bottom:0rem;"><?=$languageArray['welcome_code'][$language]?></p>
-            <a href="#myprofile" data-file="myprofile.php" id="goToProfile" class="d-block"><?=$name ?></a>
-          </div>
+      <!-- User Panel -->
+      <div class="user-panel d-flex">
+        <div class="image" style="align-self: center;">
+          <img src="assets/user-avatar.png" class="img-circle" alt="User Image">
+        </div>
+        <div class="info">
+          <span class="user-welcome"><?=$languageArray['welcome_code'][$language]?></span>
+          <a href="#myprofile" data-file="myprofile.php" id="goToProfile" class="user-name"><?=$name?></a>
+        </div>
       </div>
 
       <!-- Sidebar Menu -->
@@ -835,7 +848,7 @@ to get the desired effect
               </li>
             </ul>
           </li>
-          <li class="nav-item">
+          <li class="nav-item nav-item-logout">
             <a href="php/logout.php" class="nav-link">
               <i class="nav-icon fas fa-sign-out-alt"></i>
               <p><?=$languageArray['logout_code'][$language]?></p>
@@ -861,8 +874,11 @@ to get the desired effect
   <!-- /.control-sidebar -->
 
   <!-- Main Footer -->
-  <footer class="main-footer">
-    <strong>Copyright &copy; 2024 <a href="#">SyncWeight</a>.</strong>All rights reserved.<div class="float-right d-none d-sm-inline-block"><b>Version</b> 1.0.0 </div>
+  <footer class="main-footer footer-modern">
+    <strong>Copyright &copy; 2024 <a href="#">SyncWeight</a>.</strong> All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+      <span class="version">Version 1.0.0</span>
+    </div>
   </footer>
 </div>
 <!-- ./wrapper -->
