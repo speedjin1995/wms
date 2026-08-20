@@ -243,18 +243,6 @@ else{
                       </select>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['phone_code'][$language]?></label>
-                      <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['pic_code'][$language]?></label>
-                      <input type="text" class="form-control" id="email" name="email" placeholder="Person In Charge">
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -277,19 +265,19 @@ else{
                 </div>
                 <div class="row">
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 3</label>
                       <input type="text" class="form-control" name="address3" id="address3" placeholder="City">
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['address_code'][$language]?> 4</label>
                       <input type="text" class="form-control" name="address4" id="address4" placeholder="Postcode">
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['states_code'][$language]?></label>
                       <select class="form-control select2" style="width:100%;" id="states" name="states">
                         <option value="">Select State</option>
@@ -300,9 +288,23 @@ else{
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                       <label class="form-label-modern"><?=$languageArray['fax_code'][$language]?></label>
                       <input type="text" class="form-control" name="fax" id="fax" placeholder="Fax number">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['phone_code'][$language]?></label>
+                      <input type="text" class="form-control" name="phone" id="phone" placeholder="01x-xxxxxxx">
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['pic_code'][$language]?></label>
+                      <input type="text" class="form-control" id="email" name="email" placeholder="Person In Charge">
                     </div>
                   </div>
                 </div>
@@ -840,8 +842,11 @@ $(function () {
 
   $('#sameAsDelivery').on('change', function() {
     var isSame = $(this).is(':checked');
-    var billingFields = ['#billingAddress', '#billingAddress2', '#billingAddress3', '#billingAddress4'];
+    var billingFields = ['#billingAddress', '#billingAddress2', '#billingAddress3', '#billingAddress4', '#billingName', '#billingPhone', '#billingPic'];
     if (isSame) {
+      $('#billingName').val($('#name').val());
+      $('#billingPhone').val($('#phone').val());
+      $('#billingPic').val($('#email').val());
       $('#billingAddress').val($('#address').val());
       $('#billingAddress2').val($('#address2').val());
       $('#billingAddress3').val($('#address3').val());
@@ -857,7 +862,7 @@ $(function () {
 
   $('#addModal').on('hidden.bs.modal', function() {
     $('#sameAsDelivery').prop('checked', false);
-    ['#billingAddress','#billingAddress2','#billingAddress3','#billingAddress4'].forEach(function(sel) { $(sel).prop('readonly', false); });
+    ['#billingAddress','#billingAddress2','#billingAddress3','#billingAddress4','#billingName','#billingPhone','#billingPic'].forEach(function(sel) { $(sel).prop('readonly', false); });
     $('#billingStates').next('.select2-container').css('pointer-events', '').css('opacity', '');
   });
 });
