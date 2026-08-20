@@ -6,16 +6,30 @@ $company = $_SESSION['customer'];
 $role    = $_SESSION['role'];
 $userId  = $_SESSION['userID'];
 
-$mode          = $_POST['mode']       ?? 'save';
-$newPrice      = floatval($_POST['newPrice'] ?? 0);
-$pricingType   = $_POST['pricingType'] ?? 'Float';
-$dateInput     = $_POST['date']        ?? '';
-$productFilter = $_POST['product']     ?? '';
-$gradeFilter   = $_POST['grade']       ?? '';
-$statusInput   = $_POST['status']      ?? '';
+$mode          = $_POST['mode']    ?? 'save';
+$dateInput     = $_POST['date']    ?? '';
+$statusInput   = $_POST['status']  ?? '';
+$customerFilter = isset($_POST['customer']) ? mysqli_real_escape_string($db, $_POST['customer']) : '';
+$supplierFilter = isset($_POST['supplier']) ? mysqli_real_escape_string($db, $_POST['supplier']) : '';
+$productFilter  = isset($_POST['product'])  ? mysqli_real_escape_string($db, $_POST['product'])  : '';
+$gradeFilter    = isset($_POST['grade'])    ? mysqli_real_escape_string($db, $_POST['grade'])    : '';
 
-if ($newPrice < 0) {
-  echo json_encode(['status' => 'failed', 'message' => 'Price cannot be negative.']);
+// Build price lookup keyed by "productId||grade"
+$priceRows = [];
+if (!empty($_POST['priceRows']) && is_array($_POST['priceRows'])) {
+  foreach ($_POST['priceRows'] as $r) {
+    $price = floatval($r['newPrice'] ?? 0);
+    if ($price < 0) continue;
+    $key = ($r['product'] ?? '') . '||' . ($r['grade'] ?? '');
+    $priceRows[$key] = [
+      'newPrice'    => $price,
+      'pricingType' => $r['pricingType'] ?? 'Float',
+    ];
+  }
+}
+
+if (empty($priceRows)) {
+  echo json_encode(['status' => 'failed', 'message' => 'No price rows provided.']);
   exit;
 }
 
@@ -41,9 +55,16 @@ if ($role != 'SADMIN') {
   $companyFilter = " AND company = '$company'";
 }
 
+$partyFilter = '';
+if ($customerFilter !== '') {
+  $partyFilter = " AND customer = '$customerFilter'";
+} elseif ($supplierFilter !== '') {
+  $partyFilter = " AND supplier = '$supplierFilter'";
+}
+
 $sql = "SELECT id, serial_no, start_time, weight_details FROM wholesales
         WHERE deleted = '0' AND records_type = 'wholesales'
-        $companyFilter $dateFilter $statusFilter";
+        $companyFilter $dateFilter $statusFilter $partyFilter";
 
 $result = mysqli_query($db, $sql);
 if (!$result) {
@@ -57,11 +78,15 @@ if ($mode === 'preview') {
     $details = json_decode($row['weight_details'], true);
     if (!is_array($details)) continue;
     foreach ($details as $detail) {
-      if ($detail['isRejected'] === 'YES') continue;
-      if ($productFilter !== '' && $detail['product'] != $productFilter) continue;
-      if ($gradeFilter !== '' && $detail['grade'] != $gradeFilter) continue;
-      $net      = floatval($detail['net'] ?? 0);
-      $newTotal = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
+      if (($detail['isRejected'] ?? '') === 'YES') continue;
+      if ($productFilter !== '' && ($detail['product'] ?? '') != $productFilter) continue;
+      if ($gradeFilter   !== '' && ($detail['grade']   ?? '') != $gradeFilter)   continue;
+      $key = ($detail['product'] ?? '') . '||' . ($detail['grade'] ?? '');
+      if (!isset($priceRows[$key])) continue;
+      $newPrice    = $priceRows[$key]['newPrice'];
+      $pricingType = $priceRows[$key]['pricingType'];
+      $net         = floatval($detail['net'] ?? 0);
+      $newTotal    = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
       $previewRows[] = [
         'serial_no'    => $row['serial_no'],
         'start_time'   => $row['start_time'] ? date('d/m/Y H:i', strtotime($row['start_time'])) : '',
@@ -89,12 +114,16 @@ while ($row = mysqli_fetch_assoc($result)) {
 
   $changed = false;
   foreach ($details as &$detail) {
-    if ($detail['isRejected'] === 'YES') continue;
-    if ($productFilter !== '' && $detail['product'] != $productFilter) continue;
-    if ($gradeFilter !== '' && $detail['grade'] != $gradeFilter) continue;
+    if (($detail['isRejected'] ?? '') === 'YES') continue;
+    if ($productFilter !== '' && ($detail['product'] ?? '') != $productFilter) continue;
+    if ($gradeFilter   !== '' && ($detail['grade']   ?? '') != $gradeFilter)   continue;
+    $key = ($detail['product'] ?? '') . '||' . ($detail['grade'] ?? '');
+    if (!isset($priceRows[$key])) continue;
 
-    $net   = floatval($detail['net'] ?? 0);
-    $total = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
+    $newPrice    = $priceRows[$key]['newPrice'];
+    $pricingType = $priceRows[$key]['pricingType'];
+    $net         = floatval($detail['net'] ?? 0);
+    $total       = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
 
     $detail['price']      = number_format($newPrice, 2, '.', '');
     $detail['total']      = number_format($total, 2, '.', '');

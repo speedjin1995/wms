@@ -342,8 +342,6 @@ if(isset($_GET['id'])){
                                     <div class="addr-line">' . $billToAddr1 . '</div>
                                     <div class="addr-line">' . $billToAddr2 . '</div>
                                     <div class="addr-line">' . $billToAddr3 . '</div>
-                                    <br>
-                                    <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $billToAttn . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $billToTel . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Email</span><span class="contact-colon">:</span><span class="contact-value">' . $billToFax . '</span></div>';
@@ -360,8 +358,6 @@ if(isset($_GET['id'])){
                                     <div class="addr-line">' . $deliverToAddr1 . '</div>
                                     <div class="addr-line">' . $deliverToAddr2 . '</div>
                                     <div class="addr-line">' . $deliverToAddr3 . '</div>
-                                    <br>
-                                    <br>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToAttn . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToTel . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Email</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>

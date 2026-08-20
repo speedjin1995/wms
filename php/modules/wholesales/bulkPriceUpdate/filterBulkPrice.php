@@ -36,14 +36,23 @@ if ($role != 'SADMIN') {
   $companyFilter = " AND w.company = '$company'";
 }
 
-$productFilter = isset($_POST['product']) ? $_POST['product'] : '';
-$gradeFilter   = isset($_POST['grade'])   ? $_POST['grade']   : '';
+$productFilter  = isset($_POST['product'])  ? $_POST['product']  : '';
+$gradeFilter    = isset($_POST['grade'])    ? $_POST['grade']    : '';
+$customerFilter = isset($_POST['customer']) ? mysqli_real_escape_string($db, $_POST['customer']) : '';
+$supplierFilter = isset($_POST['supplier']) ? mysqli_real_escape_string($db, $_POST['supplier']) : '';
+
+$partyFilter = '';
+if ($customerFilter !== '') {
+  $partyFilter = " AND w.customer = '$customerFilter'";
+} elseif ($supplierFilter !== '') {
+  $partyFilter = " AND w.supplier = '$supplierFilter'";
+}
 
 ## Fetch all matching wholesales records
 $sql = "SELECT w.id, w.serial_no, w.start_time, w.status, w.weight_details, w.po_no, w.customer, w.supplier, w.other_customer, w.other_supplier
         FROM wholesales w
         WHERE w.deleted = '0' AND w.records_type = 'wholesales'
-        $companyFilter $dateFilter $statusFilter
+        $companyFilter $dateFilter $statusFilter $partyFilter
         ORDER BY w.start_time ASC";
 
 $result = mysqli_query($db, $sql);

@@ -86,6 +86,7 @@ else{
   <!-- Custom CSS -->
   <link rel="stylesheet" href="assets/css/modal-global.css">
   <link rel="stylesheet" href="assets/css/index-main.css?v=<?=filemtime('assets/css/index-main.css')?>">
+  <link rel="stylesheet" href="assets/css/page-global.css">
 </head>
 <!--
 BODY TAG OPTIONS:
@@ -122,12 +123,16 @@ to get the desired effect
         <div class="dropdown-menu dropdown-menu-right user-drop-down-menu">
           <h6 class="dropdown-header"><?=$languageArray['welcome_code'][$language]?> <?=$username ?>!</h6>
           <a href="#myprofile" data-file="myprofile.php" class="dropdown-item link">
-            <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> 
-            <span class="align-middle"><?=$languageArray['profile_code'][$language]?></span>
+            <i class="fas fa-user-circle"></i>
+            <span><?=$languageArray['profile_code'][$language]?></span>
           </a>
-          <a class="dropdown-item" href="php/logout.php">
-            <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> 
-            <span class="align-middle"><?=$languageArray['logout_code'][$language]?></span>
+          <a href="#changepassword" data-file="changePassword.php" class="dropdown-item link">
+            <i class="fas fa-key"></i>
+            <span><?=$languageArray['change_password_code'][$language]?></span>
+          </a>
+          <a class="dropdown-item dropdown-item-logout" href="php/logout.php">
+            <i class="fas fa-sign-out-alt"></i>
+            <span><?=$languageArray['logout_code'][$language]?></span>
           </a>
         </div>
       </li>
@@ -605,7 +610,7 @@ to get the desired effect
               </li>
             </ul>
           </li>
-          <li class="nav-item">
+          <li class="nav-item nav-item-logout">
             <a href="php/logout.php" class="nav-link">
               <i class="nav-icon fas fa-sign-out-alt"></i>
               <p><?=$languageArray['logout_code'][$language]?></p>
