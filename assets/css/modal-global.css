@@ -5,70 +5,90 @@
  */
 
 /* ============================================
-   CSS VARIABLES (can override per-modal)
+   CSS VARIABLES (WMS Gold/Amber Theme)
    ============================================ */
 .modal-modern {
   --modal-bg: #ffffff;
-  --modal-surface: #f8fafc;
-  --modal-border: #e2e8f0;
-  --modal-border-focus: #3b82f6;
-  --modal-text: #0f172a;
-  --modal-text-secondary: #475569;
-  --modal-text-muted: #94a3b8;
-  --modal-primary: #3b82f6;
-  --modal-primary-hover: #2563eb;
-  --modal-success: #10b981;
-  --modal-danger: #ef4444;
-  --modal-warning: #f59e0b;
-  --modal-radius: 0.5rem;
-  --modal-radius-lg: 0.75rem;
-  --modal-font-sm: 0.75rem;
-  --modal-font-base: 0.875rem;
-  --modal-font-lg: 1rem;
+  --modal-surface: #F9F7F2;
+  --modal-border: #E3C66A;
+  --modal-border-focus: #D9A82D;
+  --modal-text: #1a1a1a;
+  --modal-text-secondary: #1a1a1a;
+  --modal-text-muted: rgba(26, 26, 26, .5);
+  --modal-primary: #D9A82D;
+  --modal-primary-hover: #C2410C;
+  --modal-success: #16A34A;
+  --modal-danger: #DC2626;
+  --modal-warning: #EA580C;
+  --modal-radius: 5px;
+  --modal-radius-lg: 5px;
+  --modal-font-sm: 12px;
+  --modal-font-base: 14px;
+  --modal-font-lg: 16px;
+  --modal-shadow: 0px 0px 10px 0px rgba(227, 198, 106, 1);
 }
 
 /* ============================================
    MODAL STRUCTURE
    ============================================ */
 .modal-modern .modal-content {
-  /*border: none;
+  border: none;
   border-radius: var(--modal-radius-lg);
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);*/
+  box-shadow: var(--modal-shadow);
+  background: var(--modal-surface);
 }
 
 .modal-modern .modal-header {
-  /*background: var(--modal-bg);
-  border-bottom: 1px solid var(--modal-border);
-  padding: 1rem 1.5rem;*/
+  background: linear-gradient(135deg, rgba(246, 213, 74, 1) 0%, rgba(255, 243, 199, 1) 50%, rgba(217, 168, 45, 1) 100%);
+  border-bottom: none;
+  padding: 25px;
+  align-items: center;
 }
 
 .modal-modern .modal-title {
-  /*font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--modal-text);*/
+  font-size: 25px;
+  line-height: 30px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
+  color: var(--modal-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-modern .modal-title i {
+  color: var(--modal-text);
 }
 
 .modal-modern .modal-body {
-  /*background: var(--modal-surface);
-  padding: 1.5rem;
+  background: var(--modal-surface);
+  padding: 25px;
   max-height: calc(100vh - 200px);
-  overflow-y: auto;*/
+  overflow-y: auto;
 }
 
 .modal-modern .modal-footer {
-  /*background: var(--modal-bg);
-  border-top: 1px solid var(--modal-border);
-  padding: 1rem 1.5rem;*/
+  background: linear-gradient(135deg, rgba(246, 213, 74, 1) 0%, rgba(255, 243, 199, 1) 50%, rgba(217, 168, 45, 1) 100%);
+  border-top: none;
+  padding: 25px;
+  justify-content: space-between;
 }
 
 .modal-modern .close {
-  /*opacity: 0.5;
-  transition: opacity 0.15s;*/
+  color: var(--modal-danger);
+  text-shadow: none;
+  opacity: 1;
+  font-size: 25px;
+  line-height: 30px;
+  font-weight: 700;
+  padding: 0;
+  margin: 0;
 }
 
 .modal-modern .close:hover {
-  /*opacity: 1;*/
+  color: #B91C1C;
+  opacity: 1;
 }
 
 /* ============================================
@@ -107,7 +127,7 @@
 }
 
 .modal-modern .section-title i {
-  color: var(--modal-text-secondary);
+  color: var(--modal-primary);
 }
 
 .modal-modern .section-subtitle {
@@ -141,8 +161,8 @@
 }
 
 .modal-modern .form-control:focus {
-  border-color: var(--modal-border-focus);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: var(--modal-text);
+  box-shadow: none;
 }
 
 .modal-modern .form-control-sm {
@@ -187,8 +207,8 @@
 }
 
 .modal-modern .select2-container--default.select2-container--focus .select2-selection--single {
-  border-color: var(--modal-border-focus);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: var(--modal-text);
+  box-shadow: none;
 }
 
 /* Multiple Select */
@@ -234,8 +254,8 @@
 }
 
 .modal-modern .select2-container--default.select2-container--focus .select2-selection--multiple {
-  border-color: var(--modal-border-focus);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: var(--modal-text);
+  box-shadow: none;
 }
 
 /* Dropdown */
@@ -287,42 +307,62 @@
 
 .modal-modern .btn-modern-primary {
   color: #fff;
-  background: var(--modal-primary);
+  background: var(--modal-success);
+  padding: 10px 25px;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
 }
 
 .modal-modern .btn-modern-primary:hover {
-  background: var(--modal-primary-hover);
+  background: #15803D;
   color: #fff;
 }
 
 .modal-modern .btn-modern-secondary {
-  color: var(--modal-text-secondary);
-  background: transparent;
-  border: 1px solid var(--modal-border);
+  color: #fff;
+  background: var(--modal-danger);
+  border: none;
+  padding: 10px 25px;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
 }
 
 .modal-modern .btn-modern-secondary:hover {
-  background: #f1f5f9;
-  color: var(--modal-text);
+  background: #B91C1C;
+  color: #fff;
 }
 
 .modal-modern .btn-modern-success {
   color: #fff;
   background: var(--modal-success);
+  padding: 10px 25px;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
 }
 
 .modal-modern .btn-modern-success:hover {
-  background: #059669;
+  background: #15803D;
   color: #fff;
 }
 
 .modal-modern .btn-modern-danger {
   color: #fff;
   background: var(--modal-danger);
+  padding: 10px 25px;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0.75px;
+  font-weight: 700;
 }
 
 .modal-modern .btn-modern-danger:hover {
-  background: #dc2626;
+  background: #B91C1C;
   color: #fff;
 }
 
@@ -371,7 +411,7 @@
 }
 
 .modal-modern .toggle-switch input:checked + .toggle-slider {
-  background: var(--modal-success);
+  background: var(--modal-primary);
 }
 
 .modal-modern .toggle-switch input:checked + .toggle-slider::before {
@@ -447,7 +487,7 @@
 
 .modal-modern .upload-zone:hover {
   border-color: var(--modal-primary);
-  background: #eff6ff;
+  background: rgba(227, 198, 106, .15);
 }
 
 .modal-modern .upload-zone i {
@@ -611,13 +651,13 @@
 }
 
 .modal-modern .table thead th {
-  background: #f8fafc;
-  border-bottom: 2px solid var(--modal-border);
-  font-weight: 600;
-  color: var(--modal-text-secondary);
-  font-size: var(--modal-font-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  background: var(--modal-primary);
+  border: 1px solid #fff;
+  font-weight: 700;
+  color: #fff;
+  font-size: var(--modal-font-lg);
+  text-align: center;
+  vertical-align: middle;
 }
 
 .modal-modern .table td {
@@ -647,9 +687,9 @@
 }
 
 .modal-modern .nav-tabs .nav-link.active {
-  color: var(--modal-primary);
+  color: var(--modal-text);
   border-bottom-color: var(--modal-primary);
-  background: transparent;
+  background: rgba(227, 198, 106, .15);
 }
 
 /* ============================================
@@ -717,7 +757,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--modal-primary);
+  background: var(--modal-text);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 600;
