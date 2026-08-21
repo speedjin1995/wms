@@ -52,61 +52,44 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 #binDetails { transition: none; }
 </style>
 
-<div class="content-header">
+<div class="content-header" style="padding-bottom: 0;">
     <div class="container-fluid">
-        <div class="row mb-2">
-			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><?=$languageArray['customers_code'][$language]?></h1>
-			</div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+        <!-- Breadcrumb or minimal header can go here if needed -->
+    </div>
 </div>
-<!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
+<section class="content page-modern">
 	<div class="container-fluid">
         <div class="row">
 			<div class="col-12">
-				<div class="card">
+				<div class="card results-card show-dt-controls">
 					<div class="card-header">
-              <div class="row">
-                  <?php if (in_array('basket', $_SESSION['products'])) { ?>
-                  <div class="col-2"></div>
-                  <div class="col-2">
-                    <a href="php/modules/customers/exportBinReport.php" target="_blank">
-                      <button type="button" class="btn btn-block bg-gradient-primary btn-sm">
-                        <?=$languageArray['export_bin_report_code'][$language]?>
-                      </button>
-                    </a>
-                  </div>
-                  <?php } else { ?>
-                  <div class="col-4"></div>
-                  <?php }?>
-                  <div class="col-2">
-                    <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                      <?=$languageArray['delete_customer_code'][$language]?>
-                    </button>
-                  </div>
-                  <div class="col-2">
-                    <a href="template/Customer_Template.xlsx" download>
-                      <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                        <?=$languageArray['download_template_code'][$language]?>
-                      </button>
-                    </a>
-                  </div>
-                  <div class="col-2">
-                    <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                      <?=$languageArray['upload_excel_code'][$language]?>
-                    </button>
-                  </div>
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addCustomers"><?=$languageArray['add_customers_code'][$language]?></button>
-                  </div>
-              </div>
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-users mr-2"></i><?=$languageArray['customers_code'][$language]?></h3>
+            </div>
+            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+              <?php if (in_array('basket', $_SESSION['products'])) { ?>
+              <a href="php/modules/customers/exportBinReport.php" target="_blank" class="btn btn-action btn-action-secondary">
+                <i class="fas fa-file-export"></i> <?=$languageArray['export_bin_report_code'][$language]?>
+              </a>
+              <?php } ?>
+              <a href="template/Customer_Template.xlsx" download class="btn btn-action btn-action-warning">
+                <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
+              </a>
+              <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
+                <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
+              </button>
+              <button type="button" id="multiDeactivate" class="btn btn-action" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_customer_code'][$language]?>
+              </button>
+              <button type="button" class="btn btn-action btn-action-primary" id="addCustomers">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_customers_code'][$language]?>
+              </button>
+            </div>
           </div>
 					<div class="card-body">
-						<table id="customerTable" class="table table-bordered table-striped">
+						<table id="customerTable" class="table data-table">
 							<thead>
 								<tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
@@ -129,7 +112,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 	</div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade" id="uploadModal">
+<div class="modal fade modal-modern" id="uploadModal">
   <div class="modal-dialog" style="max-width: 90vw">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -157,7 +140,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="errorModal" style="display:none">
+<div class="modal fade modal-modern" id="errorModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -410,7 +393,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 </div>
 
 <!-- Bin Modal -->
-<div class="modal fade" id="binModal">
+<div class="modal fade modal-modern" id="binModal">
   <div class="modal-dialog">
     <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
       <form id="binForm">
@@ -500,7 +483,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 </div>
 
 <!-- Bin History Modal -->
-<div class="modal fade" id="binHistoryModal">
+<div class="modal fade modal-modern" id="binHistoryModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
       <div class="modal-header" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); border:none;">
@@ -536,20 +519,24 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
   </div>
 </div>
 
-<div class="modal fade" id="runningNoModal">
-  <div class="modal-dialog modal-lg">
+<div class="modal fade modal-modern" id="runningNoModal">
+  <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header bg-gray-dark color-palette">
+      <div class="modal-header">
         <h5 class="modal-title"><i class="fas fa-hashtag mr-2"></i><?=$languageArray['running_no_code'][$language]?? 'Running No' ?> — <span id="runningNoCustomerName"></span></h5>
-        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="runningNoEntityId">
-        <div class="form-group">
-          <label><?=$languageArray['invoice_code'][$language] ?? 'Invoice Code' ?></label>
-          <input type="text" class="form-control" id="runningNoInvoiceCode" maxlength="10">
+        <div class="modal-section">
+          <div class="section-title"><i class="fas fa-tag mr-2"></i><?=$languageArray['invoice_code'][$language] ?? 'Invoice Code' ?></div>
+          <div class="form-group mb-0">
+            <input type="text" class="form-control" id="runningNoInvoiceCode" maxlength="50" placeholder="e.g. CUST-001">
+          </div>
         </div>
-        <table class="table table-bordered table-sm">
+        <div class="modal-section">
+          <div class="section-title"><i class="fas fa-list-ol mr-2"></i><?=$languageArray['running_no_code'][$language] ?? 'Running Numbers' ?></div>
+          <table class="table table-bordered table-sm mb-0">
           <thead>
             <tr>
               <th><?=$languageArray['status_code'][$language] ?? 'Status' ?></th>
@@ -558,11 +545,12 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
             </tr>
           </thead>
           <tbody id="runningNoBody"></tbody>
-        </table>
+          </table>
+        </div>
       </div>
-      <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-        <button type="button" class="btn btn-primary" id="saveRunningNo"><?=$languageArray['submit_code'][$language]?></button>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-modern btn-modern-primary" id="saveRunningNo"><?=$languageArray['submit_code'][$language]?></button>
       </div>
     </div>
   </div>
