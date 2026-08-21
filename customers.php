@@ -13,6 +13,7 @@ else{
   $role = $_SESSION['role'];
   $products = $_SESSION['products'];
   $includeInvoice = 'N';
+  $module = $_SESSION['module'];
   $states = $db->query("SELECT * FROM states ORDER BY states ASC");
   $states2 = $db->query("SELECT * FROM states ORDER BY states ASC");
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
@@ -536,10 +537,86 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
   </div>
 </div>
 
+<div class="modal fade" id="runningNoModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-gray-dark color-palette">
+        <h5 class="modal-title"><i class="fas fa-hashtag mr-2"></i>Running No — <span id="runningNoCustomerName"></span></h5>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="runningNoEntityId">
+        <table class="table table-bordered table-sm">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Prefix</th>
+              <th>Next Value</th>
+            </tr>
+          </thead>
+          <tbody id="runningNoBody"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer justify-content-between bg-gray-dark color-palette">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-primary" id="saveRunningNo"><?=$languageArray['submit_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- jQuery -->
 <script>
 
 var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
+
+  function openRunningNo(id, name) {
+    $('#runningNoEntityId').val(id);
+    $('#runningNoCustomerName').text(name);
+    $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
+    $('#runningNoModal').modal('show');
+    $.get('php/modules/customers/runningNo.php', { entity_id: id }, function(res) {
+      var obj = JSON.parse(res);
+      var html = '';
+      obj.data.forEach(function(row) {
+        html += '<tr>'
+          + '<td>' + row.status + '<input type="hidden" name="transaction_status" value="' + row.status + '"></td>'
+          + '<td><input type="text" class="form-control form-control-sm rn-prefix" value="' + row.saved_prefix + '" maxlength="10"></td>'
+          + '<td><input type="number" class="form-control form-control-sm rn-value" value="' + row.value + '" min="1"></td>'
+          + '</tr>';
+      });
+      $('#runningNoBody').html(html);
+    });
+  }
+
+  $('#saveRunningNo').on('click', function() {
+    var rows = [];
+    var valid = true;
+    $('#runningNoBody tr').each(function() {
+      var status = $(this).find('input[name="transaction_status"]').val();
+      var prefix = $(this).find('.rn-prefix').val().trim();
+      var value  = parseInt($(this).find('.rn-value').val());
+      if (!prefix || prefix.length > 10 || isNaN(value) || value < 1) { valid = false; return false; }
+      rows.push({ transaction_status: status, prefix: prefix, value: value });
+    });
+    if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
+    $('#spinnerLoading').show();
+    $.ajax({
+      url: 'php/modules/customers/runningNo.php',
+      type: 'POST',
+      data: { entity_id: $('#runningNoEntityId').val(), rows: rows },
+      success: function(res) {
+        var obj = JSON.parse(res);
+        if (obj.status === 'success') {
+          $('#runningNoModal').modal('hide');
+          toastr["success"](obj.message, "Success:");
+        } else {
+          toastr["error"](obj.message, "Failed:");
+        }
+        $('#spinnerLoading').hide();
+      }
+    });
+  });
 var binTypeNames = <?= json_encode(array_column($binTypesArr, 'bin_type', 'id')) ?>;
 
 $(function () {
@@ -622,6 +699,7 @@ $(function () {
               + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
               + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
                           + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
+              + '<button onclick="openRunningNo(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-secondary btn-sm"><i class="fas fa-hashtag"></i></button>'
               + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
               + '</div>';
           } else {

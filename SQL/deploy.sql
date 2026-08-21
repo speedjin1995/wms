@@ -3093,3 +3093,8 @@ ALTER TABLE `running_no_entity` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `running_no_entity` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `statuses` ADD `entity_type` VARCHAR(10) NOT NULL AFTER `status`;
+
+UPDATE statuses SET entity_type = 'Customer' WHERE status IN ('OUTGOING', 'DISPATCH', 'STOCK-BAL', 'NITROGEN', 'REJECT', 'Dispatch', 'SALES');
+
+UPDATE statuses SET entity_type = 'Supplier' WHERE status IN ('INCOMING', 'RECEIVING', 'Receiving', 'PURCHASE');

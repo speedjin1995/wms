@@ -11,6 +11,7 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
+  $module = $_SESSION['module'];
   $states = $db->query("SELECT * FROM states ORDER BY states ASC");
   $states2 = $db->query("SELECT * FROM states ORDER BY states ASC");
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
