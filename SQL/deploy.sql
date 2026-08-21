@@ -3075,3 +3075,21 @@ CREATE TABLE `integration_configs` (
 ALTER TABLE `integration_configs` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `integration_configs` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- 21/08/2026 --
+ALTER TABLE `companies` ADD COLUMN `running_no_type` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '0=simple sequential, 1=per entity monthly reset' AFTER indicator;
+
+CREATE TABLE `running_no_entity` (
+  `id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  `module` varchar(30) NOT NULL,
+  `transaction_status` varchar(30) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `prefix` varchar(10) NOT NULL,
+  `value` int(11) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `running_no_entity` ADD PRIMARY KEY (`id`); 
+
+ALTER TABLE `running_no_entity` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
