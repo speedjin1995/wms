@@ -3098,3 +3098,38 @@ ALTER TABLE `statuses` ADD `entity_type` VARCHAR(10) NOT NULL AFTER `status`;
 UPDATE statuses SET entity_type = 'Customer' WHERE status IN ('OUTGOING', 'DISPATCH', 'STOCK-BAL', 'NITROGEN', 'REJECT', 'Dispatch', 'SALES');
 
 UPDATE statuses SET entity_type = 'Supplier' WHERE status IN ('INCOMING', 'RECEIVING', 'Receiving', 'PURCHASE');
+
+ALTER TABLE `customers` ADD `invoice_code` VARCHAR(10) NULL AFTER `customer_type`;
+
+ALTER TABLE `customers_log` ADD `invoice_code` VARCHAR(10) NULL AFTER `customer_type`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CUSTOMER` AFTER INSERT ON `customers` FOR EACH ROW INSERT INTO customers_log (
+    customer_id, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, customer_type, invoice_code, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.customer_code, NEW.reg_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, NEW.customer_type, NEW.invoice_code, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CUSTOMER` BEFORE UPDATE ON `customers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into customers_log table
+    INSERT INTO customers_log (
+      customer_id, customer_code, reg_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, customer_type, invoice_code, action_id, action_by, event_date
+    ) 
+    VALUES (
+      NEW.id, NEW.customer_code, NEW.reg_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, NEW.customer_type, NEW.invoice_code, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;

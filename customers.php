@@ -42,10 +42,15 @@ else{
     $company_result = $company_stmt->get_result();
     $rowCompany = mysqli_fetch_assoc($company_result);
     $includeInvoice = $rowCompany['include_invoice'];
+    $runningNoType = $rowCompany['running_no_type'];
   }
 }
 ?>
-<link rel="stylesheet" href="assets/css/modal-global.css">
+<style>
+.bin-type-btn { background:#fff; text-align:center; font-weight:600; }
+input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
+#binDetails { transition: none; }
+</style>
 
 <div class="content-header">
     <div class="container-fluid">
@@ -494,12 +499,6 @@ else{
   </div>
 </div>
 
-<style>
-.bin-type-btn { background:#fff; text-align:center; font-weight:600; }
-input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
-#binDetails { transition: none; }
-</style>
-
 <!-- Bin History Modal -->
 <div class="modal fade" id="binHistoryModal">
   <div class="modal-dialog modal-lg">
@@ -541,17 +540,21 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-gray-dark color-palette">
-        <h5 class="modal-title"><i class="fas fa-hashtag mr-2"></i>Running No — <span id="runningNoCustomerName"></span></h5>
+        <h5 class="modal-title"><i class="fas fa-hashtag mr-2"></i><?=$languageArray['running_no_code'][$language]?? 'Running No' ?> — <span id="runningNoCustomerName"></span></h5>
         <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="runningNoEntityId">
+        <div class="form-group">
+          <label><?=$languageArray['invoice_code'][$language] ?? 'Invoice Code' ?></label>
+          <input type="text" class="form-control" id="runningNoInvoiceCode" maxlength="10">
+        </div>
         <table class="table table-bordered table-sm">
           <thead>
             <tr>
-              <th>Status</th>
-              <th>Prefix</th>
-              <th>Next Value</th>
+              <th><?=$languageArray['status_code'][$language] ?? 'Status' ?></th>
+              <th><?=$languageArray['prefix_code'][$language] ?? 'Prefix' ?></th>
+              <th><?=$languageArray['next_value_code'][$language] ?? 'Next Value' ?></th>
             </tr>
           </thead>
           <tbody id="runningNoBody"></tbody>
@@ -569,14 +572,17 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 <script>
 
 var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
+var runningNoType = <?= (int)($runningNoType ?? 0) ?>;
 
   function openRunningNo(id, name) {
     $('#runningNoEntityId').val(id);
     $('#runningNoCustomerName').text(name);
+    $('#runningNoInvoiceCode').val('');
     $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
     $('#runningNoModal').modal('show');
     $.get('php/modules/customers/runningNo.php', { entity_id: id }, function(res) {
       var obj = JSON.parse(res);
+      $('#runningNoInvoiceCode').val(obj.invoice_code || '');
       var html = '';
       obj.data.forEach(function(row) {
         html += '<tr>'
@@ -604,7 +610,7 @@ var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false'
     $.ajax({
       url: 'php/modules/customers/runningNo.php',
       type: 'POST',
-      data: { entity_id: $('#runningNoEntityId').val(), rows: rows },
+      data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
       success: function(res) {
         var obj = JSON.parse(res);
         if (obj.status === 'success') {
@@ -699,7 +705,7 @@ $(function () {
               + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
               + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
                           + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
-              + '<button onclick="openRunningNo(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-secondary btn-sm"><i class="fas fa-hashtag"></i></button>'
+              + (runningNoType === 1 ? '<button onclick="openRunningNo(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-secondary btn-sm"><i class="fas fa-hashtag"></i></button>' : '')
               + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
               + '</div>';
           } else {

@@ -50,6 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     $stmt->close();
 
+    // Load invoice_code from customers table
+    $customerRow = ['invoice_code' => ''];
+    $stmt = $db->prepare("SELECT invoice_code FROM customers WHERE id = ? AND customer = ?");
+    $stmt->bind_param('ii', $entityId, $company);
+    $stmt->execute();
+    $customerRow = $stmt->get_result()->fetch_assoc() ?: $customerRow;
+    $stmt->close();
+
     // Merge
     foreach ($statuses as &$s) {
         if (isset($existing[$s['status']])) {
@@ -61,11 +69,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     }
 
-    echo json_encode(['status' => 'success', 'data' => $statuses]);
+    echo json_encode(['status' => 'success', 'data' => $statuses, 'invoice_code' => $customerRow['invoice_code'] ?? '']);
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $entityId = intval($_POST['entity_id']);
+    $invoiceCode = trim($_POST['invoice_code'] ?? '');
     $rows = $_POST['rows'] ?? [];
+
+    // Update invoice_code on customers table
+    $stmt = $db->prepare("UPDATE customers SET invoice_code = ? WHERE id = ? AND customer = ?");
+    $stmt->bind_param('sii', $invoiceCode, $entityId, $company);
+    $stmt->execute();
+    $stmt->close();
 
     foreach ($rows as $row) {
         $status = $row['transaction_status'];
