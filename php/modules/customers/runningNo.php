@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Load invoice_code from customers table
     $customerRow = ['invoice_code' => ''];
     $stmt = $db->prepare("SELECT invoice_code FROM customers WHERE id = ? AND customer = ?");
-    $stmt->bind_param('ii', $entityId, $company);
+    $stmt->bind_param('ss', $entityId, $company);
     $stmt->execute();
     $customerRow = $stmt->get_result()->fetch_assoc() ?: $customerRow;
     $stmt->close();
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // Update invoice_code on customers table
     $stmt = $db->prepare("UPDATE customers SET invoice_code = ? WHERE id = ? AND customer = ?");
-    $stmt->bind_param('sii', $invoiceCode, $entityId, $company);
+    $stmt->bind_param('sss', $invoiceCode, $entityId, $company);
     $stmt->execute();
     $stmt->close();
 

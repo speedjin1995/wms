@@ -36,6 +36,7 @@ else{
   while ($btRow = $binTypesResult->fetch_assoc()) { $binTypesArr[] = $btRow; }
 
   $includeInvoice = 'N';
+  $runningNoType = 0;
   if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
     $company_stmt->bind_param("i", $company);
     $company_stmt->execute();
