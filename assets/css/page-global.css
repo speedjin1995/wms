@@ -328,6 +328,28 @@
   color: #fff;
 }
 
+.page-modern .btn-action-success {
+  background: var(--page-success);
+  border: none;
+  color: #fff;
+}
+
+.page-modern .btn-action-success:hover {
+  background: #059669;
+  color: #fff;
+}
+
+.page-modern .btn-action-danger {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.page-modern .btn-action-danger:hover {
+  background: #fecaca;
+  color: #b91c1c;
+}
+
 .page-modern .btn-action-primary {
   background: var(--page-primary);
   border: none;
@@ -353,14 +375,88 @@
 /* ============================================
    DATA TABLE STYLING
    ============================================ */
+
 .page-modern .results-card .dataTables_wrapper {
   padding: 0;
 }
 
-/* Hide default DataTables controls */
+/* DataTables controls - hidden by default in page-modern, show with .show-dt-controls */
 .page-modern .results-card .dataTables_length,
 .page-modern .results-card .dataTables_filter {
   display: none;
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_wrapper > .row:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  margin: 0;
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_wrapper > .row:first-child > div {
+  flex: none;
+  width: auto !important;
+  max-width: none !important;
+  padding: 0;
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_length,
+.page-modern .results-card.show-dt-controls .dataTables_filter {
+  display: flex;
+  align-items: center;
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_length {
+  gap: 0.5rem;
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_length label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--page-text-secondary);
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_length select {
+  width: 70px;
+  height: 34px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_filter {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_filter label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--page-text-secondary);
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_filter input {
+  width: 200px;
+  height: 34px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+}
+
+.page-modern .results-card.show-dt-controls .dataTables_filter input:focus {
+  border-color: var(--page-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  outline: none;
 }
 
 /* Table */

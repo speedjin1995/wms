@@ -11,6 +11,7 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
+  $module = $_SESSION['module'];
   $states = $db->query("SELECT * FROM states ORDER BY states ASC");
   $states2 = $db->query("SELECT * FROM states ORDER BY states ASC");
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
@@ -28,59 +29,51 @@ else{
   $languageArray = $_SESSION['languageArray'];
   
   $includeInvoice = 'N';
+  $runningNoType = 0;
   if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
     $company_stmt->bind_param("i", $company);
     $company_stmt->execute();
     $company_result = $company_stmt->get_result();
     $rowCompany = mysqli_fetch_assoc($company_result);
     $includeInvoice = $rowCompany['include_invoice'];
+    $runningNoType = $rowCompany['running_no_type'];
   }
 }
 ?>
 
-<div class="content-header">
-  <div class="container-fluid">
-      <div class="row mb-2">
-    <div class="col-sm-6">
-      <h1 class="m-0 text-dark"><?=$languageArray['suppliers_code'][$language]?></h1>
-    </div><!-- /.col -->
-      </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
-</div><!-- /.content-header -->
+<div class="content-header" style="padding-bottom: 0;">
+    <div class="container-fluid">
+        <!-- Breadcrumb or minimal header can go here if needed -->
+    </div>
+</div>
 
 <!-- Main content -->
-<section class="content">
+<section class="content page-modern">
 	<div class="container-fluid">
-    <div class="row">
+        <div class="row">
 			<div class="col-12">
-				<div class="card">
+				<div class="card results-card show-dt-controls">
 					<div class="card-header">
-              <div class="row">
-                <div class="col-4"></div>
-                <div class="col-2">
-                  <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                    <?=$languageArray['delete_supplier_code'][$language]?>
-                  </button>
-                </div>
-                <div class="col-2">
-                  <a href="template/Supplier_Template.xlsx" download>
-                    <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                      <?=$languageArray['download_template_code'][$language]?>
-                    </button>
-                  </a>
-                </div>
-                <div class="col-2">
-                  <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                    <?=$languageArray['upload_excel_code'][$language]?>
-                  </button>
-                </div>
-                <div class="col-2">
-                    <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addSuppliers"><?=$languageArray['add_suppliers_code'][$language]?></button>
-                </div>
-              </div>
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-truck mr-2"></i><?=$languageArray['suppliers_code'][$language]?></h3>
+            </div>
+            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+              <a href="template/Supplier_Template.xlsx" download class="btn btn-action btn-action-warning">
+                <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
+              </a>
+              <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
+                <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
+              </button>
+              <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_supplier_code'][$language]?>
+              </button>
+              <button type="button" class="btn btn-action btn-action-primary" id="addSuppliers">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_suppliers_code'][$language]?>
+              </button>
+            </div>
           </div>
 					<div class="card-body">
-						<table id="supplierTable" class="table table-bordered table-striped">
+						<table id="supplierTable" class="table data-table">
 							<thead>
 								<tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
@@ -91,7 +84,7 @@ else{
 									<th><?=$languageArray['address_code'][$language]?></th>
 									<th><?=$languageArray['phone_code'][$language]?></th>
 									<th><?=$languageArray['pic_code'][$language]?></th>
-									<th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+								<th width="15%"><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
 						</table>
@@ -102,7 +95,7 @@ else{
 	</div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade" id="uploadModal">
+<div class="modal fade modal-modern" id="uploadModal">
   <div class="modal-dialog" style="max-width: 90vw">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -120,20 +113,18 @@ else{
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadSupplier"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadSupplier"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
-    <!-- /.modal-content -->
   </div>
-  <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="errorModal" style="display:none">
+<div class="modal fade modal-modern" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <form role="form" id="uploadForm">
+      <form role="form" id="errorForm">
           <div class="modal-header">
             <h4 class="modal-title"><?=$languageArray['error_log_code'][$language]?></h4>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -149,9 +140,7 @@ else{
           </div>
       </form>
     </div>
-    <!-- /.modal-content -->
   </div>
-  <!-- /.modal-dialog -->
 </div>
 
 <div class="modal fade modal-modern" id="addModal">
@@ -183,7 +172,7 @@ else{
 
             <!-- Basic Information -->
             <div class="modal-section">
-              <p class="section-title"><?=$languageArray['basic_information_code'][$language] ?? 'Basic Information'?></p>
+              <div class="section-title"><i class="fas fa-user mr-2"></i><?=$languageArray['basic_information_code'][$language] ?? 'Basic Information'?></div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
@@ -230,7 +219,7 @@ else{
 
             <!-- Delivery Address -->
             <div class="modal-section">
-              <p class="section-title"><?=$languageArray['delivery_address_code'][$language]?></p>
+              <div class="section-title"><i class="fas fa-map-marker-alt mr-2"></i><?=$languageArray['delivery_address_code'][$language]?></div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
@@ -380,9 +369,9 @@ else{
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="submit" class="btn btn-modern btn-modern-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -391,8 +380,104 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
+<div class="modal fade modal-modern" id="runningNoModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-hashtag mr-2"></i><?=$languageArray['running_no_code'][$language]?? 'Running No' ?> — <span id="runningNoSupplierName"></span></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="runningNoEntityId">
+        <div class="modal-section">
+          <div class="section-title"><i class="fas fa-tag mr-2"></i><?=$languageArray['invoice_code'][$language] ?? 'Invoice Code' ?></div>
+          <div class="form-group mb-0">
+            <input type="text" class="form-control" id="runningNoInvoiceCode" maxlength="50" placeholder="e.g. SUP-001">
+          </div>
+        </div>
+        <div class="modal-section">
+          <div class="section-title"><i class="fas fa-list-ol mr-2"></i><?=$languageArray['running_no_code'][$language] ?? 'Running Numbers' ?></div>
+          <table class="table table-bordered table-sm mb-0">
+          <thead>
+            <tr>
+              <th><?=$languageArray['status_code'][$language] ?? 'Status' ?></th>
+              <th><?=$languageArray['prefix_code'][$language] ?? 'Prefix' ?></th>
+              <th><?=$languageArray['next_value_code'][$language] ?? 'Next Value' ?></th>
+            </tr>
+          </thead>
+          <tbody id="runningNoBody"></tbody>
+          </table>
+          <div class="alert alert-light border mt-2 mb-0 py-2 px-3" style="font-size: 0.8125rem;">
+            <i class="fas fa-info-circle text-info mr-1"></i>
+            <strong><?=$languageArray['format_code'][$language] ?? 'Format' ?>:</strong> 
+            <code>[Prefix]-[Invoice Code]-[YYMM]/[Value]</code>
+            <br><small class="text-muted">e.g. IV-APL-2608/25001</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-modern btn-modern-primary" id="saveRunningNo"><?=$languageArray['submit_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- jQuery -->
 <script>
+
+var runningNoType = <?= (int)($runningNoType ?? 0) ?>;
+
+function openRunningNo(id, name) {
+  $('#runningNoEntityId').val(id);
+  $('#runningNoSupplierName').text(name);
+  $('#runningNoInvoiceCode').val('');
+  $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
+  $('#runningNoModal').modal('show');
+  $.get('php/modules/suppliers/runningNo.php', { entity_id: id }, function(res) {
+    var obj = JSON.parse(res);
+    $('#runningNoInvoiceCode').val(obj.invoice_code || '');
+    var html = '';
+    obj.data.forEach(function(row) {
+      html += '<tr>'
+        + '<td>' + row.status + '<input type="hidden" name="transaction_status" value="' + row.status + '"></td>'
+        + '<td><input type="text" class="form-control form-control-sm rn-prefix" value="' + row.saved_prefix + '" maxlength="10"></td>'
+        + '<td><input type="number" class="form-control form-control-sm rn-value" value="' + row.value + '" min="1"></td>'
+        + '</tr>';
+    });
+    $('#runningNoBody').html(html);
+  });
+}
+
+$('#saveRunningNo').on('click', function() {
+  var rows = [];
+  var valid = true;
+  $('#runningNoBody tr').each(function() {
+    var status = $(this).find('input[name="transaction_status"]').val();
+    var prefix = $(this).find('.rn-prefix').val().trim();
+    var value  = parseInt($(this).find('.rn-value').val());
+    if (!prefix || prefix.length > 10 || isNaN(value) || value < 1) { valid = false; return false; }
+    rows.push({ transaction_status: status, prefix: prefix, value: value });
+  });
+  if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
+  $('#spinnerLoading').show();
+  $.ajax({
+    url: 'php/modules/suppliers/runningNo.php',
+    type: 'POST',
+    data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
+    success: function(res) {
+      var obj = JSON.parse(res);
+      if (obj.status === 'success') {
+        $('#runningNoModal').modal('hide');
+        toastr["success"](obj.message, "Success:");
+      } else {
+        toastr["error"](obj.message, "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    }
+  });
+});
+
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
     var checkboxes = $('#supplierTable tbody input[type="checkbox"]');
@@ -437,7 +522,14 @@ $(function () {
       { 
           data: 'id',
           render: function ( data, type, row ) {
-              return '<div class="row"><div class="col-4"><button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-4"><button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+              var html = '<div style="display:flex;gap:4px;">'
+                + '<button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              if (runningNoType === 1) {
+                html += '<button onclick="openRunningNo(' + data + ', \'' + row.supplier_name.replace(/'/g, "\\'") + '\')" class="btn btn-secondary btn-sm"><i class="fas fa-hashtag"></i></button>';
+              }
+              html += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+                + '</div>';
+              return html;
           }
       }
     ],
