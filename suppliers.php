@@ -407,6 +407,12 @@ else{
           </thead>
           <tbody id="runningNoBody"></tbody>
           </table>
+          <div class="alert alert-light border mt-2 mb-0 py-2 px-3" style="font-size: 0.8125rem;">
+            <i class="fas fa-info-circle text-info mr-1"></i>
+            <strong><?=$languageArray['format_code'][$language] ?? 'Format' ?>:</strong> 
+            <code>[Invoice Code]-[Prefix]-[YYMM]/[Value]</code>
+            <br><small class="text-muted">e.g. IV-APL-2608/25001</small>
+          </div>
         </div>
       </div>
       <div class="modal-footer justify-content-between">
