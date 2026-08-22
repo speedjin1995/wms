@@ -339,6 +339,17 @@
   color: #fff;
 }
 
+.page-modern .btn-action-danger {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.page-modern .btn-action-danger:hover {
+  background: #fecaca;
+  color: #b91c1c;
+}
+
 .page-modern .btn-action-primary {
   background: var(--page-primary);
   border: none;

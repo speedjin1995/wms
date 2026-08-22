@@ -81,7 +81,7 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
               <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
                 <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
               </button>
-              <button type="button" id="multiDeactivate" class="btn btn-action" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">
+              <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
                 <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_customer_code'][$language]?>
               </button>
               <button type="button" class="btn btn-action btn-action-primary" id="addCustomers">
