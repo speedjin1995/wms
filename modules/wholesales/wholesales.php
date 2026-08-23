@@ -594,7 +594,7 @@ else{
                     <td></td>
                     <td></td>
                     <td class="font-weight-bold" id="totalWeightBeforeDiscount">0.00</td>
-                    <td></td>
+                    <td class="text-danger font-weight-bold" id="totalWeightDiscount">0.00</td>
                     <td class="text-success font-weight-bold" id="totalWeightPrice">0.00</td>
                     <?php } ?>
                     <td></td>
@@ -1701,10 +1701,15 @@ $(function () {
 
   $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
     var totalPrice = 0;
+    var totalDiscount = 0;
     $('#weightDetailsTable tr').each(function() {
-      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+      var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+      var total = parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+      totalPrice += total;
+      totalDiscount += (beforeDisc - total);
     });
     $('#totalWeightPrice').text(totalPrice.toFixed(2));
+    $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
   });
 
   $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
@@ -1983,6 +1988,7 @@ function format (row) {
       var totalWeightNet = 0;
       var totalWeightPrice = 0;
       var totalWeightBeforeDiscount = 0;
+      var totalWeightDiscount = 0;
       for (var i = 0; i < row.weightDetails.length; i++) {
         var detail = row.weightDetails[i];
         var discountDisplay = '';
@@ -2008,6 +2014,7 @@ function format (row) {
         totalWeightNet += parseFloat(detail.net);
         totalWeightPrice += parseFloat(detail.total);
         totalWeightBeforeDiscount += parseFloat(detail.before_discount) || 0;
+        totalWeightDiscount += (parseFloat(detail.before_discount) || 0) - parseFloat(detail.total);
       }
 
       returnString += `
@@ -2018,7 +2025,7 @@ function format (row) {
               <td class="text-right text-mono" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
               <td class="text-right text-mono" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
               <td class="text-right text-mono text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
-              ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono" id="footBeforeDiscount_' + row.id + '">' + totalWeightBeforeDiscount.toFixed(2) + '</td><td></td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
+              ${allowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono" id="footBeforeDiscount_' + row.id + '">' + totalWeightBeforeDiscount.toFixed(2) + '</td><td class="text-right text-mono text-danger" id="footDiscount_' + row.id + '">' + totalWeightDiscount.toFixed(2) + '</td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
               <td></td>
               ${allowPhoto == 'Y' ? '<td></td>' : ''}
             </tr>
@@ -2137,6 +2144,7 @@ function newEntry(){
   $('#extendModal').find('#totalWeightTare').text(0.00);
   $('#extendModal').find('#totalWeightNet').text(0.00);
   $('#extendModal').find('#totalWeightPrice').text(0.00);
+  $('#extendModal').find('#totalWeightDiscount').text(0.00);
   $('#extendModal').find('#totalRejectGross').text(0.00);
   $('#extendModal').find('#totalRejectTare').text(0.00);
   $('#extendModal').find('#totalRejectNet').text(0.00);
@@ -2387,6 +2395,7 @@ function edit(id) {
         $('#weightDetailsFooter').find('#totalWeightNet').text(totalNet.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightPrice').text(totalPrice.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightDiscount').text((totalBeforeDiscount - totalPrice).toFixed(2));
       }
       
       // Populate reject details table
@@ -2650,19 +2659,23 @@ function removeRejectDetail(button) {
 }
 
 function updateTotals() {
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0;
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
   $('#weightDetailsTable tr').each(function() {
     totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
     totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
     totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
     totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-    totalBeforeDiscount += parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    var total = parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+    totalBeforeDiscount += beforeDisc;
+    totalDiscount += (beforeDisc - total);
   });
   $('#totalWeightGross').text(totalGross.toFixed(2));
   $('#totalWeightTare').text(totalTare.toFixed(2));
   $('#totalWeightNet').text(totalNet.toFixed(2));
   $('#totalWeightPrice').text(totalPrice.toFixed(2));
   $('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
+  $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
   
   var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0, totalRejectBeforeDiscount = 0;
   $('#rejectDetailsTable tr').each(function() {
@@ -2740,7 +2753,7 @@ function filterWeightTable(rowId) {
   var productFilter = $('#productFilter_' + rowId).val();
   var gradeFilter = $('#gradeFilter_' + rowId).val();
 
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0;
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
 
   $('#weightTable_' + rowId + ' tbody tr').each(function() {
     var product = $(this).find('td:eq(0)').text().trim();
@@ -2754,13 +2767,21 @@ function filterWeightTable(rowId) {
       totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
       totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
       totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
-      totalPrice += parseFloat($(this).find('td:eq(7)').text()) || 0;
+      if (allowPrice == 'Y') {
+        var beforeDisc = parseFloat($(this).find('td:eq(7)').text()) || 0;
+        var total = parseFloat($(this).find('td:eq(9)').text()) || 0;
+        totalBeforeDiscount += beforeDisc;
+        totalPrice += total;
+        totalDiscount += (beforeDisc - total);
+      }
     }
   });
 
   $('#footGross_' + rowId).text(totalGross.toFixed(2));
   $('#footTare_'  + rowId).text(totalTare.toFixed(2));
   $('#footNet_'   + rowId).text(totalNet.toFixed(2));
+  $('#footBeforeDiscount_' + rowId).text(totalBeforeDiscount.toFixed(2));
+  $('#footDiscount_' + rowId).text(totalDiscount.toFixed(2));
   $('#footPrice_' + rowId).text(totalPrice.toFixed(2));
 
   var gradeSelect = $('#gradeFilter_' + rowId);
