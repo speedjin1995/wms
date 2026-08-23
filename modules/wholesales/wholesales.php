@@ -1703,10 +1703,15 @@ $(function () {
     var totalPrice = 0;
     var totalDiscount = 0;
     $('#weightDetailsTable tr').each(function() {
+      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+      var discType = $(this).find('select[name*="[discount_type]"]').val();
+      var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
       var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-      var total = parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-      totalPrice += total;
-      totalDiscount += (beforeDisc - total);
+      if (discType === 'percent') {
+        totalDiscount += beforeDisc * discVal / 100;
+      } else {
+        totalDiscount += discVal;
+      }
     });
     $('#totalWeightPrice').text(totalPrice.toFixed(2));
     $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
@@ -1992,9 +1997,17 @@ function format (row) {
       for (var i = 0; i < row.weightDetails.length; i++) {
         var detail = row.weightDetails[i];
         var discountDisplay = '';
+        var discountAmount = 0;
         if (allowPrice == 'Y') {
           var discVal = parseFloat(detail.discount) || 0;
-          discountDisplay = detail.discount_type === 'percent' ? discVal.toFixed(2) + '%' : discVal.toFixed(2);
+          var beforeDisc = parseFloat(detail.before_discount) || 0;
+          if (detail.discount_type === 'percent') {
+            discountDisplay = discVal.toFixed(2) + '%';
+            discountAmount = beforeDisc * discVal / 100;
+          } else {
+            discountDisplay = discVal.toFixed(2);
+            discountAmount = discVal;
+          }
         }
         
         returnString += `
@@ -2014,7 +2027,7 @@ function format (row) {
         totalWeightNet += parseFloat(detail.net);
         totalWeightPrice += parseFloat(detail.total);
         totalWeightBeforeDiscount += parseFloat(detail.before_discount) || 0;
-        totalWeightDiscount += (parseFloat(detail.before_discount) || 0) - parseFloat(detail.total);
+        totalWeightDiscount += discountAmount;
       }
 
       returnString += `
@@ -2271,6 +2284,7 @@ function edit(id) {
         var totalNet = 0;
         var totalPrice = 0;
         var totalBeforeDiscount = 0;
+        var totalDiscount = 0;
 
         for(var i = 0; i < obj.message.weightDetails.length; i++) {
           var detail = obj.message.weightDetails[i];
@@ -2388,6 +2402,13 @@ function edit(id) {
           totalNet += parseFloat(detail.net) || 0;
           totalPrice += parseFloat(detail.total) || 0;
           totalBeforeDiscount += parseFloat(detail.before_discount) || 0;
+          var discVal = parseFloat(detail.discount) || 0;
+          var beforeDisc = parseFloat(detail.before_discount) || 0;
+          if (detail.discount_type === 'percent') {
+            totalDiscount += beforeDisc * discVal / 100;
+          } else {
+            totalDiscount += discVal;
+          }
         }
 
         $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
@@ -2395,7 +2416,7 @@ function edit(id) {
         $('#weightDetailsFooter').find('#totalWeightNet').text(totalNet.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightPrice').text(totalPrice.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightDiscount').text((totalBeforeDiscount - totalPrice).toFixed(2));
+        $('#weightDetailsFooter').find('#totalWeightDiscount').text(totalDiscount.toFixed(2));
       }
       
       // Populate reject details table
@@ -2665,10 +2686,15 @@ function updateTotals() {
     totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
     totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
     totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+    totalBeforeDiscount += parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    var discType = $(this).find('select[name*="[discount_type]"]').val();
+    var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
     var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-    var total = parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-    totalBeforeDiscount += beforeDisc;
-    totalDiscount += (beforeDisc - total);
+    if (discType === 'percent') {
+      totalDiscount += beforeDisc * discVal / 100;
+    } else {
+      totalDiscount += discVal;
+    }
   });
   $('#totalWeightGross').text(totalGross.toFixed(2));
   $('#totalWeightTare').text(totalTare.toFixed(2));
@@ -2768,11 +2794,9 @@ function filterWeightTable(rowId) {
       totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
       totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
       if (allowPrice == 'Y') {
-        var beforeDisc = parseFloat($(this).find('td:eq(7)').text()) || 0;
-        var total = parseFloat($(this).find('td:eq(9)').text()) || 0;
-        totalBeforeDiscount += beforeDisc;
-        totalPrice += total;
-        totalDiscount += (beforeDisc - total);
+        totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
+        totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
+        totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
       }
     }
   });
