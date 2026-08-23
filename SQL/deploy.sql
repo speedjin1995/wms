@@ -3169,3 +3169,5 @@ END
 $$
 DELIMITER ;
 
+-- 23/08/2026 --
+ALTER TABLE `users` ADD `allow_price` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `allow_delete`;

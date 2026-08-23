@@ -53,6 +53,7 @@
               <th><?=$languageArray['allow_add_code'][$language]?></th>
               <th><?=$languageArray['allow_edit_code'][$language]?></th>
               <th><?=$languageArray['allow_delete_code'][$language]?></th>
+              <th><?=$languageArray['allow_price_code'][$language]?></th>
               <th><?=$languageArray['locations_code'][$language]?></th>
               <th><?=$languageArray['created_date_code'][$language]?></th>
               <th><?=$languageArray['actions_code'][$language]?></th>
@@ -149,6 +150,15 @@
                   </select>
                 </div>
               </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['allow_price_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control" id="allowPrice" name="allowPrice" required>
+                    <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+                    <option value="N"><?=$languageArray['no_code'][$language]?></option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -224,6 +234,14 @@ $(document).ready(function() {
             : '<span class="badge badge-secondary">NO</span>';
         }
       },
+      { 
+        data: 'allow_price',
+        render: function(data) {
+          return data === 'YES' 
+            ? '<span class="badge badge-success">YES</span>' 
+            : '<span class="badge badge-secondary">NO</span>';
+        }
+      },
       { data: 'location' },
       { data: 'created_date' },
       { 
@@ -292,6 +310,7 @@ function edit(id) {
       $('#addModal').find('#allowAdd').val(obj.message.allow_add);
       $('#addModal').find('#allowEdit').val(obj.message.allow_edit);
       $('#addModal').find('#allowDelete').val(obj.message.allow_delete);
+      $('#addModal').find('#allowPrice').val(obj.message.allow_price);
       $('#addModal').find('#location').val(obj.message.location).trigger('change');
       $('#addModal').modal('show');
       initValidation();

@@ -35,7 +35,7 @@ $records = mysqli_fetch_assoc($sel);
 $totalRecordwithFilter = $records['allcount'];
 
 ## Fetch records
-$empQuery = "select users.id, users.username, users.name, users.created_date, users.created_by, users.allow_add, users.allow_edit, users.allow_delete, roles.role_name, companies.name AS company, locations.locations AS location from users LEFT JOIN roles ON users.role_code = roles.role_code LEFT JOIN companies ON users.customer = companies.id LEFT JOIN locations ON users.location = locations.id WHERE users.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
+$empQuery = "select users.id, users.username, users.name, users.created_date, users.created_by, users.allow_add, users.allow_edit, users.allow_delete, users.allow_price, roles.role_name, companies.name AS company, locations.locations AS location from users LEFT JOIN roles ON users.role_code = roles.role_code LEFT JOIN companies ON users.customer = companies.id LEFT JOIN locations ON users.location = locations.id WHERE users.deleted = '0'".$searchQuery." order by ".$columnName." ".$columnSortOrder." limit ".$row.",".$rowperpage;
 $empRecords = mysqli_query($db, $empQuery);
 $data = array();
 
@@ -55,6 +55,7 @@ while($row = mysqli_fetch_assoc($empRecords)) {
       "allow_add"=> ($row['allow_add'] == 'Y') ? 'YES' : 'NO',
       "allow_edit"=> ($row['allow_edit'] == 'Y') ? 'YES' : 'NO',
       "allow_delete"=> ($row['allow_delete'] == 'Y') ? 'YES' : 'NO',
+      "allow_price"=> ($row['allow_price'] == 'Y') ? 'YES' : 'NO',
       "company"=>$row['company'],
       "location"=>$row['location'],
       "created_date"=>$joined_date
