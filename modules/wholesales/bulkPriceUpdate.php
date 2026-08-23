@@ -118,8 +118,8 @@ else{
           </div>
 
           <!-- Customer (shown for DISPATCH) -->
-          <div class="col-md-2 form-group" id="customerFilterGroup">
-            <label><?=$languageArray['customer_code'][$language] ?? 'Customer'?> <span class="text-danger">*</span></label>
+          <div class="filter-group" id="customerFilterGroup">
+            <label class="filter-label"><?=$languageArray['customer_code'][$language] ?? 'Customer'?></label>
             <select class="form-control select2-filter" id="customerFilter">
               <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
               <?php while($c = mysqli_fetch_assoc($customers)){ ?>
@@ -129,8 +129,8 @@ else{
           </div>
 
           <!-- Supplier (shown for RECEIVING) -->
-          <div class="col-md-2 form-group" id="supplierFilterGroup" style="display:none;">
-            <label><?=$languageArray['supplier_code'][$language] ?? 'Supplier'?> <span class="text-danger">*</span></label>
+          <div class="filter-group" id="supplierFilterGroup" style="display:none;">
+            <label class="filter-label"><?=$languageArray['supplier_code'][$language] ?? 'Supplier'?></label>
             <select class="form-control select2-filter" id="supplierFilter">
               <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
               <?php while($s = mysqli_fetch_assoc($suppliers)){ ?>
@@ -159,8 +159,8 @@ else{
           </div>
 
           <!-- Search Button -->
-          <div class="col-md-2 form-group d-flex align-items-end">
-            <button type="button" class="btn custom-search-btn" id="filterSearch">
+          <div class="filter-group filter-group-action">
+            <button type="button" class="btn btn-filter btn-filter-primary" id="bulkFilterSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
             </button>
           </div>
@@ -347,7 +347,7 @@ else{
 
 <script>
 // Variables
-var table;
+var bulkTable;
 var colProduct  = '<?=$languageArray["product_code"][$language]?>';
 var colGrade    = '<?=$languageArray["grade_code"][$language]?>';
 var colNet      = '<?=$languageArray["net_code"][$language]?>';
@@ -416,34 +416,14 @@ $(function() {
     }
   });
 
-  $('#filterSearch').on('click', function() {
-    var status = $('#transactionStatusFilter').val();
-    if (status !== 'RECEIVING' && !$('#customerFilter').val()) {
-      toastr["error"]("Please select a customer.", "Validation Error:");
-      return;
-    }
-    if (status === 'RECEIVING' && !$('#supplierFilter').val()) {
-      toastr["error"]("Please select a supplier.", "Validation Error:");
-      return;
-    }
-    if (table) { table.clear().destroy(); }
-    table = buildTable();
-  });
-
-  $(document).on('init.dt draw.dt', '#weightTable', function() {
-    if (!table) return;
-    var info = table.page.info();
-    var hasRecords = info.recordsTotal > 0;
-    $('#resultsCard').show();
-    $('#weightTable').toggle(hasRecords);
-    $('#emptyState').toggle(!hasRecords);
-    $('#resultCount').text(info.recordsTotal);
-    $('#btnOpenBulkPrice').prop('disabled', !hasRecords);
+  $('#bulkFilterSearch').on('click', function() {
+    if (bulkTable) { bulkTable.clear().destroy(); }
+    bulkTable = buildTable();
   });
 
   $('#weightTable').on('click', '.expand-icon', function() {
     var tr = $(this).closest('tr');
-    var row = table.row(tr);
+    var row = bulkTable.row(tr);
     if (row.child.isShown()) {
       row.child.hide();
       $(this).removeClass('expanded').find('i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
@@ -522,6 +502,15 @@ function buildTable(){
     'serverSide': true,
     'serverMethod': 'post',
     'order': [[2, 'asc']],
+    'drawCallback': function(settings) {
+      var info = this.api().page.info();
+      var hasRecords = info.recordsTotal > 0;
+      $('#resultsCard').show();
+      $('#weightTable').toggle(hasRecords);
+      $('#emptyState').toggle(!hasRecords);
+      $('#resultCount').text(info.recordsTotal);
+      $('#btnOpenBulkPrice').prop('disabled', !hasRecords);
+    },
     'ajax': {
       'url': 'php/modules/wholesales/bulkPriceUpdate/filterBulkPrice.php',
       'data': {
@@ -658,8 +647,8 @@ function confirmBulkUpdate() {
     if (obj.status === 'success') {
       $('#bulkPriceModal').modal('hide');
       toastr["success"](obj.message, "Success:");
-      table.clear().destroy();
-      table = buildTable();
+      bulkTable.clear().destroy();
+      bulkTable = buildTable();
     } else {
       toastr["error"](obj.message, "Failed:");
     }
