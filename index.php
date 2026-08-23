@@ -1,5 +1,6 @@
 <?php
 require_once 'php/db_connect.php';
+require_once 'php/lookup.php';
 
 session_start();
 
@@ -14,6 +15,12 @@ else{
   $packages = $_SESSION['packages'] ?? [];
   $products = $_SESSION['products'] ?? [];
   $enableDailySales = $_SESSION['enableDailySales'];
+
+  // Company Detail
+  $companyDetail = searchCompanyById($company, $db);
+  $allowPrice = $companyDetail['include_price'];
+
+  // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -494,7 +501,7 @@ to get the desired effect
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
               </li>
-              <?php if ($userAllowPrice == 'Y') { ?>
+              <?php if ($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                 <li class="nav-item">
                   <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
                     <i class="nav-icon fas fa-tags"></i>
@@ -537,7 +544,7 @@ to get the desired effect
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
               </li>
-                <?php if ($userAllowPrice == 'Y') { ?>
+                <?php if ($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                 <li class="nav-item">
                   <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
                     <i class="nav-icon fas fa-tags"></i>
