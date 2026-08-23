@@ -27,6 +27,17 @@ function groupWeightDetails($weightDetails) {
 }
 
 if(isset($_POST['status'], $_POST['startTime'])){
+    // Company Data
+    $runningNoType = 0;
+    if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
+        $company_stmt->bind_param("s", $_SESSION['customer']);
+        $company_stmt->execute();
+        $result = $company_stmt->get_result();
+        $companyData = $result->fetch_assoc();
+        $company_stmt->close();
+        $runningNoType = $companyData['running_no_type'] ?? 0;
+    }
+
     $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_STRING);
     $startTime = filter_input(INPUT_POST, 'startTime', FILTER_SANITIZE_STRING);
     $doPoNo = null;
@@ -48,6 +59,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
     $company = $_SESSION['customer'];
     $indicator = 'web';
 	$recordType = 'wholesales';
+    $module = 'wholesale';
     $serialNo = null;
     $location = null;
     $remarks = null;
@@ -61,6 +73,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
     $startDateTime3 = $startDateTimeObj->format("Y-m-d H:i:s");
     $currentDateTimeObj = new DateTime();
 	$year = $currentDateTimeObj->format("y");
+	$yearMonth = $currentDateTimeObj->format("ym");
 
     if(isset($_POST['endTime']) && $_POST['endTime'] != null && $_POST['endTime'] != ''){
         $endTime = $_POST['endTime'];
@@ -70,46 +83,13 @@ if(isset($_POST['status'], $_POST['startTime'])){
 
     if(isset($_POST['recordType']) && $_POST['recordType'] != null && $_POST['recordType'] != ''){
 		$recordType = $_POST['recordType'];
-	}
 
-    if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
-		$doPoNo = $_POST['doPoNo'];
-	}else{
-        $doPoNo = $year;
-
-        if ($select_stmt2 = $db->prepare("SELECT * FROM running_no_setup WHERE module = ? AND company_id = ? AND transaction_status = ?")) {
-            $select_stmt2->bind_param('sss', $recordType, $company, $status);
-            
-            // Execute the prepared query.
-            if (! $select_stmt2->execute()) {
-                echo json_encode(
-                    array(
-                        "status" => "failed",
-                        "message" => "Failed to get latest count"
-                    )); 
-            }
-            else{
-                $result2 = $select_stmt2->get_result();
-                $count = 1;
-                
-                if ($row = $result2->fetch_assoc()) {
-                    $doPoNo = $row['name'].$doPoNo;
-                    $count = (int)$row['value'];
-                    $curval = $count;
-                }
-
-                $charSize = strlen(strval($count));
-
-                for($i=0; $i<(6-(int)$charSize); $i++){
-                    $doPoNo.='0';  // S000000
-                }
-        
-                $doPoNo .= strval($count);  //S0000009
-            }
+        if ($recordType == 'wholesales'){
+            $module = 'wholesale';
+        }else{
+            $module = $_POST['recordType'];
         }
-        
-        $select_stmt2->close();
-    }
+	}
 
     if(isset($_POST['securityBillNo']) && $_POST['securityBillNo'] != null && $_POST['securityBillNo'] != ''){
 		$securityBillNo = $_POST['securityBillNo'];
@@ -130,6 +110,117 @@ if(isset($_POST['status'], $_POST['startTime'])){
     if(isset($_POST['supplierOther']) && $_POST['supplierOther'] != null && $_POST['supplierOther'] != ''){
 		$supplierOther = $_POST['supplierOther'];
 	}
+
+    if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
+        $doPoNo = $_POST['doPoNo'];
+    }else{
+        if ($runningNoType == 1){
+            if ($status == 'RECEIVING' || $status == 'INCOMING') {
+                // Use Supplier table
+                $entityId = $_POST['supplier']; // supplier ID from form
+                $entityType = 'Supplier';
+                $entityTable = 'supplies';
+                $invoiceCodeField = 'invoice_code';
+            } else {
+                // Use Customer table
+                $entityId = $_POST['customer']; // customer ID from form
+                $entityType = 'Customer';
+                $entityTable = 'customers';
+                $invoiceCodeField = 'invoice_code';
+            }
+            
+            // Get prefix and value from running_no_entity table
+            $runningNoPrefix = '';
+            $curval = 1;
+            $invoiceCode = '';
+            $runningNoEntityExists = false;
+            $stmt = $db->prepare("SELECT prefix, value FROM running_no_entity WHERE company_id = ? AND module = ? AND entity_id = ? AND transaction_status = ?");
+            $stmt->bind_param('ssis', $company, $module, $entityId, $status);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $runningNoPrefix = $row['prefix'];
+                $curval = (int)$row['value'];
+                $runningNoEntityExists = true;
+                
+                // Get invoice_code from entity table
+                $stmt2 = $db->prepare("SELECT invoice_code FROM $entityTable WHERE id = ? AND customer = ?");
+                $stmt2->bind_param('ii', $entityId, $company);
+                $stmt2->execute();
+                $res2 = $stmt2->get_result();
+                if ($r2 = $res2->fetch_assoc()) {
+                    $invoiceCode = $r2['invoice_code'] ?? '';
+                }
+                $stmt2->close();
+            } else {
+                // Fallback: get default prefix from statuses table
+                $stmt2 = $db->prepare("SELECT prefix FROM statuses WHERE module = ? AND status = ? AND entity_type = ?");
+                $stmt2->bind_param('sss', $module, $status, $entityType);
+                $stmt2->execute();
+                $res2 = $stmt2->get_result();
+                if ($r2 = $res2->fetch_assoc()) {
+                    $runningNoPrefix = $r2['prefix'];
+                }
+                $stmt2->close();
+                
+                // Fallback: get customer_code or supplier_code if invoice_code is empty
+                $codeField = ($entityType == 'Supplier') ? 'supplier_code' : 'customer_code';
+                $stmt3 = $db->prepare("SELECT invoice_code, $codeField FROM $entityTable WHERE id = ? AND customer = ?");
+                $stmt3->bind_param('ii', $entityId, $company);
+                $stmt3->execute();
+                $res3 = $stmt3->get_result();
+                if ($r3 = $res3->fetch_assoc()) {
+                    $invoiceCode = !empty($r3['invoice_code']) ? $r3['invoice_code'] : ($r3[$codeField] ?? '');
+                }
+                $stmt3->close();
+            }
+            $stmt->close();
+            
+            // Build doPoNo: [Prefix]-[Invoice Code]-[YYMM]/[Value]
+            // e.g. D-INV-2506/001
+            $paddedValue = str_pad($curval, 3, '0', STR_PAD_LEFT); // 001, 002, etc.
+            
+            if (!empty($invoiceCode)) {
+                $doPoNo = $runningNoPrefix . '-' . $invoiceCode . '-' . $yearMonth . '/' . $paddedValue;
+            } else {
+                // Fallback if no invoice code set
+                $doPoNo = $runningNoPrefix . '-' . $yearMonth . '/' . $paddedValue;
+            }
+        } else {
+            // Original logic for runningNoType != 1
+            $doPoNo = $year;
+            if ($select_stmt2 = $db->prepare("SELECT * FROM running_no_setup WHERE module = ? AND company_id = ? AND transaction_status = ?")) {
+                $select_stmt2->bind_param('sss', $recordType, $company, $status);
+                
+                if (! $select_stmt2->execute()) {
+                    echo json_encode(
+                        array(
+                            "status" => "failed",
+                            "message" => "Failed to get latest count"
+                        )); 
+                } else {
+                    $result2 = $select_stmt2->get_result();
+                    $count = 1;
+                    
+                    if ($row = $result2->fetch_assoc()) {
+                        $doPoNo = $row['name'].$doPoNo;
+                        $count = (int)$row['value'];
+                        $curval = $count;
+                    }
+
+                    $charSize = strlen(strval($count));
+
+                    for($i=0; $i<(6-(int)$charSize); $i++){
+                        $doPoNo.='0';
+                    }
+            
+                    $doPoNo .= strval($count);
+                }
+            }
+            
+            $select_stmt2->close();
+        }
+    }
 
     if(isset($_POST['vehicle']) && $_POST['vehicle'] != null && $_POST['vehicle'] != ''){
         if ($_POST['vehicle'] == 'UNKNOWN' || $_POST['vehicle'] == 'OTHERS'){
@@ -190,6 +281,9 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'unit' => $weightDetail['unit'] ?? '',
                 'package' => $weightDetail['package'] ?? '',
                 'total' => $weightDetail['total'] ?? '',
+                'before_discount' => $weightDetail['before_discount'] ?? '',
+                'discount' => $weightDetail['discount'] ?? '0',
+                'discount_type' => $weightDetail['discount_type'] ?? 'fixed',
                 'fixedfloat' => $weightDetail['fixedfloat'] ?? '',
                 'time' => $weightDetail['time'] ?? '',
                 'grade' => $weightDetail['grade'] ?? '',
@@ -241,6 +335,9 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'unit' => $rejectDetail['unit'] ?? '',
                 'package' => $rejectDetail['package'] ?? '',
                 'total' => $rejectDetail['total'] ?? '',
+                'before_discount' => $rejectDetail['before_discount'] ?? '',
+                'discount' => $rejectDetail['discount'] ?? '0',
+                'discount_type' => $rejectDetail['discount_type'] ?? 'fixed',
                 'fixedfloat' => $rejectDetail['fixedfloat'] ?? '',
                 'time' => $rejectDetail['time'] ?? '',
                 'grade' => $rejectDetail['grade'] ?? '',
@@ -499,14 +596,38 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 }
 
                 if(!isset($_POST['doPoNo']) || $_POST['doPoNo'] == null || $_POST['doPoNo'] == ''){
-					$curval = $curval + 1;
-					$curval = strval($curval);
-					$stmtUS = $db->prepare("UPDATE running_no_setup SET value = ? WHERE module = ? AND company_id = ? AND transaction_status = ?");
-					$stmtUS->bind_param('ssss', $curval, $recordType, $company, $status);
-					$stmtUS->execute();
-					$stmtUS->close();
-				}
-
+                    $curval = $curval + 1;
+                    $curval = strval($curval);
+                    
+                    if($runningNoType == 1){
+                        if($runningNoEntityExists){
+                            // Update existing running_no_entity record
+                            $stmtUS = $db->prepare("UPDATE running_no_entity SET value = ? WHERE company_id = ? AND module = ? AND entity_id = ? AND transaction_status = ?");
+                            $stmtUS->bind_param('sssis', $curval, $company, $module, $entityId, $status);
+                            $stmtUS->execute();
+                            $stmtUS->close();
+                        } else {
+                            // Insert new running_no_entity record with prefix from statuses table
+                            $stmtUS = $db->prepare("INSERT INTO running_no_entity (company_id, module, transaction_status, entity_id, prefix, value) VALUES (?, ?, ?, ?, ?, ?)");
+                            $stmtUS->bind_param('sssiss', $company, $module, $status, $entityId, $runningNoPrefix, $curval);
+                            $stmtUS->execute();
+                            $stmtUS->close();
+                            
+                            // Update entity table invoice_code to customer_code/supplier_code
+                            $codeField = ($entityType == 'Supplier') ? 'supplier_code' : 'customer_code';
+                            $stmtUE = $db->prepare("UPDATE $entityTable SET invoice_code = $codeField WHERE id = ? AND customer = ? AND (invoice_code IS NULL OR invoice_code = '')");
+                            $stmtUE->bind_param('is', $entityId, $company);
+                            $stmtUE->execute();
+                            $stmtUE->close();
+                        }
+                    } else {
+                        // Update running_no_setup table (original logic)
+                        $stmtUS = $db->prepare("UPDATE running_no_setup SET value = ? WHERE module = ? AND company_id = ? AND transaction_status = ?");
+                        $stmtUS->bind_param('ssss', $curval, $recordType, $company, $status);
+                        $stmtUS->execute();
+                        $stmtUS->close();
+                    }
+                }
                 $db->close();
                 
                 echo json_encode(

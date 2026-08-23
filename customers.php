@@ -12,6 +12,7 @@ if (!isset($_SESSION['userID'])) {
   $role = $_SESSION['role'];
   $products = $_SESSION['products'];
   $includeInvoice = 'N';
+  $module = $_SESSION['module'];
   $states = $db->query("SELECT * FROM states ORDER BY states ASC");
   $states2 = $db->query("SELECT * FROM states ORDER BY states ASC");
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
@@ -37,17 +38,22 @@ if (!isset($_SESSION['userID'])) {
   }
 
   $includeInvoice = 'N';
-
+  $runningNoType = 0;
   if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
     $company_stmt->bind_param("i", $company);
     $company_stmt->execute();
     $company_result = $company_stmt->get_result();
     $rowCompany = mysqli_fetch_assoc($company_result);
     $includeInvoice = $rowCompany['include_invoice'];
+    $runningNoType = $rowCompany['running_no_type'];
   }
 }
 ?>
-<link rel="stylesheet" href="assets/css/modal-global.css">
+<style>
+.bin-type-btn { background:#fff; text-align:center; font-weight:600; }
+input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
+#binDetails { transition: none; }
+</style>
 
 <div class="content-header custom-title-content-box">
   <div class="container-fluid">
@@ -58,7 +64,6 @@ if (!isset($_SESSION['userID'])) {
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
 </div>
-<!-- /.content-header -->
 
 <!-- Main content -->
 <section class="content custom-table-content">
@@ -109,7 +114,7 @@ if (!isset($_SESSION['userID'])) {
   </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade" id="uploadModal">
+<div class="modal fade modal-modern" id="uploadModal">
   <div class="modal-dialog" style="max-width: 90vw">
     <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
@@ -137,7 +142,7 @@ if (!isset($_SESSION['userID'])) {
   </div><!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="errorModal" style="display:none">
+<div class="modal fade modal-modern" id="errorModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content custom-model-content-box">
       <form role="form" id="uploadForm">
@@ -389,7 +394,7 @@ if (!isset($_SESSION['userID'])) {
 </div>
 
 <!-- Bin Modal -->
-<div class="modal fade" id="binModal">
+<div class="modal fade modal-modern" id="binModal">
   <div class="modal-dialog">
     <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
       <form id="binForm">
@@ -478,14 +483,8 @@ if (!isset($_SESSION['userID'])) {
   </div>
 </div>
 
-<style>
-.bin-type-btn { background:#fff; text-align:center; font-weight:600; }
-input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; background:#fff8f5; color:#fda085; }
-#binDetails { transition: none; }
-</style>
-
 <!-- Bin History Modal -->
-<div class="modal fade" id="binHistoryModal">
+<div class="modal fade modal-modern" id="binHistoryModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="border-radius:12px; overflow:hidden; border:none;">
       <div class="modal-header" style="background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); border:none;">
@@ -521,10 +520,104 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
   </div>
 </div>
 
+<div class="modal fade modal-modern" id="runningNoModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-hashtag mr-2"></i><?=$languageArray['running_no_code'][$language]?? 'Running No' ?> — <span id="runningNoCustomerName"></span></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="runningNoEntityId">
+        <div class="modal-section">
+          <div class="section-title"><i class="fas fa-tag mr-2"></i><?=$languageArray['invoice_code'][$language] ?? 'Invoice Code' ?></div>
+          <div class="form-group mb-0">
+            <input type="text" class="form-control" id="runningNoInvoiceCode" maxlength="50" placeholder="e.g. CUST-001">
+          </div>
+        </div>
+        <div class="modal-section">
+          <div class="section-title"><i class="fas fa-list-ol mr-2"></i><?=$languageArray['running_no_code'][$language] ?? 'Running Numbers' ?></div>
+          <table class="table table-bordered table-sm mb-0">
+          <thead>
+            <tr>
+              <th><?=$languageArray['status_code'][$language] ?? 'Status' ?></th>
+              <th><?=$languageArray['prefix_code'][$language] ?? 'Prefix' ?></th>
+              <th><?=$languageArray['next_value_code'][$language] ?? 'Next Value' ?></th>
+            </tr>
+          </thead>
+          <tbody id="runningNoBody"></tbody>
+          </table>
+          <div class="alert alert-light border mt-2 mb-0 py-2 px-3" style="font-size: 0.8125rem;">
+            <i class="fas fa-info-circle text-info mr-1"></i>
+            <strong><?=$languageArray['format_code'][$language] ?? 'Format' ?>:</strong> 
+            <code>[Prefix]-[Invoice Code]-[YYMM]/[Value]</code>
+            <br><small class="text-muted">e.g. IV-APL-2608/25001</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-modern btn-modern-primary" id="saveRunningNo"><?=$languageArray['submit_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- jQuery -->
 <script>
 
 var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
+var runningNoType = <?= (int)($runningNoType ?? 0) ?>;
+
+  function openRunningNo(id, name) {
+    $('#runningNoEntityId').val(id);
+    $('#runningNoCustomerName').text(name);
+    $('#runningNoInvoiceCode').val('');
+    $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
+    $('#runningNoModal').modal('show');
+    $.get('php/modules/customers/runningNo.php', { entity_id: id }, function(res) {
+      var obj = JSON.parse(res);
+      $('#runningNoInvoiceCode').val(obj.invoice_code || '');
+      var html = '';
+      obj.data.forEach(function(row) {
+        html += '<tr>'
+          + '<td>' + row.status + '<input type="hidden" name="transaction_status" value="' + row.status + '"></td>'
+          + '<td><input type="text" class="form-control form-control-sm rn-prefix" value="' + row.saved_prefix + '" maxlength="10"></td>'
+          + '<td><input type="number" class="form-control form-control-sm rn-value" value="' + row.value + '" min="1"></td>'
+          + '</tr>';
+      });
+      $('#runningNoBody').html(html);
+    });
+  }
+
+  $('#saveRunningNo').on('click', function() {
+    var rows = [];
+    var valid = true;
+    $('#runningNoBody tr').each(function() {
+      var status = $(this).find('input[name="transaction_status"]').val();
+      var prefix = $(this).find('.rn-prefix').val().trim();
+      var value  = parseInt($(this).find('.rn-value').val());
+      if (!prefix || prefix.length > 10 || isNaN(value) || value < 1) { valid = false; return false; }
+      rows.push({ transaction_status: status, prefix: prefix, value: value });
+    });
+    if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
+    $('#spinnerLoading').show();
+    $.ajax({
+      url: 'php/modules/customers/runningNo.php',
+      type: 'POST',
+      data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
+      success: function(res) {
+        var obj = JSON.parse(res);
+        if (obj.status === 'success') {
+          $('#runningNoModal').modal('hide');
+          toastr["success"](obj.message, "Success:");
+        } else {
+          toastr["error"](obj.message, "Failed:");
+        }
+        $('#spinnerLoading').hide();
+      }
+    });
+  });
 var binTypeNames = <?= json_encode(array_column($binTypesArr, 'bin_type', 'id')) ?>;
 
 $(function () {
@@ -607,6 +700,7 @@ $(function () {
               + '<button onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
               + (hasBasket ? '<button onclick="openBinModal(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-warning btn-sm"><i class="fas fa-shopping-basket"></i></button>'
                           + '<button onclick="openBinHistory(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-info btn-sm"><i class="fas fa-history"></i></button>' : '')
+              + (runningNoType === 1 ? '<button onclick="openRunningNo(' + row.id + ', \'' + row.customer_name + '\')" class="btn btn-secondary btn-sm"><i class="fas fa-hashtag"></i></button>' : '')
               + '<button onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
               + '</div>';
           } else {
