@@ -8,10 +8,15 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 session_start();
 
-$company      = $_SESSION['customer'];
+// Company Details
+$company = $_SESSION['customer'];
 $companyDetail = searchCompanyById($company, $db);
-$allowPrice   = $companyDetail['include_price'];
-$fileName     = 'Report_' . date('Y-m-d') . '.xlsx';
+$allowPrice = $companyDetail['include_price'];
+
+// User Permission
+$userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
+
+$fileName = 'Report_' . date('Y-m-d') . '.xlsx';
 
 // ─── Helper functions ────────────────────────────────────────────────────────
 
@@ -38,7 +43,7 @@ function colLetter($n) {
     return $l;
 }
 
-function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db) {
+function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $userAllowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db) {
 
     // ── Headers ──────────────────────────────────────────────────────────────
 
@@ -198,7 +203,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
         $numericColIndices[] = count($lineData) + 1;
         $lineData[] = floatval($rowData['actualWeight']);
 
-        if ($allowPrice == 'Y') {
+        if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
             $lineData[] = !empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency;
 
             $numericColIndices[] = count($lineData) + 1;
@@ -253,7 +258,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
     $sheet->setCellValue($actualWeightCol . $rowIndex, '=SUM(' . $actualWeightCol . $dataStartRow . ':' . $actualWeightCol . $dataEndRow . ')');
     $colIndex++;
 
-    if ($allowPrice == 'Y') {
+    if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
         $colIndex++; // skip Currency column
     }
 
@@ -262,7 +267,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
 
     // ── TOTAL PRICE rows (per currency) ───────────────────────────────────────
 
-    if ($allowPrice == 'Y') {
+    if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
         foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
             $totalPriceData   = array_fill(0, count($fixedHeaders) - 1, '');
             $totalPriceData[] = 'TOTAL PRICE (' . $cur . ')';
@@ -546,7 +551,7 @@ if ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $tr
 }
 
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
-if ($allowPrice == 'Y') {
+if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
     $trailingHeaders[] = 'Currency';
     $trailingHeaders[] = 'Total Price (RM)';
     $trailingHeaders[] = 'Actual Price (RM)';
@@ -568,7 +573,7 @@ $spreadsheet = new Spreadsheet();
 // ALL sheet
 $allSheet = $spreadsheet->getActiveSheet();
 $allSheet->setTitle('ALL');
-writeSheet($allSheet, $allRows, $productGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
+writeSheet($allSheet, $allRows, $productGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $userAllowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
 
 // Per-machine sheets
 $machineGroups = [];
@@ -606,7 +611,7 @@ foreach ($machineGroups as $locationName => $machineRows) {
 
     $machineSheet = $spreadsheet->createSheet();
     $machineSheet->setTitle($sheetTitle);
-    writeSheet($machineSheet, $machineRows, $machineProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
+    writeSheet($machineSheet, $machineRows, $machineProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $userAllowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
 }
 
 // ─── Output ───────────────────────────────────────────────────────────────────
