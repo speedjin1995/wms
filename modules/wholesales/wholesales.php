@@ -15,18 +15,18 @@ else{
   $companyProducts = $_SESSION['products'];
   $enableDailySales = $_SESSION['enableDailySales'];
   $dailySalesModules = $_SESSION['dailySalesModules'];
-  $stmt = $db->prepare("SELECT * from users where id = ?");
-	$stmt->bind_param('s', $user);
-	$stmt->execute();
-	$result = $stmt->get_result();
-  $role = 'NORMAL';
-	$allowAdd = 'N';
-	$allowEdit = 'N';
-  $allowDelete = 'N';
+  
+  // Get user permissions from session
+  $role = $_SESSION['role'] ?? 'NORMAL';
+  $userAllowAdd = $_SESSION['userAllowAdd'] ?? 'N';
+  $userAllowEdit = $_SESSION['userAllowEdit'] ?? 'N';
+  $userAllowDelete = $_SESSION['userAllowDelete'] ?? 'N';
+  $userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
+  $userLocationId = $_SESSION['userLocationId'] ?? null;
+  
   $allowPhoto = 'N';
   $allowPrice = 'N';
   $allowInvoice = 'N';
-  $userLocationId = null;
   $filterStates = [];
   if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
     // Query to get daily setup states
@@ -42,14 +42,6 @@ else{
             }
         }
     }
-  }
-
-	if(($row = $result->fetch_assoc()) !== null){
-    $role = $row['role_code'];
-    $allowAdd = $row['allow_add'];
-    $allowEdit = $row['allow_edit'];
-    $allowDelete = $row['allow_delete'];
-    $userLocationId = $row['location'];
   }
 
   if ($role != 'SADMIN'){
@@ -295,12 +287,12 @@ else{
             </button>
             <div class="dropdown-menu dropdown-menu-right p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;"></div>
           </div>
-          <?php if($allowInvoice == 'Y'){ ?>
+          <?php if($allowInvoice == 'Y' && $userAllowPrice == 'Y'){ ?>
           <button type="button" class="btn btn-action btn-action-warning" onclick="exportInvoices()">
             <i class="fas fa-file-invoice"></i> <?=$languageArray['export_invoice_code'][$language] ?? 'Export Invoice'?>
           </button>
           <?php } ?>
-          <?php if($allowAdd == 'Y'){ ?>
+          <?php if($userAllowAdd == 'Y'){ ?>
           <button type="button" class="btn btn-action btn-action-primary" onclick="newEntry()">
             <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
           </button>
@@ -312,7 +304,11 @@ else{
         <table id="weightTable" class="table data-table">
           <thead>
             <tr>
-              <th style="width:40px;"><input type="checkbox" id="selectAllRows"></th>
+              <th style="width:3%; text-align:center;">
+                <?php if($allowInvoice == 'Y' && $userAllowPrice == 'Y') { ?>
+                <input type="checkbox" id="selectAllRows">
+                <?php } ?>
+              </th>
               <th><?=$languageArray['serial_no_code'][$language]?></th>
               <th><?=$languageArray['do_po_no_code'][$language]?></th>
               <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
@@ -324,7 +320,7 @@ else{
               <th><?=$languageArray['driver_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['total_item_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['total_weight_code'][$language]?></th>
-              <th class="text-right"><?=$allowPrice == 'Y' ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language]?></th>
+              <th class="text-right"><?=$allowPrice == 'Y' && $userAllowPrice == 'Y' ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language]?></th>
               <th><?=$languageArray['weighed_by_code'][$language]?></th>
               <th><?=$languageArray['checked_by_code'][$language]?></th>
               <?php if ($secRemarksExists) { ?>
@@ -563,24 +559,24 @@ else{
               <table class="table table-sm table-hover mb-0" style="font-size:0.72rem;">
                 <thead class="thead-light">
                   <tr class="text-center">
-                    <th style="width:28px;"><input type="checkbox" id="selectAllWeightCheckbox"></th>
+                    <th style="width:3%;"><input type="checkbox" id="selectAllWeightCheckbox"></th>
                     <th style="width:11%;"><?=$languageArray['product_code'][$language]?></th>
                     <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['gross_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['tare_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['net_code'][$language]?></th>
-                    <?php if($allowPrice == 'Y') { ?>
+                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                     <th style="width:6%;"><?=$languageArray['currency_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['price_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['before_disc_code'][$language] ?? "Before Disc"?></th>
                     <th style="width:11%;"><?=$languageArray['discount_code'][$language] ?? "Discount"?></th>
                     <th style="width:7%;"><?=$languageArray['total_code'][$language]?></th>
                     <?php } ?>
-                    <th style="width:75px;"><?=$languageArray['time_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['time_code'][$language]?></th>
                     <?php if($allowPhoto == 'Y') { ?>
-                    <th style="width:40px;"><?=$languageArray['photo_code'][$language]?></th>
+                    <th style="width:3%;"><?=$languageArray['photo_code'][$language]?></th>
                     <?php } ?>
-                    <th style="width:80px;"><?=$languageArray['actions_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
                 <tbody id="weightDetailsTable"></tbody>
@@ -590,7 +586,7 @@ else{
                     <td id="totalWeightGross">0.00</td>
                     <td id="totalWeightTare">0.00</td>
                     <td class="text-primary font-weight-bold" id="totalWeightNet">0.00</td>
-                    <?php if($allowPrice == 'Y') { ?>
+                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -618,24 +614,24 @@ else{
               <table class="table table-sm table-hover mb-0" style="font-size:0.72rem;">
                 <thead class="thead-light">
                   <tr class="text-center">
-                    <th style="width:28px;">#</th>
+                    <th style="width:3%;">#</th>
                     <th style="width:11%;"><?=$languageArray['product_code'][$language]?></th>
                     <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['gross_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['tare_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['net_code'][$language]?></th>
-                    <?php if($allowPrice == 'Y') { ?>
+                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                     <th style="width:6%;"><?=$languageArray['currency_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['price_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['before_disc_code'][$language] ?? "Before Disc"?></th>
                     <th style="width:11%;"><?=$languageArray['discount_code'][$language] ?? "Discount"?></th>
                     <th style="width:7%;"><?=$languageArray['total_code'][$language]?></th>
                     <?php } ?>
-                    <th style="width:75px;"><?=$languageArray['time_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['time_code'][$language]?></th>
                     <?php if($allowPhoto == 'Y') { ?>
-                    <th style="width:40px;"><?=$languageArray['photo_code'][$language]?></th>
+                    <th style="width:3%;"><?=$languageArray['photo_code'][$language]?></th>
                     <?php } ?>
-                    <th style="width:80px;"><?=$languageArray['actions_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
                 <tbody id="rejectDetailsTable"></tbody>
@@ -645,7 +641,7 @@ else{
                     <td id="totalRejectGross">0.00</td>
                     <td id="totalRejectTare">0.00</td>
                     <td class="text-danger font-weight-bold" id="totalRejectNet">0.00</td>
-                    <?php if($allowPrice == 'Y') { ?>
+                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -750,6 +746,7 @@ var weightCount = 0;
 var rejectCount = 0;
 var allowPhoto = '<?=$allowPhoto?>';
 var allowPrice = '<?=$allowPrice?>';
+var userAllowPrice = '<?=$userAllowPrice?>';
 var allowInvoice = '<?=$allowInvoice?>';
 var userLocation = '<?=$userLocationId?>';
 var columnNames = [
@@ -764,7 +761,7 @@ var columnNames = [
   '<?=$languageArray['driver_code'][$language]?>',
   '<?=$languageArray['total_item_code'][$language]?>',
   '<?=$languageArray['total_weight_code'][$language]?>',
-  allowPrice == 'Y' ? 'Total Price' : '<?=$languageArray['total_reject_code'][$language]?>',
+  allowPrice == 'Y' && userAllowPrice == 'Y' ? 'Total Price' : '<?=$languageArray['total_reject_code'][$language]?>',
   '<?=$languageArray['weighed_by_code'][$language]?>',
   '<?=$languageArray['checked_by_code'][$language]?>'
   <?php if ($secRemarksExists) { ?>,'<?=$languageArray['second_remarks_code'][$language]?>'<?php } ?>
@@ -865,7 +862,7 @@ $(function () {
         orderable: false,
         class: 'select-checkbox',
         render: function(data, type, row) {
-          if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
+          if (allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
             return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
           }
           return '';
@@ -882,7 +879,7 @@ $(function () {
       { data: 'driver' },
       { data: 'total_item' },
       { data: 'total_weight' },
-      { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
+      { data: allowPrice == 'Y' && userAllowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice == 'Y' && userAllowPrice == 'Y' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
       <?php if ($secRemarksExists) { ?>
@@ -894,14 +891,14 @@ $(function () {
         orderable: false,
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex" style="gap:4px;">';
-          if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+          if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
           }
           buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
-          if(allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
+          if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
             buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
           }
-          if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+          if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
             buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
@@ -1005,7 +1002,7 @@ $(function () {
           orderable: false,
           class: 'select-checkbox',
           render: function(data, type, row) {
-            if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
+            if (allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
               return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
             }
             return '';
@@ -1022,7 +1019,7 @@ $(function () {
         { data: 'driver' },
         { data: 'total_item' },
         { data: 'total_weight' },
-        { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
+        { data: allowPrice == 'Y' && userAllowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice == 'Y' && userAllowPrice == 'Y' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
         <?php if ($secRemarksExists) { ?>
@@ -1034,14 +1031,14 @@ $(function () {
           orderable: false,
           render: function ( data, type, row ) {
             var buttons = '<div class="d-flex" style="gap:4px;">';
-            if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+            if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
             }
             buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
-            if(allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
+            if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
               buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
             }
-            if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+            if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
@@ -1300,7 +1297,7 @@ $(function () {
 
     var customerId = customer;
     var status = $('#extendModal').find('#status').val();
-    if (allowPrice == 'Y' && customerId && status) {
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && customerId && status) {
       $('#weightDetailsTable tr.details').each(function() {
         $(this).find('select[id^="grade_id"]').trigger('change');
       });
@@ -1364,7 +1361,7 @@ $(function () {
                       now.getSeconds().toString().padStart(2, '0');
     var row = `
       <tr class="details">
-        <td>${rowNum}</td>
+        <td style="text-align: center">${rowNum}</td>
         <td style="display:none">
           <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="35">
           <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="1REJ">
@@ -1383,21 +1380,21 @@ $(function () {
         <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
+          <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
             <option value="" selected disabled>Select Currency</option>
             <?php while($rowCurrency=mysqli_fetch_assoc($currency2)){ ?>
               <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
             <?php } ?>
           </select>
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00" readonly>
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="before_discount${idx}" name="rejectDetails[${idx}][before_discount]" step="0.01" value="0.00" readonly>
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <div class="input-group input-group-sm">
             <select class="form-control" id="discount_type${idx}" name="rejectDetails[${idx}][discount_type]" style="max-width:60px;">
               <option value="fixed">Fix</option>
@@ -1406,7 +1403,7 @@ $(function () {
             <input type="number" class="form-control" id="discount${idx}" name="rejectDetails[${idx}][discount]" step="0.01" value="0.00">
           </div>
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="total${idx}" name="rejectDetails[${idx}][total]" step="0.01" value="0.00" readonly>
         </td>
         <td>
@@ -1445,7 +1442,7 @@ $(function () {
                       now.getSeconds().toString().padStart(2, '0');
     var row = `
       <tr class="details">
-        <td><input type="checkbox" id="weightCheckbox${idx}"></td>
+        <td style="text-align: center"><input type="checkbox" id="weightCheckbox${idx}"></td>
         <td style="display:none">
           <input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="">
           <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="">
@@ -1477,7 +1474,7 @@ $(function () {
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
             <option value="" selected disabled>Select Currency</option>
             <?php while($rowCurrency=mysqli_fetch_assoc($currency)){ ?>
@@ -1485,13 +1482,13 @@ $(function () {
             <?php } ?>
           </select>
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00">
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="before_discount${idx}" name="weightDetails[${idx}][before_discount]" step="0.01" value="0.00" readonly>
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <div class="input-group input-group-sm">
             <select class="form-control" id="discount_type${idx}" name="weightDetails[${idx}][discount_type]" style="max-width:60px;">
               <option value="fixed">Fix</option>
@@ -1500,7 +1497,7 @@ $(function () {
             <input type="number" class="form-control" id="discount${idx}" name="weightDetails[${idx}][discount]" step="0.01" value="0.00">
           </div>
         </td>
-        <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00" readonly>
         </td>
         <td>
@@ -1606,7 +1603,7 @@ $(function () {
     var status = $('#extendModal').find('#status').val();
     $(this).closest('tr').find('input[name*="[grade]"]').val(gradeName);
 
-    if (allowPrice == 'Y' && productId && status){
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
       if (status == 'RECEIVING' || status == 'INCOMING'){
         calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
       }else{
@@ -1623,7 +1620,7 @@ $(function () {
     var supplierId = $('#extendModal').find('#supplier').val();
     var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId && status){
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
       if (status == 'RECEIVING' || status == 'INCOMING'){
         calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
       }else{
@@ -1758,7 +1755,7 @@ $(function () {
     var supplierId = $('#extendModal').find('#supplier').val();
     var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId && status){
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
       if (status == 'RECEIVING' || status == 'INCOMING'){
         calculatePrice(productId, status, supplierId, grade, $(this), undefined, true);
       }else{
@@ -1775,7 +1772,7 @@ $(function () {
     var supplierId = $('#extendModal').find('#supplier').val();
     var status = $('#extendModal').find('#status').val();
 
-    if (allowPrice == 'Y' && productId && status){
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
       if (status == 'RECEIVING' || status == 'INCOMING'){
         calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
       }else{
@@ -1907,10 +1904,10 @@ function format (row) {
         <div class="expanded-header-subtitle">${row.customer_supplier || '-'}</div>
       </div>
       <div class="expanded-actions">
-        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
+        ${<?=$userAllowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
         <button type="button" onclick="print(${row.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-        ${allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-sm btn-outline-info"><i class="fas fa-file-invoice"></i></button>' : ''}
-        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
+        ${allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-sm btn-outline-info"><i class="fas fa-file-invoice"></i></button>' : ''}
+        ${<?=$userAllowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
       </div>
     </div>
 
@@ -1928,7 +1925,7 @@ function format (row) {
         <div class="kpi-label"><?=$languageArray['total_reject_code'][$language]?></div>
         <div class="kpi-value kpi-value-danger">${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'} <span class="kpi-unit">Kg</span></div>
       </div>
-      ${allowPrice == 'Y' ? `
+      ${allowPrice == 'Y' && userAllowPrice == 'Y' ? `
       <div class="kpi-card kpi-card-success">
         <div class="kpi-label"><?=$languageArray['total_price_code'][$language]?></div>
         <div class="kpi-value">${parseFloat(row.totalPrice).toFixed(2)}</div>
@@ -1971,7 +1968,7 @@ function format (row) {
               <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
-              ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
               <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
               ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
             </tr>
@@ -1985,7 +1982,7 @@ function format (row) {
       for (var i = 0; i < row.weightDetails.length; i++) {
         var detail = row.weightDetails[i];
         var discountDisplay = '';
-        if (allowPrice == 'Y') {
+        if (allowPrice == 'Y' && userAllowPrice == 'Y') {
           var discVal = parseFloat(detail.discount) || 0;
           discountDisplay = detail.discount_type === 'percent' ? discVal.toFixed(2) + '%' : discVal.toFixed(2);
         }
@@ -1997,7 +1994,7 @@ function format (row) {
                 <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
                 <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
                 <td class="text-right text-mono text-primary font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-success font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-success font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td class="text-center text-muted">${detail.time}</td>
                 ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
               </tr>`;
@@ -2016,7 +2013,7 @@ function format (row) {
               <td class="text-right text-mono" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
               <td class="text-right text-mono" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
               <td class="text-right text-mono text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
-              ${allowPrice == 'Y' ? '<td></td><td></td><td></td><td></td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
+              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td></td><td></td><td></td><td></td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
               <td></td>
               ${allowPhoto == 'Y' ? '<td></td>' : ''}
             </tr>
@@ -2039,7 +2036,7 @@ function format (row) {
               <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
-              ${allowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
               <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
               ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
             </tr>
@@ -2054,7 +2051,7 @@ function format (row) {
       if (row.rejectDetails.length === 0) {
         returnString += `
               <tr>
-                <td colspan="${allowPrice == 'Y' ? (allowPhoto == 'Y' ? '12' : '11') : (allowPhoto == 'Y' ? '7' : '6')}" class="details-empty">
+                <td colspan="${allowPrice == 'Y' && userAllowPrice == 'Y' ? (allowPhoto == 'Y' ? '12' : '11') : (allowPhoto == 'Y' ? '7' : '6')}" class="details-empty">
                   <i class="fas fa-check-circle"></i>
                   <?=$languageArray['no_reject_items_code'][$language] ?? 'No rejected items'?>
                 </td>
@@ -2063,7 +2060,7 @@ function format (row) {
         for (var i = 0; i < row.rejectDetails.length; i++) {
           var detail = row.rejectDetails[i];
           var discountDisplay = '';
-          if (allowPrice == 'Y') {
+          if (allowPrice == 'Y' && userAllowPrice == 'Y') {
             var discVal = parseFloat(detail.discount) || 0;
             discountDisplay = detail.discount_type === 'percent' ? discVal.toFixed(2) + '%' : discVal.toFixed(2);
           }
@@ -2075,7 +2072,7 @@ function format (row) {
                 <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
                 <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
                 <td class="text-right text-mono text-danger font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
-                ${allowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-danger font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
+                ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-danger font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td class="text-center text-muted">${detail.time}</td>
                 ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
               </tr>`;
@@ -2096,9 +2093,9 @@ function format (row) {
               <td class="text-right text-mono">${totalRejectGross.toFixed(2)}</td>
               <td class="text-right text-mono">${totalRejectTare.toFixed(2)}</td>
               <td class="text-right text-mono text-danger">${totalRejectNet.toFixed(2)}</td>
-              ${allowPrice == 'Y' ? '<td></td><td></td><td></td><td></td><td class="text-right text-mono text-danger">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
+              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td></td><td></td><td></td><td></td><td class="text-right text-mono text-danger">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
               <td></td>
-              ${allowPhoto == 'Y' ? '<td></td>' : ''}
+              ${allowPhoto == 'Y' && userAllowPrice == 'Y' ? '<td></td>' : ''}
             </tr>
           </tfoot>` : ''}
         </table>
@@ -2264,7 +2261,7 @@ function edit(id) {
           var idx = weightCount++;
           var row = `
             <tr class="details">
-              <td><input type="checkbox" id="weightCheckbox${idx}"></td>
+              <td style="text-align: center"><input type="checkbox" id="weightCheckbox${idx}"></td>
               <td style="display:none">
                 <input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="${detail.product_name}">
                 <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="${detail.product_desc}">
@@ -2296,17 +2293,17 @@ function edit(id) {
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" required min="0.01"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01" readonly></td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
+                <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
                   <option value="" selected disabled>Select Currency</option>
                   <?php while($rowCurrency=mysqli_fetch_assoc($currency3)){ ?>
                     <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
                   <?php } ?>
                 </select>
               </td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${(parseFloat(detail.price)||0).toFixed(2)}"></td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="before_discount${idx}" name="weightDetails[${idx}][before_discount]" value="${(parseFloat(detail.before_discount)||0).toFixed(2)}" readonly></td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${(parseFloat(detail.price)||0).toFixed(2)}"></td>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="before_discount${idx}" name="weightDetails[${idx}][before_discount]" value="${(parseFloat(detail.before_discount)||0).toFixed(2)}" readonly></td>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
                 <div class="input-group input-group-sm">
                   <select class="form-control" id="discount_type${idx}" name="weightDetails[${idx}][discount_type]" style="max-width:60px;">
                     <option value="fixed" ${(detail.discount_type||'fixed')==='fixed'?'selected':''}>Fix</option>
@@ -2315,7 +2312,7 @@ function edit(id) {
                   <input type="number" class="form-control" id="discount${idx}" name="weightDetails[${idx}][discount]" value="${(parseFloat(detail.discount)||0).toFixed(2)}" step="0.01">
                 </div>
               </td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${(parseFloat(detail.total)||0).toFixed(2)}" readonly></td>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${(parseFloat(detail.total)||0).toFixed(2)}" readonly></td>
               <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}"></td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
@@ -2416,22 +2413,22 @@ function edit(id) {
               <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${(parseFloat(detail.net)||0).toFixed(2)} ${detail.unit}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
+                <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
                   <option value="" selected disabled>Select Currency</option>
                   <?php while($rowCurrency=mysqli_fetch_assoc($currency4)){ ?>
                     <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
                   <?php } ?>
                 </select>
               </td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${(parseFloat(detail.price)||0).toFixed(2)}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="before_discount${idx}" name="rejectDetails[${idx}][before_discount]" value="${(parseFloat(detail.before_discount)||0).toFixed(2)}">${(parseFloat(detail.before_discount)||0).toFixed(2)}</td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${(parseFloat(detail.price)||0).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="before_discount${idx}" name="rejectDetails[${idx}][before_discount]" value="${(parseFloat(detail.before_discount)||0).toFixed(2)}">${(parseFloat(detail.before_discount)||0).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="discount_type${idx}" name="rejectDetails[${idx}][discount_type]" value="${detail.discount_type||'fixed'}">
                 <input type="hidden" id="discount${idx}" name="rejectDetails[${idx}][discount]" value="${(parseFloat(detail.discount)||0).toFixed(2)}">
                 ${detail.discount_type==='percent' ? (parseFloat(detail.discount)||0).toFixed(2)+'%' : 'RM '+(parseFloat(detail.discount)||0).toFixed(2)}
               </td>
-              <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${(parseFloat(detail.total)||0).toFixed(2)}</td>
+              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${(parseFloat(detail.total)||0).toFixed(2)}</td>
               <td><input type="time" class="form-control" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}"></td>
               <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
                 <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">

@@ -21,11 +21,29 @@ else{
   $role = 'NORMAL';
   $name = '';
   $username = '';
+  $userAllowAdd = 'N';
+	$userAllowEdit = 'N';
+  $userAllowDelete = 'N';
+  $userAllowPrice = 'N';
+  $userLocationId = null;
 	
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
     $name = $row['name'];
     $username = $row['username'];
+    $userAllowAdd = $row['allow_add'];
+    $userAllowEdit = $row['allow_edit'];
+    $userAllowDelete = $row['allow_delete'];
+    $userAllowPrice = $row['allow_price'];
+    $userLocationId = $row['location'];
+
+    // Store user permissions in session
+    $_SESSION['userAllowAdd'] = $userAllowAdd;
+    $_SESSION['userAllowEdit'] = $userAllowEdit;
+    $_SESSION['userAllowDelete'] = $userAllowDelete;
+    $_SESSION['userAllowPrice'] = $userAllowPrice;
+    $_SESSION['userLocationId'] = $userLocationId;
+    $_SESSION['role'] = $role;
   }
 
   // Language
@@ -517,12 +535,14 @@ to get the desired effect
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
-                  <i class="nav-icon fas fa-tags"></i>
-                  <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
-                </a>
-              </li>
+                <?php if ($userAllowPrice == 'Y') { ?>
+                <li class="nav-item">
+                  <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
+                    <i class="nav-icon fas fa-tags"></i>
+                    <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
+                  </a>
+                </li>
+                <?php } ?>
               <?php } ?>
               <?php if ($module == 'weighing') { ?>
               <li class="nav-item">
