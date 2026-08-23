@@ -86,7 +86,14 @@ if ($mode === 'preview') {
       $newPrice    = $priceRows[$key]['newPrice'];
       $pricingType = $priceRows[$key]['pricingType'];
       $net         = floatval($detail['net'] ?? 0);
-      $newTotal    = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
+      $newBeforeDiscount = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
+      $discount         = floatval($detail['discount'] ?? 0);
+      $discountType     = $detail['discount_type'] ?? 'fixed';
+      if ($discountType === 'percent') {
+        $newTotal = $newBeforeDiscount * (1 - $discount / 100);
+      } else {
+        $newTotal = $newBeforeDiscount - $discount;
+      }
       $previewRows[] = [
         'serial_no'    => $row['serial_no'],
         'start_time'   => $row['start_time'] ? date('d/m/Y H:i', strtotime($row['start_time'])) : '',
@@ -120,14 +127,22 @@ while ($row = mysqli_fetch_assoc($result)) {
     $key = ($detail['product'] ?? '') . '||' . ($detail['grade'] ?? '');
     if (!isset($priceRows[$key])) continue;
 
-    $newPrice    = $priceRows[$key]['newPrice'];
-    $pricingType = $priceRows[$key]['pricingType'];
-    $net         = floatval($detail['net'] ?? 0);
-    $total       = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
+    $newPrice         = $priceRows[$key]['newPrice'];
+    $pricingType      = $priceRows[$key]['pricingType'];
+    $net              = floatval($detail['net'] ?? 0);
+    $discount         = floatval($detail['discount'] ?? 0);
+    $discountType     = $detail['discount_type'] ?? 'fixed';
+    $newBeforeDiscount = ($pricingType === 'Float') ? $newPrice * $net : $newPrice;
+    if ($discountType === 'percent') {
+      $total = $newBeforeDiscount * (1 - $discount / 100);
+    } else {
+      $total = $newBeforeDiscount - $discount;
+    }
 
-    $detail['price']      = number_format($newPrice, 2, '.', '');
-    $detail['total']      = number_format($total, 2, '.', '');
-    $detail['fixedfloat'] = $pricingType;
+    $detail['price']           = number_format($newPrice, 2, '.', '');
+    $detail['before_discount'] = number_format($newBeforeDiscount, 2, '.', '');
+    $detail['total']           = number_format($total, 2, '.', '');
+    $detail['fixedfloat']      = $pricingType;
     $changed = true;
     $updatedItems++;
   }
