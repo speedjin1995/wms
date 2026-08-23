@@ -12,14 +12,14 @@ $columnSortOrder = $_POST['order'][0]['dir']; // asc or desc
 $searchValue = mysqli_real_escape_string($db,$_POST['search']['value']); // Search value
 
 ## Search 
-$searchQuery = " ";
+$searchQuery = " AND users.role_code NOT IN ('ADMIN', 'SADMIN')";
 
 if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-  $searchQuery = " AND users.customer = '".$_POST['id']."'";
+  $searchQuery .= " AND users.customer = '".$_POST['id']."'";
 }
 
 if($searchValue != ''){
-   $searchQuery = " and (users.name like '%".$searchValue."%' or 
+   $searchQuery .= " and (users.name like '%".$searchValue."%' or 
         users.username like '%".$searchValue."%' or
         roles.role_name like'%".$searchValue."%' ) ";
 }
