@@ -11,6 +11,7 @@ if(!isset($_SESSION['userID'])){
     $company = $_SESSION['customer'];
     $language = $_SESSION['language'];
     $packages = $_SESSION['packages'] ?? [];
+    $userName = $_SESSION['userName'] ?? 'User';
 
     // Load message resource
     if (in_array('P', $packages, true)) {
@@ -40,222 +41,168 @@ if(!isset($_SESSION['userID'])){
         <link rel="icon" href="assets/wms-logo-site-icon.png" type="image">
         <!-- Font Awesome Icons -->
         <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-        <!-- IonIcons -->
-        <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-        <!-- Theme style -->
-        <link rel="stylesheet" href="dist/css/adminlte.min.css">
         <!-- Google Font: Source Sans Pro -->
         <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-        <!-- daterange picker -->
-        <link rel="stylesheet" href="plugins/daterangepicker/daterangepicker.css">
-        <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-        <!-- iCheck for checkboxes and radio inputs -->
-          
-        <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-        <!-- Bootstrap Color Picker -->
-        <link rel="stylesheet" href="plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css">
-        <!-- Select2 -->
-        <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
-        <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-        <!-- Bootstrap4 Duallistbox -->
-        <link rel="stylesheet" href="plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css">
-        <!-- Toastr -->
-        <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
-        <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
-
-        <style>
-            .wrapper {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                /*background: url('assets/modules-bg.jpeg');*/
-                background: url('assets/module-bg.jpeg');
-                /*background: url('assets/modules-bg.jpg');*/
-                background-repeat: no-repeat;
-                background-size: cover;
-                background-position: center;
-                padding-top: 100px;
-                padding-bottom: 100px;
-            }
-
-            .modules-box-list {
-                display: flex;
-                flex-wrap: wrap;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                gap: 25px;
-            }
-
-            .modules-box-list a {
-                width: 400px;
-            }
-
-            .modules-box-list .modules-box {
-                background: #fff;
-                padding: 25px;
-                border-radius: 15px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                transform: translateY(0px);
-                transition: all 0.25s ease-in-out;
-            }
-
-            .modules-box-list .modules-box:hover {
-                cursor: pointer;
-                transform: translateY(-10px);
-                box-shadow: 5px -5px 0px 2.5px rgba(0, 51, 146, 1);
-            }
-
-            .modules-box-list .modules-box .modules-img {
-                width: 100%;
-                height: 160px;
-                object-fit: contain;
-                margin-bottom: 35px;
-            }
-
-            .modules-box-list .modules-box .modules-txt {
-                font-size: 25px;
-                line-height: 30px;
-                font-weight: 700;
-            }
-
-            .company-name {
-                /*position: absolute;
-                top: 15%;*/
-                width: 100%;
-                text-align: center;
-                font-size: 32px;
-                font-weight: 700;
-                letter-spacing: 1.5px;
-                color: #1f2d3d;
-                margin-bottom: 35px;
-            }
-        </style>
+        <!-- Home Page Styles -->
+        <link rel="stylesheet" href="assets/css/home.css">
     </head>
 
     <body>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <img src="assets/wms-logo-site-icon.png" alt="WMS" class="top-bar-logo">
+            </div>
+            <div class="top-bar-user">
+                <div class="user-info">
+                    <div class="user-greeting"><?=$languageArray['welcome_code'][$language] ?? 'Welcome'?></div>
+                    <div class="user-name"><?=htmlspecialchars($userName)?></div>
+                </div>
+                <a href="php/logout.php" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span><?=$languageArray['logout_code'][$language]?></span>
+                </a>
+            </div>
+        </div>
+
         <div class="wrapper">
             <div class="company-name">
                 <h1><?php echo $_SESSION['company_name']; ?></h1>
             </div>
 
-            <div class="modules-box-list">
-                <a href="php/setModule.php?module=dashboard" 
+            <div class="modules-grid">
+                <!-- Dashboard -->
+                <a href="php/setModule.php?module=dashboard" class="module-card"
                     <?php 
                         if (empty(array_intersect(['industrial', 'wholesale', 'processing'], $_SESSION['products']))) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-1">
-                        <img src="assets/dashboard-icon.png" alt="Dashboard" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['dashboard_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/dashboard-icon.png" alt="Dashboard" class="module-icon">
+                        <div class="module-name"><?=$languageArray['dashboard_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['dashboard_desc'][$language] ?? 'Analytics & Reports'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=industrial" 
+
+                <!-- Pulp & Paste -->
+                <a href="php/setModule.php?module=industrial" class="module-card"
                     <?php 
                         if (!in_array('industrial', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-1">
-                        <img src="assets/pieces-n-puree-1.png" alt="Pulp & Paste" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/pieces-n-puree-1.png" alt="Pulp & Paste" class="module-icon">
+                        <div class="module-name"><?=$languageArray['pulp_and_paste_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['pulp_paste_desc'][$language] ?? 'Industrial Weighing'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=weighing" 
+
+                <!-- Weighbridge -->
+                <a href="php/setModule.php?module=weighing" class="module-card"
                     <?php 
                         if (!in_array('fruits', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-1">
-                        <img src="assets/weighing-bridge-icon-1.png" alt="Weighing Bridge" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['weighbridge_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/weighing-bridge-icon-1.png" alt="Weighbridge" class="module-icon">
+                        <div class="module-name"><?=$languageArray['weighbridge_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['weighbridge_desc'][$language] ?? 'Vehicle Weighing'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=wholesale"
+
+                <!-- Wholesales -->
+                <a href="php/setModule.php?module=wholesale" class="module-card"
                     <?php 
                         if (!in_array('wholesale', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-2">
-                        <img src="assets/wholesales-icon.png" alt="Wholesales" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['wholesales_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/wholesales-icon.png" alt="Wholesales" class="module-icon">
+                        <div class="module-name"><?=$languageArray['wholesales_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['wholesales_desc'][$language] ?? 'Dispatch & Receiving'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=packing"
+
+                <!-- Packing -->
+                <a href="php/setModule.php?module=packing" class="module-card"
                     <?php 
                         if (!in_array('packing', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-2">
-                        <img src="assets/food-packaging-icon.png" alt="Packing" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['packing_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/food-packaging-icon.png" alt="Packing" class="module-icon">
+                        <div class="module-name"><?=$languageArray['packing_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['packing_desc'][$language] ?? 'Package Management'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=pricing"
+
+                <!-- Pricing -->
+                <a href="php/setModule.php?module=pricing" class="module-card"
                     <?php 
                         if (!in_array('pricing', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-2">
-                        <img src="assets/pricing-icon.png" alt="Pricing" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['pricing_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/pricing-icon.png" alt="Pricing" class="module-icon">
+                        <div class="module-name"><?=$languageArray['pricing_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['pricing_desc'][$language] ?? 'Sales & Purchases'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=processing"
+
+                <!-- Processing -->
+                <a href="php/setModule.php?module=processing" class="module-card"
                     <?php 
                         if (!in_array('processing', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-2">
-                        <img src="assets/packaging-icon.png" alt="Processing" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['processing_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/packaging-icon.png" alt="Processing" class="module-icon">
+                        <div class="module-name"><?=$languageArray['processing_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['processing_desc'][$language] ?? 'Production Lines'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=accounting"
+
+                <!-- Accounting -->
+                <a href="php/setModule.php?module=accounting" class="module-card"
                     <?php 
                         if (!in_array('accounting', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-2">
-                        <img src="assets/accounting-icon.png" alt="Accounting" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['accounting_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/accounting-icon.png" alt="Accounting" class="module-icon">
+                        <div class="module-name"><?=$languageArray['accounting_code'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['accounting_desc'][$language] ?? 'Payment Vouchers'?></p>
                     </div>
                 </a>
-                <a href="php/setModule.php?module=stocks"
+
+                <!-- Stock Management -->
+                <a href="php/setModule.php?module=stocks" class="module-card"
                     <?php 
                         if (!in_array('stocks', $_SESSION['products'], false)) {
                             echo 'style="display:none;"';
                         }
                     ?>
                 >
-                    <div class="modules-box modules-box-2">
-                        <img src="assets/stocks-icon.png" alt="Stocks" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['stock_management'][$language]?></div>
-                    </div>
-                </a>
-                <a href="php/logout.php">
-                    <div class="modules-box modules-box-3">
-                        <img src="assets/logout-icon.png" alt="Logout" class="modules-img">
-                        <div class="modules-txt"><?=$languageArray['logout_code'][$language]?></div>
+                    <div class="module-card-inner">
+                        <img src="assets/stocks-icon.png" alt="Stocks" class="module-icon">
+                        <div class="module-name"><?=$languageArray['stock_management'][$language]?></div>
+                        <p class="module-desc"><?=$languageArray['stocks_desc'][$language] ?? 'Inventory & Transfers'?></p>
                     </div>
                 </a>
             </div>
