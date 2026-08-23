@@ -118,8 +118,8 @@ else{
           </div>
 
           <!-- Customer (shown for DISPATCH) -->
-          <div class="filter-group" id="customerFilterGroup">
-            <label class="filter-label"><?=$languageArray['customer_code'][$language] ?? 'Customer'?></label>
+          <div class="col-md-2 form-group" id="customerFilterGroup">
+            <label><?=$languageArray['customer_code'][$language] ?? 'Customer'?></label>
             <select class="form-control select2-filter" id="customerFilter">
               <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
               <?php while($c = mysqli_fetch_assoc($customers)){ ?>
@@ -129,8 +129,8 @@ else{
           </div>
 
           <!-- Supplier (shown for RECEIVING) -->
-          <div class="filter-group" id="supplierFilterGroup" style="display:none;">
-            <label class="filter-label"><?=$languageArray['supplier_code'][$language] ?? 'Supplier'?></label>
+          <div class="col-md-2 form-group" id="supplierFilterGroup" style="display:none;">
+            <label><?=$languageArray['supplier_code'][$language] ?? 'Supplier'?></label>
             <select class="form-control select2-filter" id="supplierFilter">
               <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
               <?php while($s = mysqli_fetch_assoc($suppliers)){ ?>
@@ -159,8 +159,8 @@ else{
           </div>
 
           <!-- Search Button -->
-          <div class="filter-group filter-group-action">
-            <button type="button" class="btn btn-filter btn-filter-primary" id="bulkFilterSearch">
+          <div class="col-md-2 form-group d-flex align-items-end">
+            <button type="button" class="btn custom-search-btn" id="bulkFilterSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
             </button>
           </div>
