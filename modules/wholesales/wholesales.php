@@ -649,7 +649,7 @@ else{
                     <td></td>
                     <td></td>
                     <td class="font-weight-bold" id="totalRejectBeforeDiscount">0.00</td>
-                    <td></td>
+                    <td class="text-danger font-weight-bold" id="totalRejectDiscount">0.00</td>
                     <td class="text-danger font-weight-bold" id="totalRejectPrice">0.00</td>
                     <?php } ?>
                     <td></td>
@@ -1700,21 +1700,7 @@ $(function () {
   });
 
   $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
-    var totalPrice = 0;
-    var totalDiscount = 0;
-    $('#weightDetailsTable tr').each(function() {
-      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-      var discType = $(this).find('select[name*="[discount_type]"]').val();
-      var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
-      var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-      if (discType === 'percent') {
-        totalDiscount += beforeDisc * discVal / 100;
-      } else {
-        totalDiscount += discVal;
-      }
-    });
-    $('#totalWeightPrice').text(totalPrice.toFixed(2));
-    $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
+    updateTotals();
   });
 
   $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
@@ -1858,11 +1844,7 @@ $(function () {
   });
 
   $('#rejectDetailsTable').on('change', 'input[name*="[total]"]', function() {
-    var totalPrice = 0;
-    $('#rejectDetailsTable tr').each(function() {
-      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-    });
-    $('#totalRejectPrice').text(totalPrice.toFixed(2));
+    updateTotals();
   });
 
   $('#weightDetailsTable, #rejectDetailsTable').on('change', 'input[id^="discount"], select[id^="discount_type"]', function() {
@@ -2703,19 +2685,28 @@ function updateTotals() {
   $('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
   $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
   
-  var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0, totalRejectBeforeDiscount = 0;
+  var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0, totalRejectBeforeDiscount = 0, totalRejectDiscount = 0;
   $('#rejectDetailsTable tr').each(function() {
     totalRejectGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
     totalRejectTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
     totalRejectNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
     totalRejectPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
     totalRejectBeforeDiscount += parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    var discType = $(this).find('select[name*="[discount_type]"]').val();
+    var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
+    var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    if (discType === 'percent') {
+      totalRejectDiscount += beforeDisc * discVal / 100;
+    } else {
+      totalRejectDiscount += discVal;
+    }
   });
   $('#totalRejectGross').text(totalRejectGross.toFixed(2));
   $('#totalRejectTare').text(totalRejectTare.toFixed(2));
   $('#totalRejectNet').text(totalRejectNet.toFixed(2));
   $('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
   $('#totalRejectBeforeDiscount').text(totalRejectBeforeDiscount.toFixed(2));
+  $('#totalRejectDiscount').text(totalRejectDiscount.toFixed(2));
 }
 
 function deactivate(id) {
