@@ -2139,11 +2139,14 @@ function newEntry(){
   $('#extendModal').find('#totalWeightTare').text(0.00);
   $('#extendModal').find('#totalWeightNet').text(0.00);
   $('#extendModal').find('#totalWeightPrice').text(0.00);
+  $('#extendModal').find('#totalWeightBeforeDiscount').text(0.00);
   $('#extendModal').find('#totalWeightDiscount').text(0.00);
   $('#extendModal').find('#totalRejectGross').text(0.00);
   $('#extendModal').find('#totalRejectTare').text(0.00);
   $('#extendModal').find('#totalRejectNet').text(0.00);
   $('#extendModal').find('#totalRejectPrice').text(0.00);
+  $('#extendModal').find('#totalRejectBeforeDiscount').text(0.00);
+  $('#extendModal').find('#totalRejectDiscount').text(0.00);
   $('#extendModal').find('#bulkUnitPrice').val('');
   $('#weightDetailsTable').empty();
   $('#rejectDetailsTable').empty();
