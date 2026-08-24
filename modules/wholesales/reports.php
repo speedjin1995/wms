@@ -78,24 +78,23 @@ else{
 </div>
 
 <!-- Main content -->
-<div class="content custom-table-content">
+<div class="content page-modern">
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card">
-          <div class="card-body custom-search-card-body">
-            <div class="row">
-              <div class="form-group col-3">
-                <label><?=$languageArray['from_date_code'][$language]?>:</label>
+    <div class="card filter-card">
+          <div class="card-body">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['from_date_code'][$language]?></label>
                 <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
                   <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
-                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
                 </div>
               </div>
 
-              <div class="form-group col-3">
-                <label><?=$languageArray['to_date_code'][$language]?>:</label>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['to_date_code'][$language]?></label>
                 <div class="input-group date" id="toDatePicker" data-target-input="nearest">
                   <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
                   <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
@@ -104,164 +103,122 @@ else{
                 </div>
               </div>
 
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
-                  <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                    <?php if (in_array('stocks', $companyProducts)) { ?>
-                    <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['transaction_status_code'][$language]?></label>
+                <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
+                  <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                  <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                  <?php if (in_array('stocks', $companyProducts)) { ?>
+                  <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                  <?php } ?>
+                </select>
               </div>
 
-              <div class="col-3" id="customerStatusDiv">
-                <div class="form-group">
-                  <label><?=$languageArray['customer_code'][$language]?></label>
-                  <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+              <div class="filter-group" id="customerStatusDiv">
+                <label class="filter-label"><?=$languageArray['customer_code'][$language]?></label>
+                <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
+                  <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                  <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
+                    <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
+                  <?php } ?>
+                </select>
               </div>
 
-              <div class="col-3" id="supplierStatusDiv" style="display: none;">
-                <div class="form-group">
-                  <label><?=$languageArray['supplier_code'][$language]?></label>
-                  <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
-                      <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+              <div class="filter-group" id="supplierStatusDiv" style="display: none;">
+                <label class="filter-label"><?=$languageArray['supplier_code'][$language]?></label>
+                <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
+                  <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                  <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
+                    <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+                  <?php } ?>
+                </select>
               </div>
 
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['vehicle_no_code'][$language]?></label>
-                  <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                    <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
-                      <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['vehicle_no_code'][$language]?></label>
+                <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
+                  <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                  <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
+                  <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
+                    <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
+                  <?php } ?>
+                </select>
               </div>
 
-              <div class="col-3" id="otherVehicleFilterDiv" style="display: none;">
-                <div class="form-group">
-                  <label><?=$languageArray['other_vehicle_no_code'][$language]?></label>
-                  <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
-                </div>
+              <div class="filter-group" id="otherVehicleFilterDiv" style="display: none;">
+                <label class="filter-label"><?=$languageArray['other_vehicle_no_code'][$language]?></label>
+                <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
               </div>
 
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['checked_by_code'][$language]?></label>
-                  <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
-                </div>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
+                <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
               </div>
 
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['weighed_by_code'][$language]?></label>
-                  <select class="form-control select2" id="weightByFilter" name="weightByFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
-                      <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
+                <select class="form-control select2" id="weightByFilter" name="weightByFilter">
+                  <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                  <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
+                    <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+                  <?php } ?>
+                </select>
               </div>
 
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['category_code'][$language]?></label>
-                  <select class="form-control select2" id="categoryFilter" name="categoryFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowCategory=mysqli_fetch_assoc($categories)){ ?>
-                      <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
+                <select class="form-control select2" id="categoryFilter" name="categoryFilter">
+                  <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                  <?php while($rowCategory=mysqli_fetch_assoc($categories)){ ?>
+                    <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
+                  <?php } ?>
+                </select>
               </div>
 
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['locations_code'][$language]?></label>
-                  <select class="form-control select2" id="locationFilter" name="locationFilter">
-                    <option value="" selected>-</option>
-                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
-                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['locations_code'][$language]?></label>
+                <select class="form-control select2" id="locationFilter" name="locationFilter">
+                  <option value="">-</option>
+                  <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
+                    <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+                  <?php } ?>
+                </select>
               </div>
 
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['status_code'][$language]?></label>
-                  <select class="form-control" id="statusFilter" name="statusFilter">
-                    <option value="active" selected><?=$languageArray['active_code'][$language]?></option>
-                    <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
-                  </select>
-                </div>
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['status_code'][$language]?></label>
+                <select class="form-control" id="statusFilter" name="statusFilter">
+                  <option value="active" selected><?=$languageArray['active_code'][$language]?></option>
+                  <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
+                </select>
               </div>
 
-              <!--div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['product_code'][$language]?></label>
-                  <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
-                    <option selected="selected">-</option>
-                    <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
-                      <option value="<?=$rowStatus2['id'] ?>"><?=$rowStatus2['product_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div-->
-            </div>
-
-            <div class="row">
-              <div class="col-9"></div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="filterSearch">
-                  <i class="fas fa-search"></i>
-                  <?=$languageArray['search_code'][$language]?>
+              <div class="filter-group filter-group-action">
+                <label class="filter-label">&nbsp;</label>
+                <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
+                  <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card card-info">
+
+    <div class="card results-card show-dt-controls">
           <div class="card-header">
-            <div class="row">
-              <div class="<?=$allowIntegration == 'Y' ? 'col-6' : 'col-8'?>"></div>
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['reports_code'][$language]?></h3>
+            </div>
+            <div class="results-header-right d-flex" style="gap: 0.5rem;">
               <?php if($allowIntegration == 'Y' && !empty($integrationConfigs)) { ?>
-              <div class="col-2">
-                <button type="button" class="btn btn-block custom-delete-btn btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
-              </div>
+              <button type="button" class="btn btn-action custom-delete-btn btn-sm" id="exportIntegration"><?=$languageArray['export_integration_code'][$language]?></button>
               <?php } ?>
-              <div class="col-2">
-                <button type="button" class="btn btn-block custom-search-btn btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
-              </div>
-              <div class="col-2">
-                <button type="button" class="btn btn-block custom-add-btn btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
-              </div>
+              <button type="button" class="btn btn-action custom-search-btn btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
+              <button type="button" class="btn btn-action custom-add-btn btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
             </div>
           </div>
 
-          <div class="card-body custom-table-card-body">
-            <table id="weightTable" class="table table-bordered table-striped display">
+          <div class="card-body">
+            <table id="weightTable" class="table data-table">
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
@@ -299,8 +256,6 @@ else{
             </table>
           </div>
         </div>
-      </div>
-    </div>
   </div>
 </div>  
 
