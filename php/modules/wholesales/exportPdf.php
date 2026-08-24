@@ -99,6 +99,11 @@ if(isset($_GET['location']) && $_GET['location'] != null && $_GET['location'] !=
   $searchQuery .= " and wholesales.location = '".mysqli_real_escape_string($db, $_GET['location'])."'";
 }
 
+if(isset($_GET['partyType']) && $_GET['partyType'] != null && $_GET['partyType'] != '' && $_GET['partyType'] != '-'){
+  $partyType = mysqli_real_escape_string($db, $_GET['partyType']);
+  $searchQuery .= " AND (c.customer_type = '" . $partyType . "' OR s.supplier_type = '" . $partyType . "')";
+}
+
 if($_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
   if ($_GET['status'] == 'active'){
     $searchQuery .= " and wholesales.deleted = '0'";
@@ -119,7 +124,7 @@ if($isMulti == 'Y'){
     }
     $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (".$ids.")");
 }else{
-    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
+    $query = $db->query("SELECT wholesales.* FROM wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
 }
 
 try {

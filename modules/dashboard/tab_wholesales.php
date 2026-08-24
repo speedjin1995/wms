@@ -11,21 +11,29 @@
       </div>
       <input type="hidden" id="wsType" value="">
     </div>
+    <div class="form-group col-12 col-md-2" id="wsPartyTypeWrap" style="display:none;">
+      <label><?=$languageArray['type_code'][$language]?></label>
+      <select class="form-control" id="wsPartyType">
+        <option value=""><?=$languageArray['all_code'][$language]?></option>
+        <option value="Normal">Normal</option>
+        <option value="Packing">Packing</option>
+      </select>
+    </div>
     <div class="form-group col-12 col-md-3" id="wsSupplierWrap" style="display:none;">
       <label><?=$languageArray['supplier_code'][$language]?></label>
-      <select class="form-control select2" id="wsSupplier">
+      <select class="form-control select2" id="wsSupplier" data-all-label="<?=$languageArray['all_code'][$language]?> <?=$languageArray['supplier_code'][$language]?>">
         <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['supplier_code'][$language]?></option>
         <?php while ($row = mysqli_fetch_assoc($suppliers)) { ?>
-          <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['supplier_name']) ?></option>
+          <option value="<?= $row['id'] ?>" data-type="<?= htmlspecialchars($row['supplier_type'] ?? 'Normal') ?>"><?= htmlspecialchars($row['supplier_name']) ?></option>
         <?php } ?>
       </select>
     </div>
     <div class="form-group col-12 col-md-3" id="wsCustomerWrap" style="display:none;">
       <label><?=$languageArray['customer_code'][$language]?></label>
-      <select class="form-control select2" id="wsCustomer">
+      <select class="form-control select2" id="wsCustomer" data-all-label="<?=$languageArray['all_code'][$language]?> <?=$languageArray['customer_code'][$language]?>">
         <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['customer_code'][$language]?></option>
         <?php while ($row = mysqli_fetch_assoc($customers)) { ?>
-          <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['customer_name']) ?></option>
+          <option value="<?= $row['id'] ?>" data-type="<?= htmlspecialchars($row['customer_type'] ?? 'Normal') ?>"><?= htmlspecialchars($row['customer_name']) ?></option>
         <?php } ?>
       </select>
     </div>
@@ -64,48 +72,95 @@
     </div>
   </div>
 
-  <!-- Supplier / Customer Breakdowns -->
-  <h6 class="dash-section-header" id="wsBreakdownHeader"><?=$languageArray['breakdown_code'][$language]?></h6>
-  <div class="row" id="wsBreakdownRow">
-    <div class="col-12 col-md-6 mb-3" id="wsSupplierBreakdownWrap">
+  <!-- Supplier Breakdowns (Normal / Packing) -->
+  <h6 class="dash-section-header" id="wsSupplierBreakdownHeader"><?=$languageArray['supplier_code'][$language]?> <?=$languageArray['breakdown_code'][$language]?></h6>
+  <div class="row" id="wsSupplierBreakdownRow">
+    <div class="col-12 col-md-6 mb-3" id="wsSupplierNormalWrap">
       <div class="card h-100 dash-section-card">
-        <div class="card-header" onclick="toggleCard('wsSupplierBody','wsSupplierChevron')">
+        <div class="card-header" onclick="toggleCard('wsSupplierNormalBody','wsSupplierNormalChevron')">
           <div class="d-flex align-items-center flex-1">
-            <i class="fas fa-chevron-down dash-chevron" id="wsSupplierChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
+            <i class="fas fa-chevron-down dash-chevron" id="wsSupplierNormalChevron"></i>
+            <span class="section-title mb-0">Normal <?=$languageArray['supplier_code'][$language]?> (kg)</span>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;">
-            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();openExportModal('supplier')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
-          <div class="dash-pager" id="wsSupplierPager" style="display:none;">
-            <button class="btn btn-sm btn-outline-secondary" id="wsSupplierPrev" onclick="event.stopPropagation();wsSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
-            <small id="wsSupplierPageInfo"></small>
-            <button class="btn btn-sm btn-outline-secondary" id="wsSupplierNext" onclick="event.stopPropagation();wsSupplierPage(1)"><i class="fas fa-chevron-right"></i></button>
-          </div>
+            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();openExportModal('supplier_normal')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
+            <div class="dash-pager" id="wsSupplierNormalPager" style="display:none;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsSupplierNormalPage(-1)"><i class="fas fa-chevron-left"></i></button>
+              <small id="wsSupplierNormalPageInfo"></small>
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsSupplierNormalPage(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
           </div>
         </div>
-        <div class="card-body" id="wsSupplierBody">
-          <div id="wsSupplierBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
+        <div class="card-body" id="wsSupplierNormalBody">
+          <div id="wsSupplierNormalBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6 mb-3" id="wsCustomerBreakdownWrap">
+    <div class="col-12 col-md-6 mb-3" id="wsSupplierPackingWrap">
       <div class="card h-100 dash-section-card">
-        <div class="card-header" onclick="toggleCard('wsCustomerBody','wsCustomerChevron')">
+        <div class="card-header" onclick="toggleCard('wsSupplierPackingBody','wsSupplierPackingChevron')">
           <div class="d-flex align-items-center flex-1">
-            <i class="fas fa-chevron-down dash-chevron" id="wsCustomerChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</span>
+            <i class="fas fa-chevron-down dash-chevron" id="wsSupplierPackingChevron"></i>
+            <span class="section-title mb-0">Packing <?=$languageArray['supplier_code'][$language]?> (kg)</span>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;">
-            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();openExportModal('customer')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
-          <div class="dash-pager" id="wsCustomerPager" style="display:none;">
-            <button class="btn btn-sm btn-outline-secondary" id="wsCustomerPrev" onclick="event.stopPropagation();wsCustomerPage(-1)"><i class="fas fa-chevron-left"></i></button>
-            <small id="wsCustomerPageInfo"></small>
-            <button class="btn btn-sm btn-outline-secondary" id="wsCustomerNext" onclick="event.stopPropagation();wsCustomerPage(1)"><i class="fas fa-chevron-right"></i></button>
-          </div>
+            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();openExportModal('supplier_packing')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
+            <div class="dash-pager" id="wsSupplierPackingPager" style="display:none;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsSupplierPackingPage(-1)"><i class="fas fa-chevron-left"></i></button>
+              <small id="wsSupplierPackingPageInfo"></small>
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsSupplierPackingPage(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
           </div>
         </div>
-        <div class="card-body" id="wsCustomerBody">
-          <div id="wsCustomerBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
+        <div class="card-body" id="wsSupplierPackingBody">
+          <div id="wsSupplierPackingBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Breakdowns (Normal / Packing) -->
+  <h6 class="dash-section-header" id="wsCustomerBreakdownHeader"><?=$languageArray['customer_code'][$language]?> <?=$languageArray['breakdown_code'][$language]?></h6>
+  <div class="row" id="wsCustomerBreakdownRow">
+    <div class="col-12 col-md-6 mb-3" id="wsCustomerNormalWrap">
+      <div class="card h-100 dash-section-card">
+        <div class="card-header" onclick="toggleCard('wsCustomerNormalBody','wsCustomerNormalChevron')">
+          <div class="d-flex align-items-center flex-1">
+            <i class="fas fa-chevron-down dash-chevron" id="wsCustomerNormalChevron"></i>
+            <span class="section-title mb-0">Normal <?=$languageArray['customer_code'][$language]?> (kg)</span>
+          </div>
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();openExportModal('customer_normal')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
+            <div class="dash-pager" id="wsCustomerNormalPager" style="display:none;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsCustomerNormalPage(-1)"><i class="fas fa-chevron-left"></i></button>
+              <small id="wsCustomerNormalPageInfo"></small>
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsCustomerNormalPage(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="wsCustomerNormalBody">
+          <div id="wsCustomerNormalBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 mb-3" id="wsCustomerPackingWrap">
+      <div class="card h-100 dash-section-card">
+        <div class="card-header" onclick="toggleCard('wsCustomerPackingBody','wsCustomerPackingChevron')">
+          <div class="d-flex align-items-center flex-1">
+            <i class="fas fa-chevron-down dash-chevron" id="wsCustomerPackingChevron"></i>
+            <span class="section-title mb-0">Packing <?=$languageArray['customer_code'][$language]?> (kg)</span>
+          </div>
+          <div class="d-flex align-items-center" style="gap:8px;">
+            <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();openExportModal('customer_packing')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
+            <div class="dash-pager" id="wsCustomerPackingPager" style="display:none;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsCustomerPackingPage(-1)"><i class="fas fa-chevron-left"></i></button>
+              <small id="wsCustomerPackingPageInfo"></small>
+              <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();wsCustomerPackingPage(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="wsCustomerPackingBody">
+          <div id="wsCustomerPackingBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
         </div>
       </div>
     </div>

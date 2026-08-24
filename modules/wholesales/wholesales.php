@@ -448,7 +448,7 @@ else{
                     <option value=""><?=$languageArray['please_select_code'][$language]?></option>
                     <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
-                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>" data-type="<?=$rowCustomer3['customer_type'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -466,7 +466,7 @@ else{
                     <option value=""><?=$languageArray['please_select_code'][$language]?></option>
                     <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
-                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>" data-type="<?=$rowSupplier3['supplier_type'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -1301,8 +1301,13 @@ $(function () {
     var customerId = customer;
     var status = $('#extendModal').find('#status').val();
     if (allowPrice == 'Y' && customerId && status) {
+      // Recalculate prices for all weight detail rows
       $('#weightDetailsTable tr.details').each(function() {
         $(this).find('select[id^="grade_id"]').trigger('change');
+      });
+      // Recalculate prices for all reject detail rows
+      $('#rejectDetailsTable tr.details').each(function() {
+        $(this).find('select[id^="grade"]').trigger('change');
       });
     }
     applyCustomerCurrency($(this).find('option:selected').data('currency'));
@@ -1315,6 +1320,18 @@ $(function () {
     }
     else{
       $('#extendModal').find('#supplierOtherDiv').hide();
+    }
+    
+    var status = $('#extendModal').find('#status').val();
+    if (allowPrice == 'Y' && supplier && status) {
+      // Recalculate prices for all weight detail rows
+      $('#weightDetailsTable tr.details').each(function() {
+        $(this).find('select[id^="grade_id"]').trigger('change');
+      });
+      // Recalculate prices for all reject detail rows
+      $('#rejectDetailsTable tr.details').each(function() {
+        $(this).find('select[id^="grade"]').trigger('change');
+      });
     }
     applyCustomerCurrency($(this).find('option:selected').data('currency'));
   });
@@ -2176,8 +2193,27 @@ function newEntry(){
   });
 }
 
+function getSelectedPartyType() {
+  var status = $('#extendModal').find('#status').val();
+  if (status === 'RECEIVING' || status === 'INCOMING') {
+    return $('#extendModal').find('#supplier option:selected').data('type') || '';
+  } else {
+    return $('#extendModal').find('#customer option:selected').data('type') || '';
+  }
+}
+
 function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
   var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
+  
+  // If party type is Packing, default price to 0
+  var partyType = getSelectedPartyType();
+  if (partyType === 'Packing' && forceReplace) {
+    element.closest('tr').find('input[id^="price"]').val('0.00');
+    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
+    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
+    return;
+  }
+  
   if (productId && currencyId){
     $('#spinnerLoading').show();
 

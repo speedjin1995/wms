@@ -31,13 +31,13 @@ else{
     }
     $products = $db->query($productQuery);
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' AND (customer_type = 'Normal' OR customer_type IS NULL OR customer_type = '') ORDER BY customer_name ASC");
+    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' AND (supplier_type = 'Normal' OR supplier_type IS NULL OR supplier_type = '') ORDER BY supplier_name ASC");
   } else {
     $products = $db->query("SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0' ORDER BY p.product_name ASC");
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
+    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND (customer_type = 'Normal' OR customer_type IS NULL OR customer_type = '') ORDER BY customer_name ASC");
+    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND (supplier_type = 'Normal' OR supplier_type IS NULL OR supplier_type = '') ORDER BY supplier_name ASC");
   }
 
   // Language
