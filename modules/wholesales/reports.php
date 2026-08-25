@@ -176,14 +176,6 @@ else{
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['status_code'][$language]?></label>
-            <select class="form-control" id="statusFilter">
-              <option value="active" selected><?=$languageArray['active_code'][$language]?></option>
-              <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
-            </select>
-          </div>
-
-          <div class="filter-group">
             <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
             <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
               <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
@@ -193,7 +185,15 @@ else{
           </div>
         </div>
 
-        <div class="filter-row">
+        <div class="filter-row mt-3">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['status_code'][$language]?></label>
+            <select class="form-control" id="statusFilter">
+              <option value="active" selected><?=$languageArray['active_code'][$language]?></option>
+              <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
+            </select>
+          </div>
+
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
             <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
