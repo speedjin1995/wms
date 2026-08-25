@@ -269,7 +269,18 @@ else{
             </select>
           </div>
 
-          <div class="filter-group filter-group-action">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
+              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
             <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
@@ -826,6 +837,7 @@ $(function () {
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+  var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -856,7 +868,8 @@ $(function () {
         otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
         weightedBy: weightedByI,
-        location: locationI
+        location: locationI,
+        partyType: partyTypeI
       } 
     },
     'columns': [
@@ -962,6 +975,7 @@ $(function () {
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -996,7 +1010,8 @@ $(function () {
           otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
           weightedBy: weightedByI,
-          location: locationI
+          location: locationI,
+          partyType: partyTypeI
         } 
       },
       'columns': [
@@ -2132,7 +2147,6 @@ function format (row) {
   
   return returnString;
 }
-
 
 function newEntry(){
   $('#extendModal').find('#id').val("");

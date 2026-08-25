@@ -180,6 +180,17 @@ else{
                   </select>
                 </div>
               </div>
+
+              <div class="col-3" style="display: none;">
+                <div class="form-group">
+                  <label><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                  <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
+                    <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+                    <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+                    <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+                  </select>
+                </div>
+              </div>
               
               <input type="hidden" id="categoryFilter" name="categoryFilter">
             </div>
@@ -327,6 +338,7 @@ $(function () {
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+  var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -353,6 +365,7 @@ $(function () {
         checkedBy: checkedByI,
         weightedBy: weightedByI,
         location: locationI,
+        partyType: partyTypeI,
         recordType: 'industrial'
       } 
     },
@@ -426,6 +439,8 @@ $(function () {
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
 
@@ -455,6 +470,7 @@ $(function () {
           checkedBy: checkedByI,
           weightedBy: weightedByI,
           location: locationI,
+          partyType: partyTypeI,
           recordType: 'industrial'
         } 
       },
@@ -526,6 +542,8 @@ $(function () {
     var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
     var selectedIds = []; // An array to store the selected 'id' values
 
     $("#weightTable tbody input[type='checkbox']").each(function () {
@@ -537,11 +555,11 @@ $(function () {
     if (selectedIds.length > 0){
       window.open("php/modules/wholesales/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI+"&isMulti=Y&ids="+selectedIds);
     }else{
       window.open("php/modules/wholesales/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI+"&isMulti=N");
     }
   });
 
@@ -557,6 +575,8 @@ $(function () {
     var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
+    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
     var selectedIds = []; // An array to store the selected 'id' values
 
@@ -569,11 +589,11 @@ $(function () {
     if (selectedIds.length > 0){
       window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=Y&ids="+selectedIds);
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI+"&isMulti=Y&ids="+selectedIds);
     }else{
       window.open("php/modules/wholesales/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+"&status="+statusI+
       "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&isMulti=N");
+      "&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+"&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI+"&isMulti=N");
     }
   });
 
@@ -624,6 +644,7 @@ $(function () {
       var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
       var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
       var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+      var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
       var selectedIds = [];
 
       $("#weightTable tbody input[type='checkbox']").each(function() {
@@ -636,7 +657,7 @@ $(function () {
         "&transactionStatus="+transactionStatusI+"&status="+statusI+
         "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
         "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
-        "&weightedBy="+weightedByI+"&location="+locationI;
+        "&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI;
 
       if (selectedIds.length > 0) {
         window.open(base + "&isMulti=Y&ids=" + selectedIds);
