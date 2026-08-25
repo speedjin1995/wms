@@ -5,31 +5,50 @@
 var wsTrendChart      = null;
 var wsHourlyRecvChart = null;
 var wsHourlyDispChart = null;
-var wsSupplierData         = [];
-var wsSupplierCurrentPage  = 0;
-var wsCustomerData         = [];
-var wsCustomerCurrentPage  = 0;
+var wsSupplierNormalData        = [];
+var wsSupplierNormalCurrentPage = 0;
+var wsSupplierPackingData       = [];
+var wsSupplierPackingCurrentPage = 0;
+var wsCustomerNormalData        = [];
+var wsCustomerNormalCurrentPage = 0;
+var wsCustomerPackingData       = [];
+var wsCustomerPackingCurrentPage = 0;
 var WS_PAGE_SIZE = 10;
 
 /* ── Filter change handlers ─────────────────────────────── */
 $(function () {
+  // Store original options for filtering
+  window.wsSupplierOptions = $('#wsSupplier option').clone();
+  window.wsCustomerOptions = $('#wsCustomer option').clone();
+
   $('.ws-type-btn').on('click', function () {
     $('.ws-type-btn').removeClass('active');
     $(this).addClass('active');
     $('#wsType').val($(this).data('value'));
     var val = $(this).data('value');
+    
+    // Reset party type when status changes
+    $('#wsPartyType').val('');
+    
     if (val === 'DISPATCH') {
       $('#wsSupplierWrap').hide();
-      $('#wsCustomerWrap').show();
+      $('#wsPartyTypeWrap, #wsCustomerWrap').show();
       $('#wsSupplier').val('').trigger('change.select2');
+      filterWsPartyDropdowns();
     } else if (val === 'RECEIVING') {
       $('#wsCustomerWrap').hide();
-      $('#wsSupplierWrap').show();
+      $('#wsPartyTypeWrap, #wsSupplierWrap').show();
       $('#wsCustomer').val('').trigger('change.select2');
+      filterWsPartyDropdowns();
     } else {
-      $('#wsSupplierWrap, #wsCustomerWrap').hide();
+      $('#wsPartyTypeWrap, #wsSupplierWrap, #wsCustomerWrap').hide();
       $('#wsSupplier, #wsCustomer').val('').trigger('change.select2');
     }
+    loadWholesales();
+  });
+
+  $('#wsPartyType').on('change', function () {
+    filterWsPartyDropdowns();
     loadWholesales();
   });
 
@@ -38,12 +57,44 @@ $(function () {
   });
 });
 
+function filterWsPartyDropdowns() {
+  var partyType = $('#wsPartyType').val();
+  var wsType = $('#wsType').val();
+  
+  // Filter suppliers (only when RECEIVING)
+  if (wsType === 'RECEIVING') {
+    var $sup = $('#wsSupplier');
+    $sup.empty();
+    window.wsSupplierOptions.each(function () {
+      var $opt = $(this);
+      if ($opt.val() === '' || partyType === '' || $opt.data('type') === partyType) {
+        $sup.append($opt.clone());
+      }
+    });
+    $sup.val('').trigger('change.select2');
+  }
+
+  // Filter customers (only when DISPATCH)
+  if (wsType === 'DISPATCH') {
+    var $cust = $('#wsCustomer');
+    $cust.empty();
+    window.wsCustomerOptions.each(function () {
+      var $opt = $(this);
+      if ($opt.val() === '' || partyType === '' || $opt.data('type') === partyType) {
+        $cust.append($opt.clone());
+      }
+    });
+    $cust.val('').trigger('change.select2');
+  }
+}
+
 /* ── Load ───────────────────────────────────────────────── */
 function loadWholesales() {
   var params = $.extend(getDateParams(), {
-    status:   $('#wsType').val(),
-    customer: $('#wsCustomer').val() || '',
-    supplier: $('#wsSupplier').val() || ''
+    status:    $('#wsType').val(),
+    customer:  $('#wsCustomer').val() || '',
+    supplier:  $('#wsSupplier').val() || '',
+    partyType: $('#wsPartyType').val() || ''
   });
 
   $.post('php/modules/wholesales/getDashboard.php', params, function (data) {
@@ -112,31 +163,57 @@ function loadWholesales() {
       }
     }
 
-    /* --- supplier breakdown --- */
-    var hasSupplier = wsType !== 'DISPATCH' && obj.supplierBreakdown.length > 0;
-    if (hasSupplier) {
-      $('#wsSupplierBreakdownWrap').show();
-      wsSupplierData        = obj.supplierBreakdown;
-      wsSupplierCurrentPage = 0;
-      renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
+    /* --- supplier breakdown (Normal / Packing) --- */
+    var hasSupplierNormal = wsType !== 'DISPATCH' && obj.supplierNormalBreakdown.length > 0;
+    var hasSupplierPacking = wsType !== 'DISPATCH' && obj.supplierPackingBreakdown.length > 0;
+    
+    if (hasSupplierNormal) {
+      $('#wsSupplierNormalWrap').show();
+      wsSupplierNormalData = obj.supplierNormalBreakdown;
+      wsSupplierNormalCurrentPage = 0;
+      renderPagedBreakdown('wsSupplierNormalBreakdown', 'wsSupplierNormalPager', 'wsSupplierNormalPageInfo', wsSupplierNormalData, wsSupplierNormalCurrentPage, '#17a2b8');
     } else {
-      $('#wsSupplierBreakdownWrap').hide();
-      wsSupplierData = [];
+      $('#wsSupplierNormalWrap').hide();
+      wsSupplierNormalData = [];
     }
 
-    /* --- customer breakdown --- */
-    var hasCustomer = wsType !== 'RECEIVING' && obj.customerBreakdown.length > 0;
-    if (hasCustomer) {
-      $('#wsCustomerBreakdownWrap').show();
-      wsCustomerData        = obj.customerBreakdown;
-      wsCustomerCurrentPage = 0;
-      renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
+    if (hasSupplierPacking) {
+      $('#wsSupplierPackingWrap').show();
+      wsSupplierPackingData = obj.supplierPackingBreakdown;
+      wsSupplierPackingCurrentPage = 0;
+      renderPagedBreakdown('wsSupplierPackingBreakdown', 'wsSupplierPackingPager', 'wsSupplierPackingPageInfo', wsSupplierPackingData, wsSupplierPackingCurrentPage, '#17a2b8');
     } else {
-      $('#wsCustomerBreakdownWrap').hide();
-      wsCustomerData = [];
+      $('#wsSupplierPackingWrap').hide();
+      wsSupplierPackingData = [];
     }
 
-    $('#wsBreakdownHeader, #wsBreakdownRow').toggle(hasSupplier || hasCustomer);
+    $('#wsSupplierBreakdownHeader, #wsSupplierBreakdownRow').toggle(hasSupplierNormal || hasSupplierPacking);
+
+    /* --- customer breakdown (Normal / Packing) --- */
+    var hasCustomerNormal = wsType !== 'RECEIVING' && obj.customerNormalBreakdown.length > 0;
+    var hasCustomerPacking = wsType !== 'RECEIVING' && obj.customerPackingBreakdown.length > 0;
+    
+    if (hasCustomerNormal) {
+      $('#wsCustomerNormalWrap').show();
+      wsCustomerNormalData = obj.customerNormalBreakdown;
+      wsCustomerNormalCurrentPage = 0;
+      renderPagedBreakdown('wsCustomerNormalBreakdown', 'wsCustomerNormalPager', 'wsCustomerNormalPageInfo', wsCustomerNormalData, wsCustomerNormalCurrentPage, '#28a745');
+    } else {
+      $('#wsCustomerNormalWrap').hide();
+      wsCustomerNormalData = [];
+    }
+
+    if (hasCustomerPacking) {
+      $('#wsCustomerPackingWrap').show();
+      wsCustomerPackingData = obj.customerPackingBreakdown;
+      wsCustomerPackingCurrentPage = 0;
+      renderPagedBreakdown('wsCustomerPackingBreakdown', 'wsCustomerPackingPager', 'wsCustomerPackingPageInfo', wsCustomerPackingData, wsCustomerPackingCurrentPage, '#28a745');
+    } else {
+      $('#wsCustomerPackingWrap').hide();
+      wsCustomerPackingData = [];
+    }
+
+    $('#wsCustomerBreakdownHeader, #wsCustomerBreakdownRow').toggle(hasCustomerNormal || hasCustomerPacking);
 
     /* --- grade distribution receiving --- */
     var gradeRecv = obj.gradeDistribution || [];
@@ -230,40 +307,34 @@ function loadWholesales() {
 }
 
 /* ── Pager ──────────────────────────────────────────────── */
-function wsSupplierPage(dir) {
-  var totalPages = Math.ceil(wsSupplierData.length / WS_PAGE_SIZE);
-  wsSupplierCurrentPage = Math.max(0, Math.min(wsSupplierCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
+function wsSupplierNormalPage(dir) {
+  var totalPages = Math.ceil(wsSupplierNormalData.length / WS_PAGE_SIZE);
+  wsSupplierNormalCurrentPage = Math.max(0, Math.min(wsSupplierNormalCurrentPage + dir, totalPages - 1));
+  renderPagedBreakdown('wsSupplierNormalBreakdown', 'wsSupplierNormalPager', 'wsSupplierNormalPageInfo', wsSupplierNormalData, wsSupplierNormalCurrentPage, '#17a2b8');
 }
 
-function wsCustomerPage(dir) {
-  var totalPages = Math.ceil(wsCustomerData.length / WS_PAGE_SIZE);
-  wsCustomerCurrentPage = Math.max(0, Math.min(wsCustomerCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
+function wsSupplierPackingPage(dir) {
+  var totalPages = Math.ceil(wsSupplierPackingData.length / WS_PAGE_SIZE);
+  wsSupplierPackingCurrentPage = Math.max(0, Math.min(wsSupplierPackingCurrentPage + dir, totalPages - 1));
+  renderPagedBreakdown('wsSupplierPackingBreakdown', 'wsSupplierPackingPager', 'wsSupplierPackingPageInfo', wsSupplierPackingData, wsSupplierPackingCurrentPage, '#17a2b8');
+}
+
+function wsCustomerNormalPage(dir) {
+  var totalPages = Math.ceil(wsCustomerNormalData.length / WS_PAGE_SIZE);
+  wsCustomerNormalCurrentPage = Math.max(0, Math.min(wsCustomerNormalCurrentPage + dir, totalPages - 1));
+  renderPagedBreakdown('wsCustomerNormalBreakdown', 'wsCustomerNormalPager', 'wsCustomerNormalPageInfo', wsCustomerNormalData, wsCustomerNormalCurrentPage, '#28a745');
+}
+
+function wsCustomerPackingPage(dir) {
+  var totalPages = Math.ceil(wsCustomerPackingData.length / WS_PAGE_SIZE);
+  wsCustomerPackingCurrentPage = Math.max(0, Math.min(wsCustomerPackingCurrentPage + dir, totalPages - 1));
+  renderPagedBreakdown('wsCustomerPackingBreakdown', 'wsCustomerPackingPager', 'wsCustomerPackingPageInfo', wsCustomerPackingData, wsCustomerPackingCurrentPage, '#28a745');
 }
 
 function wsGradeRecvPageFn(dir) { $('#wsGradeRecvBars').data('gradePage')(dir); }
 function wsGradeDispPageFn(dir) { $('#wsGradeDispBars').data('gradePage')(dir); }
 
 /* ── Export functions ───────────────────────────────────── */
-function exportCustomerBreakdown() {
-  var params = getDateParams();
-  var url = 'php/modules/wholesales/exportDashboard.php?type=customer';
-  url += '&fromDate=' + encodeURIComponent(params.fromDate);
-  url += '&toDate=' + encodeURIComponent(params.toDate);
-  url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
-  window.open(url, '_blank');
-}
-
-function exportSupplierBreakdown() {
-  var params = getDateParams();
-  var url = 'php/modules/wholesales/exportDashboard.php?type=supplier';
-  url += '&fromDate=' + encodeURIComponent(params.fromDate);
-  url += '&toDate=' + encodeURIComponent(params.toDate);
-  url += '&supplier=' + encodeURIComponent($('#wsSupplier').val() || '');
-  window.open(url, '_blank');
-}
-
 function openExportModal(party) {
   $('#wsExportParty').val(party);
   $('#wsExportType').val('summary');
@@ -271,28 +342,32 @@ function openExportModal(party) {
 }
 
 function doExportBreakdown() {
-  var party = $('#wsExportParty').val();
+  var party = $('#wsExportParty').val(); // e.g. supplier_normal, supplier_packing, customer_normal, customer_packing
   var exportType = $('#wsExportType').val();
   var params = getDateParams();
   var url;
+  
+  // Parse party type (e.g. "supplier_normal" -> base="supplier", partyType="Normal")
+  var parts = party.split('_');
+  var base = parts[0]; // supplier or customer
+  var partyType = parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : ''; // Normal or Packing
+  
   if (exportType === 'individual') {
-    url = 'php/modules/wholesales/exportDashboard.php?type=' + party + '_individual';
-    url += '&fromDate=' + encodeURIComponent(params.fromDate);
-    url += '&toDate=' + encodeURIComponent(params.toDate);
-    if (party === 'customer') {
-      url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
-    } else {
-      url += '&supplier=' + encodeURIComponent($('#wsSupplier').val() || '');
-    }
+    url = 'php/modules/wholesales/exportDashboard.php?type=' + base + '_individual';
   } else {
-    if (party === 'customer') {
-      exportCustomerBreakdown();
-    } else {
-      exportSupplierBreakdown();
-    }
-    $('#wsExportTypeModal').modal('hide');
-    return;
+    url = 'php/modules/wholesales/exportDashboard.php?type=' + base;
   }
+  
+  url += '&fromDate=' + encodeURIComponent(params.fromDate);
+  url += '&toDate=' + encodeURIComponent(params.toDate);
+  url += '&partyType=' + encodeURIComponent(partyType);
+  
+  if (base === 'customer') {
+    url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
+  } else {
+    url += '&supplier=' + encodeURIComponent($('#wsSupplier').val() || '');
+  }
+  
   $('#wsExportTypeModal').modal('hide');
   window.open(url, '_blank');
 }

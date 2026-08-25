@@ -215,13 +215,12 @@ else{
             </select>
           </div>
 
-          <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['locations_code'][$language]?></label>
-            <select class="form-control select2" id="locationFilter" name="locationFilter">
-              <option value="">-</option>
-              <?php while($rowLocation=mysqli_fetch_assoc($locations2)){ ?>
-                <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
-              <?php } ?>
+          <div class="filter-group" style="display:none">
+            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
+              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
             </select>
           </div>
 
@@ -687,6 +686,7 @@ $(function () {
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+  var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -717,6 +717,7 @@ $(function () {
         checkedBy: checkedByI,
         weightedBy: weightedByI,
         location: locationI,
+        partyType: partyTypeI,
         recordType: 'industrial'
       } 
     },
@@ -804,6 +805,7 @@ $(function () {
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -838,6 +840,7 @@ $(function () {
           checkedBy: checkedByI,
           weightedBy: weightedByI,
           location: locationI,
+          partyType: partyTypeI,
           recordType: 'industrial'
         } 
       },

@@ -379,6 +379,11 @@ if (!empty($_GET['location']) && $_GET['location'] != '-') {
     $searchQuery .= " AND wholesales.location = '" . mysqli_real_escape_string($db, $_GET['location']) . "'";
 }
 
+if (!empty($_GET['partyType']) && $_GET['partyType'] != '-') {
+    $partyType = mysqli_real_escape_string($db, $_GET['partyType']);
+    $searchQuery .= " AND (c.customer_type = '" . $partyType . "' OR s.supplier_type = '" . $partyType . "')";
+}
+
 if (!empty($_GET['status']) && $_GET['status'] != '-') {
     if ($_GET['status'] == 'active') {
         $searchQuery .= " AND wholesales.deleted = '0'";
@@ -395,7 +400,7 @@ if ($isMulti == 'Y') {
     $ids   = $_GET['ids'] ?? '';
     $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (" . $ids . ")");
 } else {
-    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'" . $searchQuery);
+    $query = $db->query("SELECT wholesales.* FROM wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id WHERE wholesales.deleted = '0' AND wholesales.company = '$company'" . $searchQuery);
 }
 
 // ─── Default currency ─────────────────────────────────────────────────────────

@@ -48,10 +48,14 @@ if ($customerFilter !== '') {
   $partyFilter = " AND w.supplier = '$supplierFilter'";
 }
 
-## Fetch all matching wholesales records
+## Fetch all matching wholesales records (exclude Packing type customers/suppliers)
 $sql = "SELECT w.id, w.serial_no, w.start_time, w.status, w.weight_details, w.po_no, w.customer, w.supplier, w.other_customer, w.other_supplier
         FROM wholesales w
+        LEFT JOIN customers c ON w.customer = c.id
+        LEFT JOIN supplies s ON w.supplier = s.id
         WHERE w.deleted = '0' AND w.records_type = 'wholesales'
+        AND (c.customer_type IS NULL OR c.customer_type = '' OR c.customer_type = 'Normal' OR w.customer IS NULL OR w.customer = '')
+        AND (s.supplier_type IS NULL OR s.supplier_type = '' OR s.supplier_type = 'Normal' OR w.supplier IS NULL OR w.supplier = '')
         $companyFilter $dateFilter $statusFilter $partyFilter
         ORDER BY w.start_time ASC";
 

@@ -261,7 +261,18 @@ else{
             </select>
           </div>
 
-          <div class="filter-group filter-group-action">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
+              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
             <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
@@ -444,7 +455,7 @@ else{
                     <option value=""><?=$languageArray['please_select_code'][$language]?></option>
                     <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
-                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>" data-type="<?=$rowCustomer3['customer_type'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -462,7 +473,7 @@ else{
                     <option value=""><?=$languageArray['please_select_code'][$language]?></option>
                     <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
-                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>" data-type="<?=$rowSupplier3['supplier_type'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -645,7 +656,7 @@ else{
                     <td></td>
                     <td></td>
                     <td class="font-weight-bold" id="totalRejectBeforeDiscount">0.00</td>
-                    <td></td>
+                    <td class="text-danger font-weight-bold" id="totalRejectDiscount">0.00</td>
                     <td class="text-danger font-weight-bold" id="totalRejectPrice">0.00</td>
                     <?php } ?>
                     <td></td>
@@ -823,6 +834,7 @@ $(function () {
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+  var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -853,7 +865,8 @@ $(function () {
         otherVehicle: otherVehicleNoI,
         checkedBy: checkedByI,
         weightedBy: weightedByI,
-        location: locationI
+        location: locationI,
+        partyType: partyTypeI
       } 
     },
     'columns': [
@@ -959,6 +972,7 @@ $(function () {
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -993,7 +1007,8 @@ $(function () {
           otherVehicle: otherVehicleNoI,
           checkedBy: checkedByI,
           weightedBy: weightedByI,
-          location: locationI
+          location: locationI,
+          partyType: partyTypeI
         } 
       },
       'columns': [
@@ -1301,6 +1316,10 @@ $(function () {
       $('#weightDetailsTable tr.details').each(function() {
         $(this).find('select[id^="grade_id"]').trigger('change');
       });
+      // Recalculate prices for all reject detail rows
+      $('#rejectDetailsTable tr.details').each(function() {
+        $(this).find('select[id^="grade"]').trigger('change');
+      });
     }
     applyCustomerCurrency($(this).find('option:selected').data('currency'));
   });
@@ -1312,6 +1331,18 @@ $(function () {
     }
     else{
       $('#extendModal').find('#supplierOtherDiv').hide();
+    }
+    
+    var status = $('#extendModal').find('#status').val();
+    if (allowPrice == 'Y' && supplier && status) {
+      // Recalculate prices for all weight detail rows
+      $('#weightDetailsTable tr.details').each(function() {
+        $(this).find('select[id^="grade_id"]').trigger('change');
+      });
+      // Recalculate prices for all reject detail rows
+      $('#rejectDetailsTable tr.details').each(function() {
+        $(this).find('select[id^="grade"]').trigger('change');
+      });
     }
     applyCustomerCurrency($(this).find('option:selected').data('currency'));
   });
@@ -1697,21 +1728,7 @@ $(function () {
   });
 
   $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
-    var totalPrice = 0;
-    var totalDiscount = 0;
-    $('#weightDetailsTable tr').each(function() {
-      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-      var discType = $(this).find('select[name*="[discount_type]"]').val();
-      var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
-      var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-      if (discType === 'percent') {
-        totalDiscount += beforeDisc * discVal / 100;
-      } else {
-        totalDiscount += discVal;
-      }
-    });
-    $('#totalWeightPrice').text(totalPrice.toFixed(2));
-    $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
+    updateTotals();
   });
 
   $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
@@ -1855,11 +1872,7 @@ $(function () {
   });
 
   $('#rejectDetailsTable').on('change', 'input[name*="[total]"]', function() {
-    var totalPrice = 0;
-    $('#rejectDetailsTable tr').each(function() {
-      totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-    });
-    $('#totalRejectPrice').text(totalPrice.toFixed(2));
+    updateTotals();
   });
 
   $('#weightDetailsTable, #rejectDetailsTable').on('change', 'input[id^="discount"], select[id^="discount_type"]', function() {
@@ -2131,7 +2144,6 @@ function format (row) {
   return returnString;
 }
 
-
 function newEntry(){
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
@@ -2154,11 +2166,14 @@ function newEntry(){
   $('#extendModal').find('#totalWeightTare').text(0.00);
   $('#extendModal').find('#totalWeightNet').text(0.00);
   $('#extendModal').find('#totalWeightPrice').text(0.00);
+  $('#extendModal').find('#totalWeightBeforeDiscount').text(0.00);
   $('#extendModal').find('#totalWeightDiscount').text(0.00);
   $('#extendModal').find('#totalRejectGross').text(0.00);
   $('#extendModal').find('#totalRejectTare').text(0.00);
   $('#extendModal').find('#totalRejectNet').text(0.00);
   $('#extendModal').find('#totalRejectPrice').text(0.00);
+  $('#extendModal').find('#totalRejectBeforeDiscount').text(0.00);
+  $('#extendModal').find('#totalRejectDiscount').text(0.00);
   $('#extendModal').find('#bulkUnitPrice').val('');
   $('#weightDetailsTable').empty();
   $('#rejectDetailsTable').empty();
@@ -2188,8 +2203,27 @@ function newEntry(){
   });
 }
 
+function getSelectedPartyType() {
+  var status = $('#extendModal').find('#status').val();
+  if (status === 'RECEIVING' || status === 'INCOMING') {
+    return $('#extendModal').find('#supplier option:selected').data('type') || '';
+  } else {
+    return $('#extendModal').find('#customer option:selected').data('type') || '';
+  }
+}
+
 function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
   var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
+  
+  // If party type is Packing, default price to 0
+  var partyType = getSelectedPartyType();
+  if (partyType === 'Packing' && forceReplace) {
+    element.closest('tr').find('input[id^="price"]').val('0.00');
+    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
+    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
+    return;
+  }
+  
   if (productId && currencyId){
     $('#spinnerLoading').show();
 
@@ -2700,19 +2734,28 @@ function updateTotals() {
   $('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
   $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
   
-  var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0, totalRejectBeforeDiscount = 0;
+  var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0, totalRejectBeforeDiscount = 0, totalRejectDiscount = 0;
   $('#rejectDetailsTable tr').each(function() {
     totalRejectGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
     totalRejectTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
     totalRejectNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
     totalRejectPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
     totalRejectBeforeDiscount += parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    var discType = $(this).find('select[name*="[discount_type]"]').val();
+    var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
+    var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    if (discType === 'percent') {
+      totalRejectDiscount += beforeDisc * discVal / 100;
+    } else {
+      totalRejectDiscount += discVal;
+    }
   });
   $('#totalRejectGross').text(totalRejectGross.toFixed(2));
   $('#totalRejectTare').text(totalRejectTare.toFixed(2));
   $('#totalRejectNet').text(totalRejectNet.toFixed(2));
   $('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
   $('#totalRejectBeforeDiscount').text(totalRejectBeforeDiscount.toFixed(2));
+  $('#totalRejectDiscount').text(totalRejectDiscount.toFixed(2));
 }
 
 function deactivate(id) {

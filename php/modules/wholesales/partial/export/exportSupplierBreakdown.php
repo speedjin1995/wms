@@ -15,6 +15,7 @@ $fromDate   = $_GET['fromDate'] ?? '';
 $toDate     = $_GET['toDate'] ?? '';
 $supplierId = $_GET['supplier'] ?? '';
 $locationId = $_GET['location'] ?? '';
+$partyType  = $_GET['partyType'] ?? '';
 
 // Build search query
 $searchQuery = " AND w.status IN ('RECEIVING','INCOMING')";
@@ -34,6 +35,10 @@ if ($supplierId != '') {
 if ($locationId != '') {
     $locationId = mysqli_real_escape_string($db, $locationId);
     $searchQuery .= " AND w.location = '$locationId'";
+}
+if ($partyType != '') {
+    $partyType = mysqli_real_escape_string($db, $partyType);
+    $searchQuery .= " AND s.supplier_type = '$partyType'";
 }
 
 $companyFilter = ($role != 'SADMIN') ? " AND w.company = '$company'" : '';
@@ -169,7 +174,7 @@ $dataStyle = [
 
 // Title row
 $row = 1;
-$sheet->setCellValue('A' . $row, 'Supplier Weighing Breakdown Report');
+$sheet->setCellValue('A' . $row, ($partyType ? $partyType . ' ' : '') . 'Supplier Weighing Breakdown Report');
 $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
 $row++;
 
@@ -294,7 +299,7 @@ if ($allowPrice == 'Y') {
 }
 
 // Output
-$fileName = 'Supplier_Breakdown_' . date('Y-m-d') . '.xlsx';
+$fileName = ($partyType ? $partyType . '_' : '') . 'Supplier_Breakdown_' . date('Y-m-d') . '.xlsx';
 $writer = new Xlsx($spreadsheet);
 
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

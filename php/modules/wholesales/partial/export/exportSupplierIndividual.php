@@ -13,6 +13,7 @@ $allowPrice = $companyDetail['include_price'];
 $fromDate   = $_GET['fromDate'] ?? '';
 $toDate     = $_GET['toDate'] ?? '';
 $supplierId = $_GET['supplier'] ?? '';
+$partyType  = $_GET['partyType'] ?? '';
 
 $searchQuery = " AND w.status IN ('RECEIVING','INCOMING')";
 if ($fromDate != '') {
@@ -26,6 +27,10 @@ if ($toDate != '') {
 if ($supplierId != '') {
     $supplierId = mysqli_real_escape_string($db, $supplierId);
     $searchQuery .= " AND w.supplier = '$supplierId'";
+}
+if ($partyType != '') {
+    $partyType = mysqli_real_escape_string($db, $partyType);
+    $searchQuery .= " AND s.supplier_type = '$partyType'";
 }
 $companyFilter = ($role != 'SADMIN') ? " AND w.company = '$company'" : '';
 
@@ -206,7 +211,7 @@ foreach ($data as $supplierName => $dateGroups) {
     }
 }
 
-$fileName = 'Supplier_Individual_' . date('Y-m-d') . '.xlsx';
+$fileName = ($partyType ? $partyType . '_' : '') . 'Supplier_Individual_' . date('Y-m-d') . '.xlsx';
 $writer   = new Xlsx($spreadsheet);
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment;filename="' . $fileName . '"');

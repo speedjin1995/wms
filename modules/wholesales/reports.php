@@ -182,6 +182,15 @@ else{
               <option value="deleted"><?=$languageArray['deleted_code'][$language]?></option>
             </select>
           </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
+              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+            </select>
+          </div>
         </div>
 
         <div class="filter-row">
@@ -375,6 +384,7 @@ $(function () {
         var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
         var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
         var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
+        var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
         var selectedIds = [];
 
         $("#weightTable tbody input[type='checkbox']").each(function () {
@@ -385,7 +395,7 @@ $(function () {
           "&transactionStatus="+transactionStatusI+"&status="+statusI+
           "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
           "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
-          "&weightedBy="+weightedByI+"&location="+locationI;
+          "&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI;
 
         if (selectedIds.length > 0) {
           window.open(base + "&isMulti=Y&ids=" + selectedIds);
@@ -501,7 +511,8 @@ function buildParams() {
     "&otherVehicle=" + ($('#otherVehicleNoFilter').val() || '') +
     "&checkedBy=" + ($('#checkedByFilter').val() || '') +
     "&weightedBy=" + ($('#weightByFilter').val() || '') +
-    "&location=" + ($('#locationFilter').val() || '');
+    "&location=" + ($('#locationFilter').val() || '') +
+    "&partyType=" + ($('#partyTypeFilter').val() || '');
 }
 
 function getSelectedIds() {
@@ -537,7 +548,8 @@ function initTable() {
         otherVehicle: $('#otherVehicleNoFilter').val() || '',
         checkedBy: $('#checkedByFilter').val() || '',
         weightedBy: $('#weightByFilter').val() || '',
-        location: $('#locationFilter').val() || ''
+        location: $('#locationFilter').val() || '', 
+        partyType: $('#partyTypeFilter').val() || '', 
       }
     },
     columns: [
