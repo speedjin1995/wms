@@ -217,11 +217,12 @@ if(isset($_GET['id'])){
                             /* Paged.js */
                             @page {
                                 size: A4;
-                                margin: 85mm 10mm 10mm 10mm;
+                                margin: 85mm 10mm 75mm 10mm;
                                 @top-left { content: element(running-header); }
+                                @bottom-left { content: element(running-footer); }
                             }
                             .running-header { position: running(running-header); width: 100%; }
-                            .running-footer { break-before: avoid; margin-top: 10px; }
+                            .running-footer { position: running(running-footer); width: 100%; }
 
                             /* Wrapper to push footer to bottom */
                             .content-wrapper { display: flex; flex-direction: column; min-height: calc(297mm - 85mm - 10mm - 10mm); }
