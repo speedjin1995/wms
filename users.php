@@ -185,6 +185,29 @@
   </div>
 </div>
 
+<!-- Module Access Modal -->
+<div class="modal fade modal-modern" id="moduleAccessModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><i class="fas fa-cogs mr-2"></i><?=$languageArray['module_settings_code'][$language] ?? 'Module Settings'?></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="moduleAccessUserId">
+        <p class="text-muted mb-3"><?=$languageArray['select_modules_categories_code'][$language] ?? 'Select modules and categories this user can access'?></p>
+        <div id="moduleAccessContainer"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn btn-modern btn-modern-primary" onclick="saveModuleAccess()"><?=$languageArray['save_code'][$language] ?? 'Save'?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 var memberTable;
 
@@ -203,6 +226,10 @@ $(document).ready(function() {
     processing: true,
     serverSide: true,
     serverMethod: 'post',
+    language: {
+      emptyTable: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      zeroRecords: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     ajax: {
       url: 'php/modules/users/loadMembers.php',
       data: { id: <?=$company ?> }
@@ -248,8 +275,9 @@ $(document).ready(function() {
         data: 'id',
         orderable: false,
         render: function(data) {
-          return '<button type="button" onclick="edit('+data+')" class="btn btn-action btn-action-primary btn-sm mr-1"><i class="fas fa-pen"></i></button>' +
-                 '<button type="button" onclick="deactivate('+data+')" class="btn btn-action btn-action-danger btn-sm"><i class="fas fa-trash"></i></button>';
+          return '<button type="button" onclick="edit('+data+')" class="btn btn-action btn-action-primary btn-sm mr-1" title="Edit"><i class="fas fa-pen"></i></button>' +
+                 '<button type="button" onclick="openModuleAccess('+data+')" class="btn btn-action btn-action-warning btn-sm mr-1" title="Module Settings"><i class="fas fa-cogs"></i></button>' +
+                 '<button type="button" onclick="deactivate('+data+')" class="btn btn-action btn-action-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></button>';
         }
       }
     ]
@@ -344,6 +372,105 @@ function deactivate(id) {
         $('#spinnerLoading').hide();
       });
     }
+  });
+}
+function openModuleAccess(id) {
+  $('#spinnerLoading').show();
+  $('#moduleAccessUserId').val(id);
+  
+  $.post('php/modules/users/getUserProducts.php', { userID: id }, function(data) {
+    var obj = JSON.parse(data);
+    if (obj.status === 'success') {
+      var availableModules = obj.message.availableModules;
+      var categories = obj.message.categories;
+      var moduleAccess = obj.message.moduleAccess;
+      var selectedModules = moduleAccess.modules || [];
+      var selectedCategories = moduleAccess.categories || {};
+      
+      // Store categories data for later use
+      window.categoriesData = categories;
+      
+      // Build module checkboxes
+      var html = '';
+      availableModules.forEach(function(mod) {
+        var checked = selectedModules.includes(mod) ? 'checked' : '';
+        var modLabel = mod.charAt(0).toUpperCase() + mod.slice(1);
+        html += '<div class="module-item mb-3">';
+        html += '<div class="custom-control custom-checkbox">';
+        html += '<input type="checkbox" class="custom-control-input module-checkbox" id="mod_'+mod+'" value="'+mod+'" '+checked+'>';
+        html += '<label class="custom-control-label font-weight-bold" for="mod_'+mod+'">'+modLabel+'</label>';
+        html += '</div>';
+        html += '<div class="category-select ml-4 mt-2" id="cat_container_'+mod+'" style="display:'+(checked ? 'block' : 'none')+';">';
+        html += '<select class="form-control select2-categories" id="cat_'+mod+'" multiple="multiple" data-module="'+mod+'">';
+        if (categories[mod]) {
+          categories[mod].forEach(function(cat) {
+            var catSelected = (selectedCategories[mod] && selectedCategories[mod].includes(cat.id)) ? 'selected' : '';
+            html += '<option value="'+cat.id+'" '+catSelected+'>'+cat.name+'</option>';
+          });
+        }
+        html += '</select>';
+        html += '</div>';
+        html += '</div>';
+      });
+      
+      $('#moduleAccessContainer').html(html);
+      
+      // Initialize Select2 for category dropdowns
+      $('.select2-categories').each(function() {
+        $(this).select2({
+          placeholder: 'Select categories',
+          allowClear: true,
+          width: '100%',
+          dropdownParent: $('#moduleAccessModal')
+        });
+      });
+      
+      // Toggle category select on module checkbox change
+      $('.module-checkbox').on('change', function() {
+        var mod = $(this).val();
+        if ($(this).is(':checked')) {
+          $('#cat_container_'+mod).slideDown();
+        } else {
+          $('#cat_container_'+mod).slideUp();
+          $('#cat_'+mod).val(null).trigger('change');
+        }
+      });
+      
+      $('#moduleAccessModal').modal('show');
+    } else {
+      toastr.error(obj.message || 'Failed to load module settings', 'Failed:');
+    }
+    $('#spinnerLoading').hide();
+  });
+}
+
+function saveModuleAccess() {
+  $('#spinnerLoading').show();
+  
+  var modules = [];
+  var categories = {};
+  
+  $('.module-checkbox:checked').each(function() {
+    var mod = $(this).val();
+    modules.push(mod);
+    var catValues = $('#cat_'+mod).val();
+    if (catValues && catValues.length > 0) {
+      categories[mod] = catValues.map(Number);
+    }
+  });
+  
+  var moduleAccess = JSON.stringify({ modules: modules, categories: categories });
+  var userId = $('#moduleAccessUserId').val();
+  
+  $.post('php/modules/users/saveUserProducts.php', { userID: userId, moduleAccess: moduleAccess }, function(data) {
+    var obj = JSON.parse(data);
+    if (obj.status === 'success') {
+      $('#moduleAccessModal').modal('hide');
+      toastr.success(obj.message, 'Success:');
+    } else {
+      toastr.error(obj.message || 'Failed to save', 'Failed:');
+    }
+    $('#spinnerLoading').hide();
   });
 }
 </script>
