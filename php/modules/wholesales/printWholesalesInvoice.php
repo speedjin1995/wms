@@ -204,6 +204,10 @@ if(isset($_GET['id'])){
                 // Summary calculations
                 $totalBinCount = array_sum(array_column($items, 'bin'));
                 $totalActualWeight = number_format(array_sum(array_column($items, 'qty')), 2);
+                
+                // Dynamic footer margin based on transaction status
+                $footerMargin = ($wholesale['status'] == 'RECEIVING') ? '35mm' : '75mm';
+                
                 $message = '
                     <html>
                     <head>
@@ -217,7 +221,7 @@ if(isset($_GET['id'])){
                             /* Paged.js */
                             @page {
                                 size: A4;
-                                margin: 85mm 10mm 75mm 10mm;
+                                margin: 85mm 10mm ' . $footerMargin . ' 10mm;
                                 @top-left { content: element(running-header); }
                                 @bottom-left { content: element(running-footer); }
                             }
