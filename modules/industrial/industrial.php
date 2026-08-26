@@ -669,7 +669,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length > 0 ? $('#extendModal .modal-content') : $(this).parent()
     });
   });
 
@@ -1150,7 +1150,7 @@ $(function () {
     $('.select2').select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
   });
@@ -1221,7 +1221,7 @@ $(function () {
     $('.select2').select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
   });
@@ -1265,7 +1265,7 @@ $(function () {
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
     
@@ -1390,7 +1390,7 @@ $(function () {
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
     
@@ -2006,7 +2006,7 @@ function edit(id) {
           allowClear: true,
           placeholder: "Please Select",
           // Conditionally set dropdownParent based on the element’s location
-          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-content') : undefined
         });
       });
 
@@ -2116,7 +2116,7 @@ function acceptRow(button) {
   $('.select2').select2({
     allowClear: true,
     placeholder: "Please Select",
-    dropdownParent: $('#extendModal .modal-body'),
+    dropdownParent: $('#extendModal .modal-content'),
     width: '100%'
   });
 }
