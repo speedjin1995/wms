@@ -23,6 +23,17 @@ else{
   $userAllowDelete = $_SESSION['userAllowDelete'] ?? 'N';
   $userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
   $userLocationId = $_SESSION['userLocationId'] ?? null;
+  $userModuleAccess = $_SESSION['userModuleAccess'];
+  $categoryIds = [];
+  if (!empty($userModuleAccess['categories'])) {
+    $allowedModules = ['wholesale', 'processing'];
+    foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+      if (in_array($module, $allowedModules)) {
+        $categoryIds = array_merge($categoryIds, $moduleCategories);
+      }
+    }
+    $categoryIds = array_unique($categoryIds);
+  }
   
   $allowPhoto = 'N';
   $allowPrice = 'N';
@@ -50,9 +61,10 @@ else{
       $stateJson = json_encode(array_values($filterStates));
       $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
     }
-    $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$stateFilter ORDER BY p.product_name ASC";    
+    $categoryFilter = !empty($categoryIds) ? " AND c.id IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+    $categories = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
+    $categories2 = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$stateFilter$categoryFilter ORDER BY p.product_name ASC";    
     $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";

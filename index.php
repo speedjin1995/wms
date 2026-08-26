@@ -33,6 +33,7 @@ else{
   $userAllowDelete = 'N';
   $userAllowPrice = 'N';
   $userLocationId = null;
+  $userModuleAccess = [];
 	
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
@@ -43,6 +44,7 @@ else{
     $userAllowDelete = $row['allow_delete'];
     $userAllowPrice = $row['allow_price'];
     $userLocationId = $row['location'];
+    $userModuleAccess = json_decode($row['module_access'], true);
 
     // Store user permissions in session
     $_SESSION['userAllowAdd'] = $userAllowAdd;
@@ -50,6 +52,7 @@ else{
     $_SESSION['userAllowDelete'] = $userAllowDelete;
     $_SESSION['userAllowPrice'] = $userAllowPrice;
     $_SESSION['userLocationId'] = $userLocationId;
+    $_SESSION['userModuleAccess'] = $userModuleAccess;
     $_SESSION['role'] = $role;
   }
 
