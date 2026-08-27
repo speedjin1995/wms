@@ -11,6 +11,7 @@ session_start();
 $company      = $_SESSION['customer'];
 $companyDetail = searchCompanyById($company, $db);
 $allowPrice   = $companyDetail['include_price'];
+$allowPcsBasket   = $companyDetail['include_pcs_basket'];
 $fileName     = 'Report_' . date('Y-m-d') . '.xlsx';
 
 // ─── Helper functions ────────────────────────────────────────────────────────
@@ -38,7 +39,7 @@ function colLetter($n) {
     return $l;
 }
 
-function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db) {
+function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPcsBasket, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db) {
 
     // ── Headers ──────────────────────────────────────────────────────────────
 
@@ -197,6 +198,11 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
 
         $numericColIndices[] = count($lineData) + 1;
         $lineData[] = floatval($rowData['actualWeight']);
+        
+        if ($allowPcsBasket == 'Y') {
+            $numericColIndices[] = count($lineData) + 1;
+            $lineData[] = $rowData['totalPcsBasket'];
+        }
 
         if ($allowPrice == 'Y') {
             $lineData[] = !empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency;
@@ -427,6 +433,7 @@ if ($query->num_rows > 0) {
 
         $totalWeight      = 0;
         $totalBinWeight   = 0;
+        $totalPcsBasket   = 0;
         $totalRejectWeight = 0;
         $totalPrice       = 0;
         $actualPrice      = 0;
@@ -450,6 +457,7 @@ if ($query->num_rows > 0) {
                     $gradeNettWeight   += floatval($detail['net']    ?? 0);
                     $totalWeight       += floatval($detail['gross']  ?? 0);
                     $totalBinWeight    += floatval($detail['tare']   ?? 0);
+                    $totalPcsBasket    += floatval($detail['no_per_basket'] ?? 0);
                     $totalRejectWeight += floatval($detail['reject'] ?? 0);
 
                     if (empty($currency) && !empty($detail['currency'])) {
@@ -517,6 +525,7 @@ if ($query->num_rows > 0) {
             'gradeActualPrice' => $gradeActualPrice,
             'currencyTotals' => $currencyTotals,
             'totalWeight'    => $totalWeight,
+            'totalPcsBasket' => $totalPcsBasket,
             'totalBinWeight' => $totalBinWeight,
             'total_reject'   => $totalRejectWeight,
             'actualWeight'   => $actualWeight,
@@ -551,6 +560,10 @@ if ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $tr
 }
 
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
+if ($allowPcsBasket == 'Y') {
+    $trailingHeaders[] = 'Total Pcs/Basket';
+}
+
 if ($allowPrice == 'Y') {
     $trailingHeaders[] = 'Currency';
     $trailingHeaders[] = 'Total Price (RM)';
@@ -573,7 +586,7 @@ $spreadsheet = new Spreadsheet();
 // ALL sheet
 $allSheet = $spreadsheet->getActiveSheet();
 $allSheet->setTitle('ALL');
-writeSheet($allSheet, $allRows, $productGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
+writeSheet($allSheet, $allRows, $productGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPcsBasket, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
 
 // Per-machine sheets
 $machineGroups = [];
@@ -611,7 +624,7 @@ foreach ($machineGroups as $locationName => $machineRows) {
 
     $machineSheet = $spreadsheet->createSheet();
     $machineSheet->setTitle($sheetTitle);
-    writeSheet($machineSheet, $machineRows, $machineProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
+    writeSheet($machineSheet, $machineRows, $machineProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPcsBasket, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
 }
 
 // ─── Output ───────────────────────────────────────────────────────────────────
