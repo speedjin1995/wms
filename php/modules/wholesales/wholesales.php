@@ -289,6 +289,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'grade' => $weightDetail['grade'] ?? '',
                 'grade_id' => $weightDetail['grade_id'] ?? '',
                 'currency' => $weightDetail['currency'] ?? '',
+                'no_per_basket' => $weightDetail['no_basket'] ?? '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
