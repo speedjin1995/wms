@@ -3169,3 +3169,5 @@ END
 $$
 DELIMITER ;
 
+-- 27/08/2026 --
+ALTER TABLE `companies` ADD `include_pcs_basket` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_invoice`;
