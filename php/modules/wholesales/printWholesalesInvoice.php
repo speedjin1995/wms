@@ -214,9 +214,10 @@ if(isset($_GET['id'])){
                         <meta charset="UTF-8">
                         <title>Sales Order - ' . $soNo . '</title>
                         <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+                        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
                         <style>
                             * { margin: 0; padding: 0; box-sizing: border-box; }
-                            body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #000; }
+                            body { font-family: "Noto Sans SC", Arial, Helvetica, "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 14px; color: #000; }
 
                             /* Paged.js */
                             @page {
@@ -237,7 +238,7 @@ if(isset($_GET['id'])){
                             .header-inner { display: inline-flex; align-items: center; gap: 15px; }
                             .logo img { width: 110px; height: auto; }
                             .company-info { text-align: left; }
-                            .company-cn { font-size: 32px; font-weight: bold; color: black; letter-spacing: 8px; }
+                            .company-cn { font-size: 24px; font-weight: bold; color: black; letter-spacing: 8px; }
                             .company-en { font-size: 18px; font-weight: bold; margin: 2px 0; }
                             .company-addr { font-size: 13px; }
                             .company-contact { font-size: 13px; }
