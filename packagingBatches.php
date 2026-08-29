@@ -157,6 +157,16 @@ else{
             </select>
           </div>
 
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
+            <select class="form-control select2" id="categoryFilter" name="categoryFilter">
+              <option value="all"><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <?php while($rowCatFilter=mysqli_fetch_assoc($categories3)){ ?>
+                <option value="<?=$rowCatFilter['id']?>"><?=$rowCatFilter['category_name']?></option>
+              <?php } ?>
+            </select>
+          </div>
+
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
             <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
@@ -522,6 +532,7 @@ $(function () {
   var toDateI = $('#toDate').val();
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
   var productionLineI = $('#productionLineFilter').val() ? $('#productionLineFilter').val() : '';
+  var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : 'all';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -542,7 +553,8 @@ $(function () {
         fromDate: fromDateI,
         toDate: toDateI,
         location: locationI,
-        productionLine: productionLineI
+        productionLine: productionLineI,
+        category: categoryI
       } 
     },
     'columns': [
@@ -612,6 +624,7 @@ $(function () {
     var toDateI = $('#toDate').val();
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
     var productionLineI = $('#productionLineFilter').val() ? $('#productionLineFilter').val() : '';
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : 'all';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -636,7 +649,8 @@ $(function () {
           fromDate: fromDateI,
           toDate: toDateI,
           location: locationI,
-          productionLine: productionLineI
+          productionLine: productionLineI,
+          category: categoryI
         } 
       },
       'columns': [
