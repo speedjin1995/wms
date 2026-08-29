@@ -23,6 +23,7 @@ if (!empty($weighingDetails)) {
         $key        = $productId . '_' . $gradeKey;
         $net        = floatval($detail['net'] ?? 0);
         $tare       = floatval($detail['tare'] ?? 0);
+        $pcsBasket  = floatval($detail['no_per_basket'] ?? 0);
         $price      = floatval($detail['price'] ?? 0);
         $fixedfloat = $detail['fixedfloat'] ?? 'Float';
         $total      = (strtolower($fixedfloat) == 'fixed') ? $price : $price * $net;
@@ -35,6 +36,7 @@ if (!empty($weighingDetails)) {
                 'grade_id'   => $gradeId,
                 'grade'      => $detail['grade'] ?? '',
                 'count'      => 0,
+                'pcs_per_basket' => 0,
                 'net'        => 0.0,
                 'tare'       => 0.0,
                 'unitPrice'  => [],
@@ -45,6 +47,7 @@ if (!empty($weighingDetails)) {
         $groups[$key]['count']++;
         $groups[$key]['net']  += $net;
         $groups[$key]['tare'] += $tare;
+        $groups[$key]['pcs_per_basket'] += $pcsBasket;
         $groups[$key]['unitPrice'][$curName] = $price;
         if (!isset($groups[$key]['totalByCur'][$curName])) $groups[$key]['totalByCur'][$curName] = 0.0;
         $groups[$key]['totalByCur'][$curName] += $total;
@@ -52,10 +55,12 @@ if (!empty($weighingDetails)) {
     }
 }
 
-$includePrice    = ($companyDetail['include_price'] == 'Y');
+$includePrice = ($companyDetail['include_price'] == 'Y');
+$includePcsBasket = ($companyDetail['include_pcs_basket'] == 'Y');
 $weightDetails   = '';
 $totalCages      = 0;
 $totalCagesWeight = 0;
+$totalPcsBasket = 0;
 $grandTotalByCur = [];
 
 foreach ($groups as $g) {
@@ -65,6 +70,7 @@ foreach ($groups as $g) {
 
     $totalCages       += $g['count'];
     $totalCagesWeight += $g['tare'];
+    $totalPcsBasket   += $g['pcs_per_basket'];
 
     // Accumulate grand totals by currency
     foreach ($g['totalByCur'] as $cur => $amt) {
@@ -96,12 +102,13 @@ foreach ($groups as $g) {
     }
 
     $unitPriceStr2 = $includePrice ? '&nbsp;&nbsp;&nbsp;Unit Price : ' . $unitPriceStr . '&nbsp;&nbsp;&nbsp;Total Amount : ' . $totalAmtStr : '';
+    $gradePcsBasketStr = $includePcsBasket ? '&nbsp;&nbsp;&nbsp;Pcs/Basket : ' . $g['pcs_per_basket'] : '';
 
     $weightDetails .= '
     <table class="grade-table">
         <thead>
             <tr class="grade-header">
-                <td colspan="10"><strong>Item Decs : ' . htmlspecialchars($productName) . '&nbsp;&nbsp;&nbsp;Grade : ' . htmlspecialchars($gradeName) . '&nbsp;&nbsp;&nbsp;Total Bin : ' . $g['count'] . '&nbsp;&nbsp;&nbsp;Total Weight : ' . number_format($g['net'], 2) . 'kg.' . $unitPriceStr2 . '</strong></td>
+                <td colspan="10"><strong>Item Decs : ' . htmlspecialchars($productName) . '&nbsp;&nbsp;&nbsp;Grade : ' . htmlspecialchars($gradeName) . '&nbsp;&nbsp;&nbsp;Total Bin : ' . $g['count'] . '' . $gradePcsBasketStr . '&nbsp;&nbsp;&nbsp;Total Weight : ' . number_format($g['net'], 2) . 'kg.' . $unitPriceStr2 . '</strong></td>
             </tr>
             <tr class="net-header"><td colspan="10">Item Weight</td></tr>
         </thead>
@@ -262,12 +269,13 @@ $message = '
                 ' . ($includePrice ? '<div class="irow"><span class="ilabel">Total Price</span><span class="ivalue">: ' . $grandTotalPriceStr . '</span></div>' : '') . '
                 <div class="irow"><span class="ilabel">Actual Weight</span><span class="ivalue">: ' . $actualWeight . ' kg</span></div>
                 <div class="irow"><span class="ilabel">Total Cages</span><span class="ivalue">: ' . number_format($totalCages) . '</span></div>
-                <div class="irow"><span class="ilabel">Weight By</span><span class="ivalue">: ' . htmlspecialchars($weightedBy) . '</span></div>
                 <div class="irow"><span class="ilabel">Total Weight (kg)</span><span class="ivalue">: ' . number_format($wholesale['total_weight'], 2) . ' kg</span></div>
+                ' . ($includePcsBasket ? '<div class="irow"><span class="ilabel">Total Pcs/Basket</span><span class="ivalue">: ' . $totalPcsBasket . '</span></div>' : '') . '
             </div>
             <div class="info-col">
                 <div class="irow"><span class="ilabel">Time Start</span><span class="ivalue">: ' . date('h:i:s A', strtotime($wholesale['start_time'])) . '</span></div>
                 <div class="irow"><span class="ilabel">Time End</span><span class="ivalue">: ' . date('h:i:s A', strtotime($wholesale['end_time'])) . '</span></div>
+                <div class="irow"><span class="ilabel">Weight By</span><span class="ivalue">: ' . htmlspecialchars($weightedBy) . '</span></div>
                 <div class="irow"><span class="ilabel">Check By</span><span class="ivalue">: ' . htmlspecialchars($checkedBy) . '</span></div>
                 <div class="irow"><span class="ilabel">Remark</span><span class="ivalue">: ' . htmlspecialchars($wholesale['remark']) . '</span></div>
             </div>

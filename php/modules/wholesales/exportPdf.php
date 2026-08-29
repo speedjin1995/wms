@@ -12,6 +12,7 @@ $userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
 $company = $_SESSION['customer'];
 $companyDetail = searchCompanyById($company, $db);
 $allowPrice = $companyDetail['include_price'] ?? 'N';
+$allowPcsBasket = $companyDetail['include_pcs_basket'] ?? 'N';
 
 // Default Currency
 $defaultCurrency = 'MYR';

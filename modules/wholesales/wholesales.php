@@ -104,6 +104,7 @@ else{
     $allowPrice = $companyDetail['include_price'];
     $allowInvoice = $companyDetail['include_invoice'];
     $allowPayment = $companyDetail['include_payment'];
+    $allowPcsBasket = $companyDetail['include_pcs_basket'];
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
@@ -134,6 +135,7 @@ else{
     $allowPrice = 'Y';
     $allowInvoice = 'Y';
     $allowPayment = 'Y';
+    $allowPcsBasket = 'Y';
     $secRemarksExists = true;
   }
 
@@ -588,6 +590,9 @@ else{
                     <th style="width:7%;"><?=$languageArray['gross_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['tare_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['net_code'][$language]?></th>
+                    <?php if($allowPcsBasket == 'Y') { ?>
+                    <th style="width:6%;"><?=$languageArray['pcs_basket_code'][$language] ?? 'Pcs/Basket'?></th>
+                    <?php } ?>
                     <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                     <th style="width:6%;"><?=$languageArray['currency_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['price_code'][$language]?></th>
@@ -609,6 +614,9 @@ else{
                     <td id="totalWeightGross">0.00</td>
                     <td id="totalWeightTare">0.00</td>
                     <td class="text-primary font-weight-bold" id="totalWeightNet">0.00</td>
+                    <?php if($allowPcsBasket == 'Y') { ?>
+                    <td id="totalWeightBasket">0</td>
+                    <?php } ?>
                     <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                     <td></td>
                     <td></td>
@@ -771,6 +779,7 @@ var allowPhoto = '<?=$allowPhoto?>';
 var allowPrice = '<?=$allowPrice?>';
 var userAllowPrice = '<?=$userAllowPrice?>';
 var allowInvoice = '<?=$allowInvoice?>';
+var allowPcsBasket = '<?=$allowPcsBasket?>';
 var userLocation = '<?=$userLocationId?>';
 var columnNames = [
   '<?=$languageArray['serial_no_code'][$language]?>',
@@ -1517,6 +1526,9 @@ $(function () {
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
         <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td ${allowPcsBasket == 'Y' ? '' : 'style="display:none"'}>
+          <input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="0">
+        </td>
         <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
           <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
             <option value="" selected disabled>Select Currency</option>
@@ -1707,6 +1719,7 @@ $(function () {
     var totalTare = 0;
     var totalNet = 0;
     var totalPrice = 0;
+    var totalBasket = 0;
 
     $('#weightDetailsTable tr').each(function() {
       totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
@@ -1717,6 +1730,11 @@ $(function () {
     $('#totalWeightGross').text(totalGross.toFixed(2));
     $('#totalWeightTare').text(totalTare.toFixed(2));
     $('#totalWeightNet').text(totalNet.toFixed(2));
+
+    $('#weightDetailsTable tr').each(function() {
+      totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
+    });
+    $('#totalWeightBasket').text(totalBasket);
 
     $(this).closest('tr').find('input[id^="price"]').trigger("blur");
   });
@@ -1741,6 +1759,14 @@ $(function () {
 
   $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
     updateTotals();
+  });
+
+  $('#weightDetailsTable').on('change input', 'input[name*="[no_basket]"]', function() {
+    var totalBasket = 0;
+    $('#weightDetailsTable tr').each(function() {
+      totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
+    });
+    $('#totalWeightBasket').text(totalBasket);
   });
 
   $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
@@ -2003,6 +2029,7 @@ function format (row) {
               <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
+              ${allowPcsBasket == 'Y' ? '<th class="text-right"><?=$languageArray['pcs_basket_code'][$language] ?? 'Pcs/Basket'?></th>' : ''}
               ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
               <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
               ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
@@ -2016,6 +2043,7 @@ function format (row) {
       var totalWeightPrice = 0;
       var totalWeightBeforeDiscount = 0;
       var totalWeightDiscount = 0;
+      var totalWeightBasket = 0;
       for (var i = 0; i < row.weightDetails.length; i++) {
         var detail = row.weightDetails[i];
         var discountDisplay = '';
@@ -2039,6 +2067,7 @@ function format (row) {
                 <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
                 <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
                 <td class="text-right text-mono text-primary font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
+                ${allowPcsBasket == 'Y' ? `<td class="text-right text-mono">${parseInt(detail.no_per_basket)||0}</td>` : ''}
                 ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-success font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td class="text-center text-muted">${detail.time}</td>
                 ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
@@ -2050,6 +2079,7 @@ function format (row) {
         totalWeightPrice += parseFloat(detail.total);
         totalWeightBeforeDiscount += parseFloat(detail.before_discount) || 0;
         totalWeightDiscount += discountAmount;
+        totalWeightBasket += parseInt(detail.no_per_basket) || 0;
       }
 
       returnString += `
@@ -2060,6 +2090,7 @@ function format (row) {
               <td class="text-right text-mono" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
               <td class="text-right text-mono" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
               <td class="text-right text-mono text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
+              ${allowPcsBasket == 'Y' ? `<td class="text-right text-mono">${totalWeightBasket}</td>` : ''}
               ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono" id="footBeforeDiscount_' + row.id + '">' + totalWeightBeforeDiscount.toFixed(2) + '</td><td class="text-right text-mono text-danger" id="footDiscount_' + row.id + '">' + totalWeightDiscount.toFixed(2) + '</td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
               <td></td>
               ${allowPhoto == 'Y' ? '<td></td>' : ''}
@@ -2366,6 +2397,7 @@ function edit(id) {
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" required min="0.01"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01" readonly></td>
+              <td><input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="${parseInt(detail.no_per_basket)||0}"></td>
               <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
                 <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
                   <option value="" selected disabled>Select Currency</option>
@@ -2460,6 +2492,11 @@ function edit(id) {
         $('#weightDetailsFooter').find('#totalWeightPrice').text(totalPrice.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
         $('#weightDetailsFooter').find('#totalWeightDiscount').text(totalDiscount.toFixed(2));
+        var totalBasket = 0;
+        $('#weightDetailsTable tr').each(function() {
+          totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
+        });
+        $('#weightDetailsFooter').find('#totalWeightBasket').text(totalBasket);
       }
       
       // Populate reject details table
@@ -2723,7 +2760,7 @@ function removeRejectDetail(button) {
 }
 
 function updateTotals() {
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0, totalBasket = 0;
   $('#weightDetailsTable tr').each(function() {
     totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
     totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
@@ -2745,6 +2782,10 @@ function updateTotals() {
   $('#totalWeightPrice').text(totalPrice.toFixed(2));
   $('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
   $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
+  $('#weightDetailsTable tr').each(function() {
+    totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
+  });
+  $('#totalWeightBasket').text(totalBasket);
   
   var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0, totalRejectBeforeDiscount = 0, totalRejectDiscount = 0;
   $('#rejectDetailsTable tr').each(function() {

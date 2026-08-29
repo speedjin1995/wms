@@ -52,6 +52,7 @@ $rowsNeeded = ceil($totalExpandedGrades / 3);
 $weightDetails = '';
 $totalCages = 0;
 $totalCagesWeight = 0;
+$totalPcsBasket = 0;
 $grandTotalPrice = 0;
 
 for($row = 0; $row < $rowsNeeded; $row++) {
@@ -78,7 +79,7 @@ for($row = 0; $row < $rowsNeeded; $row++) {
             $weightDetails .= '<tr style="font-weight: bold; background-color: #f0f0f0;"><td colspan="4">'.$product.' GRADE : ' . $grade . '</td></tr>';
             $weightDetails .= '<tr><th>No</th><th>Gross Weight</th><th>Tare Weight</th><th>Net Weight</th></tr>';
 
-            $totalGross = $totalTare = $totalNet = $totalPrice = $unitPrice = 0;
+            $totalGross = $totalTare = $totalNet = $totalPrice = $unitPrice = $pcsBasket = 0 ;
             $pricingType = null;
 
             for($i = 0; $i < 10; $i++) {
@@ -88,18 +89,20 @@ for($row = 0; $row < $rowsNeeded; $row++) {
                     $gross = floatval($item['gross'] ?? 0);
                     $tare = floatval($item['tare'] ?? 0);
                     $net = floatval($item['net'] ?? 0);
+                    $pcsPerBasket = floatval($item['no_per_basket'] ?? 0);
                     $price = floatval($item['price'] ?? 0);
                     $unitPrice = floatval($item['price'] ?? 0);
                     $pricingType = $item['fixedfloat'];
                     $totalPrice += (strtolower($pricingType) == 'fixed') ? $price : $net * ($price ?? 0);
                     $totalCagesWeight += $tare;
                 } else {
-                    $gross = $tare = $net = $price = '';
+                    $gross = $tare = $net = $price = $pcsPerBasket ='';
                 }
 
                 $totalGross += $gross != '' ? $gross : 0;
                 $totalTare += $tare != '' ? $tare : 0;
                 $totalNet += $net != '' ? $net : 0;
+                $pcsBasket += $pcsPerBasket != '' ? $pcsPerBasket : 0;
 
                 $weightDetails .= '<tr>';
                 $weightDetails .= '<td>' . ($i + 1) . '</td>';
@@ -124,7 +127,12 @@ for($row = 0; $row < $rowsNeeded; $row++) {
                 $weightDetails .= '<tr style="visibility: hidden; border: none;"><td colspan="2" style="border: none;">Total Price</td><td colspan="2" style="border: none;">RM ' . number_format($totalPrice, 2) . (!empty($pricingType) && $pricingType !== 'null' ? ' (' . $pricingType . ')' : '') . '</td></tr>';
             }
 
+            if ($companyDetail['include_pcs_basket'] == 'Y') {
+                $weightDetails .= '<tr><td colspan="2">Total Pcs/Basket</td><td colspan="2">' . $pcsBasket . '</td></tr>';
+            }
+
             $grandTotalPrice += $totalPrice;
+            $totalPcsBasket += $pcsBasket;
             $weightDetails .= '</table>';
             $weightDetails .= '</div>';
         }
@@ -209,6 +217,7 @@ $message = '
                 <div class="col-4">
                     <div class="info-row"><span class="info-label">To Vehicle No</span><span class="info-value">: '.$wholesale['vehicle_no'].'</span></div>
                     <div class="info-row"><span class="info-label">Total Cages</span><span class="info-value">: '.number_format($totalCages).'</span></div>
+                    '.($companyDetail['include_pcs_basket'] == 'Y' ? '<div class="info-row"><span class="info-label">Total Pcs/Basket</span><span class="info-value">: '.$totalPcsBasket.'</span></div>' : '').'
                     <div class="info-row"><span class="info-label">Cages Weight</span><span class="info-value">: '.number_format($totalCagesWeight, 2).' kg</span></div>
                     <div class="info-row"><span class="info-label">Weight By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
                     <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: '.($wholesale['checked_by'] == 'JACKY' ? '' : $wholesale['checked_by']).'</span></div>

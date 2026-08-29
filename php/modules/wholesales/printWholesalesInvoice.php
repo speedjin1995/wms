@@ -40,6 +40,7 @@ if(isset($_GET['id'])){
                 $companyBankSwiftCode = $wholesale['bank_swift_code'] ?? '';
                 $companyLogo = $wholesale['company_logo'];
                 $companyIncludePayment = $wholesale['include_payment'] ?? 'N';
+                $companyIncludePcsBasket = $wholesale['include_pcs_basket'] ?? 'N';
                 $companyLogoSrc = '';
                 if (!empty($companyLogo)) {
                     $companyLogoSrc = 'php/viewPhoto.php?file=' . urlencode($companyLogo) . '&type=file_table';
@@ -135,6 +136,7 @@ if(isset($_GET['id'])){
                             'weights' => [],
                             'tare' => [],
                             'qty' => 0,
+                            'pcs_per_basket' => 0,
                             'uom' => strtoupper($detail['unit'] ?? 'KG'),
                             'unit_price' => floatval($detail['price'] ?? 0),
                             'total_price' => 0,
@@ -142,9 +144,11 @@ if(isset($_GET['id'])){
                     }
                     $net = floatval($detail['net'] ?? 0);
                     $tare = floatval($detail['tare'] ?? 0);
+                    $pcsPerBasket = floatval($detail['no_per_basket'] ?? 0);
                     $grouped[$key]['weights'][] = $net;
                     $grouped[$key]['tare'][] = $tare;
                     $grouped[$key]['qty'] += $net;
+                    $grouped[$key]['pcs_per_basket'] += $pcsPerBasket;
                     $grouped[$key]['total_price'] += floatval($detail['total'] ?? 0);
                 }
                 $items = [];
@@ -156,6 +160,7 @@ if(isset($_GET['id'])){
                 // Build item rows HTML
                 $itemRowsHtml = '';
                 $totalTareWeight = 0;
+                $totalPcsBasket = 0;
                 $totalAmount = 0;
                 foreach ($items as $index => $item) {
                     // echo json_encode($item);exit;
@@ -170,6 +175,7 @@ if(isset($_GET['id'])){
                     $unitPrice = number_format($item['unit_price'], 2);
                     $totalPrice = number_format($item['total_price'], 2);
                     $totalAmount += floatval($item['total_price']);
+                    $totalPcsBasket += floatval($item['pcs_per_basket']);
                     $tareWeight = 0;
                     foreach ($item['tare'] as $tare) {
                         $tareWeight += floatval($tare);
@@ -181,8 +187,12 @@ if(isset($_GET['id'])){
                                     <div class="item-row">
                                         <div class="item-col-no">' . $no . '</div>
                                         <div class="item-col-desc">
-                                            <span class="item-col-desc-product">' . $item['product'] . '</span><br><span class="item-col-desc-grade">GRADE : ' . $item['grade'] . '</span><br>
-                                            <span class="item-col-desc-product">TARE / BIN : ' . $tareOverBin . $item['uom'] . '</span><span class="item-col-desc-grade">BIN : ' . $item['bin'] . '</span><br>
+                                            <span class="item-col-desc-product">' . $item['product'] . '</span>
+                                            <br>
+                                            <span class="item-col-desc-grade">GRADE : ' . $item['grade'] . '</span><span class="item-col-desc-grade">PCS / BASKET : ' . $item['pcs_per_basket'] . '</span>
+                                            <br>
+                                            <span class="item-col-desc-product">TARE / BIN : ' . $tareOverBin . $item['uom'] . '</span><span class="item-col-desc-grade">BIN : ' . $item['bin'] . '</span>
+                                            <br>
                                             <span>' . $weightLines . '</span>
                                         </div>
                                         <div class="item-col-qty">' . $qty . '</div>
@@ -204,24 +214,30 @@ if(isset($_GET['id'])){
                 // Summary calculations
                 $totalBinCount = array_sum(array_column($items, 'bin'));
                 $totalActualWeight = number_format(array_sum(array_column($items, 'qty')), 2);
+                
+                // Dynamic footer margin based on transaction status
+                $footerMargin = ($wholesale['status'] == 'RECEIVING') ? '35mm' : '75mm';
+                
                 $message = '
                     <html>
                     <head>
                         <meta charset="UTF-8">
                         <title>Sales Order - ' . $soNo . '</title>
                         <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+                        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
                         <style>
                             * { margin: 0; padding: 0; box-sizing: border-box; }
-                            body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #000; }
+                            body { font-family: "Noto Sans SC", Arial, Helvetica, "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 14px; color: #000; }
 
                             /* Paged.js */
                             @page {
                                 size: A4;
-                                margin: 85mm 10mm 10mm 10mm;
+                                margin: 85mm 10mm ' . $footerMargin . ' 10mm;
                                 @top-left { content: element(running-header); }
+                                @bottom-left { content: element(running-footer); }
                             }
                             .running-header { position: running(running-header); width: 100%; }
-                            .running-footer { break-before: avoid; margin-top: 10px; }
+                            .running-footer { position: running(running-footer); width: 100%; }
 
                             /* Wrapper to push footer to bottom */
                             .content-wrapper { display: flex; flex-direction: column; min-height: calc(297mm - 85mm - 10mm - 10mm); }
@@ -232,7 +248,7 @@ if(isset($_GET['id'])){
                             .header-inner { display: inline-flex; align-items: center; gap: 15px; }
                             .logo img { width: 110px; height: auto; }
                             .company-info { text-align: left; }
-                            .company-cn { font-size: 32px; font-weight: bold; color: black; letter-spacing: 8px; }
+                            .company-cn { font-size: 24px; font-weight: bold; color: black; letter-spacing: 8px; }
                             .company-en { font-size: 18px; font-weight: bold; margin: 2px 0; }
                             .company-addr { font-size: 13px; }
                             .company-contact { font-size: 13px; }
@@ -360,7 +376,13 @@ if(isset($_GET['id'])){
                                     <div class="addr-line">' . $deliverToAddr3 . '</div>
                                     <div class="contact-row"><span class="contact-label">Attn</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToAttn . '</span></div>
                                     <div class="contact-row"><span class="contact-label">Tel</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToTel . '</span></div>
-                                    <div class="contact-row"><span class="contact-label">Email</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>
+                                    <div class="contact-row"><span class="contact-label">Email</span><span class="contact-colon">:</span><span class="contact-value">' . $deliverToFax . '</span></div>';
+
+                                    if ($companyIncludePcsBasket == 'Y') {
+                                        $message .= '
+                                        <div class="contact-row"><span class="contact-label">Total <br>Pcs/Basket</span><span class="contact-colon">:</span><span class="contact-value">' . $totalPcsBasket . '</span></div>';
+                                    }
+                                $message .= '
                                 </div>
                                 <div class="so-section">'; 
                                     if ($wholesale['status'] == 'RECEIVING'){

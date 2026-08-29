@@ -3169,7 +3169,10 @@ END
 $$
 DELIMITER ;
 
--- 23/08/2026 --
+-- 27/08/2026 --
+ALTER TABLE `companies` ADD `include_pcs_basket` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_invoice`;
+
+-- 28/08/2026 --
 ALTER TABLE `users` ADD `allow_price` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `allow_delete`;
 
 ALTER TABLE `users` ADD `module_access` TEXT NULL AFTER `allow_price`;
