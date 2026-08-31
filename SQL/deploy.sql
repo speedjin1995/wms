@@ -3171,3 +3171,6 @@ DELIMITER ;
 
 -- 27/08/2026 --
 ALTER TABLE `companies` ADD `include_pcs_basket` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `include_invoice`;
+
+-- 31/08/2026 --
+ALTER TABLE `companies` ADD `column_setup` LONGTEXT NULL AFTER `running_no_type`;
