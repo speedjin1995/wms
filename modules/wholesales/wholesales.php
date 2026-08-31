@@ -350,7 +350,7 @@ else{
                 'driver_code'            => $languageArray['driver_code'][$language],
                 'total_item_code'        => $languageArray['total_item_code'][$language],
                 'total_weight_code'      => $languageArray['total_weight_code'][$language],
-                'total_price_reject_code'=> $allowPrice == 'Y' ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language],
+                'total_price_reject_code'=> ($allowPrice == 'Y' && $userAllowPrice == 'Y') ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language],
                 'weighed_by_code'        => $languageArray['weighed_by_code'][$language],
                 'checked_by_code'        => $languageArray['checked_by_code'][$language],
                 'modified_by_code'       => $languageArray['modified_by_code'][$language] ?? 'Modified By',
@@ -812,7 +812,7 @@ var defaultColumns = [
   ['driver_code',             'driver',           '<?=$languageArray['driver_code'][$language]?>'],
   ['total_item_code',         'total_item',       '<?=$languageArray['total_item_code'][$language]?>'],
   ['total_weight_code',       'total_weight',     '<?=$languageArray['total_weight_code'][$language]?>'],
-  ['total_price_reject_code', allowPrice == 'Y' ? 'total_price' : 'total_reject', allowPrice == 'Y' ? '<?=$languageArray['total_price_code'][$language] ?? 'Total Price'?>' : '<?=$languageArray['total_reject_code'][$language]?>'],
+  ['total_price_reject_code', (allowPrice == 'Y' && userAllowPrice == 'Y') ? 'total_price' : 'total_reject', (allowPrice == 'Y' && userAllowPrice == 'Y') ? '<?=$languageArray['total_price_code'][$language] ?? 'Total Price'?>' : '<?=$languageArray['total_reject_code'][$language]?>'],
   ['weighed_by_code',         'weighted_by',      '<?=$languageArray['weighed_by_code'][$language]?>'],
   ['checked_by_code',         'checked_by',       '<?=$languageArray['checked_by_code'][$language]?>'],
   ['modified_by_code',        'modified_by',      '<?=$languageArray['modified_by_code'][$language] ?? 'Modified By'?>']
@@ -1277,7 +1277,7 @@ $(function () {
     }
     
     var status = $('#extendModal').find('#status').val();
-    if (allowPrice == 'Y' && supplier && status) {
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && supplier && status) {
       // Recalculate prices for all weight detail rows
       $('#weightDetailsTable tr.details').each(function() {
         $(this).find('select[id^="grade_id"]').trigger('change');
@@ -1920,14 +1920,14 @@ function getTableColumns() {
     data: 'id', class: 'action-button', orderable: false,
     render: function(data, type, row) {
       var buttons = '<div class="d-flex" style="gap:4px;">';
-      if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+      if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
         buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
       }
       buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
-      if(allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
+      if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
         buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
       }
-      if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+      if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
         buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
       }
       buttons += '</div>';
@@ -2876,7 +2876,7 @@ function filterWeightTable(rowId) {
       totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
       totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
       totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
-      if (allowPrice == 'Y') {
+      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
         totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
         totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
         totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
