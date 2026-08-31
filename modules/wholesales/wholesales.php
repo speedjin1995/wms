@@ -326,6 +326,7 @@ else{
               <th style="width:40px;"><input type="checkbox" id="selectAllRows"></th>
               <th><?=$languageArray['serial_no_code'][$language]?></th>
               <th><?=$languageArray['do_po_no_code'][$language]?></th>
+              <th><?=$languageArray['locations_code'][$language]?></th>
               <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
               <th><?=$languageArray['start_time_code'][$language]?></th>
               <th><?=$languageArray['end_time_code'][$language]?></th>
@@ -338,6 +339,7 @@ else{
               <th class="text-right"><?=$allowPrice == 'Y' ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language]?></th>
               <th><?=$languageArray['weighed_by_code'][$language]?></th>
               <th><?=$languageArray['checked_by_code'][$language]?></th>
+              <th><?=$languageArray['modified_by_code'][$language] ?? 'Modified By'?></th>
               <?php if ($secRemarksExists) { ?>
               <th><?=$languageArray['second_remarks_code'][$language]?></th>
               <?php }?>
@@ -785,7 +787,9 @@ var columnNames = [
   '<?=$languageArray['total_weight_code'][$language]?>',
   allowPrice == 'Y' ? 'Total Price' : '<?=$languageArray['total_reject_code'][$language]?>',
   '<?=$languageArray['weighed_by_code'][$language]?>',
-  '<?=$languageArray['checked_by_code'][$language]?>'
+  '<?=$languageArray['checked_by_code'][$language]?>',
+  '<?=$languageArray['locations_code'][$language]?>',
+  '<?=$languageArray['modified_by_code'][$language] ?? 'Modified By'?>'
   <?php if ($secRemarksExists) { ?>,'<?=$languageArray['second_remarks_code'][$language]?>'<?php } ?>
 ];
 
@@ -894,6 +898,7 @@ $(function () {
       },
       { data: 'serial_no' },
       { data: 'po_no' },
+      { data: 'location' },
       { data: 'security_bills' },
       { data: 'start_time' },
       { data: 'end_time' },
@@ -906,6 +911,7 @@ $(function () {
       { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
       { data: 'weighted_by' },
       { data: 'checked_by' },
+      { data: 'modified_by' },
       <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
       <?php }?>
@@ -1036,6 +1042,7 @@ $(function () {
         },
         { data: 'serial_no' },
         { data: 'po_no' },
+        { data: 'location' },
         { data: 'security_bills' },
         { data: 'start_time' },
         { data: 'end_time' },
@@ -1048,6 +1055,7 @@ $(function () {
         { data: allowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice != 'Y' },
         { data: 'weighted_by' },
         { data: 'checked_by' },
+        { data: 'modified_by' },
         <?php if ($secRemarksExists) { ?>
         { data: 'remarks2' },
         <?php }?>
