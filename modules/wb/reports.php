@@ -42,181 +42,159 @@ else{
 ?>
 
 
-<div class="content-header">
+<div class="content page-modern">
   <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['reports_code'][$language]?></h1>
-      </div><!-- /.col -->
-    </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
 
-<!-- Main content -->
-<div class="content">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="form-group col-3">
-                <label><?=$languageArray['from_date_code'][$language]?>:</label>
-                <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
-                  <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
-                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
-                </div>
-              </div>
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title"><i class="fas fa-chart-bar"></i> <?=$languageArray['reports_code'][$language]?></h1>
+    </div>
 
-              <div class="form-group col-3">
-                <label><?=$languageArray['to_date_code'][$language]?>:</label>
-                <div class="input-group date" id="toDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
-                  <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
-                  <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option selected>-</option>
-                    <option value="Dispatch"><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
-                    <!-- <option value="Local">Internal Transfer</option>
-                    <option value="Misc">Miscellaneous</option> -->
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3" id="customerDiv" style="display: none;">
-                <div class="form-group">
-                  <label><?=$languageArray['customer_code'][$language]?></label>
-                  <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
-                      <option value="<?=$rowCustomer2['customer_name'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3" id="supplierDiv">
-                <div class="form-group">
-                  <label><?=$languageArray['supplier_code'][$language]?></label>
-                  <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
-                      <option value="<?=$rowCustomer2['supplier_name'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['vehicle_no_code'][$language]?></label>
-                  <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
-                    <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
-                      <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['status_code'][$language]?></label>
-                  <select class="form-control select2" id="statusFilter" name="statusFilter" style="width: 100%;">
-                    <option value="Complete" selected><?=$languageArray['complete_code'][$language]?></option>
-                    <option value="Cancelled"><?=$languageArray['cancelled_code'][$language]?></option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['product_code'][$language]?></label>
-                  <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
-                    <option selected="selected">-</option>
-                    <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
-                      <option value="<?=$rowStatus2['product_name'] ?>"><?=$rowStatus2['product_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['transaction_id_code'][$language]?></label>
-                  <input type="text" id="transactionIDFilter" name="transactionIDFilter" class="form-control" placeholder="<?=$languageArray['transaction_id_code'][$language]?>">
-                </div>
+    <!-- Filter Card -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['from_date_code'][$language]?></label>
+            <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
+              <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
+          </div>
 
-            <div class="row">
-              <div class="col-9"></div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
-                  <i class="fas fa-search"></i>
-                  <?=$languageArray['search_code'][$language]?>
-                </button>
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['to_date_code'][$language]?></label>
+            <div class="input-group date" id="toDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
+              <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['transaction_status_code'][$language]?></label>
+            <select class="form-control" id="transactionStatusFilter">
+              <option selected>-</option>
+              <option value="Dispatch"><?=$languageArray['dispatch_code'][$language]?></option>
+              <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
+              <!-- <option value="Local">Internal Transfer</option>
+              <option value="Misc">Miscellaneous</option> -->
+            </select>
+          </div>
+
+          <div class="filter-group" id="customerDiv" style="display:none;">
+            <label class="filter-label"><?=$languageArray['customer_code'][$language]?></label>
+            <select class="form-control select2" id="customerNoFilter">
+              <option value="">Please Select</option>
+              <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
+                <option value="<?=$rowCustomer2['customer_name'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group" id="supplierDiv">
+            <label class="filter-label"><?=$languageArray['supplier_code'][$language]?></label>
+            <select class="form-control select2" id="supplierNoFilter">
+              <option value="">Please Select</option>
+              <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
+                <option value="<?=$rowCustomer2['supplier_name'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['vehicle_no_code'][$language]?></label>
+            <select class="form-control select2" id="vehicleNoFilter">
+              <option value="">Please Select</option>
+              <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
+                <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row mt-3">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['status_code'][$language]?></label>
+            <select class="form-control select2" id="statusFilter">
+              <option value="Complete" selected><?=$languageArray['complete_code'][$language]?></option>
+              <option value="Cancelled"><?=$languageArray['cancelled_code'][$language]?></option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['product_code'][$language]?></label>
+            <select class="form-control select2" id="productFilter">
+              <option selected>-</option>
+              <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
+                <option value="<?=$rowStatus2['product_name'] ?>"><?=$rowStatus2['product_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['transaction_id_code'][$language]?></label>
+            <input type="text" id="transactionIDFilter" class="form-control" placeholder="<?=$languageArray['transaction_id_code'][$language]?>">
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">&nbsp;</label>
+            <button type="button" class="btn btn-filter btn-filter-primary w-100" id="filterSearch">
+              <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+            </button>
           </div>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card card-info">
-          <div class="card-header">
-            <div class="row">
-              <div class="col-6"></div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="exportPdf"><?=$languageArray['export_pdf_code'][$language]?></button>
-              </div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" id="exportExcel"><?=$languageArray['export_excel_code'][$language]?></button>
-              </div>
-            </div>
-          </div>
 
-          <div class="card-body">
-            <table id="weightTable" class="table table-bordered table-striped display">
-              <thead>
-                <tr>
-                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['transaction_id_code'][$language]?></th>
-                  <th><?=$languageArray['transaction_date_code'][$language]?></th>
-                  <th><?=$languageArray['transaction_status_code'][$language]?></th>
-                  <th><?=$languageArray['po_no_code'][$language]?></th>
-                  <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-                  <th><?=$languageArray['customer_supplier_code'][$language]?></th>
-                  <th><?=$languageArray['incoming_weight_code'][$language]?></th>
-                  <th><?=$languageArray['incoming_date_code'][$language]?></th>
-                  <th><?=$languageArray['outgoing_weight_code'][$language]?></th>
-                  <th><?=$languageArray['outgoing_date_code'][$language]?></th>
-                  <th><?=$languageArray['total_nett_weight_code'][$language]?></th>
-                  <!-- <th width="5%">Action</th> -->
-                </tr>
-              </thead>
-            </table>
-          </div>
+    <!-- Results Card -->
+    <div class="card results-card show-dt-controls">
+      <div class="card-header">
+        <div class="results-header-left">
+          <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['reports_code'][$language]?></h3>
+        </div>
+        <div class="results-header-right d-flex" style="gap:0.5rem;">
+          <button type="button" class="btn btn-action btn-action-warning" id="exportPdf">
+            <i class="fas fa-file-pdf"></i> <?=$languageArray['export_pdf_code'][$language]?>
+          </button>
+          <button type="button" class="btn btn-action btn-action-success" id="exportExcel">
+            <i class="fas fa-file-excel"></i> <?=$languageArray['export_excel_code'][$language]?>
+          </button>
         </div>
       </div>
+      <div class="card-body">
+        <table id="weightTable" class="table data-table">
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+              <th><?=$languageArray['transaction_id_code'][$language]?></th>
+              <th><?=$languageArray['transaction_date_code'][$language]?></th>
+              <th><?=$languageArray['transaction_status_code'][$language]?></th>
+              <th><?=$languageArray['po_no_code'][$language]?></th>
+              <th><?=$languageArray['vehicle_no_code'][$language]?></th>
+              <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+              <th><?=$languageArray['incoming_weight_code'][$language]?></th>
+              <th><?=$languageArray['incoming_date_code'][$language]?></th>
+              <th><?=$languageArray['outgoing_weight_code'][$language]?></th>
+              <th><?=$languageArray['outgoing_date_code'][$language]?></th>
+              <th><?=$languageArray['total_nett_weight_code'][$language]?></th>
+              <!-- <th width="5%">Action</th> -->
+            </tr>
+          </thead>
+        </table>
+      </div>
     </div>
+
   </div>
 </div>  
 
 <script>
 $(function () {
   const today = new Date();
-  const tomorrow = new Date(today);
   const yesterday = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
   yesterday.setDate(yesterday.getDate() - 7);
 
   $('.select2').select2({
@@ -224,7 +202,6 @@ $(function () {
     placeholder: "Please Select"
   });
 
-  //Date picker
   $('#fromDatePicker').datetimepicker({
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
@@ -242,47 +219,94 @@ $(function () {
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
-  var fromDateI = $('#fromDate').val();
-  var toDateI = $('#toDate').val();
-  var transactionStatusI = $('#transactionStatusFilter').val();
-  var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-  var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-  var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-  var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-  var statusI = $('#statusFilter').val() ? $('#statusFilter').val() : '';
-  var transactionIdI = $('#transactionIDFilter').val() ? $('#transactionIDFilter').val() : '';
+  var table = initTable();
 
-  var table = $("#weightTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'searching': true,
-    'order': [[ 1, 'asc' ]],
-    'columnDefs': [ { orderable: false, targets: [0] }],
-    'ajax': {
-      'url':'php/modules/wb/filterWeighbridge.php',
-      'data': {
-        fromDate: fromDateI,
-        toDate: toDateI,
-        status: statusI,
-        product: productI,
-        customer: customerNoI,
-        supplier: supplierNoI,
-        vehicle: vehicleNoI,
-        transactionStatus: transactionStatusI,
-        transactionId: transactionIdI
-      } 
+  $('#filterSearch').on('click', function() {
+    $('#weightTable').DataTable().clear().destroy();
+    table = initTable();
+  });
+
+  $('#exportExcel').on('click', function() {
+    var params = buildParams();
+    var selectedIds = getSelectedIds();
+    window.open('php/modules/wb/export.php?' + params.substring(1) + (selectedIds.length > 0 ? '&isMulti=Y&ids=' + selectedIds : '&isMulti=N'));
+  });
+
+  $('#exportPdf').on('click', function() {
+    var params = buildParams();
+    var selectedIds = getSelectedIds();
+    window.open('php/modules/wb/exportPdf.php?' + params.substring(1) + (selectedIds.length > 0 ? '&isMulti=Y&ids=' + selectedIds : '&isMulti=N'));
+  });
+
+  $('#transactionStatusFilter').on('change', function() {
+    var status = $(this).val();
+    $('#customerNoFilter').val('').trigger('change');
+    $('#supplierNoFilter').val('').trigger('change');
+    if (status == 'Sales' || status == 'Dispatch' || status == 'Misc') {
+      $('#supplierDiv').hide();
+      $('#customerDiv').show();
+    } else {
+      $('#customerDiv').hide();
+      $('#supplierDiv').show();
+    }
+  });
+});
+
+function buildParams() {
+  return '&fromDate=' + $('#fromDate').val() +
+    '&toDate=' + $('#toDate').val() +
+    '&transactionStatus=' + $('#transactionStatusFilter').val() +
+    '&status=' + ($('#statusFilter').val() || '') +
+    '&customer=' + ($('#customerNoFilter').val() || '') +
+    '&supplier=' + ($('#supplierNoFilter').val() || '') +
+    '&product=' + ($('#productFilter').val() || '') +
+    '&vehicle=' + ($('#vehicleNoFilter').val() || '') +
+    '&transactionId=' + ($('#transactionIDFilter').val() || '');
+}
+
+function getSelectedIds() {
+  var ids = [];
+  $("#weightTable tbody input[type='checkbox']:checked").each(function() {
+    ids.push($(this).val());
+  });
+  return ids;
+}
+
+function initTable() {
+  return $('#weightTable').DataTable({
+    responsive: true,
+    autoWidth: false,
+    processing: true,
+    serverSide: true,
+    serverMethod: 'post',
+    searching: true,
+    order: [[ 1, 'asc' ]],
+    columnDefs: [{ orderable: false, targets: [0] }],
+    ajax: {
+      url: 'php/modules/wb/filterWeighbridge.php',
+      data: {
+        fromDate: $('#fromDate').val(),
+        toDate: $('#toDate').val(),
+        status: $('#statusFilter').val() || '',
+        product: $('#productFilter').val() || '',
+        customer: $('#customerNoFilter').val() || '',
+        supplier: $('#supplierNoFilter').val() || '',
+        vehicle: $('#vehicleNoFilter').val() || '',
+        transactionStatus: $('#transactionStatusFilter').val(),
+        transactionId: $('#transactionIDFilter').val() || ''
+      }
     },
-    'columns': [
+    language: {
+      emptyTable: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      zeroRecords: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
+    columns: [
       {
-        // Add a checkbox with a unique ID for each row
-        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        data: 'id',
         className: 'select-checkbox',
         orderable: false,
-        render: function (data, type, row) {
-            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
+        render: function(data, type, row) {
+          return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="' + data + '"/>';
         }
       },
       { data: 'transaction_id' },
@@ -302,206 +326,9 @@ $(function () {
       //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
       //   }
       // }
-    ],
-    // "footerCallback": function(row, data, start, end, display) {
-    //   var api = this.api();
-
-    //   var totalItem = api
-    //     .column(8, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //       return a + parseFloat(b || 0);
-    //     }, 0);
-
-    //   var totalWeight = api
-    //     .column(9, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //       return a + parseFloat(b || 0);
-    //     }, 0);
-
-    //   var totalReject = api
-    //     .column(10, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //       return a + parseFloat(b || 0);
-    //     }, 0);
-
-    //   $(api.column(8).footer()).html(totalItem);
-    //   $(api.column(9).footer()).html(totalWeight.toFixed(2));
-    //   $(api.column(10).footer()).html(totalReject.toFixed(2));
-    // }
+    ]
   });
-
-  $('#filterSearch').on('click', function(){
-    //$('#spinnerLoading').show();
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var statusI = $('#statusFilter').val() ? $('#statusFilter').val() : '';
-    var transactionIdI = $('#transactionIDFilter').val() ? $('#transactionIDFilter').val() : '';
-
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
-
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'searching': false,
-      'order': [[ 1, 'asc' ]],
-      'columnDefs': [ { orderable: false, targets: [0] }],
-      'ajax': {
-        'url':'php/modules/wb/filterWeighbridge.php',
-        'data': {
-          fromDate: fromDateI,
-          toDate: toDateI,
-          status: statusI,
-          product: productI,
-          customer: customerNoI,
-          supplier: supplierNoI,
-          vehicle: vehicleNoI,
-          transactionStatus: transactionStatusI,
-          transactionId: transactionIdI
-        } 
-      },
-      'columns': [
-        {
-          // Add a checkbox with a unique ID for each row
-          data: 'id', // Assuming 'serialNo' is a unique identifier for each row
-          className: 'select-checkbox',
-          orderable: false,
-          render: function (data, type, row) {
-              return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
-          }
-        },
-        { data: 'transaction_id' },
-        { data: 'transaction_date' },
-        { data: 'transaction_status' },
-        { data: 'do_po' },
-        { data: 'lorry_plate_no1' },
-        { data: 'customer_supplier' },
-        { data: 'gross_weight1' },
-        { data: 'gross_weight1_date' },
-        { data: 'tare_weight1' },
-        { data: 'tare_weight1_date' },
-        { data: 'final_weight' },
-        // { 
-        //   data: 'id',
-        //   render: function ( data, type, row ) {
-        //     return '<button type="button" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
-        //   }
-        // }
-      ],
-      // "footerCallback": function(row, data, start, end, display) {
-      //   var api = this.api();
-
-      //   var totalItem = api
-      //     .column(8, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //       return a + parseFloat(b || 0);
-      //     }, 0);
-
-      //   var totalWeight = api
-      //     .column(9, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //       return a + parseFloat(b || 0);
-      //     }, 0);
-
-      //   var totalReject = api
-      //     .column(10, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //       return a + parseFloat(b || 0);
-      //     }, 0);
-
-      //   $(api.column(8).footer()).html(totalItem);
-      //   $(api.column(9).footer()).html(totalWeight.toFixed(2));
-      //   $(api.column(10).footer()).html(totalReject.toFixed(2));
-      // }
-    });
-  });
-
-  $('#exportExcel').on('click', function(){
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var statusI = $('#statusFilter').val() ? $('#statusFilter').val() : '';
-    var transactionIdI = $('#transactionIDFilter').val() ? $('#transactionIDFilter').val() : '';
-
-    var selectedIds = []; // An array to store the selected 'id' values
-    $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0){
-      window.open("php/modules/wb/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
-      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&transactionId="+transactionIdI+"&isMulti=Y&ids="+selectedIds);
-    }else{
-      window.open("php/modules/wb/export.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
-      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&transactionId="+transactionIdI+"&isMulti=N");
-    }
-  });
-
-  $('#exportPdf').on('click', function(){
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var statusI = $('#statusFilter').val() ? $('#statusFilter').val() : '';
-    var transactionIdI = $('#transactionIDFilter').val() ? $('#transactionIDFilter').val() : '';
-
-    var selectedIds = []; // An array to store the selected 'id' values
-    $("#weightTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0){
-      window.open("php/modules/wb/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
-      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&transactionId="+transactionIdI+"&isMulti=Y&ids="+selectedIds);
-    }else{
-      window.open("php/modules/wb/exportPdf.php?fromDate="+fromDateI+"&toDate="+toDateI+"&transactionStatus="+transactionStatusI+
-      "&status="+statusI+"&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&vehicle="+vehicleNoI+
-      "&transactionId="+transactionIdI+"&isMulti=N");
-    }
-  });
-
-  $('#transactionStatusFilter').on('change', function(){
-    var status = $(this).val();
-    $('#customerNoFilter').val('').trigger('change');
-    $('#supplierNoFilter').val('').trigger('change');
-    if (status == 'Sales' || status == 'Dispatch' || status == 'Misc') {
-      $('#supplierDiv').hide();
-      $('#customerDiv').show();
-    } else {
-      $('#customerDiv').hide();
-      $('#supplierDiv').show();
-    }
-  });
-});
+}
 
 function printSlip(id) {
   $.post('php/modules/wb/printWeighbridge.php', {userID: id, file: 'weight', isEmptyContainer: 'N'}, function(data){
