@@ -29,7 +29,51 @@ if($_POST['toDate'] != null && $_POST['toDate'] != ''){
 }
 
 if($_POST['category'] != null && $_POST['category'] != '' && $_POST['category'] != 'all'){
-  $searchQuery .= " and grading.product_category = '".$_POST['category']."'";
+  $catProductIds = [];
+  $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND deleted = '0'");
+  $catStmt->bind_param('s', $_POST['category']);
+  $catStmt->execute();
+  $catResult = $catStmt->get_result();
+  while ($catRow = $catResult->fetch_assoc()) {
+    $catProductIds[] = $catRow['id'];
+  }
+  $catStmt->close();
+
+  if (!empty($catProductIds)) {
+    $inList = implode(',', array_map('intval', $catProductIds));
+    $searchQuery .= " AND grading.id IN (SELECT grading_id FROM grading_items WHERE deleted = 0 AND product_id IN ($inList))";
+  } else {
+    $searchQuery .= " AND 1=0";
+  }
+}else{
+  $userModuleAccess = $_SESSION['userModuleAccess'];
+  if (!empty($userModuleAccess['categories'])) {
+    $categoryIds = [];
+    $allowedModules = ['wholesale', 'processing'];
+    foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+      if (in_array($module, $allowedModules)) {
+        $categoryIds = array_merge($categoryIds, $moduleCategories);
+      }
+    }
+    $categoryIds = array_unique($categoryIds);
+    $categoryFilter = !empty($categoryIds) ? " AND category IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+
+    $catProductIds = [];
+    $catStmt = $db->prepare("SELECT id FROM products WHERE deleted = '0'$categoryFilter");
+    $catStmt->execute();
+    $catResult = $catStmt->get_result();
+    while ($catRow = $catResult->fetch_assoc()) {
+      $catProductIds[] = $catRow['id'];
+    }
+    $catStmt->close();
+
+    if (!empty($catProductIds)) {
+      $inList = implode(',', array_map('intval', $catProductIds));
+      $searchQuery .= " AND grading.id IN (SELECT grading_id FROM grading_items WHERE deleted = 0 AND product_id IN ($inList))";
+    } else {
+      $searchQuery .= " AND 1=0";
+    }
+  }
 }
 
 if($_POST['location'] != null && $_POST['location'] != '' && $_POST['location'] != 'all'){

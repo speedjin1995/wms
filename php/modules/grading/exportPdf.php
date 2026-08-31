@@ -36,8 +36,44 @@ if (isset($_GET['location']) && $_GET['location'] != '') {
 }
 
 if (isset($_GET['category']) && $_GET['category'] != '') {
-    $cat = mysqli_real_escape_string($db, $_GET['category']);
-    $searchQuery .= " AND g.product_category = '$cat'";
+    $cat = (int)$_GET['category'];
+    $catProductIds = [];
+    $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND deleted = '0'");
+    $catStmt->bind_param('i', $cat);
+    $catStmt->execute();
+    $catResult = $catStmt->get_result();
+    while ($catRow = $catResult->fetch_assoc()) $catProductIds[] = $catRow['id'];
+    $catStmt->close();
+    if (!empty($catProductIds)) {
+        $inList = implode(',', array_map('intval', $catProductIds));
+        $searchQuery .= " AND g.id IN (SELECT grading_id FROM grading_items WHERE deleted = 0 AND product_id IN ($inList))";
+    } else {
+        $searchQuery .= " AND 1=0";
+    }
+} else {
+    $userModuleAccess = $_SESSION['userModuleAccess'];
+    if (!empty($userModuleAccess['categories'])) {
+        $categoryIds = [];
+        foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+            if (in_array($module, ['wholesale', 'processing'])) {
+                $categoryIds = array_merge($categoryIds, $moduleCategories);
+            }
+        }
+        $categoryIds = array_unique($categoryIds);
+        $categoryFilter = !empty($categoryIds) ? " AND category IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+        $catProductIds = [];
+        $catStmt = $db->prepare("SELECT id FROM products WHERE deleted = '0'$categoryFilter");
+        $catStmt->execute();
+        $catResult = $catStmt->get_result();
+        while ($catRow = $catResult->fetch_assoc()) $catProductIds[] = $catRow['id'];
+        $catStmt->close();
+        if (!empty($catProductIds)) {
+            $inList = implode(',', array_map('intval', $catProductIds));
+            $searchQuery .= " AND g.id IN (SELECT grading_id FROM grading_items WHERE deleted = 0 AND product_id IN ($inList))";
+        } else {
+            $searchQuery .= " AND 1=0";
+        }
+    }
 }
 
 $isMulti = isset($_GET['isMulti']) ? $_GET['isMulti'] : '';

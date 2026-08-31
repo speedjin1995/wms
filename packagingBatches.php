@@ -12,28 +12,32 @@ else{
   $user = $_SESSION['userID'];
   $company = $_SESSION['customer'];
   $module = $_SESSION['module'];
-  $stmt = $db->prepare("SELECT * from users where id = ?");
-	$stmt->bind_param('s', $user);
-	$stmt->execute();
-	$result = $stmt->get_result();
-  $role = 'NORMAL';
-	$allowAdd = 'N';
-	$allowEdit = 'N';
-  $allowDelete = 'N';
-  $allowPhoto = 'N';
-
-	if(($row = $result->fetch_assoc()) !== null){
-    $role = $row['role_code'];
-    $allowAdd = $row['allow_add'];
-    $allowEdit = $row['allow_edit'];
-    $allowDelete = $row['allow_delete'];
+  $role = $_SESSION['role'] ?? 'NORMAL';
+  $userAllowAdd = $_SESSION['userAllowAdd'] ?? 'N';
+  $userAllowEdit = $_SESSION['userAllowEdit'] ?? 'N';
+  $userAllowDelete = $_SESSION['userAllowDelete'] ?? 'N';
+  $userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
+  $userLocationId = $_SESSION['userLocationId'] ?? null;
+  $userModuleAccess = $_SESSION['userModuleAccess'];
+  $categoryIds = [];
+  if (!empty($userModuleAccess['categories'])) {
+    $allowedModules = ['wholesale', 'processing'];
+    foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+      if (in_array($module, $allowedModules)) {
+        $categoryIds = array_merge($categoryIds, $moduleCategories);
+      }
+    }
+    $categoryIds = array_unique($categoryIds);
   }
 
+  $allowPhoto = 'N';
+
   if ($role != 'SADMIN'){
-    $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $categories3 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0' ORDER BY p.product_name ASC";   
+    $categoryFilter = !empty($categoryIds) ? " AND c.id IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+    $categories = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
+    $categories2 = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
+    $categories3 = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$categoryFilter ORDER BY p.product_name ASC";   
     $productCheck = $db->query($productQuery);
     if ($productCheck->num_rows == 0) {
       $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
@@ -96,328 +100,325 @@ else{
   $languageArray = $_SESSION['languageArray'];
 }
 ?>
-<style>
-  @media screen and (min-width: 676px) {
-    .modal-dialog {
-      max-width: 1800px; /* New width for default modal */
-    }
-  }
-</style>
-
-<div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['batch_packaging_code'][$language]?></h1>
-      </div><!-- /.col -->
-    </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
 
 <!-- Main content -->
-<div class="content">
+<div class="content page-modern">
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="form-group col-3">
-                <label><?=$languageArray['from_date_code'][$language]?>:</label>
-                <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
-                  <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
-                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
-                </div>
-              </div>
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title"><i class="fas fa-boxes"></i> <?=$languageArray['batch_packaging_code'][$language]?></h1>
+    </div>
 
-              <div class="form-group col-3">
-                <label><?=$languageArray['to_date_code'][$language]?>:</label>
-                <div class="input-group date" id="toDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
-                  <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['locations_code'][$language]?></label>
-                  <select class="form-control select2" id="locationFilter" name="locationFilter">
-                    <option value="" disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php
-                    $firstLocation = null;
-                    while($rowLocation=mysqli_fetch_assoc($locations)){ 
-                      if(!$firstLocation) $firstLocation = $rowLocation;
-                    ?>
-                      <option value="<?=$rowLocation['id'] ?>" <?= $firstLocation && $rowLocation['id'] == $firstLocation['id'] ? 'selected' : '' ?>><?=$rowLocation['locations'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['production_lines_code'][$language]?></label>
-                  <select class="form-control select2" id="productionLineFilter" name="productionLineFilter">
-                    <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowProdLine=mysqli_fetch_assoc($productionLines)){ ?>
-                      <option value="<?=$rowProdLine['id'] ?>"><?=$rowProdLine['production_line'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
+    <!-- Filter Card -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['from_date_code'][$language]?></label>
+            <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
+              <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
+          </div>
 
-            <div class="row">
-              <div class="col-9"></div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
-                  <i class="fas fa-search"></i>
-                  <?=$languageArray['search_code'][$language]?>
-                </button>
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['to_date_code'][$language]?></label>
+            <div class="input-group date" id="toDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
+              <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['locations_code'][$language]?></label>
+            <select class="form-control select2" id="locationFilter" name="locationFilter">
+              <option value="" disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+              <?php
+              $firstLocation = null;
+              while($rowLocation=mysqli_fetch_assoc($locations)){ 
+                if(!$firstLocation) $firstLocation = $rowLocation;
+              ?>
+                <option value="<?=$rowLocation['id'] ?>" <?= $firstLocation && $rowLocation['id'] == $firstLocation['id'] ? 'selected' : '' ?>><?=$rowLocation['locations'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['production_lines_code'][$language]?></label>
+            <select class="form-control select2" id="productionLineFilter" name="productionLineFilter">
+              <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowProdLine=mysqli_fetch_assoc($productionLines)){ ?>
+                <option value="<?=$rowProdLine['id'] ?>"><?=$rowProdLine['production_line'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
+            <select class="form-control select2" id="categoryFilter" name="categoryFilter">
+              <option value="all"><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <?php while($rowCatFilter=mysqli_fetch_assoc($categories3)){ ?>
+                <option value="<?=$rowCatFilter['id']?>"><?=$rowCatFilter['category_name']?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group filter-group-action" style="margin-left:auto;">
+            <label class="filter-label">&nbsp;</label>
+            <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
+              <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card card-info">
-          <div class="card-header">
-            <div class="row">
-              <div class="col-10"><?=$languageArray['batch_packaging_code'][$language]?></div>
-              <?php if($allowAdd == 'Y'){ ?>
-              <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
-              </div>
-              <?php } ?>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <table id="weightTable" class="table table-bordered table-striped display">
-              <thead>
-                <tr>
-                  <th><?=$languageArray['batch_no_code'][$language]?></th>
-                  <th><?=$languageArray['packaging_date_code'][$language]?></th>
-                  <th><?=$languageArray['locations_code'][$language]?></th>
-                  <th><?=$languageArray['production_lines_code'][$language]?></th>
-                  <th><?=$languageArray['status_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-            </table>
-          </div>
+    <!-- Results Card -->
+    <div class="card results-card show-dt-controls">
+      <div class="card-header">
+        <div class="results-header-left">
+          <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['batch_packaging_code'][$language]?></h3>
         </div>
+        <div class="results-header-right">
+          <?php if($userAllowAdd == 'Y'){ ?>
+          <button type="button" class="btn btn-action btn-action-primary" onclick="newEntry()">
+            <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
+          </button>
+          <?php } ?>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <table id="weightTable" class="table data-table">
+          <thead>
+            <tr>
+              <th><?=$languageArray['batch_no_code'][$language]?></th>
+              <th><?=$languageArray['packaging_date_code'][$language]?></th>
+              <th><?=$languageArray['locations_code'][$language]?></th>
+              <th><?=$languageArray['production_lines_code'][$language]?></th>
+              <th><?=$languageArray['status_code'][$language]?></th>
+              <th style="width:120px;"><?=$languageArray['actions_code'][$language]?></th>
+            </tr>
+          </thead>
+        </table>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="extendModal">
-  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+<div class="modal fade modal-modern" id="extendModal">
+  <div class="modal-dialog modal-xl" style="max-width: 1700px;">
     <div class="modal-content">
       <form role="form" id="extendForm" novalidate>
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-boxes mr-2 text-muted"></i><?=$languageArray['add_new_entry_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
 
-        <div class="modal-body" >
+        <div class="modal-body">
           <input type="hidden" class="form-control" id="id" name="id">
 
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['batch_no_code'][$language]?> *</label>
-                <input type="text" class="form-control" id="batchNo" name="batchNo" readonly>
+          <!-- Order Information Section -->
+          <div class="modal-section">
+            <h6 class="section-title"><i class="fas fa-info-circle mr-2"></i><?=$languageArray['order_information_code'][$language] ?? 'Order Information'?></h6>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['batch_no_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="batchNo" name="batchNo" readonly>
+                </div>
               </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['packaging_date_code'][$language]?> *</label>
-                <div class="input-group date" id="packagingDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#packagingDatePicker" id="packagingDate" name="packagingDate" required/>
-                  <div class="input-group-append" data-target="#packagingDatePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['packaging_date_code'][$language]?> <span class="text-danger">*</span></label>
+                  <div class="input-group date" id="packagingDatePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#packagingDatePicker" id="packagingDate" name="packagingDate" required/>
+                    <div class="input-group-append" data-target="#packagingDatePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['locations_code'][$language]?> *</label>
-                <select class="form-control select2" id="location" name="location">
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['locations_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" id="location" name="location">
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowLocation=mysqli_fetch_assoc($locations2)){ ?>
                       <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
                     <?php } ?>
                   </select>
+                </div>
               </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['production_lines_code'][$language]?></label>
-                <select class="form-control select2" id="productionLines" name="productionLines">
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['production_lines_code'][$language]?></label>
+                  <select class="form-control select2" id="productionLines" name="productionLines">
                     <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
                     <?php while($rowProdLine=mysqli_fetch_assoc($productionLines2)){ ?>
                       <option value="<?=$rowProdLine['id'] ?>"><?=$rowProdLine['production_line'] ?></option>
                     <?php } ?>
                   </select>
+                </div>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-                <select class="form-control" id="gradeType" name="gradeType">
-                  <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                  <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                </select>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                  <select class="form-control" id="gradeType" name="gradeType">
+                    <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['remark_code'][$language]?></label>
-                <textarea colspan="3" class="form-control" id="remarks" name="remarks" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+          <!-- Remarks Section -->
+          <div class="modal-section">
+            <h6 class="section-title"><i class="fas fa-comment-alt mr-2"></i><?=$languageArray['remark_code'][$language]?></h6>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group-modern">
+                  <textarea class="form-control" id="remarks" name="remarks" rows="2" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+                </div>
               </div>
             </div>
           </div>
           
-          <hr>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0"><?=$languageArray['weight_details_code'][$language]?></h5>
-            <div class="d-flex align-items-center gap-2">
-              <button type="button" class="btn btn-success btn-sm" id="addWeightBtn">
-                <i class="fas fa-plus"></i> <?=$languageArray['add_weight_code'][$language]?>
-              </button>
-              <button type="button" class="btn btn-info btn-sm ml-1" id="bulkAddBtn">
-                <i class="fas fa-layer-group"></i> <?=$languageArray['bulk_add_code'][$language]?>
-              </button>
+          <!-- Weight Details Section -->
+          <div class="modal-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="section-title mb-0"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['weight_details_code'][$language]?></h6>
+              <div class="d-flex align-items-center" style="gap:0.5rem;">
+                <button type="button" class="btn btn-modern btn-modern-primary btn-sm" id="addWeightBtn">
+                  <i class="fas fa-plus mr-1"></i><?=$languageArray['add_weight_code'][$language]?>
+                </button>
+                <button type="button" class="btn btn-modern btn-modern-secondary btn-sm" id="bulkAddBtn">
+                  <i class="fas fa-layer-group mr-1"></i><?=$languageArray['bulk_add_code'][$language]?>
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0" style="font-size:0.72rem;">
+                <thead class="thead-light">
+                  <tr class="text-center">
+                    <th style="width:10%;"><?=$languageArray['category_code'][$language]?></th>
+                    <th style="width:10%;"><?=$languageArray['product_code'][$language]?></th>
+                    <th style="width:10%;"><?=$languageArray['grade_code'][$language]?></th>
+                    <th style="width:10%;"><?=$languageArray['packaging_size_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['label_code'][$language]?></th>
+                    <th style="width:6%;"><?=$languageArray['unit_per_box_code'][$language]?></th>
+                    <th style="width:6%;"><?=$languageArray['gross_code'][$language]?></th>
+                    <th style="width:6%;"><?=$languageArray['tare_code'][$language]?></th>
+                    <th style="width:6%;"><?=$languageArray['weight_code'][$language]?></th>
+                    <th style="width:6%;"><?=$languageArray['time_code'][$language]?></th>
+                    <?php if($allowPhoto == 'Y') { ?>
+                    <th style="width:5%;"><?=$languageArray['photo_code'][$language]?></th>
+                    <?php } ?>
+                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="weightDetailsTable"></tbody>
+              </table>
             </div>
           </div>
-          <div class="row">
-            <table class="table table-bordered nowrap table-striped align-middle" style="width:100%">
-              <thead>
-                <tr>
-                  <th width="10%"><?=$languageArray['category_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['product_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['grade_code'][$language]?></th>
-                  <th><?=$languageArray['packaging_size_code'][$language]?></th>
-                  <th width="10%"><?=$languageArray['label_code'][$language]?></th>
-                  <th width="8%"><?=$languageArray['unit_per_box_code'][$language]?></th>
-                  <th width="8%"><?=$languageArray['gross_code'][$language]?></th>
-                  <th width="8%"><?=$languageArray['tare_code'][$language]?></th>
-                  <th width="8%"><?=$languageArray['weight_code'][$language]?></th>
-                  <th><?=$languageArray['time_code'][$language]?></th>
-                  <?php if($allowPhoto == 'Y') { ?>
-                  <th><?=$languageArray['photo_code'][$language]?></th>
-                  <?php } ?>
-                  <th width="5%"><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-              <tbody id="weightDetailsTable">
-                <!-- Weight details will be populated here -->
-              </tbody>
-            </table>
-          </div>
-
         </div>
 
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary" id="saveButton"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
         </div>
       </form>
     </div> <!-- /.modal-content -->
   </div> <!-- /.modal-dialog -->
 </div> <!-- /.modal -->   
 
-<div class="modal fade" id="bulkAddModal">
-  <div class="modal-dialog">
+<div class="modal fade modal-modern" id="bulkAddModal">
+  <div class="modal-dialog" style="max-width:500px;">
     <div class="modal-content">
       <form id="bulkAddForm" novalidate>
-      <div class="modal-header bg-gray-dark color-palette">
-        <h4 class="modal-title"><?=$languageArray['bulk_add_code'][$language]?></h4>
-        <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+      <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;">
+        <h5 class="modal-title"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['bulk_add_code'][$language]?></h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label><?=$languageArray['bulk_no_code'][$language]?> *</label>
+      <div class="modal-body" style="background: #f8f9ff;">
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['bulk_no_code'][$language]?> <span class="text-danger">*</span></label>
           <input type="number" class="form-control" id="bulkNo" min="1" value="1" required>
         </div>
-        <div class="form-group">
-          <label><?=$languageArray['category_code'][$language]?> *</label>
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['category_code'][$language]?> <span class="text-danger">*</span></label>
           <select class="form-control select2" id="bulkCategory" required>
             <option value="" selected disabled>Select Category</option>
           </select>
           <div class="invalid-feedback"><?=$languageArray['please_select_category_code'][$language]?></div>
         </div>
-        <div class="form-group">
-          <label><?=$languageArray['product_code'][$language]?> *</label>
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['product_code'][$language]?> <span class="text-danger">*</span></label>
           <select class="form-control select2" id="bulkProduct" required>
             <option value="" selected disabled>Select Product</option>
           </select>
           <div class="invalid-feedback"><?=$languageArray['please_select_product_code'][$language]?></div>
         </div>
-        <div class="form-group">
-          <label><?=$languageArray['grade_code'][$language]?> *</label>
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['grade_code'][$language]?> <span class="text-danger">*</span></label>
           <select class="form-control select2" id="bulkGrade" required>
           </select>
           <div class="invalid-feedback"><?=$languageArray['please_select_grade_code'][$language]?></div>
         </div>
-        <div class="form-group">
-          <label><?=$languageArray['packaging_size_code'][$language]?> *</label>
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['packaging_size_code'][$language]?> <span class="text-danger">*</span></label>
           <select class="form-control select2" id="bulkPackagingSize" required>
             <option value="" selected disabled>Select Packaging</option>
           </select>
-          <div class="invalid-feedback"><?=$languageArray['please_select_packaging_size_code'][$language]?> </div>
+          <div class="invalid-feedback"><?=$languageArray['please_select_packaging_size_code'][$language]?></div>
         </div>
-        <div class="form-group">
-          <label><?=$languageArray['unit_per_box_code'][$language]?> *</label>
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['unit_per_box_code'][$language]?> <span class="text-danger">*</span></label>
           <input type="number" class="form-control" id="bulkUnitPerBox" step="1" value="0" min="1" required>
         </div>
-        <div class="form-group">
-          <label><?=$languageArray['weight_code'][$language]?> *</label>
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['weight_code'][$language]?> <span class="text-danger">*</span></label>
           <input type="number" class="form-control" id="bulkWeight" step="0.01" value="0.00" min="0.01" required>
         </div>
-        <div class="form-group">
-          <label><?=$languageArray['time_code'][$language]?> *</label>
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['time_code'][$language]?> <span class="text-danger">*</span></label>
           <input type="time" class="form-control" id="bulkTime" required>
         </div>
       </div>
-      <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-        <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-        <button type="submit" class="btn btn-success" id="bulkAddSubmit"><?=$languageArray['add_code'][$language]?></button>
+      <div class="modal-footer" style="background: #f8f9ff; border-top: 1px solid #e0e4f5;">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="submit" class="btn btn-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none;" id="bulkAddSubmit"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_code'][$language]?></button>
       </div>
     </div>
       </form>
   </div>
 </div>
 
-<div class="modal fade" id="shipmentModal">
-  <div class="modal-dialog" style="max-width: 60%">
+<div class="modal fade modal-modern" id="shipmentModal">
+  <div class="modal-dialog" style="max-width: 600px;">
     <div class="modal-content">
       <form role="form" id="shipmentForm" novalidate>
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['shipment_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-shipping-fast mr-2 text-muted"></i><?=$languageArray['shipment_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="shipmentBatchId" name="shipmentBatchId">
-          <div class="form-group">
-            <label><?=$languageArray['loading_date_code'][$language]?> *</label>
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['loading_date_code'][$language]?> <span class="text-danger">*</span></label>
             <div class="input-group date" id="shipmentLoadingDatePicker" data-target-input="nearest">
               <input type="text" class="form-control datetimepicker-input" data-target="#shipmentLoadingDatePicker" id="shipmentLoadingDate" name="shipmentLoadingDate" required/>
               <div class="input-group-append" data-target="#shipmentLoadingDatePicker" data-toggle="datetimepicker">
@@ -425,8 +426,8 @@ else{
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <label><?=$languageArray['customer_code'][$language]?> *</label>
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['customer_code'][$language]?> <span class="text-danger">*</span></label>
             <select class="form-control select2" id="shipmentCustomer" name="shipmentCustomer" required>
               <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
               <?php while($rowCustomer = mysqli_fetch_assoc($customers)){ ?>
@@ -434,8 +435,8 @@ else{
               <?php } ?>
             </select>
           </div>
-          <div class="form-group">
-            <label><?=$languageArray['shipment_types_code'][$language]?> *</label>
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['shipment_types_code'][$language]?> <span class="text-danger">*</span></label>
             <select class="form-control select2" id="shipmentType" name="shipmentType" required>
               <option value="" selected disabled hidden><?=$languageArray['please_select_code'][$language]?></option>
               <?php while($rowShipment = mysqli_fetch_assoc($shipmentTypes)){ ?>
@@ -443,44 +444,40 @@ else{
               <?php } ?>
             </select>
           </div>
-          <div class="form-group">
-            <label><?=$languageArray['remark_code'][$language]?></label>
-            <textarea class="form-control" id="shipmentRemark" name="shipmentRemark" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
+            <textarea class="form-control" id="shipmentRemark" name="shipmentRemark" rows="2" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-info"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary"><i class="fas fa-shipping-fast mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="cancelModal">
-  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+<div class="modal fade modal-modern" id="cancelModal">
+  <div class="modal-dialog" style="max-width:500px;">
     <div class="modal-content">
       <form role="form" id="cancelForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-trash-alt mr-2 text-danger"></i><?=$languageArray['delete_reason_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
-              </div>
-            </div>
-            <input type="hidden" class="form-control" id="id" name="id">
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['delete_reason_code'][$language]?> <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required placeholder="<?=$languageArray['enter_reason_code'][$language] ?? 'Enter reason for deletion...'?>"></textarea>
           </div>
+          <input type="hidden" class="form-control" id="id" name="id">
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-danger" id="submitCancel"><i class="fas fa-trash mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -527,7 +524,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-content') : undefined
     });
   });
 
@@ -535,6 +532,7 @@ $(function () {
   var toDateI = $('#toDate').val();
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
   var productionLineI = $('#productionLineFilter').val() ? $('#productionLineFilter').val() : '';
+  var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : 'all';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -545,13 +543,18 @@ $(function () {
     'searching': true,
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters.'?></div></div>'
+    },
     'ajax': {
       'url':'php/modules/packagingBatches/filterPackagingBatches.php',
       'data': {
         fromDate: fromDateI,
         toDate: toDateI,
         location: locationI,
-        productionLine: productionLineI
+        productionLine: productionLineI,
+        category: categoryI
       } 
     },
     'columns': [
@@ -563,17 +566,18 @@ $(function () {
       { 
         data: 'id',
         class: 'action-button',
+        orderable: false,
         render: function ( data, type, row ) {
-          var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
-          if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+          var buttons = '<div class="d-flex" style="gap:4px;">';
+          if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
+            buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" onclick="printBatch('+data+')" class="btn btn-sm btn-outline-secondary" title="Print"><i class="fas fa-print"></i></button>';
           if(row.status !== 'completed') {
-            buttons += '<button type="button" id="shipment'+data+'" onclick="openShipmentModal('+data+')" class="btn btn-info btn-sm"><i class="fas fa-shipping-fast"></i></button>';
+            buttons += '<button type="button" onclick="openShipmentModal('+data+')" class="btn btn-sm btn-outline-info" title="Shipment"><i class="fas fa-shipping-fast"></i></button>';
           }
-          if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+          if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
+            buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
@@ -620,6 +624,7 @@ $(function () {
     var toDateI = $('#toDate').val();
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
     var productionLineI = $('#productionLineFilter').val() ? $('#productionLineFilter').val() : '';
+    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : 'all';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -634,13 +639,18 @@ $(function () {
       'searching': true,
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
+      'language': {
+        'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+        'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters.'?></div></div>'
+      },
       'ajax': {
       'url':'php/modules/packagingBatches/filterPackagingBatches.php',
         'data': {
           fromDate: fromDateI,
           toDate: toDateI,
           location: locationI,
-          productionLine: productionLineI
+          productionLine: productionLineI,
+          category: categoryI
         } 
       },
       'columns': [
@@ -652,17 +662,18 @@ $(function () {
         { 
           data: 'id',
           class: 'action-button',
+          orderable: false,
           render: function ( data, type, row ) {
-            var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+            var buttons = '<div class="d-flex" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
             }
-            buttons += '<button type="button" id="print'+data+'" onclick="printBatch('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" onclick="printBatch('+data+')" class="btn btn-sm btn-outline-secondary" title="Print"><i class="fas fa-print"></i></button>';
             if(row.status !== 'completed') {
-              buttons += '<button type="button" id="shipment'+data+'" onclick="openShipmentModal('+data+')" class="btn btn-info btn-sm"><i class="fas fa-shipping-fast"></i></button>';
+              buttons += '<button type="button" onclick="openShipmentModal('+data+')" class="btn btn-sm btn-outline-info" title="Shipment"><i class="fas fa-shipping-fast"></i></button>';
             }
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
             return buttons;
@@ -887,7 +898,7 @@ $(function () {
     $('.select2').select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
   });
@@ -923,7 +934,7 @@ $(function () {
     productSelect.val('').select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
   });
@@ -966,7 +977,7 @@ $(function () {
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
     
@@ -1005,7 +1016,7 @@ $(function () {
       gradeSelect.select2({
         allowClear: true,
         placeholder: "Please Select",
-        dropdownParent: $('#extendModal .modal-body'),
+        dropdownParent: $('#extendModal .modal-content'),
         width: '100%'
       });
       
@@ -1047,7 +1058,12 @@ $(function () {
     $('#bulkPackagingSize').html('<option value="" selected disabled>Select Packaging</option>' + packagingOptions);
 
     ['#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize'].forEach(function(id) {
-      $(id).val(null).select2({ allowClear: true, placeholder: 'Please Select', dropdownParent: $('#bulkAddModal .modal-body'), width: '100%' });
+      $(id).val(null).select2({ 
+        allowClear: true, 
+        placeholder: 'Please Select', 
+        dropdownParent: $('#bulkAddModal .modal-content'), 
+        width: '100%' 
+      });
     });
 
     $('#bulkAddModal').find('#bulkNo').val(1);
@@ -1067,7 +1083,12 @@ $(function () {
         $(this).remove();
       }
     });
-    productSelect.val('').select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#bulkAddModal .modal-body'), width: '100%' });
+    productSelect.val('').select2({ 
+      allowClear: true, 
+      placeholder: "Please Select", 
+      dropdownParent: $('#bulkAddModal .modal-content'), 
+      width: '100%' 
+    });
     $('#bulkGrade').val('').trigger('change');
   });
 
@@ -1085,7 +1106,12 @@ $(function () {
         $(this).remove();
       }
     });
-    gradeSelect.val('').select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#bulkAddModal .modal-body'), width: '100%' });
+    gradeSelect.val('').select2({ 
+      allowClear: true, 
+      placeholder: "Please Select", 
+      dropdownParent: $('#bulkAddModal .modal-content'), 
+      width: '100%' 
+    });
   });
 
   $('#bulkAddForm').on('submit', function(e) {
@@ -1212,7 +1238,7 @@ $(function () {
     $('.select2').select2({
       allowClear: true,
       placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-body'),
+      dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
 
@@ -1262,67 +1288,100 @@ $(function () {
 function format (row) {
   var statusCls = { pending: 'warning', partial: 'info', completed: 'success' };
   var returnString = `
-  <div class="row">
-    <div class="col-6">
-      <p><strong><?=$languageArray['batch_no_code'][$language]?>:</strong> ${row.batch_no}</p>
-      <p><strong><?=$languageArray['locations_code'][$language]?>:</strong> ${row.locations || ''}</p>
-      <p><strong><?=$languageArray['production_lines_code'][$language]?>:</strong> ${row.production_lines || ''}</p>
+  <div class="expanded-row-content">
+    <!-- Header -->
+    <div class="expanded-header">
+      <div>
+        <div class="expanded-header-title">${row.batch_no}</div>
+        <div class="expanded-header-subtitle">${row.locations || '-'}</div>
+      </div>
+      <div class="expanded-actions">
+        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
+        <button type="button" onclick="printBatch(${row.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
+        ${row.status !== 'completed' ? '<button type="button" onclick="openShipmentModal('+row.id+')" class="btn btn-sm btn-outline-info"><i class="fas fa-shipping-fast"></i></button>' : ''}
+        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
+      </div>
     </div>
-    <div class="col-6">
-      <p><strong><?=$languageArray['packaging_date_code'][$language]?>:</strong> ${row.packaging_date || ''}</p>
-      <p><strong><?=$languageArray['status_code'][$language]?>:</strong> <span class="badge badge-${statusCls[row.status] || 'secondary'}">${row.status}</span></p>
-      <p><strong><?=$languageArray['remark_code'][$language]?>:</strong> ${row.remarks || ''}</p>
+
+    <!-- KPI Summary -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['packaging_date_code'][$language]?></div>
+        <div class="kpi-value">${row.packaging_date || '-'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['production_lines_code'][$language]?></div>
+        <div class="kpi-value">${row.production_lines || '-'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['status_code'][$language]?></div>
+        <div class="kpi-value"><span class="badge badge-${statusCls[row.status] || 'secondary'}">${row.status}</span></div>
+      </div>
     </div>
-  </div>
-  <hr>
-  <div class="row mb-2">
-    <div class="col-md-3">
-      <select class="form-control" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value=""><?=$languageArray['all_products_code'][$language]?></option>
-      </select>
+
+    <!-- Order Info -->
+    <div class="info-section">
+      <div class="info-section-title"><?=$languageArray['order_information_code'][$language] ?? 'Order Information'?></div>
+      <div class="info-grid">
+        <div><span class="info-item-label"><?=$languageArray['batch_no_code'][$language]?></span><span class="info-item-value">${row.batch_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['locations_code'][$language]?></span><span class="info-item-value">${row.locations || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['production_lines_code'][$language]?></span><span class="info-item-value">${row.production_lines || '-'}</span></div>
+      </div>
+      ${row.remarks ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + row.remarks + '</span></div>' : ''}
     </div>
-    <div class="col-md-3">
-      <select class="form-control" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-        <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
-      </select>
-    </div>
-  </div>
-  <div class="row">
-    <table class="table table-bordered table-striped align-middle" id="weightTable_${row.id}" style="width:100%">
-      <thead>
-        <tr>
-          <th><?=$languageArray['product_code'][$language]?></th>
-          <th><?=$languageArray['grade_code'][$language]?></th>
-          <th><?=$languageArray['packaging_size_code'][$language]?></th>
-          <th><?=$languageArray['unit_per_box_code'][$language]?></th>
-          <th><?=$languageArray['weight_code'][$language]?></th>
-          <th><?=$languageArray['time_code'][$language]?></th>
-          <th><?=$languageArray['status_code'][$language]?></th>
-          ${allowPhoto == 'Y' ? '<th><?=$languageArray['photo_code'][$language]?></th>' : ''}
-        </tr>
-      </thead>
-      <tbody>`;
+
+    <!-- Weight Details -->
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title"><?=$languageArray['weight_details_code'][$language]?></span>
+        <div class="details-filters">
+          <select class="form-control form-control-sm details-filter-select" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
+            <option value=""><?=$languageArray['all_products_code'][$language]?></option>
+          </select>
+          <select class="form-control form-control-sm details-filter-select" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
+            <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
+          </select>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table details-table mb-0" id="weightTable_${row.id}">
+          <thead>
+            <tr>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th><?=$languageArray['packaging_size_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['unit_per_box_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['weight_code'][$language]?></th>
+              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
+              <th class="text-center"><?=$languageArray['status_code'][$language]?></th>
+              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+            </tr>
+          </thead>
+          <tbody>`;
 
   for (var i = 0; i < row.weightDetails.length; i++) {
     var d = row.weightDetails[i];
     var itemCls = { pending: 'warning', completed: 'success' };
     returnString += `
-      <tr>
-        <td>${d.product_name}</td>
-        <td>${d.grade_name}</td>
-        <td>${d.packaging_size_name}</td>
-        <td>${d.units_per_box}</td>
-        <td>${parseFloat(d.weight).toFixed(2)}</td>
-        <td>${d.packing_time}</td>
-        <td><span class="badge badge-${itemCls[d.status] || 'secondary'}">${d.status}</span></td>
-        ${allowPhoto == 'Y' ? '<td>' + (d.photo_path ? '<a href="php/viewPhoto.php?file=' + d.photo_path + '" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-image"></i></a>' : '') + '</td>' : ''}
-      </tr>`;
+            <tr>
+              <td>${d.product_name}</td>
+              <td><span class="grade-badge">${d.grade_name}</span></td>
+              <td>${d.packaging_size_name}</td>
+              <td class="text-right text-mono">${d.units_per_box}</td>
+              <td class="text-right text-mono text-primary font-weight-bold">${parseFloat(d.weight).toFixed(2)}</td>
+              <td class="text-center text-muted">${d.packing_time}</td>
+              <td class="text-center"><span class="badge badge-${itemCls[d.status] || 'secondary'}">${d.status}</span></td>
+              ${allowPhoto == 'Y' ? '<td class="text-center">' + (d.photo_path ? '<a href="php/viewPhoto.php?file=' + d.photo_path + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
+            </tr>`;
   }
 
   returnString += `
-      </tbody>
-    </table>
-  </div>`;
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  `;
 
   return returnString;
 }
@@ -1468,7 +1527,7 @@ function edit(id) {
           allowClear: true,
           placeholder: "Please Select",
           // Conditionally set dropdownParent based on the element’s location
-          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+          dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-content') : undefined
         });
       });
       
@@ -1693,7 +1752,7 @@ function openShipmentModal(id) {
         $(sel).select2({ 
           allowClear: true, 
           placeholder: 'Please Select', 
-          dropdownParent: $('#shipmentModal .modal-body'), 
+          dropdownParent: $('#shipmentModal .modal-content'), 
           width: '100%' 
         });
       });

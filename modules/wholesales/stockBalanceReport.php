@@ -10,19 +10,33 @@ if(!isset($_SESSION['userID'])){
 } else {
   $user    = $_SESSION['userID'];
   $company = $_SESSION['customer'];
-  $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-  $stmt->bind_param('s', $user);
-  $stmt->execute();
-  $row  = $stmt->get_result()->fetch_assoc();
-  $role = $row['role_code'] ?? 'NORMAL';
+  $role = $_SESSION['role'] ?? 'NORMAL';
+  $userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
+  $userModuleAccess = $_SESSION['userModuleAccess'];
+  $categoryIds = [];
+  if (!empty($userModuleAccess['categories'])) {
+    $allowedModules = ['wholesale', 'processing'];
+    foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+      if (in_array($module, $allowedModules)) {
+        $categoryIds = array_merge($categoryIds, $moduleCategories);
+      }
+    }
+    $categoryIds = array_unique($categoryIds);
+  }
 
   if ($role != 'SADMIN') {
-    $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND customer = '$company' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
-    $products  = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
-    $products2  = $db->query("SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC");
+    $categoryFilter = !empty($categoryIds) ? " AND c.id IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+    $categories = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
+    $categories2 = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
+    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$categoryFilter ORDER BY p.product_name ASC";    
+    $productCheck = $db->query($productQuery);
+    if ($productCheck->num_rows == 0) {
+      $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
+    }
+    $products = $db->query($productQuery);
+    $products2 = $db->query($productQuery);
     $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
+    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
@@ -37,29 +51,24 @@ if(!isset($_SESSION['userID'])){
 }
 ?>
 
-<div class="content-header">
+<div class="content page-modern">
   <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['stock_balance_code'][$language]?></h1>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div class="content">
-  <div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title"><i class="fas fa-boxes"></i> <?=$languageArray['stock_balance_code'][$language]?></h1>
+    </div>
 
     <!-- Tabs -->
-    <ul class="nav nav-tabs mb-3" id="stockTabs">
+    <ul class="nav nav-tabs nav-tabs-modern" id="stockTabs">
       <li class="nav-item">
         <a class="nav-link active" id="tab-report" data-toggle="tab" href="#paneReport">
-          <i class="fas fa-file-alt mr-1"></i> <?=$languageArray['stock_balance_report_code'][$language]?>
+          <i class="fas fa-file-alt"></i> <?=$languageArray['stock_balance_report_code'][$language]?>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="tab-adjustment" data-toggle="tab" href="#paneAdjustment">
-          <i class="fas fa-sliders-h mr-1"></i> <?=$languageArray['stock_adjustment_code'][$language]?>
+          <i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?>
         </a>
       </li>
     </ul>
@@ -68,83 +77,74 @@ if(!isset($_SESSION['userID'])){
       <!-- ── Tab 1: Stock Balance Report ── -->
       <div class="tab-pane fade show active" id="paneReport">
 
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-body">
-                <div class="row">
-                  <div class="form-group col-3">
-                    <label><?=$languageArray['date_code'][$language]?></label>
-                    <div class="input-group date" id="datePicker" data-target-input="nearest">
-                      <input type="text" class="form-control datetimepicker-input" data-target="#datePicker" id="date"/>
-                      <div class="input-group-append" data-target="#datePicker" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-3">
-                    <div class="form-group">
-                      <label><?=$languageArray['locations_code'][$language]?></label>
-                      <select class="form-control select2" id="locationFilter">
-                        <option value="">-</option>
-                        <?php while($row = mysqli_fetch_assoc($locations)) { ?>
-                          <option value="<?=$row['id']?>"><?=$row['locations']?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="col-3">
-                    <div class="form-group">
-                      <label><?=$languageArray['category_code'][$language]?></label>
-                      <select class="form-control select2" id="categoryFilter">
-                        <option value="">-</option>
-                        <?php while($row = mysqli_fetch_assoc($categories)) { ?>
-                          <option value="<?=$row['id']?>"><?=$row['category_name']?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="form-group col-3">
-                    <label><?=$languageArray['product_code'][$language]?></label>
-                    <select class="form-control select2" id="productFilter">
-                      <option value="">-</option>
-                      <?php while($row = mysqli_fetch_assoc($products)) { ?>
-                        <option value="<?=$row['id']?>" data-category="<?=$row['category']?>"><?=$row['product_name']?></option>
-                      <?php } ?>
-                    </select>
+        <!-- Filter Card -->
+        <div class="card filter-card">
+          <div class="card-body">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['date_code'][$language]?></label>
+                <div class="input-group date" id="datePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#datePicker" id="date"/>
+                  <div class="input-group-append" data-target="#datePicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-6"></div>
-                  <div class="col-3">
-                    <button type="button" class="btn btn-block btn-outline-info btn-sm" id="refreshBtn">
-                      <i class="fas fa-sync-alt"></i> <?=$languageArray['refresh_code'][$language]?>
-                    </button>
-                  </div>
-                  <div class="col-3">
-                    <button type="button" class="btn btn-block bg-gradient-purple btn-sm" id="exportBtn">
-                      <i class="fas fa-file-pdf"></i> <?=$languageArray['export_pdf_code'][$language]?>
-                    </button>
-                  </div>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['locations_code'][$language]?></label>
+                <select class="form-control select2" id="locationFilter">
+                  <option value="">-</option>
+                  <?php while($row = mysqli_fetch_assoc($locations)) { ?>
+                    <option value="<?=$row['id']?>"><?=$row['locations']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
+                <select class="form-control select2" id="categoryFilter">
+                  <option value="">-</option>
+                  <?php while($row = mysqli_fetch_assoc($categories)) { ?>
+                    <option value="<?=$row['id']?>"><?=$row['category_name']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['product_code'][$language]?></label>
+                <select class="form-control select2" id="productFilter">
+                  <option value="">-</option>
+                  <?php while($row = mysqli_fetch_assoc($products)) { ?>
+                    <option value="<?=$row['id']?>" data-category="<?=$row['category']?>"><?=$row['product_name']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="filter-group filter-group-action" style="margin-left:auto;">
+                <label class="filter-label">&nbsp;</label>
+                <div class="d-flex" style="gap:0.5rem;">
+                  <button type="button" class="btn btn-filter btn-filter-secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> <?=$languageArray['refresh_code'][$language]?>
+                  </button>
+                  <button type="button" class="btn btn-filter btn-filter-primary" id="exportBtn">
+                    <i class="fas fa-file-pdf"></i> <?=$languageArray['export_pdf_code'][$language]?>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <span><i class="fas fa-file-alt mr-1"></i> <?=$languageArray['preview_code'][$language]?></span>
-              </div>
-              <div class="card-body p-0">
-                <iframe id="previewFrame" src="" style="width:100%; height:80vh; border:none;"></iframe>
-              </div>
+        <!-- Results Card -->
+        <div class="card results-card">
+          <div class="card-header">
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-file-alt"></i> <?=$languageArray['preview_code'][$language]?></h3>
             </div>
+          </div>
+          <div class="card-body p-0">
+            <iframe id="previewFrame" src="" style="width:100%; height:80vh; border:none;"></iframe>
           </div>
         </div>
 
@@ -152,133 +152,117 @@ if(!isset($_SESSION['userID'])){
 
       <!-- ── Tab 2: Stock Adjustment ── -->
       <div class="tab-pane fade" id="paneAdjustment">
-        <!-- Filters -->
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-3">
-                    <div class="form-group">
-                      <label><?=$languageArray['date_code'][$language]?></label>
-                      <div class="input-group date" id="adjDatePicker" data-target-input="nearest">
-                        <input type="text" class="form-control datetimepicker-input" data-target="#adjDatePicker" id="adjDate"/>
-                        <div class="input-group-append" data-target="#adjDatePicker" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-3">
-                    <div class="form-group">
-                      <label><?=$languageArray['category_code'][$language]?></label>
-                      <select class="form-control select2" id="adjCategoryFilter">
-                        <option value="">-</option>
-                        <?php
-                        while($r2 = mysqli_fetch_assoc($categories2)) { ?>
-                          <option value="<?=$r2['id']?>"><?=$r2['category_name']?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-3">
-                    <div class="form-group">
-                      <label><?=$languageArray['product_code'][$language]?></label>
-                      <select class="form-control select2" id="adjProductFilter">
-                        <option value="">-</option>
-                        <?php
-                        while($r2 = mysqli_fetch_assoc($products2)) { ?>
-                          <option value="<?=$r2['id']?>" data-category="<?=$r2['category']?>"><?=$r2['product_name']?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-3">
-                    <div class="form-group">
-                      <label>Grade</label>
-                      <select class="form-control select2" id="adjGradeFilter">
-                        <option value="">-</option>
-                        <?php
-                        while($r2 = mysqli_fetch_assoc($grades)) { ?>
-                          <option value="<?=$r2['id']?>" data-product="<?=$r2['product_name']?>"><?=$r2['units']?></option>
-                        <?php } ?>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-12 mt-1">
-                    <div class="row">
-                      <div class="col-9"></div>
-                      <div class="col-3">
-                        <button type="button" class="btn btn-block btn-outline-info btn-sm" id="loadAdjBtn">
-                          <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
-                        </button>
-                      </div>
-                    </div>
+
+        <!-- Filter Card -->
+        <div class="card filter-card">
+          <div class="card-body">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['date_code'][$language]?></label>
+                <div class="input-group date" id="adjDatePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#adjDatePicker" id="adjDate"/>
+                  <div class="input-group-append" data-target="#adjDatePicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                   </div>
                 </div>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
+                <select class="form-control select2" id="adjCategoryFilter">
+                  <option value="">-</option>
+                  <?php while($r2 = mysqli_fetch_assoc($categories2)) { ?>
+                    <option value="<?=$r2['id']?>"><?=$r2['category_name']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['product_code'][$language]?></label>
+                <select class="form-control select2" id="adjProductFilter">
+                  <option value="">-</option>
+                  <?php while($r2 = mysqli_fetch_assoc($products2)) { ?>
+                    <option value="<?=$r2['id']?>" data-category="<?=$r2['category']?>"><?=$r2['product_name']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['grade_code'][$language] ?? 'Grade'?></label>
+                <select class="form-control select2" id="adjGradeFilter">
+                  <option value="">-</option>
+                  <?php while($r2 = mysqli_fetch_assoc($grades)) { ?>
+                    <option value="<?=$r2['id']?>" data-product="<?=$r2['product_name']?>"><?=$r2['units']?></option>
+                  <?php } ?>
+                </select>
+              </div>
+
+              <div class="filter-group filter-group-action" style="margin-left:auto;">
+                <label class="filter-label">&nbsp;</label>
+                <button type="button" class="btn btn-filter btn-filter-primary" id="loadAdjBtn">
+                  <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Table -->
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <span><i class="fas fa-sliders-h mr-1"></i> <?=$languageArray['stock_adjustment_code'][$language]?> &mdash; <span id="adjDateLabel"><?=date('d/m/Y')?></span></span>
-              </div>
-              <div class="card-body">
-                <table class="table table-bordered table-striped" id="adjustTable">
-                  <thead>
-                    <tr>
-                      <th><?=$languageArray['category_code'][$language]?></th>
-                      <th><?=$languageArray['product_code'][$language]?></th>
-                      <th><?=$languageArray['grade_code'][$language]?></th>
-                      <th><?=$languageArray['balance_code'][$language]?> (KG)</th>
-                      <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
-                    </tr>
-                  </thead>
-                </table>
-              </div>
+        <!-- Results Card -->
+        <div class="card results-card show-dt-controls">
+          <div class="card-header">
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?> &mdash; <span id="adjDateLabel"><?=date('d/m/Y')?></span></h3>
             </div>
+          </div>
+          <div class="card-body">
+            <table class="table data-table" id="adjustTable">
+              <thead>
+                <tr>
+                  <th><?=$languageArray['category_code'][$language]?></th>
+                  <th><?=$languageArray['product_code'][$language]?></th>
+                  <th><?=$languageArray['grade_code'][$language]?></th>
+                  <th><?=$languageArray['balance_code'][$language]?> (KG)</th>
+                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
+                </tr>
+              </thead>
+            </table>
           </div>
         </div>
 
       </div><!-- /paneAdjustment -->
 
       <!-- Adjustment Modal -->
-      <div class="modal fade" id="adjModal">
+      <div class="modal fade modal-modern" id="adjModal" tabindex="-1">
         <div class="modal-dialog" style="max-width:450px;">
           <div class="modal-content">
-            <div class="modal-header bg-gray-dark color-palette">
-              <h5 class="modal-title">Stock Adjustment</h5>
-              <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal"><span>&times;</span></button>
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-sliders-h mr-2 text-muted"></i><?=$languageArray['stock_adjustment_code'][$language]?></h5>
+              <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body">
               <input type="hidden" id="adjId">
               <input type="hidden" id="adjProductId">
               <input type="hidden" id="adjGrade">
-              <div class="form-group">
-                <label>Product</label>
+              <div class="form-group-modern">
+                <label class="form-label-modern"><?=$languageArray['product_code'][$language]?></label>
                 <input type="text" class="form-control" id="adjProductDisplay" readonly>
               </div>
-              <div class="form-group">
-                <label>Grade</label>
+              <div class="form-group-modern">
+                <label class="form-label-modern"><?=$languageArray['grade_code'][$language]?></label>
                 <input type="text" class="form-control" id="adjGradeDisplay" readonly>
               </div>
-              <div class="form-group">
-                <label>Current Balance (KG)</label>
+              <div class="form-group-modern">
+                <label class="form-label-modern"><?=$languageArray['current_balance_code'][$language] ?? 'Current Balance'?> (KG)</label>
                 <input type="text" class="form-control" id="adjCurrentBalance" readonly>
               </div>
-              <div class="form-group">
-                <label>Adjust To (KG) <span class="text-danger">*</span></label>
+              <div class="form-group-modern">
+                <label class="form-label-modern"><?=$languageArray['adjust_to_code'][$language] ?? 'Adjust To'?> (KG) <span class="text-danger">*</span></label>
                 <input type="number" step="0.01" class="form-control" id="adjNewBalance">
               </div>
             </div>
-            <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="button" class="btn btn-success" id="saveAdjBtn"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="button" class="btn btn-modern btn-modern-success" id="saveAdjBtn"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
             </div>
           </div>
         </div>
@@ -460,6 +444,10 @@ function loadAdjustment() {
     processing: true,
     serverSide: false,
     searching: false,
+    language: {
+      emptyTable: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      zeroRecords: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     ajax: {
       url: 'php/modules/wholesales/stockAdjustment/getStockAdjustment.php',
       type: 'POST',

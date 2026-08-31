@@ -5,13 +5,16 @@ require_once '../../../vendor/autoload.php';
 use Mpdf\Mpdf;
 
 session_start();
-$company = $_SESSION['customer'];
-$allowPrice = 'N';
-$allowPcsBasket = 'N';
+// User Permission
+$userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
+
 // Company Detail 
+$company = $_SESSION['customer'];
 $companyDetail = searchCompanyById($company, $db);
-$allowPrice = $companyDetail['include_price'];
-$allowPcsBasket = $companyDetail['include_pcs_basket'];
+$allowPrice = $companyDetail['include_price'] ?? 'N';
+$allowPcsBasket = $companyDetail['include_pcs_basket'] ?? 'N';
+
+// Default Currency
 $defaultCurrency = 'MYR';
 $defCurrStmt = $db->prepare("SELECT currency FROM currency WHERE customer = ? AND is_default = 1 AND deleted = 0 LIMIT 1");
 $defCurrStmt->bind_param('s', $company);
