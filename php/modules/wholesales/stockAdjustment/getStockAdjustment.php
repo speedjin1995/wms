@@ -39,6 +39,34 @@ if (!empty($categoryFilter)) {
     } else {
         $searchQuery .= " AND 1=0";
     }
+}else{
+    $userModuleAccess = $_SESSION['userModuleAccess'];
+    $categoryIds = [];
+    if (!empty($userModuleAccess['categories'])) {
+        $allowedModules = ['wholesale', 'processing'];
+        foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+            if (in_array($module, $allowedModules)) {
+                $categoryIds = array_merge($categoryIds, $moduleCategories);
+            }
+        }
+        $categoryIds = array_unique($categoryIds);
+        $formattedCategoryIds = !empty($categoryIds) ? " AND category IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+
+        // Get product ids in this category first
+        $catProductIds = [];
+        $catStmt = $db->prepare("SELECT id FROM products WHERE deleted = '0'$formattedCategoryIds");
+        $catStmt->execute();
+        $catResult = $catStmt->get_result();
+        while ($catRow = $catResult->fetch_assoc()) {
+            $catProductIds[] = $catRow['id'];
+        }
+        $catStmt->close();
+
+        if (count($catProductIds) > 0) {
+            $likeConditions = array_map(fn($id) => "wholesales.weight_details LIKE '%\"product\":\"".$id."\"%'", $catProductIds);
+            $searchQuery .= " AND (" . implode(' OR ', $likeConditions) . ")";
+        }
+    }
 }
 
 if (!empty($productFilter)) {
