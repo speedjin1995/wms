@@ -40,6 +40,13 @@ else{
     $companyDetail = searchCompanyById($company, $db);
     $allowPrice = $companyDetail['include_price'];
     $allowIntegration = $companyDetail['include_integration'];
+    $allowPcsBasket = $companyDetail['include_pcs_basket'];
+    $secRemarksExists = ($companyDetail['include_sec_remark'] == 'Y');
+    $columnSetup = [];
+    if (!empty($companyDetail['column_setup'])) {
+      $columnSetupAll = json_decode($companyDetail['column_setup'], true);
+      $columnSetup = $columnSetupAll['wholesale']['columns'] ?? [];
+    }
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
@@ -51,6 +58,9 @@ else{
 
     $allowPrice = 'Y';
     $allowIntegration = 'Y';
+    $allowPcsBasket = 'Y';
+    $secRemarksExists = true;
+    $columnSetup = [];
   }
 
   // Integration Configs
@@ -223,6 +233,12 @@ else{
           <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['reports_code'][$language]?></h3>
         </div>
         <div class="results-header-right d-flex" style="gap:0.5rem;">
+          <div class="dropdown">
+            <button class="btn btn-action btn-action-secondary dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown">
+              <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;"></div>
+          </div>
           <?php if($allowIntegration == 'Y' && !empty($integrationConfigs)) { ?>
           <button type="button" class="btn btn-action btn-action-danger" id="exportIntegration">
             <i class="fas fa-plug"></i> <?=$languageArray['export_integration_code'][$language]?>
@@ -240,35 +256,49 @@ else{
         <table id="weightTable" class="table data-table">
           <thead>
             <tr>
-              <th style="width:3%; text-align:center;"><input type="checkbox" id="selectAllCheckbox"></th>
-              <th><?=$languageArray['serial_no_code'][$language]?></th>
-              <th><?=$languageArray['do_po_no_code'][$language]?></th>
-              <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
-              <th><?=$languageArray['start_time_code'][$language]?></th>
-              <th><?=$languageArray['end_time_code'][$language]?></th>
-              <th><?=$languageArray['parent_code'][$language]?></th>
-              <th><?=$languageArray['customer_supplier_code'][$language]?></th>
-              <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-              <th><?=$languageArray['driver_code'][$language]?></th>
-              <th><?=$languageArray['total_item_code'][$language]?></th>
-              <th><?=$languageArray['total_weight_code'][$language]?></th>
-              <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
-              <th><?=$languageArray['total_price_code'][$language]?></th>
-              <?php } else { ?>
-              <th><?=$languageArray['total_reject_code'][$language]?></th>
-              <?php } ?>
-              <th><?=$languageArray['weighed_by_code'][$language]?></th>
-              <th><?=$languageArray['checked_by_code'][$language]?></th>
+              <th style="width:40px;"><input type="checkbox" id="selectAllCheckbox"></th>
+              <?php
+              $defaultColHeaders = [
+                'serial_no_code'         => $languageArray['serial_no_code'][$language],
+                'do_po_no_code'          => $languageArray['do_po_no_code'][$language],
+                'location_code'          => $languageArray['locations_code'][$language],
+                'sec_bill_no_code'       => $languageArray['sec_bill_no_code'][$language],
+                'start_time_code'        => $languageArray['start_time_code'][$language],
+                'end_time_code'          => $languageArray['end_time_code'][$language],
+                'parent_code'            => $languageArray['parent_code'][$language],
+                'customer_supplier_code' => $languageArray['customer_supplier_code'][$language],
+                'vehicle_no_code'        => $languageArray['vehicle_no_code'][$language],
+                'driver_code'            => $languageArray['driver_code'][$language],
+                'total_item_code'        => $languageArray['total_item_code'][$language],
+                'total_weight_code'      => $languageArray['total_weight_code'][$language],
+                'total_price_reject_code'=> ($allowPrice == 'Y' && $userAllowPrice == 'Y') ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language],
+                'weighed_by_code'        => $languageArray['weighed_by_code'][$language],
+                'checked_by_code'        => $languageArray['checked_by_code'][$language],
+                'modified_by_code'       => $languageArray['modified_by_code'][$language] ?? 'Modified By',
+              ];
+              if ($secRemarksExists) {
+                $defaultColHeaders['second_remarks_code'] = $languageArray['second_remarks_code'][$language];
+              }
+              $orderedHeaders = !empty($columnSetup)
+                ? array_filter(array_map(fn($col) => isset($defaultColHeaders[$col['key']]) ? [$col['key'], $defaultColHeaders[$col['key']]] : null, $columnSetup))
+                : array_map(fn($k, $v) => [$k, $v], array_keys($defaultColHeaders), $defaultColHeaders);
+              foreach ($orderedHeaders as $col) {
+                echo '<th>' . htmlspecialchars($col[1]) . '</th>';
+              }
+              ?>
             </tr>
           </thead>
           <tfoot>
             <tr>
-              <th colspan="10"><?=$languageArray['total_code'][$language]?></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
+              <th><?=$languageArray['total_code'][$language]?></th>
+              <?php foreach (array_values($orderedHeaders) as $col) {
+                $key = $col[0];
+                if ($key === 'total_item_code' || $key === 'total_weight_code' || $key === 'total_price_reject_code') {
+                  echo '<th data-footer="' . $key . '"></th>';
+                } else {
+                  echo '<th></th>';
+                }
+              } ?>
             </tr>
           </tfoot>
         </table>
@@ -341,7 +371,53 @@ else{
 var allowPrice = '<?=$allowPrice?>';
 var userAllowPrice = '<?=$userAllowPrice?>';
 var allowIntegration = '<?=$allowIntegration?>';
+var allowPcsBasket = '<?=$allowPcsBasket?>';
 var integrationConfigs = <?=json_encode($integrationConfigs)?>;
+var columnSetup = <?=json_encode($columnSetup)?>;
+
+var defaultColumns = [
+  ['serial_no_code',          'serial_no',        '<?=$languageArray['serial_no_code'][$language]?>'],
+  ['do_po_no_code',           'po_no',            '<?=$languageArray['do_po_no_code'][$language]?>'],
+  ['location_code',           'location',         '<?=$languageArray['locations_code'][$language]?>'],
+  ['sec_bill_no_code',        'security_bills',   '<?=$languageArray['sec_bill_no_code'][$language]?>'],
+  ['start_time_code',         'start_time',       '<?=$languageArray['start_time_code'][$language]?>'],
+  ['end_time_code',           'end_time',         '<?=$languageArray['end_time_code'][$language]?>'],
+  ['parent_code',             'parent',           '<?=$languageArray['parent_code'][$language]?>'],
+  ['customer_supplier_code',  'customer_supplier','<?=$languageArray['customer_supplier_code'][$language]?>'],
+  ['vehicle_no_code',         'vehicle_no',       '<?=$languageArray['vehicle_no_code'][$language]?>'],
+  ['driver_code',             'driver',           '<?=$languageArray['driver_code'][$language]?>'],
+  ['total_item_code',         'total_item',       '<?=$languageArray['total_item_code'][$language]?>'],
+  ['total_weight_code',       'total_weight',     '<?=$languageArray['total_weight_code'][$language]?>'],
+  ['total_price_reject_code', allowPrice == 'Y' ? 'total_price' : 'total_reject', allowPrice == 'Y' ? '<?=$languageArray['total_price_code'][$language] ?? 'Total Price'?>' : '<?=$languageArray['total_reject_code'][$language]?>'],
+  ['weighed_by_code',         'weighted_by',      '<?=$languageArray['weighed_by_code'][$language]?>'],
+  ['checked_by_code',         'checked_by',       '<?=$languageArray['checked_by_code'][$language]?>'],
+  ['modified_by_code',        'modified_by',      '<?=$languageArray['modified_by_code'][$language] ?? 'Modified By'?>']
+  <?php if ($secRemarksExists) { ?>,['second_remarks_code', 'remarks2', '<?=$languageArray['second_remarks_code'][$language]?>']<?php } ?>
+];
+
+function buildColumnDefs() {
+  var colMap = {};
+  defaultColumns.forEach(function(col) { colMap[col[0]] = col; });
+  return (columnSetup && columnSetup.length > 0)
+    ? columnSetup.filter(function(s) { return colMap[s.key]; }).map(function(s) {
+        return { col: colMap[s.key], visible: s.visible !== false };
+      })
+    : defaultColumns.map(function(col) { return { col: col, visible: true }; });
+}
+
+function getTableColumns() {
+  var ordered = buildColumnDefs();
+  var cols = [{
+    data: 'id', className: 'select-checkbox', orderable: false,
+    render: function(data, type, row) {
+      return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="' + data + '"/>';
+    }
+  }];
+  ordered.forEach(function(item) {
+    cols.push({ data: item.col[1], visible: item.visible });
+  });
+  return cols;
+}
 
 $(function () {
   const today = new Date();
@@ -370,6 +446,8 @@ $(function () {
     var checkboxes = $('#weightTable tbody input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
+
+  buildColumnToggleMenu();
 
   var table = initTable();
 
@@ -535,6 +613,31 @@ function getSelectedIds() {
   return ids;
 }
 
+function buildColumnToggleMenu() {
+  var menu = $('#columnToggleMenu');
+  menu.empty();
+  var ordered = buildColumnDefs();
+  ordered.forEach(function(item) {
+    var label = item.col[2];
+    var dataField = item.col[1];
+    menu.append(
+      '<div class="form-check">' +
+        '<input class="form-check-input column-toggle" type="checkbox" data-field="' + dataField + '"' + (item.visible ? ' checked' : '') + '>' +
+        '<label class="form-check-label">' + label + '</label>' +
+      '</div>'
+    );
+  });
+  menu.on('click', function(e) { e.stopPropagation(); });
+  menu.on('change', '.column-toggle', function() {
+    var field = $(this).data('field');
+    var visible = $(this).is(':checked');
+    var dt = $('#weightTable').DataTable();
+    dt.columns().every(function() {
+      if (this.dataSrc() === field) { this.visible(visible); }
+    });
+  });
+}
+
 function initTable() {
   return $("#weightTable").DataTable({
     responsive: true,
@@ -568,61 +671,44 @@ function initTable() {
         partyType: $('#partyTypeFilter').val() || '', 
       }
     },
-    columns: [
-      {
-        data: 'id', orderable: false, className: 'select-checkbox',
-        render: function(data) { 
-          return '<input type="checkbox" class="select-checkbox" value="' + data + '">'; 
-        }
-      },
-      { data: 'serial_no' },
-      { data: 'po_no' },
-      { data: 'security_bills' },
-      { data: 'start_time' },
-      { data: 'end_time' },
-      { data: 'parent' },
-      { data: 'customer_supplier' },
-      { data: 'vehicle_no' },
-      { data: 'driver' },
-      { data: 'total_item' },
-      { data: 'total_weight' },
-      { data: allowPrice == 'Y' && userAllowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice == 'Y' && userAllowPrice == 'Y' },
-      { data: 'weighted_by' },
-      { data: 'checked_by' }
-    ],
+    columns: getTableColumns(),
     footerCallback: function(row, data, start, end, display) {
       var api = this.api();
-      var totalItem = api.column(10, { page: 'current' }).data().reduce(function(a, b) { 
-        return a + parseFloat(String(b || 0).replace(/,/g, '')); 
-      }, 0);
-      var totalWeight = api.column(11, { page: 'current' }).data().reduce(function(a, b) { 
-        return a + parseFloat(String(b || 0).replace(/,/g, '')); 
-      }, 0);
-
-      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
-        var totalPrice = api.column(12, { page: 'current' }).data().reduce(function(a, b) {
-          String(b || '').split(/<br\s*\/?>/i).forEach(function(part) {
-            part = part.trim();
-            if (!part) return;
-            var tokens = part.split(' ');
-            var cur = tokens[0];
-            var amt = parseFloat((tokens[1] || '0').replace(/,/g, '')) || 0;
-            a[cur] = (a[cur] || 0) + amt;
-          });
-          return a;
-        }, {});
-        $(api.column(12).footer()).html(Object.entries(totalPrice).map(function(e) { 
-          return e[0] + ' ' + e[1].toFixed(2); 
-        }).join('<br>') || '0.00');
-      } else {
-        var totalReject = api.column(12, { page: 'current' }).data().reduce(function(a, b) { 
-          return a + parseFloat(String(b || 0).replace(/,/g, '')); 
-        }, 0);
-        $(api.column(12).footer()).html(totalReject.toFixed(2));
+      var cols = getTableColumns();
+      var totalItemIdx = -1, totalWeightIdx = -1, totalPriceIdx = -1;
+      cols.forEach(function(c, i) {
+        if (c.data === 'total_item') totalItemIdx = i;
+        if (c.data === 'total_weight') totalWeightIdx = i;
+        if (c.data === 'total_price' || c.data === 'total_reject') totalPriceIdx = i;
+      });
+      if (totalItemIdx > -1) {
+        $(api.column(totalItemIdx).footer()).html(
+          api.column(totalItemIdx, { page: 'current' }).data().reduce(function(a, b) { return a + parseFloat(String(b || 0).replace(/,/g, '')); }, 0)
+        );
       }
-
-      $(api.column(10).footer()).html(totalItem);
-      $(api.column(11).footer()).html(totalWeight.toFixed(2));
+      if (totalWeightIdx > -1) {
+        $(api.column(totalWeightIdx).footer()).html(
+          api.column(totalWeightIdx, { page: 'current' }).data().reduce(function(a, b) { return a + parseFloat(String(b || 0).replace(/,/g, '')); }, 0).toFixed(2)
+        );
+      }
+      if (totalPriceIdx > -1) {
+        if (allowPrice == 'Y' && userAllowPrice == 'Y') {
+          var totals = api.column(totalPriceIdx, { page: 'current' }).data().reduce(function(a, b) {
+            String(b || '').split(/<br\s*\/?>/i).forEach(function(part) {
+              part = part.trim(); if (!part) return;
+              var tokens = part.split(' ');
+              var amt = parseFloat((tokens[1] || '0').replace(/,/g, '')) || 0;
+              a[tokens[0]] = (a[tokens[0]] || 0) + amt;
+            });
+            return a;
+          }, {});
+          $(api.column(totalPriceIdx).footer()).html(Object.entries(totals).map(function(e) { return e[0] + ' ' + e[1].toFixed(2); }).join('<br>') || '0.00');
+        } else {
+          $(api.column(totalPriceIdx).footer()).html(
+            api.column(totalPriceIdx, { page: 'current' }).data().reduce(function(a, b) { return a + parseFloat(String(b || 0).replace(/,/g, '')); }, 0).toFixed(2)
+          );
+        }
+      }
     }
   });
 }
