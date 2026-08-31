@@ -762,6 +762,7 @@ else{
 
 <script>
 // Values
+var netFromCalc = false; // variable to see where trigger nett weight from calculation or user input
 var currency = "1";
 var weightCount = 0;
 var rejectCount = 0;
@@ -1515,7 +1516,7 @@ $(function () {
         </td>
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00"></td>
         <td ${allowPcsBasket == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="0">
         </td>
@@ -1686,7 +1687,9 @@ $(function () {
       // return;
     }
 
+    netFromCalc = true;
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
+    netFromCalc = false;
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="tare"]', function(){
@@ -1701,10 +1704,25 @@ $(function () {
       // return;
     }
     
+    netFromCalc = true;
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
+    netFromCalc = false;
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
+    if (!netFromCalc) {
+      var nett = parseFloat($(this).val()) || 0;
+      var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val()) || 0;
+      var gross = nett + tare;
+
+      if (isNaN(gross) || gross < 0) {
+        alert("Gross Weight cannot be negative or invalid value");
+        gross = 0;
+      }
+
+      $(this).closest('tr').find('input[id^="gross"]').val(gross.toFixed(2));
+    }
+
     var totalGross = 0;
     var totalTare = 0;
     var totalNet = 0;
@@ -2386,7 +2404,7 @@ function edit(id) {
               </td>
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" required min="0.01"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
-              <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01" readonly></td>
+              <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="${parseInt(detail.no_per_basket)||0}"></td>
               <td ${allowPrice == 'Y' ? '' : 'style="display:none"'}>
                 <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>

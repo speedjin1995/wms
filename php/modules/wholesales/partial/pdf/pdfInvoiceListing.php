@@ -59,6 +59,7 @@ function buildInvoiceRows($query, $isDispatchStatus, $defaultCurrency, $db) {
       }
       $grouped[$partyKey]['rows'][] = [
         'doc_no' => $row['serial_no'],
+        'invoice_no' => $row['po_no'],
         'doc_date' => $formattedDate,
         'currencyTotals' => $currencyTotals,
         'totalPrice' => $totalPrice,
@@ -103,6 +104,7 @@ if (!empty($grouped)) {
       }
       $rowsHtml .= '<tr>';
       $rowsHtml .= '<td style="text-align:left;">' . $r['doc_no'] . '</td>';
+      $rowsHtml .= '<td style="text-align:left;">' . $r['invoice_no'] . '</td>';
       $rowsHtml .= '<td style="text-align:center;">' . $r['doc_date'] . '</td>';
       $rowsHtml .= '<td style="text-align:left;">' . $party['code'] . '</td>';
       $rowsHtml .= '<td style="text-align:left;">' . htmlspecialchars($party['name']) . '</td>';
@@ -120,7 +122,7 @@ $grandTotalHtml = '';
 foreach ($grandTotal as $cur => $amt) {
   $grandTotalHtml .= '
   <tr style="font-weight:bold; border-top: 2px solid #000; border-bottom: 3px double #000;">
-    <td colspan="4" style="text-align:right; font-size:12px;">Grand Total Amount ('.$cur.')</td>
+    <td colspan="5" style="text-align:right; font-size:12px;">Grand Total Amount ('.$cur.')</td>
     <td style="text-align:right; font-size:12px;">'.number_format($amt, 2).'</td>
   </tr>';
 }
@@ -244,6 +246,7 @@ $html = '
   <thead>
     <tr>
       <th style="text-align:left; width:18%;">Doc. No</th>
+      <th style="text-align:center; width:18%;">Inv. No</th>
       <th style="text-align:center; width:12%;">Doc. Date</th>
       <th style="text-align:left; width:12%;">Code</th>
       <th style="text-align:left;">Name</th>
@@ -252,7 +255,7 @@ $html = '
   </thead>
   <tbody>
   '.$rowsHtml.'
-  <tr><td colspan="5" style="border-bottom: 1px solid #000; padding:0;"></td></tr>
+  <tr><td colspan="6" style="border-bottom: 1px solid #000; padding:0;"></td></tr>
   </tbody>
   <tfoot>'.$grandTotalHtml.'</tfoot>
 </table>
