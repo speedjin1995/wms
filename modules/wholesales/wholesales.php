@@ -96,6 +96,7 @@ else{
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
+    $indicators = $db->query("SELECT * FROM indicators WHERE customer = '$company' ORDER BY nickname ASC");
 
     // Feature Flagging
     $allowPhoto = $_SESSION['featureFlags']['include_photo'] ?? 'N';
@@ -137,6 +138,7 @@ else{
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
+    $indicators = $db->query("SELECT * FROM indicators ORDER BY nickname ASC");
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
@@ -269,10 +271,32 @@ else{
           </div>
 
           <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
+              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['indicator_code'][$language]?></label>
+            <select class="form-control select2" id="indicatorFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <option value="web"><?=$languageArray['web_code'][$language] ?? 'Web'?></option>
+              <?php while($rowIndicator=mysqli_fetch_assoc($indicators)){ ?>
+                <option value="<?=$rowIndicator['nickname'] ?>"><?=$rowIndicator['nickname'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
             <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
             <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
           </div>
+        </div>
 
+        <div class="filter-row mt-3">
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
             <select class="form-control select2" id="weightByFilter" name="weightByFilter">
@@ -283,17 +307,6 @@ else{
             </select>
           </div>
 
-          <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-            </select>
-          </div>
-        </div>
-
-        <div class="filter-row">
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
             <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
@@ -911,6 +924,7 @@ $(function () {
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
   var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+  var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -942,7 +956,8 @@ $(function () {
         checkedBy: checkedByI,
         weightedBy: weightedByI,
         location: locationI,
-        partyType: partyTypeI
+        partyType: partyTypeI,
+        indicator: indicatorI
       } 
     },
     'columns': getTableColumns()
@@ -1000,6 +1015,7 @@ $(function () {
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
     var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+    var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -1035,7 +1051,8 @@ $(function () {
           checkedBy: checkedByI,
           weightedBy: weightedByI,
           location: locationI,
-          partyType: partyTypeI
+          partyType: partyTypeI,
+          indicator: indicatorI
         } 
       },
       'columns': getTableColumns()

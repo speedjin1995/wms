@@ -113,6 +113,10 @@ if (!empty($_GET['location']) && $_GET['location'] != '-') {
     $searchQuery .= " AND wholesales.location = '" . mysqli_real_escape_string($db, $_GET['location']) . "'";
 }
 
+if (!empty($_GET['indicator']) && $_GET['indicator'] != '-') {
+    $searchQuery .= " and wholesales.indicator = '".$_GET['indicator']."'";
+}
+
 if (!empty($_GET['status']) && $_GET['status'] != '-') {
     $searchQuery .= " AND wholesales.deleted = '" . ($_GET['status'] === 'deleted' ? '1' : '0') . "'";
 }
