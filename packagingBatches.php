@@ -665,14 +665,14 @@ $(function () {
           orderable: false,
           render: function ( data, type, row ) {
             var buttons = '<div class="d-flex" style="gap:4px;">';
-            if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
+            if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
             }
             buttons += '<button type="button" onclick="printBatch('+data+')" class="btn btn-sm btn-outline-secondary" title="Print"><i class="fas fa-print"></i></button>';
             if(row.status !== 'completed') {
               buttons += '<button type="button" onclick="openShipmentModal('+data+')" class="btn btn-sm btn-outline-info" title="Shipment"><i class="fas fa-shipping-fast"></i></button>';
             }
-            if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
+            if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
               buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
@@ -1296,10 +1296,10 @@ function format (row) {
         <div class="expanded-header-subtitle">${row.locations || '-'}</div>
       </div>
       <div class="expanded-actions">
-        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
+        ${<?=$userAllowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
         <button type="button" onclick="printBatch(${row.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
         ${row.status !== 'completed' ? '<button type="button" onclick="openShipmentModal('+row.id+')" class="btn btn-sm btn-outline-info"><i class="fas fa-shipping-fast"></i></button>' : ''}
-        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
+        ${<?=$userAllowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
       </div>
     </div>
 
