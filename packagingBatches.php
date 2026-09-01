@@ -359,6 +359,13 @@ else{
           <input type="number" class="form-control" id="bulkNo" min="1" value="1" required>
         </div>
         <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['supplier_code'][$language]?></label>
+          <select class="form-control select2" id="bulkSupplier" required>
+            <option value="" selected disabled>Select Supplier</option>
+          </select>
+          <div class="invalid-feedback"><?=$languageArray['please_select_category_code'][$language]?></div>
+        </div>
+        <div class="form-group-modern">
           <label class="form-label-modern"><?=$languageArray['category_code'][$language]?> <span class="text-danger">*</span></label>
           <select class="form-control select2" id="bulkCategory" required>
             <option value="" selected disabled>Select Category</option>
@@ -1060,12 +1067,13 @@ $(function () {
   // Bulk Add
   var now = new Date();
   $('#bulkAddBtn').on('click', function() {
+    $('#bulkSupplier').html('<option value="" selected disabled>Select Supplier</option>' + supplierOptions);
     $('#bulkCategory').html('<option value="" selected disabled>Select Category</option>' + categoryOptions);
     $('#bulkProduct').html('<option value="" selected disabled>Select Product</option>' + productOptions);
     $('#bulkGrade').html(gradeOptions);
     $('#bulkPackagingSize').html('<option value="" selected disabled>Select Packaging</option>' + packagingOptions);
 
-    ['#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize'].forEach(function(id) {
+    ['#bulkSupplier','#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize'].forEach(function(id) {
       $(id).val(null).select2({ 
         allowClear: true, 
         placeholder: 'Please Select', 
@@ -1145,6 +1153,8 @@ $(function () {
       return;
     }
 
+    var supplierVal = $('#bulkSupplier').val();
+    var supplierText = $('#bulkSupplier option:selected').text();
     var categoryVal = $('#bulkCategory').val();
     var categoryText = $('#bulkCategory option:selected').text();
     var productVal = $('#bulkProduct').val();
@@ -1225,6 +1235,11 @@ $(function () {
 
       var tr = $('#weightDetailsTable tr:last');
 
+      // Set Supplier
+      var supplierSelect = tr.find(`select[name="weightDetails[${idx}][supplier]"]`);
+      supplierSelect.val(supplierVal);
+
+      // Set Category
       var catSelect = tr.find(`select[name="weightDetails[${idx}][category]"]`);
       catSelect.val(categoryVal);
 
