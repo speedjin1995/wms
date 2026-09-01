@@ -18,6 +18,7 @@ else{
 
   // Feature Flagging
   $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
+  $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
 
   // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
