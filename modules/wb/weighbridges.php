@@ -245,6 +245,8 @@ else{
           <input type="hidden" class="form-control" id="customerCode" name="customerCode">
           <input type="hidden" class="form-control" id="supplierCode" name="supplierCode">
           <input type="hidden" class="form-control" id="productCode" name="productCode">
+          <input type="hidden" class="form-control" id="grossWeightBy" name="grossWeightBy">
+          <input type="hidden" class="form-control" id="tareWeightBy" name="tareWeightBy">
 
           <!-- Transaction Info Section -->
           <div class="modal-section">
@@ -767,11 +769,13 @@ $(function () {
   });
 
   $('#grossIncoming').on('keyup', function(){
+    $('#grossWeightBy').val('<?= $user ?>');
     $('#grossIncomingDatePicker').datetimepicker('date', moment());
     calculateWeight();
   });
 
   $('#tareOutgoing').on('keyup', function(){
+    $('#tareWeightBy').val('<?= $user ?>');
     $('#tareOutgoingDatePicker').datetimepicker('date', moment());
     calculateWeight();
   });
@@ -796,8 +800,10 @@ function newEntry(){
   $('#extendModal').find('#supplier').val("").trigger('change');
   $('#extendModal').find('#product').val("").trigger('change');
   $('#extendModal').find('#vehicle').val("").trigger('change');
+  $('#extendModal').find('#grossWeightBy').val("");
   $('#extendModal').find('#grossIncoming').val("");
   $('#grossIncomingDatePicker').datetimepicker('clear');
+  $('#extendModal').find('#tareWeightBy').val("");
   $('#extendModal').find('#tareOutgoing').val("");
   $('#tareOutgoingDatePicker').datetimepicker('clear');
   $('#extendModal').find('#nettWeight').val("");
@@ -838,12 +844,14 @@ function edit(id) {
       $('#extendModal').find('#supplier').val(obj.message.supplier_name).trigger('change');
       $('#extendModal').find('#product').val(obj.message.product_name).trigger('change');
       $('#extendModal').find('#vehicle').val(obj.message.lorry_plate_no1).trigger('change');
+      $('#extendModal').find('#grossWeightBy').val(obj.message.gross_weight_by1);
       $('#extendModal').find('#grossIncoming').val(obj.message.gross_weight1);
       if (obj.message.gross_weight1_date) {
         $('#grossIncomingDatePicker').datetimepicker('date', moment(obj.message.gross_weight1_date, 'YYYY-MM-DD HH:mm:ss'));
       } else {
         $('#grossIncomingDatePicker').datetimepicker('clear');
       }
+      $('#extendModal').find('#tareWeightBy').val(obj.message.tare_weight_by1);
       $('#extendModal').find('#tareOutgoing').val(obj.message.tare_weight1);
       if (obj.message.tare_weight1_date) {
         $('#tareOutgoingDatePicker').datetimepicker('date', moment(obj.message.tare_weight1_date, 'YYYY-MM-DD HH:mm:ss'));
@@ -987,6 +995,7 @@ function format(row) {
               <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
               <th class="text-right"><?=$languageArray['weight_code'][$language] ?? 'Weight'?> (KG)</th>
               <th><?=$languageArray['date_time_code'][$language] ?? 'Date/Time'?></th>
+              <th><?=$languageArray['weighed_by_code'][$language] ?? 'Weighed By'?></th>
             </tr>
           </thead>
           <tbody>
@@ -994,17 +1003,20 @@ function format(row) {
               <td><span class="badge badge-info"><?=$languageArray['incoming_code'][$language] ?? 'Incoming'?></span></td>
               <td class="text-right text-mono font-weight-bold">${grossWeight.toFixed(2)}</td>
               <td class="text-muted">${row.gross_weight1_date || '-'}</td>
+              <td class="text-muted">${row.grossWeightBy || '-'}</td>
             </tr>
             <tr>
               <td><span class="badge badge-secondary"><?=$languageArray['outgoing_code'][$language] ?? 'Outgoing'?></span></td>
               <td class="text-right text-mono font-weight-bold">${tareWeight.toFixed(2)}</td>
               <td class="text-muted">${row.tare_weight1_date || '-'}</td>
+              <td class="text-muted">${row.tareWeightBy || '-'}</td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <td><strong><?=$languageArray['nett_weight_code'][$language] ?? 'Nett Weight'?></strong></td>
               <td class="text-right text-mono text-success font-weight-bold">${nettWeight.toFixed(2)}</td>
+              <td></td>
               <td></td>
             </tr>
           </tfoot>
