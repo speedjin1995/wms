@@ -3268,3 +3268,28 @@ CREATE TABLE `company_features` (
 ALTER TABLE `company_features` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `company_features` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- First, clean up duplicate rows (keep the earliest one)
+TRUNCATE TABLE company_features;
+
+-- Insert features for all companies from existing columns
+INSERT INTO company_features (company, feature, value)
+SELECT id, 'include_price', COALESCE(include_price, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_photo', COALESCE(include_photo, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_barcode', COALESCE(include_barcode, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_sec_remark', COALESCE(include_sec_remark, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_sec_validation', COALESCE(include_sec_validation, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_invoice', COALESCE(include_invoice, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_payment', COALESCE(include_payment, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_pcs_basket', COALESCE(include_pcs_basket, 'N') FROM companies
+UNION ALL
+SELECT id, 'allow_manual_post', COALESCE(allow_manual_post, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_integration', COALESCE(include_integration, 'N') FROM companies;
