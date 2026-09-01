@@ -740,7 +740,9 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">'.$row['gross_weight_by1'].'</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3">&nbsp;</td>
+                                        <td style="font-size: 12px;">Product</td>
+                                        <td style="font-size: 12px;">:</td>
+                                        <td style="font-size: 12px;">'.$row['product_name'].'</td>
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">Out</td>
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">'.$tareWeightTime.'</td>
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">'.formatWeight($row['tare_weight1']).'kg</td>

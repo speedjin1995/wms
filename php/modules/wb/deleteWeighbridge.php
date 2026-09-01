@@ -11,7 +11,7 @@ if(isset($_POST['id'], $_POST['cancelReason'])){
 	$id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
 	$deleteReason = filter_input(INPUT_POST, 'cancelReason', FILTER_SANITIZE_STRING);
 	$del = "Y";
-	if ($stmt2 = $db->prepare("UPDATE weight SET is_cancel=?, cancelled_reason=? WHERE id=?")) {
+	if ($stmt2 = $db->prepare("UPDATE Weight SET is_cancel=?, cancelled_reason=? WHERE id=?")) {
 		$stmt2->bind_param('sss', $del, $deleteReason, $id);
 		
 		if($stmt2->execute()){

@@ -934,6 +934,7 @@ to get the desired effect
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+<script src="plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
 <script src="plugins/chart.js/Chart.min.js"></script>
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script src="plugins/sheets/xlsx.full.min.js"></script>

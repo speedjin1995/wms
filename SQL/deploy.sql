@@ -3176,3 +3176,41 @@ ALTER TABLE `companies` ADD `include_pcs_basket` VARCHAR(1) NOT NULL DEFAULT 'N'
 ALTER TABLE `users` ADD `allow_price` VARCHAR(1) NOT NULL DEFAULT 'Y' AFTER `allow_delete`;
 
 ALTER TABLE `users` ADD `module_access` TEXT NULL AFTER `allow_price`;
+
+-- 31/08/2026 --
+ALTER TABLE `companies` ADD `column_setup` LONGTEXT NULL AFTER `running_no_type`;
+
+ALTER TABLE `products` ADD `colour` VARCHAR(10) NULL AFTER `state`;
+
+ALTER TABLE `products_log` ADD `colour` VARCHAR(10) NULL AFTER `state`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCTS` AFTER INSERT ON `products` FOR EACH ROW INSERT INTO products_log (
+    product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, colour, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, NEW.colour, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTS` BEFORE UPDATE ON `products` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into products_log table
+    INSERT INTO products_log (
+      product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, colour, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, NEW.colour, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;

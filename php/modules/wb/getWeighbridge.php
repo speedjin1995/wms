@@ -8,7 +8,7 @@ session_start();
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($update_stmt = $db->prepare("SELECT * FROM weight WHERE id=?")) {
+    if ($update_stmt = $db->prepare("SELECT * FROM Weight WHERE id=?")) {
         $update_stmt->bind_param('s', $id);
         
         // Execute the prepared query.

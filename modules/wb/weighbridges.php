@@ -83,382 +83,352 @@ else{
 }
 ?>
 
-<div class="content-header">
-  <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0 text-dark"><?=$languageArray['weighbridge_code'][$language]?></h1>
-      </div><!-- /.col -->
-    </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
-</div>
-<!-- /.content-header -->
-
 <!-- Main content -->
-<div class="content">
+<div class="content page-modern">
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="row">
-              <div class="form-group col-3">
-                <label><?=$languageArray['from_date_code'][$language]?>:</label>
-                <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
-                  <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
-                  <div class="input-group-text"><i class="fa fa-calendar"></i></div></div>
-                </div>
-              </div>
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title"><i class="fas fa-truck-loading"></i> <?=$languageArray['weighbridge_code'][$language]?></h1>
+    </div>
 
-              <div class="form-group col-3">
-                <label><?=$languageArray['to_date_code'][$language]?>:</label>
-                <div class="input-group date" id="toDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
-                  <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['transaction_status_code'][$language]?></label>
-                  <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-                    <option>-</option>
-                    <option value="Dispatch"><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
-                    <!-- <option value="Local">Internal Transfer</option>
-                    <option value="Misc">Miscellaneous</option> -->
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3" id="customerDiv" style="display: none;">
-                <div class="form-group">
-                  <label><?=$languageArray['customer_code'][$language]?></label>
-                  <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
-                      <option value="<?=$rowCustomer2['customer_name'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3" id="supplierDiv">
-                <div class="form-group">
-                  <label><?=$languageArray['supplier_code'][$language]?></label>
-                  <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
-                    <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
-                      <option value="<?=$rowCustomer2['supplier_name'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['vehicle_no_code'][$language]?></label>
-                  <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
-                    <option value="" selected disabled hidden>Please Select</option>
-                    <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
-                      <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['status_code'][$language]?></label>
-                  <select class="form-control select2" id="statusFilter" name="statusFilter" style="width: 100%;">
-                    <option value="Pending" selected><?=$languageArray['pending_code'][$language]?></option>
-                    <option value="Complete" ><?=$languageArray['complete_code'][$language]?></option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['product_code'][$language]?></label>
-                  <select class="form-control select2" id="productFilter" name="productFilter" style="width: 100%;">
-                    <option selected="selected">-</option>
-                    <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
-                      <option value="<?=$rowStatus2['product_name'] ?>"><?=$rowStatus2['product_name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-              </div>
-              <div class="col-3">
-                <div class="form-group">
-                  <label><?=$languageArray['transaction_id_code'][$language]?></label>
-                  <input type="text" id="transactionIDFilter" name="transactionIDFilter" class="form-control" placeholder="<?=$languageArray['transaction_id_code'][$language]?>">
-                </div>
+    <!-- Filter Card -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['from_date_code'][$language]?></label>
+            <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
+              <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
+          </div>
 
-            <div class="row">
-              <div class="col-9"></div>
-              <div class="col-3">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="filterSearch">
-                  <i class="fas fa-search"></i>
-                  <?=$languageArray['search_code'][$language]?>
-                </button>
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['to_date_code'][$language]?></label>
+            <div class="input-group date" id="toDatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
+              <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['transaction_status_code'][$language]?></label>
+            <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
+              <option>-</option>
+              <option value="Dispatch"><?=$languageArray['dispatch_code'][$language]?></option>
+              <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
+            </select>
+          </div>
+
+          <div class="filter-group" id="customerDiv" style="display: none;">
+            <label class="filter-label"><?=$languageArray['customer_code'][$language]?></label>
+            <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
+              <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
+                <option value="<?=$rowCustomer2['customer_name'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group" id="supplierDiv">
+            <label class="filter-label"><?=$languageArray['supplier_code'][$language]?></label>
+            <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
+              <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
+                <option value="<?=$rowCustomer2['supplier_name'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['vehicle_no_code'][$language]?></label>
+            <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
+              <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
+                <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row mt-3">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['status_code'][$language]?></label>
+            <select class="form-control select2" id="statusFilter" name="statusFilter">
+              <option value="Pending" selected><?=$languageArray['pending_code'][$language]?></option>
+              <option value="Complete"><?=$languageArray['complete_code'][$language]?></option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['product_code'][$language]?></label>
+            <select class="form-control select2" id="productFilter" name="productFilter">
+              <option value="">-</option>
+              <?php while($rowStatus2=mysqli_fetch_assoc($products)){ ?>
+                <option value="<?=$rowStatus2['product_name'] ?>"><?=$rowStatus2['product_name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['transaction_id_code'][$language]?></label>
+            <input type="text" id="transactionIDFilter" name="transactionIDFilter" class="form-control" placeholder="<?=$languageArray['transaction_id_code'][$language]?>">
+          </div>
+
+          <div class="filter-group filter-group-action" style="margin-left:auto;">
+            <label class="filter-label">&nbsp;</label>
+            <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
+              <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+            </button>
           </div>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-lg-12">
-        <div class="card card-info">
-          <div class="card-header">
-            <div class="row">
-              <div class="col-10"><?=$languageArray['weighbridge_code'][$language]?></div>
-              <?php if($allowAdd == 'Y'){ ?>
-              <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-success btn-sm" onclick="newEntry()"><i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?></button>
-              </div>
-              <?php } ?>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <table id="weightTable" class="table table-bordered table-striped display">
-              <thead>
-                <tr>
-                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['transaction_id_code'][$language]?></th>
-                  <th><?=$languageArray['transaction_date_code'][$language]?></th>
-                  <th><?=$languageArray['transaction_status_code'][$language]?></th>
-                  <th><?=$languageArray['po_no_code'][$language]?></th>
-                  <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-                  <th><?=$languageArray['customer_supplier_code'][$language]?></th>
-                  <th><?=$languageArray['incoming_weight_code'][$language]?></th>
-                  <th><?=$languageArray['incoming_date_code'][$language]?></th>
-                  <th><?=$languageArray['outgoing_weight_code'][$language]?></th>
-                  <th><?=$languageArray['outgoing_date_code'][$language]?></th>
-                  <th><?=$languageArray['total_nett_weight_code'][$language]?></th>
-                  <th width="5%"><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-            </table>
-          </div>
+    <!-- Results Card -->
+    <div class="card results-card show-dt-controls">
+      <div class="card-header">
+        <div class="results-header-left">
+          <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['weighbridge_code'][$language]?></h3>
         </div>
+        <div class="results-header-right">
+          <?php if($allowAdd == 'Y'){ ?>
+          <button type="button" class="btn btn-action btn-action-primary" onclick="newEntry()">
+            <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
+          </button>
+          <?php } ?>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <table id="weightTable" class="table data-table">
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox" id="selectAllCheckbox"></th>
+              <th><?=$languageArray['transaction_id_code'][$language]?></th>
+              <th><?=$languageArray['transaction_date_code'][$language]?></th>
+              <th><?=$languageArray['transaction_status_code'][$language]?></th>
+              <th><?=$languageArray['po_no_code'][$language]?></th>
+              <th><?=$languageArray['vehicle_no_code'][$language]?></th>
+              <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['incoming_weight_code'][$language]?></th>
+              <th><?=$languageArray['incoming_date_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['outgoing_weight_code'][$language]?></th>
+              <th><?=$languageArray['outgoing_date_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['total_nett_weight_code'][$language]?></th>
+              <th style="width:120px;"><?=$languageArray['actions_code'][$language]?></th>
+            </tr>
+          </thead>
+        </table>
       </div>
     </div>
   </div>
 </div>   
 
-<div class="modal fade" id="extendModal">
-  <div class="modal-dialog modal-xl" style="max-width: 90%;">
+<div class="modal fade modal-modern" id="extendModal">
+  <div class="modal-dialog modal-xl" style="max-width: 1200px;">
     <div class="modal-content">
       <form role="form" id="extendForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['add_new_entry_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-truck-loading mr-2 text-muted"></i><?=$languageArray['add_new_entry_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
 
-        <div class="modal-body bg-light">
+        <div class="modal-body">
           <input type="hidden" class="form-control" id="id" name="id">
           <input type="hidden" class="form-control" id="customerCode" name="customerCode">
           <input type="hidden" class="form-control" id="supplierCode" name="supplierCode">
           <input type="hidden" class="form-control" id="productCode" name="productCode">
 
-          <div class="card card-outline card-primary mb-3 shadow-sm">
-            <div class="card-header py-2">
-              <h6 class="card-title mb-0"><i class="fas fa-file-alt mr-2"></i>Transaction Info</h6>
+          <!-- Transaction Info Section -->
+          <div class="modal-section">
+            <h6 class="section-title"><i class="fas fa-file-alt mr-2"></i><?=$languageArray['transaction_info_code'][$language] ?? 'Transaction Info'?></h6>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['transaction_id_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="transactionId" name="transactionId" readonly>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['transaction_date_code'][$language]?> <span class="text-danger">*</span></label>
+                  <div class="input-group date" id="transactionDateTimePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#transactionDateTimePicker" id="transactionDate" name="transactionDate"/>
+                    <div class="input-group-append" data-target="#transactionDateTimePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['transaction_status_code'][$language]?></label>
+                  <select class="form-control" id="transactionStatus" name="transactionStatus">
+                    <option value="Dispatch" selected><?=$languageArray['dispatch_code'][$language]?></option>
+                    <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <div class="card-body pt-3">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_id_code'][$language]?> *</label>
-                    <input type="text" class="form-control form-control" id="transactionId" name="transactionId" readonly>
-                  </div>
+            <div class="row">
+              <div class="col-md-4" id="purchaseOrderDiv">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['po_no_code'][$language]?></label>
+                  <input type="text" class="form-control" id="poNo" name="poNo">
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_date_code'][$language]?> *</label>
-                    <div class="input-group input-group date" id="transactionDateTimePicker" data-target-input="nearest">
-                      <input type="text" class="form-control datetimepicker-input" data-target="#transactionDateTimePicker" id="transactionDate" name="transactionDate"/>
-                      <div class="input-group-append" data-target="#transactionDateTimePicker" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                      </div>
-                    </div>
-                  </div>
+              </div>
+              <div class="col-md-4" id="deliveryOrderDiv">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['do_no_code'][$language]?></label>
+                  <input type="text" class="form-control" id="doNo" name="doNo">
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['transaction_status_code'][$language]?></label>
-                    <select class="form-control form-control" id="transactionStatus" name="transactionStatus">
-                      <option value="Dispatch" selected><?=$languageArray['dispatch_code'][$language]?></option>
-                      <option value="Receiving"><?=$languageArray['receiving_code'][$language]?></option>
-                      <!-- <option value="Local">Internal Transfer</option>
-                      <option value="Misc">Miscellaneous</option> -->
-                    </select>
-                  </div>
+              </div>
+              <div class="col-md-4" id="customerDiv">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['customer_code'][$language]?></label>
+                  <select class="form-control select2" id="customer" name="customer">
+                    <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
+                    <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
+                      <option value="<?=$rowCustomer3['customer_name'] ?>" data-code="<?=$rowCustomer3['customer_code'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4" id="purchaseOrderDiv">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['po_no_code'][$language]?></label>
-                    <input type="text" class="form-control form-control" id="poNo" name="poNo">
-                  </div>
+              </div>
+              <div class="col-md-4" id="supplierDiv">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['supplier_code'][$language]?></label>
+                  <select class="form-control select2" id="supplier" name="supplier">
+                    <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
+                    <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
+                      <option value="<?=$rowSupplier3['supplier_name'] ?>" data-code="<?=$rowSupplier3['supplier_code'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4" id="deliveryOrderDiv">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['do_no_code'][$language]?></label>
-                    <input type="text" class="form-control form-control" id="doNo" name="doNo">
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['product_code'][$language]?></label>
+                  <select class="form-control select2" id="product" name="product">
+                    <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
+                    <?php while($rowProduct3=mysqli_fetch_assoc($products2)){ ?>
+                      <option value="<?=$rowProduct3['product_name'] ?>" data-code="<?=$rowProduct3['product_code'] ?>"><?=$rowProduct3['product_name'] ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4" id="customerDiv">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['customer_code'][$language]?></label>
-                    <select class="form-control form-control select2" id="customer" name="customer">
-                      <option value="" selected disabled hidden>Please Select</option>
-                      <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
-                        <option value="<?=$rowCustomer3['customer_name'] ?>" data-code="<?=$rowCustomer3['customer_code'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['vehicle_no_code'][$language]?></label>
+                  <select class="form-control select2" id="vehicle" name="vehicle">
+                    <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
+                    <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
+                      <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
+                    <?php } ?>
+                  </select>
                 </div>
-                <div class="col-md-4" id="supplierDiv">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['supplier_code'][$language]?></label>
-                    <select class="form-control form-control select2" id="supplier" name="supplier">
-                      <option value="" selected disabled hidden>Please Select</option>
-                      <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
-                        <option value="<?=$rowSupplier3['supplier_name'] ?>" data-code="<?=$rowSupplier3['supplier_code'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['product_code'][$language]?></label>
-                    <select class="form-control form-control select2" id="product" name="product">
-                      <option value="" selected disabled hidden>Please Select</option>
-                      <?php while($rowProduct3=mysqli_fetch_assoc($products2)){ ?>
-                        <option value="<?=$rowProduct3['product_name'] ?>" data-code="<?=$rowProduct3['product_code'] ?>"><?=$rowProduct3['product_name'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['vehicle_no_code'][$language]?></label>
-                    <select class="form-control form-control select2" id="vehicle" name="vehicle">
-                      <option value="" selected disabled hidden>Please Select</option>
-                      <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
-                        <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
-                      <?php } ?>
-                    </select>
-                  </div>
-                </div>
-              </div><!-- /.row -->
+              </div>
             </div>
-          </div><!-- /.card Transaction Info -->
+          </div>
 
-          <div class="card card-outline card-warning mb-0 shadow-sm">
-            <div class="card-header py-2">
-              <h6 class="card-title mb-0"><i class="fas fa-weight mr-2"></i><?=$languageArray['weighing_details_code'][$language]?></h6>
-            </div>
-            <div class="card-body pt-3">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['incoming_weight_code'][$language]?></label>
-                    <div class="input-group input-group">
-                      <input type="number" class="form-control" id="grossIncoming" name="grossIncoming" placeholder="0" required>
-                      <div class="input-group-text">KG</div>
+          <!-- Weighing Details Section -->
+          <div class="modal-section">
+            <h6 class="section-title"><i class="fas fa-weight mr-2"></i><?=$languageArray['weighing_details_code'][$language]?></h6>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['incoming_weight_code'][$language]?></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="grossIncoming" name="grossIncoming" placeholder="0" required>
+                    <div class="input-group-append">
+                      <span class="input-group-text">KG</span>
                     </div>
                   </div>
                 </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_weight_code'][$language]?></label>
-                    <div class="input-group input-group">
-                      <input type="number" class="form-control" id="tareOutgoing" name="tareOutgoing" placeholder="0">
-                      <div class="input-group-text">KG</div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['outgoing_weight_code'][$language]?></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="tareOutgoing" name="tareOutgoing" placeholder="0">
+                    <div class="input-group-append">
+                      <span class="input-group-text">KG</span>
                     </div>
                   </div>
                 </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['nett_weight_code'][$language]?></label>
-                    <div class="input-group input-group">
-                      <input type="number" class="form-control" id="nettWeight" name="nettWeight" placeholder="0" readonly>
-                      <div class="input-group-text">KG</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['incoming_date_code'][$language]?></label>
-                    <div class="input-group input-group date" id="grossIncomingDatePicker" data-target-input="nearest">
-                      <input type="text" class="form-control datetimepicker-input" data-target="#grossIncomingDatePicker" id="grossIncomingDate" name="grossIncomingDate">
-                      <div class="input-group-append" data-target="#grossIncomingDatePicker" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label class="text-muted small mb-1"><?=$languageArray['outgoing_date_code'][$language]?></label>
-                    <div class="input-group input-group date" id="tareOutgoingDatePicker" data-target-input="nearest">
-                      <input type="text" class="form-control datetimepicker-input" data-target="#tareOutgoingDatePicker" id="tareOutgoingDate" name="tareOutgoingDate">
-                      <div class="input-group-append" data-target="#tareOutgoingDatePicker" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                      </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['nett_weight_code'][$language]?></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="nettWeight" name="nettWeight" placeholder="0" readonly>
+                    <div class="input-group-append">
+                      <span class="input-group-text">KG</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div><!-- /.card Weighing Details -->
-        </div><!-- /.modal-body -->
-
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-primary" id="saveButton"><?=$languageArray['save_code'][$language]?></button>
-        </div>
-      </form>
-    </div> <!-- /.modal-content -->
-  </div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->  
-
-<div class="modal fade" id="cancelModal">
-  <div class="modal-dialog modal-xl" style="max-width: 90%;">
-    <div class="modal-content">
-      <form role="form" id="cancelForm">
-        <div class="modal-header bg-gray-dark color-palette">
-          <h4 class="modal-title"><?=$languageArray['delete_reason_code'][$language]?></h4>
-          <button type="button" class="close bg-gray-dark color-palette" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label><?=$languageArray['delete_reason_code'][$language]?> *</label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['incoming_date_code'][$language]?></label>
+                  <div class="input-group date" id="grossIncomingDatePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#grossIncomingDatePicker" id="grossIncomingDate" name="grossIncomingDate">
+                    <div class="input-group-append" data-target="#grossIncomingDatePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['outgoing_date_code'][$language]?></label>
+                  <div class="input-group date" id="tareOutgoingDatePicker" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#tareOutgoingDatePicker" id="tareOutgoingDate" name="tareOutgoingDate">
+                    <div class="input-group-append" data-target="#tareOutgoingDatePicker" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <input type="hidden" class="form-control" id="id" name="id">
           </div>
         </div>
-        <div class="modal-footer justify-content-between bg-gray-dark color-palette">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-success" id="submitCancel"><?=$languageArray['submit_code'][$language]?></button>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary" id="saveButton"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>  
+
+<div class="modal fade modal-modern" id="cancelModal">
+  <div class="modal-dialog" style="max-width:500px;">
+    <div class="modal-content">
+      <form role="form" id="cancelForm">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-trash-alt mr-2 text-danger"></i><?=$languageArray['delete_reason_code'][$language]?></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$languageArray['delete_reason_code'][$language]?> <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required placeholder="<?=$languageArray['enter_reason_code'][$language] ?? 'Enter reason for deletion...'?>"></textarea>
+          </div>
+          <input type="hidden" id="id" name="id">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-danger" id="submitCancel"><i class="fas fa-trash mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
         </div>
       </form>
     </div>
@@ -531,6 +501,10 @@ $(function () {
     'searching': true,
     'order': [[ 1, 'asc' ]],
     'columnDefs': [ { orderable: false, targets: [0] }],
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     'ajax': {
       'url':'php/modules/wb/filterWeighbridge.php',
       'data': {
@@ -561,6 +535,7 @@ $(function () {
       { data: 'do_po' },
       { data: 'lorry_plate_no1' },
       { data: 'customer_supplier' },
+      { data: 'product_name' },
       { data: 'gross_weight1' },
       { data: 'gross_weight1_date' },
       { data: 'tare_weight1' },
@@ -569,47 +544,47 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+          var buttons = '<div class="d-flex" style="gap:4px;">';
           if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+            buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
           }
-          buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+          buttons += '<button type="button" onclick="printSlip('+data+')" class="btn btn-sm btn-outline-secondary" title="Print"><i class="fas fa-print"></i></button>';
           if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+            buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>';
           }
           buttons += '</div>';
           return buttons;
         }
       }
-    ],
-    // "footerCallback": function(row, data, start, end, display) {
-    //   var api = this.api();
+    ]
+  });
 
-    //   var totalItem = api
-    //     .column(8, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //       return a + parseFloat(b || 0);
-    //     }, 0);
+  // Add event listener for opening and closing details on row click
+  $('#weightTable tbody').on('click', 'tr', function (e) {
+    var tr = $(this);
+    var row = table.row(tr);
 
-    //   var totalWeight = api
-    //     .column(9, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //       return a + parseFloat(b || 0);
-    //     }, 0);
+    // Exclude clicks on buttons, checkboxes, and form elements
+    if ($(e.target).closest('td').hasClass('select-checkbox') || 
+        $(e.target).is('button') ||
+        $(e.target).closest('button').length ||
+        $(e.target).is('input')) {
+      return;
+    }
 
-    //   var totalReject = api
-    //     .column(10, { page: 'current' })
-    //     .data()
-    //     .reduce(function(a, b) {
-    //       return a + parseFloat(b || 0);
-    //     }, 0);
-
-    //   $(api.column(8).footer()).html(totalItem);
-    //   $(api.column(9).footer()).html(totalWeight.toFixed(2));
-    //   $(api.column(10).footer()).html(totalReject.toFixed(2));
-    // }
+    if (row.child.isShown()) {
+      // This row is already open - close it
+      row.child.hide();
+      tr.removeClass('shown');
+    } else {
+      $.post('php/modules/wb/getWeighbridge.php', { userID: row.data().id }, function (data) {
+        var obj = JSON.parse(data);
+        if (obj.status === 'success') {
+          row.child(format(obj.message)).show();
+          tr.addClass('shown');
+        }
+      });
+    }
   });
 
   $('#filterSearch').on('click', function(){
@@ -634,9 +609,13 @@ $(function () {
       'processing': true,
       'serverSide': true,
       'serverMethod': 'post',
-      'searching': false,
+      'searching': true,
       'order': [[ 1, 'asc' ]],
       'columnDefs': [ { orderable: false, targets: [0] }],
+      'language': {
+        'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+        'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+      },
       'ajax': {
         'url':'php/modules/wb/filterWeighbridge.php',
         'data': {
@@ -667,6 +646,7 @@ $(function () {
         { data: 'do_po' },
         { data: 'lorry_plate_no1' },
         { data: 'customer_supplier' },
+        { data: 'product_name' },
         { data: 'gross_weight1' },
         { data: 'gross_weight1_date' },
         { data: 'tare_weight1' },
@@ -675,47 +655,19 @@ $(function () {
         { 
           data: 'id',
           render: function ( data, type, row ) {
-            var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+            var buttons = '<div class="d-flex" style="gap:4px;">';
             if(<?=$allowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="edit'+data+'" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
             }
-            buttons += '<button type="button" id="print'+data+'" onclick="printSlip('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
+            buttons += '<button type="button" onclick="printSlip('+data+')" class="btn btn-sm btn-outline-secondary" title="Print"><i class="fas fa-print"></i></button>';
             if(<?=$allowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" id="deactivate'+data+'" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+              buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>';
             }
             buttons += '</div>';
             return buttons;
           }
         }
-      ],
-      // "footerCallback": function(row, data, start, end, display) {
-      //   var api = this.api();
-
-      //   var totalItem = api
-      //     .column(8, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //       return a + parseFloat(b || 0);
-      //     }, 0);
-
-      //   var totalWeight = api
-      //     .column(9, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //       return a + parseFloat(b || 0);
-      //     }, 0);
-
-      //   var totalReject = api
-      //     .column(10, { page: 'current' })
-      //     .data()
-      //     .reduce(function(a, b) {
-      //       return a + parseFloat(b || 0);
-      //     }, 0);
-
-      //   $(api.column(8).footer()).html(totalItem);
-      //   $(api.column(9).footer()).html(totalWeight.toFixed(2));
-      //   $(api.column(10).footer()).html(totalReject.toFixed(2));
-      // }
+      ]
     });
   });
 
@@ -971,5 +923,97 @@ function printSlip(id) {
       alert('Error: ' + response.message);
     }
   });
+}
+
+function format(row) {
+  var grossWeight = parseFloat(row.gross_weight1) || 0;
+  var tareWeight = parseFloat(row.tare_weight1) || 0;
+  var nettWeight = parseFloat(row.nett_weight1) || 0;
+  
+  var returnString = `
+  <div class="expanded-row-content">
+    <!-- Header -->
+    <div class="expanded-header">
+      <div>
+        <div class="expanded-header-title">${row.transaction_id || '-'}</div>
+        <div class="expanded-header-subtitle">${row.customer_name || row.supplier_name || '-'}</div>
+      </div>
+      <div class="expanded-actions">
+        ${<?=$allowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
+        <button type="button" onclick="printSlip(${row.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
+        ${<?=$allowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
+      </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['incoming_weight_code'][$language]?></div>
+        <div class="kpi-value kpi-value-primary">${grossWeight.toFixed(2)} <span class="kpi-unit">KG</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['outgoing_weight_code'][$language]?></div>
+        <div class="kpi-value">${tareWeight.toFixed(2)} <span class="kpi-unit">KG</span></div>
+      </div>
+      <div class="kpi-card kpi-card-success">
+        <div class="kpi-label"><?=$languageArray['nett_weight_code'][$language] ?? 'Nett Weight'?></div>
+        <div class="kpi-value">${nettWeight.toFixed(2)} <span class="kpi-unit">KG</span></div>
+      </div>
+    </div>
+
+    <!-- Transaction Info -->
+    <div class="info-section">
+      <div class="info-section-title"><?=$languageArray['transaction_info_code'][$language] ?? 'Transaction Information'?></div>
+      <div class="info-grid">
+        <div><span class="info-item-label"><?=$languageArray['transaction_id_code'][$language]?></span><span class="info-item-value">${row.transaction_id || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['transaction_date_code'][$language]?></span><span class="info-item-value">${row.transaction_date || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['transaction_status_code'][$language]?></span><span class="info-item-value">${row.transaction_status || '-'}</span></div>
+        <div><span class="info-item-label">${row.transaction_status === 'Dispatch' ? '<?=$languageArray['do_no_code'][$language]?>' : '<?=$languageArray['po_no_code'][$language]?>'}</span><span class="info-item-value">${row.transaction_status === 'Dispatch' ? (row.delivery_no || '-') : (row.purchase_order || '-')}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['vehicle_no_code'][$language]?></span><span class="info-item-value">${row.lorry_plate_no1 || '-'}</span></div>
+        <div><span class="info-item-label">${row.transaction_status === 'Dispatch' ? '<?=$languageArray['customer_code'][$language]?>' : '<?=$languageArray['supplier_code'][$language]?>'}</span><span class="info-item-value">${row.customer_name || row.supplier_name || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['product_code'][$language]?></span><span class="info-item-value">${row.product_name || '-'}</span></div>
+      </div>
+    </div>
+
+    <!-- Weighing Details -->
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title"><i class="fas fa-weight mr-1"></i><?=$languageArray['weighing_details_code'][$language]?></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table details-table mb-0">
+          <thead>
+            <tr>
+              <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
+              <th class="text-right"><?=$languageArray['weight_code'][$language] ?? 'Weight'?> (KG)</th>
+              <th><?=$languageArray['date_time_code'][$language] ?? 'Date/Time'?></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-info"><?=$languageArray['incoming_code'][$language] ?? 'Incoming'?></span></td>
+              <td class="text-right text-mono font-weight-bold">${grossWeight.toFixed(2)}</td>
+              <td class="text-muted">${row.gross_weight1_date || '-'}</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-secondary"><?=$languageArray['outgoing_code'][$language] ?? 'Outgoing'?></span></td>
+              <td class="text-right text-mono font-weight-bold">${tareWeight.toFixed(2)}</td>
+              <td class="text-muted">${row.tare_weight1_date || '-'}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td><strong><?=$languageArray['nett_weight_code'][$language] ?? 'Nett Weight'?></strong></td>
+              <td class="text-right text-mono text-success font-weight-bold">${nettWeight.toFixed(2)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+  `;
+  
+  return returnString;
 }
 </script>

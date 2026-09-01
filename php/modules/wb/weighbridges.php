@@ -154,7 +154,7 @@ if (isset($_POST['transactionId'], $_POST['transactionStatus'], $_POST['transact
 
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE weight SET transaction_id=?, weight_type=?, transaction_status=?, transaction_date=?, purchase_order=?, delivery_no=?, customer_name=?, customer_code=?, supplier_name=?, supplier_code=?, product_name=?, product_code=?, lorry_plate_no1=?, gross_weight1=?, gross_weight1_date=?, tare_weight1=?, tare_weight1_date=?, nett_weight1=?, final_weight=?, modified_by=?, modified_date=?, indicator_id=?, records_type=?, is_complete=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE Weight SET transaction_id=?, weight_type=?, transaction_status=?, transaction_date=?, purchase_order=?, delivery_no=?, customer_name=?, customer_code=?, supplier_name=?, supplier_code=?, product_name=?, product_code=?, lorry_plate_no1=?, gross_weight1=?, gross_weight1_date=?, tare_weight1=?, tare_weight1_date=?, nett_weight1=?, final_weight=?, modified_by=?, modified_date=?, indicator_id=?, records_type=?, is_complete=? WHERE id=?")){
             $update_stmt->bind_param('sssssssssssssssssssssssss', $transactionId, $weightType, $transactionStatus, $transactionDateTime, $poNo, $doNo, $customer, $customerCode, $supplier, $supplierCode, $product, $productCode, $vehicle, $grossIncoming, $grossIncomingDateTime, $tareOutgoing, $tareOutgoingDateTime, $nettWeight, $nettWeight, $userID, $now, $indicator, $recordType, $isComplete, $_POST['id']);
             
             // Execute the prepared query.
@@ -190,7 +190,7 @@ if (isset($_POST['transactionId'], $_POST['transactionStatus'], $_POST['transact
     
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO weight (transaction_id, weight_type, transaction_status, transaction_date, purchase_order, delivery_no, customer_name, customer_code, supplier_name, supplier_code, product_name, product_code, lorry_plate_no1, gross_weight1, gross_weight1_date, tare_weight1, tare_weight1_date, nett_weight1, final_weight, indicator_id, created_date, created_by, company, records_type, is_complete, modified_by) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+        if ($insert_stmt = $db->prepare("INSERT INTO Weight (transaction_id, weight_type, transaction_status, transaction_date, purchase_order, delivery_no, customer_name, customer_code, supplier_name, supplier_code, product_name, product_code, lorry_plate_no1, gross_weight1, gross_weight1_date, tare_weight1, tare_weight1_date, nett_weight1, final_weight, indicator_id, created_date, created_by, company, records_type, is_complete, modified_by) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
             $insert_stmt->bind_param('ssssssssssssssssssssssssss', $transactionId, $weightType, $transactionStatus, $transactionDateTime, $poNo, $doNo, $customer, $customerCode, $supplier, $supplierCode, $product, $productCode, $vehicle, $grossIncoming, $grossIncomingDateTime, $tareOutgoing, $tareOutgoingDateTime, $nettWeight, $nettWeight, $indicator, $now, $userID, $company, $recordType, $isComplete, $userID);
                         
             // Execute the prepared query.

@@ -68,72 +68,55 @@ else{
 }
 ?>
 
-<div class="content-header">
+<div class="content-header" style="padding-bottom: 0;">
   <div class="container-fluid">
-      <div class="row mb-2">
-    <div class="col-sm-6">
-      <h1 class="m-0 text-dark"><?=$languageArray['products_code'][$language]?></h1>
-    </div><!-- /.col -->
-      </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
-</div><!-- /.content-header -->
+    <!-- Breadcrumb or minimal header can go here if needed -->
+  </div>
+</div>
 
 <!-- Main content -->
-<section class="content">
+<section class="content page-modern">
   <div class="container-fluid">
-      <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-4"></div>
-            <div class="col-2">
-              <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                <?=$languageArray['delete_product_code'][$language]?>
-              </button>
+    <div class="row">
+      <div class="col-12">
+        <div class="card results-card show-dt-controls">
+          <div class="card-header">
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-box mr-2"></i><?=$languageArray['products_code'][$language]?></h3>
             </div>
-            <div class="col-2">
-              <a href="template/Product_Template.xlsx" download>
-                <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                  <?=$languageArray['download_template_code'][$language]?>
-                </button>
+            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+              <a href="template/Product_Template.xlsx" download class="btn btn-action btn-action-warning">
+                <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
               </a>
-            </div>
-            <div class="col-2">
-              <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                <?=$languageArray['upload_excel_code'][$language]?>
+              <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
+                <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
               </button>
-            </div>
-            <!-- <div class="col-2">
-                <input type="file" id="fileInput" accept=".xlsx, .xls" />
-            </div>
-            <div class="col-2">
-                <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
-            </div>                             -->
-            <div class="col-2">
-              <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addProducts"><?=$languageArray['add_products_code'][$language]?></button>
+              <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_product_code'][$language]?>
+              </button>
+              <button type="button" class="btn btn-action btn-action-primary" id="addProducts">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_products_code'][$language]?>
+              </button>
             </div>
           </div>
-        </div>
-        <div class="card-body">
-          <table id="productTable" class="table table-bordered table-striped">
-            <thead>
-              <tr>
-                <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                <th><?=$languageArray['product_code_code'][$language]?></th>
-                <th><?=$languageArray['product_name_code'][$language]?></th>
-                <!--th>Price</th-->
-                <th><?=$languageArray['weight_code'][$language]?></th>
-                <th><?=$languageArray['remark_code'][$language]?></th>
-                <th><?=$languageArray['actions_code'][$language]?></th>
-              </tr>
-            </thead>
-          </table>
-        </div><!-- /.card-body -->
-      </div><!-- /.card -->
-    </div><!-- /.col -->
-  </div><!-- /.row -->
-</div><!-- /.container-fluid -->
+          <div class="card-body">
+            <table id="productTable" class="table data-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+                  <th><?=$languageArray['product_code_code'][$language]?></th>
+                  <th><?=$languageArray['product_name_code'][$language]?></th>
+                  <th><?=$languageArray['weight_code'][$language]?></th>
+                  <th><?=$languageArray['remark_code'][$language]?></th>
+                  <th width="15%"><?=$languageArray['actions_code'][$language]?></th>
+                </tr>
+              </thead>
+            </table>
+          </div><!-- /.card-body -->
+        </div><!-- /.card -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
 <div class="modal fade modal-modern" id="uploadModal">
@@ -273,6 +256,17 @@ else{
                       <option value="<?=$rowPack['id']?>"><?=$rowPack['packaging_name']?></option>
                     <?php } ?>
                   </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['colour_code'][$language] ?? 'Colour'?></label>
+                  <div class="input-group" id="productColourPicker">
+                    <input type="text" class="form-control" id="productColour" name="productColour" placeholder="#FFFFFF">
+                    <div class="input-group-append">
+                      <span class="input-group-text"><i class="fas fa-palette"></i></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -798,6 +792,11 @@ $(function () {
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
+  $('#productColourPicker').colorpicker({
+    format: 'hex',
+    useAlpha: false
+  });
+
   $('.select2').each(function() {
     $(this).select2({
         allowClear: true,
@@ -813,6 +812,10 @@ $(function () {
     'processing': true,
     'serverSide': true,
     'serverMethod': 'post',
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     'ajax': {
       'url':'php/modules/products/loadProducts.php',
       'data': {
@@ -821,8 +824,7 @@ $(function () {
     },
     'columns': [
       {
-        // Add a checkbox with a unique ID for each row
-        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        data: 'id',
         className: 'select-checkbox',
         orderable: false,
         render: function (data, type, row) {
@@ -831,13 +833,16 @@ $(function () {
       },
       { data: 'product_code' },
       { data: 'product_name' },
-      //{ data: 'price' },
       { data: 'weight' },
       { data: 'remark' },
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div class="row"><div class="col-3"><button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="openCustomers('+data+')" class="btn btn-info btn-sm"><i class="fas fa-users"></i></button></div><div class="col-3"><button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div style="display:flex;gap:4px;">'
+            + '<button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
+            + '<button type="button" onclick="openCustomers('+data+')" class="btn btn-info btn-sm"><i class="fas fa-users"></i></button>'
+            + '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+            + '</div>';
         }
       }
     ],
@@ -934,6 +939,7 @@ $(function () {
     $('#productModal').find('#weight').val("");
     $('#productModal').find('#productCategory').val("").trigger('change');
     $('#productModal').find('#productPackaging').val("").trigger('change');
+    $('#productModal').find('#productColour').val("");
     $('#productModal').find('#state').val("").trigger('change');
     $('#productModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
@@ -1512,6 +1518,7 @@ function edit(id){
       $('#productModal').find('#weight').val(obj.message.weight);
       $('#productModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
+      $('#productModal').find('#productColour').val(obj.message.colour || '');
       $('#productModal').find('#state').val(obj.message.state).trigger('change');
       $('#productModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');

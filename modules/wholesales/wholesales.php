@@ -105,6 +105,11 @@ else{
     $allowInvoice = $companyDetail['include_invoice'];
     $allowPayment = $companyDetail['include_payment'];
     $allowPcsBasket = $companyDetail['include_pcs_basket'];
+    $columnSetup = [];
+    if (!empty($companyDetail['column_setup'])) {
+      $columnSetupAll = json_decode($companyDetail['column_setup'], true);
+      $columnSetup = $columnSetupAll['wholesale']['columns'] ?? [];
+    }
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
@@ -137,6 +142,7 @@ else{
     $allowPayment = 'Y';
     $allowPcsBasket = 'Y';
     $secRemarksExists = true;
+    $columnSetup = [];
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -329,28 +335,36 @@ else{
         <table id="weightTable" class="table data-table">
           <thead>
             <tr>
-              <th style="width:3%; text-align:center;">
-                <?php if($allowInvoice == 'Y' && $userAllowPrice == 'Y') { ?>
-                <input type="checkbox" id="selectAllRows">
-                <?php } ?>
-              </th>
-              <th><?=$languageArray['serial_no_code'][$language]?></th>
-              <th><?=$languageArray['do_po_no_code'][$language]?></th>
-              <th><?=$languageArray['sec_bill_no_code'][$language]?></th>
-              <th><?=$languageArray['start_time_code'][$language]?></th>
-              <th><?=$languageArray['end_time_code'][$language]?></th>
-              <th><?=$languageArray['parent_code'][$language]?></th>
-              <th><?=$languageArray['customer_supplier_code'][$language]?></th>
-              <th><?=$languageArray['vehicle_no_code'][$language]?></th>
-              <th><?=$languageArray['driver_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['total_item_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['total_weight_code'][$language]?></th>
-              <th class="text-right"><?=$allowPrice == 'Y' && $userAllowPrice == 'Y' ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language]?></th>
-              <th><?=$languageArray['weighed_by_code'][$language]?></th>
-              <th><?=$languageArray['checked_by_code'][$language]?></th>
-              <?php if ($secRemarksExists) { ?>
-              <th><?=$languageArray['second_remarks_code'][$language]?></th>
-              <?php }?>
+              <th style="width:40px;"><input type="checkbox" id="selectAllRows"></th>
+              <?php
+              $defaultColHeaders = [
+                'serial_no_code'         => $languageArray['serial_no_code'][$language],
+                'do_po_no_code'          => $languageArray['do_po_no_code'][$language],
+                'location_code'          => $languageArray['locations_code'][$language],
+                'sec_bill_no_code'       => $languageArray['sec_bill_no_code'][$language],
+                'start_time_code'        => $languageArray['start_time_code'][$language],
+                'end_time_code'          => $languageArray['end_time_code'][$language],
+                'parent_code'            => $languageArray['parent_code'][$language],
+                'customer_supplier_code' => $languageArray['customer_supplier_code'][$language],
+                'vehicle_no_code'        => $languageArray['vehicle_no_code'][$language],
+                'driver_code'            => $languageArray['driver_code'][$language],
+                'total_item_code'        => $languageArray['total_item_code'][$language],
+                'total_weight_code'      => $languageArray['total_weight_code'][$language],
+                'total_price_reject_code'=> ($allowPrice == 'Y' && $userAllowPrice == 'Y') ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language],
+                'weighed_by_code'        => $languageArray['weighed_by_code'][$language],
+                'checked_by_code'        => $languageArray['checked_by_code'][$language],
+                'modified_by_code'       => $languageArray['modified_by_code'][$language] ?? 'Modified By',
+              ];
+              if ($secRemarksExists) {
+                $defaultColHeaders['second_remarks_code'] = $languageArray['second_remarks_code'][$language];
+              }
+              $orderedHeaders = !empty($columnSetup)
+                ? array_filter(array_map(fn($col) => isset($defaultColHeaders[$col['key']]) ? [$col['key'], $defaultColHeaders[$col['key']]] : null, $columnSetup))
+                : array_map(fn($k, $v) => [$k, $v], array_keys($defaultColHeaders), $defaultColHeaders);
+              foreach ($orderedHeaders as $col) {
+                echo '<th>' . htmlspecialchars($col[1]) . '</th>';
+              }
+              ?>
               <th style="width:120px;"><?=$languageArray['actions_code'][$language]?></th>
             </tr>
           </thead>
@@ -772,6 +786,7 @@ else{
 
 <script>
 // Values
+var netFromCalc = false; // variable to see where trigger nett weight from calculation or user input
 var currency = "1";
 var weightCount = 0;
 var rejectCount = 0;
@@ -781,22 +796,27 @@ var userAllowPrice = '<?=$userAllowPrice?>';
 var allowInvoice = '<?=$allowInvoice?>';
 var allowPcsBasket = '<?=$allowPcsBasket?>';
 var userLocation = '<?=$userLocationId?>';
-var columnNames = [
-  '<?=$languageArray['serial_no_code'][$language]?>',
-  '<?=$languageArray['do_po_no_code'][$language]?>',
-  '<?=$languageArray['sec_bill_no_code'][$language]?>',
-  '<?=$languageArray['start_time_code'][$language]?>',
-  '<?=$languageArray['end_time_code'][$language]?>',
-  '<?=$languageArray['parent_code'][$language]?>',
-  '<?=$languageArray['customer_supplier_code'][$language]?>',
-  '<?=$languageArray['vehicle_no_code'][$language]?>',
-  '<?=$languageArray['driver_code'][$language]?>',
-  '<?=$languageArray['total_item_code'][$language]?>',
-  '<?=$languageArray['total_weight_code'][$language]?>',
-  allowPrice == 'Y' && userAllowPrice == 'Y' ? 'Total Price' : '<?=$languageArray['total_reject_code'][$language]?>',
-  '<?=$languageArray['weighed_by_code'][$language]?>',
-  '<?=$languageArray['checked_by_code'][$language]?>'
-  <?php if ($secRemarksExists) { ?>,'<?=$languageArray['second_remarks_code'][$language]?>'<?php } ?>
+var columnSetup = <?=json_encode($columnSetup)?>;
+
+// Default column definitions in order: [key, data field, label, extra options]
+var defaultColumns = [
+  ['serial_no_code',          'serial_no',        '<?=$languageArray['serial_no_code'][$language]?>'],
+  ['do_po_no_code',           'po_no',            '<?=$languageArray['do_po_no_code'][$language]?>'],
+  ['location_code',           'location',         '<?=$languageArray['locations_code'][$language]?>'],
+  ['sec_bill_no_code',        'security_bills',   '<?=$languageArray['sec_bill_no_code'][$language]?>'],
+  ['start_time_code',         'start_time',       '<?=$languageArray['start_time_code'][$language]?>'],
+  ['end_time_code',           'end_time',         '<?=$languageArray['end_time_code'][$language]?>'],
+  ['parent_code',             'parent',           '<?=$languageArray['parent_code'][$language]?>'],
+  ['customer_supplier_code',  'customer_supplier','<?=$languageArray['customer_supplier_code'][$language]?>'],
+  ['vehicle_no_code',         'vehicle_no',       '<?=$languageArray['vehicle_no_code'][$language]?>'],
+  ['driver_code',             'driver',           '<?=$languageArray['driver_code'][$language]?>'],
+  ['total_item_code',         'total_item',       '<?=$languageArray['total_item_code'][$language]?>'],
+  ['total_weight_code',       'total_weight',     '<?=$languageArray['total_weight_code'][$language]?>'],
+  ['total_price_reject_code', (allowPrice == 'Y' && userAllowPrice == 'Y') ? 'total_price' : 'total_reject', (allowPrice == 'Y' && userAllowPrice == 'Y') ? '<?=$languageArray['total_price_code'][$language] ?? 'Total Price'?>' : '<?=$languageArray['total_reject_code'][$language]?>'],
+  ['weighed_by_code',         'weighted_by',      '<?=$languageArray['weighed_by_code'][$language]?>'],
+  ['checked_by_code',         'checked_by',       '<?=$languageArray['checked_by_code'][$language]?>'],
+  ['modified_by_code',        'modified_by',      '<?=$languageArray['modified_by_code'][$language] ?? 'Modified By'?>']
+  <?php if ($secRemarksExists) { ?>,['second_remarks_code', 'remarks2', '<?=$languageArray['second_remarks_code'][$language]?>']<?php } ?>
 ];
 
 $(function () {
@@ -890,56 +910,7 @@ $(function () {
         partyType: partyTypeI
       } 
     },
-    'columns': [
-      {
-        data: 'id',
-        orderable: false,
-        class: 'select-checkbox',
-        render: function(data, type, row) {
-          if (allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
-            return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
-          }
-          return '';
-        }
-      },
-      { data: 'serial_no' },
-      { data: 'po_no' },
-      { data: 'security_bills' },
-      { data: 'start_time' },
-      { data: 'end_time' },
-      { data: 'parent' },
-      { data: 'customer_supplier' },
-      { data: 'vehicle_no' },
-      { data: 'driver' },
-      { data: 'total_item' },
-      { data: 'total_weight' },
-      { data: allowPrice == 'Y' && userAllowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice == 'Y' && userAllowPrice == 'Y' },
-      { data: 'weighted_by' },
-      { data: 'checked_by' },
-      <?php if ($secRemarksExists) { ?>
-        { data: 'remarks2' },
-      <?php }?>
-      { 
-        data: 'id',
-        class: 'action-button',
-        orderable: false,
-        render: function ( data, type, row ) {
-          var buttons = '<div class="d-flex" style="gap:4px;">';
-          if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
-          }
-          buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
-          if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
-            buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
-          }
-          if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
-            buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
-          }
-          buttons += '</div>';
-          return buttons;
-        }
-      }
-    ]
+    'columns': getTableColumns()
   });
 
   $('#selectAllRows').on('change', function() {
@@ -1032,56 +1003,7 @@ $(function () {
           partyType: partyTypeI
         } 
       },
-      'columns': [
-        {
-          data: 'id',
-          orderable: false,
-          class: 'select-checkbox',
-          render: function(data, type, row) {
-            if (allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
-              return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
-            }
-            return '';
-          }
-        },
-        { data: 'serial_no' },
-        { data: 'po_no' },
-        { data: 'security_bills' },
-        { data: 'start_time' },
-        { data: 'end_time' },
-        { data: 'parent' },
-        { data: 'customer_supplier' },
-        { data: 'vehicle_no' },
-        { data: 'driver' },
-        { data: 'total_item' },
-        { data: 'total_weight' },
-        { data: allowPrice == 'Y' && userAllowPrice == 'Y' ? 'total_price' : 'total_reject', orderable: allowPrice == 'Y' && userAllowPrice == 'Y' },
-        { data: 'weighted_by' },
-        { data: 'checked_by' },
-        <?php if ($secRemarksExists) { ?>
-        { data: 'remarks2' },
-        <?php }?>
-        { 
-          data: 'id',
-          class: 'action-button',
-          orderable: false,
-          render: function ( data, type, row ) {
-            var buttons = '<div class="d-flex" style="gap:4px;">';
-            if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
-            }
-            buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
-            if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
-              buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
-            }
-            if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
-              buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
-            }
-            buttons += '</div>';
-            return buttons;
-          }
-        }
-      ]
+      'columns': getTableColumns()
       });
   });
 
@@ -1355,7 +1277,7 @@ $(function () {
     }
     
     var status = $('#extendModal').find('#status').val();
-    if (allowPrice == 'Y' && supplier && status) {
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && supplier && status) {
       // Recalculate prices for all weight detail rows
       $('#weightDetailsTable tr.details').each(function() {
         $(this).find('select[id^="grade_id"]').trigger('change');
@@ -1525,7 +1447,7 @@ $(function () {
         </td>
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
+        <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00"></td>
         <td ${allowPcsBasket == 'Y' ? '' : 'style="display:none"'}>
           <input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="0">
         </td>
@@ -1696,7 +1618,9 @@ $(function () {
       // return;
     }
 
+    netFromCalc = true;
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
+    netFromCalc = false;
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="tare"]', function(){
@@ -1711,10 +1635,25 @@ $(function () {
       // return;
     }
     
+    netFromCalc = true;
     $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
+    netFromCalc = false;
   });
 
   $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
+    if (!netFromCalc) {
+      var nett = parseFloat($(this).val()) || 0;
+      var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val()) || 0;
+      var gross = nett + tare;
+
+      if (isNaN(gross) || gross < 0) {
+        alert("Gross Weight cannot be negative or invalid value");
+        gross = 0;
+      }
+
+      $(this).closest('tr').find('input[id^="gross"]').val(gross.toFixed(2));
+    }
+
     var totalGross = 0;
     var totalTare = 0;
     var totalNet = 0;
@@ -1946,6 +1885,57 @@ $(function () {
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 });
+
+// Build ordered column list from columnSetup if available, else use defaultColumns order
+function buildColumnDefs() {
+  var colMap = {};
+  defaultColumns.forEach(function(col) { colMap[col[0]] = col; });
+
+  var ordered = (columnSetup && columnSetup.length > 0)
+    ? columnSetup.filter(function(s) { return colMap[s.key]; }).map(function(s) {
+        return { col: colMap[s.key], visible: s.visible !== false };
+      })
+    : defaultColumns.map(function(col) { return { col: col, visible: true }; });
+
+  return ordered;
+}
+
+function getTableColumns() {
+  var ordered = buildColumnDefs();
+  var cols = [
+    {
+      data: 'id', orderable: false, class: 'select-checkbox',
+      render: function(data, type, row) {
+        if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
+          return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
+        }
+        return '';
+      }
+    }
+  ];
+  ordered.forEach(function(item) {
+    cols.push({ data: item.col[1], visible: item.visible });
+  });
+  cols.push({
+    data: 'id', class: 'action-button', orderable: false,
+    render: function(data, type, row) {
+      var buttons = '<div class="d-flex" style="gap:4px;">';
+      if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
+        buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
+      }
+      buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
+      if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
+        buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
+      }
+      if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
+        buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
+      }
+      buttons += '</div>';
+      return buttons;
+    }
+  });
+  return cols;
+}
 
 function applyCustomerCurrency(currencyId) {
   if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
@@ -2396,7 +2386,7 @@ function edit(id) {
               </td>
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" required min="0.01"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
-              <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01" readonly></td>
+              <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="${parseInt(detail.no_per_basket)||0}"></td>
               <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
                 <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
@@ -2886,7 +2876,7 @@ function filterWeightTable(rowId) {
       totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
       totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
       totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
-      if (allowPrice == 'Y') {
+      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
         totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
         totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
         totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
@@ -2990,21 +2980,25 @@ function exportInvoices() {
 function buildColumnToggleMenu() {
   var menu = $('#columnToggleMenu');
   menu.empty();
-  // Start from column 1 (skip checkbox column 0)
-  for (var i = 0; i < columnNames.length; i++) {
-    var colIndex = i + 1; // Offset by 1 for checkbox column
+  var ordered = buildColumnDefs();
+  ordered.forEach(function(item) {
+    var label = item.col[2];
+    var dataField = item.col[1];
     menu.append(
       '<div class="form-check">' +
-        '<input class="form-check-input column-toggle" type="checkbox" id="colToggle' + colIndex + '" data-col="' + colIndex + '" checked>' +
-        '<label class="form-check-label" for="colToggle' + colIndex + '">' + columnNames[i] + '</label>' +
+        '<input class="form-check-input column-toggle" type="checkbox" data-field="' + dataField + '"' + (item.visible ? ' checked' : '') + '>' +
+        '<label class="form-check-label">' + label + '</label>' +
       '</div>'
     );
-  }
+  });
   menu.on('click', function(e) { e.stopPropagation(); });
   menu.on('change', '.column-toggle', function() {
-    var col = $(this).data('col');
+    var field = $(this).data('field');
     var visible = $(this).is(':checked');
-    $('#weightTable').DataTable().column(col).visible(visible);
+    var dt = $('#weightTable').DataTable();
+    dt.columns().every(function() {
+      if (this.dataSrc() === field) { this.visible(visible); }
+    });
   });
 }
 
