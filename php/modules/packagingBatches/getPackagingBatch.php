@@ -46,6 +46,7 @@ if(isset($_POST['userID'])){
                         $weightDetails[] = array(
                             'id' => $row2['id'],
                             'packaging_batch_id' => $row2['packaging_batch_id'],
+                            'supplier_id' => $row2['supplier_id'],
                             'category_id' => $row2['category_id'],
                             'product_id' => $row2['product_id'],
                             'product_name' => searchProductNameById($row2['product_id'], $db),

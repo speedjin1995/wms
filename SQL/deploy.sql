@@ -3293,3 +3293,6 @@ UNION ALL
 SELECT id, 'allow_manual_post', COALESCE(allow_manual_post, 'N') FROM companies
 UNION ALL
 SELECT id, 'include_integration', COALESCE(include_integration, 'N') FROM companies;
+
+-- 02/09/2026 --
+ALTER TABLE `packaging_batch_items` ADD `supplier_id` INT(11) NULL AFTER `packaging_batch_id`;

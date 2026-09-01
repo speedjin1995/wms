@@ -61,10 +61,10 @@ else{
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
     $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' AND customer = '$company' ORDER BY shipment_type ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
 
-    // Company Detail 
-    $companyDetail = searchCompanyById($company, $db);
-    $allowPhoto = $companyDetail['include_photo'];
+    // Feature Flagging
+    $allowPhoto = $_SESSION['featureFlags']['include_photo'] ?? 'N';
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
@@ -88,6 +88,7 @@ else{
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
     $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' ORDER BY shipment_type ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
 
     $allowPhoto = 'Y';
   }
@@ -310,20 +311,21 @@ else{
               <table class="table table-sm table-hover mb-0" style="font-size:0.72rem;">
                 <thead class="thead-light">
                   <tr class="text-center">
+                    <th style="width:10%;"><?=$languageArray['supplier_code'][$language]?></th>
                     <th style="width:10%;"><?=$languageArray['category_code'][$language]?></th>
                     <th style="width:10%;"><?=$languageArray['product_code'][$language]?></th>
-                    <th style="width:10%;"><?=$languageArray['grade_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
                     <th style="width:10%;"><?=$languageArray['packaging_size_code'][$language]?></th>
                     <th style="width:8%;"><?=$languageArray['label_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['unit_per_box_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['gross_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['tare_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['weight_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['time_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['unit_per_box_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['gross_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['tare_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['weight_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['time_code'][$language]?></th>
                     <?php if($allowPhoto == 'Y') { ?>
-                    <th style="width:5%;"><?=$languageArray['photo_code'][$language]?></th>
+                    <th style="width:4%;"><?=$languageArray['photo_code'][$language]?></th>
                     <?php } ?>
-                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
+                    <th style="width:6%;"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
                 <tbody id="weightDetailsTable"></tbody>
@@ -489,6 +491,7 @@ else{
 var weightCount = 0;
 var allowPhoto = '<?=$allowPhoto?>';
 var categoryOptions = `<?php while($rowCat=mysqli_fetch_assoc($categories)){ ?><option value="<?=$rowCat['id'] ?>"><?=$rowCat['category_name'] ?></option><?php } ?>`;
+var supplierOptions = `<?php while($rowSupplier=mysqli_fetch_assoc($supplies)){ ?><option value="<?=$rowSupplier['id'] ?>"><?=$rowSupplier['supplier_name'] ?></option><?php } ?>`;
 var productOptions = `<?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?><option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option><?php } ?>`;
 var packagingOptions = `<?php while($rowPkg=mysqli_fetch_assoc($packagings2)){ ?><option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option><?php } ?>`;
 var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-type="<?=$rowGrade['grade_type'] ?? 'Local'?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
@@ -820,7 +823,6 @@ $(function () {
     }
   });
 
-
   $('#addWeightBtn').on('click', function() {
     var idx = weightCount++;
     var now = new Date();
@@ -845,6 +847,12 @@ $(function () {
     var row = `
       <tr class="details">
         <input type="hidden" name="weightDetails[${idx}][batchItemId]" value="">
+        <td>
+          <select class="form-control select2" id="supplier${idx}" name="weightDetails[${idx}][supplier]" required>
+            <option value="" selected disabled>Select Supplier</option>
+            ${supplierOptions}
+          </select>
+        </td>
         <td>
           <select class="form-control select2" id="category${idx}" name="weightDetails[${idx}][category]" required>
             <option value="" selected disabled>Select Category</option>
@@ -1168,6 +1176,12 @@ $(function () {
         <tr class="details">
           <input type="hidden" name="weightDetails[${idx}][batchItemId]" value="">
           <td>
+            <select class="form-control select2" id="supplier${idx}" name="weightDetails[${idx}][supplier]" required>
+              <option value="" selected disabled>Select Supplier</option>
+              ${supplierOptions}
+            </select>
+          </td>
+          <td>
             <select class="form-control select2" id="category${idx}" name="weightDetails[${idx}][category]" required>
               <option value="" selected disabled>Select Category</option>
               ${categoryOptions}
@@ -1445,6 +1459,12 @@ function edit(id) {
             <tr class="details">
               <input type="hidden" name="weightDetails[${idx}][batchId]" value="${detail.id || ''}">
               <td>
+                <select class="form-control select2" id="supplier${idx}" name="weightDetails[${idx}][supplier]" required>
+                  <option value="" selected disabled>Select Supplier</option>
+                  ${supplierOptions}
+                </select>
+              </td>
+              <td>
                 <select class="form-control select2" id="category${idx}" name="weightDetails[${idx}][category]" required>
                   <option value="" selected disabled>Select Category</option>
                   <?php while($rowCat=mysqli_fetch_assoc($categories2)){ ?>
@@ -1488,6 +1508,9 @@ function edit(id) {
             </tr>
           `;
           tbody.append(row);
+
+          // Set supplier
+          tbody.find(`select[name="weightDetails[${idx}][supplier]"]`).val(detail.supplier_id);
 
           // Set category
           tbody.find(`select[name="weightDetails[${idx}][category]"]`).val(detail.category_id);
