@@ -34,10 +34,15 @@ else{
     }
     $categoryIds = array_unique($categoryIds);
   }
-  
+
   $allowPhoto = 'N';
   $allowPrice = 'N';
   $allowInvoice = 'N';
+  $allowPayment = 'N';
+  $allowPcsBasket = 'N';
+  $allowBasketTare = 'N';
+  $secRemarksExists = false;
+
   $filterStates = [];
   if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
     // Query to get daily setup states
@@ -92,19 +97,16 @@ else{
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
 
-    // Company Detail 
-    $companyDetail = searchCompanyById($company, $db);
-    // $companyProducts = json_decode($companyDetail['products'], true);
-    $secRemarksExists = false;
-    if ($companyDetail['include_sec_remark'] == 'Y') { 
-      $secRemarksExists = true;
-    }
+    // Feature Flagging
+    $allowPhoto = $_SESSION['featureFlags']['include_photo'] ?? 'N';
+    $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
+    $allowInvoice = $_SESSION['featureFlags']['include_invoice'] ?? 'N';
+    $allowPayment = $_SESSION['featureFlags']['include_payment'] ?? 'N';
+    $allowPcsBasket = $_SESSION['featureFlags']['include_pcs_basket'] ?? 'N';
+    $allowBasketTare = $_SESSION['featureFlags']['allow_basket_tare'] ?? 'N';
+    $secRemarksExists = ($_SESSION['featureFlags']['include_sec_remark'] ?? '') == 'Y' ? true : false;
 
-    $allowPhoto = $companyDetail['include_photo'];
-    $allowPrice = $companyDetail['include_price'];
-    $allowInvoice = $companyDetail['include_invoice'];
-    $allowPayment = $companyDetail['include_payment'];
-    $allowPcsBasket = $companyDetail['include_pcs_basket'];
+    $companyDetail = searchCompanyById($company, $db);
     $columnSetup = [];
     if (!empty($companyDetail['column_setup'])) {
       $columnSetupAll = json_decode($companyDetail['column_setup'], true);
@@ -581,7 +583,7 @@ else{
           </div>
           
           <!-- Basket Tare Calculation Section -->
-          <div class="modal-section">
+          <div class="modal-section" <?php if ($allowBasketTare != 'Y') { echo 'style="display:none;"'; } ?>>
             <h6 class="section-title"><i class="fas fa-shopping-basket mr-2"></i><?=$languageArray['basket_tare_calculation_code'][$language] ?? 'Basket Tare Calculation'?></h6>
             <div class="row align-items-end">
               <div class="col-md-3">
@@ -2055,7 +2057,7 @@ function format (row) {
     </div>
 
     <!-- Basket Tare Calculation -->
-    <div class="info-section">
+    <div class="info-section" <?php if ($allowBasketTare != 'Y') { echo 'style="display:none;"'; } ?>>
       <div class="info-section-title"><i class="fas fa-shopping-basket mr-1"></i><?=$languageArray['basket_tare_calculation_code'][$language] ?? 'Basket Tare Calculation'?></div>
       <div class="info-grid">
         <div><span class="info-item-label"><?=$languageArray['empty_baskets_weight_code'][$language] ?? 'Empty Baskets Weight'?></span><span class="info-item-value">${row.empty_baskets_weight ? parseFloat(row.empty_baskets_weight).toFixed(2) + ' kg' : '-'}</span></div>

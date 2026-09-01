@@ -16,9 +16,8 @@ else{
   $products = $_SESSION['products'] ?? [];
   $enableDailySales = $_SESSION['enableDailySales'];
 
-  // Company Detail
-  $companyDetail = searchCompanyById($company, $db);
-  $allowPrice = $companyDetail['include_price'];
+  // Feature Flagging
+  $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
 
   // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
