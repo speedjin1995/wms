@@ -50,7 +50,7 @@ if ($customerFilter !== '') {
 
 $userModuleAccess = $_SESSION['userModuleAccess'];
 $categoryIds = [];
-$categoryFilter = " AND 1=0";
+$categoryFilter = "";
 if (!empty($userModuleAccess['categories'])) {
   $allowedModules = ['wholesale', 'processing'];
   foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {

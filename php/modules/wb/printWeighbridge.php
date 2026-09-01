@@ -737,7 +737,7 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">In</td>
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">'.$grossWeightTime.'</td>
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">'.formatWeight($row['gross_weight1']).'kg</td>
-                                        <td style="border:1px solid black;font-size: 12px;text-align: center;">'.$row['gross_weight_by1'].'</td>
+                                        <td style="border:1px solid black;font-size: 12px;text-align: center;">'.searchUserNameById($row['gross_weight_by1'], $db).'</td>
                                     </tr>
                                     <tr>
                                         <td style="font-size: 12px;">Product</td>
@@ -746,7 +746,7 @@ if(isset($_POST['userID'], $_POST["file"], $_POST['isEmptyContainer'])){
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">Out</td>
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">'.$tareWeightTime.'</td>
                                         <td style="border:1px solid black;font-size: 12px;text-align: center;">'.formatWeight($row['tare_weight1']).'kg</td>
-                                        <td style="border:1px solid black;font-size: 12px;text-align: center;">'.$row['tare_weight_by1'].'</td>
+                                        <td style="border:1px solid black;font-size: 12px;text-align: center;">'.searchUserNameById($row['tare_weight_by1'], $db).'</td>
                                     </tr>
                                     <tr>
                                         <td style="font-size: 12px;">Remark</td>
