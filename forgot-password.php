@@ -22,7 +22,7 @@
     <div class="login-brand-panel">
       <div class="login-brand-overlay"></div>
       <div class="login-brand-content">
-        <img src="assets/wms-logo-2.png" alt="Synctronix WMS" class="login-brand-logo">
+        <img src="assets/fy-fruit-trading-logo.png" alt="FY Fruits WMS" class="login-brand-logo">
         <p class="login-brand-tagline">
           <strong>Enterprise-grade weighing operations</strong><br>
           built for speed, accuracy, and compliance.
@@ -35,7 +35,7 @@
       <div class="login-form-container">
 
         <!-- Mobile Logo -->
-        <img src="assets/wms-logo-2.png" alt="Synctronix WMS" class="login-mobile-logo">
+        <img src="assets/fy-fruit-trading-logo.png" alt="FY Fruits WMS" class="login-mobile-logo">
 
         <!-- Header -->
         <div class="login-header">

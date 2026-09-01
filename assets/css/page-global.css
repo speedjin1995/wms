@@ -372,13 +372,13 @@
 }
 
 .page-modern .btn-action-primary {
-  background: #D9A82D;
+  background: #2563EB;
   border: none;
   color: #fff;
 }
 
 .page-modern .btn-action-primary:hover {
-  background: #C2410C;
+  background: #1D4ED8;
   color: #fff;
 }
 
@@ -670,42 +670,115 @@
   justify-content: center;
   min-width: 32px;
   height: 32px;
-  padding: 10px 15px;
-  margin-left: -1px;
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: 0.75px;
-  font-weight: 400;
+  padding: 0 10px;
+  margin: 0 1px;
+  font-size: 13px;
+  font-weight: 500;
   color: #1a1a1a;
   background: #fff;
-  border: 1px solid rgba(26, 26, 26, .5);
-  border-radius: 1px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.page-modern .results-card .dataTables_paginate .paginate_button:focus,
+.page-modern .results-card .dataTables_paginate .paginate_button:active {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .page-modern .results-card .dataTables_paginate .paginate_button:hover {
   background: #1a1a1a;
   color: #fff;
+  border-color: #1a1a1a;
 }
 
-.page-modern .results-card .dataTables_paginate .paginate_button.current {
+.page-modern .results-card .dataTables_paginate .paginate_button.current,
+.page-modern .results-card .dataTables_paginate .paginate_button.current:hover {
   background: #1a1a1a;
   color: #fff;
+  border-color: #1a1a1a;
   font-weight: 700;
 }
 
 .page-modern .results-card .dataTables_paginate .paginate_button.disabled {
-  background: #fff;
-  color: rgba(26, 26, 26, .5);
-  border: 1px solid rgba(26, 26, 26, .5);
+  background: #f0f0f0;
+  color: #999;
+  border-color: #ddd;
   cursor: not-allowed;
-  opacity: 1;
 }
 
 .page-modern .results-card .dataTables_paginate .paginate_button.disabled:hover {
+  background: #f0f0f0;
+  color: #999;
+  border-color: #ddd;
+}
+
+.page-modern .results-card .dataTables_paginate .ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0 1px;
+  color: #666;
+  border: none;
+  background: transparent;
+}
+
+/* Remove DataTables default pagination span styling */
+.page-modern .results-card .dataTables_paginate span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.page-modern .results-card .dataTables_paginate span .paginate_button {
+  border: 1px solid #ccc;
+}
+
+/* Override Bootstrap pagination if used */
+.page-modern .results-card .dataTables_paginate .pagination {
+  margin: 0;
+  gap: 2px;
+}
+
+.page-modern .results-card .dataTables_paginate .page-item .page-link {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
   background: #fff;
-  color: rgba(26, 26, 26, .5);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.page-modern .results-card .dataTables_paginate .page-item .page-link:hover {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.page-modern .results-card .dataTables_paginate .page-item.active .page-link {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+  font-weight: 700;
+}
+
+.page-modern .results-card .dataTables_paginate .page-item.disabled .page-link {
+  background: #f0f0f0;
+  color: #999;
+  border-color: #ddd;
 }
 
 /* Bootstrap Pagination Styling */

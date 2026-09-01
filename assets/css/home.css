@@ -19,9 +19,9 @@ body {
     left: 0;
     right: 0;
     height: 60px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(249, 247, 242, 0.95);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #E3C66A;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -52,13 +52,13 @@ body {
 
 .user-greeting {
     font-size: 0.75rem;
-    color: #64748b;
+    color: #1a1a1a;
 }
 
 .user-name {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: #0f172a;
+    color: #D9A82D;
 }
 
 .btn-logout {
@@ -68,18 +68,18 @@ body {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #64748b;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    color: #1a1a1a;
+    background: #F9F7F2;
+    border: 1px solid #E3C66A;
     border-radius: 0.5rem;
     text-decoration: none;
     transition: all 0.15s ease;
 }
 
 .btn-logout:hover {
-    background: #fee2e2;
-    border-color: #fecaca;
-    color: #dc2626;
+    background: #DC2626;
+    border-color: #DC2626;
+    color: #fff;
 }
 
 /* Main Wrapper */
@@ -89,8 +89,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url('../module-bg.jpeg') no-repeat center / cover;
-    background-repeat: no-repeat;
+    background: url('../../assets/main-bg.jpg');
+    background-repeat: repeat;
     background-size: cover;
     background-position: center;
     padding: 100px 1.5rem 60px;
@@ -105,7 +105,7 @@ body {
     font-size: 1.75rem;
     font-weight: 700;
     letter-spacing: 0.5px;
-    color: #0f172a;
+    color: #fff;
     margin: 0;
 }
 
@@ -125,8 +125,8 @@ body {
 }
 
 .module-card-inner {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: #F9F7F2;
+    border: 1px solid #E3C66A;
     border-radius: 1rem;
     padding: 2rem 1.5rem;
     display: flex;
@@ -134,11 +134,12 @@ body {
     align-items: center;
     text-align: center;
     transition: all 0.2s ease;
+    box-shadow: 0px 0px 10px 0px rgba(227, 198, 106, 0.5);
 }
 
 .module-card:hover .module-card-inner {
-    border-color: #3b82f6;
-    box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.15);
+    border-color: #D9A82D;
+    box-shadow: 0 8px 25px -5px rgba(217, 168, 45, 0.4);
     transform: translateY(-4px);
 }
 
@@ -152,13 +153,13 @@ body {
 .module-name {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #0f172a;
+    color: #1a1a1a;
     margin-bottom: 0.375rem;
 }
 
 .module-desc {
     font-size: 0.875rem;
-    color: #64748b;
+    color: #D9A82D;
     margin: 0;
 }
 
