@@ -258,6 +258,17 @@ else{
                   </select>
                 </div>
               </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['colour_code'][$language] ?? 'Colour'?></label>
+                  <div class="input-group" id="productColourPicker">
+                    <input type="text" class="form-control" id="productColour" name="productColour" placeholder="#FFFFFF">
+                    <div class="input-group-append">
+                      <span class="input-group-text"><i class="fas fa-palette"></i></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="form-group-modern">
               <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
@@ -781,6 +792,11 @@ $(function () {
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
+  $('#productColourPicker').colorpicker({
+    format: 'hex',
+    useAlpha: false
+  });
+
   $('.select2').each(function() {
     $(this).select2({
         allowClear: true,
@@ -923,6 +939,7 @@ $(function () {
     $('#productModal').find('#weight').val("");
     $('#productModal').find('#productCategory').val("").trigger('change');
     $('#productModal').find('#productPackaging').val("").trigger('change');
+    $('#productModal').find('#productColour').val("");
     $('#productModal').find('#state').val("").trigger('change');
     $('#productModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
@@ -1501,6 +1518,7 @@ function edit(id){
       $('#productModal').find('#weight').val(obj.message.weight);
       $('#productModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
+      $('#productModal').find('#productColour').val(obj.message.colour || '');
       $('#productModal').find('#state').val(obj.message.state).trigger('change');
       $('#productModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');
