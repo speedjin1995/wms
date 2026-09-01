@@ -176,6 +176,7 @@ else{
               <th><?=$languageArray['po_no_code'][$language]?></th>
               <th><?=$languageArray['vehicle_no_code'][$language]?></th>
               <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+              <th><?=$languageArray['product_code'][$language]?></th>
               <th><?=$languageArray['incoming_weight_code'][$language]?></th>
               <th><?=$languageArray['incoming_date_code'][$language]?></th>
               <th><?=$languageArray['outgoing_weight_code'][$language]?></th>
@@ -315,6 +316,7 @@ function initTable() {
       { data: 'do_po' },
       { data: 'lorry_plate_no1' },
       { data: 'customer_supplier' },
+      { data: 'product_name' },
       { data: 'gross_weight1' },
       { data: 'gross_weight1_date' },
       { data: 'tare_weight1' },

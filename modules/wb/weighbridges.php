@@ -214,6 +214,7 @@ else{
               <th><?=$languageArray['po_no_code'][$language]?></th>
               <th><?=$languageArray['vehicle_no_code'][$language]?></th>
               <th><?=$languageArray['customer_supplier_code'][$language]?></th>
+              <th><?=$languageArray['product_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['incoming_weight_code'][$language]?></th>
               <th><?=$languageArray['incoming_date_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['outgoing_weight_code'][$language]?></th>
@@ -247,7 +248,7 @@ else{
 
           <!-- Transaction Info Section -->
           <div class="modal-section">
-            <h6 class="section-title"><i class="fas fa-file-alt mr-2"></i>Transaction Info</h6>
+            <h6 class="section-title"><i class="fas fa-file-alt mr-2"></i><?=$languageArray['transaction_info_code'][$language] ?? 'Transaction Info'?></h6>
             <div class="row">
               <div class="col-md-4">
                 <div class="form-group-modern">
@@ -534,6 +535,7 @@ $(function () {
       { data: 'do_po' },
       { data: 'lorry_plate_no1' },
       { data: 'customer_supplier' },
+      { data: 'product_name' },
       { data: 'gross_weight1' },
       { data: 'gross_weight1_date' },
       { data: 'tare_weight1' },
@@ -644,6 +646,7 @@ $(function () {
         { data: 'do_po' },
         { data: 'lorry_plate_no1' },
         { data: 'customer_supplier' },
+        { data: 'product_name' },
         { data: 'gross_weight1' },
         { data: 'gross_weight1_date' },
         { data: 'tare_weight1' },
