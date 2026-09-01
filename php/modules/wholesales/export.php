@@ -8,9 +8,12 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 session_start();
 
-$company      = $_SESSION['customer'];
+// Company Details
+$company = $_SESSION['customer'];
 $companyDetail = searchCompanyById($company, $db);
 $allowPrice   = $companyDetail['include_price'];
+$allowPcsBasket   = $companyDetail['include_pcs_basket'];
+$userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
 $fileName     = 'Report_' . date('Y-m-d') . '.xlsx';
 
 // ─── Helper functions ────────────────────────────────────────────────────────
@@ -38,7 +41,7 @@ function colLetter($n) {
     return $l;
 }
 
-function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db) {
+function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPcsBasket, $allowPrice, $userAllowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db) {
 
     // ── Headers ──────────────────────────────────────────────────────────────
 
@@ -197,8 +200,13 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
 
         $numericColIndices[] = count($lineData) + 1;
         $lineData[] = floatval($rowData['actualWeight']);
+        
+        if ($allowPcsBasket == 'Y') {
+            $numericColIndices[] = count($lineData) + 1;
+            $lineData[] = $rowData['totalPcsBasket'];
+        }
 
-        if ($allowPrice == 'Y') {
+        if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
             $lineData[] = !empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency;
 
             $numericColIndices[] = count($lineData) + 1;
@@ -253,7 +261,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
     $sheet->setCellValue($actualWeightCol . $rowIndex, '=SUM(' . $actualWeightCol . $dataStartRow . ':' . $actualWeightCol . $dataEndRow . ')');
     $colIndex++;
 
-    if ($allowPrice == 'Y') {
+    if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
         $colIndex++; // skip Currency column
     }
 
@@ -262,7 +270,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
 
     // ── TOTAL PRICE rows (per currency) ───────────────────────────────────────
 
-    if ($allowPrice == 'Y') {
+    if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
         foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
             $totalPriceData   = array_fill(0, count($fixedHeaders) - 1, '');
             $totalPriceData[] = 'TOTAL PRICE (' . $cur . ')';
@@ -374,6 +382,11 @@ if (!empty($_GET['location']) && $_GET['location'] != '-') {
     $searchQuery .= " AND wholesales.location = '" . mysqli_real_escape_string($db, $_GET['location']) . "'";
 }
 
+if (!empty($_GET['partyType']) && $_GET['partyType'] != '-') {
+    $partyType = mysqli_real_escape_string($db, $_GET['partyType']);
+    $searchQuery .= " AND (c.customer_type = '" . $partyType . "' OR s.supplier_type = '" . $partyType . "')";
+}
+
 if (!empty($_GET['status']) && $_GET['status'] != '-') {
     if ($_GET['status'] == 'active') {
         $searchQuery .= " AND wholesales.deleted = '0'";
@@ -390,7 +403,7 @@ if ($isMulti == 'Y') {
     $ids   = $_GET['ids'] ?? '';
     $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (" . $ids . ")");
 } else {
-    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.deleted = '0' AND wholesales.company = '$company'" . $searchQuery);
+    $query = $db->query("SELECT wholesales.* FROM wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id WHERE wholesales.deleted = '0' AND wholesales.company = '$company'" . $searchQuery);
 }
 
 // ─── Default currency ─────────────────────────────────────────────────────────
@@ -422,6 +435,7 @@ if ($query->num_rows > 0) {
 
         $totalWeight      = 0;
         $totalBinWeight   = 0;
+        $totalPcsBasket   = 0;
         $totalRejectWeight = 0;
         $totalPrice       = 0;
         $actualPrice      = 0;
@@ -445,6 +459,7 @@ if ($query->num_rows > 0) {
                     $gradeNettWeight   += floatval($detail['net']    ?? 0);
                     $totalWeight       += floatval($detail['gross']  ?? 0);
                     $totalBinWeight    += floatval($detail['tare']   ?? 0);
+                    $totalPcsBasket    += floatval($detail['no_per_basket'] ?? 0);
                     $totalRejectWeight += floatval($detail['reject'] ?? 0);
 
                     if (empty($currency) && !empty($detail['currency'])) {
@@ -512,6 +527,7 @@ if ($query->num_rows > 0) {
             'gradeActualPrice' => $gradeActualPrice,
             'currencyTotals' => $currencyTotals,
             'totalWeight'    => $totalWeight,
+            'totalPcsBasket' => $totalPcsBasket,
             'totalBinWeight' => $totalBinWeight,
             'total_reject'   => $totalRejectWeight,
             'actualWeight'   => $actualWeight,
@@ -546,7 +562,11 @@ if ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $tr
 }
 
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
-if ($allowPrice == 'Y') {
+if ($allowPcsBasket == 'Y') {
+    $trailingHeaders[] = 'Total Pcs/Basket';
+}
+
+if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
     $trailingHeaders[] = 'Currency';
     $trailingHeaders[] = 'Total Price (RM)';
     $trailingHeaders[] = 'Actual Price (RM)';
@@ -568,7 +588,7 @@ $spreadsheet = new Spreadsheet();
 // ALL sheet
 $allSheet = $spreadsheet->getActiveSheet();
 $allSheet->setTitle('ALL');
-writeSheet($allSheet, $allRows, $productGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
+writeSheet($allSheet, $allRows, $productGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPcsBasket, $allowPrice, $userAllowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
 
 // Per-machine sheets
 $machineGroups = [];
@@ -606,7 +626,7 @@ foreach ($machineGroups as $locationName => $machineRows) {
 
     $machineSheet = $spreadsheet->createSheet();
     $machineSheet->setTitle($sheetTitle);
-    writeSheet($machineSheet, $machineRows, $machineProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
+    writeSheet($machineSheet, $machineRows, $machineProductGradeColumns, $fixedHeaders, $trailingHeaders, $borderStyle, $allowPcsBasket, $allowPrice, $userAllowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus, $db);
 }
 
 // ─── Output ───────────────────────────────────────────────────────────────────

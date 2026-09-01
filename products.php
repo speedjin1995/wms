@@ -269,6 +269,17 @@ else{
                   </select>
                 </div>
               </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['colour_code'][$language] ?? 'Colour'?></label>
+                  <div class="input-group" id="productColourPicker">
+                    <input type="text" class="form-control" id="productColour" name="productColour" placeholder="#FFFFFF">
+                    <div class="input-group-append">
+                      <span class="input-group-text"><i class="fas fa-palette"></i></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="form-group">
               <label><?=$languageArray['remark_code'][$language]?></label>
@@ -792,6 +803,11 @@ $(function () {
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
+  $('#productColourPicker').colorpicker({
+    format: 'hex',
+    useAlpha: false
+  });
+
   $('.select2').each(function() {
     $(this).select2({
         allowClear: true,
@@ -807,6 +823,10 @@ $(function () {
     'processing': true,
     'serverSide': true,
     'serverMethod': 'post',
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     'ajax': {
       'url':'php/modules/products/loadProducts.php',
       'data': {
@@ -815,8 +835,7 @@ $(function () {
     },
     'columns': [
       {
-        // Add a checkbox with a unique ID for each row
-        data: 'id', // Assuming 'serialNo' is a unique identifier for each row
+        data: 'id',
         className: 'select-checkbox',
         orderable: false,
         render: function (data, type, row) {
@@ -825,7 +844,6 @@ $(function () {
       },
       { data: 'product_code' },
       { data: 'product_name' },
-      //{ data: 'price' },
       { data: 'weight' },
       { data: 'remark' },
       { 
@@ -928,6 +946,7 @@ $(function () {
     $('#productModal').find('#weight').val("");
     $('#productModal').find('#productCategory').val("").trigger('change');
     $('#productModal').find('#productPackaging').val("").trigger('change');
+    $('#productModal').find('#productColour').val("");
     $('#productModal').find('#state').val("").trigger('change');
     $('#productModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
@@ -1506,6 +1525,7 @@ function edit(id){
       $('#productModal').find('#weight').val(obj.message.weight);
       $('#productModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
+      $('#productModal').find('#productColour').val(obj.message.colour || '');
       $('#productModal').find('#state').val(obj.message.state).trigger('change');
       $('#productModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');

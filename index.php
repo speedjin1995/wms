@@ -1,5 +1,6 @@
 <?php
 require_once 'php/db_connect.php';
+require_once 'php/lookup.php';
 
 session_start();
 
@@ -14,6 +15,12 @@ else{
   $packages = $_SESSION['packages'] ?? [];
   $products = $_SESSION['products'] ?? [];
   $enableDailySales = $_SESSION['enableDailySales'];
+
+  // Company Detail
+  $companyDetail = searchCompanyById($company, $db);
+  $allowPrice = $companyDetail['include_price'];
+
+  // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
 	$stmt->bind_param('s', $user);
 	$stmt->execute();
@@ -21,11 +28,32 @@ else{
   $role = 'NORMAL';
   $name = '';
   $username = '';
+  $userAllowAdd = 'N';
+	$userAllowEdit = 'N';
+  $userAllowDelete = 'N';
+  $userAllowPrice = 'N';
+  $userLocationId = null;
+  $userModuleAccess = [];
 	
 	if(($row = $result->fetch_assoc()) !== null){
     $role = $row['role_code'];
     $name = $row['name'];
     $username = $row['username'];
+    $userAllowAdd = $row['allow_add'];
+    $userAllowEdit = $row['allow_edit'];
+    $userAllowDelete = $row['allow_delete'];
+    $userAllowPrice = $row['allow_price'];
+    $userLocationId = $row['location'];
+    $userModuleAccess = json_decode($row['module_access'], true);
+
+    // Store user permissions in session
+    $_SESSION['userAllowAdd'] = $userAllowAdd;
+    $_SESSION['userAllowEdit'] = $userAllowEdit;
+    $_SESSION['userAllowDelete'] = $userAllowDelete;
+    $_SESSION['userAllowPrice'] = $userAllowPrice;
+    $_SESSION['userLocationId'] = $userLocationId;
+    $_SESSION['userModuleAccess'] = $userModuleAccess;
+    $_SESSION['role'] = $role;
   }
 
   // Language
@@ -238,12 +266,14 @@ to get the desired effect
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
-                  <i class="nav-icon fas fa-tags"></i>
-                  <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
-                </a>
-              </li>
+              <?php if ($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
+                <li class="nav-item">
+                  <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
+                    <i class="nav-icon fas fa-tags"></i>
+                    <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
+                  </a>
+                </li>
+              <?php } ?>
               <li class="nav-item">
                 <a href="#grading" data-file="grading.php" class="nav-link link">
                   <i class="nav-icon fas fa-clipboard-check"></i>
@@ -279,12 +309,14 @@ to get the desired effect
                   <p><?=$languageArray['wholesales_code'][$language]?></p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
-                  <i class="nav-icon fas fa-tags"></i>
-                  <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
-                </a>
-              </li>
+                <?php if ($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
+                <li class="nav-item">
+                  <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
+                    <i class="nav-icon fas fa-tags"></i>
+                    <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
+                  </a>
+                </li>
+                <?php } ?>
               <?php } ?>
               <?php if ($module == 'weighing') { ?>
               <li class="nav-item">
@@ -661,6 +693,7 @@ to get the desired effect
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+<script src="plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
 <script src="plugins/chart.js/Chart.min.js"></script>
 <script src="plugins/daterangepicker/daterangepicker.js"></script>
 <script src="plugins/sheets/xlsx.full.min.js"></script>

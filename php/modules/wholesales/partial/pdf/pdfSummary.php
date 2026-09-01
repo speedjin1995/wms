@@ -3,7 +3,7 @@
 // Function
 
 function calculateSubtotals($allRows, $productGradeColumns) {
-    $subtotals = ['gradeWeights' => [], 'totalWeight' => 0, 'totalBinWeight' => 0, 'total_reject' => 0, 'actualWeight' => 0, 'totalPrice' => 0, 'actualPrice' => 0];
+    $subtotals = ['gradeWeights' => [], 'totalWeight' => 0, 'totalPcsBasket' => 0, 'totalBinWeight' => 0, 'total_reject' => 0, 'actualWeight' => 0, 'totalPrice' => 0, 'actualPrice' => 0];
     $subtotalGradePrice = [];
     $subtotalGradeActualPrice = [];
     $subtotalCurrencyTotals = [];
@@ -30,6 +30,7 @@ function calculateSubtotals($allRows, $productGradeColumns) {
             $subtotalCurrencyTotals[$cur]['actualPrice'] += $totals['actualPrice'];
         }
         $subtotals['totalWeight']    += $rowData['totalWeight'];
+        $subtotals['totalPcsBasket'] += $rowData['totalPcsBasket'];
         $subtotals['totalBinWeight'] += $rowData['totalBinWeight'];
         $subtotals['total_reject']   += $rowData['total_reject'];
         $subtotals['actualWeight']   += $rowData['actualWeight'];
@@ -55,6 +56,7 @@ if ($query->num_rows > 0) {
         $arrangedDetails = arrangeByProductGrade($weighingDetails);
 
         $totalWeight = 0;
+        $totalPcsBasket   = 0;
         $totalBinWeight = 0;
         $totalRejectWeight = 0;
         $totalPrice = 0;
@@ -74,6 +76,7 @@ if ($query->num_rows > 0) {
                 foreach ($details as $detail) {
                     $gradeNettWeight += floatval($detail['net'] ?? 0);
                     $totalWeight += floatval($detail['gross'] ?? 0);
+                    $totalPcsBasket += floatval($detail['no_per_basket'] ?? 0);
                     $totalBinWeight += floatval($detail['tare'] ?? 0);
                     $totalRejectWeight += floatval($detail['reject'] ?? 0);
                     if (empty($currency) && !empty($detail['currency'])) {
@@ -129,6 +132,7 @@ if ($query->num_rows > 0) {
             'currencyTotals'   => $currencyTotals,
             'totalWeight'      => $totalWeight,
             'totalBinWeight'   => $totalBinWeight,
+            'totalPcsBasket'   => $totalPcsBasket,
             'total_reject'     => $totalRejectWeight,
             'actualWeight'     => $actualWeight,
             'totalPrice'       => $totalPrice,
@@ -178,10 +182,13 @@ if (!empty($allRows)) {
             }
         }
         $content .= '<td>' . number_format($rowData['totalWeight'], 2) . '</td>';
+        if ($allowPcsBasket == 'Y') {
+            $content .= '<td>' . $rowData['totalPcsBasket'] . '</td>';
+        }
         $content .= '<td>' . number_format($rowData['totalBinWeight'], 2) . '</td>';
         $content .= '<td>' . number_format($rowData['total_reject'], 2) . '</td>';
         $content .= '<td>' . number_format($rowData['actualWeight'], 2) . '</td>';
-        if ($allowPrice == 'Y') {
+        if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
             $content .= '<td>' . (!empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency) . '</td>';
             $content .= '<td>' . number_format($rowData['totalPrice'], 2) . '</td>';
             $content .= '<td>' . number_format($rowData['actualPrice'], 2) . '</td>';
@@ -205,7 +212,7 @@ if ($transactionStatus == 'STOCK-BAL') {
 
 $isDispatchStatus = ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $transactionStatus == 'OUTGOING');
 $fixedColCount = ($transactionStatus == 'RECEIVING' || $transactionStatus == 'INCOMING') ? 9 : 8;
-$trailingCount = ($allowPrice == 'Y') ? 14 : 11;
+$trailingCount = ($allowPrice == 'Y' && $userAllowPrice == 'Y') ? 14 : 11;
 
 // Set PDF header with logo and dynamic report title
 $html = '
@@ -303,11 +310,16 @@ $html = '
                         }
 
                         $html .= '
-                        <th>Total Weight</th>
+                        <th>Total Weight</th>';
+                        if ($allowPcsBasket == 'Y') {
+                            $html .= '<th>Total Pcs/Basket</th>';
+                        }
+
+                        $html .= '
                         <th>Total Bin Weight</th>
                         <th>Reject Weight</th>
                         <th>Actual Weight</th>';
-                        if ($allowPrice == 'Y') {
+                        if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
                             $html .= '<th>Currency</th><th>Total Price (RM)</th><th>Actual Price (RM)</th>';
                         }
 
@@ -333,14 +345,15 @@ $html = '
                         
                         $html .= '
                         <td>'.number_format($subtotals['totalWeight'], 2).'</td>
+                        <td>'.$subtotals['totalPcsBasket'].'</td>
                         <td>'.number_format($subtotals['totalBinWeight'], 2).'</td>
                         <td>'.number_format($subtotals['total_reject'], 2).'</td>
                         <td>'.number_format($subtotals['actualWeight'], 2).'</td>';
-                        if ($allowPrice == 'Y') {
+                        if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
                             $html .= '<td></td><td></td><td></td>';
                         }
                         $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
-                        if ($allowPrice == 'Y') {
+                        if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
                             $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
                             foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
                                 $html .= '<tr style="font-weight: bold; background-color: #e8f4e8;">';

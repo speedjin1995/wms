@@ -1196,6 +1196,52 @@
 
 
 /* ============================================
+   MODERN TABS
+   ============================================ */
+.page-modern .nav-tabs-modern {
+  border: none;
+  background: var(--page-border-light);
+  padding: 0.25rem;
+  border-radius: var(--page-radius-lg);
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-modern .nav-tabs-modern .nav-item {
+  margin: 0;
+}
+
+.page-modern .nav-tabs-modern .nav-link {
+  border: none;
+  background: transparent;
+  color: var(--page-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--page-radius);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-modern .nav-tabs-modern .nav-link:hover {
+  color: var(--page-text);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.page-modern .nav-tabs-modern .nav-link.active {
+  color: var(--page-primary);
+  background: var(--page-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.page-modern .nav-tabs-modern .nav-link i {
+  font-size: 0.875rem;
+}
+
+/* ============================================
    MODERN SIDEBAR STYLES
    ============================================ */
 

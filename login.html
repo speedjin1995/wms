@@ -8,224 +8,65 @@
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-  <!-- icheck bootstrap -->
-  <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/adminlte.min.css">
-
-  <style>
-    .brand-panel {
-      position: relative;
-      background-image: url("assets/login-bg.jpg");
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
-    }
-    
-    .pw-wrap {
-      position: relative;
-    }
-
-    .pw-toggle {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .form-footer {
-      position: absolute;
-      bottom: 25px;
-      left: 0;
-      right: 0;
-      text-align: center;
-    }
-
-    /* New CSS Style */
-    .logo-col {
-      padding-left: 25px;
-      padding-right: 25px;
-    }
-
-    .logo-col .logo-txt {
-      color: #fff;
-      font-size: 20px;
-      line-height: 25px;
-      letter-spacing: 0.75px;
-      font-weight: 400;
-      text-align: center;
-      margin-bottom: 0px;
-    }
-
-    .login-form-panel {
-      background: rgba(0, 0, 0, .75);
-    }
-
-    .login-sub-title {
-      font-size: 12px;
-      line-height: 20px;
-      letter-spacing: 0.75px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 5px;
-      color: #fff;
-    }
-
-    .login-title {
-      background: linear-gradient(135deg, rgba(246, 213, 74, 1) 0%, rgba(255, 243, 199, 1) 25%, rgba(217, 168, 45, 1) 50%);
-      background-clip: text;
-      color: transparent;
-      font-size: 35px;
-      line-height: 40px;
-      letter-spacing: 0.75px;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
-
-    .login-txt {
-      color: rgba(255, 255, 255, .75);
-      font-size: 18px;
-      line-height: 24px;
-      letter-spacing: 0.75px;
-      font-weight: 400;
-      margin-bottom: 25px;
-    }
-
-    .custom-login-form .form-group {
-      margin-bottom: 15px;
-    }
-
-    .user-lbl, .pwd-lbl {
-      font-size: 16px;
-      line-height: 24px;
-      letter-spacing: 0.75px;
-      font-weight: 400 !important;
-      margin-bottom: 5px;
-      color: #fff;
-    }
-
-    .login-email-custom, .login-pwd-custom {
-      height: 40px;
-      padding: 0px 0px 10px;
-      font-size: 16px;
-      line-height: 24px;
-      letter-spacing: 0.75px;
-      background: transparent;
-      color: #fff;
-      border: unset;
-      border-bottom: 1px solid #fff;
-      border-radius: 1px;
-    }
-
-    .login-email-custom:focus, .login-pwd-custom:focus {
-      color: #fff;
-      background: transparent;
-      border-color: unset;
-      border-bottom-color: #D9A82D;
-      border-radius: 1px;
-      box-shadow: unset;
-    }
-
-    .login-email-custom::placeholder, .login-pwd-custom::placeholder {
-      color: rgba(255, 255, 255, .25);
-    }
-
-    .pw-toggle {
-      right: 15px;
-      color: #fff;
-      font-size: 16px;
-    }
-
-    .login-btn {
-      width: 100%;
-      margin-top: 20px;
-      padding: 10px 25px;
-      border: unset;
-      border-radius: 5px;
-      background: linear-gradient(135deg, rgba(217, 168, 45, 1) 0%, rgba(255, 243, 199, 1) 50%, rgba(246, 213, 74, 1) 100%);
-      color: #1a1a1a;
-      font-size: 16px;
-      line-height: 24px;
-      letter-spacing: 0.75px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .login-btn:hover {
-      background: linear-gradient(135deg, rgba(217, 168, 45, 1) 0%, rgba(217, 168, 45, 1) 50%, rgba(217, 168, 45, 1) 100%);
-      color: #fff;
-    }
-
-    .forget-pwd-sec {
-      margin-top: 15px;
-      text-align: center;
-    }
-
-    .forget-pwd-txt {
-      font-size: 14px;
-      line-height: 22px;
-      letter-spacing: 0.75px;
-      font-weight: 500;
-      text-transform: capitalize;
-      color: #fff;
-    }
-
-    .forget-pwd-txt:hover {
-      text-decoration: underline;
-      color: #D9A82D;
-    }
-
-    .form-footer {
-      margin-bottom: 0px;
-      font-size: 15px;
-      line-height: 23px;
-      letter-spacing: 0.75px;
-      font-weight: 400;
-      color: rgba(255, 255, 255, .75);
-    }
-  </style>
+  <!-- Login Page Styles -->
+  <link rel="stylesheet" href="assets/css/login.css">
 </head>
 
 <body class="hold-transition">
-  <div class="d-flex" style="min-height: 100vh; height: 100vh;">
+
+  <div class="login-wrapper">
+
     <!-- Left: Brand Panel (desktop only) -->
-    <div class="brand-panel d-none d-lg-flex col-lg-6 p-0 flex-column align-items-center justify-content-center">
-      <div class="brand-panel-overlay"></div>
-      
-      <div class="position-relative logo-col">
-        <img src="assets/fy-fruit-trading-logo.png" alt="Synctronix WMS Logo" class="d-block mx-auto mb-4" style="max-height: 30vh; width: auto;">
-        <p class="logo-txt">Enterprise-grade weighing operations,<br>built for speed, accuracy, and compliance.</p>
+    <div class="login-brand-panel">
+      <div class="login-brand-overlay"></div>
+      <div class="login-brand-content">
+        <img src="assets/fy-fruit-trading-logo.png" alt="Synctronix WMS" class="login-brand-logo">
+        <p class="login-brand-tagline">
+          <strong>Enterprise-grade weighing operations</strong><br>
+          built for speed, accuracy, and compliance.
+        </p>
       </div>
     </div>
 
     <!-- Right: Form Panel -->
-    <div class="col-lg-6 col-12 d-flex align-items-center justify-content-center px-4 px-md-5 position-relative login-form-panel" style="min-height: 100vh;">
-      <div class="w-100" style="max-width: 440px;">
-        <!-- Heading -->
-        <p class="login-sub-title">Synctronix WMS</p>
-        <h2 class="login-title">Sign in to WMS</h2>
-        <p class="login-txt">Enter your credentials to access your account.</p>
-        
-        <!-- Error alert -->
-        <div class="alert alert-danger d-none" id="loginError" role="alert" aria-live="polite"></div>
-        
-        <!-- Reset success alert -->
-        <div class="alert alert-success d-none" id="resetSuccess" role="alert" aria-live="polite">
-          Password reset successful. Please sign in with your new password.
+    <div class="login-form-panel">
+      <div class="login-form-container">
+
+        <!-- Mobile Logo -->
+        <img src="assets/fy-fruit-trading-logo.png" alt="FY Fruits WMS" class="login-mobile-logo">
+
+        <!-- Header -->
+        <div class="login-header">
+          <div class="login-brand-badge">
+            SYNCTRONIX WMS
+          </div>
+          <h1 class="login-title">Sign in to WMS</h1>
+          <p class="login-subtitle">Enter your credentials to access your account.</p>
         </div>
-        
-        <form action="php/login.php" method="post" class="custom-login-form">
+
+        <!-- Error Alert -->
+        <div class="login-alert login-alert-error d-none" id="loginError" role="alert" aria-live="polite">
+          <i class="fas fa-exclamation-circle"></i>
+          <span id="loginErrorText"></span>
+        </div>
+
+        <!-- Reset Success Alert -->
+        <div class="login-alert login-alert-success d-none" id="resetSuccess" role="alert" aria-live="polite">
+          <i class="fas fa-check-circle"></i>
+          <span>Password reset successful. Please sign in with your new password.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form action="php/login.php" method="post" id="loginForm">
+
           <!-- Username -->
-          <div class="form-group custom-email-grp">
-            <label for="userEmail" class="user-lbl">Username</label>
+          <div class="login-form-group">
+            <label for="userEmail" class="login-label">Username</label>
             <input
               type="text"
-              class="form-control form-control-lg login-email-custom"
+              class="login-input"
               id="userEmail"
               name="userEmail"
               placeholder="Enter your username"
@@ -236,56 +77,40 @@
           </div>
 
           <!-- Password -->
-          <div class="form-group custom-pwd-grp">
-            <label for="userPassword" class="pwd-lbl">Password</label>
-            <div class="pw-wrap">
+          <div class="login-form-group">
+            <label for="userPassword" class="login-label">Password</label>
+            <div class="login-password-wrap">
               <input
                 type="password"
-                class="form-control form-control-lg login-pwd-custom"
+                class="login-input"
                 id="userPassword"
                 name="userPassword"
                 placeholder="Enter your password"
                 autocomplete="current-password"
                 required
               >
-              <button type="button" class="pw-toggle" id="togglePw" aria-label="Toggle password visibility">
+              <button type="button" class="login-password-toggle" id="togglePw" aria-label="Toggle password visibility">
                 <i class="fas fa-eye" id="pwIcon"></i>
               </button>
             </div>
           </div>
 
-          <!-- <div class="icheck-primary mb-3">
-            <input type="checkbox" id="remember">
-            <label for="remember">Remember Me</label>
-          </div> -->
-
-          <button type="submit" class="login-btn">
-            Sign In
+          <!-- Submit Button -->
+          <button type="submit" class="login-submit" id="submitBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Sign In</span>
           </button>
         </form>
 
-        <div class="forget-pwd-sec">
-          <a href="forgot-password.php" class="forget-pwd-txt">Forgot your password?</a>
+        <!-- Forgot Password -->
+        <a href="forgot-password.php" class="login-forgot">Forgot Your Password?</a>
+
+        <!-- Footer -->
+        <div class="login-footer">
+          <p class="login-footer-text">&copy; Synctronix. All rights reserved.</p>
+          <p class="login-footer-version">v1.0 · Production</p>
         </div>
 
-        <!-- <div class="text-center mt-2">
-          <a href="register.html" class="small">Register a new membership</a>
-        </div> -->
-
-        <!-- <div class="social-auth-links text-center mt-3">
-          <p>- OR -</p>
-          <a href="#" class="btn btn-block btn-primary">
-            <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
-          </a>
-          <a href="#" class="btn btn-block btn-danger">
-            <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
-          </a>
-        </div> -->
-
-        <p class="form-footer">
-          &copy; Synctronix. All rights reserved.
-          <span class="d-block">v1.0 &middot; Production</span>
-        </p>
       </div>
     </div>
   </div>
@@ -298,13 +123,15 @@
   <script src="dist/js/adminlte.min.js"></script>
   
   <script>
+    // Show reset success message if redirected from password reset
     if (new URLSearchParams(window.location.search).get('reset') === '1') {
       document.getElementById('resetSuccess').classList.remove('d-none');
     }
 
+    // Password visibility toggle
     document.getElementById('togglePw').addEventListener('click', function () {
       var input = document.getElementById('userPassword');
-      var icon  = document.getElementById('pwIcon');
+      var icon = document.getElementById('pwIcon');
       if (input.type === 'password') {
         input.type = 'text';
         icon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -312,6 +139,12 @@
         input.type = 'password';
         icon.classList.replace('fa-eye-slash', 'fa-eye');
       }
+    });
+
+    // Form submit loading state
+    document.getElementById('loginForm').addEventListener('submit', function () {
+      document.getElementById('submitBtn').classList.add('is-loading');
+      document.getElementById('submitBtn').disabled = true;
     });
   </script>
 </body>

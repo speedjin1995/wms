@@ -70,6 +70,11 @@ if($_POST['location'] != null && $_POST['location'] != '' && $_POST['location'] 
   $searchQuery .= " and wholesales.location = '".$_POST['location']."'";
 }
 
+if($_POST['partyType'] != null && $_POST['partyType'] != '' && $_POST['partyType'] != '-'){
+  $partyType = $_POST['partyType'];
+  $searchQuery .= " and (c.customer_type = '".$partyType."' OR s.supplier_type = '".$partyType."')";
+}
+
 if($_POST['category'] != null && $_POST['category'] != '' && $_POST['category'] != '-'){
   // Get product ids in this category first
   $catProductIds = [];
@@ -87,6 +92,36 @@ if($_POST['category'] != null && $_POST['category'] != '' && $_POST['category'] 
     $searchQuery .= " AND (" . implode(' OR ', $likeConditions) . ")";
   } else {
     $searchQuery .= " AND 1=0";
+  }
+}else{
+  $userModuleAccess = $_SESSION['userModuleAccess'];
+  $categoryIds = [];
+  if (!empty($userModuleAccess['categories'])) {
+    $allowedModules = ['wholesale', 'processing'];
+    foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+      if (in_array($module, $allowedModules)) {
+        $categoryIds = array_merge($categoryIds, $moduleCategories);
+      }
+    }
+    $categoryIds = array_unique($categoryIds);
+    $categoryFilter = !empty($categoryIds) ? " AND category IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+
+    // Get product ids in this category first
+    $catProductIds = [];
+    $catStmt = $db->prepare("SELECT id FROM products WHERE deleted = '0'$categoryFilter");
+    $catStmt->execute();
+    $catResult = $catStmt->get_result();
+    while ($catRow = $catResult->fetch_assoc()) {
+      $catProductIds[] = $catRow['id'];
+    }
+    $catStmt->close();
+
+    if (count($catProductIds) > 0) {
+      $likeConditions = array_map(fn($id) => "wholesales.weight_details LIKE '%\"product\":\"".$id."\"%'", $catProductIds);
+      $searchQuery .= " AND (" . implode(' OR ', $likeConditions) . ")";
+    } else {
+      $searchQuery .= " AND 1=0";
+    }
   }
 }
 
@@ -228,6 +263,8 @@ while($row = mysqli_fetch_assoc($empRecords)) {
     "company"=>$row['company'],
     "weighted_by"=>searchUserNameById($row['weighted_by'], $db),
     "checked_by"=>($row['checked_by'] == 'JACKY' ? '' : $row['checked_by']),
+    "location"=>searchLocationById($row['location'], $db),
+    "modified_by"=>searchUserNameById($row['modified_by'], $db),
     'remarks2'=>$row['remarks2'] ?? ''
   );
 }

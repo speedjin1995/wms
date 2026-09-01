@@ -30,6 +30,7 @@ if(isset($_POST['userID'])){
                 $message['allow_add'] = $row['allow_add'];
                 $message['allow_edit'] = $row['allow_edit'];
                 $message['allow_delete'] = $row['allow_delete'];
+                $message['allow_price'] = $row['allow_price'];
                 $message['location'] = $row['location'];
                 $message['customer'] = $row['customer'];
             }

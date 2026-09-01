@@ -11,7 +11,7 @@ else{
     $userId = $_SESSION['userID'];
 }
 
-if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['customer'], $_POST['allowAdd'], $_POST['allowEdit'], $_POST['allowDelete'])){
+if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['customer'], $_POST['allowAdd'], $_POST['allowEdit'], $_POST['allowDelete'], $_POST['allowPrice'])){
     $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
 	$name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
     $roleCode = filter_input(INPUT_POST, 'userRole', FILTER_SANITIZE_STRING);
@@ -19,6 +19,7 @@ if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['custome
     $allowAdd = filter_input(INPUT_POST, 'allowAdd', FILTER_SANITIZE_STRING);
     $allowEdit = filter_input(INPUT_POST, 'allowEdit', FILTER_SANITIZE_STRING);
     $allowDelete = filter_input(INPUT_POST, 'allowDelete', FILTER_SANITIZE_STRING);
+    $allowPrice = filter_input(INPUT_POST, 'allowPrice', FILTER_SANITIZE_STRING);
     $location = null;
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     $email = ($email === '' || $email === false) ? null : $email;
@@ -28,8 +29,8 @@ if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['custome
 	}
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE users SET username=?, name=?, role_code=?, customer=?, allow_add=?, allow_edit=?, allow_delete=?, location=?, email=? WHERE id=?")) {
-            $update_stmt->bind_param('sssssssssi', $username, $name, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete, $location, $email, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE users SET username=?, name=?, role_code=?, customer=?, allow_add=?, allow_edit=?, allow_delete=?, allow_price=?, location=?, email=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssi', $username, $name, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete, $allowPrice, $location, $email, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -58,8 +59,8 @@ if(isset($_POST['username'], $_POST['name'], $_POST['userRole'], $_POST['custome
         $password = '123456';
         $password = hash('sha512', $password . $random_salt);
 
-        if ($insert_stmt = $db->prepare("INSERT INTO users (username, name, password, salt, created_by, role_code, customer, allow_add, allow_edit, allow_delete, location, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('ssssssssssss', $username, $name, $password, $random_salt, $userId, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete, $location, $email);
+        if ($insert_stmt = $db->prepare("INSERT INTO users (username, name, password, salt, created_by, role_code, customer, allow_add, allow_edit, allow_delete, allow_price, location, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssssss', $username, $name, $password, $random_salt, $userId, $roleCode, $customer, $allowAdd, $allowEdit, $allowDelete, $allowPrice, $location, $email);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

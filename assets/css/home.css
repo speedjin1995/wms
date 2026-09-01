@@ -1,0 +1,205 @@
+/**
+ * Home Page Styles - Module Selection
+ * Usage: Link in home.php
+ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Top Bar */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    z-index: 100;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.top-bar-logo {
+    height: 36px;
+    width: auto;
+}
+
+.top-bar-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    text-align: right;
+}
+
+.user-greeting {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.user-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.btn-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748b;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-logout:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+/* Main Wrapper */
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('../module-bg.jpeg') no-repeat center / cover;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    padding: 100px 1.5rem 60px;
+}
+
+.company-name {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.company-name h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* Module Grid */
+.modules-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    justify-content: center;
+    max-width: 1600px;
+    width: 100%;
+}
+
+.module-card {
+    width: 300px;
+    text-decoration: none;
+}
+
+.module-card-inner {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.module-card:hover .module-card-inner {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.15);
+    transform: translateY(-4px);
+}
+
+.module-icon {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 1.25rem;
+}
+
+.module-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.375rem;
+}
+
+.module-desc {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .top-bar {
+        padding: 0 1rem;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .company-name h1 {
+        font-size: 1.375rem;
+    }
+
+    .module-card {
+        width: calc(50% - 0.625rem);
+    }
+
+    .module-card-inner {
+        padding: 1rem;
+    }
+
+    .module-icon {
+        height: 70px;
+    }
+
+    .module-name {
+        font-size: 0.9375rem;
+    }
+
+    .module-desc {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .module-card {
+        width: 100%;
+        max-width: 280px;
+    }
+}

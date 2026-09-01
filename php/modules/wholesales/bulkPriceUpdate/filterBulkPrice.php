@@ -48,11 +48,44 @@ if ($customerFilter !== '') {
   $partyFilter = " AND w.supplier = '$supplierFilter'";
 }
 
-## Fetch all matching wholesales records
+$userModuleAccess = $_SESSION['userModuleAccess'];
+$categoryIds = [];
+$categoryFilter = "";
+if (!empty($userModuleAccess['categories'])) {
+  $allowedModules = ['wholesale', 'processing'];
+  foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
+    if (in_array($module, $allowedModules)) {
+      $categoryIds = array_merge($categoryIds, $moduleCategories);
+    }
+  }
+  $categoryIds = array_unique($categoryIds);
+  $formattedCategoryIds = !empty($categoryIds) ? " AND category IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
+
+  // Get product ids in this category first
+  $catProductIds = [];
+  $catStmt = $db->prepare("SELECT id FROM products WHERE deleted = '0'$formattedCategoryIds");
+  $catStmt->execute();
+  $catResult = $catStmt->get_result();
+  while ($catRow = $catResult->fetch_assoc()) {
+    $catProductIds[] = $catRow['id'];
+  }
+  $catStmt->close();
+
+  if (count($catProductIds) > 0) {
+    $likeConditions = array_map(fn($id) => "w.weight_details LIKE '%\"product\":\"".$id."\"%'", $catProductIds);
+    $categoryFilter = " AND (" . implode(' OR ', $likeConditions) . ")";
+  }
+}
+
+## Fetch all matching wholesales records (exclude Packing type customers/suppliers)
 $sql = "SELECT w.id, w.serial_no, w.start_time, w.status, w.weight_details, w.po_no, w.customer, w.supplier, w.other_customer, w.other_supplier
         FROM wholesales w
+        LEFT JOIN customers c ON w.customer = c.id
+        LEFT JOIN supplies s ON w.supplier = s.id
         WHERE w.deleted = '0' AND w.records_type = 'wholesales'
-        $companyFilter $dateFilter $statusFilter $partyFilter
+        AND (c.customer_type IS NULL OR c.customer_type = '' OR c.customer_type = 'Normal' OR w.customer IS NULL OR w.customer = '')
+        AND (s.supplier_type IS NULL OR s.supplier_type = '' OR s.supplier_type = 'Normal' OR w.supplier IS NULL OR w.supplier = '')
+        $companyFilter $dateFilter $statusFilter $partyFilter $categoryFilter
         ORDER BY w.start_time ASC";
 
 $result = mysqli_query($db, $sql);
