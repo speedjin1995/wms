@@ -36,9 +36,9 @@ $companyFilter = ($role != 'SADMIN') ? " AND company = '$company'" : '';
 
 $partyFilter = '';
 if ($customerFilter !== '') {
-  $partyFilter = " AND customer = '$customerFilter'";
+  $partyFilter = " AND w.customer = '$customerFilter'";
 } elseif ($supplierFilter !== '') {
-  $partyFilter = " AND supplier = '$supplierFilter'";
+  $partyFilter = " AND w.supplier = '$supplierFilter'";
 }
 
 $sql    = "SELECT w.weight_details FROM wholesales w
