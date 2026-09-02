@@ -3296,3 +3296,37 @@ SELECT id, 'include_integration', COALESCE(include_integration, 'N') FROM compan
 
 -- 02/09/2026 --
 ALTER TABLE `packaging_batch_items` ADD `supplier_id` INT(11) NULL AFTER `packaging_batch_id`;
+
+ALTER TABLE `packaging_batches` ADD `label_remark` TEXT NULL AFTER `remarks`;
+
+ALTER TABLE `packaging_batch_logs` ADD `label_remark` TEXT NULL AFTER `remarks`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PACKAGING_BATCH` AFTER INSERT ON `packaging_batches` FOR EACH ROW INSERT INTO packaging_batch_logs (
+  packaging_batch_id, batch_no, packaging_date, remarks, label_remark, location, production_line, type, company, deleted, delete_reason, status, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.label_remark, NEW.location, NEW.production_line, NEW.type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_batches` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO packaging_batch_logs (
+    packaging_batch_id, batch_no, packaging_date, remarks, label_remark, location, production_line, type, company, deleted, delete_reason, status, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.label_remark, NEW.location, NEW.production_line, NEW.type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;

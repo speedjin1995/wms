@@ -30,6 +30,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
     $company = $_SESSION['customer'];
     $packagingDate = filter_input(INPUT_POST, 'packagingDate', FILTER_SANITIZE_STRING);
     $remarks = null;
+    $labelSummary = null;
     $batchNo = null;
     $productionLines = null;
     $location = null;
@@ -44,6 +45,10 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 
     if(isset($_POST['remarks']) && $_POST['remarks'] != null && $_POST['remarks'] != ''){
 		$remarks = $_POST['remarks'];
+	}
+
+    if(isset($_POST['labelSummary']) && $_POST['labelSummary'] != null && $_POST['labelSummary'] != ''){
+		$labelSummary = $_POST['labelSummary'];
 	}
 
     if(isset($_POST['productionLines']) && $_POST['productionLines'] != null && $_POST['productionLines'] != ''){
@@ -132,8 +137,8 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
         $batchId = $_POST['id'];
 
-        if ($update_stmt = $db->prepare("UPDATE packaging_batches SET batch_no=?, packaging_date=?, location=?, production_line=?, remarks=?, type=?, modified_by=? WHERE id=?")){
-            $update_stmt->bind_param('ssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $type, $userID, $batchId);
+        if ($update_stmt = $db->prepare("UPDATE packaging_batches SET batch_no=?, packaging_date=?, location=?, production_line=?, remarks=?, label_remark=?, type=?, modified_by=? WHERE id=?")){
+            $update_stmt->bind_param('sssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $labelSummary, $type, $userID, $batchId);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -210,8 +215,8 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, type, company, created_by, status) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, 'pending')")){
-            $insert_stmt->bind_param('ssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $type, $company, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, label_remark, type, company, created_by, status) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')")){
+            $insert_stmt->bind_param('sssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $labelSummary, $type, $company, $userID);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
