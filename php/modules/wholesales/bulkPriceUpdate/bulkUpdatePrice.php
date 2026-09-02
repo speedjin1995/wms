@@ -57,9 +57,9 @@ if ($role != 'SADMIN') {
 
 $partyFilter = '';
 if ($customerFilter !== '') {
-  $partyFilter = " AND customer = '$customerFilter'";
+  $partyFilter = " AND w.customer = '$customerFilter'";
 } elseif ($supplierFilter !== '') {
-  $partyFilter = " AND supplier = '$supplierFilter'";
+  $partyFilter = " AND w.supplier = '$supplierFilter'";
 }
 
 $sql = "SELECT w.id, w.serial_no, w.start_time, w.weight_details FROM wholesales w
