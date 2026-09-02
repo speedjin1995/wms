@@ -38,6 +38,7 @@ else{
   $allowPhoto = 'N';
   $allowPrice = 'N';
   $allowInvoice = 'N';
+  $allowPcsBasket = 'N';
   $filterStates = [];
   if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
     // Query to get daily setup states
@@ -2387,7 +2388,9 @@ function edit(id) {
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" required min="0.01"></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
               <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01"></td>
-              <td><input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="${parseInt(detail.no_per_basket)||0}"></td>
+              <td ${allowPcsBasket == 'Y' ? '' : 'style="display:none"'}>
+                <input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="${parseInt(detail.no_per_basket)||0}">
+              </td>
               <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
                 <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
                   <option value="" selected disabled>Select Currency</option>
