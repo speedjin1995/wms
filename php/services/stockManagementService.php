@@ -378,6 +378,60 @@ function _getStockBalanceRow($db, $productId, $grade, $packagingSize, $company) 
     return $row;
 }
 
+
+// =============================================================================
+// DAILY STOCK ADJUSTMENT
+// Stores daily adjustment records for historical tracking.
+// =============================================================================
+
+/**
+ * Saves a daily stock adjustment record.
+ * Inserts new record or updates existing if same date + product + grade + company.
+ *
+ * @param string $adjDate       Date in Y-m-d format
+ * @param string $productId     Product ID
+ * @param string $grade         Grade ID
+ * @param float  $balanceBefore Balance before adjustment
+ * @param float  $adjustment    Adjustment value (positive = add, negative = deduct)
+ * @param string $company       Company ID
+ * @param string $userId        User ID
+ */
+function saveDailyStockAdjustment($db, $adjDate, $productId, $grade, $balanceBefore, $adjustment, $company, $userId) {
+    $chkStmt = $db->prepare("SELECT id, adjustment FROM stock_adjustment_daily WHERE DATE(adjustment_date) = ? AND product = ? AND grade = ? AND company = ? AND deleted = 0");
+    $chkStmt->bind_param('ssss', $adjDate, $productId, $grade, $company);
+    $chkStmt->execute();
+    $existingRow = $chkStmt->get_result()->fetch_assoc();
+    $chkStmt->close();
+
+    if ($existingRow) {
+        // Accumulate adjustment instead of overwriting
+        $newAdjustment = floatval($existingRow['adjustment']) + floatval($adjustment);
+        $upd = $db->prepare("UPDATE stock_adjustment_daily SET balance_before = ?, adjustment = ?, modified_by = ? WHERE id = ?");
+        $upd->bind_param('ssss', $balanceBefore, $newAdjustment, $userId, $existingRow['id']);
+        $upd->execute();
+        $upd->close();
+    } else {
+        $ins = $db->prepare("INSERT INTO stock_adjustment_daily (adjustment_date, product, grade, balance_before, adjustment, company, created_by) VALUES (?,?,?,?,?,?,?)");
+        $ins->bind_param('sssssss', $adjDate, $productId, $grade, $balanceBefore, $adjustment, $company, $userId);
+        $ins->execute();
+        $ins->close();
+    }
+}
+
+/**
+ * Gets daily stock adjustment for a specific date, product, grade, and company.
+ *
+ * @return array|null  Returns row with adjustment value or null if not found
+ */
+function getDailyStockAdjustment($db, $adjDate, $productId, $grade, $company) {
+    $stmt = $db->prepare("SELECT * FROM stock_adjustment_daily WHERE DATE(adjustment_date) = ? AND product = ? AND grade = ? AND company = ? AND deleted = 0 LIMIT 1");
+    $stmt->bind_param('ssss', $adjDate, $productId, $grade, $company);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $row;
+}
+
 // =============================================================================
 // LOADING ORDER
 // Manages stock_balances — dispatches packaged boxes to customers.

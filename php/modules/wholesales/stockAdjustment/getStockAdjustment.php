@@ -101,8 +101,12 @@ while ($wRow = $query->fetch_assoc()) {
     }
 }
 
-// Enrich with names and fetch balance from raw_stock_balance
+// Enrich with names and calculate balance from transactions for the selected date
 $data = [];
+$inStatuses  = ['RECEIVING', 'INCOMING'];
+$outStatuses = ['DISPATCH', 'OUTGOING', 'STOCK-BAL'];
+$adjDateForQuery = $dateObj->format('Y-m-d');
+
 foreach ($seen as $item) {
     $pRow = getProductById($item['product_id'], $db, $productCache);
     $gradeName = searchGradeNameById($item['grade_id'], $db);
@@ -117,21 +121,56 @@ foreach ($seen as $item) {
         $catName = $categoryNameCache[$catId];
     }
 
-    $balStmt = $db->prepare("SELECT id, balance FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0' LIMIT 1");
-    $balStmt->bind_param('sss', $item['product_id'], $item['grade_id'], $company);
-    $balStmt->execute();
-    $balRow = $balStmt->get_result()->fetch_assoc();
-    $balStmt->close();
+    // Calculate balance from transactions on the selected date
+    $totalIn = 0;
+    $totalOut = 0;
+    $balQuery = $db->query("SELECT status, weight_details FROM wholesales WHERE deleted = '0' AND company = '$company' AND start_time >= '$fromDT' AND start_time <= '$toDT'");
+    while ($bRow = $balQuery->fetch_assoc()) {
+        $isIn  = in_array($bRow['status'], $inStatuses);
+        $isOut = in_array($bRow['status'], $outStatuses);
+        if (!$isIn && !$isOut) continue;
+        
+        $details = json_decode($bRow['weight_details'], true) ?? [];
+        foreach ($details as $detail) {
+            $detailProductId = $detail['product'] ?? '';
+            $detailGradeId = $detail['grade_id'] ?? '';
+            if ($detailProductId != $item['product_id']) continue;
+            if ($detailGradeId != $item['grade_id']) continue;
+            
+            $net = floatval($detail['net'] ?? 0);
+            if ($isIn) {
+                $totalIn += $net;
+            } else {
+                $totalOut += $net;
+            }
+        }
+    }
+    $calculatedBalance = $totalIn - $totalOut;
+
+    // Get adjustment for this date if exists
+    $adjStmt = $db->prepare("SELECT adjustment FROM stock_adjustment_daily WHERE DATE(adjustment_date) = ? AND product = ? AND grade = ? AND company = ? AND deleted = 0 LIMIT 1");
+    $adjStmt->bind_param('ssss', $adjDateForQuery, $item['product_id'], $item['grade_id'], $company);
+    $adjStmt->execute();
+    $adjRow = $adjStmt->get_result()->fetch_assoc();
+    $adjStmt->close();
+
+    $adjValue = 0;
+    if ($adjRow) {
+        $adjValue = floatval($adjRow['adjustment']);
+    }
+
+    // Final balance = transactions balance + adjustment
+    $finalBalance = $calculatedBalance + $adjValue;
 
     $data[] = [
-        'id'            => $balRow['id']      ?? null,
+        'id'            => null,
         'product_id'    => $item['product_id'],
         'grade'         => $item['grade_id'],
         'product_code'  => $pRow['product_code'] ?? '',
         'product_name'  => $pRow['product_name'] ?? '',
         'grade_name'    => $gradeName,
         'category_name' => $catName,
-        'balance'       => round(floatval($balRow['balance'] ?? 0), 4),
+        'balance'       => round($finalBalance, 4),
     ];
 }
 

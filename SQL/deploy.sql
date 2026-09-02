@@ -3330,3 +3330,24 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_
 END
 $$
 DELIMITER ;
+
+CREATE TABLE `stock_adjustment_daily` (
+  `id` int(11) NOT NULL,
+  `adjustment_date` datetime NOT NULL,
+  `product` int(11) NOT NULL,
+  `grade` int(11) NOT NULL,
+  `adjustment` varchar(10) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `stock_adjustment_daily` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `stock_adjustment_daily` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `stock_adjustment_daily` ADD COLUMN `balance_before` varchar(10) NOT NULL DEFAULT 0 AFTER `grade`;
+
