@@ -289,7 +289,9 @@ $(function () {
   });
 
   // ── Report Tab ──────────────────────────────────────────────────────────────
-  $('#datePicker').on('change.datetimepicker', function () { loadPreview(); });
+  $('#datePicker').on('change.datetimepicker', function () { 
+    loadPreview(); 
+  });
 
   $('#categoryFilter').on('change', function () {
     var selectedCategory = $(this).val();
@@ -384,7 +386,8 @@ $(function () {
       product_id:    $('#adjProductId').val(),
       grade:         $('#adjGrade').val(),
       balance:       balance,
-      today_balance: $('#adjCurrentBalance').val()
+      today_balance: $('#adjCurrentBalance').val(),
+      adj_date:      $('#adjDate').val()
     }, function (data) {
       var obj = JSON.parse(data);
       $('#spinnerLoading').hide();

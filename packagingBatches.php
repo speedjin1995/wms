@@ -31,7 +31,7 @@ else{
   }
 
   $allowPhoto = 'N';
-
+  $allowPresetLabel = 'N';
   if ($role != 'SADMIN'){
     $categoryFilter = !empty($categoryIds) ? " AND c.id IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
     $categories = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
@@ -61,10 +61,11 @@ else{
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND customer = '$company' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
     $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' AND customer = '$company' ORDER BY shipment_type ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
 
-    // Company Detail 
-    $companyDetail = searchCompanyById($company, $db);
-    $allowPhoto = $companyDetail['include_photo'];
+    // Feature Flagging
+    $allowPhoto = $_SESSION['featureFlags']['include_photo'] ?? 'N';
+    $allowPresetLabel = $_SESSION['featureFlags']['packaging_preset_label'] ?? 'N';
   } else {
     $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
     $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
@@ -88,8 +89,10 @@ else{
     $packagings3 = $db->query("SELECT * FROM packaging WHERE deleted = '0' AND packaging_type = 'Original' ORDER BY packaging_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
     $shipmentTypes = $db->query("SELECT * FROM shipment_types WHERE deleted = '0' ORDER BY shipment_type ASC");
+    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
 
     $allowPhoto = 'Y';
+    $allowPresetLabel = 'Y';
   }
 
   $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
@@ -290,11 +293,19 @@ else{
                   <textarea class="form-control" id="remarks" name="remarks" rows="2" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
                 </div>
               </div>
+              <?php if($allowPresetLabel == 'Y') { ?>
+              <div class="col-md-12 mt-2">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['label_code'][$language]?> <?=$languageArray['summary_code'][$language]?></label>
+                  <textarea class="form-control" id="labelSummary" name="labelSummary" readonly placeholder="<?=$languageArray['label_count_message_code'][$language] ?? 'Label counts will appear here'?>" rows="3" style="resize:none;"></textarea>
+                </div>
+              </div>
+              <?php } ?>
             </div>
           </div>
           
           <!-- Weight Details Section -->
-          <div class="modal-section">
+          <div class="modal-section mb-5">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="section-title mb-0"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['weight_details_code'][$language]?></h6>
               <div class="d-flex align-items-center" style="gap:0.5rem;">
@@ -310,20 +321,21 @@ else{
               <table class="table table-sm table-hover mb-0" style="font-size:0.72rem;">
                 <thead class="thead-light">
                   <tr class="text-center">
+                    <th style="width:10%;"><?=$languageArray['supplier_code'][$language]?></th>
                     <th style="width:10%;"><?=$languageArray['category_code'][$language]?></th>
                     <th style="width:10%;"><?=$languageArray['product_code'][$language]?></th>
-                    <th style="width:10%;"><?=$languageArray['grade_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
                     <th style="width:10%;"><?=$languageArray['packaging_size_code'][$language]?></th>
                     <th style="width:8%;"><?=$languageArray['label_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['unit_per_box_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['gross_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['tare_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['weight_code'][$language]?></th>
-                    <th style="width:6%;"><?=$languageArray['time_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['unit_per_box_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['gross_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['tare_code'][$language]?></th>
+                    <th style="width:5%;"><?=$languageArray['weight_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['time_code'][$language]?></th>
                     <?php if($allowPhoto == 'Y') { ?>
-                    <th style="width:5%;"><?=$languageArray['photo_code'][$language]?></th>
+                    <th style="width:4%;"><?=$languageArray['photo_code'][$language]?></th>
                     <?php } ?>
-                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
+                    <th style="width:6%;"><?=$languageArray['actions_code'][$language]?></th>
                   </tr>
                 </thead>
                 <tbody id="weightDetailsTable"></tbody>
@@ -342,7 +354,7 @@ else{
 </div> <!-- /.modal -->   
 
 <div class="modal fade modal-modern" id="bulkAddModal">
-  <div class="modal-dialog" style="max-width:500px;">
+  <div class="modal-dialog" style="max-width:700px;">
     <div class="modal-content">
       <form id="bulkAddForm" novalidate>
       <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;">
@@ -352,56 +364,102 @@ else{
         </button>
       </div>
       <div class="modal-body" style="background: #f8f9ff;">
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['bulk_no_code'][$language]?> <span class="text-danger">*</span></label>
-          <input type="number" class="form-control" id="bulkNo" min="1" value="1" required>
-        </div>
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['category_code'][$language]?> <span class="text-danger">*</span></label>
-          <select class="form-control select2" id="bulkCategory" required>
-            <option value="" selected disabled>Select Category</option>
-          </select>
-          <div class="invalid-feedback"><?=$languageArray['please_select_category_code'][$language]?></div>
-        </div>
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['product_code'][$language]?> <span class="text-danger">*</span></label>
-          <select class="form-control select2" id="bulkProduct" required>
-            <option value="" selected disabled>Select Product</option>
-          </select>
-          <div class="invalid-feedback"><?=$languageArray['please_select_product_code'][$language]?></div>
-        </div>
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['grade_code'][$language]?> <span class="text-danger">*</span></label>
-          <select class="form-control select2" id="bulkGrade" required>
-          </select>
-          <div class="invalid-feedback"><?=$languageArray['please_select_grade_code'][$language]?></div>
-        </div>
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['packaging_size_code'][$language]?> <span class="text-danger">*</span></label>
-          <select class="form-control select2" id="bulkPackagingSize" required>
-            <option value="" selected disabled>Select Packaging</option>
-          </select>
-          <div class="invalid-feedback"><?=$languageArray['please_select_packaging_size_code'][$language]?></div>
-        </div>
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['unit_per_box_code'][$language]?> <span class="text-danger">*</span></label>
-          <input type="number" class="form-control" id="bulkUnitPerBox" step="1" value="0" min="1" required>
-        </div>
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['weight_code'][$language]?> <span class="text-danger">*</span></label>
-          <input type="number" class="form-control" id="bulkWeight" step="0.01" value="0.00" min="0.01" required>
-        </div>
-        <div class="form-group-modern">
-          <label class="form-label-modern"><?=$languageArray['time_code'][$language]?> <span class="text-danger">*</span></label>
-          <input type="time" class="form-control" id="bulkTime" required>
+        <div class="row">
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['bulk_no_code'][$language]?> <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="bulkNo" min="1" value="1" required>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['time_code'][$language]?> <span class="text-danger">*</span></label>
+              <input type="time" class="form-control" id="bulkTime" required>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['supplier_code'][$language]?></label>
+              <select class="form-control select2" id="bulkSupplier">
+                <option value="" selected disabled>Select Supplier</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['category_code'][$language]?> <span class="text-danger">*</span></label>
+              <select class="form-control select2" id="bulkCategory" required>
+                <option value="" selected disabled>Select Category</option>
+              </select>
+              <div class="invalid-feedback"><?=$languageArray['please_select_category_code'][$language]?></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['product_code'][$language]?> <span class="text-danger">*</span></label>
+              <select class="form-control select2" id="bulkProduct" required>
+                <option value="" selected disabled>Select Product</option>
+              </select>
+              <div class="invalid-feedback"><?=$languageArray['please_select_product_code'][$language]?></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['grade_code'][$language]?> <span class="text-danger">*</span></label>
+              <select class="form-control select2" id="bulkGrade" required>
+              </select>
+              <div class="invalid-feedback"><?=$languageArray['please_select_grade_code'][$language]?></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['packaging_size_code'][$language]?> <span class="text-danger">*</span></label>
+              <select class="form-control select2" id="bulkPackagingSize" required>
+                <option value="" selected disabled>Select Packaging</option>
+              </select>
+              <div class="invalid-feedback"><?=$languageArray['please_select_packaging_size_code'][$language]?></div>
+            </div>
+          </div>
+          <?php if($allowPresetLabel == 'Y') { ?>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['label_code'][$language]?></label>
+              <select class="form-control select2" id="bulkLabel">
+                <option value="" selected disabled>Select Label</option>
+                <option value="!">!</option>
+                <option value="@">@</option>
+                <option value="#">#</option>
+                <option value="$">$</option>
+                <option value="%">%</option>
+                <option value="^">^</option>
+                <option value="&amp;">&amp;</option>
+                <option value="*">*</option>
+                <option value="(">(</option>
+                <option value=")">)</option>
+              </select>
+            </div>
+          </div>
+          <?php } ?>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['unit_per_box_code'][$language]?> <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="bulkUnitPerBox" step="1" value="0" min="1" required>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern"><?=$languageArray['weight_code'][$language]?> <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="bulkWeight" step="0.01" value="0.00" min="0.01" required>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer" style="background: #f8f9ff; border-top: 1px solid #e0e4f5;">
         <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
         <button type="submit" class="btn btn-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none;" id="bulkAddSubmit"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_code'][$language]?></button>
       </div>
-    </div>
       </form>
+    </div>
   </div>
 </div>
 
@@ -488,7 +546,9 @@ else{
 // Values
 var weightCount = 0;
 var allowPhoto = '<?=$allowPhoto?>';
+var allowPresetLabel = '<?=$allowPresetLabel?>';
 var categoryOptions = `<?php while($rowCat=mysqli_fetch_assoc($categories)){ ?><option value="<?=$rowCat['id'] ?>"><?=$rowCat['category_name'] ?></option><?php } ?>`;
+var supplierOptions = `<?php while($rowSupplier=mysqli_fetch_assoc($supplies)){ ?><option value="<?=$rowSupplier['id'] ?>"><?=$rowSupplier['supplier_name'] ?></option><?php } ?>`;
 var productOptions = `<?php while($rowProduct=mysqli_fetch_assoc($products2)){ ?><option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>"><?=$rowProduct['product_name'] ?></option><?php } ?>`;
 var packagingOptions = `<?php while($rowPkg=mysqli_fetch_assoc($packagings2)){ ?><option value="<?=$rowPkg['id'] ?>" data-weight="<?=$rowPkg['weight'] ?>"><?=$rowPkg['packaging_name'] ?></option><?php } ?>`;
 var gradeOptions = `<?php while($rowGrade=mysqli_fetch_assoc($grades2)){ ?><option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_id'] ?>" data-type="<?=$rowGrade['grade_type'] ?? 'Local'?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option><?php } ?>`;
@@ -820,7 +880,6 @@ $(function () {
     }
   });
 
-
   $('#addWeightBtn').on('click', function() {
     var idx = weightCount++;
     var now = new Date();
@@ -846,6 +905,12 @@ $(function () {
       <tr class="details">
         <input type="hidden" name="weightDetails[${idx}][batchItemId]" value="">
         <td>
+          <select class="form-control select2" id="supplier${idx}" name="weightDetails[${idx}][supplier]" required>
+            <option value="" selected disabled>Select Supplier</option>
+            ${supplierOptions}
+          </select>
+        </td>
+        <td>
           <select class="form-control select2" id="category${idx}" name="weightDetails[${idx}][category]" required>
             <option value="" selected disabled>Select Category</option>
             ${categoryOptions}
@@ -870,7 +935,25 @@ $(function () {
             <?php } ?>
           </select>
         </td>
-        <td><input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]"></td>
+        <td>
+        ${allowPresetLabel == 'Y' ? 
+          `<select class="form-control select2" id="label${idx}" name="weightDetails[${idx}][label]">
+            <option value="" selected disabled>Select Label</option>
+            <option value="!">!</option>
+            <option value="@">@</option>
+            <option value="#">#</option>
+            <option value="$">$</option>
+            <option value="%">%</option>
+            <option value="^">^</option>
+            <option value="&amp;">&amp;</option>
+            <option value="*">*</option>
+            <option value="(">(</option>
+            <option value=")">)</option>
+          </select>` 
+        : 
+          `<input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]">`
+        }
+        </td>
         <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="0" min="1" required></td>
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" min="0.01" required></td>
         <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
@@ -901,6 +984,10 @@ $(function () {
       dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
+  });
+
+  $('#weightDetailsTable').on('change', 'select[name*="[label]"]', function() {
+    updateLabelSummary();
   });
 
   $('#weightDetailsTable').on('input', 'input[id^="gross"], input[id^="tare"]', function() {
@@ -1052,12 +1139,13 @@ $(function () {
   // Bulk Add
   var now = new Date();
   $('#bulkAddBtn').on('click', function() {
+    $('#bulkSupplier').html('<option value="" selected disabled>Select Supplier</option>' + supplierOptions);
     $('#bulkCategory').html('<option value="" selected disabled>Select Category</option>' + categoryOptions);
     $('#bulkProduct').html('<option value="" selected disabled>Select Product</option>' + productOptions);
     $('#bulkGrade').html(gradeOptions);
     $('#bulkPackagingSize').html('<option value="" selected disabled>Select Packaging</option>' + packagingOptions);
 
-    ['#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize'].forEach(function(id) {
+    ['#bulkSupplier','#bulkCategory','#bulkProduct','#bulkGrade','#bulkPackagingSize','#bulkLabel'].forEach(function(id) {
       $(id).val(null).select2({ 
         allowClear: true, 
         placeholder: 'Please Select', 
@@ -1137,12 +1225,15 @@ $(function () {
       return;
     }
 
+    var supplierVal = $('#bulkSupplier').val();
+    var supplierText = $('#bulkSupplier option:selected').text();
     var categoryVal = $('#bulkCategory').val();
     var categoryText = $('#bulkCategory option:selected').text();
     var productVal = $('#bulkProduct').val();
     var productText = $('#bulkProduct option:selected').text();
     var gradeVal = $('#bulkGrade').val();
     var packagingVal = $('#bulkPackagingSize').val();
+    var labelVal = $('#bulkLabel').val();
     var unitPerBox = $('#bulkUnitPerBox').val();
     var weight = $('#bulkWeight').val();
     var time = $('#bulkTime').val();
@@ -1168,6 +1259,12 @@ $(function () {
         <tr class="details">
           <input type="hidden" name="weightDetails[${idx}][batchItemId]" value="">
           <td>
+            <select class="form-control select2" id="supplier${idx}" name="weightDetails[${idx}][supplier]" required>
+              <option value="" selected disabled>Select Supplier</option>
+              ${supplierOptions}
+            </select>
+          </td>
+          <td>
             <select class="form-control select2" id="category${idx}" name="weightDetails[${idx}][category]" required>
               <option value="" selected disabled>Select Category</option>
               ${categoryOptions}
@@ -1190,7 +1287,25 @@ $(function () {
               ${packagingOptions}
             </select>
           </td>
-          <td><input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]"></td>
+          <td>
+          ${allowPresetLabel == 'Y' ? 
+            `<select class="form-control select2" id="label${idx}" name="weightDetails[${idx}][label]">
+              <option value="" selected disabled>Select Label</option>
+              <option value="!">!</option>
+              <option value="@">@</option>
+              <option value="#">#</option>
+              <option value="$">$</option>
+              <option value="%">%</option>
+              <option value="^">^</option>
+              <option value="&amp;">&amp;</option>
+              <option value="*">*</option>
+              <option value="(">(</option>
+              <option value=")">)</option>
+            </select>` 
+          : 
+            `<input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]">`
+          }
+          </td>
           <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" step="1" value="${unitPerBox}" min="1" required></td>
           <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="${parseFloat(weight).toFixed(2)}" min="0.01" required></td>
           <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
@@ -1211,6 +1326,11 @@ $(function () {
 
       var tr = $('#weightDetailsTable tr:last');
 
+      // Set Supplier
+      var supplierSelect = tr.find(`select[name="weightDetails[${idx}][supplier]"]`);
+      supplierSelect.val(supplierVal);
+
+      // Set Category
       var catSelect = tr.find(`select[name="weightDetails[${idx}][category]"]`);
       catSelect.val(categoryVal);
 
@@ -1233,6 +1353,9 @@ $(function () {
       gradeSelect.val(gradeVal);
 
       tr.find(`select[name="weightDetails[${idx}][packaging_size]"]`).val(packagingVal);
+      if (allowPresetLabel == 'Y') {
+        tr.find(`select[name="weightDetails[${idx}][label]"]`).val(labelVal);
+      }
     }
 
     $('.select2').select2({
@@ -1250,6 +1373,7 @@ $(function () {
       $(this).find(`select[name="weightDetails[${idx}][packaging_size]"]`).val(packagingVal).trigger('change.select2');
     });
 
+    updateLabelSummary();
     $('#bulkAddModal').modal('hide');
   });
 
@@ -1328,6 +1452,7 @@ function format (row) {
         <div><span class="info-item-label"><?=$languageArray['production_lines_code'][$language]?></span><span class="info-item-value">${row.production_lines || '-'}</span></div>
       </div>
       ${row.remarks ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + row.remarks + '</span></div>' : ''}
+      ${allowPresetLabel == 'Y' && row.label_remark ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['label_code'][$language]?> <?=$languageArray['summary_code'][$language]?></span><span class="info-item-value" style="white-space:pre-line;">' + row.label_remark + '</span></div>' : ''}
     </div>
 
     <!-- Weight Details -->
@@ -1350,6 +1475,7 @@ function format (row) {
               <th><?=$languageArray['product_code'][$language]?></th>
               <th><?=$languageArray['grade_code'][$language]?></th>
               <th><?=$languageArray['packaging_size_code'][$language]?></th>
+              <th><?=$languageArray['label_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['unit_per_box_code'][$language]?></th>
               <th class="text-right"><?=$languageArray['weight_code'][$language]?></th>
               <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
@@ -1367,6 +1493,7 @@ function format (row) {
               <td>${d.product_name}</td>
               <td><span class="grade-badge">${d.grade_name}</span></td>
               <td>${d.packaging_size_name}</td>
+              <td>${d.label}</td>
               <td class="text-right text-mono">${d.units_per_box}</td>
               <td class="text-right text-mono text-primary font-weight-bold">${parseFloat(d.weight).toFixed(2)}</td>
               <td class="text-center text-muted">${d.packing_time}</td>
@@ -1392,6 +1519,7 @@ function newEntry(){
   $('#extendModal').find('#packagingDate').val("");
   $('#packagingDatePicker').datetimepicker('date', moment());
   $('#extendModal').find('#remarks').val("");
+  $('#extendModal').find('#labelSummary').val("");
   $('#extendModal').find('#location').val("").trigger('change');
   $('#extendModal').find('#productionLines').val("").trigger('change');
   $('#extendModal').find('#gradeType').val("Local");
@@ -1422,6 +1550,7 @@ function edit(id) {
       $('#extendModal').find('#id').val(obj.message.id);
       $('#extendModal').find('#batchNo').val(obj.message.batch_no);
       $('#extendModal').find('#remarks').val(obj.message.remarks);
+      $('#extendModal').find('#labelSummary').val(obj.message.label_remark);
       $('#extendModal').find('#location').val(obj.message.location).trigger('change');
       $('#extendModal').find('#productionLines').val(obj.message.production_line).trigger('change');
       $('#extendModal').find('#gradeType').val(obj.message.type || 'Local').trigger('change');
@@ -1444,6 +1573,12 @@ function edit(id) {
           var row = `
             <tr class="details">
               <input type="hidden" name="weightDetails[${idx}][batchId]" value="${detail.id || ''}">
+              <td>
+                <select class="form-control select2" id="supplier${idx}" name="weightDetails[${idx}][supplier]" required>
+                  <option value="" selected disabled>Select Supplier</option>
+                  ${supplierOptions}
+                </select>
+              </td>
               <td>
                 <select class="form-control select2" id="category${idx}" name="weightDetails[${idx}][category]" required>
                   <option value="" selected disabled>Select Category</option>
@@ -1469,7 +1604,25 @@ function edit(id) {
                   ${packagingOptions}
                 </select>
               </td>
-              <td><input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]" value="${detail.label}"></td>
+              <td>
+              ${allowPresetLabel == 'Y' ? 
+                `<select class="form-control select2" id="label${idx}" name="weightDetails[${idx}][label]">
+                  <option value="" selected disabled>Select Label</option>
+                  <option value="!">!</option>
+                  <option value="@">@</option>
+                  <option value="#">#</option>
+                  <option value="$">$</option>
+                  <option value="%">%</option>
+                  <option value="^">^</option>
+                  <option value="&amp;">&amp;</option>
+                  <option value="*">*</option>
+                  <option value="(">(</option>
+                  <option value=")">)</option>
+                </select>` 
+              : 
+                `<input type="text" class="form-control" id="label${idx}" name="weightDetails[${idx}][label]" value="${detail.label || ''}">`
+              }
+              </td>
               <td><input type="number" class="form-control" id="unitPerBox${idx}" name="weightDetails[${idx}][unit_per_box]" value="${detail.units_per_box || 0}" step="1" min="1" required></td>
               <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" min="0.01" required></td>
               <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
@@ -1488,6 +1641,9 @@ function edit(id) {
             </tr>
           `;
           tbody.append(row);
+
+          // Set supplier
+          tbody.find(`select[name="weightDetails[${idx}][supplier]"]`).val(detail.supplier_id);
 
           // Set category
           tbody.find(`select[name="weightDetails[${idx}][category]"]`).val(detail.category_id);
@@ -1519,6 +1675,11 @@ function edit(id) {
 
           // Set packaging size
           tbody.find(`select[name="weightDetails[${idx}][packaging_size]"]`).val(detail.packaging_size);
+
+          // Set label
+          if (allowPresetLabel == 'Y') {
+            tbody.find(`select[name="weightDetails[${idx}][label]"]`).val(detail.label || '');
+          }
         }
       }
       
@@ -1557,6 +1718,21 @@ function edit(id) {
   });
 }
 
+function updateLabelSummary() {
+  var counts = {};
+  $('#weightDetailsTable tr').each(function() {
+    var val = $(this).find('select[name*="[label]"]').val();
+    if (val) {
+      counts[val] = (counts[val] || 0) + 1;
+    }
+  });
+  var parts = [];
+  $.each(counts, function(label, count) {
+    parts.push(label + ' : ' + count);
+  });
+  $('#labelSummary').val(parts.join('\n'));
+}
+
 function reindexWeightDetails() {
   $('#weightDetailsTable tr').each(function(index) {
     $(this).find('input, select').each(function() {
@@ -1572,6 +1748,7 @@ function removeWeightDetail(button) {
   $(button).closest('tr').remove();
   reindexWeightDetails();
   updateTotals();
+  updateLabelSummary();
 }
 
 function updateTotals() {

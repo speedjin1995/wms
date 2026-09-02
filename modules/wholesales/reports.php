@@ -35,13 +35,16 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
+    $indicators = $db->query("SELECT * FROM indicators WHERE customer = '$company' ORDER BY nickname ASC");
+
+    // Feature Flagging
+    $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
+    $allowIntegration = $_SESSION['featureFlags']['include_integration'] ?? 'N';
+    $allowPcsBasket = $_SESSION['featureFlags']['include_pcs_basket'] ?? 'N';
+    $secRemarksExists = ($_SESSION['featureFlags']['include_sec_remark'] ?? '') == 'Y' ? true : false;
 
     // Company Detail 
     $companyDetail = searchCompanyById($company, $db);
-    $allowPrice = $companyDetail['include_price'];
-    $allowIntegration = $companyDetail['include_integration'];
-    $allowPcsBasket = $companyDetail['include_pcs_basket'];
-    $secRemarksExists = ($companyDetail['include_sec_remark'] == 'Y');
     $columnSetup = [];
     if (!empty($companyDetail['column_setup'])) {
       $columnSetupAll = json_decode($companyDetail['column_setup'], true);
@@ -55,6 +58,7 @@ else{
     $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
     $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
+    $indicators = $db->query("SELECT * FROM indicators ORDER BY nickname ASC");
 
     $allowPrice = 'Y';
     $allowIntegration = 'Y';
@@ -183,16 +187,12 @@ else{
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
-            <input type="text" class="form-control" id="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
-          </div>
-
-          <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
-            <select class="form-control select2" id="weightByFilter">
+            <label class="filter-label"><?=$languageArray['indicator_code'][$language]?></label>
+            <select class="form-control select2" id="indicatorFilter">
               <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-              <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
-                <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+              <option value="web"><?=$languageArray['web_code'][$language] ?? 'Web'?></option>
+              <?php while($rowIndicator=mysqli_fetch_assoc($indicators)){ ?>
+                <option value="<?=$rowIndicator['nickname'] ?>"><?=$rowIndicator['nickname'] ?></option>
               <?php } ?>
             </select>
           </div>
@@ -205,9 +205,24 @@ else{
               <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
             </select>
           </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
+            <input type="text" class="form-control" id="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
+          </div>
         </div>
 
         <div class="filter-row mt-3">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
+            <select class="form-control select2" id="weightByFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
+                <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['status_code'][$language]?></label>
             <select class="form-control" id="statusFilter">
@@ -475,6 +490,7 @@ $(function () {
         var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
         var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
         var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+        var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
         var selectedIds = [];
 
         $("#weightTable tbody input[type='checkbox']").each(function () {
@@ -485,7 +501,7 @@ $(function () {
           "&transactionStatus="+transactionStatusI+"&status="+statusI+
           "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
           "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
-          "&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI;
+          "&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI+"&indicator="+indicatorI;
 
         if (selectedIds.length > 0) {
           window.open(base + "&isMulti=Y&ids=" + selectedIds);
@@ -602,7 +618,9 @@ function buildParams() {
     "&checkedBy=" + ($('#checkedByFilter').val() || '') +
     "&weightedBy=" + ($('#weightByFilter').val() || '') +
     "&location=" + ($('#locationFilter').val() || '') +
-    "&partyType=" + ($('#partyTypeFilter').val() || '');
+    "&partyType=" + ($('#partyTypeFilter').val() || '') +
+    "&indicator=" + ($('#indicatorFilter').val() || '')
+    ;
 }
 
 function getSelectedIds() {
@@ -669,6 +687,7 @@ function initTable() {
         weightedBy: $('#weightByFilter').val() || '',
         location: $('#locationFilter').val() || '', 
         partyType: $('#partyTypeFilter').val() || '', 
+        indicator: $('#indicatorFilter').val() || '', 
       }
     },
     columns: getTableColumns(),

@@ -158,36 +158,26 @@ foreach ($grouped as $category => $items) {
   $sgRowspan = count($items);
   $first = true;
   foreach ($items as $itemKey => $item) {
-    $stockBalance = 0;
-    $adjustment = 0;
-    $balBeforeAdj = floatval($item['totalInQty']) - floatval($item['totalOutQty']);
-    // Get Raw Stock Balance
-    if ($rawStockBalanceStmt = $db->prepare("SELECT * FROM raw_stock_balance WHERE deleted = 0 AND company = ? AND product_id = ? AND grade = ?")){
-      $rawStockBalanceStmt->bind_param('sss', $company, $item['product_id'], $item['grade_id']);
-      $rawStockBalanceStmt->execute();
-      $rawStockBalanceResult = $rawStockBalanceStmt->get_result();
-      $rawStockBalanceRow = $rawStockBalanceResult->fetch_assoc();
-      $stockBalance = $rawStockBalanceRow['balance'] ?? 0;
-      $rawStockBalanceStmt->close();
-    }
-
-    // Get Stock Movement 
     $adjustment = '-';
-    if ($stockMovementStmt = $db->prepare("SELECT * FROM stock_movements WHERE module = 'adjustment' AND status = 'ADJUSTMENT' AND company = ? AND product_id = ? AND grade = ? ORDER BY id DESC LIMIT 1")) {
-      $stockMovementStmt->bind_param('sss', $company, $item['product_id'], $item['grade_id']);
-      $stockMovementStmt->execute();
-      $stockMovementRow = $stockMovementStmt->get_result()->fetch_assoc();
+    $balBeforeAdj = floatval($item['totalInQty']) - floatval($item['totalOutQty']);
+    $stockBalance = $balBeforeAdj;
+    
+    // Get daily stock adjustment for the selected date
+    $adjDateForQuery = $dtObj ? $dtObj->format('Y-m-d') : date('Y-m-d');
+    $adjStmt = $db->prepare("SELECT adjustment FROM stock_adjustment_daily WHERE DATE(adjustment_date) = ? AND product = ? AND grade = ? AND company = ? AND deleted = 0 LIMIT 1");
+    $adjStmt->bind_param('ssss', $adjDateForQuery, $item['product_id'], $item['grade_id'], $company);
+    $adjStmt->execute();
+    $adjRow = $adjStmt->get_result()->fetch_assoc();
+    $adjStmt->close();
 
-      if ($stockMovementRow) {
-        $qty = floatval($stockMovementRow['quantity'] ?? 0);
-        if ($stockMovementRow['movement_type'] == 'ADD') {
-          $adjustment = '+' . number_format($qty, 2);
-        } elseif ($stockMovementRow['movement_type'] == 'MINUS') {
-          $adjustment = '-' . number_format($qty, 2);
-        }
+    if ($adjRow) {
+      $adjValue = floatval($adjRow['adjustment']);
+      $stockBalance = $balBeforeAdj + $adjValue;
+      if ($adjValue >= 0) {
+        $adjustment = '+' . number_format($adjValue, 2);
+      } else {
+        $adjustment = number_format($adjValue, 2);
       }
-
-      $stockMovementStmt->close();
     }
 
     $balBeforeAdjClass = $balBeforeAdj < 0 ? 'color:red;' : '';

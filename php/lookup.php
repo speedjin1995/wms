@@ -17,6 +17,24 @@ function searchCompanyById($value, $db) {
     return $id;
 }
 
+function searchCompanyFeatureById($value, $db) {
+    $features = [];
+
+    if(isset($value)){
+        if ($select_stmt = $db->prepare("SELECT feature, value FROM company_features WHERE company=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $features[$row['feature']] = $row['value'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $features;
+}
+
 function searchCustomerParentById($value, $db) {
     $id = '';
 

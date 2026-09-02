@@ -234,6 +234,7 @@ else{
 
         <!-- Hidden filters -->
         <input type="hidden" id="categoryFilter" name="categoryFilter">
+        <input type="hidden" id="indicatorFilter" name="indicatorFilter">
         <input type="hidden" id="statusFilter" name="statusFilter" value="active">
       </div>
     </div>
@@ -687,6 +688,7 @@ $(function () {
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
   var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+  var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -718,6 +720,7 @@ $(function () {
         weightedBy: weightedByI,
         location: locationI,
         partyType: partyTypeI,
+        indicator: indicatorI,
         recordType: 'industrial'
       } 
     },
@@ -806,6 +809,7 @@ $(function () {
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
     var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+    var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -841,6 +845,7 @@ $(function () {
           weightedBy: weightedByI,
           location: locationI,
           partyType: partyTypeI,
+          indicator: indicatorI,
           recordType: 'industrial'
         } 
       },
