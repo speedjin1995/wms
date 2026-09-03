@@ -145,51 +145,80 @@ function resolveValue($colMap, $row, $detail, $db, &$customerCache, &$supplierCa
     $source = $colMap['source'];
     $field  = $colMap['field'] ?? '';
     $value  = $colMap['value'] ?? '';
+    $case   = $colMap['case'] ?? null; // 'upper', 'lower', 'title'
 
     switch ($source) {
         case 'wholesales':
             if ($field === 'created_datetime' && !empty($colMap['format'])) {
                 $dt = new DateTime($row[$field]);
-                return $dt->format($colMap['format']);
+                $result = $dt->format($colMap['format']);
+            } else {
+                $result = $row[$field] ?? '';
             }
-            return $row[$field] ?? '';
+            break;
 
         case 'customer_lookup':
             $customer = getCustomerById($row['customer'], $db, $customerCache);
-            return $customer[$field] ?? '';
+            $result = $customer[$field] ?? '';
+            break;
 
         case 'supplier_lookup':
             $supplier = getSupplierById($row['supplier'], $db, $supplierCache);
-            return $supplier[$field] ?? '';
+            $result = $supplier[$field] ?? '';
+            break;
 
         case 'currency_lookup':
-            return searchCurrencyNameById($detail[$field] ?? '', $db);
+            $result = searchCurrencyNameById($detail[$field] ?? '', $db);
+            break;
 
         case 'location_lookup':
-            return searchLocationById($row['location'], $db);
+            $result = searchLocationById($row['location'], $db);
+            break;
 
         case 'product_lookup':
             $productId = $detail['product'] ?? '';
             $product   = getProductById($productId, $db, $productCache);
-            return $product[$field] ?? '';
+            $result = $product[$field] ?? '';
+            break;
 
         case 'detail':
-            return $detail[$field] ?? '';
+            $result = $detail[$field] ?? '';
+            break;
 
         case 'computed':
             if ($field === 'net_minus_reject') {
                 $net    = floatval($detail['net']    ?? 0);
                 $reject = floatval($detail['reject'] ?? 0);
-                return $net - $reject;
+                $result = $net - $reject;
+            } else {
+                $result = '';
             }
-            return '';
+            break;
 
         case 'static':
-            return $value;
+            $result = $value;
+            break;
 
         default:
-            return '';
+            $result = '';
     }
+
+    // Apply case transformation
+    if ($case && is_string($result)) {
+        switch ($case) {
+            case 'upper':
+                $result = mb_strtoupper($result);
+                break;
+            case 'lower':
+                $result = mb_strtolower($result);
+                break;
+            case 'title':
+                $result = mb_convert_case($result, MB_CASE_TITLE);
+                break;
+        }
+    }
+
+    return $result;
 }
 
 // ─── Build spreadsheet rows ───────────────────────────────────────────────────
