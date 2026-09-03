@@ -3214,3 +3214,140 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTS` BEFORE UPDATE ON `products` FOR EAC
 END
 $$
 DELIMITER ;
+
+-- 01/09/2026 --
+ALTER TABLE `wholesales` 
+ADD `empty_baskets_weight` DECIMAL(10,2) NULL AFTER `payment_method`,
+ADD `basket_count` INT NULL AFTER `empty_baskets_weight`,
+ADD `avg_basket_weight` DECIMAL(10,2) NULL AFTER `basket_count`;
+
+ALTER TABLE `wholesales_log` 
+ADD `empty_baskets_weight` DECIMAL(10,2) NULL AFTER `payment_method`,
+ADD `basket_count` INT NULL AFTER `empty_baskets_weight`,
+ADD `avg_basket_weight` DECIMAL(10,2) NULL AFTER `basket_count`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_WHOLESALES` AFTER INSERT ON `wholesales` FOR EACH ROW INSERT INTO wholesales_log (
+    wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, location, category, payment_method, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.location, NEW.category, NEW.payment_method, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, 1, NEW.created_by, NOW()
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO wholesales_log (
+        wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, location, category, payment_method, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.location, NEW.category, NEW.payment_method, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;
+
+CREATE TABLE `company_features` (
+  `id` int(11) NOT NULL,
+  `company` int(11) NOT NULL,
+  `feature` varchar(50) NOT NULL,
+  `value` varchar(1) NOT NULL DEFAULT 'N',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `company_features` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `company_features` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- First, clean up duplicate rows (keep the earliest one)
+TRUNCATE TABLE company_features;
+
+-- Insert features for all companies from existing columns
+INSERT INTO company_features (company, feature, value)
+SELECT id, 'include_price', COALESCE(include_price, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_photo', COALESCE(include_photo, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_barcode', COALESCE(include_barcode, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_sec_remark', COALESCE(include_sec_remark, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_sec_validation', COALESCE(include_sec_validation, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_invoice', COALESCE(include_invoice, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_payment', COALESCE(include_payment, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_pcs_basket', COALESCE(include_pcs_basket, 'N') FROM companies
+UNION ALL
+SELECT id, 'allow_manual_post', COALESCE(allow_manual_post, 'N') FROM companies
+UNION ALL
+SELECT id, 'include_integration', COALESCE(include_integration, 'N') FROM companies;
+
+-- 02/09/2026 --
+ALTER TABLE `packaging_batch_items` ADD `supplier_id` INT(11) NULL AFTER `packaging_batch_id`;
+
+ALTER TABLE `packaging_batches` ADD `label_remark` TEXT NULL AFTER `remarks`;
+
+ALTER TABLE `packaging_batch_logs` ADD `label_remark` TEXT NULL AFTER `remarks`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PACKAGING_BATCH` AFTER INSERT ON `packaging_batches` FOR EACH ROW INSERT INTO packaging_batch_logs (
+  packaging_batch_id, batch_no, packaging_date, remarks, label_remark, location, production_line, type, company, deleted, delete_reason, status, action_id, action_by, event_date
+) 
+VALUES (
+  NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.label_remark, NEW.location, NEW.production_line, NEW.type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PACKAGING_BATCH` BEFORE UPDATE ON `packaging_batches` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO packaging_batch_logs (
+    packaging_batch_id, batch_no, packaging_date, remarks, label_remark, location, production_line, type, company, deleted, delete_reason, status, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.batch_no, NEW.packaging_date, NEW.remarks, NEW.label_remark, NEW.location, NEW.production_line, NEW.type, NEW.company, NEW.deleted, NEW.delete_reason, NEW.status, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
+
+CREATE TABLE `stock_adjustment_daily` (
+  `id` int(11) NOT NULL,
+  `adjustment_date` datetime NOT NULL,
+  `product` int(11) NOT NULL,
+  `grade` int(11) NOT NULL,
+  `adjustment` varchar(10) NOT NULL DEFAULT 0,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `stock_adjustment_daily` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `stock_adjustment_daily` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `stock_adjustment_daily` ADD COLUMN `balance_before` varchar(10) NOT NULL DEFAULT 0 AFTER `grade`;
+

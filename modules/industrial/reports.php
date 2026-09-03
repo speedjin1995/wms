@@ -182,6 +182,7 @@ else{
 
         <!-- Hidden filters -->
         <input type="hidden" id="categoryFilter" name="categoryFilter">
+        <input type="hidden" id="indicatorFilter" name="indicatorFilter">
       </div>
     </div>
 
@@ -460,7 +461,9 @@ function buildParams() {
     "&checkedBy=" + ($('#checkedByFilter').val() || '') +
     "&weightedBy=" + ($('#weightByFilter').val() || '') +
     "&location=" + ($('#locationFilter').val() || '') +
-    "&partyType=" + ($('#partyTypeFilter').val() || '');
+    "&partyType=" + ($('#partyTypeFilter').val() || '') +
+    "&indicator=" + ($('#indicatorFilter').val() || '')
+    ;
 }
 
 function getSelectedIds() {
@@ -502,6 +505,7 @@ function initTable() {
         weightedBy: $('#weightByFilter').val() || '',
         location: $('#locationFilter').val() || '',
         partyType: $('#partyTypeFilter').val() || '',
+        indicator: $('#indicatorFilter').val() || '',
         recordType: 'industrial'
       }
     },

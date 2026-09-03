@@ -56,6 +56,9 @@ if(isset($_POST['userID'])){
                 $message['payment_method'] = $row['payment_method'];
                 $message['category'] = $row['category'];
                 $message['category_name'] = searchCategoryById($row['category'], $db);
+                $message['empty_baskets_weight'] = $row['empty_baskets_weight'];
+                $message['basket_count'] = $row['basket_count'];
+                $message['avg_basket_weight'] = $row['avg_basket_weight'];
                 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);

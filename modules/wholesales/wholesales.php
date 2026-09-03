@@ -34,11 +34,15 @@ else{
     }
     $categoryIds = array_unique($categoryIds);
   }
-  
+
   $allowPhoto = 'N';
   $allowPrice = 'N';
   $allowInvoice = 'N';
+  $allowPayment = 'N';
   $allowPcsBasket = 'N';
+  $allowBasketTare = 'N';
+  $secRemarksExists = false;
+
   $filterStates = [];
   if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
     // Query to get daily setup states
@@ -92,20 +96,18 @@ else{
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
+    $indicators = $db->query("SELECT * FROM indicators WHERE customer = '$company' ORDER BY nickname ASC");
 
-    // Company Detail 
+    // Feature Flagging
+    $allowPhoto = $_SESSION['featureFlags']['include_photo'] ?? 'N';
+    $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
+    $allowInvoice = $_SESSION['featureFlags']['include_invoice'] ?? 'N';
+    $allowPayment = $_SESSION['featureFlags']['include_payment'] ?? 'N';
+    $allowPcsBasket = $_SESSION['featureFlags']['include_pcs_basket'] ?? 'N';
+    $allowBasketTare = $_SESSION['featureFlags']['allow_basket_tare'] ?? 'N';
+    $secRemarksExists = ($_SESSION['featureFlags']['include_sec_remark'] ?? '') == 'Y' ? true : false;
+
     $companyDetail = searchCompanyById($company, $db);
-    // $companyProducts = json_decode($companyDetail['products'], true);
-    $secRemarksExists = false;
-    if ($companyDetail['include_sec_remark'] == 'Y') { 
-      $secRemarksExists = true;
-    }
-
-    $allowPhoto = $companyDetail['include_photo'];
-    $allowPrice = $companyDetail['include_price'];
-    $allowInvoice = $companyDetail['include_invoice'];
-    $allowPayment = $companyDetail['include_payment'];
-    $allowPcsBasket = $companyDetail['include_pcs_basket'];
     $columnSetup = [];
     if (!empty($companyDetail['column_setup'])) {
       $columnSetupAll = json_decode($companyDetail['column_setup'], true);
@@ -136,6 +138,7 @@ else{
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
+    $indicators = $db->query("SELECT * FROM indicators ORDER BY nickname ASC");
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
@@ -268,10 +271,32 @@ else{
           </div>
 
           <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
+              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
+              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
+              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['indicator_code'][$language]?></label>
+            <select class="form-control select2" id="indicatorFilter">
+              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+              <option value="web"><?=$languageArray['web_code'][$language] ?? 'Web'?></option>
+              <?php while($rowIndicator=mysqli_fetch_assoc($indicators)){ ?>
+                <option value="<?=$rowIndicator['nickname'] ?>"><?=$rowIndicator['nickname'] ?></option>
+              <?php } ?>
+            </select>
+          </div>
+
+          <div class="filter-group">
             <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
             <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
           </div>
+        </div>
 
+        <div class="filter-row mt-3">
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
             <select class="form-control select2" id="weightByFilter" name="weightByFilter">
@@ -282,17 +307,6 @@ else{
             </select>
           </div>
 
-          <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-            </select>
-          </div>
-        </div>
-
-        <div class="filter-row">
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
             <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
@@ -581,6 +595,39 @@ else{
             </div>
           </div>
           
+          <!-- Basket Tare Calculation Section -->
+          <div class="modal-section" <?php if ($allowBasketTare != 'Y') { echo 'style="display:none;"'; } ?>>
+            <h6 class="section-title"><i class="fas fa-shopping-basket mr-2"></i><?=$languageArray['basket_tare_calculation_code'][$language] ?? 'Basket Tare Calculation'?></h6>
+            <div class="row align-items-end">
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['empty_baskets_weight_code'][$language] ?? 'Empty Baskets Weight'?> (kg)</label>
+                  <input type="number" class="form-control" id="emptyBasketWeight" name="emptyBasketWeight" step="0.01" min="0" value="0.00" placeholder="0.00">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['basket_count_code'][$language] ?? 'Basket Count'?></label>
+                  <input type="number" class="form-control" id="basketCount" name="basketCount" step="1" min="0" value="0" placeholder="0">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['average_weight_code'][$language] ?? 'Average Weight'?> (kg)</label>
+                  <input type="number" class="form-control" id="avgBasketWeight" name="avgBasketWeight" step="0.01" value="0.00" readonly style="background-color:#e9ecef;">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern">&nbsp;</label>
+                  <button type="button" class="btn btn-modern btn-modern-primary btn-block" id="applyTareBtn">
+                    <i class="fas fa-sync-alt mr-1"></i><?=$languageArray['apply_to_tare_code'][$language] ?? 'Apply to Tare'?>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Weight Details Section -->
           <div class="modal-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -877,6 +924,7 @@ $(function () {
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
   var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+  var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
     "responsive": true,
@@ -908,7 +956,8 @@ $(function () {
         checkedBy: checkedByI,
         weightedBy: weightedByI,
         location: locationI,
-        partyType: partyTypeI
+        partyType: partyTypeI,
+        indicator: indicatorI
       } 
     },
     'columns': getTableColumns()
@@ -966,6 +1015,7 @@ $(function () {
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
     var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
+    var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
     //Destroy the old Datatable
     $("#weightTable").DataTable().clear().destroy();
@@ -1001,7 +1051,8 @@ $(function () {
           checkedBy: checkedByI,
           weightedBy: weightedByI,
           location: locationI,
-          partyType: partyTypeI
+          partyType: partyTypeI,
+          indicator: indicatorI
         } 
       },
       'columns': getTableColumns()
@@ -1885,6 +1936,30 @@ $(function () {
     var checkboxes = $('#weightDetailsTable input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
+
+  // Calculate average basket weight
+  $('#emptyBasketWeight, #basketCount').on('input change', function() {
+    var emptyWeight = parseFloat($('#emptyBasketWeight').val()) || 0;
+    var count = parseInt($('#basketCount').val()) || 0;
+    var avg = count > 0 ? (emptyWeight / count) : 0;
+    $('#avgBasketWeight').val(avg.toFixed(2));
+  });
+
+  // Apply average weight to all tare fields
+  $('#applyTareBtn').on('click', function() {
+    var avgWeight = parseFloat($('#avgBasketWeight').val()) || 0;
+    if (avgWeight <= 0) {
+      toastr["warning"]("<?=$languageArray['please_calculate_average_first_code'][$language] ?? 'Please calculate average weight first'?>", "Warning:");
+      return;
+    }
+    if (!confirm("<?=$languageArray['apply_tare_confirm_code'][$language] ?? 'This will replace all tare values in the weight details table. Are you sure?'?>")) {
+      return;
+    }
+    $('#weightDetailsTable tr.details').each(function() {
+      $(this).find('input[id^="tare"]').val(avgWeight.toFixed(2)).trigger('change');
+    });
+    toastr["success"]("<?=$languageArray['tare_applied_success_code'][$language] ?? 'Average weight applied to all tare fields'?>", "Success:");
+  });
 });
 
 // Build ordered column list from columnSetup if available, else use defaultColumns order
@@ -1996,6 +2071,16 @@ function format (row) {
         <div><span class="info-item-label"><?=$languageArray['locations_code'][$language]?></span><span class="info-item-value">${row.location_name || '-'}</span></div>
       </div>
       ${row.remark ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + row.remark + '</span></div>' : ''}
+    </div>
+
+    <!-- Basket Tare Calculation -->
+    <div class="info-section" <?php if ($allowBasketTare != 'Y') { echo 'style="display:none;"'; } ?>>
+      <div class="info-section-title"><i class="fas fa-shopping-basket mr-1"></i><?=$languageArray['basket_tare_calculation_code'][$language] ?? 'Basket Tare Calculation'?></div>
+      <div class="info-grid">
+        <div><span class="info-item-label"><?=$languageArray['empty_baskets_weight_code'][$language] ?? 'Empty Baskets Weight'?></span><span class="info-item-value">${row.empty_baskets_weight ? parseFloat(row.empty_baskets_weight).toFixed(2) + ' kg' : '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['basket_count_code'][$language] ?? 'Basket Count'?></span><span class="info-item-value">${row.basket_count || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['average_weight_code'][$language] ?? 'Average Weight'?></span><span class="info-item-value">${row.avg_basket_weight ? parseFloat(row.avg_basket_weight).toFixed(2) + ' kg' : '-'}</span></div>
+      </div>
     </div>
 
     <!-- Weighing Details -->
@@ -2209,6 +2294,9 @@ function newEntry(){
   $('#extendModal').find('#totalRejectBeforeDiscount').text(0.00);
   $('#extendModal').find('#totalRejectDiscount').text(0.00);
   $('#extendModal').find('#bulkUnitPrice').val('');
+  $('#extendModal').find('#emptyBasketWeight').val('0.00');
+  $('#extendModal').find('#basketCount').val('0');
+  $('#extendModal').find('#avgBasketWeight').val('0.00');
   $('#weightDetailsTable').empty();
   $('#rejectDetailsTable').empty();
   $('#extendModal').modal('show');
@@ -2318,6 +2406,9 @@ function edit(id) {
       $('#extendModal').find('#remarks').val(obj.message.remark);
       $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
       $('#extendModal').find('#bulkUnitPrice').val('');
+      $('#extendModal').find('#emptyBasketWeight').val(obj.message.empty_baskets_weight || '0.00');
+      $('#extendModal').find('#basketCount').val(obj.message.basket_count || '0');
+      $('#extendModal').find('#avgBasketWeight').val(obj.message.avg_basket_weight || '0.00');
 
       if (obj.message.other_vehicle){
         $('#extendModal').find('#vehicle').val('OTHERS').trigger('change');

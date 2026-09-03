@@ -109,6 +109,10 @@ if(isset($_GET['partyType']) && $_GET['partyType'] != null && $_GET['partyType']
   $searchQuery .= " AND (c.customer_type = '" . $partyType . "' OR s.supplier_type = '" . $partyType . "')";
 }
 
+if(isset($_GET['indicator']) && $_GET['indicator'] != null && $_GET['indicator'] != '' && $_GET['indicator'] != '-'){
+  $searchQuery .= " AND wholesales.indicator = '".$_GET['indicator']."'";
+}
+
 if($_GET['status'] != null && $_GET['status'] != '' && $_GET['status'] != '-'){
   if ($_GET['status'] == 'active'){
     $searchQuery .= " and wholesales.deleted = '0'";

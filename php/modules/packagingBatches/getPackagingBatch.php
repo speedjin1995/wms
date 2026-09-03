@@ -32,6 +32,7 @@ if(isset($_POST['userID'])){
                 $message['production_line'] = $row['production_line'];
                 $message['production_lines'] = searchLocationById($row['production_line'], $db);
                 $message['remarks'] = $row['remarks'];
+                $message['label_remark'] = $row['label_remark'];
                 $message['status'] = $row['status'];
                 $message['company'] = $row['company'];
                 $message['type'] = $row['type'] ?? 'Local';
@@ -46,6 +47,7 @@ if(isset($_POST['userID'])){
                         $weightDetails[] = array(
                             'id' => $row2['id'],
                             'packaging_batch_id' => $row2['packaging_batch_id'],
+                            'supplier_id' => $row2['supplier_id'],
                             'category_id' => $row2['category_id'],
                             'product_id' => $row2['product_id'],
                             'product_name' => searchProductNameById($row2['product_id'], $db),

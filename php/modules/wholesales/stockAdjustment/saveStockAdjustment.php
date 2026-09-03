@@ -9,11 +9,21 @@ $id         = $_POST['id']         ?? '';
 $productId  = $_POST['product_id'] ?? '';
 $grade      = $_POST['grade']      ?? '';
 $newBalance = $_POST['balance']    ?? '';
-$todayBalance = $_POST['today_balance'] ?? 0; // today's computed balance passed from frontend
+$todayBalance = $_POST['today_balance'] ?? 0;
+$adjDateStr = $_POST['adj_date']   ?? '';
 
 if ($productId === '' || $newBalance === '') {
     echo json_encode(['status' => 'failed', 'message' => 'Missing required fields']);
     exit;
+}
+
+// Parse adjustment date
+$adjDate = date('Y-m-d');
+if (!empty($adjDateStr)) {
+    $dtObj = DateTime::createFromFormat('d/m/Y', $adjDateStr);
+    if ($dtObj) {
+        $adjDate = $dtObj->format('Y-m-d');
+    }
 }
 
 $finalBalance = floatval($newBalance);
@@ -32,7 +42,6 @@ if (!empty($id)) {
 }
 
 if (!$balRow) {
-    // Try find by product+grade
     $stmt = $db->prepare("SELECT id FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0' LIMIT 1");
     $stmt->bind_param('sss', $productId, $grade, $company);
     $stmt->execute();
@@ -59,6 +68,9 @@ $upd = $db->prepare("UPDATE raw_stock_balance SET balance = ?, modified_by = ? W
 $upd->bind_param('sss', $finalBalance, $user, $id);
 $upd->execute();
 $upd->close();
+
+// Save daily adjustment record
+saveDailyStockAdjustment($db, $adjDate, $productId, $grade, $currentBalance, $diff, $company, $user);
 
 echo json_encode([
     'status' => 'success', 
