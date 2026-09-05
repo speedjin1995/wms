@@ -50,6 +50,7 @@ if(isset($_GET['id'])){
                 $soNo = $wholesale['po_no'];
                 $date = date('d/m/Y', strtotime($wholesale['start_time']));
                 $time = date('H:i:s', strtotime($wholesale['start_time']));
+                $datetime = date('d/m/Y H:i:s', strtotime($wholesale['start_time']));
                 $slipNo = $wholesale['serial_no'];
                 $vehicleNo = $wholesale['vehicle_no'] ?? '';
                 $priceStatus = (floatval($wholesale['total_price']) > 0) ? 'FIXED' : 'FLOAT';
@@ -248,8 +249,8 @@ if(isset($_GET['id'])){
                             .header-inner { display: inline-flex; align-items: center; gap: 15px; }
                             .logo img { width: 110px; height: auto; }
                             .company-info { text-align: left; }
-                            .company-cn { font-size: 24px; font-weight: bold; color: black; letter-spacing: 8px; }
-                            .company-en { font-size: 18px; font-weight: bold; margin: 2px 0; }
+                            .company-cn { font-size: 20px; font-weight: bold; color: black; letter-spacing: 8px; }
+                            .company-en { font-size: 16px; font-weight: bold; margin: 2px 0; } 
                             .company-addr { font-size: 13px; }
                             .company-contact { font-size: 13px; }
 
@@ -398,8 +399,8 @@ if(isset($_GET['id'])){
                                     }
                                     
                                     $message .= '
-                                    <div class="so-detail"><span class="so-label">Date</span><span class="so-colon">:</span><span class="so-value">' . $date . '</span></div>
-                                    <div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value">' . $time . '</span></div>
+                                    <div class="so-detail"><span class="so-label">Date</span><span class="so-colon">:</span><span class="so-value">' . $datetime . '</span></div>
+                                    <!--div class="so-detail"><span class="so-label">Weight Time</span><span class="so-colon">:</span><span class="so-value">' . $time . '</span></div-->
                                     <div class="so-detail"><span class="so-label">Weight Slip No</span><span class="so-colon">:</span><span class="so-value">' . $slipNo . '</span></div>
                                     <div class="so-detail"><span class="so-label">Vehicle No</span><span class="so-colon">:</span><span class="so-value">' . $vehicleNo . '</span></div>
                                     <!--div class="so-detail"><span class="so-label">Price Status</span><span class="so-colon">:</span><span class="so-value">' . $priceStatus . '</span></div-->
