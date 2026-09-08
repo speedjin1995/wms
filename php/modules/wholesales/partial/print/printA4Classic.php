@@ -93,7 +93,7 @@ for($row = 0; $row < $rowsNeeded; $row++) {
                     $price = floatval($item['price'] ?? 0);
                     $unitPrice = floatval($item['price'] ?? 0);
                     $pricingType = $item['fixedfloat'];
-                    $totalPrice += (strtolower($pricingType) == 'fixed') ? $price : $net * ($price ?? 0);
+                    $totalPrice += floatval($item['total'] ?? 0);
                     $totalCagesWeight += $tare;
                 } else {
                     $gross = $tare = $net = $price = $pcsPerBasket ='';
