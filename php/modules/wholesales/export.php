@@ -196,10 +196,10 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
         $lineData[] = floatval($rowData['totalBinWeight']);
 
         $numericColIndices[] = count($lineData) + 1;
-        $lineData[] = floatval($rowData['total_reject']);
+        $lineData[] = floatval($rowData['actualWeight']);
 
         $numericColIndices[] = count($lineData) + 1;
-        $lineData[] = floatval($rowData['actualWeight']);
+        $lineData[] = floatval($rowData['total_reject']);
         
         if ($allowPcsBasket == 'Y') {
             $numericColIndices[] = count($lineData) + 1;
@@ -440,7 +440,6 @@ if ($query->num_rows > 0) {
         $totalWeight      = 0;
         $totalBinWeight   = 0;
         $totalPcsBasket   = 0;
-        $totalRejectWeight = 0;
         $totalPrice       = 0;
         $actualPrice      = 0;
         $currency         = '';
@@ -464,7 +463,6 @@ if ($query->num_rows > 0) {
                     $totalWeight       += floatval($detail['gross']  ?? 0);
                     $totalBinWeight    += floatval($detail['tare']   ?? 0);
                     $totalPcsBasket    += floatval($detail['no_per_basket'] ?? 0);
-                    $totalRejectWeight += floatval($detail['reject'] ?? 0);
 
                     if (empty($currency) && !empty($detail['currency'])) {
                         $currency = searchCurrencyNameById($detail['currency'], $db);
@@ -510,7 +508,15 @@ if ($query->num_rows > 0) {
             }
         }
 
-        $actualWeight = $totalWeight - $totalBinWeight - $totalRejectWeight;
+        $actualWeight = $totalWeight - $totalBinWeight;
+
+        // Rejected
+        $rejectedDetails  = json_decode($row['reject_details'], true);
+        $rejectedProductWeight = 0;
+        foreach ($rejectedDetails as &$reject) {
+            $rejectNetWeight = floatval($reject['net'] ?? 0);
+            $rejectedProductWeight += $rejectNetWeight;
+        }
 
         $allRows[] = [
             'count'          => $count,
@@ -533,7 +539,7 @@ if ($query->num_rows > 0) {
             'totalWeight'    => $totalWeight,
             'totalPcsBasket' => $totalPcsBasket,
             'totalBinWeight' => $totalBinWeight,
-            'total_reject'   => $totalRejectWeight,
+            'total_reject'   => $rejectedProductWeight,
             'actualWeight'   => $actualWeight,
             'totalPrice'     => $totalPrice,
             'actualPrice'    => $actualPrice,
@@ -565,7 +571,7 @@ if ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $tr
     $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
 }
 
-$trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Reject Weight', 'Actual Weight'];
+$trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Actual Weight', 'Reject Weight'];
 if ($allowPcsBasket == 'Y') {
     $trailingHeaders[] = 'Total Pcs/Basket';
 }

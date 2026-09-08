@@ -58,7 +58,6 @@ if ($query->num_rows > 0) {
         $totalWeight = 0;
         $totalPcsBasket   = 0;
         $totalBinWeight = 0;
-        $totalRejectWeight = 0;
         $totalPrice = 0;
         $actualPrice = 0;
         $currency = '';
@@ -78,7 +77,6 @@ if ($query->num_rows > 0) {
                     $totalWeight += floatval($detail['gross'] ?? 0);
                     $totalPcsBasket += floatval($detail['no_per_basket'] ?? 0);
                     $totalBinWeight += floatval($detail['tare'] ?? 0);
-                    $totalRejectWeight += floatval($detail['reject'] ?? 0);
                     if (empty($currency) && !empty($detail['currency'])) {
                         $currency = searchCurrencyNameById($detail['currency'], $db);
                     }
@@ -109,7 +107,15 @@ if ($query->num_rows > 0) {
             }
         }
 
-        $actualWeight = $totalWeight - $totalBinWeight - $totalRejectWeight;
+        $actualWeight = $totalWeight - $totalBinWeight;
+
+        // Rejected
+        $rejectedDetails  = json_decode($row['reject_details'], true);
+        $rejectedProductWeight = 0;
+        foreach ($rejectedDetails as &$reject) {
+            $rejectNetWeight = floatval($reject['net'] ?? 0);
+            $rejectedProductWeight += $rejectNetWeight;
+        }
 
         $allRows[] = [
             'count'            => $count,
@@ -133,7 +139,7 @@ if ($query->num_rows > 0) {
             'totalWeight'      => $totalWeight,
             'totalBinWeight'   => $totalBinWeight,
             'totalPcsBasket'   => $totalPcsBasket,
-            'total_reject'     => $totalRejectWeight,
+            'total_reject'     => $rejectedProductWeight,
             'actualWeight'     => $actualWeight,
             'totalPrice'       => $totalPrice,
             'actualPrice'      => $actualPrice,
@@ -186,8 +192,8 @@ if (!empty($allRows)) {
             $content .= '<td>' . $rowData['totalPcsBasket'] . '</td>';
         }
         $content .= '<td>' . number_format($rowData['totalBinWeight'], 2) . '</td>';
-        $content .= '<td>' . number_format($rowData['total_reject'], 2) . '</td>';
         $content .= '<td>' . number_format($rowData['actualWeight'], 2) . '</td>';
+        $content .= '<td>' . number_format($rowData['total_reject'], 2) . '</td>';
         if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
             $content .= '<td>' . (!empty($rowData['currency']) ? $rowData['currency'] : $defaultCurrency) . '</td>';
             $content .= '<td>' . number_format($rowData['totalPrice'], 2) . '</td>';
@@ -317,8 +323,8 @@ $html = '
 
                         $html .= '
                         <th>Total Bin Weight</th>
-                        <th>Reject Weight</th>
-                        <th>Actual Weight</th>';
+                        <th>Actual Weight</th>
+                        <th>Reject Weight</th>';
                         if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
                             $html .= '<th>Currency</th><th>Total Price (RM)</th><th>Actual Price (RM)</th>';
                         }
