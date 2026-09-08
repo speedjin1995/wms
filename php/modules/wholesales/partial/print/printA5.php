@@ -33,7 +33,7 @@ if (!empty($weighingDetails)) {
         $net        = floatval($detail['net'] ?? 0);
         $price      = floatval($detail['price'] ?? 0);
         $fixedfloat = $detail['fixedfloat'] ?? 'Float';
-        $total      = (strtolower($fixedfloat) == 'fixed') ? $price : $price * $net;
+        $total      = floatval($detail['total'] ?? 0);
         $curName    = searchCurrencyNameById($detail['currency'] ?? '', $db, $currencyNameCache);
         if (empty($curName)) $curName = $defaultCurrency;
 
