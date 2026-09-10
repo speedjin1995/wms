@@ -806,6 +806,8 @@ else{
             <select class="form-control" id="a4Template" name="a4Template">
               <option value="A4"><?=$languageArray['default_code'][$language]?></option>
               <option value="A4Classic"><?=$languageArray['classic_code'][$language]?></option>
+              <option value="A4Price"><?=$languageArray['price_code'][$language]?></option>
+              <option value="A4PriceDetail"><?=$languageArray['price_detail_code'][$language]?></option>
             </select>
           </div>
           <div class="form-group-modern">
