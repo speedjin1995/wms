@@ -62,8 +62,13 @@ if(isset($_POST['userID'], $_POST['withPhoto'], $_POST['paperSize'])){
                     require __DIR__ . '/partial/print/printA5.php';
                 } elseif ($paperSize == 'A4' && $a4Template == 'A4Classic') {
                     require __DIR__ . '/partial/print/printA4Classic.php';
-                } else {
+                } elseif ($paperSize == 'A4' && $a4Template == 'A4') {
                     require __DIR__ . '/partial/print/printA4.php';
+                } elseif ($paperSize == 'A4' && $a4Template == 'A4Price') {
+                    require __DIR__ . '/partial/print/printA4Price.php';
+                } elseif ($paperSize == 'A4' && $a4Template == 'A4PriceDetail') {
+                    $withDetails = 'Y';
+                    require __DIR__ . '/partial/print/printA4Price.php';
                 }
 
                 echo json_encode(['status' => 'success', 'message' => $message]);
