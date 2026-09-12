@@ -1266,23 +1266,12 @@ function setRowValues(idx, detail, type, selectedCategory) {
 }
 
 function deactivate(id) {
-  Swal.fire({
-    title: '<?=$languageArray['confirm_delete_code'][$language] ?? 'Confirm Delete'?>',
-    text: '<?=$languageArray['delete_confirm_message_code'][$language] ?? 'Are you sure you want to delete this item?'?>',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#dc3545',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: '<?=$languageArray['yes_delete_code'][$language] ?? 'Yes, delete it'?>',
-    cancelButtonText: '<?=$languageArray['cancel_code'][$language]?>'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      $('#cancelModal').find('#cancelId').val(id);
-      $('#cancelModal').find('#cancelReason').val('');
-      $('#cancelModal').modal('show');
-      initFormValidation('#cancelForm');
-    }
-  });
+  if (confirm('<?=$languageArray['delete_confirm_message_code'][$language] ?? 'Are you sure you want to delete this item?'?>')) {
+    $('#cancelModal').find('#cancelId').val(id);
+    $('#cancelModal').find('#cancelReason').val('');
+    $('#cancelModal').modal('show');
+    initFormValidation('#cancelForm');
+  }
 }
 
 function print(id) {
