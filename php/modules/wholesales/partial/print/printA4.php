@@ -235,7 +235,7 @@ $message = '
     <div class="running-header">
         <div class="header-top">
             <div class="header-logo">
-                ' . ($companyLogoSrc ? '<img src="' . $companyLogoSrc . '" alt="Logo" style="width:100%;height:100%;object-fit:cover;">' : '<span style="font-size:10px;color:#aaa;">LOGO</span>') . '
+                ' . ($companyLogoSrc ? '<img src="' . $companyLogoSrc . '" alt="Logo" style="width:100%;height:100%;object-fit:cover;">' : '') . '
             </div>
             <div class="header-company">
                 <div>
