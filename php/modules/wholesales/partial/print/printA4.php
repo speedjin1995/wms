@@ -234,9 +234,7 @@ $message = '
 <body>
     <div class="running-header">
         <div class="header-top">
-            <div class="header-logo">
-                ' . ($companyLogoSrc ? '<img src="' . $companyLogoSrc . '" alt="Logo" style="width:100%;height:100%;object-fit:cover;">' : '<span style="font-size:10px;color:#aaa;">LOGO</span>') . '
-            </div>
+            ' . ($companyLogoSrc ? '<div class="header-logo"><img src="' . $companyLogoSrc . '" alt="Logo" style="width:100%;height:100%;object-fit:cover;"></div>' : '') . '
             <div class="header-company">
                 <div>
                     <div style="font-weight:bold;font-size:13px;">' . htmlspecialchars($wholesale['name']) . '</div>
