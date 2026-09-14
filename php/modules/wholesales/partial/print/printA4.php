@@ -203,7 +203,7 @@ $message = '
         .header-top { display: flex; width: 100%; margin-bottom: 4px; align-items: center; border-bottom: 1px solid black; }
         .header-logo { width: 150px; min-height: 80px; display: flex; align-items: center; justify-content: flex-start; padding: 0 8px 0 0; flex-shrink: 0; }
         .header-company { flex: 0 0 320px; display: flex; align-items: center; padding: 0 10px 0 0; font-size: 12px; text-align: left; }
-        .header-status { padding: 6px 10px; flex: 1; }
+        .header-status { margin-left: auto; padding: 6px 10px; flex-shrink: 0; }
         .status-title { font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 4px; }
         .hrow { display: flex; font-size: 11px; margin-bottom: 2px; }
         .hlabel { width: 90px; flex-shrink: 0; }
