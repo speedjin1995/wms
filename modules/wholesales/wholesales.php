@@ -327,15 +327,15 @@ else{
           <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['wholesales_code'][$language]?></h3>
         </div>
         <div class="results-header-right d-flex" style="gap: 0.5rem;">
-          <button type="button" class="btn btn-action btn-action-secondary" onclick="printSelected()">
-            <i class="fas fa-print"></i> <?=$languageArray['print_selected_code'][$language] ?? 'Print Selected'?>
-          </button>
           <div class="dropdown">
             <button class="btn btn-action btn-action-secondary dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown">
               <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
             </button>
             <div class="dropdown-menu dropdown-menu-right p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;"></div>
           </div>
+          <button type="button" class="btn btn-action btn-action-success" onclick="printSelected()">
+            <i class="fas fa-print"></i> <?=$languageArray['print_selected_code'][$language] ?? 'Print Selected'?>
+          </button>
           <?php if($allowInvoice == 'Y' && $userAllowPrice == 'Y'){ ?>
           <button type="button" class="btn btn-action btn-action-warning" onclick="exportInvoices()">
             <i class="fas fa-file-invoice"></i> <?=$languageArray['export_invoice_code'][$language] ?? 'Export Invoice'?>
@@ -1063,41 +1063,6 @@ $(function () {
       'columns': getTableColumns()
       });
   });
-
-  // $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
-  //   if(data == "true"){
-  //     $('#indicatorConnected').addClass('bg-primary');
-  //     $('#checkingConnection').removeClass('bg-danger');
-  //     //$('#captureWeight').removeAttr('disabled');
-  //   }
-  //   else{
-  //     $('#indicatorConnected').removeClass('bg-primary');
-  //     $('#checkingConnection').addClass('bg-danger');
-  //     //$('#captureWeight').attr('disabled', true);
-  //   }
-  // });
-  
-  // setInterval(function () {
-  //   $.post('http://127.0.0.1:5002/handshaking', function(data){
-  //     if(data != "Error"){
-  //       console.log("Data Received:" + data);
-  //       var text = data.split(" ");
-
-  //       if(text.length > 2){
-  //         $('#indicatorWeight').html(text[text.length - 2] + ' ' + text[text.length - 1]);
-  //         var convertTog1 = convertUnits(text[text.length - 2], text[text.length - 1], 'g');
-
-  //         if($('#uom').val() && $('#product').val()){
-  //           var uomDesc = $("#uomhidden option[value='"+$('#uom').val()+"']").text();
-  //           var weight = $('#product :selected').data('unit');
-  //           var convertTog2 = convertUnits(weight, uomDesc, 'g');
-  //           var count = parseFloat(convertTog1) / parseFloat(convertTog2);
-  //           $('#countingWeight').text(count.toFixed(0));
-  //         }
-  //       }
-  //     }
-  //   });
-  // }, 500);
 
   $.validator.setDefaults({
     submitHandler: function () {
@@ -1962,7 +1927,10 @@ $(function () {
   });
 });
 
-// Build ordered column list from columnSetup if available, else use defaultColumns order
+// ============================================================================
+// DATATABLE CONFIGURATION
+// ============================================================================
+
 function buildColumnDefs() {
   var colMap = {};
   defaultColumns.forEach(function(col) { colMap[col[0]] = col; });
@@ -2013,6 +1981,10 @@ function getTableColumns() {
   return cols;
 }
 
+// ============================================================================
+// FORM HELPERS
+// ============================================================================
+
 function applyCustomerCurrency(currencyId) {
   if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
   if (!currencyId) return;
@@ -2021,7 +1993,11 @@ function applyCustomerCurrency(currencyId) {
   });
 }
 
-function format (row) {
+// ============================================================================
+// DATATABLE ROW EXPANSION
+// ============================================================================
+
+function format(row) {
   var returnString = `
   <div class="expanded-row-content">
     <!-- Header -->
@@ -2263,7 +2239,11 @@ function format (row) {
   return returnString;
 }
 
-function newEntry(){
+// ============================================================================
+// CRUD OPERATIONS
+// ============================================================================
+
+function newEntry() {
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
   $('#extendModal').find('#category').val("").trigger('change');
@@ -2323,67 +2303,6 @@ function newEntry(){
       $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
     }
   });
-}
-
-function getSelectedPartyType() {
-  var status = $('#extendModal').find('#status').val();
-  if (status === 'RECEIVING' || status === 'INCOMING') {
-    return $('#extendModal').find('#supplier option:selected').data('type') || '';
-  } else {
-    return $('#extendModal').find('#customer option:selected').data('type') || '';
-  }
-}
-
-function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
-  var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
-  
-  // If party type is Packing, default price to 0
-  var partyType = getSelectedPartyType();
-  if (partyType === 'Packing' && forceReplace) {
-    element.closest('tr').find('input[id^="price"]').val('0.00');
-    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
-    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
-    return;
-  }
-  
-  if (productId && currencyId){
-    $('#spinnerLoading').show();
-
-    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId, type: "getPrice"}, function(data){
-      var obj = JSON.parse(data);
-
-      if(obj.status === 'success'){
-        var pricingType = obj.message.pricingType;
-        var existingPrice = element.closest('tr').find('input[id^="price"]').val();
-        var price;
-        if (overridePrice !== undefined) {
-          price = parseFloat(overridePrice) || 0;
-        } else if (forceReplace) {
-          price = parseFloat(obj.message.price) || 0;
-        } else {
-          price = (existingPrice !== '' && parseFloat(existingPrice) > 0) ? parseFloat(existingPrice) : (parseFloat(obj.message.price) || 0);
-        }
-        var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
-        var total = (pricingType == 'Float') ? price * net : price;
-
-        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
-        element.closest('tr').find('input[id^="price"]').val(price);
-        element.closest('tr').find('input[id^="before_discount"]').val(total.toFixed(2));
-        var discountType = element.closest('tr').find('select[id^="discount_type"]').val();
-        var discount = parseFloat(element.closest('tr').find('input[id^="discount"]').val()) || 0;
-        var finalTotal = discountType === 'percent' ? total - (total * discount / 100) : total - discount;
-        if (finalTotal < 0) finalTotal = 0;
-        element.closest('tr').find('input[name*="[total]"]').val(finalTotal.toFixed(2)).trigger('change');
-      }
-      else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
-      }
-      else{
-        toastr["error"]("Something wrong when delete", "Failed:");
-      }
-      $('#spinnerLoading').hide();
-    });
-  }
 }
 
 function edit(id) {
@@ -2670,7 +2589,6 @@ function edit(id) {
         $(this).select2({
           allowClear: true,
           placeholder: "Please Select",
-          // Conditionally set dropdownParent based on the element’s location
           dropdownParent: $('#extendModal .modal-content')
         });
       });
@@ -2709,6 +2627,96 @@ function edit(id) {
     $('#spinnerLoading').hide();
   });
 }
+
+function deactivate(id) {
+  if (confirm('Are you sure you want to delete this item?')) {
+    $('#cancelModal').find('#id').val(id);
+    $('#cancelModal').modal('show');
+
+    $('#cancelForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+          $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+          $(element).removeClass('is-invalid');
+      }
+    });
+  }
+}
+
+// ============================================================================
+// PRICING FUNCTIONS
+// ============================================================================
+
+function getSelectedPartyType() {
+  var status = $('#extendModal').find('#status').val();
+  if (status === 'RECEIVING' || status === 'INCOMING') {
+    return $('#extendModal').find('#supplier option:selected').data('type') || '';
+  } else {
+    return $('#extendModal').find('#customer option:selected').data('type') || '';
+  }
+}
+
+function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
+  var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
+  
+  // If party type is Packing, default price to 0
+  var partyType = getSelectedPartyType();
+  if (partyType === 'Packing' && forceReplace) {
+    element.closest('tr').find('input[id^="price"]').val('0.00');
+    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
+    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
+    return;
+  }
+  
+  if (productId && currencyId){
+    $('#spinnerLoading').show();
+
+    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId, type: "getPrice"}, function(data){
+      var obj = JSON.parse(data);
+
+      if(obj.status === 'success'){
+        var pricingType = obj.message.pricingType;
+        var existingPrice = element.closest('tr').find('input[id^="price"]').val();
+        var price;
+        if (overridePrice !== undefined) {
+          price = parseFloat(overridePrice) || 0;
+        } else if (forceReplace) {
+          price = parseFloat(obj.message.price) || 0;
+        } else {
+          price = (existingPrice !== '' && parseFloat(existingPrice) > 0) ? parseFloat(existingPrice) : (parseFloat(obj.message.price) || 0);
+        }
+        var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
+        var total = (pricingType == 'Float') ? price * net : price;
+
+        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
+        element.closest('tr').find('input[id^="price"]').val(price);
+        element.closest('tr').find('input[id^="before_discount"]').val(total.toFixed(2));
+        var discountType = element.closest('tr').find('select[id^="discount_type"]').val();
+        var discount = parseFloat(element.closest('tr').find('input[id^="discount"]').val()) || 0;
+        var finalTotal = discountType === 'percent' ? total - (total * discount / 100) : total - discount;
+        if (finalTotal < 0) finalTotal = 0;
+        element.closest('tr').find('input[name*="[total]"]').val(finalTotal.toFixed(2)).trigger('change');
+      }
+      else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+      }
+      else{
+        toastr["error"]("Something wrong when delete", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    });
+  }
+}
+
+// ============================================================================
+// WEIGHT DETAILS TABLE MANAGEMENT
+// ============================================================================
 
 function rejectRow(button) {
   var row = $(button).closest('tr');
@@ -2895,26 +2903,9 @@ function updateTotals() {
   $('#totalRejectDiscount').text(totalRejectDiscount.toFixed(2));
 }
 
-function deactivate(id) {
-  if (confirm('Are you sure you want to delete this item?')) {
-    $('#cancelModal').find('#id').val(id);
-    $('#cancelModal').modal('show');
-
-    $('#cancelForm').validate({
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-      }
-    });
-  }
-}
+// ============================================================================
+// PRINT FUNCTIONS
+// ============================================================================
 
 function print(id) {
   // Store single ID for print
@@ -2937,18 +2928,11 @@ function print(id) {
   });
 }
 
-// Multi-print: Get selected record IDs from DataTable checkboxes
-function getSelectedRecordIds() {
-  var ids = [];
-  $('#weightTable tbody .rowCheckbox:checked').each(function() {
-    ids.push($(this).val());
-  });
-  return ids;
-}
-
-// Multi-print: Open print options modal for selected records
 function printSelected() {
-  var selectedIds = getSelectedRecordIds();
+  var selectedIds = [];
+  $('#weightTable tbody .rowCheckbox:checked').each(function() {
+    selectedIds.push($(this).val());
+  });
   if (selectedIds.length === 0) {
     toastr["warning"]("<?=$languageArray['please_select_record_code'][$language] ?? 'Please select at least one record to print.'?>", "Warning:");
     return;
@@ -3039,7 +3023,6 @@ function openPrintPreview(printHtml, paperSize) {
   }
 }
 
-// Multi-print: Process multiple records sequentially
 function openMultiPrintPreview(ids, formData, paperSize) {
   var processedPages = [];
   var currentIndex = 0;
@@ -3076,18 +3059,6 @@ function openMultiPrintPreview(ids, formData, paperSize) {
 function combineAndPrint(pages, paperSize) {
   if (pages.length === 0) {
     toastr["error"]("<?=$languageArray['no_records_to_print_code'][$language] ?? 'No records to print'?>", "Error:");
-    return;
-  }
-  
-  if (pages.length === 1) {
-    var formData = $('#printForm').serialize();
-    var multiPrintIds = $('#printForm').data('multiPrintIds');
-    $.post('php/modules/wholesales/print.php', formData + '&userID=' + multiPrintIds[0], function(data) {
-      var obj = JSON.parse(data);
-      if (obj.status === 'success') {
-        openPrintPreview(obj.message, paperSize);
-      }
-    });
     return;
   }
   
@@ -3184,6 +3155,54 @@ function combineAndPrint(pages, paperSize) {
   }, 500);
 }
 
+// ============================================================================
+// INVOICE EXPORT
+// ============================================================================
+
+function exportInvoices() {
+  var ids = [];
+  $('#weightTable tbody .rowCheckbox:checked').each(function() {
+    ids.push($(this).val());
+  });
+  if (ids.length === 0) {
+    toastr["warning"]("Please select at least one invoice.", "Warning:");
+    return;
+  }
+  if (ids.length === 1) {
+    printInvoice(ids[0]);
+    return;
+  }
+  $('#spinnerLoading').show();
+  var requests = ids.map(function(id) {
+    return $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id);
+  });
+  $.when.apply($, requests).then(function() {
+    var responses = ids.length === 1 ? [arguments] : Array.from(arguments);
+    var combined = '';
+    responses.forEach(function(args) {
+      var obj = JSON.parse(args[0]);
+      if (obj.status === 'success') {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(obj.message, 'text/html');
+        var body = doc.body.innerHTML;
+        combined += '<div style="page-break-after: always;">' + body + '</div>';
+      }
+    });
+    if (combined) {
+      var firstObj = JSON.parse(responses[0][0]);
+      var firstDoc = new DOMParser().parseFromString(firstObj.message, 'text/html');
+      var head = firstDoc.head.innerHTML;
+      var printWindow = window.open('', '_blank');
+      printWindow.document.write('<html><head>' + head + '</head><body>' + combined + '</body></html>');
+      printWindow.document.close();
+    }
+    $('#spinnerLoading').hide();
+  }).fail(function() {
+    toastr["error"]("Failed to load invoices.", "Error:");
+    $('#spinnerLoading').hide();
+  });
+}
+
 function printInvoice(id) {
   $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id, function(data){
     var obj = JSON.parse(data);
@@ -3200,6 +3219,10 @@ function printInvoice(id) {
     }
   });
 }
+
+// ============================================================================
+// EXPANDED ROW FILTERS
+// ============================================================================
 
 function filterWeightTable(rowId) {
   var productFilter = $('#productFilter_' + rowId).val();
@@ -3276,49 +3299,9 @@ function populateFilters(rowId, weightDetails) {
   });
 }
 
-function exportInvoices() {
-  var ids = [];
-  $('#weightTable tbody .rowCheckbox:checked').each(function() {
-    ids.push($(this).val());
-  });
-  if (ids.length === 0) {
-    toastr["warning"]("Please select at least one invoice.", "Warning:");
-    return;
-  }
-  if (ids.length === 1) {
-    printInvoice(ids[0]);
-    return;
-  }
-  $('#spinnerLoading').show();
-  var requests = ids.map(function(id) {
-    return $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id);
-  });
-  $.when.apply($, requests).then(function() {
-    var responses = ids.length === 1 ? [arguments] : Array.from(arguments);
-    var combined = '';
-    responses.forEach(function(args) {
-      var obj = JSON.parse(args[0]);
-      if (obj.status === 'success') {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(obj.message, 'text/html');
-        var body = doc.body.innerHTML;
-        combined += '<div style="page-break-after: always;">' + body + '</div>';
-      }
-    });
-    if (combined) {
-      var firstObj = JSON.parse(responses[0][0]);
-      var firstDoc = new DOMParser().parseFromString(firstObj.message, 'text/html');
-      var head = firstDoc.head.innerHTML;
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write('<html><head>' + head + '</head><body>' + combined + '</body></html>');
-      printWindow.document.close();
-    }
-    $('#spinnerLoading').hide();
-  }).fail(function() {
-    toastr["error"]("Failed to load invoices.", "Error:");
-    $('#spinnerLoading').hide();
-  });
-}
+// ============================================================================
+// COLUMN TOGGLE MENU
+// ============================================================================
 
 function buildColumnToggleMenu() {
   var menu = $('#columnToggleMenu');
