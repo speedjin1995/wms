@@ -4,6 +4,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 $company = $_SESSION['customer'];
 $role    = $_SESSION['role'];
@@ -55,6 +56,7 @@ $result = mysqli_query($db, $query);
 $data = [];
 $productCache = [];
 $currencyCache = [];
+$allCurrencies = [];
 
 while ($row = mysqli_fetch_assoc($result)) {
     $customerName = $row['customer_name'] ?: 'Unknown';
@@ -89,6 +91,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                 $currencyCache[$curId] = $currency;
             }
         }
+        if (!in_array($currency, $allCurrencies)) $allCurrencies[] = $currency;
         
         if (!isset($data[$customerName]['products'][$productName])) {
             $data[$customerName]['products'][$productName] = ['grades' => [], 'totals' => ['net' => 0, 'gross' => 0, 'tare' => 0, 'price' => []]];
@@ -113,33 +116,32 @@ while ($row = mysqli_fetch_assoc($result)) {
         $data[$customerName]['products'][$productName]['grades'][$gradeName]['records'][] = $record;
         
         // Grade totals
-        $data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['net'] += $net;
+        $data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['net']   += $net;
         $data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['gross'] += $gross;
-        $data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['tare'] += $tare;
-        if (!isset($data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['price'][$currency])) {
+        $data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['tare']  += $tare;
+        if (!isset($data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['price'][$currency]))
             $data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['price'][$currency] = 0;
-        }
         $data[$customerName]['products'][$productName]['grades'][$gradeName]['totals']['price'][$currency] += $total;
         
         // Product totals
-        $data[$customerName]['products'][$productName]['totals']['net'] += $net;
+        $data[$customerName]['products'][$productName]['totals']['net']   += $net;
         $data[$customerName]['products'][$productName]['totals']['gross'] += $gross;
-        $data[$customerName]['products'][$productName]['totals']['tare'] += $tare;
-        if (!isset($data[$customerName]['products'][$productName]['totals']['price'][$currency])) {
+        $data[$customerName]['products'][$productName]['totals']['tare']  += $tare;
+        if (!isset($data[$customerName]['products'][$productName]['totals']['price'][$currency]))
             $data[$customerName]['products'][$productName]['totals']['price'][$currency] = 0;
-        }
         $data[$customerName]['products'][$productName]['totals']['price'][$currency] += $total;
         
         // Customer totals
-        $data[$customerName]['totals']['net'] += $net;
+        $data[$customerName]['totals']['net']   += $net;
         $data[$customerName]['totals']['gross'] += $gross;
-        $data[$customerName]['totals']['tare'] += $tare;
-        if (!isset($data[$customerName]['totals']['price'][$currency])) {
+        $data[$customerName]['totals']['tare']  += $tare;
+        if (!isset($data[$customerName]['totals']['price'][$currency]))
             $data[$customerName]['totals']['price'][$currency] = 0;
-        }
         $data[$customerName]['totals']['price'][$currency] += $total;
     }
 }
+
+sort($allCurrencies);
 
 // Create spreadsheet
 $spreadsheet = new Spreadsheet();
@@ -148,29 +150,43 @@ $sheet->setTitle('Customer Breakdown');
 
 // Styles
 $headerStyle = [
-    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '28a745']],
-    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+    'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+    'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '28a745']],
+    'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
 ];
 $customerStyle = [
-    'font' => ['bold' => true, 'size' => 12],
-    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D4EDDA']],
+    'font'    => ['bold' => true, 'size' => 12],
+    'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D4EDDA']],
     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]
 ];
 $productStyle = [
-    'font' => ['bold' => true],
-    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E2E3E5']],
+    'font'    => ['bold' => true],
+    'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E2E3E5']],
     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]
 ];
 $gradeStyle = [
-    'font' => ['bold' => true, 'italic' => true],
-    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFF3CD']],
+    'font'    => ['bold' => true, 'italic' => true],
+    'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFF3CD']],
     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]
 ];
 $dataStyle = [
     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]
 ];
+$grandTotalStyle = [
+    'font'    => ['bold' => true],
+    'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFFF00']],
+    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]
+];
+
+// Column layout:
+// A=Serial No, B=Date, C=Time, D=Gross, E=Tare, F=Net
+// if allowPrice: G=U.Price, H..=currency cols
+// if !allowPrice: G..=currency cols
+$fixedCols  = ($allowPrice == 'Y') ? 7 : 6;
+$numCur     = count($allCurrencies);
+$lastColIdx = $fixedCols + $numCur;
+$lastCol    = Coordinate::stringFromColumnIndex($lastColIdx);
 
 // Title row
 $row = 1;
@@ -179,8 +195,7 @@ $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
 $row++;
 
 // Date range
-$dateRange = 'Date: ' . ($fromDate ?: 'All') . ' to ' . ($toDate ?: 'All');
-$sheet->setCellValue('A' . $row, $dateRange);
+$sheet->setCellValue('A' . $row, 'Date: ' . ($fromDate ?: 'All') . ' to ' . ($toDate ?: 'All'));
 $row++;
 
 // Generated timestamp
@@ -188,31 +203,39 @@ $sheet->setCellValue('A' . $row, 'Generated: ' . date('d/m/Y H:i'));
 $row += 2;
 
 // Headers
-$headers = ['Serial No', 'Date', 'Time', 'Gross (kg)', 'Tare (kg)', 'Net (kg)'];
+$sheet->setCellValue('A' . $row, 'Serial No');
+$sheet->setCellValue('B' . $row, 'Date');
+$sheet->setCellValue('C' . $row, 'Time');
+$sheet->setCellValue('D' . $row, 'Gross (kg)');
+$sheet->setCellValue('E' . $row, 'Tare (kg)');
+$sheet->setCellValue('F' . $row, 'Net (kg)');
 if ($allowPrice == 'Y') {
-    $headers = array_merge($headers, ['Currency', 'Price', 'Total']);
-}
-$lastCol = chr(64 + count($headers));
-
-$col = 'A';
-foreach ($headers as $header) {
-    $sheet->setCellValue($col . $row, $header);
-    $col++;
+    $sheet->setCellValue('G' . $row, 'U.Price');
+    foreach ($allCurrencies as $i => $cur) {
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($fixedCols + $i + 1) . $row, $cur);
+    }
+} else {
+    foreach ($allCurrencies as $i => $cur) {
+        $sheet->setCellValue(Coordinate::stringFromColumnIndex($fixedCols + $i + 1) . $row, $cur);
+    }
 }
 $sheet->getStyle('A' . $row . ':' . $lastCol . $row)->applyFromArray($headerStyle);
 $row++;
 
-// Sort customers by total net weight descending (highest kg first)
+// Sort customers by total net weight descending
 uasort($data, function($a, $b) {
     return $b['totals']['net'] <=> $a['totals']['net'];
 });
 
+$grandTotalByCurrency = [];
+foreach ($allCurrencies as $cur) $grandTotalByCurrency[$cur] = 0;
+
 // Data rows
 foreach ($data as $customerName => $customerData) {
-    // Sort products by total net weight descending
     uasort($customerData['products'], function($a, $b) {
         return $b['totals']['net'] <=> $a['totals']['net'];
     });
+
     // Customer header row
     $sheet->setCellValue('A' . $row, $customerName);
     $sheet->mergeCells('A' . $row . ':C' . $row);
@@ -220,20 +243,19 @@ foreach ($data as $customerName => $customerData) {
     $sheet->setCellValue('E' . $row, $customerData['totals']['tare']);
     $sheet->setCellValue('F' . $row, $customerData['totals']['net']);
     if ($allowPrice == 'Y') {
-        $priceStr = '';
-        foreach ($customerData['totals']['price'] as $cur => $amt) {
-            $priceStr .= ($priceStr ? ', ' : '') . $cur . ' ' . number_format($amt, 2);
+        foreach ($allCurrencies as $i => $cur) {
+            $amt = $customerData['totals']['price'][$cur] ?? 0;
+            if ($amt != 0) $sheet->setCellValue(Coordinate::stringFromColumnIndex($fixedCols + $i + 1) . $row, $amt);
         }
-        $sheet->setCellValue('I' . $row, $priceStr);
     }
     $sheet->getStyle('A' . $row . ':' . $lastCol . $row)->applyFromArray($customerStyle);
     $row++;
     
     foreach ($customerData['products'] as $productName => $productData) {
-        // Sort grades by total net weight descending
         uasort($productData['grades'], function($a, $b) {
             return $b['totals']['net'] <=> $a['totals']['net'];
         });
+
         // Product header row
         $sheet->setCellValue('A' . $row, '  ' . $productName);
         $sheet->mergeCells('A' . $row . ':C' . $row);
@@ -241,11 +263,10 @@ foreach ($data as $customerName => $customerData) {
         $sheet->setCellValue('E' . $row, $productData['totals']['tare']);
         $sheet->setCellValue('F' . $row, $productData['totals']['net']);
         if ($allowPrice == 'Y') {
-            $priceStr = '';
-            foreach ($productData['totals']['price'] as $cur => $amt) {
-                $priceStr .= ($priceStr ? ', ' : '') . $cur . ' ' . number_format($amt, 2);
+            foreach ($allCurrencies as $i => $cur) {
+                $amt = $productData['totals']['price'][$cur] ?? 0;
+                if ($amt != 0) $sheet->setCellValue(Coordinate::stringFromColumnIndex($fixedCols + $i + 1) . $row, $amt);
             }
-            $sheet->setCellValue('I' . $row, $priceStr);
         }
         $sheet->getStyle('A' . $row . ':' . $lastCol . $row)->applyFromArray($productStyle);
         $row++;
@@ -258,11 +279,10 @@ foreach ($data as $customerName => $customerData) {
             $sheet->setCellValue('E' . $row, $gradeData['totals']['tare']);
             $sheet->setCellValue('F' . $row, $gradeData['totals']['net']);
             if ($allowPrice == 'Y') {
-                $priceStr = '';
-                foreach ($gradeData['totals']['price'] as $cur => $amt) {
-                    $priceStr .= ($priceStr ? ', ' : '') . $cur . ' ' . number_format($amt, 2);
+                foreach ($allCurrencies as $i => $cur) {
+                    $amt = $gradeData['totals']['price'][$cur] ?? 0;
+                    if ($amt != 0) $sheet->setCellValue(Coordinate::stringFromColumnIndex($fixedCols + $i + 1) . $row, $amt);
                 }
-                $sheet->setCellValue('I' . $row, $priceStr);
             }
             $sheet->getStyle('A' . $row . ':' . $lastCol . $row)->applyFromArray($gradeStyle);
             $row++;
@@ -276,26 +296,50 @@ foreach ($data as $customerName => $customerData) {
                 $sheet->setCellValue('E' . $row, $record['tare']);
                 $sheet->setCellValue('F' . $row, $record['net']);
                 if ($allowPrice == 'Y') {
-                    $sheet->setCellValue('G' . $row, $record['currency']);
-                    $sheet->setCellValue('H' . $row, $record['price']);
-                    $sheet->setCellValue('I' . $row, $record['total']);
+                    $sheet->setCellValue('G' . $row, $record['price']);
+                    foreach ($allCurrencies as $i => $cur) {
+                        if ($record['currency'] === $cur) {
+                            $sheet->setCellValue(Coordinate::stringFromColumnIndex($fixedCols + $i + 1) . $row, $record['total']);
+                        }
+                    }
                 }
                 $sheet->getStyle('A' . $row . ':' . $lastCol . $row)->applyFromArray($dataStyle);
                 $row++;
             }
         }
     }
+
+    // Accumulate grand totals
+    foreach ($allCurrencies as $cur) {
+        $grandTotalByCurrency[$cur] += $customerData['totals']['price'][$cur] ?? 0;
+    }
 }
+
+// Grand Total row
+$sheet->setCellValue('A' . $row, 'Grand Total');
+$sheet->mergeCells('A' . $row . ':C' . $row);
+if ($allowPrice == 'Y') {
+    foreach ($allCurrencies as $i => $cur) {
+        if ($grandTotalByCurrency[$cur] != 0)
+            $sheet->setCellValue(Coordinate::stringFromColumnIndex($fixedCols + $i + 1) . $row, $grandTotalByCurrency[$cur]);
+    }
+}
+$sheet->getStyle('A' . $row . ':' . $lastCol . $row)->applyFromArray($grandTotalStyle);
+$row++;
 
 // Auto-size columns
-foreach (range('A', $lastCol) as $col) {
-    $sheet->getColumnDimension($col)->setAutoSize(true);
+foreach (range(1, $lastColIdx) as $colIdx) {
+    $sheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
 }
 
-// Number format for weight and price columns
+// Number format
 $sheet->getStyle('D6:F' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
 if ($allowPrice == 'Y') {
-    $sheet->getStyle('H6:I' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+    $sheet->getStyle('G6:G' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+    foreach ($allCurrencies as $i => $cur) {
+        $colLetter = Coordinate::stringFromColumnIndex($fixedCols + $i + 1);
+        $sheet->getStyle($colLetter . '6:' . $colLetter . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+    }
 }
 
 // Output

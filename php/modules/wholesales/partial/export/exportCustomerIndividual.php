@@ -4,6 +4,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 $company = $_SESSION['customer'];
 $role    = $_SESSION['role'];
@@ -41,6 +42,7 @@ $query = "SELECT w.*, c.customer_name
           ORDER BY c.customer_name, w.start_time";
 $result = mysqli_query($db, $query);
 
+// data[customerName][dateKey] = ['display'=>..., 'dopos'=>[ doPoNo => [ [product,grade,net,price,total,currency], ... ] ] ]
 $data          = [];
 $productCache  = [];
 $currencyCache = [];
@@ -49,12 +51,13 @@ while ($row = mysqli_fetch_assoc($result)) {
     $customerName = $row['customer_name'] ?: 'Unknown';
     $details      = json_decode($row['weight_details'], true) ?: [];
     $startTime    = new DateTime($row['start_time']);
-    $dateKey      = $startTime->format('Y-m-d');  // sort key
-    $dateDisplay  = $startTime->format('d-M-y');  // display label
-    $serialNo     = $row['serial_no'] ?? '';
+    $dateKey      = $startTime->format('Y-m-d');
+    $dateDisplay  = $startTime->format('d-M-y');
+    $doPoNo       = $row['po_no'] ?? '';
 
-    if (!isset($data[$customerName]))           $data[$customerName] = [];
-    if (!isset($data[$customerName][$dateKey])) $data[$customerName][$dateKey] = ['display' => $dateDisplay, 'products' => []];
+    if (!isset($data[$customerName]))                          $data[$customerName] = [];
+    if (!isset($data[$customerName][$dateKey]))                $data[$customerName][$dateKey] = ['display' => $dateDisplay, 'dopos' => []];
+    if (!isset($data[$customerName][$dateKey]['dopos'][$doPoNo])) $data[$customerName][$dateKey]['dopos'][$doPoNo] = [];
 
     foreach ($details as $item) {
         $productId = $item['product'] ?? '';
@@ -75,21 +78,15 @@ while ($row = mysqli_fetch_assoc($result)) {
         } else {
             $currency = 'MYR';
         }
-        $cpKey = $currency . '|' . number_format($price, 2);
 
-        $p = &$data[$customerName][$dateKey]['products'];
-        if (!isset($p[$productName]))                     $p[$productName] = [];
-        if (!isset($p[$productName][$gradeName]))         $p[$productName][$gradeName] = [];
-        if (!isset($p[$productName][$gradeName][$cpKey])) {
-                $p[$productName][$gradeName][$cpKey] = ['net' => 0, 'price' => $price, 'total' => 0, 'currency' => $currency, 'do_po_no' => []];
-        }
-        $p[$productName][$gradeName][$cpKey]['net']   += $net;
-        $p[$productName][$gradeName][$cpKey]['total'] += $total;
-        $poNo = $row['po_no'] ?? '';
-        if ($poNo != '' && !in_array($poNo, $p[$productName][$gradeName][$cpKey]['do_po_no'])) {
-            $p[$productName][$gradeName][$cpKey]['do_po_no'][] = $poNo;
-        }
-        unset($p);
+        $data[$customerName][$dateKey]['dopos'][$doPoNo][] = [
+            'product'  => $productName,
+            'grade'    => $gradeName,
+            'net'      => $net,
+            'price'    => $price,
+            'total'    => $total,
+            'currency' => $currency,
+        ];
     }
 }
 
@@ -105,6 +102,11 @@ $headerStyle = [
 $dataStyle = [
     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
 ];
+$subTotalStyle = [
+    'font'    => ['bold' => true, 'color' => ['rgb' => 'FF0000']],
+    'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FAEBD7']],
+    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+];
 $grandTotalStyle = [
     'font'    => ['bold' => true],
     'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFFF00']],
@@ -112,12 +114,33 @@ $grandTotalStyle = [
 ];
 
 foreach ($data as $customerName => $dateGroups) {
+    // --- collect all unique currencies for this sheet (sorted) ---
+    $sheetCurrencies = [];
+    ksort($dateGroups);
+    foreach ($dateGroups as $dateData) {
+        foreach ($dateData['dopos'] as $rows) {
+            foreach ($rows as $entry) {
+                $cur = $entry['currency'];
+                if ($cur != '' && !in_array($cur, $sheetCurrencies)) $sheetCurrencies[] = $cur;
+            }
+        }
+    }
+    sort($sheetCurrencies);
+
     $sheetTitle = mb_substr(preg_replace('/[\/\\\?\*\[\]:]/', '', $customerName), 0, 31);
     $sheet      = $spreadsheet->createSheet();
     $sheet->setTitle($sheetTitle);
 
-    $lastCol = ($allowPrice == 'Y') ? 'I' : 'G';
+    // Fixed cols: A=Date, B=DO/PO No., C=Customer, D=Product, E=Grade, F=Kg
+    // If allowPrice: G=U.Price, H..=currency cols, last=S.Total
+    // If !allowPrice: G..=currency cols, last=S.Total
+    $fixedCols   = ($allowPrice == 'Y') ? 7 : 6;  // cols before currency cols
+    $numCur      = count($sheetCurrencies);
+    $sTotalColIdx = $fixedCols + $numCur + 1;       // 1-based index of S.Total col
+    $lastColIdx   = $sTotalColIdx;
+    $lastCol      = Coordinate::stringFromColumnIndex($lastColIdx);
 
+    // --- Header row ---
     $r = 1;
     $sheet->setCellValue('A'.$r, 'Date');
     $sheet->setCellValue('B'.$r, 'DO/PO No.');
@@ -125,90 +148,90 @@ foreach ($data as $customerName => $dateGroups) {
     $sheet->setCellValue('D'.$r, 'Product');
     $sheet->setCellValue('E'.$r, 'Grade');
     $sheet->setCellValue('F'.$r, 'Kg');
-    $sheet->setCellValue('G'.$r, 'Currency');
     if ($allowPrice == 'Y') {
-        $sheet->setCellValue('H'.$r, 'U.Price');
-        $sheet->setCellValue('I'.$r, 'Total');
+        $sheet->setCellValue('G'.$r, 'U.Price');
+        foreach ($sheetCurrencies as $i => $cur) {
+            $colLetter = Coordinate::stringFromColumnIndex($fixedCols + $i + 1);
+            $sheet->setCellValue($colLetter.$r, $cur);
+        }
+    } else {
+        foreach ($sheetCurrencies as $i => $cur) {
+            $colLetter = Coordinate::stringFromColumnIndex($fixedCols + $i + 1);
+            $sheet->setCellValue($colLetter.$r, $cur);
+        }
     }
+    $sheet->setCellValue(Coordinate::stringFromColumnIndex($sTotalColIdx).$r, 'S.Total');
     $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($headerStyle);
     $r++;
 
-    $grandTotalKgByCurrency = [];
-    $grandTotalByCurrency    = [];
+    $grandTotalByCurrency = [];
+    foreach ($sheetCurrencies as $cur) $grandTotalByCurrency[$cur] = 0;
 
-    ksort($dateGroups);
     foreach ($dateGroups as $dateKey => $dateData) {
-        $products = $dateData['products'];
-        $dayRows  = [];
-        $firstRow = true;
+        $dateDisplay  = $dateData['display'];
+        $firstDateRow = true;
 
-        foreach ($products as $productName => $grades) {
-            foreach ($grades as $gradeName => $cpEntries) {
-                foreach ($cpEntries as $entry) {
-                    $doPoList = [];
-                    foreach ($entry['do_po_no'] as $i => $s) {
-                        $doPoList[] = ($i + 1) . '. ' . $s;
+        foreach ($dateData['dopos'] as $doPoNo => $rows) {
+            $firstDoPoRow = true;
+            $subTotalByCurrency = [];
+            foreach ($sheetCurrencies as $cur) $subTotalByCurrency[$cur] = 0;
+
+            foreach ($rows as $entry) {
+                $sheet->setCellValue('A'.$r, $firstDateRow ? $dateDisplay : '');
+                $sheet->setCellValue('B'.$r, $firstDoPoRow ? $doPoNo : '');
+                $sheet->setCellValue('C'.$r, ($firstDateRow && $firstDoPoRow) ? $customerName : '');
+                $sheet->setCellValue('D'.$r, $entry['product']);
+                $sheet->setCellValue('E'.$r, $entry['grade']);
+                $sheet->setCellValue('F'.$r, $entry['net']);
+                if ($allowPrice == 'Y') {
+                    $sheet->setCellValue('G'.$r, $entry['price']);
+                    foreach ($sheetCurrencies as $i => $cur) {
+                        if ($entry['currency'] === $cur) {
+                            $colLetter = Coordinate::stringFromColumnIndex($fixedCols + $i + 1);
+                            $sheet->setCellValue($colLetter.$r, $entry['total']);
+                        }
                     }
-                    $dayRows[] = [
-                        'date'     => $firstRow ? $dateData['display'] : '',
-                        'product'  => $productName,
-                        'grade'    => $gradeName,
-                        'currency' => $entry['currency'],
-                        'net'      => $entry['net'],
-                        'price'    => $entry['price'],
-                        'total'    => $entry['total'],
-                        'do_po_no' => implode("
-", $doPoList),
-                    ];
-                    $cur = $entry['currency'];
-                    if (!isset($grandTotalByCurrency[$cur]))   $grandTotalByCurrency[$cur]   = 0;
-                    if (!isset($grandTotalKgByCurrency[$cur])) $grandTotalKgByCurrency[$cur] = 0;
-                    $grandTotalByCurrency[$cur]   += $entry['total'];
-                    $grandTotalKgByCurrency[$cur] += $entry['net'];
-                    $firstRow = false;
                 }
+                $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($dataStyle);
+                $subTotalByCurrency[$entry['currency']] += $entry['total'];
+                $grandTotalByCurrency[$entry['currency']] += $entry['total'];
+                $firstDateRow = false;
+                $firstDoPoRow = false;
+                $r++;
             }
-        }
 
-        $firstDataRow = true;
-        foreach ($dayRows as $dr) {
-            $sheet->setCellValue('A'.$r, $dr['date']);
-            $sheet->setCellValue('B'.$r, $dr['do_po_no']);
-            $sheet->setCellValue('C'.$r, ($firstDataRow && $dr['date'] != '') ? $customerName : '');
-            $sheet->setCellValue('D'.$r, $dr['product']);
-            $firstDataRow = false;
-            $sheet->setCellValue('E'.$r, $dr['grade']);
-            $sheet->setCellValue('F'.$r, $dr['net']);
-            $sheet->setCellValue('G'.$r, $dr['currency']);
-            if ($allowPrice == 'Y') {
-                $sheet->setCellValue('H'.$r, $dr['price']);
-                $sheet->setCellValue('I'.$r, $dr['total']);
+            // S.Total rows — one per currency that has a non-zero value
+            foreach ($sheetCurrencies as $i => $cur) {
+                if ($subTotalByCurrency[$cur] == 0) continue;
+                $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($subTotalStyle);
+                $sTotalCol = Coordinate::stringFromColumnIndex($sTotalColIdx);
+                $sheet->setCellValue($sTotalCol.$r, $cur . ' ' . number_format($subTotalByCurrency[$cur], 2));
+                $sheet->getStyle($sTotalCol.$r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                $r++;
             }
-            $sheet->getStyle('B'.$r)->getAlignment()->setWrapText(true);
-            $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($dataStyle);
-            $r++;
         }
     }
 
-    // Grand total rows — one per currency
-    $firstGrandRow = true;
-    foreach ($grandTotalByCurrency as $cur => $amt) {
-        $sheet->setCellValue('A'.$r, $firstGrandRow ? 'Grand Total' : '');
-        $sheet->setCellValue('F'.$r, $grandTotalKgByCurrency[$cur]);
-        $sheet->setCellValue('G'.$r, $cur);
-        if ($allowPrice == 'Y') $sheet->setCellValue('I'.$r, $amt);
+    // Grand Total rows — one per currency
+    foreach ($sheetCurrencies as $cur) {
+        if ($grandTotalByCurrency[$cur] == 0) continue;
         $sheet->getStyle('A'.$r.':'.$lastCol.$r)->applyFromArray($grandTotalStyle);
+        $sTotalCol = Coordinate::stringFromColumnIndex($sTotalColIdx);
+        $sheet->setCellValue($sTotalCol.$r, 'Grand Total ' . $cur . ' ' . number_format($grandTotalByCurrency[$cur], 2));
+        $sheet->getStyle($sTotalCol.$r)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
         $r++;
-        $firstGrandRow = false;
     }
-    $r--; // point back to last written row for number format range
 
-    foreach (range('A', $lastCol) as $col) {
-        $sheet->getColumnDimension($col)->setAutoSize(true);
+    foreach (range(1, $lastColIdx) as $colIdx) {
+        $sheet->getColumnDimensionByColumn($colIdx)->setAutoSize(true);
     }
-    $sheet->getStyle('F2:F'.$r)->getNumberFormat()->setFormatCode('#,##0.00');
+    $sheet->getStyle('F2:F'.($r-1))->getNumberFormat()->setFormatCode('#,##0.00');
     if ($allowPrice == 'Y') {
-        $sheet->getStyle('H2:I'.$r)->getNumberFormat()->setFormatCode('#,##0.00');
+        $sheet->getStyle('G2:G'.($r-1))->getNumberFormat()->setFormatCode('#,##0.00');
+        foreach ($sheetCurrencies as $i => $cur) {
+            $colLetter = Coordinate::stringFromColumnIndex($fixedCols + $i + 1);
+            $sheet->getStyle($colLetter.'2:'.$colLetter.($r-1))->getNumberFormat()->setFormatCode('#,##0.00');
+        }
     }
 }
 
