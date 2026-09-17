@@ -192,7 +192,61 @@ $weightedBy   = searchUserNameById($wholesale['weighted_by'], $db);
 $checkedBy    = ($wholesale['checked_by'] == 'JACKY') ? '' : $wholesale['checked_by'];
 $actualWeight = number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2);
 
-$message = '
+// Content-only mode: output just the record section without html/head/body wrapper
+if ($mode == 'content') {
+    $message = '
+    <div class="record-section">
+        <div class="record-header">
+            <div class="header-top">
+                ' . ($companyLogoSrc ? '<div class="header-logo"><img src="' . $companyLogoSrc . '" alt="Logo" style="width:100%;height:100%;object-fit:cover;"></div>' : '') . '
+                <div class="header-company">
+                    <div>
+                        <div style="font-weight:bold;font-size:13px;">' . htmlspecialchars($wholesale['name']) . '</div>
+                        <div>' . htmlspecialchars($wholesale['address']) . '</div>
+                        <div>' . htmlspecialchars($wholesale['address2']) . '</div>
+                        <div>' . htmlspecialchars($wholesale['address3']) . '</div>
+                        <div>' . htmlspecialchars($wholesale['address4']) . '</div>
+                        ' . (!empty($wholesale['phone']) ? '<div>Tel: ' . htmlspecialchars($wholesale['phone']) . '</div>' : '') . '
+                        ' . (!empty($wholesale['email']) ? '<div>Email: ' . htmlspecialchars($wholesale['email']) . '</div>' : '') . '
+                    </div>
+                </div>
+                <div class="header-status">
+                    <div class="status-title">' . htmlspecialchars($status) . '</div>
+                    <div class="hrow"><span class="hlabel">Transaction ID</span><span class="hvalue">: ' . htmlspecialchars($wholesale['serial_no']) . '</span></div>
+                    <div class="hrow"><span class="hlabel">Status</span><span class="hvalue">: ' . htmlspecialchars($wholesale['status']) . '</span></div>
+                    <div class="hrow"><span class="hlabel">From Date</span><span class="hvalue">: ' . date('d/m/Y', strtotime($wholesale['start_time'])) . '</span></div>
+                    <div class="hrow"><span class="hlabel">' . htmlspecialchars($poLabel) . '</span><span class="hvalue">: ' . htmlspecialchars($wholesale['po_no']) . '</span></div>
+                    ' . ($wholesale['status'] == 'RECEIVING' ? '<div class="hrow"><span class="hlabel">Security Bill No</span><span class="hvalue">: ' . htmlspecialchars($wholesale['security_bills']) . '</span></div>' : '') . '
+                </div>
+            </div>
+            <div class="info-section">
+                <div class="info-col">
+                    <div class="irow"><span class="ilabel">' . $partyLabel . '</span><span class="ivalue">: ' . htmlspecialchars($partyName) . '</span></div>
+                    <div class="irow"><span class="ilabel">Driver Name</span><span class="ivalue">: ' . htmlspecialchars($wholesale['driver']) . '</span></div>
+                    <div class="irow"><span class="ilabel">Driver IC</span><span class="ivalue">: ' . htmlspecialchars($wholesale['driver_ic']) . '</span></div>
+                    <div class="irow"><span class="ilabel">Vehicle No</span><span class="ivalue">: ' . htmlspecialchars($wholesale['vehicle_no']) . '</span></div>
+                    <div class="irow"><span class="ilabel">Cages Weight</span><span class="ivalue">: ' . number_format($totalCagesWeight, 2) . ' kg</span></div>
+                </div>
+                <div class="info-col">
+                    ' . ($includePrice ? '<div class="irow"><span class="ilabel">Total Price</span><span class="ivalue">: ' . $grandTotalPriceStr . '</span></div>' : '') . '
+                    <div class="irow"><span class="ilabel">Actual Weight</span><span class="ivalue">: ' . $actualWeight . ' kg</span></div>
+                    <div class="irow"><span class="ilabel">Total Cages</span><span class="ivalue">: ' . number_format($totalCages) . '</span></div>
+                    <div class="irow"><span class="ilabel">Total Weight (kg)</span><span class="ivalue">: ' . number_format($wholesale['total_weight'], 2) . ' kg</span></div>
+                    ' . ($includePcsBasket ? '<div class="irow"><span class="ilabel">Total Pcs/Basket</span><span class="ivalue">: ' . $totalPcsBasket . '</span></div>' : '') . '
+                </div>
+                <div class="info-col">
+                    <div class="irow"><span class="ilabel">Time Start</span><span class="ivalue">: ' . date('h:i:s A', strtotime($wholesale['start_time'])) . '</span></div>
+                    <div class="irow"><span class="ilabel">Time End</span><span class="ivalue">: ' . date('h:i:s A', strtotime($wholesale['end_time'])) . '</span></div>
+                    <div class="irow"><span class="ilabel">Weight By</span><span class="ivalue">: ' . htmlspecialchars($weightedBy) . '</span></div>
+                    <div class="irow"><span class="ilabel">Check By</span><span class="ivalue">: ' . htmlspecialchars($checkedBy) . '</span></div>
+                    <div class="irow"><span class="ilabel">Remark</span><span class="ivalue">: ' . htmlspecialchars($wholesale['remark']) . '</span></div>
+                </div>
+            </div>
+        </div>
+        ' . $weightDetails;
+} else {
+    // Full mode: complete HTML document with Paged.js
+    $message = '
 <html>
 <head>
     <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
@@ -283,6 +337,7 @@ $message = '
     ' . $weightDetails . '
 
     ';
+}
 
 if ($withPhoto == 'Y') {
     $photoItems = array_filter($weighingDetails ?? [], fn($d) => !empty($d['photoPath']));
@@ -301,6 +356,11 @@ if ($withPhoto == 'Y') {
     }
 }
 
-$message .= '
+// Close the document based on mode
+if ($mode == 'content') {
+    $message .= '</div>'; // Close record-section
+} else {
+    $message .= '
 </body>
 </html>';
+}

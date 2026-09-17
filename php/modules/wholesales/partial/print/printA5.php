@@ -132,7 +132,73 @@ if ($includePrice) {
 $qrUrl = 'https://synctronix-wms.com/print.php?id=' . urlencode($id) . '&withPhoto=N&paperSize=A4';
 $qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=' . urlencode($qrUrl);
 
-$message = '
+// Content-only mode: output just the record section without html/head/body wrapper
+if ($mode == 'content') {
+    $message = '
+    <div class="record-section a5-record">
+        <div class="a5-wrapper">
+            <div class="slip-border">
+                <div class="header-top">
+                    <div class="company-name">'.htmlspecialchars($wholesale['name']).'</div>
+                    <div class="slip-title">'.htmlspecialchars($slipTitle).'</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-left">
+                        <div class="info-row"><span class="info-label">'.($isDispatchOrStockBal ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.htmlspecialchars($partyName).'</span></div>
+                        <div class="info-row"><span class="info-label">Vehicle No.</span><span class="info-value">: '.htmlspecialchars($wholesale['vehicle_no']).'</span></div>
+                        <div class="info-row"><span class="info-label">Location</span><span class="info-value">: '.htmlspecialchars($locationName).'</span></div>
+                    </div>
+                    <div class="info-right">
+                        <div class="info-row"><span class="info-label">Weight Slip No.</span><span class="info-value">: '.htmlspecialchars($wholesale['serial_no']).'</span></div>
+                        <div class="info-row"><span class="info-label">'.htmlspecialchars($doLabel).'</span><span class="info-value">: '.htmlspecialchars($wholesale['po_no']).'</span></div>
+                        <div class="info-row"><span class="info-label">Date</span><span class="info-value">: '.date('d/m/Y', strtotime($wholesale['start_time'])).'</span></div>
+                    </div>
+                </div>
+                <table class="items">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Item Desc</th>
+                            <th>Grade</th>
+                            <th>Total Items</th>
+                            <th>Nett Weight</th>
+                            <th>Unit</th>
+                            '.($includePrice ? '<th>Unit Price</th><th>Total Price</th>' : '').'
+                        </tr>
+                    </thead>
+                    <tbody>
+                        '.$rows.'
+                    </tbody>
+                </table>
+                <div class="a5-footer">
+                    <div class="qr-block">
+                        <img src="'.$qrSrc.'" width="70" height="70">
+                    </div>
+                    <div class="footer-row">
+                        <table class="summary">
+                            <thead>
+                                <tr>
+                                    <th>Total Weight</th>
+                                    <th>Total Items</th>
+                                    '.($includePrice ? '<th>Total Amount</th>' : '').'
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>'.number_format($grandTotalNet, 2).' kg</td>
+                                    <td>'.$grandTotalItems.'</td>
+                                    '.$summaryAmountCell.'
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>';
+} else {
+    // Full mode: complete HTML document
+    $message = '
 <html>
 <head>
 <style>
@@ -226,3 +292,4 @@ $message = '
 </div>
 </body>
 </html>';
+}
