@@ -915,57 +915,11 @@ $(function () {
   // Build column toggle menu
   buildColumnToggleMenu();
 
-  var fromDateI = $('#fromDate').val();
-  var toDateI = $('#toDate').val();
-  var transactionStatusI = $('#transactionStatusFilter').val();
-  var statusI = $('#statusFilter').val();
-  var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-  var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
-  var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-  var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-  var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-  var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-  var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-  var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-  var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-  var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
-  var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
+  // Render Table
+  renderTable();
 
-  var table = $("#weightTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'searching': true,
-    'order': [[ 0, 'asc' ]],
-    'language': {
-      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
-      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
-    },
-    'drawCallback': function(settings) {
-    },
-    'ajax': {
-      'url':'php/modules/wholesales/filterWholesale.php',
-      'data': {
-        fromDate: fromDateI,
-        toDate: toDateI,
-        transactionStatus: transactionStatusI,
-        status: statusI,
-        product: productI,
-        category: categoryI,
-        customer: customerNoI,
-        supplier: supplierNoI,
-        vehicle: vehicleNoI,
-        otherVehicle: otherVehicleNoI,
-        checkedBy: checkedByI,
-        weightedBy: weightedByI,
-        location: locationI,
-        partyType: partyTypeI,
-        indicator: indicatorI
-      } 
-    },
-    'columns': getTableColumns()
+  $('#filterSearch').on('click', function(){
+    renderTable();
   });
 
   $('#selectAllRows').on('change', function() {
@@ -1002,66 +956,6 @@ $(function () {
             }
           });
       }
-  });
-
-  $('#filterSearch').on('click', function(){
-    //$('#spinnerLoading').show();
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var statusI = $('#statusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
-    var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
-
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
-
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'searching': true,
-      'order': [[ 0, 'asc' ]],
-      'language': {
-        'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
-        'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
-      },
-      'drawCallback': function(settings) {
-      },
-      'ajax': {
-        'url':'php/modules/wholesales/filterWholesale.php',
-        'data': {
-          fromDate: fromDateI,
-          toDate: toDateI,
-          transactionStatus: transactionStatusI,
-          status: statusI,
-          product: productI,
-          category: categoryI,
-          customer: customerNoI,
-          supplier: supplierNoI,
-          vehicle: vehicleNoI,
-          otherVehicle: otherVehicleNoI,
-          checkedBy: checkedByI,
-          weightedBy: weightedByI,
-          location: locationI,
-          partyType: partyTypeI,
-          indicator: indicatorI
-        } 
-      },
-      'columns': getTableColumns()
-      });
   });
 
   $.validator.setDefaults({
@@ -1931,6 +1825,92 @@ $(function () {
 // DATATABLE CONFIGURATION
 // ============================================================================
 
+function buildColumnToggleMenu() {
+  var menu = $('#columnToggleMenu');
+  menu.empty();
+  var ordered = buildColumnDefs();
+  ordered.forEach(function(item) {
+    var label = item.col[2];
+    var dataField = item.col[1];
+    menu.append(
+      '<div class="form-check">' +
+        '<input class="form-check-input column-toggle" type="checkbox" data-field="' + dataField + '"' + (item.visible ? ' checked' : '') + '>' +
+        '<label class="form-check-label">' + label + '</label>' +
+      '</div>'
+    );
+  });
+  menu.on('click', function(e) { e.stopPropagation(); });
+  menu.on('change', '.column-toggle', function() {
+    var field = $(this).data('field');
+    var visible = $(this).is(':checked');
+    var dt = $('#weightTable').DataTable();
+    dt.columns().every(function() {
+      if (this.dataSrc() === field) { this.visible(visible); }
+    });
+  });
+}
+
+function renderTable() {
+  var fromDateI = $('#fromDate').val();
+  var toDateI = $('#toDate').val();
+  var transactionStatusI = $('#transactionStatusFilter').val();
+  var statusI = $('#statusFilter').val();
+  var productI = $('#productFilter').val() || '';
+  var categoryI = $('#categoryFilter').val() || '';
+  var customerNoI = $('#customerNoFilter').val() || '';
+  var supplierNoI = $('#supplierNoFilter').val() || '';
+  var vehicleNoI = $('#vehicleNoFilter').val() || '';
+  var otherVehicleNoI = $('#otherVehicleNoFilter').val() || '';
+  var checkedByI = $('#checkedByFilter').val() || '';
+  var weightedByI = $('#weightByFilter').val() || '';
+  var locationI = $('#locationFilter').val() || '';
+  var partyTypeI = $('#partyTypeFilter').val() || '';
+  var indicatorI = $('#indicatorFilter').val() || '';
+
+  // Destroy the old Datatable if exists
+  if ($.fn.DataTable.isDataTable('#weightTable')) {
+    $('#weightTable').DataTable().clear().destroy();
+  }
+
+  // Create new Datatable
+  table = $('#weightTable').DataTable({
+    "responsive": true,
+    "autoWidth": false,
+    'processing': true,
+    'serverSide': true,
+    'serverMethod': 'post',
+    'searching': true,
+    'order': [[0, 'asc']],
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
+    'drawCallback': function(settings) {
+    },
+    'ajax': {
+      'url': 'php/modules/wholesales/filterWholesale.php',
+      'data': {
+        fromDate: fromDateI,
+        toDate: toDateI,
+        transactionStatus: transactionStatusI,
+        status: statusI,
+        product: productI,
+        category: categoryI,
+        customer: customerNoI,
+        supplier: supplierNoI,
+        vehicle: vehicleNoI,
+        otherVehicle: otherVehicleNoI,
+        checkedBy: checkedByI,
+        weightedBy: weightedByI,
+        location: locationI,
+        partyType: partyTypeI,
+        indicator: indicatorI
+      }
+    },
+    'columns': getTableColumns()
+  });
+}
+
 function buildColumnDefs() {
   var colMap = {};
   defaultColumns.forEach(function(col) { colMap[col[0]] = col; });
@@ -2237,6 +2217,81 @@ function format(row) {
   `;
   
   return returnString;
+}
+
+function filterWeightTable(rowId) {
+  var productFilter = $('#productFilter_' + rowId).val();
+  var gradeFilter = $('#gradeFilter_' + rowId).val();
+
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
+
+  $('#weightTable_' + rowId + ' tbody tr').each(function() {
+    var product = $(this).find('td:eq(0)').text().trim();
+    var grade = $(this).find('td:eq(1)').text().trim();
+    var showProduct = !productFilter || product === productFilter;
+    var showGrade = !gradeFilter || grade === gradeFilter;
+    var show = showProduct && showGrade;
+    $(this).toggle(show);
+
+    if (show) {
+      totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
+      totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
+      totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
+      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
+        totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
+        totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
+        totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
+      }
+    }
+  });
+
+  $('#footGross_' + rowId).text(totalGross.toFixed(2));
+  $('#footTare_'  + rowId).text(totalTare.toFixed(2));
+  $('#footNet_'   + rowId).text(totalNet.toFixed(2));
+  $('#footBeforeDiscount_' + rowId).text(totalBeforeDiscount.toFixed(2));
+  $('#footDiscount_' + rowId).text(totalDiscount.toFixed(2));
+  $('#footPrice_' + rowId).text(totalPrice.toFixed(2));
+
+  var gradeSelect = $('#gradeFilter_' + rowId);
+  var currentGrade = gradeSelect.val();
+  gradeSelect.find('option:not(:first)').remove();
+
+  var grades = [];
+  $('#weightTable_' + rowId + ' tbody tr').each(function() {
+    if (!productFilter || $(this).find('td:eq(0)').text().trim() === productFilter) {
+      var grade = $(this).find('td:eq(1)').text().trim();
+      if (grades.indexOf(grade) === -1) grades.push(grade);
+    }
+  });
+
+  grades.sort();
+  $.each(grades, function(i, grade) {
+    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  });
+  gradeSelect.val(currentGrade);
+}
+
+function populateFilters(rowId, weightDetails) {
+  var products = {};
+  var grades = [];
+  
+  weightDetails.forEach(function(detail) {
+    products[detail.product_name] = true;
+    if(grades.indexOf(detail.grade) === -1) {
+      grades.push(detail.grade);
+    }
+  });
+  
+  var productSelect = $('#productFilter_' + rowId);
+  for(var product in products) {
+    productSelect.append('<option value="' + product + '">' + product + '</option>');
+  }
+  
+  grades.sort();
+  var gradeSelect = $('#gradeFilter_' + rowId);
+  grades.forEach(function(grade) {
+    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  });
 }
 
 // ============================================================================
@@ -3217,114 +3272,6 @@ function printInvoice(id) {
     else{
       toastr["error"]("Something wrong when printing invoice", "Failed:");
     }
-  });
-}
-
-// ============================================================================
-// EXPANDED ROW FILTERS
-// ============================================================================
-
-function filterWeightTable(rowId) {
-  var productFilter = $('#productFilter_' + rowId).val();
-  var gradeFilter = $('#gradeFilter_' + rowId).val();
-
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
-
-  $('#weightTable_' + rowId + ' tbody tr').each(function() {
-    var product = $(this).find('td:eq(0)').text().trim();
-    var grade = $(this).find('td:eq(1)').text().trim();
-    var showProduct = !productFilter || product === productFilter;
-    var showGrade = !gradeFilter || grade === gradeFilter;
-    var show = showProduct && showGrade;
-    $(this).toggle(show);
-
-    if (show) {
-      totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
-      totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
-      totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
-      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
-        totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
-        totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
-        totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
-      }
-    }
-  });
-
-  $('#footGross_' + rowId).text(totalGross.toFixed(2));
-  $('#footTare_'  + rowId).text(totalTare.toFixed(2));
-  $('#footNet_'   + rowId).text(totalNet.toFixed(2));
-  $('#footBeforeDiscount_' + rowId).text(totalBeforeDiscount.toFixed(2));
-  $('#footDiscount_' + rowId).text(totalDiscount.toFixed(2));
-  $('#footPrice_' + rowId).text(totalPrice.toFixed(2));
-
-  var gradeSelect = $('#gradeFilter_' + rowId);
-  var currentGrade = gradeSelect.val();
-  gradeSelect.find('option:not(:first)').remove();
-
-  var grades = [];
-  $('#weightTable_' + rowId + ' tbody tr').each(function() {
-    if (!productFilter || $(this).find('td:eq(0)').text().trim() === productFilter) {
-      var grade = $(this).find('td:eq(1)').text().trim();
-      if (grades.indexOf(grade) === -1) grades.push(grade);
-    }
-  });
-
-  grades.sort();
-  $.each(grades, function(i, grade) {
-    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-  });
-  gradeSelect.val(currentGrade);
-}
-
-function populateFilters(rowId, weightDetails) {
-  var products = {};
-  var grades = [];
-  
-  weightDetails.forEach(function(detail) {
-    products[detail.product_name] = true;
-    if(grades.indexOf(detail.grade) === -1) {
-      grades.push(detail.grade);
-    }
-  });
-  
-  var productSelect = $('#productFilter_' + rowId);
-  for(var product in products) {
-    productSelect.append('<option value="' + product + '">' + product + '</option>');
-  }
-  
-  grades.sort();
-  var gradeSelect = $('#gradeFilter_' + rowId);
-  grades.forEach(function(grade) {
-    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-  });
-}
-
-// ============================================================================
-// COLUMN TOGGLE MENU
-// ============================================================================
-
-function buildColumnToggleMenu() {
-  var menu = $('#columnToggleMenu');
-  menu.empty();
-  var ordered = buildColumnDefs();
-  ordered.forEach(function(item) {
-    var label = item.col[2];
-    var dataField = item.col[1];
-    menu.append(
-      '<div class="form-check">' +
-        '<input class="form-check-input column-toggle" type="checkbox" data-field="' + dataField + '"' + (item.visible ? ' checked' : '') + '>' +
-        '<label class="form-check-label">' + label + '</label>' +
-      '</div>'
-    );
-  });
-  menu.on('click', function(e) { e.stopPropagation(); });
-  menu.on('change', '.column-toggle', function() {
-    var field = $(this).data('field');
-    var visible = $(this).is(':checked');
-    var dt = $('#weightTable').DataTable();
-    dt.columns().every(function() {
-      if (this.dataSrc() === field) { this.visible(visible); }
-    });
   });
 }
 
