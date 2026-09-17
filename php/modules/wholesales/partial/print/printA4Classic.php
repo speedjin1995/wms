@@ -140,7 +140,62 @@ for($row = 0; $row < $rowsNeeded; $row++) {
     $weightDetails .= '</div>';
 }
 
-$message = '
+// Content-only mode: output just the record section without html/head/body wrapper
+if ($mode == 'content') {
+    $message = '
+    <div class="record-section">
+        <div class="record-header">
+            <div class="row mb-1">
+                <div class="col-8" style="display:flex;align-items:flex-start;gap:10px;">
+                    '.($companyLogoSrc ? '<img src="'.$companyLogoSrc.'" alt="Logo" style="width:130px;height:auto;flex-shrink:0;">' : '').'
+                    <div>
+                        <div class="company-name">'.$wholesale['name'].'</div>
+                        <div class="address">'.$wholesale['address'].'</div>
+                        <div class="address">'.$wholesale['address2'].'</div>
+                        <div class="address">'.$wholesale['address3'].'</div>
+                        <div class="address">'.$wholesale['address4'].'</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="header-row"><span class="header-label">Transaction ID</span><span class="header-value">: '.$wholesale['serial_no'].'</span></div>
+                    <div class="header-row"><span class="header-label">Status</span><span class="header-value">: '.$status.'</span></div>
+                    <div class="header-row"><span class="header-label">From Date</span><span class="header-value">: '.date('d/m/Y', strtotime($wholesale['start_time'])).'</span></div>
+                    <div class="header-row"><span class="header-label">'.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Delivery' : 'Purchase').' No</span><span class="header-value">: '.$wholesale['po_no'].'</span></div>';
+                    if ($wholesale['status'] == 'RECEIVING') {
+                        $message .= '<div class="header-row"><span class="header-label">Security Bill No</span><span class="header-value">: '.$wholesale['security_bills'].'</span></div>';
+                    }
+                    $message .= '
+                </div>
+            </div>
+            <hr>
+            <div class="row mb-1">
+                <div class="col-8">
+                    <div class="info-row"><span class="info-label">To '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.($wholesale['status'] == 'DISPATCH' || $wholesale['status'] == 'STOCK-BAL' ? searchCustomerNameById($wholesale['customer'], $wholesale['other_customer'], $db) : searchSupplierNameById($wholesale['supplier'], $wholesale['other_supplier'], $db)).'</span></div>
+                    <div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">: '.$wholesale['driver'].'</span></div>
+                    <div class="info-row"><span class="info-label">Driver IC</span><span class="info-value">: '.$wholesale['driver_ic'].'</span></div>
+                    <div class="info-row"><span class="info-label">Actual Weight</span><span class="info-value">: '.number_format(floatval($wholesale['total_weight']) + floatval($wholesale['total_reject']), 2).' kg</span></div>
+                    <div class="info-row"><span class="info-label">Reject Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_reject'], 2).' kg</span></div>
+                    <div class="info-row"><span class="info-label">Total Weight (kg)</span><span class="info-value">: '.number_format($wholesale['total_weight'], 2).' kg</span></div>
+                    '.($companyDetail['include_price'] == 'Y' ? '<div class="info-row"><span class="info-label">Total Price</span><span class="info-value">: RM '.number_format($grandTotalPrice, 2).'</span></div>' : '').'
+                    <div class="info-row"><span class="info-label">Remark</span><span class="info-value">: '.$wholesale['remark'].'</span></div>
+                </div>
+                <div class="col-4">
+                    <div class="info-row"><span class="info-label">To Vehicle No</span><span class="info-value">: '.$wholesale['vehicle_no'].'</span></div>
+                    <div class="info-row"><span class="info-label">Total Cages</span><span class="info-value">: '.number_format($totalCages).'</span></div>
+                    '.($companyDetail['include_pcs_basket'] == 'Y' ? '<div class="info-row"><span class="info-label">Total Pcs/Basket</span><span class="info-value">: '.$totalPcsBasket.'</span></div>' : '').'
+                    <div class="info-row"><span class="info-label">Cages Weight</span><span class="info-value">: '.number_format($totalCagesWeight, 2).' kg</span></div>
+                    <div class="info-row"><span class="info-label">Weight By</span><span class="info-value">: '.searchUserNameById($wholesale['weighted_by'], $db).'</span></div>
+                    <div class="info-row"><span class="info-label">Check By</span><span class="info-value">: '.($wholesale['checked_by'] == 'JACKY' ? '' : $wholesale['checked_by']).'</span></div>
+                    <div class="info-row"><span class="info-label">Time Start</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['start_time'])).'</span></div>
+                    <div class="info-row"><span class="info-label">Time End</span><span class="info-value">: '.date('H:i:s', strtotime($wholesale['end_time'])).'</span></div>
+                </div>
+            </div>
+            <hr>
+        </div>
+        <div class="grade-section">'.$weightDetails.'</div>';
+} else {
+    // Full mode: complete HTML document with Paged.js
+    $message = '
     <html>
     <head>
         <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
@@ -231,6 +286,7 @@ $message = '
         <div class="container-fluid">
             <div class="grade-section page-content">'.$weightDetails.'</div>
         </div>';
+}
 
 if ($withPhoto == 'Y') {
     $photoItems = array_filter($weighingDetails ?? [], fn($d) => !empty($d['photoPath']));
@@ -249,6 +305,11 @@ if ($withPhoto == 'Y') {
     }
 }
 
-$message .= '
+// Close the document based on mode
+if ($mode == 'content') {
+    $message .= '</div>'; // Close record-section
+} else {
+    $message .= '
     </body>
     </html>';
+}

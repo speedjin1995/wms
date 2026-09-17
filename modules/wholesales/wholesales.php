@@ -327,6 +327,9 @@ else{
           <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['wholesales_code'][$language]?></h3>
         </div>
         <div class="results-header-right d-flex" style="gap: 0.5rem;">
+          <button type="button" class="btn btn-action btn-action-secondary" onclick="printSelected()">
+            <i class="fas fa-print"></i> <?=$languageArray['print_selected_code'][$language] ?? 'Print Selected'?>
+          </button>
           <div class="dropdown">
             <button class="btn btn-action btn-action-secondary dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown">
               <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
@@ -1189,49 +1192,44 @@ $(function () {
           $('#spinnerLoading').hide();
         });
       }else if ($('#printOptionsModal').hasClass('show')){
+        var formData = $('#printOptionsForm').serialize();
+        var selectedPaperSize = $('#paperSize').val();
+        var multiPrintIds = $('#printOptionsForm').data('multiPrintIds');
+        var singleId = $('#printID').val();
+        
+        // Validate we have something to print
+        if ((!multiPrintIds || multiPrintIds.length === 0) && !singleId) {
+          toastr["error"]("No record selected for printing", "Error:");
+          return false;
+        }
+        
         $('#printOptionsModal').modal('hide');
-        $.post('php/modules/wholesales/print.php', $('#printOptionsForm').serialize(), function(data){
-          var obj = JSON.parse(data);
-          if(obj.status === 'success') {
-            var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-            printWindow.document.write(obj.message);
-            printWindow.document.close();
-            var selectedPaperSize = $('#paperSize').val();
-            if (selectedPaperSize == 'A5') {
-              var qrImg = printWindow.document.querySelector('.qr-block img');
-              if (qrImg && !qrImg.complete) {
-                qrImg.onload = qrImg.onerror = function() {
-                  printWindow.print();
-                  printWindow.close();
-                };
-              } else {
-                setTimeout(function() {
-                  printWindow.print();
-                  printWindow.close();
-                }, 300);
-              }
-            } else {
-              var pollCount = 0;
-              var poll = setInterval(function() {
-                pollCount++;
-                var rendered = printWindow.document.querySelector('.pagedjs_pages');
-                if (rendered || pollCount > 60) {
-                  clearInterval(poll);
-                  setTimeout(function() {
-                    printWindow.print();
-                    printWindow.close();
-                  }, 300);
-                }
-              }, 200);
+        
+        if (multiPrintIds && multiPrintIds.length > 1) {
+          // Multi-print: process sequentially via iframes
+          openMultiPrintPreview(multiPrintIds, formData, selectedPaperSize);
+          $('#printOptionsForm').data('multiPrintIds', null); // Clear after use
+        } else {
+          // Single print
+          var printId = multiPrintIds && multiPrintIds.length === 1 ? multiPrintIds[0] : singleId;
+          formData += '&userID=' + printId;
+          
+          $.post('php/modules/wholesales/print.php', formData, function(data){
+            var obj = JSON.parse(data);
+            if(obj.status === 'success') {
+              openPrintPreview(obj.message, selectedPaperSize);
             }
-          }
-          else if(obj.status === 'failed'){
-            alert(obj.message);
-          }
-          else{
-            alert("Something wrong when activate");
-          }
-        });
+            else if(obj.status === 'failed'){
+              toastr["error"](obj.message, "Failed:");
+            }
+            else{
+              toastr["error"]("Something wrong when printing", "Failed:");
+            }
+          }).fail(function() {
+            toastr["error"]("Failed to generate print document", "Failed:");
+          });
+          $('#printOptionsForm').data('multiPrintIds', null); // Clear after use
+        }
       }
     }
   });
@@ -2919,7 +2917,9 @@ function deactivate(id) {
 }
 
 function print(id) {
+  // Store single ID for print
   $('#printID').val(id);
+  $('#printOptionsForm').data('multiPrintIds', null); // Clear multi-print data
   $('#printOptionsModal').modal('show');
 
   $('#printOptionsForm').validate({
@@ -2935,6 +2935,230 @@ function print(id) {
         $(element).removeClass('is-invalid');
     }
   });
+}
+
+// Multi-print: Get selected record IDs from DataTable checkboxes
+function getSelectedRecordIds() {
+  var ids = [];
+  $('#weightTable tbody .rowCheckbox:checked').each(function() {
+    ids.push($(this).val());
+  });
+  return ids;
+}
+
+// Multi-print: Open print options modal for selected records
+function printSelected() {
+  var selectedIds = getSelectedRecordIds();
+  if (selectedIds.length === 0) {
+    toastr["warning"]("<?=$languageArray['please_select_record_code'][$language] ?? 'Please select at least one record to print.'?>", "Warning:");
+    return;
+  }
+  
+  // Max 10 records limit
+  if (selectedIds.length > 10) {
+    toastr["error"]("<?=$languageArray['max_print_records_code'][$language] ?? 'Maximum 10 records can be printed at once. Please select fewer records.'?>", "Error:");
+    return;
+  }
+  
+  // Store selected IDs for multi-print processing
+  $('#printOptionsForm').data('multiPrintIds', selectedIds);
+  $('#printID').val(''); // Clear single ID
+  $('#printOptionsModal').modal('show');
+  
+  $('#printOptionsForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+    }
+  });
+}
+
+// Reusable print preview function for single record
+function openPrintPreview(printHtml, paperSize) {
+  var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+  printWindow.document.write(printHtml);
+  printWindow.document.close();
+  
+  if (paperSize == 'A5') {
+    // A5: Wait for all QR images to load
+    var qrImages = printWindow.document.querySelectorAll('.qr-block img');
+    if (qrImages.length > 0) {
+      var loadedCount = 0;
+      var totalImages = qrImages.length;
+      var allLoaded = function() {
+        loadedCount++;
+        if (loadedCount >= totalImages) {
+          setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+          }, 300);
+        }
+      };
+      qrImages.forEach(function(img) {
+        if (img.complete) {
+          allLoaded();
+        } else {
+          img.onload = allLoaded;
+          img.onerror = allLoaded;
+        }
+      });
+      // Fallback timeout
+      setTimeout(function() {
+        if (loadedCount < totalImages) {
+          printWindow.print();
+          printWindow.close();
+        }
+      }, 5000);
+    } else {
+      setTimeout(function() {
+        printWindow.print();
+        printWindow.close();
+      }, 300);
+    }
+  } else {
+    // A4: Wait for Paged.js to render
+    var pollCount = 0;
+    var poll = setInterval(function() {
+      pollCount++;
+      var rendered = printWindow.document.querySelector('.pagedjs_pages');
+      if (rendered || pollCount > 60) {
+        clearInterval(poll);
+        setTimeout(function() {
+          printWindow.print();
+          printWindow.close();
+        }, 300);
+      }
+    }, 200);
+  }
+}
+
+// Multi-print: Process multiple records sequentially
+function openMultiPrintPreview(ids, formData, paperSize) {
+  var processedPages = [];
+  var currentIndex = 0;
+  var totalRecords = ids.length;
+  
+  $('#spinnerLoading').show();
+  
+  function processNextRecord() {
+    if (currentIndex >= totalRecords) {
+      $('#spinnerLoading').hide();
+      combineAndPrint(processedPages, paperSize);
+      return;
+    }
+    
+    var recordId = ids[currentIndex];
+    var singleFormData = formData + '&userID=' + recordId + '&mode=content';
+    
+    $.post('php/modules/wholesales/print.php', singleFormData, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        processedPages.push(obj.message);
+      }
+      currentIndex++;
+      processNextRecord();
+    }).fail(function() {
+      currentIndex++;
+      processNextRecord();
+    });
+  }
+  
+  processNextRecord();
+}
+
+function combineAndPrint(pages, paperSize) {
+  if (pages.length === 0) {
+    toastr["error"]("<?=$languageArray['no_records_to_print_code'][$language] ?? 'No records to print'?>", "Error:");
+    return;
+  }
+  
+  if (pages.length === 1) {
+    var formData = $('#printForm').serialize();
+    var multiPrintIds = $('#printForm').data('multiPrintIds');
+    $.post('php/modules/wholesales/print.php', formData + '&userID=' + multiPrintIds[0], function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        openPrintPreview(obj.message, paperSize);
+      }
+    });
+    return;
+  }
+  
+  var combinedHtml = '<html><head><style>' +
+    '* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+    'body { font-family: Arial, sans-serif; font-size: 13px; margin: 0; padding: 10mm; }' +
+    '.record-section { page-break-after: always; margin-bottom: 10mm; }' +
+    '.record-section:last-child { page-break-after: avoid; }' +
+    '.record-header { margin-bottom: 10px; }' +
+    '.record-section .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; border: none; }' +
+    '.header-logo { width: 150px; min-height: 80px; display: flex; align-items: center; justify-content: flex-start; padding: 0 8px 0 0; flex-shrink: 0; }' +
+    '.header-company { flex: 0 0 320px; display: flex; align-items: center; padding: 0 10px 0 0; font-size: 12px; text-align: left; }' +
+    '.header-status { margin-left: auto; padding: 6px 10px; flex-shrink: 0; }' +
+    '.status-title { font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 4px; }' +
+    '.hrow { display: flex; font-size: 11px; margin-bottom: 2px; }' +
+    '.hlabel { width: 90px; flex-shrink: 0; }' +
+    '.hvalue { flex: 1; }' +
+    '.info-section { display: flex; width: 100%; margin-bottom: 3px; border-bottom: 1px solid #000; padding-bottom: 3px; }' +
+    '.info-col { flex: 1; padding-right: 6px; }' +
+    '.info-col:nth-child(1) { flex: 1.5; }' +
+    '.irow { display: flex; margin-bottom: 1px; font-size: 11px; }' +
+    '.ilabel { width: 90px; flex-shrink: 0; font-weight: bold; }' +
+    '.ivalue { flex: 1; }' +
+    'table.grade-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 10px; }' +
+    'table.grade-table td { border: 1px solid #000; padding: 3px 5px; }' +
+    'tr.grade-header { background: #e8e8e8; font-size: 10px; }' +
+    'tr.grade-header td { border: 1px solid #000; padding: 4px 6px; }' +
+    'tr.net-header td { border: 1px solid #000; padding: 2px 6px; font-weight: bold; text-align: center; background: #f5f5f5; font-size: 10px; }' +
+    'table.grade-table tbody td { text-align: center; font-size: 10px; width: 10%; }' +
+    '.row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }' +
+    '.col-4 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 33.333333%; max-width: 33.333333%; box-sizing: border-box; }' +
+    '.col-8 { position: relative; width: 100%; padding-right: 5px; padding-left: 5px; flex: 0 0 66.666667%; max-width: 66.666667%; box-sizing: border-box; }' +
+    '.mb-1 { margin-bottom: 0.25rem !important; }' +
+    '.mb-3 { margin-bottom: 1rem !important; }' +
+    '.company-name { font-weight: bold; font-size: 18px; }' +
+    '.address { font-size: 14px; }' +
+    '.header-row { margin-bottom: 5px; font-size: 14px; display: flex; }' +
+    '.header-label { width: 120px; flex-shrink: 0; }' +
+    '.header-value { flex: 1; }' +
+    '.info-row { margin-bottom: 1px; font-size: 12px; display: flex; white-space: nowrap; }' +
+    '.info-label { font-weight: bold; width: 95px; display: inline-block; text-align: left; flex-shrink: 0; }' +
+    '.info-value { }' +
+    '.grade-table th, .grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }' +
+    '.grade-table th { background-color: #f0f0f0; }' +
+    'table.items { width: 100%; border-collapse: collapse; }' +
+    'table.items th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 6px 4px; font-weight: bold; text-align: center; font-size: 13px; }' +
+    'table.items td { border: none; padding: 4px; text-align: center; font-size: 13px; }' +
+    'table.items td:nth-child(2) { text-align: left; }' +
+    '.detail-row td { padding-top: 0 !important; }' +
+    '.detail-text { color: #333; font-size: 12px; text-align: left; padding-left: 5px; }' +
+    '.summary-section { margin-top: 20px; display: flex; justify-content: flex-end; }' +
+    'table.summary { border-collapse: collapse; }' +
+    'table.summary th, table.summary td { border: 1px solid #000; padding: 8px 12px; text-align: center; }' +
+    'table.summary th { background: #f0f0f0; font-weight: bold; }' +
+    'table.summary td { font-weight: bold; font-size: 13px; }' +
+    '.slip-title { font-size: 20px; font-weight: bold; text-decoration: underline; }' +
+    '.info-block { display: flex; justify-content: space-between; }' +
+    '.info-right { }' +
+    '@page { size: ' + paperSize + ' portrait; margin: 10mm; }' +
+    '@media print { body { margin: 0; padding: 0; } }' +
+    '</style></head><body>' + pages.join('') + '</body></html>';
+  
+  var printWindow = window.open('', '_blank', 'height=' + screen.height + ',width=' + screen.width);
+  printWindow.document.write(combinedHtml);
+  printWindow.document.close();
+  
+  setTimeout(function() {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }, 500);
 }
 
 function printInvoice(id) {

@@ -129,7 +129,68 @@ if ($includePrice) {
     $summaryAmountCell = '<td>'.$amountLines.'</td>';
 }
 
-$message = '
+// Content-only mode: output just the record section without html/head/body wrapper
+if ($mode == 'content') {
+    $message = '
+    <div class="record-section">
+        <div class="record-header" style="border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
+            <div class="header-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
+                <div class="company-name" style="font-size: 18px; font-weight: bold;">'.htmlspecialchars($wholesale['name']).'</div>
+                <div class="slip-title" style="font-size: 20px; font-weight: bold; text-decoration: underline;">'.htmlspecialchars($slipTitle).'</div>
+            </div>
+            <div class="info-block" style="display: flex; justify-content: space-between;">
+                <div class="info-right">
+                    <div class="info-row"><span class="info-label" style="font-weight: bold; width: 95px; display: inline-block;">'.($isDispatchOrStockBal ? 'Customer' : 'Supplier').'</span><span class="info-value">: '.htmlspecialchars($partyName).'</span></div>
+                    <div class="info-row"><span class="info-label" style="font-weight: bold; width: 95px; display: inline-block;">Vehicle No.</span><span class="info-value">: '.htmlspecialchars($wholesale['vehicle_no']).'</span></div>
+                    <div class="info-row"><span class="info-label" style="font-weight: bold; width: 95px; display: inline-block;">Location</span><span class="info-value">: '.htmlspecialchars($locationName).'</span></div>
+                </div>
+                <div class="info-right">
+                    <div class="info-row"><span class="info-label" style="font-weight: bold; width: 95px; display: inline-block;">Weight Slip No.</span><span class="info-value">: '.htmlspecialchars($wholesale['serial_no']).'</span></div>
+                    <div class="info-row"><span class="info-label" style="font-weight: bold; width: 95px; display: inline-block;">'.htmlspecialchars($doLabel).'</span><span class="info-value">: '.htmlspecialchars($wholesale['po_no']).'</span></div>
+                    <div class="info-row"><span class="info-label" style="font-weight: bold; width: 95px; display: inline-block;">Date</span><span class="info-value">: '.date('d/m/Y', strtotime($wholesale['start_time'])).'</span></div>
+                </div>
+            </div>
+        </div>
+        <table class="items">
+            <thead>
+                <tr>
+                    <th style="width:5%;">No</th>
+                    <th style="width:25%;">Item Desc</th>
+                    <th style="width:10%;">Grade</th>
+                    <th style="width:10%;">Total Bin</th>
+                    <th style="width:15%;">Nett Weight</th>
+                    <th style="width:8%;">Unit</th>
+                    '.($includePrice ? '<th style="width:12%;">Unit Price</th><th style="width:15%;">Total Price</th>' : '').'
+                </tr>
+            </thead>
+            <tbody>
+                '.$rows.'
+            </tbody>
+        </table>
+        <div class="summary-section" style="margin-top: 20px; display: flex; justify-content: flex-end;">
+            <table class="summary">
+                <thead>
+                    <tr>
+                        <th>Total Items</th>
+                        <th>Total Weight</th>
+                        <th>Total Bin</th>
+                        '.($includePrice ? '<th>Total Amount</th>' : '').'
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>'.$totalItems.'</td>
+                        <td>'.number_format($grandTotalNet, 2).' kg</td>
+                        <td>'.$grandTotalItems.'</td>
+                        '.$summaryAmountCell.'
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>';
+} else {
+    // Full mode: complete HTML document with Paged.js
+    $message = '
 <html>
 <head>
     <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
@@ -261,3 +322,4 @@ $message = '
     </div>
 </body>
 </html>';
+}
