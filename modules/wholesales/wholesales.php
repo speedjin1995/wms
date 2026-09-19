@@ -333,6 +333,9 @@ else{
             </button>
             <div class="dropdown-menu dropdown-menu-right p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;"></div>
           </div>
+          <button type="button" class="btn btn-action btn-action-success" onclick="printSelected()">
+            <i class="fas fa-print"></i> <?=$languageArray['print_selected_code'][$language] ?? 'Print Selected'?>
+          </button>
           <?php if($allowInvoice == 'Y' && $userAllowPrice == 'Y'){ ?>
           <button type="button" class="btn btn-action btn-action-warning" onclick="exportInvoices()">
             <i class="fas fa-file-invoice"></i> <?=$languageArray['export_invoice_code'][$language] ?? 'Export Invoice'?>
@@ -912,57 +915,11 @@ $(function () {
   // Build column toggle menu
   buildColumnToggleMenu();
 
-  var fromDateI = $('#fromDate').val();
-  var toDateI = $('#toDate').val();
-  var transactionStatusI = $('#transactionStatusFilter').val();
-  var statusI = $('#statusFilter').val();
-  var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-  var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
-  var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-  var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-  var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-  var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-  var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-  var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-  var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-  var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
-  var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
+  // Render Table
+  renderTable();
 
-  var table = $("#weightTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'searching': true,
-    'order': [[ 0, 'asc' ]],
-    'language': {
-      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
-      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
-    },
-    'drawCallback': function(settings) {
-    },
-    'ajax': {
-      'url':'php/modules/wholesales/filterWholesale.php',
-      'data': {
-        fromDate: fromDateI,
-        toDate: toDateI,
-        transactionStatus: transactionStatusI,
-        status: statusI,
-        product: productI,
-        category: categoryI,
-        customer: customerNoI,
-        supplier: supplierNoI,
-        vehicle: vehicleNoI,
-        otherVehicle: otherVehicleNoI,
-        checkedBy: checkedByI,
-        weightedBy: weightedByI,
-        location: locationI,
-        partyType: partyTypeI,
-        indicator: indicatorI
-      } 
-    },
-    'columns': getTableColumns()
+  $('#filterSearch').on('click', function(){
+    renderTable();
   });
 
   $('#selectAllRows').on('change', function() {
@@ -1000,101 +957,6 @@ $(function () {
           });
       }
   });
-
-  $('#filterSearch').on('click', function(){
-    //$('#spinnerLoading').show();
-    var fromDateI = $('#fromDate').val();
-    var toDateI = $('#toDate').val();
-    var transactionStatusI = $('#transactionStatusFilter').val();
-    var statusI = $('#statusFilter').val();
-    var productI = $('#productFilter').val() ? $('#productFilter').val() : '';
-    var categoryI = $('#categoryFilter').val() ? $('#categoryFilter').val() : '';
-    var customerNoI = $('#customerNoFilter').val() ? $('#customerNoFilter').val() : '';
-    var supplierNoI = $('#supplierNoFilter').val() ? $('#supplierNoFilter').val() : '';
-    var vehicleNoI = $('#vehicleNoFilter').val() ? $('#vehicleNoFilter').val() : '';
-    var otherVehicleNoI = $('#otherVehicleNoFilter').val() ? $('#otherVehicleNoFilter').val() : '';
-    var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
-    var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
-    var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
-    var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
-
-    //Destroy the old Datatable
-    $("#weightTable").DataTable().clear().destroy();
-
-    //Create new Datatable
-    table = $("#weightTable").DataTable({
-      "responsive": true,
-      "autoWidth": false,
-      'processing': true,
-      'serverSide': true,
-      'serverMethod': 'post',
-      'searching': true,
-      'order': [[ 0, 'asc' ]],
-      'language': {
-        'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
-        'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
-      },
-      'drawCallback': function(settings) {
-      },
-      'ajax': {
-        'url':'php/modules/wholesales/filterWholesale.php',
-        'data': {
-          fromDate: fromDateI,
-          toDate: toDateI,
-          transactionStatus: transactionStatusI,
-          status: statusI,
-          product: productI,
-          category: categoryI,
-          customer: customerNoI,
-          supplier: supplierNoI,
-          vehicle: vehicleNoI,
-          otherVehicle: otherVehicleNoI,
-          checkedBy: checkedByI,
-          weightedBy: weightedByI,
-          location: locationI,
-          partyType: partyTypeI,
-          indicator: indicatorI
-        } 
-      },
-      'columns': getTableColumns()
-      });
-  });
-
-  // $.post('http://127.0.0.1:5002/', $('#setupForm').serialize(), function(data){
-  //   if(data == "true"){
-  //     $('#indicatorConnected').addClass('bg-primary');
-  //     $('#checkingConnection').removeClass('bg-danger');
-  //     //$('#captureWeight').removeAttr('disabled');
-  //   }
-  //   else{
-  //     $('#indicatorConnected').removeClass('bg-primary');
-  //     $('#checkingConnection').addClass('bg-danger');
-  //     //$('#captureWeight').attr('disabled', true);
-  //   }
-  // });
-  
-  // setInterval(function () {
-  //   $.post('http://127.0.0.1:5002/handshaking', function(data){
-  //     if(data != "Error"){
-  //       console.log("Data Received:" + data);
-  //       var text = data.split(" ");
-
-  //       if(text.length > 2){
-  //         $('#indicatorWeight').html(text[text.length - 2] + ' ' + text[text.length - 1]);
-  //         var convertTog1 = convertUnits(text[text.length - 2], text[text.length - 1], 'g');
-
-  //         if($('#uom').val() && $('#product').val()){
-  //           var uomDesc = $("#uomhidden option[value='"+$('#uom').val()+"']").text();
-  //           var weight = $('#product :selected').data('unit');
-  //           var convertTog2 = convertUnits(weight, uomDesc, 'g');
-  //           var count = parseFloat(convertTog1) / parseFloat(convertTog2);
-  //           $('#countingWeight').text(count.toFixed(0));
-  //         }
-  //       }
-  //     }
-  //   });
-  // }, 500);
 
   $.validator.setDefaults({
     submitHandler: function () {
@@ -1189,49 +1051,44 @@ $(function () {
           $('#spinnerLoading').hide();
         });
       }else if ($('#printOptionsModal').hasClass('show')){
+        var formData = $('#printOptionsForm').serialize();
+        var selectedPaperSize = $('#paperSize').val();
+        var multiPrintIds = $('#printOptionsForm').data('multiPrintIds');
+        var singleId = $('#printID').val();
+        
+        // Validate we have something to print
+        if ((!multiPrintIds || multiPrintIds.length === 0) && !singleId) {
+          toastr["error"]("No record selected for printing", "Error:");
+          return false;
+        }
+        
         $('#printOptionsModal').modal('hide');
-        $.post('php/modules/wholesales/print.php', $('#printOptionsForm').serialize(), function(data){
-          var obj = JSON.parse(data);
-          if(obj.status === 'success') {
-            var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-            printWindow.document.write(obj.message);
-            printWindow.document.close();
-            var selectedPaperSize = $('#paperSize').val();
-            if (selectedPaperSize == 'A5') {
-              var qrImg = printWindow.document.querySelector('.qr-block img');
-              if (qrImg && !qrImg.complete) {
-                qrImg.onload = qrImg.onerror = function() {
-                  printWindow.print();
-                  printWindow.close();
-                };
-              } else {
-                setTimeout(function() {
-                  printWindow.print();
-                  printWindow.close();
-                }, 300);
-              }
-            } else {
-              var pollCount = 0;
-              var poll = setInterval(function() {
-                pollCount++;
-                var rendered = printWindow.document.querySelector('.pagedjs_pages');
-                if (rendered || pollCount > 60) {
-                  clearInterval(poll);
-                  setTimeout(function() {
-                    printWindow.print();
-                    printWindow.close();
-                  }, 300);
-                }
-              }, 200);
+        
+        if (multiPrintIds && multiPrintIds.length > 1) {
+          // Multi-print: process sequentially via iframes
+          openMultiPrintPreview(multiPrintIds, formData, selectedPaperSize);
+          $('#printOptionsForm').data('multiPrintIds', null); // Clear after use
+        } else {
+          // Single print
+          var printId = multiPrintIds && multiPrintIds.length === 1 ? multiPrintIds[0] : singleId;
+          formData += '&userID=' + printId;
+          
+          $.post('php/modules/wholesales/print.php', formData, function(data){
+            var obj = JSON.parse(data);
+            if(obj.status === 'success') {
+              openPrintPreview(obj.message, selectedPaperSize);
             }
-          }
-          else if(obj.status === 'failed'){
-            alert(obj.message);
-          }
-          else{
-            alert("Something wrong when activate");
-          }
-        });
+            else if(obj.status === 'failed'){
+              toastr["error"](obj.message, "Failed:");
+            }
+            else{
+              toastr["error"]("Something wrong when printing", "Failed:");
+            }
+          }).fail(function() {
+            toastr["error"]("Failed to generate print document", "Failed:");
+          });
+          $('#printOptionsForm').data('multiPrintIds', null); // Clear after use
+        }
       }
     }
   });
@@ -1964,7 +1821,96 @@ $(function () {
   });
 });
 
-// Build ordered column list from columnSetup if available, else use defaultColumns order
+// ============================================================================
+// DATATABLE CONFIGURATION
+// ============================================================================
+
+function buildColumnToggleMenu() {
+  var menu = $('#columnToggleMenu');
+  menu.empty();
+  var ordered = buildColumnDefs();
+  ordered.forEach(function(item) {
+    var label = item.col[2];
+    var dataField = item.col[1];
+    menu.append(
+      '<div class="form-check">' +
+        '<input class="form-check-input column-toggle" type="checkbox" data-field="' + dataField + '"' + (item.visible ? ' checked' : '') + '>' +
+        '<label class="form-check-label">' + label + '</label>' +
+      '</div>'
+    );
+  });
+  menu.on('click', function(e) { e.stopPropagation(); });
+  menu.on('change', '.column-toggle', function() {
+    var field = $(this).data('field');
+    var visible = $(this).is(':checked');
+    var dt = $('#weightTable').DataTable();
+    dt.columns().every(function() {
+      if (this.dataSrc() === field) { this.visible(visible); }
+    });
+  });
+}
+
+function renderTable() {
+  var fromDateI = $('#fromDate').val();
+  var toDateI = $('#toDate').val();
+  var transactionStatusI = $('#transactionStatusFilter').val();
+  var statusI = $('#statusFilter').val();
+  var productI = $('#productFilter').val() || '';
+  var categoryI = $('#categoryFilter').val() || '';
+  var customerNoI = $('#customerNoFilter').val() || '';
+  var supplierNoI = $('#supplierNoFilter').val() || '';
+  var vehicleNoI = $('#vehicleNoFilter').val() || '';
+  var otherVehicleNoI = $('#otherVehicleNoFilter').val() || '';
+  var checkedByI = $('#checkedByFilter').val() || '';
+  var weightedByI = $('#weightByFilter').val() || '';
+  var locationI = $('#locationFilter').val() || '';
+  var partyTypeI = $('#partyTypeFilter').val() || '';
+  var indicatorI = $('#indicatorFilter').val() || '';
+
+  // Destroy the old Datatable if exists
+  if ($.fn.DataTable.isDataTable('#weightTable')) {
+    $('#weightTable').DataTable().clear().destroy();
+  }
+
+  // Create new Datatable
+  table = $('#weightTable').DataTable({
+    "responsive": true,
+    "autoWidth": false,
+    'processing': true,
+    'serverSide': true,
+    'serverMethod': 'post',
+    'searching': true,
+    'order': [[0, 'asc']],
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
+    'drawCallback': function(settings) {
+    },
+    'ajax': {
+      'url': 'php/modules/wholesales/filterWholesale.php',
+      'data': {
+        fromDate: fromDateI,
+        toDate: toDateI,
+        transactionStatus: transactionStatusI,
+        status: statusI,
+        product: productI,
+        category: categoryI,
+        customer: customerNoI,
+        supplier: supplierNoI,
+        vehicle: vehicleNoI,
+        otherVehicle: otherVehicleNoI,
+        checkedBy: checkedByI,
+        weightedBy: weightedByI,
+        location: locationI,
+        partyType: partyTypeI,
+        indicator: indicatorI
+      }
+    },
+    'columns': getTableColumns()
+  });
+}
+
 function buildColumnDefs() {
   var colMap = {};
   defaultColumns.forEach(function(col) { colMap[col[0]] = col; });
@@ -2015,6 +1961,10 @@ function getTableColumns() {
   return cols;
 }
 
+// ============================================================================
+// FORM HELPERS
+// ============================================================================
+
 function applyCustomerCurrency(currencyId) {
   if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
   if (!currencyId) return;
@@ -2023,7 +1973,11 @@ function applyCustomerCurrency(currencyId) {
   });
 }
 
-function format (row) {
+// ============================================================================
+// DATATABLE ROW EXPANSION
+// ============================================================================
+
+function format(row) {
   var returnString = `
   <div class="expanded-row-content">
     <!-- Header -->
@@ -2265,7 +2219,86 @@ function format (row) {
   return returnString;
 }
 
-function newEntry(){
+function filterWeightTable(rowId) {
+  var productFilter = $('#productFilter_' + rowId).val();
+  var gradeFilter = $('#gradeFilter_' + rowId).val();
+
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
+
+  $('#weightTable_' + rowId + ' tbody tr').each(function() {
+    var product = $(this).find('td:eq(0)').text().trim();
+    var grade = $(this).find('td:eq(1)').text().trim();
+    var showProduct = !productFilter || product === productFilter;
+    var showGrade = !gradeFilter || grade === gradeFilter;
+    var show = showProduct && showGrade;
+    $(this).toggle(show);
+
+    if (show) {
+      totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
+      totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
+      totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
+      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
+        totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
+        totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
+        totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
+      }
+    }
+  });
+
+  $('#footGross_' + rowId).text(totalGross.toFixed(2));
+  $('#footTare_'  + rowId).text(totalTare.toFixed(2));
+  $('#footNet_'   + rowId).text(totalNet.toFixed(2));
+  $('#footBeforeDiscount_' + rowId).text(totalBeforeDiscount.toFixed(2));
+  $('#footDiscount_' + rowId).text(totalDiscount.toFixed(2));
+  $('#footPrice_' + rowId).text(totalPrice.toFixed(2));
+
+  var gradeSelect = $('#gradeFilter_' + rowId);
+  var currentGrade = gradeSelect.val();
+  gradeSelect.find('option:not(:first)').remove();
+
+  var grades = [];
+  $('#weightTable_' + rowId + ' tbody tr').each(function() {
+    if (!productFilter || $(this).find('td:eq(0)').text().trim() === productFilter) {
+      var grade = $(this).find('td:eq(1)').text().trim();
+      if (grades.indexOf(grade) === -1) grades.push(grade);
+    }
+  });
+
+  grades.sort();
+  $.each(grades, function(i, grade) {
+    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  });
+  gradeSelect.val(currentGrade);
+}
+
+function populateFilters(rowId, weightDetails) {
+  var products = {};
+  var grades = [];
+  
+  weightDetails.forEach(function(detail) {
+    products[detail.product_name] = true;
+    if(grades.indexOf(detail.grade) === -1) {
+      grades.push(detail.grade);
+    }
+  });
+  
+  var productSelect = $('#productFilter_' + rowId);
+  for(var product in products) {
+    productSelect.append('<option value="' + product + '">' + product + '</option>');
+  }
+  
+  grades.sort();
+  var gradeSelect = $('#gradeFilter_' + rowId);
+  grades.forEach(function(grade) {
+    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  });
+}
+
+// ============================================================================
+// CRUD OPERATIONS
+// ============================================================================
+
+function newEntry() {
   $('#extendModal').find('#id').val("");
   $('#extendModal').find('#serialNo').val("");
   $('#extendModal').find('#category').val("").trigger('change');
@@ -2325,67 +2358,6 @@ function newEntry(){
       $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
     }
   });
-}
-
-function getSelectedPartyType() {
-  var status = $('#extendModal').find('#status').val();
-  if (status === 'RECEIVING' || status === 'INCOMING') {
-    return $('#extendModal').find('#supplier option:selected').data('type') || '';
-  } else {
-    return $('#extendModal').find('#customer option:selected').data('type') || '';
-  }
-}
-
-function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
-  var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
-  
-  // If party type is Packing, default price to 0
-  var partyType = getSelectedPartyType();
-  if (partyType === 'Packing' && forceReplace) {
-    element.closest('tr').find('input[id^="price"]').val('0.00');
-    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
-    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
-    return;
-  }
-  
-  if (productId && currencyId){
-    $('#spinnerLoading').show();
-
-    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId, type: "getPrice"}, function(data){
-      var obj = JSON.parse(data);
-
-      if(obj.status === 'success'){
-        var pricingType = obj.message.pricingType;
-        var existingPrice = element.closest('tr').find('input[id^="price"]').val();
-        var price;
-        if (overridePrice !== undefined) {
-          price = parseFloat(overridePrice) || 0;
-        } else if (forceReplace) {
-          price = parseFloat(obj.message.price) || 0;
-        } else {
-          price = (existingPrice !== '' && parseFloat(existingPrice) > 0) ? parseFloat(existingPrice) : (parseFloat(obj.message.price) || 0);
-        }
-        var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
-        var total = (pricingType == 'Float') ? price * net : price;
-
-        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
-        element.closest('tr').find('input[id^="price"]').val(price);
-        element.closest('tr').find('input[id^="before_discount"]').val(total.toFixed(2));
-        var discountType = element.closest('tr').find('select[id^="discount_type"]').val();
-        var discount = parseFloat(element.closest('tr').find('input[id^="discount"]').val()) || 0;
-        var finalTotal = discountType === 'percent' ? total - (total * discount / 100) : total - discount;
-        if (finalTotal < 0) finalTotal = 0;
-        element.closest('tr').find('input[name*="[total]"]').val(finalTotal.toFixed(2)).trigger('change');
-      }
-      else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
-      }
-      else{
-        toastr["error"]("Something wrong when delete", "Failed:");
-      }
-      $('#spinnerLoading').hide();
-    });
-  }
 }
 
 function edit(id) {
@@ -2672,7 +2644,6 @@ function edit(id) {
         $(this).select2({
           allowClear: true,
           placeholder: "Please Select",
-          // Conditionally set dropdownParent based on the element’s location
           dropdownParent: $('#extendModal .modal-content')
         });
       });
@@ -2711,6 +2682,96 @@ function edit(id) {
     $('#spinnerLoading').hide();
   });
 }
+
+function deactivate(id) {
+  if (confirm('Are you sure you want to delete this item?')) {
+    $('#cancelModal').find('#id').val(id);
+    $('#cancelModal').modal('show');
+
+    $('#cancelForm').validate({
+      errorElement: 'span',
+      errorPlacement: function (error, element) {
+          error.addClass('invalid-feedback');
+          element.closest('.form-group').append(error);
+      },
+      highlight: function (element, errorClass, validClass) {
+          $(element).addClass('is-invalid');
+      },
+      unhighlight: function (element, errorClass, validClass) {
+          $(element).removeClass('is-invalid');
+      }
+    });
+  }
+}
+
+// ============================================================================
+// PRICING FUNCTIONS
+// ============================================================================
+
+function getSelectedPartyType() {
+  var status = $('#extendModal').find('#status').val();
+  if (status === 'RECEIVING' || status === 'INCOMING') {
+    return $('#extendModal').find('#supplier option:selected').data('type') || '';
+  } else {
+    return $('#extendModal').find('#customer option:selected').data('type') || '';
+  }
+}
+
+function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
+  var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
+  
+  // If party type is Packing, default price to 0
+  var partyType = getSelectedPartyType();
+  if (partyType === 'Packing' && forceReplace) {
+    element.closest('tr').find('input[id^="price"]').val('0.00');
+    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
+    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
+    return;
+  }
+  
+  if (productId && currencyId){
+    $('#spinnerLoading').show();
+
+    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId, type: "getPrice"}, function(data){
+      var obj = JSON.parse(data);
+
+      if(obj.status === 'success'){
+        var pricingType = obj.message.pricingType;
+        var existingPrice = element.closest('tr').find('input[id^="price"]').val();
+        var price;
+        if (overridePrice !== undefined) {
+          price = parseFloat(overridePrice) || 0;
+        } else if (forceReplace) {
+          price = parseFloat(obj.message.price) || 0;
+        } else {
+          price = (existingPrice !== '' && parseFloat(existingPrice) > 0) ? parseFloat(existingPrice) : (parseFloat(obj.message.price) || 0);
+        }
+        var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
+        var total = (pricingType == 'Float') ? price * net : price;
+
+        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
+        element.closest('tr').find('input[id^="price"]').val(price);
+        element.closest('tr').find('input[id^="before_discount"]').val(total.toFixed(2));
+        var discountType = element.closest('tr').find('select[id^="discount_type"]').val();
+        var discount = parseFloat(element.closest('tr').find('input[id^="discount"]').val()) || 0;
+        var finalTotal = discountType === 'percent' ? total - (total * discount / 100) : total - discount;
+        if (finalTotal < 0) finalTotal = 0;
+        element.closest('tr').find('input[name*="[total]"]').val(finalTotal.toFixed(2)).trigger('change');
+      }
+      else if(obj.status === 'failed'){
+        toastr["error"](obj.message, "Failed:");
+      }
+      else{
+        toastr["error"]("Something wrong when delete", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    });
+  }
+}
+
+// ============================================================================
+// WEIGHT DETAILS TABLE MANAGEMENT
+// ============================================================================
 
 function rejectRow(button) {
   var row = $(button).closest('tr');
@@ -2897,29 +2958,14 @@ function updateTotals() {
   $('#totalRejectDiscount').text(totalRejectDiscount.toFixed(2));
 }
 
-function deactivate(id) {
-  if (confirm('Are you sure you want to delete this item?')) {
-    $('#cancelModal').find('#id').val(id);
-    $('#cancelModal').modal('show');
-
-    $('#cancelForm').validate({
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-      }
-    });
-  }
-}
+// ============================================================================
+// PRINT FUNCTIONS
+// ============================================================================
 
 function print(id) {
+  // Store single ID for print
   $('#printID').val(id);
+  $('#printOptionsForm').data('multiPrintIds', null); // Clear multi-print data
   $('#printOptionsModal').modal('show');
 
   $('#printOptionsForm').validate({
@@ -2937,97 +2983,236 @@ function print(id) {
   });
 }
 
-function printInvoice(id) {
-  $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id, function(data){
-    var obj = JSON.parse(data);
-    if(obj.status === 'success') {
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write(obj.message);
-      printWindow.document.close();
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something wrong when printing invoice", "Failed:");
-    }
+function printSelected() {
+  var selectedIds = [];
+  $('#weightTable tbody .rowCheckbox:checked').each(function() {
+    selectedIds.push($(this).val());
   });
-}
-
-function filterWeightTable(rowId) {
-  var productFilter = $('#productFilter_' + rowId).val();
-  var gradeFilter = $('#gradeFilter_' + rowId).val();
-
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
-
-  $('#weightTable_' + rowId + ' tbody tr').each(function() {
-    var product = $(this).find('td:eq(0)').text().trim();
-    var grade = $(this).find('td:eq(1)').text().trim();
-    var showProduct = !productFilter || product === productFilter;
-    var showGrade = !gradeFilter || grade === gradeFilter;
-    var show = showProduct && showGrade;
-    $(this).toggle(show);
-
-    if (show) {
-      totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
-      totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
-      totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
-      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
-        totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
-        totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
-        totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
-      }
-    }
-  });
-
-  $('#footGross_' + rowId).text(totalGross.toFixed(2));
-  $('#footTare_'  + rowId).text(totalTare.toFixed(2));
-  $('#footNet_'   + rowId).text(totalNet.toFixed(2));
-  $('#footBeforeDiscount_' + rowId).text(totalBeforeDiscount.toFixed(2));
-  $('#footDiscount_' + rowId).text(totalDiscount.toFixed(2));
-  $('#footPrice_' + rowId).text(totalPrice.toFixed(2));
-
-  var gradeSelect = $('#gradeFilter_' + rowId);
-  var currentGrade = gradeSelect.val();
-  gradeSelect.find('option:not(:first)').remove();
-
-  var grades = [];
-  $('#weightTable_' + rowId + ' tbody tr').each(function() {
-    if (!productFilter || $(this).find('td:eq(0)').text().trim() === productFilter) {
-      var grade = $(this).find('td:eq(1)').text().trim();
-      if (grades.indexOf(grade) === -1) grades.push(grade);
-    }
-  });
-
-  grades.sort();
-  $.each(grades, function(i, grade) {
-    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-  });
-  gradeSelect.val(currentGrade);
-}
-
-function populateFilters(rowId, weightDetails) {
-  var products = {};
-  var grades = [];
-  
-  weightDetails.forEach(function(detail) {
-    products[detail.product_name] = true;
-    if(grades.indexOf(detail.grade) === -1) {
-      grades.push(detail.grade);
-    }
-  });
-  
-  var productSelect = $('#productFilter_' + rowId);
-  for(var product in products) {
-    productSelect.append('<option value="' + product + '">' + product + '</option>');
+  if (selectedIds.length === 0) {
+    toastr["warning"]("<?=$languageArray['please_select_record_code'][$language] ?? 'Please select at least one record to print.'?>", "Warning:");
+    return;
   }
   
-  grades.sort();
-  var gradeSelect = $('#gradeFilter_' + rowId);
-  grades.forEach(function(grade) {
-    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
+  // Max 10 records limit
+  if (selectedIds.length > 10) {
+    toastr["error"]("<?=$languageArray['max_print_records_code'][$language] ?? 'Maximum 10 records can be printed at once. Please select fewer records.'?>", "Error:");
+    return;
+  }
+  
+  // Store selected IDs for multi-print processing
+  $('#printOptionsForm').data('multiPrintIds', selectedIds);
+  $('#printID').val(''); // Clear single ID
+  $('#printOptionsModal').modal('show');
+  
+  $('#printOptionsForm').validate({
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+    }
   });
 }
+
+// Reusable print preview function for single record
+function openPrintPreview(printHtml, paperSize) {
+  var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
+  printWindow.document.write(printHtml);
+  printWindow.document.close();
+  
+  if (paperSize == 'A5') {
+    // A5: Wait for all QR images to load
+    var qrImages = printWindow.document.querySelectorAll('.qr-block img');
+    if (qrImages.length > 0) {
+      var loadedCount = 0;
+      var totalImages = qrImages.length;
+      var allLoaded = function() {
+        loadedCount++;
+        if (loadedCount >= totalImages) {
+          setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+          }, 300);
+        }
+      };
+      qrImages.forEach(function(img) {
+        if (img.complete) {
+          allLoaded();
+        } else {
+          img.onload = allLoaded;
+          img.onerror = allLoaded;
+        }
+      });
+      // Fallback timeout
+      setTimeout(function() {
+        if (loadedCount < totalImages) {
+          printWindow.print();
+          printWindow.close();
+        }
+      }, 5000);
+    } else {
+      setTimeout(function() {
+        printWindow.print();
+        printWindow.close();
+      }, 300);
+    }
+  } else {
+    // A4: Wait for Paged.js to render
+    var pollCount = 0;
+    var poll = setInterval(function() {
+      pollCount++;
+      var rendered = printWindow.document.querySelector('.pagedjs_pages');
+      if (rendered || pollCount > 60) {
+        clearInterval(poll);
+        setTimeout(function() {
+          printWindow.print();
+          printWindow.close();
+        }, 300);
+      }
+    }, 200);
+  }
+}
+
+function openMultiPrintPreview(ids, formData, paperSize) {
+  var processedPages = [];
+  var currentIndex = 0;
+  var totalRecords = ids.length;
+  
+  $('#spinnerLoading').show();
+  
+  function processNextRecord() {
+    if (currentIndex >= totalRecords) {
+      $('#spinnerLoading').hide();
+      combineAndPrint(processedPages, paperSize);
+      return;
+    }
+    
+    var recordId = ids[currentIndex];
+    var singleFormData = formData + '&userID=' + recordId + '&mode=content';
+    
+    $.post('php/modules/wholesales/print.php', singleFormData, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        processedPages.push(obj.message);
+      }
+      currentIndex++;
+      processNextRecord();
+    }).fail(function() {
+      currentIndex++;
+      processNextRecord();
+    });
+  }
+  
+  processNextRecord();
+}
+
+function combineAndPrint(pages, paperSize) {
+  if (pages.length === 0) {
+    toastr["error"]("<?=$languageArray['no_records_to_print_code'][$language] ?? 'No records to print'?>", "Error:");
+    return;
+  }
+  
+  var combinedHtml = '';
+  
+  if (paperSize == 'A5') {
+    combinedHtml = '<html><head><style>' +
+      '@page { size: A4 portrait; margin: 0; }' +
+      '* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+      'body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 0 1mm; background: #fff; }' +
+      '.record-section { page-break-after: always; width: 210mm; height: 148mm; overflow: hidden; padding: 5mm 0; }' +
+      '.record-section:last-child { page-break-after: avoid; }' +
+      '.a5-wrapper { width: 100%; height: 138mm; }' +
+      '.slip-border { border: 2px solid #000; padding: 8px; box-sizing: border-box; width: 100%; height: 100%; position: relative; }' +
+      '.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }' +
+      '.company-name { font-size: 16px; font-weight: bold; }' +
+      '.slip-title { font-size: 18px; font-weight: bold; text-decoration: underline; text-align: right; margin-right: 50px; }' +
+      '.info-block { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 6px; }' +
+      '.info-left { flex: 1; }' +
+      '.info-right { text-align: left; }' +
+      '.info-row { display: flex; margin-bottom: 3px; }' +
+      '.info-label { font-weight: bold; width: 90px; flex-shrink: 0; }' +
+      '.info-value { flex: 1; }' +
+      'table.items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }' +
+      'table.items th { border-bottom: 2px solid #000; padding: 3px 4px; text-decoration: underline; font-weight: bold; text-align: center; font-size: 14px; }' +
+      'table.items td { padding: 2px 4px; text-align: center; font-size: 14px; }' +
+      '.a5-footer { display: flex; justify-content: space-between; align-items: flex-end; position: absolute; bottom: 8px; left: 8px; right: 8px; }' +
+      '.qr-block { }' +
+      '.footer-row { }' +
+      'table.summary { border-collapse: collapse; }' +
+      'table.summary th, table.summary td { border: 1px solid #000; padding: 6px 8px; text-align: center; }' +
+      'table.summary th { font-weight: bold; }' +
+      'table.summary td { font-weight: bold; }' +
+      '@media print { @page { size: A4 portrait; margin: 0; } body { padding: 0 1mm; } }' +
+      '</style></head><body>' + pages.join('') + '</body></html>';
+  } else {
+    combinedHtml = '<html><head><style>' +
+      '* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+      'body { font-family: Arial, sans-serif; font-size: 13px; margin: 0; padding: 10mm; }' +
+      '.record-section { page-break-after: always; margin-bottom: 10mm; }' +
+      '.record-section:last-child { page-break-after: avoid; }' +
+      '.record-header { margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px; }' +
+      '.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }' +
+      '.company-name { font-size: 18px; font-weight: bold; }' +
+      '.slip-title { font-size: 20px; font-weight: bold; text-decoration: underline; }' +
+      '.info-block { display: flex; justify-content: space-between; }' +
+      '.info-row { margin-bottom: 1px; font-size: 12px; display: flex; white-space: nowrap; }' +
+      '.info-label { font-weight: bold; width: 95px; display: inline-block; text-align: left; flex-shrink: 0; }' +
+      '.info-value { }' +
+      '.info-right { }' +
+      'table.items { width: 100%; border-collapse: collapse; }' +
+      'table.items th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 6px 4px; font-weight: bold; text-align: center; font-size: 13px; }' +
+      'table.items td { border: none; padding: 4px; text-align: center; font-size: 13px; }' +
+      'table.items td:nth-child(2) { text-align: left; }' +
+      '.summary-section { margin-top: 20px; display: flex; justify-content: flex-end; }' +
+      'table.summary { border-collapse: collapse; }' +
+      'table.summary th, table.summary td { border: 1px solid #000; padding: 8px 12px; text-align: center; }' +
+      'table.summary th { background: #f0f0f0; font-weight: bold; }' +
+      'table.summary td { font-weight: bold; font-size: 13px; }' +
+      '.row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }' +
+      '.col-4 { flex: 0 0 33.333333%; max-width: 33.333333%; padding: 0 5px; box-sizing: border-box; }' +
+      '.col-8 { flex: 0 0 66.666667%; max-width: 66.666667%; padding: 0 5px; box-sizing: border-box; }' +
+      '.mb-1 { margin-bottom: 0.25rem; }' +
+      '.mb-3 { margin-bottom: 1rem; }' +
+      '.address { font-size: 14px; }' +
+      '.header-row { margin-bottom: 5px; font-size: 14px; display: flex; }' +
+      '.header-label { width: 120px; flex-shrink: 0; }' +
+      '.header-value { flex: 1; }' +
+      'table.grade-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }' +
+      'table.grade-table th, table.grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }' +
+      'table.grade-table th { background-color: #f0f0f0; }' +
+      '.info-section { display: flex; width: 100%; margin-bottom: 3px; border-bottom: 1px solid #000; padding-bottom: 3px; }' +
+      '.info-col { flex: 1; padding-right: 6px; }' +
+      '.irow { display: flex; margin-bottom: 1px; font-size: 11px; }' +
+      '.ilabel { width: 90px; flex-shrink: 0; font-weight: bold; }' +
+      '.ivalue { flex: 1; }' +
+      '.hrow { display: flex; font-size: 11px; margin-bottom: 2px; }' +
+      '.hlabel { width: 90px; flex-shrink: 0; }' +
+      '.hvalue { flex: 1; }' +
+      '.status-title { font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 4px; }' +
+      '@page { size: A4 portrait; margin: 10mm; }' +
+      '@media print { body { margin: 0; padding: 0; } }' +
+      '</style></head><body>' + pages.join('') + '</body></html>';
+  }
+  
+  var printWindow = window.open('', '_blank', 'height=' + screen.height + ',width=' + screen.width);
+  printWindow.document.write(combinedHtml);
+  printWindow.document.close();
+  
+  setTimeout(function() {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }, 500);
+}
+
+// ============================================================================
+// INVOICE EXPORT
+// ============================================================================
 
 function exportInvoices() {
   var ids = [];
@@ -3073,28 +3258,20 @@ function exportInvoices() {
   });
 }
 
-function buildColumnToggleMenu() {
-  var menu = $('#columnToggleMenu');
-  menu.empty();
-  var ordered = buildColumnDefs();
-  ordered.forEach(function(item) {
-    var label = item.col[2];
-    var dataField = item.col[1];
-    menu.append(
-      '<div class="form-check">' +
-        '<input class="form-check-input column-toggle" type="checkbox" data-field="' + dataField + '"' + (item.visible ? ' checked' : '') + '>' +
-        '<label class="form-check-label">' + label + '</label>' +
-      '</div>'
-    );
-  });
-  menu.on('click', function(e) { e.stopPropagation(); });
-  menu.on('change', '.column-toggle', function() {
-    var field = $(this).data('field');
-    var visible = $(this).is(':checked');
-    var dt = $('#weightTable').DataTable();
-    dt.columns().every(function() {
-      if (this.dataSrc() === field) { this.visible(visible); }
-    });
+function printInvoice(id) {
+  $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id, function(data){
+    var obj = JSON.parse(data);
+    if(obj.status === 'success') {
+      var printWindow = window.open('', '_blank');
+      printWindow.document.write(obj.message);
+      printWindow.document.close();
+    }
+    else if(obj.status === 'failed'){
+      toastr["error"](obj.message, "Failed:");
+    }
+    else{
+      toastr["error"]("Something wrong when printing invoice", "Failed:");
+    }
   });
 }
 

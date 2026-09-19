@@ -32,32 +32,30 @@ function arrangeByGrade($weighingDetails) {
     return ['arranged' => $arranged, 'earliest_time' => $earliest_time, 'latest_time' => $latest_time];
 }
 
-if(isset($_POST['userID'], $_POST['withPhoto'], $_POST['paperSize'])){
-    $id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
-    $withPhoto = filter_input(INPUT_POST, 'withPhoto', FILTER_SANITIZE_STRING);
-    $paperSize = filter_input(INPUT_POST, 'paperSize', FILTER_SANITIZE_STRING);
+$id = isset($_POST['userID']) ? filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING) : null;
+$mode = filter_input(INPUT_POST, 'mode', FILTER_SANITIZE_STRING) ?? 'full'; // 'full' or 'content'
+
+if (!empty($id)) {
+    $withPhoto = filter_input(INPUT_POST, 'withPhoto', FILTER_SANITIZE_STRING) ?? 'N';
+    $paperSize = filter_input(INPUT_POST, 'paperSize', FILTER_SANITIZE_STRING) ?? 'A4';
     $a4Template = filter_input(INPUT_POST, 'a4Template', FILTER_SANITIZE_STRING) ?? 'A4';
     $withDetails = filter_input(INPUT_POST, 'withDetails', FILTER_SANITIZE_STRING) ?? 'N';
-
+    
     if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
         $select_stmt->bind_param('s', $id);
-
         if (!$select_stmt->execute()) {
             echo json_encode(['status' => 'failed', 'message' => 'Something went wrong went execute']);
         } else {
             $result = $select_stmt->get_result();
-
             if ($wholesale = $result->fetch_assoc()) {
                 $companyDetail = searchCompanyById($wholesale['company'], $db);
                 $companyLogoSrc = !empty($wholesale['company_logo']) ? 'php/viewPhoto.php?file=' . urlencode($wholesale['company_logo']) . '&type=file_table' : '';
                 $weighingDetails = json_decode($wholesale['weight_details'], true);
-
                 if ($wholesale['status'] == 'STOCK-BAL') {
                     $status = 'Stock Balance';
                 } else {
                     $status = ucwords(strtolower($wholesale['status']));
                 }
-
                 if ($paperSize == 'A5') {
                     require __DIR__ . '/partial/print/printA5.php';
                 } elseif ($paperSize == 'A4' && $a4Template == 'A4Classic') {
@@ -70,7 +68,6 @@ if(isset($_POST['userID'], $_POST['withPhoto'], $_POST['paperSize'])){
                     $withDetails = 'Y';
                     require __DIR__ . '/partial/print/printA4Price.php';
                 }
-
                 echo json_encode(['status' => 'success', 'message' => $message]);
             } else {
                 echo json_encode(['status' => 'failed', 'message' => 'Data Not Found']);
