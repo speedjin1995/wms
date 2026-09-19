@@ -3351,3 +3351,36 @@ ALTER TABLE `stock_adjustment_daily` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT
 
 ALTER TABLE `stock_adjustment_daily` ADD COLUMN `balance_before` varchar(10) NOT NULL DEFAULT 0 AFTER `grade`;
 
+-- 20/09/2026 --
+CREATE TABLE `stock_adjustments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `adjustment_no` varchar(50) NOT NULL,
+  `adjustment_date` date NOT NULL,
+  `remark` text DEFAULT NULL,
+  `total_items` int(11) DEFAULT 0,
+  `total_cost` decimal(15,4) DEFAULT 0.0000,
+  `company` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_datetime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `stock_adjustment_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `adjustment_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade` varchar(50) DEFAULT NULL,
+  `quantity_before` decimal(15,4) NOT NULL DEFAULT 0.0000,
+  `adjustment_qty` decimal(15,4) NOT NULL DEFAULT 0.0000,
+  `quantity_after` decimal(15,4) NOT NULL DEFAULT 0.0000,
+  `unit_cost` decimal(15,4) NOT NULL DEFAULT 0.0000,
+  `total_cost` decimal(15,4) NOT NULL DEFAULT 0.0000,
+  `reason` varchar(255) DEFAULT NULL,
+  `created_datetime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `deleted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
