@@ -343,6 +343,21 @@ if(!isset($_SESSION['userID'])){
   </div>
 </div>
 
+<!-- Adjustment Item Row Template -->
+<script type="text/html" id="adjItemRowTemplate">
+  <tr class="adj-item-row">
+    <td><select class="form-control form-control-sm adj-product-select" id="adjProduct" style="width:100%;"></select></td>
+    <td><select class="form-control form-control-sm adj-grade-select" id="adjGrade" style="width:100%;"><option value="">-</option></select></td>
+    <td><input type="text" class="form-control form-control-sm text-right adj-current-qty" id="adjCurrentQty" readonly></td>
+    <td><input type="number" step="0.01" class="form-control form-control-sm text-right adj-adjust-qty" id="adjAdjustQty" placeholder="+/-"></td>
+    <td><input type="text" class="form-control form-control-sm text-right adj-new-qty" id="adjNewQty" readonly></td>
+    <td><input type="number" step="0.01" class="form-control form-control-sm text-right adj-unit-cost" id="adjUnitCost" value="0"></td>
+    <td class="text-right adj-total-cost">0.00</td>
+    <td><input type="text" class="form-control form-control-sm adj-reason" id="adjReason"></td>
+    <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-adj-item"><i class="fas fa-times"></i></button></td>
+  </tr>
+</script>
+
 <script>
 var adjListTable = null;
 var adjItemRowCount = 0;
@@ -428,15 +443,16 @@ $(function () {
     var $row = $(this).closest('tr');
     var productId = $(this).val();
     var $gradeSelect = $row.find('.adj-grade-select');
-    $gradeSelect.html('<option value="">-</option>');
+    var gradeHtml = '<option value="">-</option>';
     if (productId) {
       var product = productsData.find(function(p) { return p.id == productId; });
       if (product && product.grades) {
         product.grades.forEach(function(g) {
-          $gradeSelect.append('<option value="' + g.grade_id + '" data-cost="' + (g.purchasing_price || 0) + '">' + g.grade_name + '</option>');
+          gradeHtml += '<option value="' + g.grade_id + '" data-cost="' + (g.purchasing_price || 0) + '">' + g.grade_name + '</option>';
         });
       }
     }
+    $gradeSelect.html(gradeHtml).trigger('change.select2');
     $row.find('.adj-current-qty, .adj-adjust-qty, .adj-new-qty').val('');
     $row.find('.adj-unit-cost').val('0');
     $row.find('.adj-total-cost').text('0.00');
@@ -546,36 +562,48 @@ function openAdjustmentModal(id) {
   $('#adjModal').modal('show');
 }
 
-function addAdjustmentItemRow(data) {
+function addAdjustmentItemRow(data, callback) {
   var idx = adjItemRowCount++;
+  
+  // Clone template and append
+  var $template = $('#adjItemRowTemplate').clone();
+  $('#adjItemsBody').append($template.html());
+  
+  var $row = $('#adjItemsBody').find('.adj-item-row:last');
+  $row.attr('data-idx', idx);
+  
+  // Build product options
   var productOptions = '<option value="">-</option>';
   productsData.forEach(function(p) {
     productOptions += '<option value="' + p.id + '">' + (p.product_code ? p.product_code + ' - ' : '') + p.product_name + '</option>';
   });
-  var html = '<tr data-idx="' + idx + '">' +
-    '<td><select class="form-control form-control-sm adj-product-select">' + productOptions + '</select></td>' +
-    '<td><select class="form-control form-control-sm adj-grade-select"><option value="">-</option></select></td>' +
-    '<td><input type="text" class="form-control form-control-sm text-right adj-current-qty" readonly></td>' +
-    '<td><input type="number" step="0.01" class="form-control form-control-sm text-right adj-adjust-qty" placeholder="+/-"></td>' +
-    '<td><input type="text" class="form-control form-control-sm text-right adj-new-qty" readonly></td>' +
-    '<td><input type="number" step="0.01" class="form-control form-control-sm text-right adj-unit-cost" value="0"></td>' +
-    '<td class="text-right adj-total-cost">0.00</td>' +
-    '<td><input type="text" class="form-control form-control-sm adj-reason"></td>' +
-    '<td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-adj-item"><i class="fas fa-times"></i></button></td>' +
-    '</tr>';
-  $('#adjItemsBody').append(html);
+  
+  // Set unique IDs and populate product dropdown
+  $row.find('#adjProduct').attr('id', 'adjProduct' + idx).html(productOptions);
+  $row.find('#adjGrade').attr('id', 'adjGrade' + idx);
+  $row.find('#adjCurrentQty').attr('id', 'adjCurrentQty' + idx);
+  $row.find('#adjAdjustQty').attr('id', 'adjAdjustQty' + idx);
+  $row.find('#adjNewQty').attr('id', 'adjNewQty' + idx);
+  $row.find('#adjUnitCost').attr('id', 'adjUnitCost' + idx);
+  $row.find('#adjReason').attr('id', 'adjReason' + idx);
+  
+  // Initialize Select2
+  $row.find('.adj-product-select, .adj-grade-select').select2({ width: '100%', dropdownParent: $('#adjModal') });
+  
   toggleAdjItemsEmpty();
+  
+  // Populate data if provided (edit mode)
   if (data) {
-    var $row = $('#adjItemsBody tr[data-idx="' + idx + '"]');
     $row.find('.adj-product-select').val(data.product_id).trigger('change');
     setTimeout(function() {
-      $row.find('.adj-grade-select').val(data.grade);
+      $row.find('.adj-grade-select').val(data.grade).trigger('change.select2');
       $row.find('.adj-current-qty').val(parseFloat(data.quantity_before).toFixed(2));
       $row.find('.adj-adjust-qty').val(parseFloat(data.adjustment_qty).toFixed(2));
       $row.find('.adj-new-qty').val(parseFloat(data.quantity_after).toFixed(2));
       $row.find('.adj-unit-cost').val(parseFloat(data.unit_cost).toFixed(2));
-      $row.find('.adj-total-cost').text(parseFloat(data.total_cost).toFixed(2));
+      $row.find('.adj-total-cost').text(formatTotalCost(parseFloat(data.adjustment_qty), parseFloat(data.unit_cost)));
       $row.find('.adj-reason').val(data.reason || '');
+      if (callback) callback();
     }, 200);
   }
 }
@@ -587,17 +615,25 @@ function toggleAdjItemsEmpty() {
 }
 
 function updateRowTotalCost($row) {
-  var adjustQty = Math.abs(parseFloat($row.find('.adj-adjust-qty').val()) || 0);
+  var adjustQty = parseFloat($row.find('.adj-adjust-qty').val()) || 0;
   var unitCost = parseFloat($row.find('.adj-unit-cost').val()) || 0;
-  $row.find('.adj-total-cost').text((adjustQty * unitCost).toFixed(2));
+  $row.find('.adj-total-cost').text(formatTotalCost(adjustQty, unitCost));
+}
+
+function formatTotalCost(adjustQty, unitCost) {
+  var total = adjustQty * unitCost;
+  var sign = total >= 0 ? '+' : '';
+  return sign + total.toFixed(2);
 }
 
 function updateAdjustmentTotals() {
   var total = 0;
   $('#adjItemsBody tr').each(function() {
-    total += parseFloat($(this).find('.adj-total-cost').text()) || 0;
+    var text = $(this).find('.adj-total-cost').text().replace('+', '');
+    total += parseFloat(text) || 0;
   });
-  $('#adjTotalCost').text(total.toFixed(2));
+  var sign = total >= 0 ? '+' : '';
+  $('#adjTotalCost').text(sign + total.toFixed(2));
 }
 
 function saveAdjustment() {
@@ -675,8 +711,14 @@ function editAdjustment(id) {
       $('#adjRemark').val(d.remark || '');
       $('#adjItemsBody').html('');
       adjItemRowCount = 0;
-      d.items.forEach(function(item) { addAdjustmentItemRow(item); });
-      updateAdjustmentTotals();
+      var itemsToAdd = d.items.length;
+      var itemsAdded = 0;
+      d.items.forEach(function(item) {
+        addAdjustmentItemRow(item, function() {
+          itemsAdded++;
+          if (itemsAdded === itemsToAdd) updateAdjustmentTotals();
+        });
+      });
       $('#adjModal').modal('show');
     } else {
       toastr["error"](obj.message, "Failed:");
