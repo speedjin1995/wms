@@ -351,30 +351,21 @@ function edit(id) {
 }
 
 function deactivate(id) {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: "You want to delete this user?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444',
-    cancelButtonColor: '#64748b',
-    confirmButtonText: 'Yes, delete it!'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      $('#spinnerLoading').show();
-      $.post('php/modules/users/deleteUser.php', { userID: id }, function(data) {
-        var obj = JSON.parse(data);
-        if (obj.status === 'success') {
-          toastr.success(obj.message, "Success:");
-          memberTable.ajax.reload();
-        } else {
-          toastr.error(obj.message || "Something went wrong", "Failed:");
-        }
-        $('#spinnerLoading').hide();
-      });
-    }
-  });
+  if (confirm("Are you sure you want to delete this user?")) {
+    $('#spinnerLoading').show();
+    $.post('php/modules/users/deleteUser.php', { userID: id }, function(data) {
+      var obj = JSON.parse(data);
+      if (obj.status === 'success') {
+        toastr.success(obj.message, "Success:");
+        memberTable.ajax.reload();
+      } else {
+        toastr.error(obj.message || "Something went wrong", "Failed:");
+      }
+      $('#spinnerLoading').hide();
+    });
+  }
 }
+
 function openModuleAccess(id) {
   $('#spinnerLoading').show();
   $('#moduleAccessUserId').val(id);
