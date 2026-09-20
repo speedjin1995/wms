@@ -1,107 +1,157 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-    @page { margin: 15mm; }
-    body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
-    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-    .header-table td { vertical-align: top; }
-    .company-name { font-size: 18px; font-weight: bold; color: #e67300; }
-    .company-reg { font-size: 11px; color: #666; }
-    .company-info { font-size: 10px; color: #555; line-height: 1.4; }
-    .title { text-align: center; font-size: 18px; font-weight: bold; color: #e67300; margin: 20px 0; }
-    .ref-table { width: 100%; margin-bottom: 15px; }
-    .ref-table td { padding: 2px 0; }
-    .ref-left { text-align: left; }
-    .ref-right { text-align: right; }
-    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    .items-table th { background: #fff; color: #333; padding: 8px 5px; text-align: left; border-bottom: 2px solid #e67300; font-weight: normal; }
-    .items-table td { padding: 8px 5px; border-bottom: 1px solid #eee; vertical-align: top; }
-    .items-table tr:nth-child(even) { background: #fff5eb; }
-    .tc { text-align: center; }
-    .tr { text-align: right; }
-    .footer-section { margin-top: 30px; border-top: 1px solid #333; padding-top: 10px; }
-    .footer-table { width: 100%; }
-    .note-section { width: 60%; vertical-align: top; }
-    .total-section { width: 40%; text-align: right; vertical-align: top; }
-    .total-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin-left: 10px; min-width: 100px; text-align: right; }
-    .signature-section { margin-top: 50px; text-align: right; }
-    .signature-line { border-top: 1px solid #333; width: 150px; display: inline-block; margin-top: 40px; }
-    .signature-label { font-size: 10px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Stock Adjustment - {{ADJUSTMENT_NO}}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 12px; color: #333; }
+
+        /* Paged.js */
+        @page {
+            size: A4;
+            margin: 65mm 10mm 45mm 10mm;
+            @top-left { content: element(running-header); }
+            @bottom-left { content: element(running-footer); }
+        }
+        .running-header { position: running(running-header); width: 100%; }
+        .running-footer { position: running(running-footer); width: 100%; }
+
+        /* Header */
+        .header-block { padding: 15px 0; border-bottom: 2px solid #000; }
+        .header-inner { display: flex; align-items: center; gap: 15px; }
+        .logo img { width: 70px; height: auto; }
+        .company-info { text-align: left; }
+        .company-name { font-size: 16px; font-weight: bold; color: #000; }
+        .company-reg { font-size: 12px; color: #666; }
+        .company-detail { font-size: 12px; color: #555; line-height: 1.4; }
+
+        /* Title & Reference */
+        .title-section { text-align: center; padding: 15px 0; }
+        .title { font-size: 18px; font-weight: bold; color: #000; margin-bottom: 5px; }
+        .ref-row { display: flex; justify-content: flex-end; font-size: 12px; }
+        .ref-right { text-align: right; line-height: 1.6; }
+
+        /* Items Table Header */
+        .items-header { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .items-header th { padding: 8px 5px; text-align: left; border: solid black; border-width: 2px 0; font-weight: normal; }
+        .tc { text-align: center; }
+        .tr { text-align: right; }
+
+        /* Body Items */
+        .item-row { display: flex; border-bottom: 1px solid #ddd; padding: 8px 0; break-inside: avoid; }
+        .item-row:nth-child(even) { background: #f9f9f9; }
+        .col-no { width: 5%; text-align: center; }
+        .col-code { width: 15%; }
+        .col-desc { width: 35%; }
+        .col-qty { width: 12%; text-align: center; }
+        .col-uom { width: 8%; text-align: center; }
+        .col-unit { width: 12%; text-align: center; }
+        .col-total { width: 13%; text-align: center; }
+
+        /* Footer */
+        .footer-block { border-top: 1px solid #333; padding-top: 10px; }
+        .footer-row { display: flex; justify-content: space-between; align-items: flex-start; }
+        .note-section { width: 60%; font-size: 12px; }
+        .total-section { width: 40%; text-align: right; }
+        .total-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; min-width: 100px; text-align: right; font-weight: bold; }
+        .signature-section { margin-top: 50px; text-align: right; }
+        .signature-line { border-top: 1px solid #333; width: 150px; display: inline-block; margin-top: 30px; }
+        .signature-label { font-size: 12px; }
+
+        /* Page number */
+        .page-current::after { content: counter(page); }
+        .page-total::after { content: counter(pages); }
+
+        /* Print button */
+        .no-print { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; }
+        .print-btn { background: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .print-btn:hover { background: #0056b3; }
+        @media print { .no-print { display: none !important; } }
+    </style>
 </head>
 <body>
 
-<!-- Company Header -->
-<table class="header-table">
-    <tr>
-        <td style="width: 80px;">{{LOGO}}</td>
-        <td>
-            <div class="company-name">{{COMPANY_NAME}} <span class="company-reg">({{COMPANY_REG}})</span></div>
+<!-- RUNNING HEADER -->
+<div class="running-header">
+    <div class="header-block">
+        <div class="header-inner">
+            {{LOGO_TD}}
             <div class="company-info">
-                {{COMPANY_ADDRESS}}<br>
-                {{COMPANY_CITY}}<br>
-                Phone: {{COMPANY_PHONE}}<br>
-                Email: {{COMPANY_EMAIL}}
+                <div class="company-name">{{COMPANY_NAME}} <span class="company-reg">({{COMPANY_REG}})</span></div>
+                <div class="company-detail">
+                    {{COMPANY_ADDRESS}}<br>
+                    {{COMPANY_ADDRESS2}}<br>
+                    Phone: {{COMPANY_PHONE}} | Email: {{COMPANY_EMAIL}}
+                </div>
             </div>
-        </td>
-    </tr>
-</table>
-
-<!-- Title -->
-<div class="title">Stock Adjustment</div>
-
-<!-- Reference Info -->
-<table class="ref-table">
-    <tr>
-        <td class="ref-left"><strong>Ref :</strong> Stock Adjustment</td>
-        <td class="ref-right"><strong>No</strong> : {{ADJUSTMENT_NO}}</td>
-    </tr>
-    <tr>
-        <td></td>
-        <td class="ref-right"><strong>Date</strong> : {{ADJUSTMENT_DATE}}</td>
-    </tr>
-</table>
-
-<!-- Items Table -->
-<table class="items-table">
-    <thead>
+        </div>
+    </div>
+    <div class="title-section">
+        <div class="title">Stock Adjustment</div>
+        <div class="ref-row">
+            <div></div>
+            <div class="ref-right">
+                <div><strong>No :</strong> {{ADJUSTMENT_NO}}</div>
+                <div><strong>Date :</strong> {{ADJUSTMENT_DATE}}</div>
+            </div>
+        </div>
+    </div>
+    <table class="items-header">
         <tr>
             <th style="width:5%;" class="tc">No</th>
-            <th style="width:12%;">Item Code</th>
-            <th style="width:28%;">Description</th>
-            <th style="width:10%;" class="tc">Location</th>
-            <th style="width:10%;" class="tr">Qty</th>
+            <th style="width:15%;">Item Code</th>
+            <th style="width:35%;">Description</th>
+            <th style="width:12%;" class="tr">Qty</th>
             <th style="width:8%;" class="tc">UOM</th>
             <th style="width:12%;" class="tr">Unit Cost</th>
-            <th style="width:15%;" class="tr">Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{ITEMS_ROWS}}
-    </tbody>
-</table>
-
-<!-- Footer Section -->
-<div class="footer-section">
-    <table class="footer-table">
-        <tr>
-            <td class="note-section">
-                <strong>Note :</strong> {{REMARK}}
-            </td>
-            <td class="total-section">
-                <strong>Total</strong>
-                <span class="total-box">{{TOTAL_COST}}</span>
-            </td>
+            <th style="width:13%;" class="tr">Subtotal</th>
         </tr>
     </table>
 </div>
 
-<!-- Signature Section -->
-<div class="signature-section">
-    <div class="signature-line"></div>
-    <div class="signature-label">Approved By</div>
+<!-- BODY CONTENT -->
+<div class="body-section">
+    {{ITEMS_ROWS}}
 </div>
+
+<!-- RUNNING FOOTER -->
+<div class="running-footer">
+    <div class="footer-block">
+        <div class="footer-row">
+            <div class="note-section">
+                <strong>Note :</strong> {{REMARK}}
+            </div>
+            <div class="total-section">
+                <strong>Total</strong>
+                <span class="total-box">{{TOTAL_COST}}</span>
+            </div>
+        </div>
+        <div class="signature-section">
+            <div class="signature-line"></div>
+            <div class="signature-label">Approved By</div>
+        </div>
+    </div>
+</div>
+
+<!-- Paged.js - Load after content -->
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+<script>
+    // Create print button after paged.js finishes
+    class PrintButton extends Paged.Handler {
+        constructor(chunker, polisher, caller) {
+            super(chunker, polisher, caller);
+        }
+        afterRendered(pages) {
+            var wrapper = document.createElement('div');
+            wrapper.id = 'printBtnFloat';
+            wrapper.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;';
+            wrapper.innerHTML = '<button onclick="this.parentElement.style.display=\'none\';window.print();setTimeout(function(){document.getElementById(\'printBtnFloat\').style.display=\'block\';},500);" style="background:#007bff;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,0.15);">🖨️ Print</button>';
+            document.body.appendChild(wrapper);
+        }
+    }
+    Paged.registerHandlers(PrintButton);
+</script>
 
 </body>
 </html>

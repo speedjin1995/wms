@@ -1,37 +1,20 @@
 <?php
-use Mpdf\Mpdf;
-
 /**
- * Generate Stock Adjustment PDF using template
+ * Generate Stock Adjustment Print HTML
  */
-function generateStockAdjustmentPdf(array $data, array $companyDetail): void
+function generateStockAdjustmentPdf(array $data, array $company): void
 {
     // Load template
     $template = file_get_contents(__DIR__ . '/stockAdjustmentTemplate.html');
 
     // Prepare replacements
-    $replacements = buildReplacements($data, $companyDetail);
+    $replacements = buildReplacements($data, $company);
 
     // Inject data into template
     $html = str_replace(array_keys($replacements), array_values($replacements), $template);
 
-    // Generate PDF
-    try {
-        $mpdf = new Mpdf([
-            'mode' => 'utf-8',
-            'format' => 'A4',
-            'tempDir' => sys_get_temp_dir(),
-            'margin_left' => 15,
-            'margin_right' => 15,
-            'margin_top' => 15,
-            'margin_bottom' => 15,
-        ]);
-
-        $mpdf->WriteHTML($html);
-        $mpdf->Output('StockAdjustment_' . ($data['adjustment_no'] ?? 'unknown') . '.pdf', 'I');
-    } catch (\Mpdf\MpdfException $e) {
-        echo $e->getMessage();
-    }
+    // Output HTML
+    echo $html;
 }
 
 /**
@@ -41,20 +24,10 @@ function buildReplacements(array $data, array $company): array
 {
     // Logo
     $logoHtml = '';
-    if (!empty($company['logo'])) {
-        $logoPath = __DIR__ . '/../../../../../uploads/' . $company['logo'];
-        if (file_exists($logoPath)) {
-            $logoHtml = '<img src="' . $logoPath . '" style="width:70px; height:auto;">';
-        }
+    if (!empty($company['company_logo'])) {
+        $logoSrc = '../../../viewPhoto.php?file=' . urlencode($company['company_logo']) . '&type=file_table';
+        $logoHtml = '<div class="logo"><img src="' . $logoSrc . '"></div>';
     }
-
-    // Company city
-    $companyCity = implode(', ', array_filter([
-        $company['city'] ?? '',
-        $company['postcode'] ?? '',
-        $company['state'] ?? '',
-        $company['country'] ?? ''
-    ]));
 
     // Items rows
     $itemsHtml = '';
@@ -69,16 +42,15 @@ function buildReplacements(array $data, array $company): array
             $description .= ' - ' . $item['grade_name'];
         }
         
-        $itemsHtml .= '<tr>
-            <td class="tc">' . $rowNum++ . '</td>
-            <td>' . htmlspecialchars($item['product_code'] ?? '-') . '</td>
-            <td>' . htmlspecialchars($description) . '</td>
-            <td class="tc">-</td>
-            <td class="tr">' . formatAdjAmount($qty) . '</td>
-            <td class="tc">KG</td>
-            <td class="tr">' . number_format($unitCost, 2) . '</td>
-            <td class="tr">' . formatAdjAmount($subtotal) . '</td>
-        </tr>';
+        $itemsHtml .= '<div class="item-row">
+            <div class="col-no">' . $rowNum++ . '</div>
+            <div class="col-code">' . htmlspecialchars($item['product_code'] ?? '-') . '</div>
+            <div class="col-desc">' . htmlspecialchars($description) . '</div>
+            <div class="col-qty">' . formatAdjAmount($qty) . '</div>
+            <div class="col-uom">KG</div>
+            <div class="col-unit">' . number_format($unitCost, 2) . '</div>
+            <div class="col-total">' . formatAdjAmount($subtotal) . '</div>
+        </div>';
     }
 
     // Date
@@ -87,11 +59,11 @@ function buildReplacements(array $data, array $company): array
         : '';
 
     return [
-        '{{LOGO}}' => $logoHtml,
+        '{{LOGO_TD}}' => $logoHtml,
         '{{COMPANY_NAME}}' => htmlspecialchars($company['name'] ?? ''),
-        '{{COMPANY_REG}}' => htmlspecialchars($company['registration_no'] ?? ''),
+        '{{COMPANY_REG}}' => htmlspecialchars($company['reg_no'] ?? ''),
         '{{COMPANY_ADDRESS}}' => htmlspecialchars($company['address'] ?? ''),
-        '{{COMPANY_CITY}}' => htmlspecialchars($companyCity),
+        '{{COMPANY_ADDRESS2}}' => htmlspecialchars($company['address2'] ?? ''),
         '{{COMPANY_PHONE}}' => htmlspecialchars($company['phone'] ?? ''),
         '{{COMPANY_EMAIL}}' => htmlspecialchars($company['email'] ?? ''),
         '{{ADJUSTMENT_NO}}' => htmlspecialchars($data['adjustment_no'] ?? ''),
@@ -108,8 +80,5 @@ function buildReplacements(array $data, array $company): array
 function formatAdjAmount($value): string
 {
     $num = floatval($value);
-    if ($num < 0) {
-        return '(' . number_format(abs($num), 2) . ')';
-    }
     return number_format($num, 2);
 }

@@ -822,7 +822,7 @@ function updateAdjustmentTotals() {
 // ADJUSTMENT TAB - CRUD FUNCTIONS
 // ============================================================================
 function printAdjustment(id) {
-  window.open('php/modules/wholesales/stockAdjustment/api.php?action=print&id=' + id, '_blank');
+  window.open('php/modules/wholesales/stockAdjustment/print.php?id=' + id, '_blank');
 }
 
 function saveAdjustment() {

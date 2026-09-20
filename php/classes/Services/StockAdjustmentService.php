@@ -630,11 +630,10 @@ class StockAdjustmentService
     }
 
     /**
-     * Generate PDF for adjustment
+     * Generate print HTML for adjustment
      */
     public function generatePdf(array $data, array $companyDetail): void
     {
-        require_once __DIR__ . '/../../../vendor/autoload.php';
         require_once __DIR__ . '/../../modules/wholesales/stockAdjustment/partial/pdfStockAdjustment.php';
         
         generateStockAdjustmentPdf($data, $companyDetail);
