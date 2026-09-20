@@ -48,9 +48,45 @@ class StockAdjustmentController
     }
 
     /**
-     * POST /save - Create or update adjustment
+     * POST /save - Create new adjustment
      */
     public function save(): array
+    {
+        $adjustment = $this->buildAdjustmentFromRequest();
+        
+        if (is_array($adjustment)) {
+            return $adjustment; // Error response
+        }
+
+        return $this->service->create($adjustment);
+    }
+
+    /**
+     * POST /update - Update existing adjustment
+     */
+    public function update(): array
+    {
+        $id = (int)($_POST['id'] ?? 0);
+        
+        if (!$id) {
+            return ['status' => 'failed', 'message' => 'Adjustment ID is required for update'];
+        }
+
+        $adjustment = $this->buildAdjustmentFromRequest();
+        
+        if (is_array($adjustment)) {
+            return $adjustment; // Error response
+        }
+
+        $adjustment->id = $id;
+
+        return $this->service->update($adjustment);
+    }
+
+    /**
+     * Build StockAdjustment model from POST request
+     */
+    private function buildAdjustmentFromRequest(): StockAdjustment|array
     {
         // Validate required fields
         $adjustmentDate = $_POST['adjustment_date'] ?? '';
@@ -72,7 +108,6 @@ class StockAdjustmentController
 
         // Build model
         $adjustment = new StockAdjustment([
-            'id' => !empty($_POST['id']) ? (int)$_POST['id'] : null,
             'adjustment_date' => $dateObj,
             'remark' => $_POST['remark'] ?? '',
         ]);
@@ -84,6 +119,7 @@ class StockAdjustmentController
             }
 
             $item = new StockAdjustmentItem([
+                'id' => !empty($itemData['id']) ? (int)$itemData['id'] : null,
                 'product_id' => (int)$itemData['product_id'],
                 'grade' => $itemData['grade'] ?? null,
                 'quantity_before' => (float)($itemData['quantity_before'] ?? 0),
@@ -100,7 +136,7 @@ class StockAdjustmentController
             return ['status' => 'failed', 'message' => 'At least one valid item is required'];
         }
 
-        return $this->service->save($adjustment);
+        return $adjustment;
     }
 
     /**

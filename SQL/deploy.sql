@@ -3487,3 +3487,36 @@ CREATE OR REPLACE TRIGGER `TRG_INS_STK_ADJ_ITEM` BEFORE UPDATE ON `stock_adjustm
 END
 $$
 DELIMITER ;
+
+ALTER TABLE `stock_adjustments` ADD `total_qty` decimal(15,4) DEFAULT 0.0000 AFTER `total_items`;
+
+ALTER TABLE `stock_adjustment_log` ADD `total_qty` decimal(15,4) DEFAULT 0.0000 AFTER `total_items`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_STK_ADJ` AFTER INSERT ON `stock_adjustments` FOR EACH ROW 
+  INSERT INTO stock_adjustment_log (
+    stk_adjustment_id, adjustment_no, adjustment_date, remark, total_items, total_qty, total_cost, company, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.adjustment_no, NEW.adjustment_date, NEW.remark, NEW.total_items, NEW.total_qty, NEW.total_cost, NEW.company, 1, NEW.created_by, NOW()
+  )
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_STK_ADJ` BEFORE UPDATE ON `stock_adjustments` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+    INSERT INTO stock_adjustment_log (
+        stk_adjustment_id, adjustment_no, adjustment_date, remark, total_items, total_qty, total_cost, company, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.adjustment_no, NEW.adjustment_date, NEW.remark, NEW.total_items, NEW.total_qty, NEW.total_cost, NEW.company, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;

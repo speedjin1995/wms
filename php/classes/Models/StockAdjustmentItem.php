@@ -49,7 +49,7 @@ class StockAdjustmentItem
 
     public function calculateTotalCost(): float
     {
-        $this->totalCost = abs($this->adjustmentQty) * $this->unitCost;
+        $this->totalCost = $this->adjustmentQty * $this->unitCost;
         return $this->totalCost;
     }
 

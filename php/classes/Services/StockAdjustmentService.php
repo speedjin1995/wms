@@ -113,21 +113,15 @@ class StockAdjustmentService
     }
 
     /**
-     * Save stock adjustment (create or update)
+     * Create new stock adjustment
      */
-    public function save(StockAdjustment $adjustment): array
+    public function create(StockAdjustment $adjustment): array
     {
         $this->db->begin_transaction();
 
         try {
-            if ($adjustment->id) {
-                $this->reverseExistingItems($adjustment->id);
-                $this->softDeleteItems($adjustment->id);
-                $adjustmentNo = $this->getAdjustmentNo($adjustment->id);
-            } else {
-                $adjustmentNo = $this->generateAdjustmentNo();
-                $adjustment->id = $this->insertHeader($adjustment, $adjustmentNo);
-            }
+            $adjustmentNo = $this->generateAdjustmentNo();
+            $adjustment->id = $this->insertHeader($adjustment, $adjustmentNo);
 
             foreach ($adjustment->items as $item) {
                 $item->adjustmentId = $adjustment->id;
@@ -144,8 +138,68 @@ class StockAdjustmentService
             
             return [
                 'status' => 'success',
-                'message' => 'Stock adjustment saved successfully',
+                'message' => 'Stock adjustment created successfully',
                 'adjustment_no' => $adjustmentNo
+            ];
+        } catch (\Exception $e) {
+            $this->db->rollback();
+            return [
+                'status' => 'failed',
+                'message' => 'Error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Update existing stock adjustment
+     */
+    public function update(StockAdjustment $adjustment): array
+    {
+        if (!$adjustment->id) {
+            return ['status' => 'failed', 'message' => 'Adjustment ID is required for update'];
+        }
+
+        $existing = $this->getById($adjustment->id);
+        if (!$existing) {
+            return ['status' => 'failed', 'message' => 'Adjustment not found'];
+        }
+
+        $this->db->begin_transaction();
+
+        try {
+            // Step 1: Reverse all existing items stock
+            $this->reverseExistingItems($adjustment->id);
+            
+            // Step 2: Soft delete ALL old items first
+            $this->softDeleteItems($adjustment->id);
+
+            // Step 3: Process items - update existing or insert new
+            foreach ($adjustment->items as $item) {
+                $item->adjustmentId = $adjustment->id;
+                $item->calculateTotalCost();
+                
+                if ($item->id) {
+                    // Existing item - update and reactivate
+                    $this->updateItem($item);
+                } else {
+                    // New item - insert
+                    $this->insertItem($item);
+                }
+                
+                $this->updateStockBalance($item);
+                $this->addStockMovement($item, $adjustment->id);
+            }
+
+            // Step 4: Update header totals
+            $adjustment->recalculateTotals();
+            $this->updateHeader($adjustment);
+
+            $this->db->commit();
+            
+            return [
+                'status' => 'success',
+                'message' => 'Stock adjustment updated successfully',
+                'adjustment_no' => $existing->adjustmentNo
             ];
         } catch (\Exception $e) {
             $this->db->rollback();
@@ -321,15 +375,16 @@ class StockAdjustmentService
     {
         $stmt = $this->db->prepare(
             "INSERT INTO stock_adjustments 
-             (adjustment_no, adjustment_date, remark, total_items, total_cost, company, created_by) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)"
+             (adjustment_no, adjustment_date, remark, total_items, total_qty, total_cost, company, created_by) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
         $stmt->bind_param(
-            'sssidii',
+            'sssiddii',
             $adjustmentNo,
             $adjustment->adjustmentDate,
             $adjustment->remark,
             $adjustment->totalItems,
+            $adjustment->totalQty,
             $adjustment->totalCost,
             $this->company,
             $this->userId
@@ -344,14 +399,15 @@ class StockAdjustmentService
     {
         $stmt = $this->db->prepare(
             "UPDATE stock_adjustments 
-             SET adjustment_date = ?, remark = ?, total_items = ?, total_cost = ?, modified_by = ? 
+             SET adjustment_date = ?, remark = ?, total_items = ?, total_qty = ?, total_cost = ?, modified_by = ? 
              WHERE id = ?"
         );
         $stmt->bind_param(
-            'ssidii',
+            'ssiddii',
             $adjustment->adjustmentDate,
             $adjustment->remark,
             $adjustment->totalItems,
+            $adjustment->totalQty,
             $adjustment->totalCost,
             $this->userId,
             $adjustment->id
@@ -364,11 +420,11 @@ class StockAdjustmentService
     {
         $stmt = $this->db->prepare(
             "INSERT INTO stock_adjustment_items 
-             (adjustment_id, product_id, grade, quantity_before, adjustment_qty, quantity_after, unit_cost, total_cost, reason) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+             (adjustment_id, product_id, grade, quantity_before, adjustment_qty, quantity_after, unit_cost, total_cost, reason, created_by) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
         $stmt->bind_param(
-            'iisddddds',
+            'iisdddddsi',
             $item->adjustmentId,
             $item->productId,
             $item->grade,
@@ -377,17 +433,44 @@ class StockAdjustmentService
             $item->quantityAfter,
             $item->unitCost,
             $item->totalCost,
-            $item->reason
+            $item->reason,
+            $this->userId
         );
         $stmt->execute();
         $item->id = $this->db->insert_id;
         $stmt->close();
     }
 
+    private function updateItem(StockAdjustmentItem $item): void
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE stock_adjustment_items 
+             SET product_id = ?, grade = ?, quantity_before = ?, adjustment_qty = ?, 
+                 quantity_after = ?, unit_cost = ?, total_cost = ?, reason = ?, 
+                 deleted = 0, modified_by = ?
+             WHERE id = ?"
+        );
+        $stmt->bind_param(
+            'isdddddsii',
+            $item->productId,
+            $item->grade,
+            $item->quantityBefore,
+            $item->adjustmentQty,
+            $item->quantityAfter,
+            $item->unitCost,
+            $item->totalCost,
+            $item->reason,
+            $this->userId,
+            $item->id
+        );
+        $stmt->execute();
+        $stmt->close();
+    }
+
     private function softDeleteItems(int $adjustmentId): void
     {
-        $stmt = $this->db->prepare("UPDATE stock_adjustment_items SET deleted = 1 WHERE adjustment_id = ?");
-        $stmt->bind_param('i', $adjustmentId);
+        $stmt = $this->db->prepare("UPDATE stock_adjustment_items SET deleted = 1, modified_by = ? WHERE adjustment_id = ? AND deleted = 0");
+        $stmt->bind_param('ii', $this->userId, $adjustmentId);
         $stmt->execute();
         $stmt->close();
     }

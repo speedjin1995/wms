@@ -204,6 +204,7 @@ if(!isset($_SESSION['userID'])){
                   <th><?=$languageArray['adjustment_no_code'][$language] ?? 'Adjustment No'?></th>
                   <th><?=$languageArray['date_code'][$language]?></th>
                   <th><?=$languageArray['items_code'][$language] ?? 'Items'?></th>
+                  <th><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></th>
                   <th><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
                   <th><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></th>
                   <th width="12%"><?=$languageArray['actions_code'][$language]?></th>
@@ -273,7 +274,9 @@ if(!isset($_SESSION['userID'])){
                     <tbody id="adjItemsBody"></tbody>
                     <tfoot style="background:#f8fafc; font-weight:600;">
                       <tr>
-                        <td colspan="6" class="text-right"><?=$languageArray['total_code'][$language] ?? 'Total'?>:</td>
+                        <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language] ?? 'Total'?>:</td>
+                        <td class="text-right" id="adjTotalQty">0.00</td>
+                        <td colspan="2"></td>
                         <td class="text-right" id="adjTotalCost">0.00</td>
                         <td colspan="2"></td>
                       </tr>
@@ -289,50 +292,6 @@ if(!isset($_SESSION['userID'])){
             <div class="modal-footer">
               <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
               <button type="button" class="btn btn-modern btn-modern-success" id="saveAdjBtn"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- View Adjustment Modal -->
-      <div class="modal fade modal-modern" id="viewAdjModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title"><i class="fas fa-eye mr-2 text-muted"></i><?=$languageArray['view_adjustment_code'][$language] ?? 'View Adjustment'?> - <span id="viewAdjNo"></span></h5>
-              <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-            <div class="modal-body">
-              <div class="info-section mb-3">
-                <div class="row">
-                  <div class="col-md-4"><span class="info-item-label"><?=$languageArray['date_code'][$language]?></span><span class="info-item-value" id="viewAdjDate"></span></div>
-                  <div class="col-md-4"><span class="info-item-label"><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></span><span class="info-item-value" id="viewAdjCreatedBy"></span></div>
-                  <div class="col-md-4"><span class="info-item-label"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></span><span class="info-item-value" id="viewAdjTotalCost"></span></div>
-                </div>
-                <div class="row mt-2">
-                  <div class="col-12"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value" id="viewAdjRemark">-</span></div>
-                </div>
-              </div>
-              <div class="table-responsive">
-                <table class="table table-bordered table-sm">
-                  <thead style="background:#f8fafc;">
-                    <tr>
-                      <th><?=$languageArray['product_code'][$language]?></th>
-                      <th><?=$languageArray['grade_code'][$language]?></th>
-                      <th class="text-right"><?=$languageArray['qty_before_code'][$language] ?? 'Qty Before'?></th>
-                      <th class="text-right"><?=$languageArray['adjustment_code'][$language] ?? 'Adjustment'?></th>
-                      <th class="text-right"><?=$languageArray['qty_after_code'][$language] ?? 'Qty After'?></th>
-                      <th class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
-                      <th class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
-                      <th><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
-                    </tr>
-                  </thead>
-                  <tbody id="viewAdjItemsBody"></tbody>
-                </table>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
             </div>
           </div>
         </div>
@@ -533,18 +492,90 @@ function loadAdjustmentList() {
       { data: 'adjustment_no' },
       { data: 'adjustment_date_display' },
       { data: 'total_items', className: 'text-center' },
-      { data: 'total_cost', className: 'text-right', render: function(d) { return parseFloat(d).toFixed(2); } },
+      { data: 'total_qty', className: 'text-right', render: function(d) { var v = parseFloat(d); return (v >= 0 ? '+' : '') + v.toFixed(2); } },
+      { data: 'total_cost', className: 'text-right', render: function(d) { var v = parseFloat(d); return (v >= 0 ? '+' : '') + v.toFixed(2); } },
       { data: 'created_by_name', defaultContent: '-' },
-      { data: null, orderable: false, render: function(d) {
-          return '<div class="d-flex" style="gap:4px;"><button class="btn btn-sm btn-info view-adj-btn" data-id="' + d.id + '"><i class="fas fa-eye"></i></button><button class="btn btn-sm btn-success edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button></div>';
+      { data: null, orderable: false, className: 'action-button', render: function(d) {
+          return '<div class="d-flex" style="gap:4px;"><button class="btn btn-sm btn-success edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button></div>';
         }
       }
     ]
   });
 
-  $('#adjustListTable').off('click', '.view-adj-btn').on('click', '.view-adj-btn', function() { viewAdjustment($(this).data('id')); });
-  $('#adjustListTable').off('click', '.edit-adj-btn').on('click', '.edit-adj-btn', function() { editAdjustment($(this).data('id')); });
-  $('#adjustListTable').off('click', '.delete-adj-btn').on('click', '.delete-adj-btn', function() { deleteAdjustment($(this).data('id')); });
+  // Expandable row on click
+  $('#adjustListTable tbody').off('click', 'tr').on('click', 'tr', function(e) {
+    if ($(e.target).closest('.action-button').length || $(e.target).is('button') || $(e.target).is('i')) return;
+    var tr = $(this);
+    var row = adjListTable.row(tr);
+    if (row.child.isShown()) {
+      row.child.hide();
+      tr.removeClass('shown');
+    } else {
+      var rowData = row.data();
+      if (!rowData) return;
+      $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: rowData.id }, function(obj) {
+        if (obj.status === 'success') {
+          row.child(formatAdjustmentRow(obj.data)).show();
+          tr.addClass('shown');
+        }
+      });
+    }
+  });
+
+  $('#adjustListTable').off('click', '.edit-adj-btn').on('click', '.edit-adj-btn', function(e) { e.stopPropagation(); editAdjustment($(this).data('id')); });
+  $('#adjustListTable').off('click', '.delete-adj-btn').on('click', '.delete-adj-btn', function(e) { e.stopPropagation(); deleteAdjustment($(this).data('id')); });
+}
+
+function formatAdjustmentRow(d) {
+  var html = '<div class="expanded-row-content" style="padding:15px;background:#f8fafc;">';
+  
+  // Header
+  html += '<div class="d-flex justify-content-between align-items-center mb-3">';
+  html += '<div><strong>' + d.adjustment_no + '</strong><br><small class="text-muted">' + d.adjustment_date_display + '</small></div>';
+  html += '<div class="d-flex" style="gap:4px;"><button class="btn btn-sm btn-success edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button></div>';
+  html += '</div>';
+  
+  // Info
+  var totalQty = parseFloat(d.total_qty);
+  var totalCost = parseFloat(d.total_cost);
+  html += '<div class="row mb-3">';
+  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></small><br>' + (d.created_by_name || '-') + '</div>';
+  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></small><br>' + (totalQty >= 0 ? '+' : '') + totalQty.toFixed(2) + '</div>';
+  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></small><br>' + (totalCost >= 0 ? '+' : '') + totalCost.toFixed(2) + '</div>';
+  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['remark_code'][$language]?></small><br>' + (d.remark || '-') + '</div>';
+  html += '</div>';
+  
+  // Items table
+  html += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0" style="font-size:0.85rem;">';
+  html += '<thead style="background:#e9ecef;"><tr>';
+  html += '<th><?=$languageArray['product_code'][$language]?></th>';
+  html += '<th><?=$languageArray['grade_code'][$language]?></th>';
+  html += '<th class="text-right"><?=$languageArray['qty_before_code'][$language] ?? 'Qty Before'?></th>';
+  html += '<th class="text-right"><?=$languageArray['adjustment_code'][$language] ?? 'Adjustment'?></th>';
+  html += '<th class="text-right"><?=$languageArray['qty_after_code'][$language] ?? 'Qty After'?></th>';
+  html += '<th class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>';
+  html += '<th class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>';
+  html += '<th><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>';
+  html += '</tr></thead><tbody>';
+  
+  d.items.forEach(function(item) {
+    var adjQty = parseFloat(item.adjustment_qty);
+    var adjClass = adjQty >= 0 ? 'text-success' : 'text-danger';
+    var adjSign = adjQty >= 0 ? '+' : '';
+    html += '<tr>';
+    html += '<td>' + (item.product_code ? item.product_code + ' - ' : '') + item.product_name + '</td>';
+    html += '<td>' + (item.grade_name || '-') + '</td>';
+    html += '<td class="text-right">' + parseFloat(item.quantity_before).toFixed(2) + '</td>';
+    html += '<td class="text-right ' + adjClass + '">' + adjSign + adjQty.toFixed(2) + '</td>';
+    html += '<td class="text-right">' + parseFloat(item.quantity_after).toFixed(2) + '</td>';
+    html += '<td class="text-right">' + parseFloat(item.unit_cost).toFixed(2) + '</td>';
+    html += '<td class="text-right">' + parseFloat(item.total_cost).toFixed(2) + '</td>';
+    html += '<td>' + (item.reason || '-') + '</td>';
+    html += '</tr>';
+  });
+  
+  html += '</tbody></table></div></div>';
+  return html;
 }
 
 function openAdjustmentModal(id) {
@@ -553,6 +584,7 @@ function openAdjustmentModal(id) {
   $('#adjDate').val(moment().format('DD/MM/YYYY'));
   $('#adjRemark').val('');
   $('#adjItemsBody').html('');
+  $('#adjTotalQty').text('0.00');
   $('#adjTotalCost').text('0.00');
   adjItemRowCount = 0;
   toggleAdjItemsEmpty();
@@ -568,6 +600,11 @@ function addAdjustmentItemRow(data, callback) {
   
   var $row = $('#adjItemsBody').find('.adj-item-row:last');
   $row.attr('data-idx', idx);
+  
+  // Store item id if editing existing item
+  if (data && data.id) {
+    $row.attr('data-item-id', data.id);
+  }
   
   // Build product options
   var productOptions = '<option value="">-</option>';
@@ -624,13 +661,17 @@ function formatTotalCost(adjustQty, unitCost) {
 }
 
 function updateAdjustmentTotals() {
-  var total = 0;
+  var totalQty = 0;
+  var totalCost = 0;
   $('#adjItemsBody tr').each(function() {
-    var text = $(this).find('.adj-total-cost').text().replace('+', '');
-    total += parseFloat(text) || 0;
+    totalQty += parseFloat($(this).find('.adj-adjust-qty').val()) || 0;
+    var costText = $(this).find('.adj-total-cost').text().replace('+', '');
+    totalCost += parseFloat(costText) || 0;
   });
-  var sign = total >= 0 ? '+' : '';
-  $('#adjTotalCost').text(sign + total.toFixed(2));
+  var qtySign = totalQty >= 0 ? '+' : '';
+  var costSign = totalCost >= 0 ? '+' : '';
+  $('#adjTotalQty').text(qtySign + totalQty.toFixed(2));
+  $('#adjTotalCost').text(costSign + totalCost.toFixed(2));
 }
 
 function saveAdjustment() {
@@ -644,6 +685,7 @@ function saveAdjustment() {
     var adjustQty = $(this).find('.adj-adjust-qty').val();
     if (!productId || !grade) { hasError = true; return false; }
     items.push({
+      id: $(this).data('item-id') || null,
       product_id: productId,
       grade: grade,
       quantity_before: $(this).find('.adj-current-qty').val() || 0,
@@ -655,10 +697,14 @@ function saveAdjustment() {
   });
   if (hasError) { toastr["error"]("Please select product and grade for all items.", "Validation Error:"); return; }
   if (items.length === 0) { toastr["error"]("Please add at least one item.", "Validation Error:"); return; }
+  
+  var adjId = $('#adjId').val();
+  var action = adjId ? 'update' : 'save';
+  
   $('#spinnerLoading').show();
   $.post('php/modules/wholesales/stockAdjustment/api.php', {
-    action: 'save',
-    id: $('#adjId').val(),
+    action: action,
+    id: adjId,
     adjustment_date: adjDate,
     remark: $('#adjRemark').val(),
     items: JSON.stringify(items)
@@ -674,53 +720,47 @@ function saveAdjustment() {
   });
 }
 
-function viewAdjustment(id) {
-  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: id }, function(obj) {
-    if (obj.status === 'success') {
-      var d = obj.data;
-      $('#viewAdjNo').text(d.adjustment_no);
-      $('#viewAdjDate').text(d.adjustment_date_display);
-      $('#viewAdjCreatedBy').text(d.created_by_name || '-');
-      $('#viewAdjTotalCost').text(parseFloat(d.total_cost).toFixed(2));
-      $('#viewAdjRemark').text(d.remark || '-');
-      var html = '';
-      d.items.forEach(function(item) {
-        var adjQty = parseFloat(item.adjustment_qty);
-        var adjClass = adjQty >= 0 ? 'text-success' : 'text-danger';
-        var adjSign = adjQty >= 0 ? '+' : '';
-        html += '<tr><td>' + (item.product_code ? item.product_code + ' - ' : '') + item.product_name + '</td><td>' + (item.grade_name || '-') + '</td><td class="text-right">' + parseFloat(item.quantity_before).toFixed(2) + '</td><td class="text-right ' + adjClass + '">' + adjSign + adjQty.toFixed(2) + '</td><td class="text-right">' + parseFloat(item.quantity_after).toFixed(2) + '</td><td class="text-right">' + parseFloat(item.unit_cost).toFixed(2) + '</td><td class="text-right">' + parseFloat(item.total_cost).toFixed(2) + '</td><td>' + (item.reason || '-') + '</td></tr>';
-      });
-      $('#viewAdjItemsBody').html(html);
-      $('#viewAdjModal').modal('show');
-    } else {
-      toastr["error"](obj.message, "Failed:");
-    }
-  });
-}
-
 function editAdjustment(id) {
-  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: id }, function(obj) {
-    if (obj.status === 'success') {
-      var d = obj.data;
-      $('#adjId').val(d.id);
-      $('#adjModalTitle').text('<?=$languageArray['edit_code'][$language] ?? 'Edit'?>');
-      $('#adjDate').val(d.adjustment_date_display);
-      $('#adjRemark').val(d.remark || '');
-      $('#adjItemsBody').html('');
-      adjItemRowCount = 0;
-      var itemsToAdd = d.items.length;
-      var itemsAdded = 0;
-      d.items.forEach(function(item) {
-        addAdjustmentItemRow(item, function() {
-          itemsAdded++;
-          if (itemsAdded === itemsToAdd) updateAdjustmentTotals();
+  $('#spinnerLoading').show();
+  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: id })
+    .done(function(obj) {
+      if (obj.status === 'success') {
+        var d = obj.data;
+        $('#adjId').val(d.id);
+        $('#adjModalTitle').text('<?=$languageArray['edit_code'][$language] ?? 'Edit'?>');
+        $('#adjDate').val(d.adjustment_date_display);
+        $('#adjRemark').val(d.remark || '');
+        $('#adjItemsBody').html('');
+        adjItemRowCount = 0;
+        
+        var itemsToAdd = d.items.length;
+        if (itemsToAdd === 0) {
+          toggleAdjItemsEmpty();
+          $('#spinnerLoading').hide();
+          $('#adjModal').modal('show');
+          return;
+        }
+        
+        var itemsAdded = 0;
+        d.items.forEach(function(item) {
+          addAdjustmentItemRow(item, function() {
+            itemsAdded++;
+            if (itemsAdded === itemsToAdd) {
+              updateAdjustmentTotals();
+              $('#spinnerLoading').hide();
+              $('#adjModal').modal('show');
+            }
+          });
         });
-      });
-      $('#adjModal').modal('show');
-    } else {
-      toastr["error"](obj.message, "Failed:");
-    }
-  });
+      } else {
+        $('#spinnerLoading').hide();
+        toastr["error"](obj.message, "Failed:");
+      }
+    })
+    .fail(function() {
+      $('#spinnerLoading').hide();
+      toastr["error"]("Failed to load adjustment data.", "Error:");
+    });
 }
 
 function deleteAdjustment(id) {

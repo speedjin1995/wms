@@ -30,6 +30,10 @@ switch ($action) {
         echo json_encode($controller->save());
         break;
 
+    case 'update':
+        echo json_encode($controller->update());
+        break;
+
     case 'delete':
         echo json_encode($controller->delete());
         break;

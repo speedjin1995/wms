@@ -8,6 +8,7 @@ class StockAdjustment
     public ?string $adjustmentDate = null;
     public ?string $remark = null;
     public int $totalItems = 0;
+    public float $totalQty = 0;
     public float $totalCost = 0;
     public int $company;
     public ?int $createdBy = null;
@@ -31,6 +32,7 @@ class StockAdjustment
         $this->adjustmentDate = $data['adjustment_date'] ?? null;
         $this->remark = $data['remark'] ?? null;
         $this->totalItems = (int)($data['total_items'] ?? 0);
+        $this->totalQty = (float)($data['total_qty'] ?? 0);
         $this->totalCost = (float)($data['total_cost'] ?? 0);
         $this->company = (int)($data['company'] ?? 0);
         $this->createdBy = isset($data['created_by']) ? (int)$data['created_by'] : null;
@@ -64,8 +66,10 @@ class StockAdjustment
     public function recalculateTotals(): self
     {
         $this->totalItems = count($this->items);
+        $this->totalQty = 0;
         $this->totalCost = 0;
         foreach ($this->items as $item) {
+            $this->totalQty += $item->adjustmentQty;
             $this->totalCost += $item->totalCost;
         }
         return $this;
@@ -89,6 +93,7 @@ class StockAdjustment
             'adjustment_date_display' => $this->getAdjustmentDateFormatted(),
             'remark' => $this->remark,
             'total_items' => $this->totalItems,
+            'total_qty' => $this->totalQty,
             'total_cost' => $this->totalCost,
             'company' => $this->company,
             'created_by' => $this->createdBy,
