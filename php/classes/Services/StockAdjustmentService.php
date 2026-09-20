@@ -378,14 +378,16 @@ class StockAdjustmentService
              (adjustment_no, adjustment_date, remark, total_items, total_qty, total_cost, company, created_by) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
+        $totalQty = (string)$adjustment->totalQty;
+        $totalCost = (string)$adjustment->totalCost;
         $stmt->bind_param(
-            'sssiddii',
+            'sssissii',
             $adjustmentNo,
             $adjustment->adjustmentDate,
             $adjustment->remark,
             $adjustment->totalItems,
-            $adjustment->totalQty,
-            $adjustment->totalCost,
+            $totalQty,
+            $totalCost,
             $this->company,
             $this->userId
         );
@@ -402,13 +404,15 @@ class StockAdjustmentService
              SET adjustment_date = ?, remark = ?, total_items = ?, total_qty = ?, total_cost = ?, modified_by = ? 
              WHERE id = ?"
         );
+        $totalQty = (string)$adjustment->totalQty;
+        $totalCost = (string)$adjustment->totalCost;
         $stmt->bind_param(
-            'ssiddii',
+            'ssissii',
             $adjustment->adjustmentDate,
             $adjustment->remark,
             $adjustment->totalItems,
-            $adjustment->totalQty,
-            $adjustment->totalCost,
+            $totalQty,
+            $totalCost,
             $this->userId,
             $adjustment->id
         );
@@ -423,16 +427,21 @@ class StockAdjustmentService
              (adjustment_id, product_id, grade, quantity_before, adjustment_qty, quantity_after, unit_cost, total_cost, reason, created_by) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
+        $qtyBefore = (string)$item->quantityBefore;
+        $adjQty = (string)$item->adjustmentQty;
+        $qtyAfter = (string)$item->quantityAfter;
+        $unitCost = (string)$item->unitCost;
+        $totalCost = (string)$item->totalCost;
         $stmt->bind_param(
-            'iisdddddsi',
+            'iisssssssi',
             $item->adjustmentId,
             $item->productId,
             $item->grade,
-            $item->quantityBefore,
-            $item->adjustmentQty,
-            $item->quantityAfter,
-            $item->unitCost,
-            $item->totalCost,
+            $qtyBefore,
+            $adjQty,
+            $qtyAfter,
+            $unitCost,
+            $totalCost,
             $item->reason,
             $this->userId
         );
@@ -450,15 +459,20 @@ class StockAdjustmentService
                  deleted = 0, modified_by = ?
              WHERE id = ?"
         );
+        $qtyBefore = (string)$item->quantityBefore;
+        $adjQty = (string)$item->adjustmentQty;
+        $qtyAfter = (string)$item->quantityAfter;
+        $unitCost = (string)$item->unitCost;
+        $totalCost = (string)$item->totalCost;
         $stmt->bind_param(
-            'isdddddsii',
+            'isssssssii',
             $item->productId,
             $item->grade,
-            $item->quantityBefore,
-            $item->adjustmentQty,
-            $item->quantityAfter,
-            $item->unitCost,
-            $item->totalCost,
+            $qtyBefore,
+            $adjQty,
+            $qtyAfter,
+            $unitCost,
+            $totalCost,
             $item->reason,
             $this->userId,
             $item->id

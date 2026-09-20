@@ -529,9 +529,9 @@ function renderSignedNumber(d) {
 }
 
 function renderActionButtons(d) {
-  return '<div class="d-flex" style="gap:4px;">' +
-    '<button class="btn btn-sm btn-success edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button>' +
-    '<button class="btn btn-sm btn-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button>' +
+  return '<div class="expanded-actions">' +
+    '<button type="button" class="btn btn-sm btn-outline-primary edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button>' +
+    '<button type="button" class="btn btn-sm btn-outline-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button>' +
     '</div>';
 }
 
