@@ -158,50 +158,33 @@ if(!isset($_SESSION['userID'])){
           <div class="card-body">
             <div class="filter-row">
               <div class="filter-group">
-                <label class="filter-label"><?=$languageArray['date_code'][$language]?></label>
-                <div class="input-group date" id="adjDatePicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#adjDatePicker" id="adjDate"/>
-                  <div class="input-group-append" data-target="#adjDatePicker" data-toggle="datetimepicker">
+                <label class="filter-label"><?=$languageArray['date_from_code'][$language] ?? 'Date From'?></label>
+                <div class="input-group date" id="adjDateFromPicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#adjDateFromPicker" id="adjDateFrom"/>
+                  <div class="input-group-append" data-target="#adjDateFromPicker" data-toggle="datetimepicker">
                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                   </div>
                 </div>
               </div>
-
               <div class="filter-group">
-                <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
-                <select class="form-control select2" id="adjCategoryFilter">
-                  <option value="">-</option>
-                  <?php while($r2 = mysqli_fetch_assoc($categories2)) { ?>
-                    <option value="<?=$r2['id']?>"><?=$r2['category_name']?></option>
-                  <?php } ?>
-                </select>
+                <label class="filter-label"><?=$languageArray['date_to_code'][$language] ?? 'Date To'?></label>
+                <div class="input-group date" id="adjDateToPicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#adjDateToPicker" id="adjDateTo"/>
+                  <div class="input-group-append" data-target="#adjDateToPicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+                </div>
               </div>
-
-              <div class="filter-group">
-                <label class="filter-label"><?=$languageArray['product_code'][$language]?></label>
-                <select class="form-control select2" id="adjProductFilter">
-                  <option value="">-</option>
-                  <?php while($r2 = mysqli_fetch_assoc($products2)) { ?>
-                    <option value="<?=$r2['id']?>" data-category="<?=$r2['category']?>"><?=$r2['product_name']?></option>
-                  <?php } ?>
-                </select>
-              </div>
-
-              <div class="filter-group">
-                <label class="filter-label"><?=$languageArray['grade_code'][$language] ?? 'Grade'?></label>
-                <select class="form-control select2" id="adjGradeFilter">
-                  <option value="">-</option>
-                  <?php while($r2 = mysqli_fetch_assoc($grades)) { ?>
-                    <option value="<?=$r2['id']?>" data-product="<?=$r2['product_name']?>"><?=$r2['units']?></option>
-                  <?php } ?>
-                </select>
-              </div>
-
               <div class="filter-group filter-group-action" style="margin-left:auto;">
                 <label class="filter-label">&nbsp;</label>
-                <button type="button" class="btn btn-filter btn-filter-primary" id="loadAdjBtn">
-                  <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
-                </button>
+                <div class="d-flex" style="gap:0.5rem;">
+                  <button type="button" class="btn btn-filter btn-filter-secondary" id="loadAdjListBtn">
+                    <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+                  </button>
+                  <button type="button" class="btn btn-filter btn-filter-primary" id="newAdjBtn">
+                    <i class="fas fa-plus"></i> <?=$languageArray['new_adjustment_code'][$language] ?? 'New Adjustment'?>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -211,18 +194,20 @@ if(!isset($_SESSION['userID'])){
         <div class="card results-card show-dt-controls">
           <div class="card-header">
             <div class="results-header-left">
-              <h3 class="results-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?> &mdash; <span id="adjDateLabel"><?=date('d/m/Y')?></span></h3>
+              <h3 class="results-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?></h3>
             </div>
           </div>
           <div class="card-body">
-            <table class="table data-table" id="adjustTable">
+            <table class="table data-table" id="adjustListTable">
               <thead>
                 <tr>
-                  <th><?=$languageArray['category_code'][$language]?></th>
-                  <th><?=$languageArray['product_code'][$language]?></th>
-                  <th><?=$languageArray['grade_code'][$language]?></th>
-                  <th><?=$languageArray['balance_code'][$language]?> (KG)</th>
-                  <th width="8%"><?=$languageArray['actions_code'][$language]?></th>
+                  <th><?=$languageArray['adjustment_no_code'][$language] ?? 'Adjustment No'?></th>
+                  <th><?=$languageArray['date_code'][$language]?></th>
+                  <th><?=$languageArray['items_code'][$language] ?? 'Items'?></th>
+                  <th><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></th>
+                  <th><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
+                  <th><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></th>
+                  <th width="12%"><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
             </table>
@@ -231,38 +216,82 @@ if(!isset($_SESSION['userID'])){
 
       </div><!-- /paneAdjustment -->
 
-      <!-- Adjustment Modal -->
+      <!-- Stock Adjustment Modal -->
       <div class="modal fade modal-modern" id="adjModal" tabindex="-1">
-        <div class="modal-dialog" style="max-width:450px;">
+        <div class="modal-dialog" style="max-width:95%;">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title"><i class="fas fa-sliders-h mr-2 text-muted"></i><?=$languageArray['stock_adjustment_code'][$language]?></h5>
+              <h5 class="modal-title"><i class="fas fa-sliders-h mr-2 text-muted"></i><?=$languageArray['stock_adjustment_code'][$language]?> - <span id="adjModalTitle"><?=$languageArray['new_code'][$language] ?? 'New'?></span></h5>
               <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body">
               <input type="hidden" id="adjId">
-              <input type="hidden" id="adjProductId">
-              <input type="hidden" id="adjGrade">
-              <div class="form-group-modern">
-                <label class="form-label-modern"><?=$languageArray['product_code'][$language]?></label>
-                <input type="text" class="form-control" id="adjProductDisplay" readonly>
+              
+              <!-- Header Info -->
+              <div class="modal-section">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group-modern">
+                      <label class="form-label-modern"><?=$languageArray['adjustment_date_code'][$language] ?? 'Adjustment Date'?> <span class="text-danger">*</span></label>
+                      <div class="input-group date" id="adjDatePicker" data-target-input="nearest">
+                        <input type="text" class="form-control datetimepicker-input" data-target="#adjDatePicker" id="adjDate"/>
+                        <div class="input-group-append" data-target="#adjDatePicker" data-toggle="datetimepicker">
+                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="form-group-modern">
+                      <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
+                      <input type="text" class="form-control" id="adjRemark" placeholder="<?=$languageArray['enter_remark_code'][$language] ?? 'Enter remark'?>">
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="form-group-modern">
-                <label class="form-label-modern"><?=$languageArray['grade_code'][$language]?></label>
-                <input type="text" class="form-control" id="adjGradeDisplay" readonly>
-              </div>
-              <div class="form-group-modern">
-                <label class="form-label-modern"><?=$languageArray['current_balance_code'][$language] ?? 'Current Balance'?> (KG)</label>
-                <input type="text" class="form-control" id="adjCurrentBalance" readonly>
-              </div>
-              <div class="form-group-modern">
-                <label class="form-label-modern"><?=$languageArray['adjust_to_code'][$language] ?? 'Adjust To'?> (KG) <span class="text-danger">*</span></label>
-                <input type="number" step="0.01" class="form-control" id="adjNewBalance">
+
+              <!-- Items Section -->
+              <div class="modal-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="section-title mb-0"><i class="fas fa-list mr-2"></i><?=$languageArray['items_code'][$language] ?? 'Items'?></div>
+                  <button type="button" class="btn btn-sm btn-success" id="addAdjItemBtn"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_item_code'][$language] ?? 'Add Item'?></button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm" id="adjItemsTable">
+                    <thead style="background:#f8fafc;">
+                      <tr>
+                        <th style="width:15%;"><?=$languageArray['product_code'][$language]?></th>
+                        <th style="width:10%;"><?=$languageArray['grade_code'][$language]?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['current_qty_code'][$language] ?? 'Current Qty'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['adjust_qty_code'][$language] ?? 'Adjust Qty'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['new_qty_code'][$language] ?? 'New Qty'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
+                        <th style="width:30%;"><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
+                        <th style="width:5%;"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="adjItemsBody"></tbody>
+                    <tfoot style="background:#f8fafc; font-weight:600;">
+                      <tr>
+                        <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language] ?? 'Total'?>:</td>
+                        <td class="text-right" id="adjTotalQty">0.00</td>
+                        <td colspan="2"></td>
+                        <td class="text-right" id="adjTotalCost">0.00</td>
+                        <td colspan="2"></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+                <div id="adjItemsEmpty" class="text-center text-muted py-4" style="display:none;">
+                  <i class="fas fa-inbox fa-2x mb-2"></i>
+                  <p class="mb-0"><?=$languageArray['no_items_added_code'][$language] ?? 'No items added. Click "Add Item" to begin.'?></p>
+                </div>
               </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="button" class="btn btn-modern btn-modern-success" id="saveAdjBtn"><i class="fas fa-save"></i> <?=$languageArray['save_code'][$language]?></button>
+              <button type="button" class="btn btn-modern btn-modern-success" id="saveAdjBtn"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
             </div>
           </div>
         </div>
@@ -273,219 +302,668 @@ if(!isset($_SESSION['userID'])){
   </div>
 </div>
 
+<!-- Adjustment Item Row Template -->
+<script type="text/html" id="adjItemRowTemplate">
+  <tr class="adj-item-row">
+    <td><select class="form-control form-control-sm adj-product-select" id="adjProduct" style="width:100%;"></select></td>
+    <td><select class="form-control form-control-sm adj-grade-select" id="adjGrade" style="width:100%;"><option value="">-</option></select></td>
+    <td><input type="text" class="form-control form-control-sm text-right adj-current-qty" id="adjCurrentQty" readonly></td>
+    <td><input type="number" step="0.01" class="form-control form-control-sm text-right adj-adjust-qty" id="adjAdjustQty" placeholder="+/-"></td>
+    <td><input type="text" class="form-control form-control-sm text-right adj-new-qty" id="adjNewQty" readonly></td>
+    <td><input type="number" step="0.01" class="form-control form-control-sm text-right adj-unit-cost" id="adjUnitCost" value="0"></td>
+    <td class="text-right adj-total-cost">0.00</td>
+    <td><textarea class="form-control form-control-sm adj-reason" id="adjReason" rows="1"></textarea></td>
+    <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-adj-item"><i class="fas fa-times"></i></button></td>
+  </tr>
+</script>
+
 <script>
-var adjTable = null;
+// ============================================================================
+// VARIABLES
+// ============================================================================
+var adjListTable = null;
+var adjItemRowCount = 0;
+var productsData = [];
 
-$(function () {
-  $('.select2').select2({ 
-    allowClear: true, 
-    placeholder: 'Please Select' 
-  });
+// ============================================================================
+// DOCUMENT READY
+// ============================================================================
+$(function() {
+  initCommon();
+  initReportTab();
+  initAdjustmentTab();
+});
 
+function initCommon() {
+  $('.select2').select2({ allowClear: true, placeholder: 'Please Select' });
+}
+
+function initReportTab() {
   $('#datePicker').datetimepicker({
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
     defaultDate: new Date()
   });
 
-  // ── Report Tab ──────────────────────────────────────────────────────────────
-  $('#datePicker').on('change.datetimepicker', function () { 
-    loadPreview(); 
-  });
-
-  $('#categoryFilter').on('change', function () {
-    var selectedCategory = $(this).val();
-    var productSelect = $('#productFilter');
-    var currentVal = productSelect.val();
-    productSelect.select2('destroy');
-    if (!productSelect.data('original-options')) {
-      productSelect.data('original-options', productSelect.html());
-    }
-    productSelect.html(productSelect.data('original-options'));
-    if (selectedCategory) {
-      productSelect.find('option').each(function () {
-        if ($(this).val() && $(this).data('category') != selectedCategory) $(this).remove();
-      });
-    }
-    if (currentVal && productSelect.find('option[value="' + currentVal + '"]').length) {
-      productSelect.val(currentVal);
-    } else {
-      productSelect.val('');
-    }
-    productSelect.select2({ allowClear: true, placeholder: 'Please Select' });
-  });
-
-  $('#refreshBtn').on('click', function () { loadPreview(); });
-
-  $('#exportBtn').on('click', function () {
-    var date = $('#date').val();
-    if (!date) { toastr["error"]("Please select a date.", "Validation Error:"); return; }
-    window.open(buildUrl());
-  });
+  $('#datePicker').on('change.datetimepicker', loadPreview);
+  $('#refreshBtn').on('click', loadPreview);
+  $('#exportBtn').on('click', exportReport);
+  $('#categoryFilter').on('change', filterProductsByCategory);
 
   loadPreview();
+}
 
-  // ── Adjustment Tab ──────────────────────────────────────────────────────────
-  $('#adjCategoryFilter').select2({ allowClear: true, placeholder: 'Please Select' });
-  $('#adjProductFilter').select2({ allowClear: true, placeholder: 'Please Select' });
-  $('#adjGradeFilter').select2({ allowClear: true, placeholder: 'Please Select' });
-
-  $('#adjDatePicker').datetimepicker({
+function initAdjustmentTab() {
+  $('#adjDateFromPicker, #adjDateToPicker, #adjDatePicker').datetimepicker({
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
     defaultDate: new Date()
   });
 
-  $('#adjDatePicker').on('change.datetimepicker', function (e) {
-    $('#adjDateLabel').text(e.date ? e.date.format('DD/MM/YYYY') : '');
+  // Button events
+  $('#loadAdjListBtn').on('click', loadAdjustmentList);
+  $('#newAdjBtn').on('click', function() { openAdjustmentModal(); });
+  $('#addAdjItemBtn').on('click', function() { addAdjustmentItemRow(); });
+  $('#saveAdjBtn').on('click', saveAdjustment);
+
+  // Tab shown event
+  $('a[href="#paneAdjustment"]').on('shown.bs.tab', function() {
+    if (!adjListTable) loadAdjustmentList();
   });
 
-  // Filter product by category
-  $('#adjCategoryFilter').on('change', function () {
-    var selectedCategory = $(this).val();
-    var ps = $('#adjProductFilter');
-    ps.select2('destroy');
-    if (!ps.data('adj-original-options')) ps.data('adj-original-options', ps.html());
-    ps.html(ps.data('adj-original-options'));
-    if (selectedCategory) {
-      ps.find('option').each(function () {
-        if ($(this).val() && $(this).data('category') != selectedCategory) $(this).remove();
-      });
-    }
-    ps.val('').select2({ allowClear: true, placeholder: 'Please Select' });
-    resetAdjGrades();
-  });
+  // Item row events
+  $('#adjItemsBody')
+    .on('click', '.remove-adj-item', onRemoveItem)
+    .on('change', '.adj-product-select', onProductChange)
+    .on('change', '.adj-grade-select', onGradeChange)
+    .on('input', '.adj-adjust-qty', onAdjustQtyChange)
+    .on('input', '.adj-unit-cost', onUnitCostChange);
 
-  $('#adjProductFilter').on('change', function () {
-    var productName = $(this).find('option:selected').text();
-    var gs = $('#adjGradeFilter');
-    gs.select2('destroy');
-    if (!gs.data('original-options')) gs.data('original-options', gs.html());
-    gs.html(gs.data('original-options'));
-    if ($(this).val()) {
-      gs.find('option').each(function () {
-        var gradeProduct = $(this).data('product');
-        if (gradeProduct && gradeProduct !== productName) $(this).remove();
-      });
-    }
-    gs.val('').select2({ allowClear: true, placeholder: 'Please Select' });
-  });
+  loadProductsData();
+}
 
-  $('#loadAdjBtn').on('click', function () { loadAdjustment(); });
-
-  $('a[href="#paneAdjustment"]').on('shown.bs.tab', function () {
-    if (!adjTable) loadAdjustment();
-  });
-
-  $('#saveAdjBtn').on('click', function () {
-    var balance = $('#adjNewBalance').val();
-    if (balance === '') { toastr["error"]("Please enter a balance value.", "Validation Error:"); return; }
-    $('#spinnerLoading').show();
-    $.post('php/modules/wholesales/stockAdjustment/saveStockAdjustment.php', {
-      id:            $('#adjId').val(),
-      product_id:    $('#adjProductId').val(),
-      grade:         $('#adjGrade').val(),
-      balance:       balance,
-      today_balance: $('#adjCurrentBalance').val(),
-      adj_date:      $('#adjDate').val()
-    }, function (data) {
-      var obj = JSON.parse(data);
-      $('#spinnerLoading').hide();
-      if (obj.status === 'success') {
-        toastr["success"](obj.message, "Success:");
-        $('#adjModal').modal('hide');
-        adjTable.ajax.reload(null, false);
-      } else {
-        toastr["error"](obj.message, "Failed:");
-      }
-    });
-  });
-
-  $(document).on('click', '.open-adj-btn', function () {
-    var btn = $(this);
-    $('#adjId').val(btn.data('id'));
-    $('#adjProductId').val(btn.data('product'));
-    $('#adjGrade').val(btn.data('grade'));
-    $('#adjCurrentBalance').val(parseFloat(btn.data('balance')).toFixed(2));
-    $('#adjProductDisplay').val(btn.data('product-label'));
-    $('#adjGradeDisplay').val(btn.data('grade-label'));
-    $('#adjNewBalance').val(parseFloat(btn.data('balance')).toFixed(2));
-    $('#adjModal').modal('show');
-  });
-});
-
-function buildUrl() {
-  var date     = $('#date').val();
+// ============================================================================
+// REPORT TAB FUNCTIONS
+// ============================================================================
+function buildReportUrl() {
+  var date = $('#date').val();
   var category = $('#categoryFilter').val() || '';
   var location = $('#locationFilter').val() || '';
-  var product  = $('#productFilter').val()  || '';
+  var product = $('#productFilter').val() || '';
   return 'php/modules/wholesales/exportStockBalance.php?asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product;
 }
 
 function loadPreview() {
   var date = $('#date').val();
-  if (!date) { 
-    toastr["error"]("Please select a date.", "Validation Error:"); 
-    return; 
+  if (!date) {
+    toastr.error('Please select a date.', 'Validation Error:');
+    return;
   }
-  $('#previewFrame').attr('src', buildUrl());
+  $('#previewFrame').attr('src', buildReportUrl());
 }
 
-function resetAdjGrades() {
-  var gs = $('#adjGradeFilter');
-  gs.select2('destroy');
-  if (!gs.data('original-options')) gs.data('original-options', gs.html());
-  gs.html(gs.data('original-options'));
-  gs.val('').select2({ allowClear: true, placeholder: 'Please Select' });
+function exportReport() {
+  var date = $('#date').val();
+  if (!date) {
+    toastr.error('Please select a date.', 'Validation Error:');
+    return;
+  }
+  window.open(buildReportUrl());
 }
 
-function loadAdjustment() {
-  if (adjTable) { adjTable.clear().destroy(); adjTable = null; }
-  adjTable = $('#adjustTable').DataTable({
+function filterProductsByCategory() {
+  var selectedCategory = $(this).val();
+  var $productSelect = $('#productFilter');
+  var currentVal = $productSelect.val();
+
+  $productSelect.select2('destroy');
+
+  if (!$productSelect.data('original-options')) {
+    $productSelect.data('original-options', $productSelect.html());
+  }
+  $productSelect.html($productSelect.data('original-options'));
+
+  if (selectedCategory) {
+    $productSelect.find('option').each(function() {
+      if ($(this).val() && $(this).data('category') != selectedCategory) {
+        $(this).remove();
+      }
+    });
+  }
+
+  var newVal = (currentVal && $productSelect.find('option[value="' + currentVal + '"]').length) ? currentVal : '';
+  $productSelect.val(newVal).select2({ allowClear: true, placeholder: 'Please Select' });
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - DATA FUNCTIONS
+// ============================================================================
+function loadProductsData() {
+  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'products' })
+    .done(function(obj) {
+      if (obj.status === 'success') productsData = obj.data;
+    });
+}
+
+function loadAdjustmentList() {
+  if (adjListTable) {
+    adjListTable.clear().destroy();
+    adjListTable = null;
+  }
+
+  adjListTable = $('#adjustListTable').DataTable({
     responsive: true,
     autoWidth: false,
     processing: true,
     serverSide: false,
-    searching: false,
     language: {
-      emptyTable: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
-      zeroRecords: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+      emptyTable: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>'
     },
     ajax: {
-      url: 'php/modules/wholesales/stockAdjustment/getStockAdjustment.php',
+      url: 'php/modules/wholesales/stockAdjustment/api.php',
       type: 'POST',
       data: {
-        date:     $('#adjDate').val() || '',
-        category: $('#adjCategoryFilter').val() || '',
-        product:  $('#adjProductFilter').val()  || '',
-        grade:    $('#adjGradeFilter').val()    || ''
+        action: 'list',
+        date_from: $('#adjDateFrom').val() || '',
+        date_to: $('#adjDateTo').val() || ''
       },
-      dataSrc: function (json) {
-        if (json.status !== 'success') { toastr["error"](json.message, "Failed:"); return []; }
-        return json.data;
+      dataSrc: function(json) {
+        return json.status === 'success' ? json.data : [];
       }
     },
     columns: [
-      { data: 'category_name', defaultContent: '-' },
-      { data: null, render: function (d) { return d.product_code ? d.product_code + ' - ' + d.product_name : d.product_name; } },
-      { data: 'grade_name', defaultContent: '-' },
-      { data: 'balance', render: function (d) {
-          var v = parseFloat(d).toFixed(2);
-          return v < 0 ? '<span class="text-danger font-weight-bold">' + v + '</span>' : v;
-        }
-      },
-      { data: null, orderable: false, render: function (d) {
-          return '<button class="btn btn-sm btn-success open-adj-btn" ' +
-            'data-id="' + (d.id || '') + '" ' +
-            'data-product="' + d.product_id + '" ' +
-            'data-grade="' + (d.grade || '') + '" ' +
-            'data-balance="' + d.balance + '" ' +
-            'data-product-label="' + (d.product_code ? d.product_code + ' - ' + d.product_name : d.product_name) + '" ' +
-            'data-grade-label="' + (d.grade_name || '-') + '">' +
-            '<i class="fas fa-sliders-h"></i> Adjust</button>';
-        }
-      }
+      { data: 'adjustment_no' },
+      { data: 'adjustment_date_display' },
+      { data: 'total_items', className: 'text-center' },
+      { data: 'total_qty', className: 'text-right', render: renderSignedNumber },
+      { data: 'total_cost', className: 'text-right', render: renderSignedNumber },
+      { data: 'created_by_name', defaultContent: '-' },
+      { data: null, orderable: false, className: 'action-button', render: renderActionButtons }
     ]
+  });
+
+  bindTableEvents();
+}
+
+function bindTableEvents() {
+  $('#adjustListTable tbody').off('click', 'tr').on('click', 'tr', onRowClick);
+  $('#adjustListTable').off('click', '.print-adj-btn').on('click', '.print-adj-btn', function(e) {
+    e.stopPropagation();
+    printAdjustment($(this).data('id'));
+  });
+  $('#adjustListTable').off('click', '.edit-adj-btn').on('click', '.edit-adj-btn', function(e) {
+    e.stopPropagation();
+    editAdjustment($(this).data('id'));
+  });
+  $('#adjustListTable').off('click', '.delete-adj-btn').on('click', '.delete-adj-btn', function(e) {
+    e.stopPropagation();
+    deleteAdjustment($(this).data('id'));
+  });
+}
+
+function onRowClick(e) {
+  if ($(e.target).closest('.action-button').length || $(e.target).is('button') || $(e.target).is('i')) return;
+
+  var tr = $(this);
+  var row = adjListTable.row(tr);
+
+  if (row.child.isShown()) {
+    row.child.hide();
+    tr.removeClass('shown');
+  } else {
+    var rowData = row.data();
+    if (!rowData) return;
+
+    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: rowData.id })
+      .done(function(obj) {
+        if (obj.status === 'success') {
+          row.child(format(obj.data)).show();
+          tr.addClass('shown');
+        }
+      });
+  }
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - RENDER FUNCTIONS
+// ============================================================================
+function renderSignedNumber(d) {
+  var v = parseFloat(d) || 0;
+  return (v >= 0 ? '+' : '') + v.toFixed(2);
+}
+
+function renderActionButtons(d) {
+  return '<div class="expanded-actions">' +
+    '<button type="button" class="btn btn-sm btn-outline-secondary print-adj-btn" data-id="' + d.id + '"><i class="fas fa-print"></i></button>' +
+    '<button type="button" class="btn btn-sm btn-outline-primary edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button>' +
+    '<button type="button" class="btn btn-sm btn-outline-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button>' +
+    '</div>';
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - EXPANDABLE ROW FORMAT
+// ============================================================================
+function format(d) {
+  var totalQty = parseFloat(d.total_qty) || 0;
+  var totalCost = parseFloat(d.total_cost) || 0;
+  var totalQtyDisplay = (totalQty >= 0 ? '+' : '') + totalQty.toFixed(2);
+  var totalCostDisplay = (totalCost >= 0 ? '+' : '') + totalCost.toFixed(2);
+
+  var html = `
+  <div class="expanded-row-content">
+    <!-- Header -->
+    <div class="expanded-header">
+      <div>
+        <div class="expanded-header-title">${d.adjustment_no}</div>
+        <div class="expanded-header-subtitle">${d.adjustment_date_display}</div>
+      </div>
+      <div class="expanded-actions">
+        <button type="button" onclick="printAdjustment(${d.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
+        <button type="button" onclick="editAdjustment(${d.id})" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>
+        <button type="button" onclick="deleteAdjustment(${d.id})" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_items_code'][$language] ?? 'Total Items'?></div>
+        <div class="kpi-value">${d.total_items || 0}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></div>
+        <div class="kpi-value ${totalQty >= 0 ? 'kpi-value-primary' : 'kpi-value-danger'}">${totalQtyDisplay}</div>
+      </div>
+      <div class="kpi-card ${totalCost >= 0 ? 'kpi-card-success' : 'kpi-card-danger'}">
+        <div class="kpi-label"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></div>
+        <div class="kpi-value">${totalCostDisplay}</div>
+      </div>
+    </div>
+
+    <!-- Adjustment Info -->
+    <div class="info-section">
+      <div class="info-section-title"><?=$languageArray['adjustment_information_code'][$language] ?? 'Adjustment Information'?></div>
+      <div class="info-grid">
+        <div><span class="info-item-label"><?=$languageArray['adjustment_no_code'][$language] ?? 'Adjustment No'?></span><span class="info-item-value">${d.adjustment_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['date_code'][$language]?></span><span class="info-item-value">${d.adjustment_date_display || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></span><span class="info-item-value">${d.created_by_name || '-'}</span></div>
+      </div>
+      ${d.remark ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + d.remark + '</span></div>' : ''}
+    </div>
+
+    <!-- Adjustment Items -->
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title"><?=$languageArray['adjustment_items_code'][$language] ?? 'Adjustment Items'?></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table details-table mb-0">
+          <thead>
+            <tr>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['qty_before_code'][$language] ?? 'Qty Before'?></th>
+              <th class="text-right"><?=$languageArray['adjustment_code'][$language] ?? 'Adjustment'?></th>
+              <th class="text-right"><?=$languageArray['qty_after_code'][$language] ?? 'Qty After'?></th>
+              <th class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
+              <th class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
+              <th><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+  var footerTotalQty = 0;
+  var footerTotalCost = 0;
+
+  for (var i = 0; i < d.items.length; i++) {
+    var item = d.items[i];
+    var adjQty = parseFloat(item.adjustment_qty) || 0;
+    var itemCost = parseFloat(item.total_cost) || 0;
+
+    footerTotalQty += adjQty;
+    footerTotalCost += itemCost;
+
+    html += `
+            <tr>
+              <td>${item.product_code ? item.product_code + ' - ' : ''}${item.product_name}</td>
+              <td><span class="grade-badge">${item.grade_name || '-'}</span></td>
+              <td class="text-right text-mono">${parseFloat(item.quantity_before).toFixed(2)}</td>
+              <td class="text-right text-mono ${adjQty >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(adjQty >= 0 ? '+' : '') + adjQty.toFixed(2)}</td>
+              <td class="text-right text-mono">${parseFloat(item.quantity_after).toFixed(2)}</td>
+              <td class="text-right text-mono">${parseFloat(item.unit_cost).toFixed(2)}</td>
+              <td class="text-right text-mono ${itemCost >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(itemCost >= 0 ? '+' : '') + itemCost.toFixed(2)}</td>
+              <td>${item.reason || '-'}</td>
+            </tr>`;
+  }
+
+  html += `
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3"><?=$languageArray['total_code'][$language] ?? 'Total'?></td>
+              <td class="text-right text-mono ${footerTotalQty >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(footerTotalQty >= 0 ? '+' : '') + footerTotalQty.toFixed(2)}</td>
+              <td></td>
+              <td></td>
+              <td class="text-right text-mono ${footerTotalCost >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(footerTotalCost >= 0 ? '+' : '') + footerTotalCost.toFixed(2)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - MODAL FUNCTIONS
+// ============================================================================
+function openAdjustmentModal(id) {
+  $('#adjId').val(id || '');
+  $('#adjModalTitle').text(id ? '<?=$languageArray['edit_code'][$language] ?? 'Edit'?>' : '<?=$languageArray['new_code'][$language] ?? 'New'?>');
+  $('#adjDate').val(moment().format('DD/MM/YYYY'));
+  $('#adjRemark').val('');
+  $('#adjItemsBody').html('');
+  $('#adjTotalQty, #adjTotalCost').text('0.00');
+  adjItemRowCount = 0;
+  toggleAdjItemsEmpty();
+  $('#adjModal').modal('show');
+}
+
+function addAdjustmentItemRow(data, callback) {
+  var idx = adjItemRowCount++;
+  var $template = $('#adjItemRowTemplate').clone();
+  $('#adjItemsBody').append($template.html());
+
+  var $row = $('#adjItemsBody').find('.adj-item-row:last');
+  $row.attr('data-idx', idx);
+
+  if (data && data.id) {
+    $row.attr('data-item-id', data.id);
+  }
+
+  // Build product options
+  var productOptions = '<option value="">-</option>';
+  productsData.forEach(function(p) {
+    productOptions += '<option value="' + p.id + '">' + (p.product_code ? p.product_code + ' - ' : '') + p.product_name + '</option>';
+  });
+
+  // Set unique IDs
+  $row.find('#adjProduct').attr('id', 'adjProduct' + idx).html(productOptions);
+  $row.find('#adjGrade').attr('id', 'adjGrade' + idx);
+  $row.find('#adjCurrentQty').attr('id', 'adjCurrentQty' + idx);
+  $row.find('#adjAdjustQty').attr('id', 'adjAdjustQty' + idx);
+  $row.find('#adjNewQty').attr('id', 'adjNewQty' + idx);
+  $row.find('#adjUnitCost').attr('id', 'adjUnitCost' + idx);
+  $row.find('#adjReason').attr('id', 'adjReason' + idx);
+
+  // Initialize Select2
+  $row.find('.adj-product-select, .adj-grade-select').select2({ width: '100%', dropdownParent: $('#adjModal') });
+
+  toggleAdjItemsEmpty();
+
+  // Populate data if editing
+  if (data) {
+    $row.find('.adj-product-select').val(data.product_id).trigger('change');
+    setTimeout(function() {
+      $row.find('.adj-grade-select').val(data.grade).trigger('change.select2');
+      $row.find('.adj-current-qty').val(parseFloat(data.quantity_before).toFixed(2));
+      $row.find('.adj-adjust-qty').val(parseFloat(data.adjustment_qty).toFixed(2));
+      $row.find('.adj-new-qty').val(parseFloat(data.quantity_after).toFixed(2));
+      $row.find('.adj-unit-cost').val(parseFloat(data.unit_cost).toFixed(2));
+      $row.find('.adj-total-cost').text(formatTotalCost(parseFloat(data.adjustment_qty), parseFloat(data.unit_cost)));
+      $row.find('.adj-reason').val(data.reason || '');
+      if (callback) callback();
+    }, 200);
+  }
+}
+
+function toggleAdjItemsEmpty() {
+  var hasRows = $('#adjItemsBody tr').length > 0;
+  $('#adjItemsTable').toggle(hasRows);
+  $('#adjItemsEmpty').toggle(!hasRows);
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - ITEM ROW EVENT HANDLERS
+// ============================================================================
+function onRemoveItem() {
+  $(this).closest('tr').remove();
+  updateAdjustmentTotals();
+  toggleAdjItemsEmpty();
+}
+
+function onProductChange() {
+  var $row = $(this).closest('tr');
+  var productId = $(this).val();
+  var $gradeSelect = $row.find('.adj-grade-select');
+  var gradeHtml = '<option value="">-</option>';
+
+  if (productId) {
+    var product = productsData.find(function(p) { return p.id == productId; });
+    if (product && product.grades) {
+      product.grades.forEach(function(g) {
+        gradeHtml += '<option value="' + g.grade_id + '" data-cost="' + (g.purchasing_price || 0) + '">' + g.grade_name + '</option>';
+      });
+    }
+  }
+
+  $gradeSelect.html(gradeHtml).trigger('change.select2');
+  $row.find('.adj-current-qty, .adj-adjust-qty, .adj-new-qty').val('');
+  $row.find('.adj-unit-cost').val('0');
+  $row.find('.adj-total-cost').text('0.00');
+}
+
+function onGradeChange() {
+  var $row = $(this).closest('tr');
+  var productId = $row.find('.adj-product-select').val();
+  var gradeId = $(this).val();
+  var defaultCost = $(this).find('option:selected').data('cost') || 0;
+
+  $row.find('.adj-unit-cost').val(parseFloat(defaultCost).toFixed(2));
+
+  if (productId && gradeId) {
+    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'balance', product_id: productId, grade: gradeId })
+      .done(function(obj) {
+        if (obj.status === 'success') {
+          $row.find('.adj-current-qty').val(parseFloat(obj.balance).toFixed(2));
+          if (obj.unit_cost > 0) {
+            $row.find('.adj-unit-cost').val(parseFloat(obj.unit_cost).toFixed(2));
+          }
+        }
+      });
+  }
+}
+
+function onAdjustQtyChange() {
+  var $row = $(this).closest('tr');
+  var currentQty = parseFloat($row.find('.adj-current-qty').val()) || 0;
+  var adjustQty = parseFloat($(this).val()) || 0;
+  $row.find('.adj-new-qty').val((currentQty + adjustQty).toFixed(2));
+  updateRowTotalCost($row);
+  updateAdjustmentTotals();
+}
+
+function onUnitCostChange() {
+  updateRowTotalCost($(this).closest('tr'));
+  updateAdjustmentTotals();
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - CALCULATION FUNCTIONS
+// ============================================================================
+function updateRowTotalCost($row) {
+  var adjustQty = parseFloat($row.find('.adj-adjust-qty').val()) || 0;
+  var unitCost = parseFloat($row.find('.adj-unit-cost').val()) || 0;
+  $row.find('.adj-total-cost').text(formatTotalCost(adjustQty, unitCost));
+}
+
+function formatTotalCost(adjustQty, unitCost) {
+  var total = adjustQty * unitCost;
+  return (total >= 0 ? '+' : '') + total.toFixed(2);
+}
+
+function updateAdjustmentTotals() {
+  var totalQty = 0;
+  var totalCost = 0;
+
+  $('#adjItemsBody tr').each(function() {
+    totalQty += parseFloat($(this).find('.adj-adjust-qty').val()) || 0;
+    var costText = $(this).find('.adj-total-cost').text().replace('+', '');
+    totalCost += parseFloat(costText) || 0;
+  });
+
+  $('#adjTotalQty').text((totalQty >= 0 ? '+' : '') + totalQty.toFixed(2));
+  $('#adjTotalCost').text((totalCost >= 0 ? '+' : '') + totalCost.toFixed(2));
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - CRUD FUNCTIONS
+// ============================================================================
+function printAdjustment(id) {
+  window.open('php/modules/wholesales/stockAdjustment/print.php?id=' + id, '_blank');
+}
+
+function saveAdjustment() {
+  var adjDate = $('#adjDate').val();
+  if (!adjDate) {
+    toastr.error('Please select adjustment date.', 'Validation Error:');
+    return;
+  }
+
+  var items = [];
+  var hasError = false;
+
+  $('#adjItemsBody tr').each(function() {
+    var productId = $(this).find('.adj-product-select').val();
+    var grade = $(this).find('.adj-grade-select').val();
+
+    if (!productId || !grade) {
+      hasError = true;
+      return false;
+    }
+
+    items.push({
+      id: $(this).data('item-id') || null,
+      product_id: productId,
+      grade: grade,
+      quantity_before: $(this).find('.adj-current-qty').val() || 0,
+      adjustment_qty: $(this).find('.adj-adjust-qty').val() || 0,
+      quantity_after: $(this).find('.adj-new-qty').val() || 0,
+      unit_cost: $(this).find('.adj-unit-cost').val() || 0,
+      reason: $(this).find('.adj-reason').val() || ''
+    });
+  });
+
+  if (hasError) {
+    toastr.error('Please select product and grade for all items.', 'Validation Error:');
+    return;
+  }
+
+  if (items.length === 0) {
+    toastr.error('Please add at least one item.', 'Validation Error:');
+    return;
+  }
+
+  var adjId = $('#adjId').val();
+  var action = adjId ? 'update' : 'save';
+
+  $('#spinnerLoading').show();
+  $.post('php/modules/wholesales/stockAdjustment/api.php', {
+    action: action,
+    id: adjId,
+    adjustment_date: adjDate,
+    remark: $('#adjRemark').val(),
+    items: JSON.stringify(items)
+  })
+    .done(function(obj) {
+      if (obj.status === 'success') {
+        toastr.success(obj.message, 'Success:');
+        $('#adjModal').modal('hide');
+        adjListTable.ajax.reload(null, false);
+      } else {
+        toastr.error(obj.message, 'Failed:');
+      }
+    })
+    .fail(function() {
+      toastr.error('Failed to save adjustment.', 'Error:');
+    })
+    .always(function() {
+      $('#spinnerLoading').hide();
+    });
+}
+
+function editAdjustment(id) {
+  $('#spinnerLoading').show();
+  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: id })
+    .done(function(obj) {
+      if (obj.status === 'success') {
+        var d = obj.data;
+        $('#adjId').val(d.id);
+        $('#adjModalTitle').text('<?=$languageArray['edit_code'][$language] ?? 'Edit'?>');
+        $('#adjDate').val(d.adjustment_date_display);
+        $('#adjRemark').val(d.remark || '');
+        $('#adjItemsBody').html('');
+        adjItemRowCount = 0;
+
+        var itemsToAdd = d.items.length;
+        if (itemsToAdd === 0) {
+          toggleAdjItemsEmpty();
+          $('#spinnerLoading').hide();
+          $('#adjModal').modal('show');
+          return;
+        }
+
+        var itemsAdded = 0;
+        d.items.forEach(function(item) {
+          addAdjustmentItemRow(item, function() {
+            itemsAdded++;
+            if (itemsAdded === itemsToAdd) {
+              updateAdjustmentTotals();
+              $('#spinnerLoading').hide();
+              $('#adjModal').modal('show');
+            }
+          });
+        });
+      } else {
+        $('#spinnerLoading').hide();
+        toastr.error(obj.message, 'Failed:');
+      }
+    })
+    .fail(function() {
+      $('#spinnerLoading').hide();
+      toastr.error('Failed to load adjustment data.', 'Error:');
+    });
+}
+
+function deleteAdjustment(id) {
+  Swal.fire({
+    title: '<?=$languageArray['confirm_delete_code'][$language] ?? 'Confirm Delete'?>',
+    text: '<?=$languageArray['delete_adjustment_confirm_code'][$language] ?? 'Are you sure you want to delete this adjustment? Stock will be reversed.'?>',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    confirmButtonText: '<?=$languageArray['delete_code'][$language] ?? 'Delete'?>'
+  }).then(function(result) {
+    if (result.isConfirmed) {
+      $('#spinnerLoading').show();
+      $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'delete', id: id })
+        .done(function(obj) {
+          if (obj.status === 'success') {
+            toastr.success(obj.message, 'Success:');
+            adjListTable.ajax.reload(null, false);
+          } else {
+            toastr.error(obj.message, 'Failed:');
+          }
+        })
+        .fail(function() {
+          toastr.error('Failed to delete adjustment.', 'Error:');
+        })
+        .always(function() {
+          $('#spinnerLoading').hide();
+        });
+    }
   });
 }
 </script>
