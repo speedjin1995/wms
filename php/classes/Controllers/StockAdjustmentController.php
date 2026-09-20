@@ -179,6 +179,26 @@ class StockAdjustmentController
     }
 
     /**
+     * GET /print - Print adjustment PDF
+     */
+    public function print(array $companyDetail): void
+    {
+        $id = (int)($_GET['id'] ?? 0);
+
+        if (!$id) {
+            die('Invalid ID');
+        }
+
+        $data = $this->service->getPrintData($id);
+
+        if (!$data) {
+            die('Adjustment not found');
+        }
+
+        $this->service->generatePdf($data, $companyDetail);
+    }
+
+    /**
      * Parse date from d/m/Y format to Y-m-d
      */
     private function parseDateInput(?string $date): ?string

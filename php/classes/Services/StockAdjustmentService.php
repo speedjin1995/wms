@@ -614,4 +614,29 @@ class StockAdjustmentService
             $this->userId
         );
     }
+
+    /**
+     * Get print data for adjustment
+     */
+    public function getPrintData(int $id): ?array
+    {
+        $adjustment = $this->getById($id);
+        
+        if (!$adjustment) {
+            return null;
+        }
+
+        return $adjustment->toArray(true);
+    }
+
+    /**
+     * Generate PDF for adjustment
+     */
+    public function generatePdf(array $data, array $companyDetail): void
+    {
+        require_once __DIR__ . '/../../../vendor/autoload.php';
+        require_once __DIR__ . '/../../modules/wholesales/stockAdjustment/partial/pdfStockAdjustment.php';
+        
+        generateStockAdjustmentPdf($data, $companyDetail);
+    }
 }

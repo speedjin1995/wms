@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    @page { margin: 15mm; }
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    .header-table td { vertical-align: top; }
+    .company-name { font-size: 18px; font-weight: bold; color: #e67300; }
+    .company-reg { font-size: 11px; color: #666; }
+    .company-info { font-size: 10px; color: #555; line-height: 1.4; }
+    .title { text-align: center; font-size: 18px; font-weight: bold; color: #e67300; margin: 20px 0; }
+    .ref-table { width: 100%; margin-bottom: 15px; }
+    .ref-table td { padding: 2px 0; }
+    .ref-left { text-align: left; }
+    .ref-right { text-align: right; }
+    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .items-table th { background: #fff; color: #333; padding: 8px 5px; text-align: left; border-bottom: 2px solid #e67300; font-weight: normal; }
+    .items-table td { padding: 8px 5px; border-bottom: 1px solid #eee; vertical-align: top; }
+    .items-table tr:nth-child(even) { background: #fff5eb; }
+    .tc { text-align: center; }
+    .tr { text-align: right; }
+    .footer-section { margin-top: 30px; border-top: 1px solid #333; padding-top: 10px; }
+    .footer-table { width: 100%; }
+    .note-section { width: 60%; vertical-align: top; }
+    .total-section { width: 40%; text-align: right; vertical-align: top; }
+    .total-box { display: inline-block; border: 1px solid #333; padding: 5px 15px; margin-left: 10px; min-width: 100px; text-align: right; }
+    .signature-section { margin-top: 50px; text-align: right; }
+    .signature-line { border-top: 1px solid #333; width: 150px; display: inline-block; margin-top: 40px; }
+    .signature-label { font-size: 10px; }
+</style>
+</head>
+<body>
+
+<!-- Company Header -->
+<table class="header-table">
+    <tr>
+        <td style="width: 80px;">{{LOGO}}</td>
+        <td>
+            <div class="company-name">{{COMPANY_NAME}} <span class="company-reg">({{COMPANY_REG}})</span></div>
+            <div class="company-info">
+                {{COMPANY_ADDRESS}}<br>
+                {{COMPANY_CITY}}<br>
+                Phone: {{COMPANY_PHONE}}<br>
+                Email: {{COMPANY_EMAIL}}
+            </div>
+        </td>
+    </tr>
+</table>
+
+<!-- Title -->
+<div class="title">Stock Adjustment</div>
+
+<!-- Reference Info -->
+<table class="ref-table">
+    <tr>
+        <td class="ref-left"><strong>Ref :</strong> Stock Adjustment</td>
+        <td class="ref-right"><strong>No</strong> : {{ADJUSTMENT_NO}}</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td class="ref-right"><strong>Date</strong> : {{ADJUSTMENT_DATE}}</td>
+    </tr>
+</table>
+
+<!-- Items Table -->
+<table class="items-table">
+    <thead>
+        <tr>
+            <th style="width:5%;" class="tc">No</th>
+            <th style="width:12%;">Item Code</th>
+            <th style="width:28%;">Description</th>
+            <th style="width:10%;" class="tc">Location</th>
+            <th style="width:10%;" class="tr">Qty</th>
+            <th style="width:8%;" class="tc">UOM</th>
+            <th style="width:12%;" class="tr">Unit Cost</th>
+            <th style="width:15%;" class="tr">Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ITEMS_ROWS}}
+    </tbody>
+</table>
+
+<!-- Footer Section -->
+<div class="footer-section">
+    <table class="footer-table">
+        <tr>
+            <td class="note-section">
+                <strong>Note :</strong> {{REMARK}}
+            </td>
+            <td class="total-section">
+                <strong>Total</strong>
+                <span class="total-box">{{TOTAL_COST}}</span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- Signature Section -->
+<div class="signature-section">
+    <div class="signature-line"></div>
+    <div class="signature-label">Approved By</div>
+</div>
+
+</body>
+</html>

@@ -57,6 +57,14 @@ switch ($action) {
         echo json_encode($controller->products($categoryIds));
         break;
 
+    case 'print':
+        // PDF output - not JSON
+        header_remove('Content-Type');
+        require_once __DIR__ . '/../../../lookup.php';
+        $companyDetail = searchCompanyById((int)$_SESSION['customer'], $db);
+        $controller->print($companyDetail);
+        break;
+
     default:
         echo json_encode(['status' => 'failed', 'message' => 'Invalid action']);
 }

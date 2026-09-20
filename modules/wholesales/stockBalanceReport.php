@@ -487,6 +487,10 @@ function loadAdjustmentList() {
 
 function bindTableEvents() {
   $('#adjustListTable tbody').off('click', 'tr').on('click', 'tr', onRowClick);
+  $('#adjustListTable').off('click', '.print-adj-btn').on('click', '.print-adj-btn', function(e) {
+    e.stopPropagation();
+    printAdjustment($(this).data('id'));
+  });
   $('#adjustListTable').off('click', '.edit-adj-btn').on('click', '.edit-adj-btn', function(e) {
     e.stopPropagation();
     editAdjustment($(this).data('id'));
@@ -530,6 +534,7 @@ function renderSignedNumber(d) {
 
 function renderActionButtons(d) {
   return '<div class="expanded-actions">' +
+    '<button type="button" class="btn btn-sm btn-outline-secondary print-adj-btn" data-id="' + d.id + '"><i class="fas fa-print"></i></button>' +
     '<button type="button" class="btn btn-sm btn-outline-primary edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button>' +
     '<button type="button" class="btn btn-sm btn-outline-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button>' +
     '</div>';
@@ -553,6 +558,7 @@ function format(d) {
         <div class="expanded-header-subtitle">${d.adjustment_date_display}</div>
       </div>
       <div class="expanded-actions">
+        <button type="button" onclick="printAdjustment(${d.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
         <button type="button" onclick="editAdjustment(${d.id})" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>
         <button type="button" onclick="deleteAdjustment(${d.id})" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
       </div>
@@ -815,6 +821,10 @@ function updateAdjustmentTotals() {
 // ============================================================================
 // ADJUSTMENT TAB - CRUD FUNCTIONS
 // ============================================================================
+function printAdjustment(id) {
+  window.open('php/modules/wholesales/stockAdjustment/api.php?action=print&id=' + id, '_blank');
+}
+
 function saveAdjustment() {
   var adjDate = $('#adjDate').val();
   if (!adjDate) {
