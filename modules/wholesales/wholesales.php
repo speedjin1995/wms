@@ -1930,10 +1930,7 @@ function getTableColumns() {
     {
       data: 'id', orderable: false, class: 'select-checkbox',
       render: function(data, type, row) {
-        if (allowInvoice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')) {
-          return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
-        }
-        return '';
+        return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
       }
     }
   ];
