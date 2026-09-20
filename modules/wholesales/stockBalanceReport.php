@@ -318,162 +318,139 @@ if(!isset($_SESSION['userID'])){
 </script>
 
 <script>
+// ============================================================================
+// VARIABLES
+// ============================================================================
 var adjListTable = null;
 var adjItemRowCount = 0;
 var productsData = [];
 
-$(function () {
-  $('.select2').select2({ 
-    allowClear: true, 
-    placeholder: 'Please Select' 
-  });
+// ============================================================================
+// DOCUMENT READY
+// ============================================================================
+$(function() {
+  initCommon();
+  initReportTab();
+  initAdjustmentTab();
+});
 
+function initCommon() {
+  $('.select2').select2({ allowClear: true, placeholder: 'Please Select' });
+}
+
+function initReportTab() {
   $('#datePicker').datetimepicker({
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
     defaultDate: new Date()
   });
 
-  // ── Report Tab ──────────────────────────────────────────────────────────────
-  $('#datePicker').on('change.datetimepicker', function () { 
-    loadPreview(); 
-  });
-
-  $('#categoryFilter').on('change', function () {
-    var selectedCategory = $(this).val();
-    var productSelect = $('#productFilter');
-    var currentVal = productSelect.val();
-    productSelect.select2('destroy');
-    if (!productSelect.data('original-options')) {
-      productSelect.data('original-options', productSelect.html());
-    }
-    productSelect.html(productSelect.data('original-options'));
-    if (selectedCategory) {
-      productSelect.find('option').each(function () {
-        if ($(this).val() && $(this).data('category') != selectedCategory) $(this).remove();
-      });
-    }
-    if (currentVal && productSelect.find('option[value="' + currentVal + '"]').length) {
-      productSelect.val(currentVal);
-    } else {
-      productSelect.val('');
-    }
-    productSelect.select2({ allowClear: true, placeholder: 'Please Select' });
-  });
-
-  $('#refreshBtn').on('click', function () { loadPreview(); });
-
-  $('#exportBtn').on('click', function () {
-    var date = $('#date').val();
-    if (!date) { toastr["error"]("Please select a date.", "Validation Error:"); return; }
-    window.open(buildUrl());
-  });
+  $('#datePicker').on('change.datetimepicker', loadPreview);
+  $('#refreshBtn').on('click', loadPreview);
+  $('#exportBtn').on('click', exportReport);
+  $('#categoryFilter').on('change', filterProductsByCategory);
 
   loadPreview();
+}
 
-  // ── Adjustment Tab ──────────────────────────────────────────────────────────
-  $('#adjDateFromPicker, #adjDateToPicker').datetimepicker({
+function initAdjustmentTab() {
+  $('#adjDateFromPicker, #adjDateToPicker, #adjDatePicker').datetimepicker({
     icons: { time: 'far fa-clock' },
     format: 'DD/MM/YYYY',
     defaultDate: new Date()
   });
 
-  $('#adjDatePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY',
-    defaultDate: new Date()
-  });
+  // Button events
+  $('#loadAdjListBtn').on('click', loadAdjustmentList);
+  $('#newAdjBtn').on('click', function() { openAdjustmentModal(); });
+  $('#addAdjItemBtn').on('click', function() { addAdjustmentItemRow(); });
+  $('#saveAdjBtn').on('click', saveAdjustment);
 
-  $('#loadAdjListBtn').on('click', function() { loadAdjustmentList(); });
-
-  $('a[href="#paneAdjustment"]').on('shown.bs.tab', function () {
+  // Tab shown event
+  $('a[href="#paneAdjustment"]').on('shown.bs.tab', function() {
     if (!adjListTable) loadAdjustmentList();
   });
 
-  $('#newAdjBtn').on('click', function() { openAdjustmentModal(); });
-  $('#addAdjItemBtn').on('click', function() { addAdjustmentItemRow(); });
-  $('#adjItemsBody').on('click', '.remove-adj-item', function() {
-    $(this).closest('tr').remove();
-    updateAdjustmentTotals();
-    toggleAdjItemsEmpty();
-  });
-
-  $('#adjItemsBody').on('change', '.adj-product-select', function() {
-    var $row = $(this).closest('tr');
-    var productId = $(this).val();
-    var $gradeSelect = $row.find('.adj-grade-select');
-    var gradeHtml = '<option value="">-</option>';
-    if (productId) {
-      var product = productsData.find(function(p) { return p.id == productId; });
-      if (product && product.grades) {
-        product.grades.forEach(function(g) {
-          gradeHtml += '<option value="' + g.grade_id + '" data-cost="' + (g.purchasing_price || 0) + '">' + g.grade_name + '</option>';
-        });
-      }
-    }
-    $gradeSelect.html(gradeHtml).trigger('change.select2');
-    $row.find('.adj-current-qty, .adj-adjust-qty, .adj-new-qty').val('');
-    $row.find('.adj-unit-cost').val('0');
-    $row.find('.adj-total-cost').text('0.00');
-  });
-
-  $('#adjItemsBody').on('change', '.adj-grade-select', function() {
-    var $row = $(this).closest('tr');
-    var productId = $row.find('.adj-product-select').val();
-    var gradeId = $(this).val();
-    var defaultCost = $(this).find('option:selected').data('cost') || 0;
-    $row.find('.adj-unit-cost').val(parseFloat(defaultCost).toFixed(2));
-    if (productId && gradeId) {
-      $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'balance', product_id: productId, grade: gradeId }, function(obj) {
-        if (obj.status === 'success') {
-          $row.find('.adj-current-qty').val(parseFloat(obj.balance).toFixed(2));
-          if (obj.unit_cost > 0) $row.find('.adj-unit-cost').val(parseFloat(obj.unit_cost).toFixed(2));
-        }
-      });
-    }
-  });
-
-  $('#adjItemsBody').on('input', '.adj-adjust-qty', function() {
-    var $row = $(this).closest('tr');
-    var currentQty = parseFloat($row.find('.adj-current-qty').val()) || 0;
-    var adjustQty = parseFloat($(this).val()) || 0;
-    $row.find('.adj-new-qty').val((currentQty + adjustQty).toFixed(2));
-    updateRowTotalCost($row);
-    updateAdjustmentTotals();
-  });
-
-  $('#adjItemsBody').on('input', '.adj-unit-cost', function() {
-    updateRowTotalCost($(this).closest('tr'));
-    updateAdjustmentTotals();
-  });
-
-  $('#saveAdjBtn').on('click', function() { saveAdjustment(); });
+  // Item row events
+  $('#adjItemsBody')
+    .on('click', '.remove-adj-item', onRemoveItem)
+    .on('change', '.adj-product-select', onProductChange)
+    .on('change', '.adj-grade-select', onGradeChange)
+    .on('input', '.adj-adjust-qty', onAdjustQtyChange)
+    .on('input', '.adj-unit-cost', onUnitCostChange);
 
   loadProductsData();
-});
+}
 
-function buildUrl() {
-  var date     = $('#date').val();
+// ============================================================================
+// REPORT TAB FUNCTIONS
+// ============================================================================
+function buildReportUrl() {
+  var date = $('#date').val();
   var category = $('#categoryFilter').val() || '';
   var location = $('#locationFilter').val() || '';
-  var product  = $('#productFilter').val()  || '';
+  var product = $('#productFilter').val() || '';
   return 'php/modules/wholesales/exportStockBalance.php?asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product;
 }
 
 function loadPreview() {
   var date = $('#date').val();
-  if (!date) { toastr["error"]("Please select a date.", "Validation Error:"); return; }
-  $('#previewFrame').attr('src', buildUrl());
+  if (!date) {
+    toastr.error('Please select a date.', 'Validation Error:');
+    return;
+  }
+  $('#previewFrame').attr('src', buildReportUrl());
 }
 
+function exportReport() {
+  var date = $('#date').val();
+  if (!date) {
+    toastr.error('Please select a date.', 'Validation Error:');
+    return;
+  }
+  window.open(buildReportUrl());
+}
+
+function filterProductsByCategory() {
+  var selectedCategory = $(this).val();
+  var $productSelect = $('#productFilter');
+  var currentVal = $productSelect.val();
+
+  $productSelect.select2('destroy');
+
+  if (!$productSelect.data('original-options')) {
+    $productSelect.data('original-options', $productSelect.html());
+  }
+  $productSelect.html($productSelect.data('original-options'));
+
+  if (selectedCategory) {
+    $productSelect.find('option').each(function() {
+      if ($(this).val() && $(this).data('category') != selectedCategory) {
+        $(this).remove();
+      }
+    });
+  }
+
+  var newVal = (currentVal && $productSelect.find('option[value="' + currentVal + '"]').length) ? currentVal : '';
+  $productSelect.val(newVal).select2({ allowClear: true, placeholder: 'Please Select' });
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - DATA FUNCTIONS
+// ============================================================================
 function loadProductsData() {
-  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'products' }, function(obj) {
-    if (obj.status === 'success') productsData = obj.data;
-  });
+  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'products' })
+    .done(function(obj) {
+      if (obj.status === 'success') productsData = obj.data;
+    });
 }
 
 function loadAdjustmentList() {
-  if (adjListTable) { adjListTable.clear().destroy(); adjListTable = null; }
+  if (adjListTable) {
+    adjListTable.clear().destroy();
+    adjListTable = null;
+  }
+
   adjListTable = $('#adjustListTable').DataTable({
     responsive: true,
     autoWidth: false,
@@ -485,107 +462,204 @@ function loadAdjustmentList() {
     ajax: {
       url: 'php/modules/wholesales/stockAdjustment/api.php',
       type: 'POST',
-      data: { action: 'list', date_from: $('#adjDateFrom').val() || '', date_to: $('#adjDateTo').val() || '' },
-      dataSrc: function(json) { return json.status === 'success' ? json.data : []; }
+      data: {
+        action: 'list',
+        date_from: $('#adjDateFrom').val() || '',
+        date_to: $('#adjDateTo').val() || ''
+      },
+      dataSrc: function(json) {
+        return json.status === 'success' ? json.data : [];
+      }
     },
     columns: [
       { data: 'adjustment_no' },
       { data: 'adjustment_date_display' },
       { data: 'total_items', className: 'text-center' },
-      { data: 'total_qty', className: 'text-right', render: function(d) { var v = parseFloat(d); return (v >= 0 ? '+' : '') + v.toFixed(2); } },
-      { data: 'total_cost', className: 'text-right', render: function(d) { var v = parseFloat(d); return (v >= 0 ? '+' : '') + v.toFixed(2); } },
+      { data: 'total_qty', className: 'text-right', render: renderSignedNumber },
+      { data: 'total_cost', className: 'text-right', render: renderSignedNumber },
       { data: 'created_by_name', defaultContent: '-' },
-      { data: null, orderable: false, className: 'action-button', render: function(d) {
-          return '<div class="d-flex" style="gap:4px;"><button class="btn btn-sm btn-success edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button></div>';
-        }
-      }
+      { data: null, orderable: false, className: 'action-button', render: renderActionButtons }
     ]
   });
 
-  // Expandable row on click
-  $('#adjustListTable tbody').off('click', 'tr').on('click', 'tr', function(e) {
-    if ($(e.target).closest('.action-button').length || $(e.target).is('button') || $(e.target).is('i')) return;
-    var tr = $(this);
-    var row = adjListTable.row(tr);
-    if (row.child.isShown()) {
-      row.child.hide();
-      tr.removeClass('shown');
-    } else {
-      var rowData = row.data();
-      if (!rowData) return;
-      $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: rowData.id }, function(obj) {
+  bindTableEvents();
+}
+
+function bindTableEvents() {
+  $('#adjustListTable tbody').off('click', 'tr').on('click', 'tr', onRowClick);
+  $('#adjustListTable').off('click', '.edit-adj-btn').on('click', '.edit-adj-btn', function(e) {
+    e.stopPropagation();
+    editAdjustment($(this).data('id'));
+  });
+  $('#adjustListTable').off('click', '.delete-adj-btn').on('click', '.delete-adj-btn', function(e) {
+    e.stopPropagation();
+    deleteAdjustment($(this).data('id'));
+  });
+}
+
+function onRowClick(e) {
+  if ($(e.target).closest('.action-button').length || $(e.target).is('button') || $(e.target).is('i')) return;
+
+  var tr = $(this);
+  var row = adjListTable.row(tr);
+
+  if (row.child.isShown()) {
+    row.child.hide();
+    tr.removeClass('shown');
+  } else {
+    var rowData = row.data();
+    if (!rowData) return;
+
+    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'get', id: rowData.id })
+      .done(function(obj) {
         if (obj.status === 'success') {
-          row.child(formatAdjustmentRow(obj.data)).show();
+          row.child(format(obj.data)).show();
           tr.addClass('shown');
         }
       });
-    }
-  });
-
-  $('#adjustListTable').off('click', '.edit-adj-btn').on('click', '.edit-adj-btn', function(e) { e.stopPropagation(); editAdjustment($(this).data('id')); });
-  $('#adjustListTable').off('click', '.delete-adj-btn').on('click', '.delete-adj-btn', function(e) { e.stopPropagation(); deleteAdjustment($(this).data('id')); });
+  }
 }
 
-function formatAdjustmentRow(d) {
-  var html = '<div class="expanded-row-content" style="padding:15px;background:#f8fafc;">';
-  
-  // Header
-  html += '<div class="d-flex justify-content-between align-items-center mb-3">';
-  html += '<div><strong>' + d.adjustment_no + '</strong><br><small class="text-muted">' + d.adjustment_date_display + '</small></div>';
-  html += '<div class="d-flex" style="gap:4px;"><button class="btn btn-sm btn-success edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button></div>';
-  html += '</div>';
-  
-  // Info
-  var totalQty = parseFloat(d.total_qty);
-  var totalCost = parseFloat(d.total_cost);
-  html += '<div class="row mb-3">';
-  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></small><br>' + (d.created_by_name || '-') + '</div>';
-  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></small><br>' + (totalQty >= 0 ? '+' : '') + totalQty.toFixed(2) + '</div>';
-  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></small><br>' + (totalCost >= 0 ? '+' : '') + totalCost.toFixed(2) + '</div>';
-  html += '<div class="col-md-3"><small class="text-muted"><?=$languageArray['remark_code'][$language]?></small><br>' + (d.remark || '-') + '</div>';
-  html += '</div>';
-  
-  // Items table
-  html += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0" style="font-size:0.85rem;">';
-  html += '<thead style="background:#e9ecef;"><tr>';
-  html += '<th><?=$languageArray['product_code'][$language]?></th>';
-  html += '<th><?=$languageArray['grade_code'][$language]?></th>';
-  html += '<th class="text-right"><?=$languageArray['qty_before_code'][$language] ?? 'Qty Before'?></th>';
-  html += '<th class="text-right"><?=$languageArray['adjustment_code'][$language] ?? 'Adjustment'?></th>';
-  html += '<th class="text-right"><?=$languageArray['qty_after_code'][$language] ?? 'Qty After'?></th>';
-  html += '<th class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>';
-  html += '<th class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>';
-  html += '<th><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>';
-  html += '</tr></thead><tbody>';
-  
-  d.items.forEach(function(item) {
-    var adjQty = parseFloat(item.adjustment_qty);
-    var adjClass = adjQty >= 0 ? 'text-success' : 'text-danger';
-    var adjSign = adjQty >= 0 ? '+' : '';
-    html += '<tr>';
-    html += '<td>' + (item.product_code ? item.product_code + ' - ' : '') + item.product_name + '</td>';
-    html += '<td>' + (item.grade_name || '-') + '</td>';
-    html += '<td class="text-right">' + parseFloat(item.quantity_before).toFixed(2) + '</td>';
-    html += '<td class="text-right ' + adjClass + '">' + adjSign + adjQty.toFixed(2) + '</td>';
-    html += '<td class="text-right">' + parseFloat(item.quantity_after).toFixed(2) + '</td>';
-    html += '<td class="text-right">' + parseFloat(item.unit_cost).toFixed(2) + '</td>';
-    html += '<td class="text-right">' + parseFloat(item.total_cost).toFixed(2) + '</td>';
-    html += '<td>' + (item.reason || '-') + '</td>';
-    html += '</tr>';
-  });
-  
-  html += '</tbody></table></div></div>';
+// ============================================================================
+// ADJUSTMENT TAB - RENDER FUNCTIONS
+// ============================================================================
+function renderSignedNumber(d) {
+  var v = parseFloat(d) || 0;
+  return (v >= 0 ? '+' : '') + v.toFixed(2);
+}
+
+function renderActionButtons(d) {
+  return '<div class="d-flex" style="gap:4px;">' +
+    '<button class="btn btn-sm btn-success edit-adj-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button>' +
+    '<button class="btn btn-sm btn-danger delete-adj-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button>' +
+    '</div>';
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - EXPANDABLE ROW FORMAT
+// ============================================================================
+function format(d) {
+  var totalQty = parseFloat(d.total_qty) || 0;
+  var totalCost = parseFloat(d.total_cost) || 0;
+  var totalQtyDisplay = (totalQty >= 0 ? '+' : '') + totalQty.toFixed(2);
+  var totalCostDisplay = (totalCost >= 0 ? '+' : '') + totalCost.toFixed(2);
+
+  var html = `
+  <div class="expanded-row-content">
+    <!-- Header -->
+    <div class="expanded-header">
+      <div>
+        <div class="expanded-header-title">${d.adjustment_no}</div>
+        <div class="expanded-header-subtitle">${d.adjustment_date_display}</div>
+      </div>
+      <div class="expanded-actions">
+        <button type="button" onclick="editAdjustment(${d.id})" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>
+        <button type="button" onclick="deleteAdjustment(${d.id})" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_items_code'][$language] ?? 'Total Items'?></div>
+        <div class="kpi-value">${d.total_items || 0}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></div>
+        <div class="kpi-value ${totalQty >= 0 ? 'kpi-value-primary' : 'kpi-value-danger'}">${totalQtyDisplay}</div>
+      </div>
+      <div class="kpi-card ${totalCost >= 0 ? 'kpi-card-success' : 'kpi-card-danger'}">
+        <div class="kpi-label"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></div>
+        <div class="kpi-value">${totalCostDisplay}</div>
+      </div>
+    </div>
+
+    <!-- Adjustment Info -->
+    <div class="info-section">
+      <div class="info-section-title"><?=$languageArray['adjustment_information_code'][$language] ?? 'Adjustment Information'?></div>
+      <div class="info-grid">
+        <div><span class="info-item-label"><?=$languageArray['adjustment_no_code'][$language] ?? 'Adjustment No'?></span><span class="info-item-value">${d.adjustment_no || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['date_code'][$language]?></span><span class="info-item-value">${d.adjustment_date_display || '-'}</span></div>
+        <div><span class="info-item-label"><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></span><span class="info-item-value">${d.created_by_name || '-'}</span></div>
+      </div>
+      ${d.remark ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + d.remark + '</span></div>' : ''}
+    </div>
+
+    <!-- Adjustment Items -->
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title"><?=$languageArray['adjustment_items_code'][$language] ?? 'Adjustment Items'?></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table details-table mb-0">
+          <thead>
+            <tr>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['qty_before_code'][$language] ?? 'Qty Before'?></th>
+              <th class="text-right"><?=$languageArray['adjustment_code'][$language] ?? 'Adjustment'?></th>
+              <th class="text-right"><?=$languageArray['qty_after_code'][$language] ?? 'Qty After'?></th>
+              <th class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
+              <th class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
+              <th><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+  var footerTotalQty = 0;
+  var footerTotalCost = 0;
+
+  for (var i = 0; i < d.items.length; i++) {
+    var item = d.items[i];
+    var adjQty = parseFloat(item.adjustment_qty) || 0;
+    var itemCost = parseFloat(item.total_cost) || 0;
+
+    footerTotalQty += adjQty;
+    footerTotalCost += itemCost;
+
+    html += `
+            <tr>
+              <td>${item.product_code ? item.product_code + ' - ' : ''}${item.product_name}</td>
+              <td><span class="grade-badge">${item.grade_name || '-'}</span></td>
+              <td class="text-right text-mono">${parseFloat(item.quantity_before).toFixed(2)}</td>
+              <td class="text-right text-mono ${adjQty >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(adjQty >= 0 ? '+' : '') + adjQty.toFixed(2)}</td>
+              <td class="text-right text-mono">${parseFloat(item.quantity_after).toFixed(2)}</td>
+              <td class="text-right text-mono">${parseFloat(item.unit_cost).toFixed(2)}</td>
+              <td class="text-right text-mono ${itemCost >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(itemCost >= 0 ? '+' : '') + itemCost.toFixed(2)}</td>
+              <td>${item.reason || '-'}</td>
+            </tr>`;
+  }
+
+  html += `
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3"><?=$languageArray['total_code'][$language] ?? 'Total'?></td>
+              <td class="text-right text-mono ${footerTotalQty >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(footerTotalQty >= 0 ? '+' : '') + footerTotalQty.toFixed(2)}</td>
+              <td></td>
+              <td></td>
+              <td class="text-right text-mono ${footerTotalCost >= 0 ? 'text-success' : 'text-danger'} font-weight-bold">${(footerTotalCost >= 0 ? '+' : '') + footerTotalCost.toFixed(2)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>`;
+
   return html;
 }
 
+// ============================================================================
+// ADJUSTMENT TAB - MODAL FUNCTIONS
+// ============================================================================
 function openAdjustmentModal(id) {
   $('#adjId').val(id || '');
   $('#adjModalTitle').text(id ? '<?=$languageArray['edit_code'][$language] ?? 'Edit'?>' : '<?=$languageArray['new_code'][$language] ?? 'New'?>');
   $('#adjDate').val(moment().format('DD/MM/YYYY'));
   $('#adjRemark').val('');
   $('#adjItemsBody').html('');
-  $('#adjTotalQty').text('0.00');
-  $('#adjTotalCost').text('0.00');
+  $('#adjTotalQty, #adjTotalCost').text('0.00');
   adjItemRowCount = 0;
   toggleAdjItemsEmpty();
   $('#adjModal').modal('show');
@@ -593,26 +667,23 @@ function openAdjustmentModal(id) {
 
 function addAdjustmentItemRow(data, callback) {
   var idx = adjItemRowCount++;
-  
-  // Clone template and append
   var $template = $('#adjItemRowTemplate').clone();
   $('#adjItemsBody').append($template.html());
-  
+
   var $row = $('#adjItemsBody').find('.adj-item-row:last');
   $row.attr('data-idx', idx);
-  
-  // Store item id if editing existing item
+
   if (data && data.id) {
     $row.attr('data-item-id', data.id);
   }
-  
+
   // Build product options
   var productOptions = '<option value="">-</option>';
   productsData.forEach(function(p) {
     productOptions += '<option value="' + p.id + '">' + (p.product_code ? p.product_code + ' - ' : '') + p.product_name + '</option>';
   });
-  
-  // Set unique IDs and populate product dropdown
+
+  // Set unique IDs
   $row.find('#adjProduct').attr('id', 'adjProduct' + idx).html(productOptions);
   $row.find('#adjGrade').attr('id', 'adjGrade' + idx);
   $row.find('#adjCurrentQty').attr('id', 'adjCurrentQty' + idx);
@@ -620,13 +691,13 @@ function addAdjustmentItemRow(data, callback) {
   $row.find('#adjNewQty').attr('id', 'adjNewQty' + idx);
   $row.find('#adjUnitCost').attr('id', 'adjUnitCost' + idx);
   $row.find('#adjReason').attr('id', 'adjReason' + idx);
-  
+
   // Initialize Select2
   $row.find('.adj-product-select, .adj-grade-select').select2({ width: '100%', dropdownParent: $('#adjModal') });
-  
+
   toggleAdjItemsEmpty();
-  
-  // Populate data if provided (edit mode)
+
+  // Populate data if editing
   if (data) {
     $row.find('.adj-product-select').val(data.product_id).trigger('change');
     setTimeout(function() {
@@ -648,6 +719,74 @@ function toggleAdjItemsEmpty() {
   $('#adjItemsEmpty').toggle(!hasRows);
 }
 
+// ============================================================================
+// ADJUSTMENT TAB - ITEM ROW EVENT HANDLERS
+// ============================================================================
+function onRemoveItem() {
+  $(this).closest('tr').remove();
+  updateAdjustmentTotals();
+  toggleAdjItemsEmpty();
+}
+
+function onProductChange() {
+  var $row = $(this).closest('tr');
+  var productId = $(this).val();
+  var $gradeSelect = $row.find('.adj-grade-select');
+  var gradeHtml = '<option value="">-</option>';
+
+  if (productId) {
+    var product = productsData.find(function(p) { return p.id == productId; });
+    if (product && product.grades) {
+      product.grades.forEach(function(g) {
+        gradeHtml += '<option value="' + g.grade_id + '" data-cost="' + (g.purchasing_price || 0) + '">' + g.grade_name + '</option>';
+      });
+    }
+  }
+
+  $gradeSelect.html(gradeHtml).trigger('change.select2');
+  $row.find('.adj-current-qty, .adj-adjust-qty, .adj-new-qty').val('');
+  $row.find('.adj-unit-cost').val('0');
+  $row.find('.adj-total-cost').text('0.00');
+}
+
+function onGradeChange() {
+  var $row = $(this).closest('tr');
+  var productId = $row.find('.adj-product-select').val();
+  var gradeId = $(this).val();
+  var defaultCost = $(this).find('option:selected').data('cost') || 0;
+
+  $row.find('.adj-unit-cost').val(parseFloat(defaultCost).toFixed(2));
+
+  if (productId && gradeId) {
+    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'balance', product_id: productId, grade: gradeId })
+      .done(function(obj) {
+        if (obj.status === 'success') {
+          $row.find('.adj-current-qty').val(parseFloat(obj.balance).toFixed(2));
+          if (obj.unit_cost > 0) {
+            $row.find('.adj-unit-cost').val(parseFloat(obj.unit_cost).toFixed(2));
+          }
+        }
+      });
+  }
+}
+
+function onAdjustQtyChange() {
+  var $row = $(this).closest('tr');
+  var currentQty = parseFloat($row.find('.adj-current-qty').val()) || 0;
+  var adjustQty = parseFloat($(this).val()) || 0;
+  $row.find('.adj-new-qty').val((currentQty + adjustQty).toFixed(2));
+  updateRowTotalCost($row);
+  updateAdjustmentTotals();
+}
+
+function onUnitCostChange() {
+  updateRowTotalCost($(this).closest('tr'));
+  updateAdjustmentTotals();
+}
+
+// ============================================================================
+// ADJUSTMENT TAB - CALCULATION FUNCTIONS
+// ============================================================================
 function updateRowTotalCost($row) {
   var adjustQty = parseFloat($row.find('.adj-adjust-qty').val()) || 0;
   var unitCost = parseFloat($row.find('.adj-unit-cost').val()) || 0;
@@ -656,51 +795,70 @@ function updateRowTotalCost($row) {
 
 function formatTotalCost(adjustQty, unitCost) {
   var total = adjustQty * unitCost;
-  var sign = total >= 0 ? '+' : '';
-  return sign + total.toFixed(2);
+  return (total >= 0 ? '+' : '') + total.toFixed(2);
 }
 
 function updateAdjustmentTotals() {
   var totalQty = 0;
   var totalCost = 0;
+
   $('#adjItemsBody tr').each(function() {
     totalQty += parseFloat($(this).find('.adj-adjust-qty').val()) || 0;
     var costText = $(this).find('.adj-total-cost').text().replace('+', '');
     totalCost += parseFloat(costText) || 0;
   });
-  var qtySign = totalQty >= 0 ? '+' : '';
-  var costSign = totalCost >= 0 ? '+' : '';
-  $('#adjTotalQty').text(qtySign + totalQty.toFixed(2));
-  $('#adjTotalCost').text(costSign + totalCost.toFixed(2));
+
+  $('#adjTotalQty').text((totalQty >= 0 ? '+' : '') + totalQty.toFixed(2));
+  $('#adjTotalCost').text((totalCost >= 0 ? '+' : '') + totalCost.toFixed(2));
 }
 
+// ============================================================================
+// ADJUSTMENT TAB - CRUD FUNCTIONS
+// ============================================================================
 function saveAdjustment() {
   var adjDate = $('#adjDate').val();
-  if (!adjDate) { toastr["error"]("Please select adjustment date.", "Validation Error:"); return; }
+  if (!adjDate) {
+    toastr.error('Please select adjustment date.', 'Validation Error:');
+    return;
+  }
+
   var items = [];
   var hasError = false;
+
   $('#adjItemsBody tr').each(function() {
     var productId = $(this).find('.adj-product-select').val();
     var grade = $(this).find('.adj-grade-select').val();
-    var adjustQty = $(this).find('.adj-adjust-qty').val();
-    if (!productId || !grade) { hasError = true; return false; }
+
+    if (!productId || !grade) {
+      hasError = true;
+      return false;
+    }
+
     items.push({
       id: $(this).data('item-id') || null,
       product_id: productId,
       grade: grade,
       quantity_before: $(this).find('.adj-current-qty').val() || 0,
-      adjustment_qty: adjustQty || 0,
+      adjustment_qty: $(this).find('.adj-adjust-qty').val() || 0,
       quantity_after: $(this).find('.adj-new-qty').val() || 0,
       unit_cost: $(this).find('.adj-unit-cost').val() || 0,
       reason: $(this).find('.adj-reason').val() || ''
     });
   });
-  if (hasError) { toastr["error"]("Please select product and grade for all items.", "Validation Error:"); return; }
-  if (items.length === 0) { toastr["error"]("Please add at least one item.", "Validation Error:"); return; }
-  
+
+  if (hasError) {
+    toastr.error('Please select product and grade for all items.', 'Validation Error:');
+    return;
+  }
+
+  if (items.length === 0) {
+    toastr.error('Please add at least one item.', 'Validation Error:');
+    return;
+  }
+
   var adjId = $('#adjId').val();
   var action = adjId ? 'update' : 'save';
-  
+
   $('#spinnerLoading').show();
   $.post('php/modules/wholesales/stockAdjustment/api.php', {
     action: action,
@@ -708,16 +866,22 @@ function saveAdjustment() {
     adjustment_date: adjDate,
     remark: $('#adjRemark').val(),
     items: JSON.stringify(items)
-  }, function(obj) {
-    $('#spinnerLoading').hide();
-    if (obj.status === 'success') {
-      toastr["success"](obj.message, "Success:");
-      $('#adjModal').modal('hide');
-      adjListTable.ajax.reload(null, false);
-    } else {
-      toastr["error"](obj.message, "Failed:");
-    }
-  });
+  })
+    .done(function(obj) {
+      if (obj.status === 'success') {
+        toastr.success(obj.message, 'Success:');
+        $('#adjModal').modal('hide');
+        adjListTable.ajax.reload(null, false);
+      } else {
+        toastr.error(obj.message, 'Failed:');
+      }
+    })
+    .fail(function() {
+      toastr.error('Failed to save adjustment.', 'Error:');
+    })
+    .always(function() {
+      $('#spinnerLoading').hide();
+    });
 }
 
 function editAdjustment(id) {
@@ -732,7 +896,7 @@ function editAdjustment(id) {
         $('#adjRemark').val(d.remark || '');
         $('#adjItemsBody').html('');
         adjItemRowCount = 0;
-        
+
         var itemsToAdd = d.items.length;
         if (itemsToAdd === 0) {
           toggleAdjItemsEmpty();
@@ -740,7 +904,7 @@ function editAdjustment(id) {
           $('#adjModal').modal('show');
           return;
         }
-        
+
         var itemsAdded = 0;
         d.items.forEach(function(item) {
           addAdjustmentItemRow(item, function() {
@@ -754,12 +918,12 @@ function editAdjustment(id) {
         });
       } else {
         $('#spinnerLoading').hide();
-        toastr["error"](obj.message, "Failed:");
+        toastr.error(obj.message, 'Failed:');
       }
     })
     .fail(function() {
       $('#spinnerLoading').hide();
-      toastr["error"]("Failed to load adjustment data.", "Error:");
+      toastr.error('Failed to load adjustment data.', 'Error:');
     });
 }
 
@@ -774,15 +938,21 @@ function deleteAdjustment(id) {
   }).then(function(result) {
     if (result.isConfirmed) {
       $('#spinnerLoading').show();
-      $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'delete', id: id }, function(obj) {
-        $('#spinnerLoading').hide();
-        if (obj.status === 'success') {
-          toastr["success"](obj.message, "Success:");
-          adjListTable.ajax.reload(null, false);
-        } else {
-          toastr["error"](obj.message, "Failed:");
-        }
-      });
+      $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'delete', id: id })
+        .done(function(obj) {
+          if (obj.status === 'success') {
+            toastr.success(obj.message, 'Success:');
+            adjListTable.ajax.reload(null, false);
+          } else {
+            toastr.error(obj.message, 'Failed:');
+          }
+        })
+        .fail(function() {
+          toastr.error('Failed to delete adjustment.', 'Error:');
+        })
+        .always(function() {
+          $('#spinnerLoading').hide();
+        });
     }
   });
 }
