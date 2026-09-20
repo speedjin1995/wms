@@ -217,7 +217,7 @@ if(!isset($_SESSION['userID'])){
 
       <!-- Stock Adjustment Modal -->
       <div class="modal fade modal-modern" id="adjModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog" style="max-width:95%;">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title"><i class="fas fa-sliders-h mr-2 text-muted"></i><?=$languageArray['stock_adjustment_code'][$language]?> - <span id="adjModalTitle"><?=$languageArray['new_code'][$language] ?? 'New'?></span></h5>
@@ -259,14 +259,14 @@ if(!isset($_SESSION['userID'])){
                   <table class="table table-bordered table-sm" id="adjItemsTable">
                     <thead style="background:#f8fafc;">
                       <tr>
-                        <th style="width:25%;"><?=$languageArray['product_code'][$language]?></th>
-                        <th style="width:15%;"><?=$languageArray['grade_code'][$language]?></th>
-                        <th style="width:12%;" class="text-right"><?=$languageArray['current_qty_code'][$language] ?? 'Current Qty'?></th>
-                        <th style="width:12%;" class="text-right"><?=$languageArray['adjust_qty_code'][$language] ?? 'Adjust Qty'?></th>
-                        <th style="width:12%;" class="text-right"><?=$languageArray['new_qty_code'][$language] ?? 'New Qty'?></th>
-                        <th style="width:10%;" class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
-                        <th style="width:10%;" class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
-                        <th style="width:15%;"><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
+                        <th style="width:15%;"><?=$languageArray['product_code'][$language]?></th>
+                        <th style="width:10%;"><?=$languageArray['grade_code'][$language]?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['current_qty_code'][$language] ?? 'Current Qty'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['adjust_qty_code'][$language] ?? 'Adjust Qty'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['new_qty_code'][$language] ?? 'New Qty'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
+                        <th style="width:8%;" class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
+                        <th style="width:30%;"><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
                         <th style="width:5%;"></th>
                       </tr>
                     </thead>
@@ -353,7 +353,7 @@ if(!isset($_SESSION['userID'])){
     <td><input type="text" class="form-control form-control-sm text-right adj-new-qty" id="adjNewQty" readonly></td>
     <td><input type="number" step="0.01" class="form-control form-control-sm text-right adj-unit-cost" id="adjUnitCost" value="0"></td>
     <td class="text-right adj-total-cost">0.00</td>
-    <td><input type="text" class="form-control form-control-sm adj-reason" id="adjReason"></td>
+    <td><textarea class="form-control form-control-sm adj-reason" id="adjReason" rows="1"></textarea></td>
     <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-adj-item"><i class="fas fa-times"></i></button></td>
   </tr>
 </script>
@@ -489,9 +489,6 @@ $(function () {
   });
 
   $('#saveAdjBtn').on('click', function() { saveAdjustment(); });
-
-  // Set jQuery AJAX to expect JSON responses
-  $.ajaxSetup({ dataType: 'json' });
 
   loadProductsData();
 });
