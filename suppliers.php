@@ -568,12 +568,12 @@ $(function () {
       { 
           data: 'id',
           render: function ( data, type, row ) {
-              var html = '<div style="display:flex;gap:4px;">'
-                + '<button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              var html = '<div class="d-flex" style="gap:4px;">'
+                + '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
               if (runningNoType === 1) {
-                html += '<button onclick="openRunningNo(' + data + ', \'' + row.supplier_name.replace(/'/g, "\\'") + '\')" class="btn btn-secondary btn-sm"><i class="fas fa-hashtag"></i></button>';
+                html += '<button onclick="openRunningNo(' + data + ', \'' + row.supplier_name.replace(/'/g, "\\'") + '\')" class="btn btn-sm btn-outline-secondary" title="Running No"><i class="fas fa-hashtag"></i></button>';
               }
-              html += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+              html += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>'
                 + '</div>';
               return html;
           }
