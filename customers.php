@@ -101,7 +101,9 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 									<th><?=$languageArray['address_code'][$language]?></th>
 									<th><?=$languageArray['phone_code'][$language]?></th>
 									<th><?=$languageArray['pic_code'][$language]?></th>
+									<?php if (in_array('basket', $_SESSION['products'])) { ?>
 									<th><?=$languageArray['pending_bins_code'][$language]?></th>
+									<?php } ?>
 								<th width="15%"><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
 							</thead>
@@ -707,6 +709,7 @@ $(function () {
       { data: 'pic' },
       {
         data: 'pending_bins',
+        visible: hasBasket,
         render: function (data) {
           if (!data) return '<span class="text-muted">—</span>';
 
