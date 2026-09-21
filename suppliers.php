@@ -180,13 +180,13 @@ else{
                     <input type="text" class="form-control" name="name" id="name" placeholder="Supplier name" required>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label class="form-label-modern"><?=$languageArray['supplier_code_code'][$language]?> <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="code" id="code" placeholder="Supplier code" required>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label class="form-label-modern"><?=$languageArray['supplier_type_code'][$language] ?? 'Supplier Type'?></label>
                     <select class="form-control select2" style="width:100%;" id="supplierType" name="supplierType">
@@ -195,16 +195,8 @@ else{
                     </select>
                   </div>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label class="form-label-modern"><?=$languageArray['reg_no_code'][$language]?></label>
-                    <input type="text" class="form-control" name="reg_no" id="reg_no" placeholder="Registration number">
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group">
+                <div class="col-md-6">
+                  <div class="form-group mb-0">
                     <label class="form-label-modern"><?=$languageArray['parent_code'][$language]?></label>
                     <select class="form-control select2" style="width:100%;" id="parent" name="parent">
                       <option value="">Select Parent</option>
@@ -212,6 +204,56 @@ else{
                         <option value="<?=$rowSupplier['id'] ?>"><?=$rowSupplier['supplier_name'] ?></option>
                       <?php } ?>
                     </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Company Registration Section -->
+            <div class="modal-section">
+              <div class="section-title"><i class="fas fa-building mr-2"></i><?=$languageArray['company_registration_code'][$language] ?? 'Company Registration'?></div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group mb-3">
+                    <label class="form-label-modern"><?=$languageArray['reg_no_code'][$language]?></label>
+                    <input type="text" class="form-control" name="regNo" id="regNo" placeholder="<?=$languageArray['reg_no_code'][$language]?>">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group mb-3">
+                    <label class="form-label-modern"><?=$languageArray['ctos_report_no'][$language] ?? 'CTOS Report No.'?></label>
+                    <input type="text" class="form-control" name="ctosReportNo" id="ctosReportNo" placeholder="<?=$languageArray['ctos_report_no'][$language] ?? 'CTOS Report No.'?>">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group mb-3">
+                    <label class="form-label-modern"><?=$languageArray['ic_no_code'][$language] ?? 'IC No.'?></label>
+                    <input type="text" class="form-control" name="icNo" id="icNo" placeholder="000000-00-0000" data-inputmask="'mask': '999999-99-9999'">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group mb-0">
+                    <label class="form-label-modern"><?=$languageArray['ssm_no_code'][$language] ?? 'SSM No.'?></label>
+                    <input type="text" class="form-control" name="ssmNo" id="ssmNo" placeholder="<?=$languageArray['ssm_no_code'][$language] ?? 'SSM No.'?>">
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="form-group mb-0">
+                    <label class="form-label-modern"><?=$languageArray['ssm_cert_code'][$language] ?? 'SSM Certificate'?></label>
+                    <div class="d-flex align-items-center" style="gap: 0.5rem;">
+                      <div class="custom-file" style="max-width: 280px;">
+                        <input type="file" class="custom-file-input" id="ssmFile" name="ssmFile" accept=".pdf,.png,.jpg,.jpeg">
+                        <label class="custom-file-label" for="ssmFile" id="ssmFileLabel"><?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?></label>
+                      </div>
+                      <div id="ssmFilePreview" class="d-flex align-items-center" style="display:none !important; gap: 0.375rem;">
+                        <a href="#" id="ssmFileLink" target="_blank" class="btn btn-outline-info btn-sm" title="<?=$languageArray['view_file_code'][$language] ?? 'View File'?>"><i class="fas fa-eye mr-1"></i><?=$languageArray['view_file_code'][$language] ?? 'View'?></a>
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="removeSsmFile" title="<?=$languageArray['remove_file_code'][$language] ?? 'Remove File'?>"><i class="fas fa-times"></i></button>
+                        <input type="hidden" name="ssmFilePath" id="ssmFilePath" value="">
+                      </div>
+                    </div>
+                    <small class="form-text text-muted mt-1"><?=$languageArray['allowed_formats_code'][$language] ?? 'Allowed formats'?>: PDF, PNG, JPG (Max 10MB)</small>
                   </div>
                 </div>
               </div>
@@ -526,12 +568,12 @@ $(function () {
       { 
           data: 'id',
           render: function ( data, type, row ) {
-              var html = '<div style="display:flex;gap:4px;">'
-                + '<button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>';
+              var html = '<div class="d-flex" style="gap:4px;">'
+                + '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
               if (runningNoType === 1) {
-                html += '<button onclick="openRunningNo(' + data + ', \'' + row.supplier_name.replace(/'/g, "\\'") + '\')" class="btn btn-secondary btn-sm"><i class="fas fa-hashtag"></i></button>';
+                html += '<button onclick="openRunningNo(' + data + ', \'' + row.supplier_name.replace(/'/g, "\\'") + '\')" class="btn btn-sm btn-outline-secondary" title="Running No"><i class="fas fa-hashtag"></i></button>';
               }
-              html += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+              html += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>'
                 + '</div>';
               return html;
           }
@@ -546,8 +588,15 @@ $(function () {
     
   $.validator.setDefaults({
       submitHandler: function () {
-          //$('#spinnerLoading').show();
-          $.post('php/modules/suppliers/suppliers.php', $('#supplierForm').serialize(), function(data){
+          $('#spinnerLoading').show();
+          var formData = new FormData($('#supplierForm')[0]);
+          $.ajax({
+            url: 'php/modules/suppliers/suppliers.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
               var obj = JSON.parse(data); 
               
               if(obj.status === 'success'){
@@ -562,16 +611,19 @@ $(function () {
                     $('#parent').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
                   });
                 });
-                //$('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
                   toastr["error"](obj.message, "Failed:");
-                  //$('#spinnerLoading').hide();
               }
               else{
                   toastr["error"]("Something wrong when edit", "Failed:");
-                  //$('#spinnerLoading').hide();
               }
+              $('#spinnerLoading').hide();
+            },
+            error: function() {
+              toastr["error"]("Something wrong when saving", "Failed:");
+              $('#spinnerLoading').hide();
+            }
           });
       }
   });
@@ -602,10 +654,34 @@ $(function () {
     $('#billingStates').next('.select2-container').css('pointer-events', '').css('opacity', '');
   });
 
+  // IC Number input mask
+  $('#icNo').inputmask('999999-99-9999', { placeholder: '_' });
+
+  // SSM File change handler
+  $('#ssmFile').on('change', function() {
+    var fileName = $(this).val().split('\\').pop();
+    $('#ssmFileLabel').text(fileName || '<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
+  });
+
+  // Remove SSM file
+  $('#removeSsmFile').on('click', function() {
+    $('#ssmFilePath').val('');
+    $('#ssmFilePreview').hide();
+    $('#ssmFile').val('');
+    $('#ssmFileLabel').text('<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
+  });
+
   $('#addSuppliers').on('click', function(){
       $('#addModal').find('#id').val("");
       $('#addModal').find('#code').val("");
-      $('#addModal').find('#reg_no').val("");
+      $('#addModal').find('#regNo').val("");
+      $('#addModal').find('#ssmNo').val("");
+      $('#addModal').find('#icNo').val("");
+      $('#addModal').find('#ctosReportNo').val("");
+      $('#addModal').find('#ssmFile').val("");
+      $('#addModal').find('#ssmFileLabel').text('<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
+      $('#addModal').find('#ssmFilePath').val("");
+      $('#addModal').find('#ssmFilePreview').hide();
       $('#addModal').find('#name').val("");
       $('#addModal').find('#address').val("");
       $('#addModal').find('#address2').val("");
@@ -823,7 +899,10 @@ function edit(id){
       if(obj.status === 'success'){
           $('#addModal').find('#id').val(obj.message.id);
           $('#addModal').find('#code').val(obj.message.supplier_code);
-          $('#addModal').find('#reg_no').val(obj.message.reg_no);
+          $('#addModal').find('#regNo').val(obj.message.reg_no);
+          $('#addModal').find('#ssmNo').val(obj.message.ssm);
+          $('#addModal').find('#icNo').val(obj.message.ic_no);
+          $('#addModal').find('#ctosReportNo').val(obj.message.ctos_report_no);
           $('#addModal').find('#name').val(obj.message.supplier_name);
           $('#addModal').find('#address').val(obj.message.supplier_address);
           $('#addModal').find('#address2').val(obj.message.supplier_address2);
@@ -846,6 +925,19 @@ function edit(id){
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
           $('#addModal').find('#supplierType').val(obj.message.supplier_type || 'Normal').trigger('change');
+          
+          // SSM File preview
+          if (obj.message.ssm_file) {
+            $('#addModal').find('#ssmFilePath').val(obj.message.ssm_file);
+            $('#addModal').find('#ssmFileLink').attr('href', 'php/viewPhoto.php?file=' + obj.message.ssm_file + '&type=file_table');
+            $('#addModal').find('#ssmFilePreview').css('display', 'flex').show();
+          } else {
+            $('#addModal').find('#ssmFilePath').val('');
+            $('#addModal').find('#ssmFilePreview').hide();
+          }
+          $('#addModal').find('#ssmFile').val('');
+          $('#addModal').find('#ssmFileLabel').text('<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
+          
           $('#addModal').modal('show');
           
           $('#supplierForm').validate({

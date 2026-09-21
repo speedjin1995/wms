@@ -16,31 +16,35 @@ if(isset($_POST['userID'])){
             $message = array();
             
             while ($row = $result->fetch_assoc()) {
-                $message['id']               = $row['id'];
-                $message['customer_code']    = $row['customer_code'];
-                $message['reg_no']           = $row['reg_no'];
-                $message['customer_name']    = $row['customer_name'];
+                $message['id'] = $row['id'];
+                $message['customer_code'] = $row['customer_code'];
+                $message['reg_no'] = $row['reg_no'];
+                $message['ssm'] = $row['ssm'];
+                $message['ic_no'] = $row['ic_no'];
+                $message['ssm_file'] = $row['ssm_file'];
+                $message['ctos_report_no'] = $row['ctos_report_no'];
+                $message['customer_name'] = $row['customer_name'];
                 $message['customer_address'] = $row['customer_address'];
-                $message['customer_address2']= $row['customer_address2'];
-                $message['customer_address3']= $row['customer_address3'];
-                $message['customer_address4']= $row['customer_address4'];
-                $message['states']           = $row['states'];
-                $message['billing_name']     = $row['billing_name'];
-                $message['billing_address']  = $row['billing_address'];
+                $message['customer_address2'] = $row['customer_address2'];
+                $message['customer_address3'] = $row['customer_address3'];
+                $message['customer_address4'] = $row['customer_address4'];
+                $message['states'] = $row['states'];
+                $message['billing_name'] = $row['billing_name'];
+                $message['billing_address'] = $row['billing_address'];
                 $message['billing_address2'] = $row['billing_address2'];
                 $message['billing_address3'] = $row['billing_address3'];
                 $message['billing_address4'] = $row['billing_address4'];
-                $message['billing_state']    = $row['billing_state'];
-                $message['billing_phone']    = $row['billing_phone'];
-                $message['billing_fax']      = $row['billing_fax'];
-                $message['billing_pic']      = $row['billing_pic'];
-                $message['currency']         = $row['currency'];
-                $message['customer_phone']   = $row['customer_phone'];
-                $message['pic']              = $row['pic'];
-                $message['fax']              = $row['fax'];
-                $message['customer']         = $row['customer'];
-                $message['parent']           = $row['parent'];
-                $message['customer_type']    = $row['customer_type'];
+                $message['billing_state'] = $row['billing_state'];
+                $message['billing_phone'] = $row['billing_phone'];
+                $message['billing_fax'] = $row['billing_fax'];
+                $message['billing_pic'] = $row['billing_pic'];
+                $message['currency'] = $row['currency'];
+                $message['customer_phone'] = $row['customer_phone'];
+                $message['pic'] = $row['pic'];
+                $message['fax'] = $row['fax'];
+                $message['customer'] = $row['customer'];
+                $message['parent'] = $row['parent'];
+                $message['customer_type'] = $row['customer_type'];
             }
             
             echo json_encode(array("status" => "success", "message" => $message));
