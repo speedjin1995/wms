@@ -60,6 +60,27 @@ if(isset($_POST['type'], $_POST['company'])){
         $stmt->bind_param('is', $fid, $company);
         $stmt->execute();
         $stmt->close();
+    } elseif ($type == 'ssm') {
+        $customerId = filter_input(INPUT_POST, 'customerId', FILTER_SANITIZE_STRING);
+        if ($customerId) {
+            // Delete old SSM file
+            $stmt = $db->prepare("SELECT ssm_file FROM customers WHERE id = ? AND customer = ?");
+            $stmt->bind_param('ss', $customerId, $company);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                if ($row['ssm_file']) {
+                    deleteOldFile($row['ssm_file'], $db);
+                }
+            }
+            $stmt->close();
+
+            // Update customer ssm_file reference
+            $stmt = $db->prepare("UPDATE customers SET ssm_file = ? WHERE id = ? AND customer = ?");
+            $stmt->bind_param('iss', $fid, $customerId, $company);
+            $stmt->execute();
+            $stmt->close();
+        }
     }
 
     $db->close();

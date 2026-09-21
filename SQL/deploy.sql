@@ -3483,3 +3483,40 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_STK_ADJ_ITEM` BEFORE UPDATE ON `stock_adjustm
 END
 $$
 DELIMITER ;
+
+-- 21/09/2026 --
+ALTER TABLE `customers` ADD `ssm` VARCHAR(30) NULL AFTER `reg_no`, ADD `ssm_file` TEXT NULL AFTER `ssm`, ADD `ic_no` VARCHAR(20) NULL AFTER `ssm_file`;
+ALTER TABLE `customers` ADD `ctos_report_no` VARCHAR(100) NULL AFTER `ic_no`;
+ALTER TABLE `customers_log` ADD `ssm` VARCHAR(30) NULL AFTER `reg_no`, ADD `ssm_file` TEXT NULL AFTER `ssm`, ADD `ic_no` VARCHAR(20) NULL AFTER `ssm_file`;
+ALTER TABLE `customers_log` ADD `ctos_report_no` VARCHAR(100) NULL AFTER `ic_no`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_CUSTOMER` AFTER INSERT ON `customers` FOR EACH ROW INSERT INTO customers_log (
+    customer_id, customer_code, reg_no, ssm, ssm_file, ic_no, ctos_report_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, customer_type, invoice_code, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.customer_code, NEW.reg_no, NEW.ssm, NEW.ssm_file, NEW.ic_no, NEW.ctos_report_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, NEW.customer_type, NEW.invoice_code, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_CUSTOMER` BEFORE UPDATE ON `customers` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into customers_log table
+    INSERT INTO customers_log (
+        customer_id, customer_code, reg_no, ssm, ssm_file, ic_no, ctos_report_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, customer_phone, pic, fax, billing_name, billing_address, billing_address2, billing_address3, billing_address4, currency, parent, customer, is_manual, pending_bins, customer_type, invoice_code, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.customer_code, NEW.reg_no, NEW.ssm, NEW.ssm_file, NEW.ic_no, NEW.ctos_report_no, NEW.customer_name, NEW.customer_address, NEW.customer_address2, NEW.customer_address3, NEW.customer_address4, NEW.states, NEW.customer_phone, NEW.pic, NEW.fax, NEW.billing_name, NEW.billing_address, NEW.billing_address2, NEW.billing_address3, NEW.billing_address4, NEW.currency, NEW.parent, NEW.customer, NEW.is_manual, NEW.pending_bins, NEW.customer_type, NEW.invoice_code, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
