@@ -120,10 +120,12 @@ if(isset($_POST['userID'])){
                 }
 
                 echo json_encode(array("status" => "success", "message" => ['pricingType' => $resultPricingType, 'price' => $resultPrice]));
+
+                exit;
             } else {
                 // If no customer specific pricing, check product_grade first
                 if (!empty($grade)){
-                    $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND $currencyField=? AND deleted=0");
+                    $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND $currencyField=? AND type='Local' AND deleted=0");
                     $productGradeStmt->bind_param('sss', $id, $grade, $currency);
                     $productGradeStmt->execute();
                     $productGradeResult = $productGradeStmt->get_result();
@@ -163,11 +165,13 @@ if(isset($_POST['userID'])){
                         }
                     }
                 }
+
                 echo json_encode(array("status" => "success", "message" => ['pricingType' => $resultPricingType, 'price' => $resultPrice]));
+                exit;
             }
         } else if (empty($customerID) && !empty($grade)){
             $currencyField = ($status == 'RECEIVING' || $status == 'INCOMING') ? 'purchasing_pricing_currency' : 'pricing_currency';
-            $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND $currencyField=? AND deleted=0");
+            $productGradeStmt = $db->prepare("SELECT * FROM product_grades WHERE product_id=? AND grade_id=? AND $currencyField=? AND type='Local' AND deleted=0");
             $productGradeStmt->bind_param('sss', $id, $grade, $currency);
             $productGradeStmt->execute();
             $productGradeResult = $productGradeStmt->get_result();
@@ -207,6 +211,8 @@ if(isset($_POST['userID'])){
                         "status" => "success",
                         "message" => $pricingDetail
                     ));
+
+                exit;
             }else{
                 // If grade no pricing, return 0 if currency provided
                 if (!empty($currency) && $currency != $productCurrency) {
@@ -226,6 +232,8 @@ if(isset($_POST['userID'])){
                         "status" => "success",
                         "message" => $pricingDetail
                     ));
+
+                exit;
             }
         } else {
             // No customer and no grade, return 0 if currency provided
@@ -246,6 +254,7 @@ if(isset($_POST['userID'])){
                     "status" => "success",
                     "message" => $pricingDetail
                 ));
+            exit;
         }
     }else{
         if ($update_stmt = $db->prepare("SELECT p.*, u.units AS uom_name, pk.packaging_name FROM products p LEFT JOIN units u ON p.uom = u.id LEFT JOIN packaging pk ON p.packaging = pk.id WHERE p.id=?")) {
