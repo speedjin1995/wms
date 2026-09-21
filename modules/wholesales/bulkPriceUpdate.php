@@ -426,7 +426,9 @@ $(function() {
   });
 
   $('#bulkFilterSearch').on('click', function() {
-    if (bulkTable) { bulkTable.clear().destroy(); }
+    if (bulkTable) { 
+      bulkTable.clear().destroy(); 
+    }
     bulkTable = buildTable();
   });
 
@@ -491,6 +493,8 @@ $(function() {
       $btn.prop('disabled', false).html('<?=$languageArray["preview_code"][$language] ?? "Preview"?><i class="fas fa-arrow-right ml-1"></i>');
     });
   });
+  
+  $('#bulkFilterSearch').click();
 });
 
 // Functions
