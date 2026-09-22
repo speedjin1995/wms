@@ -36,6 +36,7 @@ else{
   while ($btRow = $binTypesResult->fetch_assoc()) { $binTypesArr[] = $btRow; }
 
   $includeInvoice = 'N';
+  $allowEntityRegValidation = 'N';
   $runningNoType = 0;
   if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
     $company_stmt->bind_param("i", $company);
@@ -45,6 +46,8 @@ else{
     $includeInvoice = $rowCompany['include_invoice'];
     $runningNoType = $rowCompany['running_no_type'];
   }
+
+  $allowEntityRegValidation = $_SESSION['featureFlags']['allow_entity_registration_validation'] ?? 'N';
 }
 ?>
 <style>
@@ -610,57 +613,8 @@ input[type="radio"]:checked + .bin-type-btn { border-color:#fda085 !important; b
 
 var hasBasket = <?= in_array('basket', $_SESSION['products']) ? 'true' : 'false' ?>;
 var runningNoType = <?= (int)($runningNoType ?? 0) ?>;
-
-  function openRunningNo(id, name) {
-    $('#runningNoEntityId').val(id);
-    $('#runningNoCustomerName').text(name);
-    $('#runningNoInvoiceCode').val('');
-    $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
-    $('#runningNoModal').modal('show');
-    $.get('php/modules/customers/runningNo.php', { entity_id: id }, function(res) {
-      var obj = JSON.parse(res);
-      $('#runningNoInvoiceCode').val(obj.invoice_code || '');
-      var html = '';
-      obj.data.forEach(function(row) {
-        html += '<tr>'
-          + '<td>' + row.status + '<input type="hidden" name="transaction_status" value="' + row.status + '"></td>'
-          + '<td><input type="text" class="form-control form-control-sm rn-prefix" value="' + row.saved_prefix + '" maxlength="10"></td>'
-          + '<td><input type="number" class="form-control form-control-sm rn-value" value="' + row.value + '" min="1"></td>'
-          + '</tr>';
-      });
-      $('#runningNoBody').html(html);
-    });
-  }
-
-  $('#saveRunningNo').on('click', function() {
-    var rows = [];
-    var valid = true;
-    $('#runningNoBody tr').each(function() {
-      var status = $(this).find('input[name="transaction_status"]').val();
-      var prefix = $(this).find('.rn-prefix').val().trim();
-      var value  = parseInt($(this).find('.rn-value').val());
-      if (!prefix || prefix.length > 10 || isNaN(value) || value < 1) { valid = false; return false; }
-      rows.push({ transaction_status: status, prefix: prefix, value: value });
-    });
-    if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
-    $('#spinnerLoading').show();
-    $.ajax({
-      url: 'php/modules/customers/runningNo.php',
-      type: 'POST',
-      data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
-      success: function(res) {
-        var obj = JSON.parse(res);
-        if (obj.status === 'success') {
-          $('#runningNoModal').modal('hide');
-          toastr["success"](obj.message, "Success:");
-        } else {
-          toastr["error"](obj.message, "Failed:");
-        }
-        $('#spinnerLoading').hide();
-      }
-    });
-  });
 var binTypeNames = <?= json_encode(array_column($binTypesArr, 'bin_type', 'id')) ?>;
+var requireRegistration = <?= $allowEntityRegValidation == 'Y' ? 'true' : 'false' ?>;// Feature flag: require at least one registration field
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
@@ -766,6 +720,16 @@ $(function () {
   $.validator.setDefaults({
     submitHandler: function () {
       if ($('#addModal').hasClass('show')) {
+        // Check at least one registration field is filled
+        if (requireRegistration) {
+          var ctos = $('#ctosReportNo').val().trim();
+          var ic = $('#icNo').val().replace(/_/g, '').replace(/-/g, '').trim();
+          var ssm = $('#ssmNo').val().trim();
+          if (ctos === '' && ic === '' && ssm === '') {
+            toastr["error"]("<?=$languageArray['at_least_one_registration_code'][$language] ?? 'At least one of CTOS Report No., IC No., or SSM No. must be filled before proceeding.'?>", "Failed:");
+            return;
+          }
+        }
         $('#spinnerLoading').show();
         var formData = new FormData($('#customerForm')[0]);
         $.ajax({
@@ -1011,6 +975,35 @@ $(function () {
     $('#billingStates').next('.select2-container').css('pointer-events', '').css('opacity', '');
   });
 
+  $('#saveRunningNo').on('click', function() {
+    var rows = [];
+    var valid = true;
+    $('#runningNoBody tr').each(function() {
+      var status = $(this).find('input[name="transaction_status"]').val();
+      var prefix = $(this).find('.rn-prefix').val().trim();
+      var value  = parseInt($(this).find('.rn-value').val());
+      if (!prefix || prefix.length > 10 || isNaN(value) || value < 1) { valid = false; return false; }
+      rows.push({ transaction_status: status, prefix: prefix, value: value });
+    });
+    if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
+    $('#spinnerLoading').show();
+    $.ajax({
+      url: 'php/modules/customers/runningNo.php',
+      type: 'POST',
+      data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
+      success: function(res) {
+        var obj = JSON.parse(res);
+        if (obj.status === 'success') {
+          $('#runningNoModal').modal('hide');
+          toastr["success"](obj.message, "Success:");
+        } else {
+          toastr["error"](obj.message, "Failed:");
+        }
+        $('#spinnerLoading').hide();
+      }
+    });
+  });
+
   // IC Number input mask
   $('#icNo').inputmask('999999-99-9999', { placeholder: '_' });
 
@@ -1028,6 +1021,27 @@ $(function () {
     $('#ssmFileLabel').text('<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
   });
 });
+
+function openRunningNo(id, name) {
+  $('#runningNoEntityId').val(id);
+  $('#runningNoCustomerName').text(name);
+  $('#runningNoInvoiceCode').val('');
+  $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
+  $('#runningNoModal').modal('show');
+  $.get('php/modules/customers/runningNo.php', { entity_id: id }, function(res) {
+    var obj = JSON.parse(res);
+    $('#runningNoInvoiceCode').val(obj.invoice_code || '');
+    var html = '';
+    obj.data.forEach(function(row) {
+      html += '<tr>'
+        + '<td>' + row.status + '<input type="hidden" name="transaction_status" value="' + row.status + '"></td>'
+        + '<td><input type="text" class="form-control form-control-sm rn-prefix" value="' + row.saved_prefix + '" maxlength="10"></td>'
+        + '<td><input type="number" class="form-control form-control-sm rn-value" value="' + row.value + '" min="1"></td>'
+        + '</tr>';
+    });
+    $('#runningNoBody').html(html);
+  });
+}
 
 function displayPreview(data) {
   // Parse the Excel data
