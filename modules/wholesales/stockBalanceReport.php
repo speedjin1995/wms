@@ -121,6 +121,15 @@ if(!isset($_SESSION['userID'])){
                 </select>
               </div>
 
+              <div class="filter-group">
+                <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                <select class="form-control select2" id="typeFilter">
+                  <option value="">-</option>
+                  <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                  <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                </select>
+              </div>
+
               <div class="filter-group filter-group-action" style="margin-left:auto;">
                 <label class="filter-label">&nbsp;</label>
                 <div class="d-flex" style="gap:0.5rem;">
@@ -800,7 +809,7 @@ function onGradeChange() {
   $row.find('.adj-unit-cost').val(parseFloat(defaultCost).toFixed(2));
 
   if (productId && gradeId) {
-    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'balance', product_id: productId, grade: gradeId })
+    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'balance', product_id: productId, grade: gradeId, type: currentAdjType })
       .done(function(obj) {
         if (obj.status === 'success') {
           $row.find('.adj-current-qty').val(parseFloat(obj.balance).toFixed(2));
