@@ -109,6 +109,7 @@ class StockAdjustmentController
         // Build model
         $adjustment = new StockAdjustment([
             'adjustment_date' => $dateObj,
+            'type' => $_POST['type'] ?? 'Local',
             'remark' => $_POST['remark'] ?? '',
         ]);
 
@@ -171,9 +172,9 @@ class StockAdjustmentController
     /**
      * GET /products - Get products with grades for form
      */
-    public function products(array $categoryIds = []): array
+    public function products(array $categoryIds = [], string $type = 'Local'): array
     {
-        $data = $this->service->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null);
+        $data = $this->service->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null, $type);
 
         return ['status' => 'success', 'data' => $data];
     }

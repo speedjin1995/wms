@@ -230,7 +230,7 @@ if(!isset($_SESSION['userID'])){
               <!-- Header Info -->
               <div class="modal-section">
                 <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <div class="form-group-modern">
                       <label class="form-label-modern"><?=$languageArray['adjustment_date_code'][$language] ?? 'Adjustment Date'?> <span class="text-danger">*</span></label>
                       <div class="input-group date" id="adjDatePicker" data-target-input="nearest">
@@ -241,7 +241,16 @@ if(!isset($_SESSION['userID'])){
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-8">
+                  <div class="col-md-3">
+                    <div class="form-group-modern">
+                      <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?> <span class="text-danger">*</span></label>
+                      <select class="form-control" id="adjType">
+                        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
                     <div class="form-group-modern">
                       <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
                       <input type="text" class="form-control" id="adjRemark" placeholder="<?=$languageArray['enter_remark_code'][$language] ?? 'Enter remark'?>">
@@ -324,6 +333,7 @@ if(!isset($_SESSION['userID'])){
 var adjListTable = null;
 var adjItemRowCount = 0;
 var productsData = [];
+var currentAdjType = 'Local';
 
 // ============================================================================
 // DOCUMENT READY
@@ -379,7 +389,10 @@ function initAdjustmentTab() {
     .on('input', '.adj-adjust-qty', onAdjustQtyChange)
     .on('input', '.adj-unit-cost', onUnitCostChange);
 
-  loadProductsData();
+  // Type change event
+  $('#adjType').on('change', onTypeChange);
+
+  loadProductsData('Local');
 }
 
 // ============================================================================
@@ -438,11 +451,29 @@ function filterProductsByCategory() {
 // ============================================================================
 // ADJUSTMENT TAB - DATA FUNCTIONS
 // ============================================================================
-function loadProductsData() {
-  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'products' })
+function loadProductsData(type, callback) {
+  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'products', type: type || currentAdjType })
     .done(function(obj) {
-      if (obj.status === 'success') productsData = obj.data;
+      if (obj.status === 'success') {
+        productsData = obj.data;
+        if (callback) callback();
+      }
     });
+}
+
+function onTypeChange() {
+  var newType = $('#adjType').val();
+  if (newType === currentAdjType) return;
+  
+  currentAdjType = newType;
+  
+  // Clear existing items and reload products
+  $('#adjItemsBody').html('');
+  adjItemRowCount = 0;
+  toggleAdjItemsEmpty();
+  updateAdjustmentTotals();
+  
+  loadProductsData(newType);
 }
 
 function loadAdjustmentList() {
@@ -662,13 +693,17 @@ function format(d) {
 function openAdjustmentModal(id) {
   $('#adjId').val(id || '');
   $('#adjModalTitle').text(id ? '<?=$languageArray['edit_code'][$language] ?? 'Edit'?>' : '<?=$languageArray['new_code'][$language] ?? 'New'?>');
+  $('#adjType').val('Local');
+  currentAdjType = 'Local';
   $('#adjDate').val(moment().format('DD/MM/YYYY'));
   $('#adjRemark').val('');
   $('#adjItemsBody').html('');
   $('#adjTotalQty, #adjTotalCost').text('0.00');
   adjItemRowCount = 0;
   toggleAdjItemsEmpty();
-  $('#adjModal').modal('show');
+  loadProductsData('Local', function() {
+    $('#adjModal').modal('show');
+  });
 }
 
 function addAdjustmentItemRow(data, callback) {
@@ -744,6 +779,7 @@ function onProductChange() {
     var product = productsData.find(function(p) { return p.id == productId; });
     if (product && product.grades) {
       product.grades.forEach(function(g) {
+        // Grades are already filtered by type from backend
         gradeHtml += '<option value="' + g.grade_id + '" data-cost="' + (g.purchasing_price || 0) + '">' + g.grade_name + '</option>';
       });
     }
@@ -873,6 +909,7 @@ function saveAdjustment() {
   $.post('php/modules/wholesales/stockAdjustment/api.php', {
     action: action,
     id: adjId,
+    type: $('#adjType').val(),
     adjustment_date: adjDate,
     remark: $('#adjRemark').val(),
     items: JSON.stringify(items)
@@ -902,28 +939,33 @@ function editAdjustment(id) {
         var d = obj.data;
         $('#adjId').val(d.id);
         $('#adjModalTitle').text('<?=$languageArray['edit_code'][$language] ?? 'Edit'?>');
+        $('#adjType').val(d.type || 'Local');
+        currentAdjType = d.type || 'Local';
         $('#adjDate').val(d.adjustment_date_display);
         $('#adjRemark').val(d.remark || '');
         $('#adjItemsBody').html('');
         adjItemRowCount = 0;
 
-        var itemsToAdd = d.items.length;
-        if (itemsToAdd === 0) {
-          toggleAdjItemsEmpty();
-          $('#spinnerLoading').hide();
-          $('#adjModal').modal('show');
-          return;
-        }
+        // Load products for the type first, then add items
+        loadProductsData(currentAdjType, function() {
+          var itemsToAdd = d.items.length;
+          if (itemsToAdd === 0) {
+            toggleAdjItemsEmpty();
+            $('#spinnerLoading').hide();
+            $('#adjModal').modal('show');
+            return;
+          }
 
-        var itemsAdded = 0;
-        d.items.forEach(function(item) {
-          addAdjustmentItemRow(item, function() {
-            itemsAdded++;
-            if (itemsAdded === itemsToAdd) {
-              updateAdjustmentTotals();
-              $('#spinnerLoading').hide();
-              $('#adjModal').modal('show');
-            }
+          var itemsAdded = 0;
+          d.items.forEach(function(item) {
+            addAdjustmentItemRow(item, function() {
+              itemsAdded++;
+              if (itemsAdded === itemsToAdd) {
+                updateAdjustmentTotals();
+                $('#spinnerLoading').hide();
+                $('#adjModal').modal('show');
+              }
+            });
           });
         });
       } else {

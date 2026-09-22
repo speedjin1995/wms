@@ -287,7 +287,7 @@ class StockAdjustmentService
     /**
      * Get products with grades for adjustment form
      */
-    public function getProductsWithGrades(?array $categoryIds = null): array
+    public function getProductsWithGrades(?array $categoryIds = null, string $type = 'Local'): array
     {
         $where = "p.deleted = 0 AND p.customer = ?";
         $params = [$this->company];
@@ -302,6 +302,11 @@ class StockAdjustmentService
             }
         }
 
+        // Only get products that have grades of the specified type
+        $where .= " AND EXISTS (SELECT 1 FROM product_grades pg WHERE pg.product_id = p.id AND pg.deleted = 0 AND pg.type = ?)";
+        $params[] = $type;
+        $types .= 's';
+
         $sql = "SELECT p.id, p.product_code, p.product_name, p.category, c.category_name
                 FROM products p 
                 LEFT JOIN categories c ON p.category = c.id
@@ -315,7 +320,7 @@ class StockAdjustmentService
 
         $products = [];
         while ($row = $result->fetch_assoc()) {
-            $row['grades'] = $this->getGradesForProduct((int)$row['id']);
+            $row['grades'] = $this->getGradesForProduct((int)$row['id'], $type);
             $products[] = $row;
         }
         $stmt->close();
@@ -323,16 +328,16 @@ class StockAdjustmentService
         return $products;
     }
 
-    private function getGradesForProduct(int $productId): array
+    private function getGradesForProduct(int $productId, string $type = 'Local'): array
     {
         $stmt = $this->db->prepare(
             "SELECT pg.id as product_grade_id, pg.grade_id, pg.purchasing_price, g.units as grade_name
              FROM product_grades pg 
              LEFT JOIN grades g ON pg.grade_id = g.id 
-             WHERE pg.product_id = ? AND pg.deleted = 0 
+             WHERE pg.product_id = ? AND pg.deleted = 0 AND pg.type = ?
              ORDER BY g.units ASC"
         );
-        $stmt->bind_param('i', $productId);
+        $stmt->bind_param('is', $productId, $type);
         $stmt->execute();
         $result = $stmt->get_result();
         
@@ -375,15 +380,16 @@ class StockAdjustmentService
     {
         $stmt = $this->db->prepare(
             "INSERT INTO stock_adjustments 
-             (adjustment_no, adjustment_date, remark, total_items, total_qty, total_cost, company, created_by) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+             (adjustment_no, adjustment_date, type, remark, total_items, total_qty, total_cost, company, created_by) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
         $totalQty = (string)$adjustment->totalQty;
         $totalCost = (string)$adjustment->totalCost;
         $stmt->bind_param(
-            'sssissii',
+            'ssssissii',
             $adjustmentNo,
             $adjustment->adjustmentDate,
+            $adjustment->type,
             $adjustment->remark,
             $adjustment->totalItems,
             $totalQty,
@@ -401,14 +407,15 @@ class StockAdjustmentService
     {
         $stmt = $this->db->prepare(
             "UPDATE stock_adjustments 
-             SET adjustment_date = ?, remark = ?, total_items = ?, total_qty = ?, total_cost = ?, modified_by = ? 
+             SET adjustment_date = ?, type = ?, remark = ?, total_items = ?, total_qty = ?, total_cost = ?, modified_by = ? 
              WHERE id = ?"
         );
         $totalQty = (string)$adjustment->totalQty;
         $totalCost = (string)$adjustment->totalCost;
         $stmt->bind_param(
-            'ssissii',
+            'sssissii',
             $adjustment->adjustmentDate,
+            $adjustment->type,
             $adjustment->remark,
             $adjustment->totalItems,
             $totalQty,
