@@ -30,6 +30,7 @@ else{
   
   $includeInvoice = 'N';
   $runningNoType = 0;
+  $allowEntityRegValidation = 'N';
   if ($company_stmt = $db->prepare("SELECT * FROM companies WHERE id = ?")) {
     $company_stmt->bind_param("i", $company);
     $company_stmt->execute();
@@ -38,6 +39,8 @@ else{
     $includeInvoice = $rowCompany['include_invoice'];
     $runningNoType = $rowCompany['running_no_type'];
   }
+
+  $allowEntityRegValidation = $_SESSION['featureFlags']['allow_entity_registration_validation'] ?? 'N';
 }
 ?>
 
@@ -469,57 +472,7 @@ else{
 <script>
 
 var runningNoType = <?= (int)($runningNoType ?? 0) ?>;
-
-function openRunningNo(id, name) {
-  $('#runningNoEntityId').val(id);
-  $('#runningNoSupplierName').text(name);
-  $('#runningNoInvoiceCode').val('');
-  $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
-  $('#runningNoModal').modal('show');
-  $.get('php/modules/suppliers/runningNo.php', { entity_id: id }, function(res) {
-    var obj = JSON.parse(res);
-    $('#runningNoInvoiceCode').val(obj.invoice_code || '');
-    var html = '';
-    obj.data.forEach(function(row) {
-      html += '<tr>'
-        + '<td>' + row.status + '<input type="hidden" name="transaction_status" value="' + row.status + '"></td>'
-        + '<td><input type="text" class="form-control form-control-sm rn-prefix" value="' + row.saved_prefix + '" maxlength="10"></td>'
-        + '<td><input type="number" class="form-control form-control-sm rn-value" value="' + row.value + '" min="1"></td>'
-        + '</tr>';
-    });
-    $('#runningNoBody').html(html);
-  });
-}
-
-$('#saveRunningNo').on('click', function() {
-  var rows = [];
-  var valid = true;
-  $('#runningNoBody tr').each(function() {
-    var status = $(this).find('input[name="transaction_status"]').val();
-    var prefix = $(this).find('.rn-prefix').val().trim();
-    var value  = parseInt($(this).find('.rn-value').val());
-    if (!prefix || prefix.length > 10 || isNaN(value) || value < 1) { valid = false; return false; }
-    rows.push({ transaction_status: status, prefix: prefix, value: value });
-  });
-  if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
-  $('#spinnerLoading').show();
-  $.ajax({
-    url: 'php/modules/suppliers/runningNo.php',
-    type: 'POST',
-    data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
-    success: function(res) {
-      var obj = JSON.parse(res);
-      if (obj.status === 'success') {
-        $('#runningNoModal').modal('hide');
-        toastr["success"](obj.message, "Success:");
-      } else {
-        toastr["error"](obj.message, "Failed:");
-      }
-      $('#spinnerLoading').hide();
-    }
-  });
-});
-
+var requireRegistration = <?= $allowEntityRegValidation == 'Y' ? 'true' : 'false' ?>;// Feature flag: require at least one registration field
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
     var checkboxes = $('#supplierTable tbody input[type="checkbox"]');
@@ -587,45 +540,56 @@ $(function () {
   });
     
   $.validator.setDefaults({
-      submitHandler: function () {
-          $('#spinnerLoading').show();
-          var formData = new FormData($('#supplierForm')[0]);
-          $.ajax({
-            url: 'php/modules/suppliers/suppliers.php',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-              var obj = JSON.parse(data); 
-              
-              if(obj.status === 'success'){
-                $('#addModal').modal('hide');
-                toastr["success"](obj.message, "Success:");
-                $('#supplierTable').DataTable().ajax.reload();
-                // Refresh the parent dropdown
-                $.get('php/modules/suppliers/getSuppliers.php', function(data) {
-                  var suppliers = JSON.parse(data);
-                  $('#parent').empty().append('<option value="">Please Select</option>');
-                  suppliers.forEach(function(supplier) {
-                    $('#parent').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
-                  });
-                });
-              }
-              else if(obj.status === 'failed'){
-                  toastr["error"](obj.message, "Failed:");
-              }
-              else{
-                  toastr["error"]("Something wrong when edit", "Failed:");
-              }
-              $('#spinnerLoading').hide();
-            },
-            error: function() {
-              toastr["error"]("Something wrong when saving", "Failed:");
-              $('#spinnerLoading').hide();
-            }
-          });
+    submitHandler: function () {
+      // Check at least one registration field is filled
+      if (requireRegistration) {
+        var ctos = $('#ctosReportNo').val().trim();
+        var ic = $('#icNo').val().replace(/_/g, '').replace(/-/g, '').trim();
+        var ssm = $('#ssmNo').val().trim();
+        if (ctos === '' && ic === '' && ssm === '') {
+          toastr["error"]("<?=$languageArray['at_least_one_registration_code'][$language] ?? 'At least one of CTOS Report No., IC No., or SSM No. must be filled before proceeding.'?>", "Failed:");
+          return;
+        }
       }
+      
+      $('#spinnerLoading').show();
+      var formData = new FormData($('#supplierForm')[0]);
+      $.ajax({
+        url: 'php/modules/suppliers/suppliers.php',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+          var obj = JSON.parse(data); 
+          
+          if(obj.status === 'success'){
+            $('#addModal').modal('hide');
+            toastr["success"](obj.message, "Success:");
+            $('#supplierTable').DataTable().ajax.reload();
+            // Refresh the parent dropdown
+            $.get('php/modules/suppliers/getSuppliers.php', function(data) {
+              var suppliers = JSON.parse(data);
+              $('#parent').empty().append('<option value="">Please Select</option>');
+              suppliers.forEach(function(supplier) {
+                $('#parent').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
+              });
+            });
+          }
+          else if(obj.status === 'failed'){
+              toastr["error"](obj.message, "Failed:");
+          }
+          else{
+              toastr["error"]("Something wrong when edit", "Failed:");
+          }
+          $('#spinnerLoading').hide();
+        },
+        error: function() {
+          toastr["error"]("Something wrong when saving", "Failed:");
+          $('#spinnerLoading').hide();
+        }
+      });
+    }
   });
 
   $('#sameAsDelivery').on('change', function() {
@@ -719,126 +683,176 @@ $(function () {
           }
       });
   });
-});
 
-$('#uploadExcel').on('click', function(){
-  $('#uploadModal').modal('show');
+  $('#uploadExcel').on('click', function(){
+    $('#uploadModal').modal('show');
 
-  $('#uploadForm').validate({
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
+    $('#uploadForm').validate({
+        errorElement: 'span',
+        errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
+    });
+  });
+
+  $('#uploadModal').find('#previewButton').on('click', function(){
+    var fileInput = document.getElementById('fileInput');
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+        var data = e.target.result;
+        // Process data and display preview
+        displayPreview(data);
+    };
+
+    reader.readAsBinaryString(file);
+  });
+
+  $('#uploadSupplier').on('click', function(){
+    $('#spinnerLoading').show();
+    var formData = $('#uploadForm').serializeArray();
+    var data = [];
+    var rowIndex = -1;
+    formData.forEach(function(field) {
+    var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
+    if (match) {
+      var fieldName = match[1];
+      var index = parseInt(match[2], 10);
+      if (index !== rowIndex) {
+      rowIndex = index;
+      data.push({});
       }
-  });
-});
-
-$('#uploadModal').find('#previewButton').on('click', function(){
-  var fileInput = document.getElementById('fileInput');
-  var file = fileInput.files[0];
-  var reader = new FileReader();
-  
-  reader.onload = function(e) {
-      var data = e.target.result;
-      // Process data and display preview
-      displayPreview(data);
-  };
-
-  reader.readAsBinaryString(file);
-});
-
-$('#uploadSupplier').on('click', function(){
-  $('#spinnerLoading').show();
-  var formData = $('#uploadForm').serializeArray();
-  var data = [];
-  var rowIndex = -1;
-  formData.forEach(function(field) {
-  var match = field.name.match(/([a-zA-Z0-9]+)\[(\d+)\]/);
-  if (match) {
-    var fieldName = match[1];
-    var index = parseInt(match[2], 10);
-    if (index !== rowIndex) {
-    rowIndex = index;
-    data.push({});
+      data[index][fieldName] = field.value;
     }
-    data[index][fieldName] = field.value;
-  }
-  });
+    });
 
-  // Send the JSON array to the server
-  $.ajax({
-      url: 'php/modules/suppliers/uploadSupplier.php',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(data),
-      success: function(response) {
-          var obj = JSON.parse(response);
-          if (obj.status === 'success') {
-            $('#spinnerLoading').hide();
-            $('#uploadModal').modal('hide');
-            $('#supplierTable').DataTable().ajax.reload();
-          } 
-          else if (obj.status === 'failed') {
-            $('#spinnerLoading').hide();
-          } 
-          else if (obj.status === 'error') {
-            $('#spinnerLoading').hide();
-            $('#uploadModal').modal('hide');
-            $('#errorModal').find('#errorList').empty();
-            var errorMessage = obj.message;
-            for (var i = 0; i < errorMessage.length; i++) {
-              $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);                            
-            }
-            $('#errorModal').modal('show');
-          } 
-          else {
-            $('#spinnerLoading').hide();
-          }
-      }
-  });
-});
-
-$('#multiDeactivate').on('click', function () {
-  $('#spinnerLoading').show();
-  var selectedIds = [];
-
-  $("#supplierTable tbody input[type='checkbox']").each(function () {
-    if (this.checked) {
-        selectedIds.push($(this).val());
-    }
-  });
-
-  if (selectedIds.length > 0) {
-    if (confirm('Are you sure you want to cancel these items?')) {
-        $.post('php/modules/suppliers/deleteSupplier.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-            var obj = JSON.parse(data);
-            
-            if(obj.status === 'success'){
+    // Send the JSON array to the server
+    $.ajax({
+        url: 'php/modules/suppliers/uploadSupplier.php',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response) {
+            var obj = JSON.parse(response);
+            if (obj.status === 'success') {
+              $('#spinnerLoading').hide();
+              $('#uploadModal').modal('hide');
               $('#supplierTable').DataTable().ajax.reload();
+            } 
+            else if (obj.status === 'failed') {
+              $('#spinnerLoading').hide();
+            } 
+            else if (obj.status === 'error') {
+              $('#spinnerLoading').hide();
+              $('#uploadModal').modal('hide');
+              $('#errorModal').find('#errorList').empty();
+              var errorMessage = obj.message;
+              for (var i = 0; i < errorMessage.length; i++) {
+                $('#errorModal').find('#errorList').append(`<li>${errorMessage[i]}</li>`);                            
+              }
+              $('#errorModal').modal('show');
+            } 
+            else {
               $('#spinnerLoading').hide();
             }
-            else if(obj.status === 'failed'){
-              $('#spinnerLoading').hide();
-            }
-            else{
-              $('#spinnerLoading').hide();
-            }
-        });
-    } else {
-      $('#spinnerLoading').hide();
-    }
-  } 
-  else {
-      alert("Please select at least one supplier to delete.");
-      $('#spinnerLoading').hide();
-  }     
+        }
+    });
+  });
+
+  $('#multiDeactivate').on('click', function () {
+    $('#spinnerLoading').show();
+    var selectedIds = [];
+
+    $("#supplierTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0) {
+      if (confirm('Are you sure you want to cancel these items?')) {
+          $.post('php/modules/suppliers/deleteSupplier.php', {userID: selectedIds, type: 'MULTI'}, function(data){
+              var obj = JSON.parse(data);
+              
+              if(obj.status === 'success'){
+                $('#supplierTable').DataTable().ajax.reload();
+                $('#spinnerLoading').hide();
+              }
+              else if(obj.status === 'failed'){
+                $('#spinnerLoading').hide();
+              }
+              else{
+                $('#spinnerLoading').hide();
+              }
+          });
+      } else {
+        $('#spinnerLoading').hide();
+      }
+    } 
+    else {
+        alert("Please select at least one supplier to delete.");
+        $('#spinnerLoading').hide();
+    }     
+  });
+
+  $('#saveRunningNo').on('click', function() {
+    var rows = [];
+    var valid = true;
+    $('#runningNoBody tr').each(function() {
+      var status = $(this).find('input[name="transaction_status"]').val();
+      var prefix = $(this).find('.rn-prefix').val().trim();
+      var value  = parseInt($(this).find('.rn-value').val());
+      if (!prefix || prefix.length > 10 || isNaN(value) || value < 1) { valid = false; return false; }
+      rows.push({ transaction_status: status, prefix: prefix, value: value });
+    });
+    if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
+    $('#spinnerLoading').show();
+    $.ajax({
+      url: 'php/modules/suppliers/runningNo.php',
+      type: 'POST',
+      data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
+      success: function(res) {
+        var obj = JSON.parse(res);
+        if (obj.status === 'success') {
+          $('#runningNoModal').modal('hide');
+          toastr["success"](obj.message, "Success:");
+        } else {
+          toastr["error"](obj.message, "Failed:");
+        }
+        $('#spinnerLoading').hide();
+      }
+    });
+  });
 });
+
+function openRunningNo(id, name) {
+  $('#runningNoEntityId').val(id);
+  $('#runningNoSupplierName').text(name);
+  $('#runningNoInvoiceCode').val('');
+  $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
+  $('#runningNoModal').modal('show');
+  $.get('php/modules/suppliers/runningNo.php', { entity_id: id }, function(res) {
+    var obj = JSON.parse(res);
+    $('#runningNoInvoiceCode').val(obj.invoice_code || '');
+    var html = '';
+    obj.data.forEach(function(row) {
+      html += '<tr>'
+        + '<td>' + row.status + '<input type="hidden" name="transaction_status" value="' + row.status + '"></td>'
+        + '<td><input type="text" class="form-control form-control-sm rn-prefix" value="' + row.saved_prefix + '" maxlength="10"></td>'
+        + '<td><input type="number" class="form-control form-control-sm rn-value" value="' + row.value + '" min="1"></td>'
+        + '</tr>';
+    });
+    $('#runningNoBody').html(html);
+  });
+}
 
 function displayPreview(data) {
   // Parse the Excel data
