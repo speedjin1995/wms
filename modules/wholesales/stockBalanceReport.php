@@ -123,9 +123,8 @@ if(!isset($_SESSION['userID'])){
 
               <div class="filter-group">
                 <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-                <select class="form-control select2" id="typeFilter">
-                  <option value="">-</option>
-                  <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                <select class="form-control" id="typeFilter">
+                  <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
                   <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
                 </select>
               </div>
@@ -412,7 +411,8 @@ function buildReportUrl() {
   var category = $('#categoryFilter').val() || '';
   var location = $('#locationFilter').val() || '';
   var product = $('#productFilter').val() || '';
-  return 'php/modules/wholesales/exportStockBalance.php?asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product;
+  var type = $('#typeFilter').val() || '';
+  return 'php/modules/wholesales/exportStockBalance.php?asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product + '&type=' + encodeURIComponent(type);
 }
 
 function loadPreview() {
