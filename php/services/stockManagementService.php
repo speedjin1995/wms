@@ -79,8 +79,8 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
             $currentBalance = floatval($row['balance']);
 
             if ($isEdit) {
-                $origStmt = $db->prepare("SELECT id, movement_no FROM stock_movements WHERE source_id = ? AND module = ? AND product_id = ? AND grade = ? AND company = ? AND movement_type != 'REVERSAL' ORDER BY id DESC LIMIT 1");
-                $origStmt->bind_param('sssss', $sourceId, $module, $productId, $grade, $company);
+                $origStmt = $db->prepare("SELECT id, movement_no FROM stock_movements WHERE source_id = ? AND module = ? AND product_id = ? AND grade = ? AND type = ? AND company = ? AND movement_type != 'REVERSAL' ORDER BY id DESC LIMIT 1");
+                $origStmt->bind_param('ssssss', $sourceId, $module, $productId, $grade, $type, $company);
                 $origStmt->execute();
                 $origRow = $origStmt->get_result()->fetch_assoc();
                 $origStmt->close();
@@ -127,8 +127,8 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
  */
 function processDeleteRawStock($db, $sourceId, $module, $company, $userId, $type = 'Local') {
     try {
-        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.movement_type, s.status, s.quantity, s.customer, s.supplier FROM stock_movements s INNER JOIN (SELECT product_id, grade, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND movement_type != 'REVERSAL' GROUP BY product_id, grade) latest ON s.id = latest.max_id");
-        $stmt->bind_param('sss', $sourceId, $module, $company);
+        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.type, s.movement_type, s.status, s.quantity, s.customer, s.supplier FROM stock_movements s INNER JOIN (SELECT product_id, grade, type, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND type = ? AND movement_type != 'REVERSAL' GROUP BY product_id, grade, type) latest ON s.id = latest.max_id");
+        $stmt->bind_param('ssss', $sourceId, $module, $company, $type);
         $stmt->execute();
         $movements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
