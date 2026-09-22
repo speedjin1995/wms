@@ -161,12 +161,13 @@ class StockAdjustmentController
     {
         $productId = (int)($_POST['product_id'] ?? 0);
         $grade = $_POST['grade'] ?? null;
+        $type = $_POST['type'] ?? 'Local';
 
         if (!$productId) {
             return ['status' => 'failed', 'message' => 'Missing product ID'];
         }
 
-        return $this->service->getStockBalance($productId, $grade);
+        return $this->service->getStockBalance($productId, $grade, $type);
     }
 
     /**

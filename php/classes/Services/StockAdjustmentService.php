@@ -127,8 +127,8 @@ class StockAdjustmentService
                 $item->adjustmentId = $adjustment->id;
                 $item->calculateTotalCost();
                 $this->insertItem($item);
-                $this->updateStockBalance($item);
-                $this->addStockMovement($item, $adjustment->id);
+                $this->updateStockBalance($item, $adjustment->type);
+                $this->addStockMovement($item, $adjustment->id, $adjustment->type);
             }
 
             $adjustment->recalculateTotals();
@@ -168,7 +168,7 @@ class StockAdjustmentService
 
         try {
             // Step 1: Reverse all existing items stock
-            $this->reverseExistingItems($adjustment->id);
+            $this->reverseExistingItems($adjustment->id, $existing->type);
             
             // Step 2: Soft delete ALL old items first
             $this->softDeleteItems($adjustment->id);
@@ -186,8 +186,8 @@ class StockAdjustmentService
                     $this->insertItem($item);
                 }
                 
-                $this->updateStockBalance($item);
-                $this->addStockMovement($item, $adjustment->id);
+                $this->updateStockBalance($item, $adjustment->type);
+                $this->addStockMovement($item, $adjustment->id, $adjustment->type);
             }
 
             // Step 4: Update header totals
@@ -225,8 +225,8 @@ class StockAdjustmentService
         try {
             // Reverse stock for each item
             foreach ($adjustment->items as $item) {
-                $this->reverseStockBalance($item);
-                $this->addReversalMovement($item, $id);
+                $this->reverseStockBalance($item, $adjustment->type);
+                $this->addReversalMovement($item, $id, $adjustment->type);
             }
 
             // Soft delete items and header
@@ -245,14 +245,14 @@ class StockAdjustmentService
     /**
      * Get current stock balance for product/grade
      */
-    public function getStockBalance(int $productId, ?string $grade): array
+    public function getStockBalance(int $productId, ?string $grade, string $type = 'Local'): array
     {
         $stmt = $this->db->prepare(
             "SELECT balance FROM raw_stock_balance 
-             WHERE product_id = ? AND grade = ? AND company = ? AND deleted = 0 
+             WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = 0 
              LIMIT 1"
         );
-        $stmt->bind_param('isi', $productId, $grade, $this->company);
+        $stmt->bind_param('issi', $productId, $grade, $type, $this->company);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -504,21 +504,21 @@ class StockAdjustmentService
         $stmt->close();
     }
 
-    private function reverseExistingItems(int $adjustmentId): void
+    private function reverseExistingItems(int $adjustmentId, string $type = 'Local'): void
     {
         $items = $this->getItemsByAdjustmentId($adjustmentId);
         foreach ($items as $item) {
-            $this->reverseStockBalance($item);
+            $this->reverseStockBalance($item, $type);
         }
     }
 
-    private function updateStockBalance(StockAdjustmentItem $item): void
+    private function updateStockBalance(StockAdjustmentItem $item, string $type = 'Local'): void
     {
         $stmt = $this->db->prepare(
             "SELECT id, balance FROM raw_stock_balance 
-             WHERE product_id = ? AND grade = ? AND company = ? AND deleted = 0"
+             WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = 0"
         );
-        $stmt->bind_param('isi', $item->productId, $item->grade, $this->company);
+        $stmt->bind_param('issi', $item->productId, $item->grade, $type, $this->company);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -532,22 +532,22 @@ class StockAdjustmentService
             $updateStmt->close();
         } else {
             $insertStmt = $this->db->prepare(
-                "INSERT INTO raw_stock_balance (product_id, grade, company, balance, created_by) 
-                 VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO raw_stock_balance (product_id, grade, type, company, balance, created_by) 
+                 VALUES (?, ?, ?, ?, ?, ?)"
             );
-            $insertStmt->bind_param('isidi', $item->productId, $item->grade, $this->company, $item->quantityAfter, $this->userId);
+            $insertStmt->bind_param('issidi', $item->productId, $item->grade, $type, $this->company, $item->quantityAfter, $this->userId);
             $insertStmt->execute();
             $insertStmt->close();
         }
     }
 
-    private function reverseStockBalance(StockAdjustmentItem $item): void
+    private function reverseStockBalance(StockAdjustmentItem $item, string $type = 'Local'): void
     {
         $stmt = $this->db->prepare(
             "SELECT id, balance FROM raw_stock_balance 
-             WHERE product_id = ? AND grade = ? AND company = ? AND deleted = 0"
+             WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = 0"
         );
-        $stmt->bind_param('isi', $item->productId, $item->grade, $this->company);
+        $stmt->bind_param('issi', $item->productId, $item->grade, $type, $this->company);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -563,7 +563,7 @@ class StockAdjustmentService
         }
     }
 
-    private function addStockMovement(StockAdjustmentItem $item, int $adjustmentId): void
+    private function addStockMovement(StockAdjustmentItem $item, int $adjustmentId, string $type = 'Local'): void
     {
         require_once __DIR__ . '/../../services/stockManagementService.php';
         
@@ -583,19 +583,22 @@ class StockAdjustmentService
             $item->quantityAfter,
             null,
             null,
-            $this->userId
+            $this->userId,
+            null,
+            null,
+            $type
         );
     }
 
-    private function addReversalMovement(StockAdjustmentItem $item, int $adjustmentId): void
+    private function addReversalMovement(StockAdjustmentItem $item, int $adjustmentId, string $type = 'Local'): void
     {
         require_once __DIR__ . '/../../services/stockManagementService.php';
         
         $stmt = $this->db->prepare(
             "SELECT balance FROM raw_stock_balance 
-             WHERE product_id = ? AND grade = ? AND company = ? AND deleted = 0"
+             WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = 0"
         );
-        $stmt->bind_param('isi', $item->productId, $item->grade, $this->company);
+        $stmt->bind_param('issi', $item->productId, $item->grade, $type, $this->company);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -618,7 +621,10 @@ class StockAdjustmentService
             $newBalance,
             null,
             null,
-            $this->userId
+            $this->userId,
+            null,
+            null,
+            $type
         );
     }
 
