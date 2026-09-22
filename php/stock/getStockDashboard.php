@@ -5,28 +5,30 @@ session_start();
 $company = $_SESSION['customer'];
 $role    = $_SESSION['role'] ?? 'NORMAL';
 $type    = $_POST['type'] ?? '';
-$product  = $_POST['product'] ?? '';
-$grade    = $_POST['grade'] ?? '';
-$category = $_POST['category'] ?? '';
+$product     = $_POST['product'] ?? '';
+$grade       = $_POST['grade'] ?? '';
+$category    = $_POST['category'] ?? '';
+$productType = $_POST['productType'] ?? '';
 
 $companyWhere  = ($role != 'SADMIN') ? "AND t.company = '$company'" : '';
-$productWhere  = $product  ? "AND t.product_id = '$product'"  : '';
-$gradeWhere    = $grade    ? "AND t.grade = '$grade'"          : '';
-$categoryWhere = $category ? "AND c.id = '$category'"         : '';
+$productWhere  = $product     ? "AND t.product_id = '$product'"  : '';
+$gradeWhere    = $grade       ? "AND t.grade = '$grade'"          : '';
+$categoryWhere = $category    ? "AND c.id = '$category'"          : '';
+$typeWhere     = (in_array($productType, ['Local', 'Export'])) ? "AND t.type = '$productType'" : '';
 
 $data = [];
 
 if ($type === 'raw') {
-    $sql = "SELECT t.product_id, t.grade, t.balance,
+    $sql = "SELECT t.product_id, t.grade, t.balance, t.type,
                    p.product_name, c.id as category_id, c.category_name,
                    g.units as grade_name
             FROM raw_stock_balance t
             LEFT JOIN products p  ON p.id = t.product_id
             LEFT JOIN categories c ON c.id = p.category
             LEFT JOIN grades g    ON g.id = t.grade
-            WHERE t.deleted = 0 AND t.balance > 0
-            $companyWhere $productWhere $gradeWhere $categoryWhere
-            ORDER BY c.category_name, p.product_name, g.units";
+            WHERE t.deleted = 0
+            $companyWhere $productWhere $gradeWhere $categoryWhere $typeWhere
+            ORDER BY c.category_name, p.product_name, g.units, t.type";
 
     $result = $db->query($sql);
     while ($row = $result->fetch_assoc()) {
@@ -41,7 +43,7 @@ if ($type === 'raw') {
             LEFT JOIN products p   ON p.id = t.product_id
             LEFT JOIN categories c ON c.id = p.category
             LEFT JOIN grades g     ON g.id = t.grade
-            WHERE t.deleted = 0 AND t.balance > 0
+            WHERE t.deleted = 0
             $companyWhere $productWhere $gradeWhere $categoryWhere
             ORDER BY c.category_name, p.product_name, g.units";
 
@@ -59,7 +61,7 @@ if ($type === 'raw') {
             LEFT JOIN categories c ON c.id = p.category
             LEFT JOIN grades g     ON g.id = t.grade
             LEFT JOIN packaging pk ON pk.id = t.packaging_size
-            WHERE t.deleted = 0 AND t.box_quantity > 0
+            WHERE t.deleted = 0
             $companyWhere $productWhere $gradeWhere $categoryWhere
             ORDER BY c.category_name, p.product_name, g.units, pk.packaging_name";
 
