@@ -41,9 +41,9 @@ function generateMovementNo($db, $company) {
  * edit_ref      : shared by the REVERSAL + new entry pair on edit, equals the
  *                 movement_no of the original row, used to group the pair in reports
  */
-function addStockMovement($db, $movementNo, $productId, $grade, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $userId, $originalMovementId = null, $editRef = null) {
-    $stmt = $db->prepare("INSERT INTO stock_movements (movement_no, product_id, grade, company, module, source_id, movement_type, status, quantity, balance_before, balance_after, customer, supplier, original_movement_id, edit_ref, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    $stmt->bind_param('ssssssssssssssss', $movementNo, $productId, $grade, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $originalMovementId, $editRef, $userId);
+function addStockMovement($db, $movementNo, $productId, $grade, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $userId, $originalMovementId = null, $editRef = null, $type = null) {
+    $stmt = $db->prepare("INSERT INTO stock_movements (movement_no, product_id, grade, type, company, module, source_id, movement_type, status, quantity, balance_before, balance_after, customer, supplier, original_movement_id, edit_ref, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    $stmt->bind_param('sssssssssssssssss', $movementNo, $productId, $grade, $type, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $originalMovementId, $editRef, $userId);
     $stmt->execute();
     $stmt->close();
 }
@@ -65,12 +65,12 @@ function addStockMovement($db, $movementNo, $productId, $grade, $company, $modul
  *   RECEIVING / INCOMING → ADD
  *   everything else      → MINUS  (including PACKAGING)
  */
-function processRawStock($db, $productId, $grade, $company, $newValue, $userId, $status, $isEdit = false, $beforeValue = 0, $sourceId = null, $module = 'wholesales', $customer = null, $supplier = null) {
+function processRawStock($db, $productId, $grade, $company, $newValue, $userId, $status, $isEdit = false, $beforeValue = 0, $sourceId = null, $module = 'wholesales', $customer = null, $supplier = null, $type = 'Local') {
     try {
         $isAdd = ($status === 'RECEIVING' || $status === 'INCOMING');
 
-        $stmt = $db->prepare("SELECT id, balance FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0'");
-        $stmt->bind_param('sss', $productId, $grade, $company);
+        $stmt = $db->prepare("SELECT id, balance FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = '0'");
+        $stmt->bind_param('ssss', $productId, $grade, $type, $company);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -90,13 +90,13 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
                 $newQty           = floatval($newValue);
                 $finalBalance     = $isAdd ? $balAfterReversal + $newQty    : $balAfterReversal - $newQty;
 
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, 'REVERSAL', $status, $reversalQty, $currentBalance, $balAfterReversal, $customer, $supplier, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null);
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $newQty, $balAfterReversal, $finalBalance, $customer, $supplier, $userId, null, $origRow['movement_no'] ?? null);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, 'REVERSAL', $status, $reversalQty, $currentBalance, $balAfterReversal, $customer, $supplier, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null, $type);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $newQty, $balAfterReversal, $finalBalance, $customer, $supplier, $userId, null, $origRow['movement_no'] ?? null, $type);
             } else {
                 $qty          = floatval($newValue);
                 $finalBalance = $isAdd ? $currentBalance + $qty : $currentBalance - $qty;
 
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, $currentBalance, $finalBalance, $customer, $supplier, $userId);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, $currentBalance, $finalBalance, $customer, $supplier, $userId, null, null, $type);
             }
 
             $upd = $db->prepare("UPDATE raw_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
@@ -107,10 +107,10 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
             $qty          = floatval($newValue);
             $finalBalance = $isAdd ? $qty : -$qty;
 
-            addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, 0, $finalBalance, $customer, $supplier, $userId);
+            addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, 0, $finalBalance, $customer, $supplier, $userId, null, null, $type);
 
-            $ins = $db->prepare("INSERT INTO raw_stock_balance (product_id, grade, company, balance, created_by) VALUES (?,?,?,?,?)");
-            $ins->bind_param('sssss', $productId, $grade, $company, $finalBalance, $userId);
+            $ins = $db->prepare("INSERT INTO raw_stock_balance (product_id, grade, type, company, balance, created_by) VALUES (?,?,?,?,?,?)");
+            $ins->bind_param('ssssss', $productId, $grade, $type, $company, $finalBalance, $userId);
             $ins->execute();
             $ins->close();
         }
@@ -125,7 +125,7 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
  * DELETE — finds the latest non-REVERSAL movement per product/grade for the
  * given source and writes a REVERSAL row to undo its effect on raw_stock_balance.
  */
-function processDeleteRawStock($db, $sourceId, $module, $company, $userId) {
+function processDeleteRawStock($db, $sourceId, $module, $company, $userId, $type = 'Local') {
     try {
         $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.movement_type, s.status, s.quantity, s.customer, s.supplier FROM stock_movements s INNER JOIN (SELECT product_id, grade, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND movement_type != 'REVERSAL' GROUP BY product_id, grade) latest ON s.id = latest.max_id");
         $stmt->bind_param('sss', $sourceId, $module, $company);
@@ -134,8 +134,8 @@ function processDeleteRawStock($db, $sourceId, $module, $company, $userId) {
         $stmt->close();
 
         foreach ($movements as $m) {
-            $balStmt = $db->prepare("SELECT id, balance FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0'");
-            $balStmt->bind_param('sss', $m['product_id'], $m['grade'], $company);
+            $balStmt = $db->prepare("SELECT id, balance FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = '0'");
+            $balStmt->bind_param('ssss', $m['product_id'], $m['grade'], $type, $company);
             $balStmt->execute();
             $balRow = $balStmt->get_result()->fetch_assoc();
             $balStmt->close();
@@ -146,7 +146,7 @@ function processDeleteRawStock($db, $sourceId, $module, $company, $userId) {
             $qty            = floatval($m['quantity']);
             $newBalance     = ($m['movement_type'] === 'ADD') ? $currentBalance - $qty : $currentBalance + $qty;
 
-            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, $module, $sourceId, 'REVERSAL', $m['status'], $qty, $currentBalance, $newBalance, $m['customer'], $m['supplier'], $userId, $m['id'], $m['movement_no']);
+            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, $module, $sourceId, 'REVERSAL', $m['status'], $qty, $currentBalance, $newBalance, $m['customer'], $m['supplier'], $userId, $m['id'], $m['movement_no'], $type);
 
             $upd = $db->prepare("UPDATE raw_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
             $upd->bind_param('sss', $newBalance, $userId, $balRow['id']);
