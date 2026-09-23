@@ -3592,12 +3592,13 @@ END
 $$
 DELIMITER ;
 
-ALTER TABLE `raw_stock_balance` ADD `type` VARCHAR(10) DEFAULT NULL AFTER `grade`;
+ALTER TABLE `raw_stock_balance` ADD `type` VARCHAR(10) DEFAULT 'Local' AFTER `grade`;
 
-ALTER TABLE `stock_movements` ADD `type` VARCHAR(10) DEFAULT NULL AFTER `grade`;
+ALTER TABLE `stock_movements` ADD `type` VARCHAR(10) DEFAULT 'Local' AFTER `grade`;
 
-ALTER TABLE `wholesales` ADD `type` VARCHAR(10) NULL AFTER `supplier`;
-ALTER TABLE `wholesales_log` ADD `type` VARCHAR(10) NULL AFTER `supplier`;
+ALTER TABLE `wholesales` ADD `type` VARCHAR(10) DEFAULT 'Local' AFTER `supplier`;
+
+ALTER TABLE `wholesales_log` ADD `type` VARCHAR(10) DEFAULT 'Local' AFTER `supplier`;
 
 DELIMITER $$
 CREATE OR REPLACE TRIGGER `TRG_INS_WHOLESALES` AFTER INSERT ON `wholesales` FOR EACH ROW INSERT INTO wholesales_log (
