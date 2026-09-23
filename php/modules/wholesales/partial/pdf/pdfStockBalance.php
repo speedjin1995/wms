@@ -7,6 +7,7 @@
 $locationFilter = empty($_GET['location']) ? 'All' : searchLocationById($_GET['location'], $db);
 $categoryFilter = empty($_GET['category']) ? 'All' : searchCategoryById($_GET['category'], $db);
 $productFilter  = empty($_GET['product'])  ? 'All' : searchProductNameById($_GET['product'], $db);
+$typeFilter     = (isset($_GET['type']) && in_array($_GET['type'], ['Local', 'Export'])) ? $_GET['type'] : 'All';
 
 $locResult = $db->query("SELECT id, locations FROM locations WHERE customer = '$company' AND deleted = '0' ORDER BY locations");
 $locations = [];
@@ -243,6 +244,11 @@ $headerHtml = '
           <td style="font-size:12px;">Product</td>
           <td style="font-size:12px;">:</td>
           <td style="font-size:12px;">'.$productFilter.'</td>
+        </tr>
+        <tr>
+          <td style="font-size:12px;">Type</td>
+          <td style="font-size:12px;">:</td>
+          <td style="font-size:12px;">'.$typeFilter.'</td>
         </tr>
       </table>
     </td>

@@ -265,6 +265,11 @@ if(isset($_POST['status'], $_POST['startTime'])){
 		$paymentMethod = $_POST['paymentMethod'];
 	}
 
+    $productType = 'Local';
+    if(isset($_POST['productType']) && $_POST['productType'] != null && $_POST['productType'] != ''){
+		$productType = $_POST['productType'];
+	}
+
     if(isset($_POST['emptyBasketWeight']) && $_POST['emptyBasketWeight'] != null && $_POST['emptyBasketWeight'] != ''){
 		$emptyBasketsWeight = floatval($_POST['emptyBasketWeight']);
 	}
@@ -479,10 +484,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
             }
         }
 
-        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, category=?, payment_method=?, start_time=?, end_time=?, modified_by=?, location=?, empty_baskets_weight=?, basket_count=?, avg_basket_weight=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, category=?, payment_method=?, start_time=?, end_time=?, modified_by=?, location=?, empty_baskets_weight=?, basket_count=?, avg_basket_weight=?, type=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $update_stmt->bind_param('ssssssssssssssssssssssssddis', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $startDateTime3, $endDateTime, $userID, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $_POST['id']);
+            $update_stmt->bind_param('ssssssssssssssssssssssssddssi', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $startDateTime3, $endDateTime, $userID, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -524,7 +529,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
 
                             if (floatval($afterValue) == floatval($beforeValue)) continue;
 
-                            processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue, $_POST['id'], 'wholesales', $customer, $supplier);
+                            processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue, $_POST['id'], 'wholesales', $customer, $supplier, $productType);
                         }
                     }
                 }
@@ -566,10 +571,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
             exit;
         }
 
-        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, category, payment_method, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location, empty_baskets_weight, basket_count, avg_basket_weight) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, category, payment_method, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location, empty_baskets_weight, basket_count, avg_basket_weight, type) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $insert_stmt->bind_param('ssssssssssssssssssssssssssssdid', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight);
+            $insert_stmt->bind_param('ssssssssssssssssssssssssssssdids', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
@@ -606,7 +611,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                             $productId = $weight['product'];
                             $grade = $weight['grade_id'];
                             $nettWeight = $weight['net'];
-                            processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status, false, 0, $wholesaleId, 'wholesales', $customer, $supplier);
+                            processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status, false, 0, $wholesaleId, 'wholesales', $customer, $supplier, $productType);
                         }
                     }
                 }

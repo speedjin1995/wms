@@ -3556,3 +3556,79 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_SUPPLIER` BEFORE UPDATE ON `supplies` FOR EAC
 END
 $$
 DELIMITER ;
+
+-- 22/09/2026 --
+ALTER TABLE `stock_adjustments` ADD `type` VARCHAR(10) NOT NULL AFTER `adjustment_date`;
+ALTER TABLE `stock_adjustment_log` ADD `type` VARCHAR(10) NOT NULL AFTER `adjustment_date`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_STK_ADJ` AFTER INSERT ON `stock_adjustments` FOR EACH ROW 
+  INSERT INTO stock_adjustment_log (
+    stk_adjustment_id, adjustment_no, adjustment_date, type, remark, total_items, total_qty, total_cost, company, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.adjustment_no, NEW.adjustment_date, NEW.type, NEW.remark, NEW.total_items, NEW.total_qty, NEW.total_cost, NEW.company, 1, NEW.created_by, NOW()
+  )
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_STK_ADJ` BEFORE UPDATE ON `stock_adjustments` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO stock_adjustment_log (
+        stk_adjustment_id, adjustment_no, adjustment_date, type, remark, total_items, total_qty, total_cost, company, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.adjustment_no, NEW.adjustment_date, NEW.type, NEW.remark, NEW.total_items, NEW.total_qty, NEW.total_cost, NEW.company, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `raw_stock_balance` ADD `type` VARCHAR(10) DEFAULT NULL AFTER `grade`;
+
+ALTER TABLE `stock_movements` ADD `type` VARCHAR(10) DEFAULT NULL AFTER `grade`;
+
+ALTER TABLE `wholesales` ADD `type` VARCHAR(10) NULL AFTER `supplier`;
+ALTER TABLE `wholesales_log` ADD `type` VARCHAR(10) NULL AFTER `supplier`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_WHOLESALES` AFTER INSERT ON `wholesales` FOR EACH ROW INSERT INTO wholesales_log (
+    wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, type, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, location, category, payment_method, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.type, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.location, NEW.category, NEW.payment_method, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, 1, NEW.created_by, NOW()
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO wholesales_log (
+        wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, type, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, location, category, payment_method, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.type, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.location, NEW.category, NEW.payment_method, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;
+
+UPDATE raw_stock_balance SET type = 'Local';
+
+UPDATE stock_movements SET type = 'Local';

@@ -54,7 +54,8 @@ switch ($action) {
             }
             $categoryIds = array_unique(array_map('intval', $categoryIds));
         }
-        echo json_encode($controller->products($categoryIds));
+        $type = $_POST['type'] ?? 'Local';
+        echo json_encode($controller->products($categoryIds, $type));
         break;
 
     default:

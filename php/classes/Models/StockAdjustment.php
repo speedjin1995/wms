@@ -6,6 +6,7 @@ class StockAdjustment
     public ?int $id = null;
     public ?string $adjustmentNo = null;
     public ?string $adjustmentDate = null;
+    public string $type = 'Local';
     public ?string $remark = null;
     public int $totalItems = 0;
     public float $totalQty = 0;
@@ -30,6 +31,7 @@ class StockAdjustment
         $this->id = isset($data['id']) ? (int)$data['id'] : null;
         $this->adjustmentNo = $data['adjustment_no'] ?? null;
         $this->adjustmentDate = $data['adjustment_date'] ?? null;
+        $this->type = $data['type'] ?? 'Local';
         $this->remark = $data['remark'] ?? null;
         $this->totalItems = (int)($data['total_items'] ?? 0);
         $this->totalQty = (float)($data['total_qty'] ?? 0);
@@ -91,6 +93,7 @@ class StockAdjustment
             'adjustment_no' => $this->adjustmentNo,
             'adjustment_date' => $this->adjustmentDate,
             'adjustment_date_display' => $this->getAdjustmentDateFormatted(),
+            'type' => $this->type,
             'remark' => $this->remark,
             'total_items' => $this->totalItems,
             'total_qty' => $this->totalQty,
