@@ -10,6 +10,9 @@
  */
 function uploadFile($file, $type, $company, $db, $uploadMethod = 'file_table') {
     $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if ($type == 'ssm') {
+        $allowedTypes[] = 'application/pdf';
+    }
     $maxSize = ($type == 'logo') ? 25 * 1024 * 1024 : 10 * 1024 * 1024;
 
     if ($file['error'] !== UPLOAD_ERR_OK) {

@@ -12,6 +12,19 @@ if(isset($_POST['id'], $_POST['cancelReason'])){
 	$id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_STRING);
 	$deleteReason = filter_input(INPUT_POST, 'cancelReason', FILTER_SANITIZE_STRING);
 	$del = "1";
+
+	// Get the type before deleting
+	$productType = 'Local';
+	if ($typeStmt = $db->prepare("SELECT type FROM wholesales WHERE id = ?")) {
+		$typeStmt->bind_param('s', $id);
+		$typeStmt->execute();
+		$typeResult = $typeStmt->get_result();
+		if ($typeRow = $typeResult->fetch_assoc()) {
+			$productType = $typeRow['type'] ?? 'Local';
+		}
+		$typeStmt->close();
+	}
+
 	if ($stmt2 = $db->prepare("UPDATE wholesales SET deleted=?, delete_reason=? WHERE id=?")) {
 		$stmt2->bind_param('sss', $del, $deleteReason, $id);
 		
@@ -19,7 +32,7 @@ if(isset($_POST['id'], $_POST['cancelReason'])){
 			$stmt2->close();
 
 			if (in_array('stocks', $_SESSION['products'])) {
-				processDeleteRawStock($db, $id, 'wholesales', $_SESSION['customer'], $_SESSION['userID']);
+				processDeleteRawStock($db, $id, 'wholesales', $_SESSION['customer'], $_SESSION['userID'], $productType);
 			}
 
 			$db->close();

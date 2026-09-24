@@ -7,6 +7,7 @@
 $locationFilter = empty($_GET['location']) ? 'All' : searchLocationById($_GET['location'], $db);
 $categoryFilter = empty($_GET['category']) ? 'All' : searchCategoryById($_GET['category'], $db);
 $productFilter  = empty($_GET['product'])  ? 'All' : searchProductNameById($_GET['product'], $db);
+$typeFilter     = (isset($_GET['type']) && in_array($_GET['type'], ['Local', 'Export'])) ? $_GET['type'] : 'All';
 
 $locResult = $db->query("SELECT id, locations FROM locations WHERE customer = '$company' AND deleted = '0' ORDER BY locations");
 $locations = [];
@@ -132,7 +133,7 @@ if (empty($currencies)) {
 $locCols     = 4;
 $printDate   = date('d/m/y H:i A');
 $locColCount = count($locations);
-$totalCols   = 4 + ($locColCount * $locCols) + $locCols + 3; // +3 for Stock Bal Before Adj + Adjustment + Stock Balance
+$totalCols   = 4 + ($locColCount * $locCols) + $locCols + 1; // +1 for Stock Balance
 
 $locNameHeaderHtml = '';
 foreach ($locations as $locId => $locName) {
@@ -158,30 +159,8 @@ foreach ($grouped as $category => $items) {
   $sgRowspan = count($items);
   $first = true;
   foreach ($items as $itemKey => $item) {
-    $adjustment = '-';
-    $balBeforeAdj = floatval($item['totalInQty']) - floatval($item['totalOutQty']);
-    $stockBalance = $balBeforeAdj;
-    
-    // Get daily stock adjustment for the selected date
-    $adjDateForQuery = $dtObj ? $dtObj->format('Y-m-d') : date('Y-m-d');
-    $adjStmt = $db->prepare("SELECT adjustment FROM stock_adjustment_daily WHERE DATE(adjustment_date) = ? AND product = ? AND grade = ? AND company = ? AND deleted = 0 LIMIT 1");
-    $adjStmt->bind_param('ssss', $adjDateForQuery, $item['product_id'], $item['grade_id'], $company);
-    $adjStmt->execute();
-    $adjRow = $adjStmt->get_result()->fetch_assoc();
-    $adjStmt->close();
+    $stockBalance = floatval($item['totalInQty']) - floatval($item['totalOutQty']);
 
-    if ($adjRow) {
-      $adjValue = floatval($adjRow['adjustment']);
-      $stockBalance = $balBeforeAdj + $adjValue;
-      if ($adjValue >= 0) {
-        $adjustment = '+' . number_format($adjValue, 2);
-      } else {
-        $adjustment = number_format($adjValue, 2);
-      }
-    }
-
-    $balBeforeAdjClass = $balBeforeAdj < 0 ? 'color:red;' : '';
-    $adjClass = $adjustment < 0 ? 'color:red;' : '';
     $balClass = $stockBalance < 0 ? 'color:red;' : '';
     $rowsHtml .= '<tr>';
     if ($first) {
@@ -209,9 +188,7 @@ foreach ($grouped as $category => $items) {
     $rowsHtml .= '<td class="brt">'.$outTotalStr.'</td>';
     $rowsHtml .= '<td class="brt">'.number_format($item['totalInQty'] ?? 0, 2).'</td>';
     $rowsHtml .= '<td class="brt">'.$inTotalStr.'</td>';
-    $rowsHtml .= '<td class="brt" style="'.$balBeforeAdjClass.'">'.number_format($balBeforeAdj, 2).'</td>';
-    $rowsHtml .= '<td class="brt" style="'.$adjClass.'">'.$adjustment.'</td>';
-    $rowsHtml .= '<td class="brt" style="'.$balClass.'">'.$stockBalance.'</td>';
+    $rowsHtml .= '<td class="brt" style="'.$balClass.'">'.number_format($stockBalance, 2).'</td>';
     $rowsHtml .= '</tr>';
   }
 }
@@ -268,6 +245,11 @@ $headerHtml = '
           <td style="font-size:12px;">:</td>
           <td style="font-size:12px;">'.$productFilter.'</td>
         </tr>
+        <tr>
+          <td style="font-size:12px;">Type</td>
+          <td style="font-size:12px;">:</td>
+          <td style="font-size:12px;">'.$typeFilter.'</td>
+        </tr>
       </table>
     </td>
     <td style="width:60%; vertical-align:middle; text-align:center;">
@@ -318,8 +300,6 @@ $html = '
       <th rowspan="4" class="bc">UOM</th>
       '.($locColCount > 0 ? '<th colspan="'.($locColCount * $locCols).'" class="bc">Location</th>' : '').'
       <th colspan="'.$locCols.'" rowspan="2" class="bc">Grand Total</th>
-      <th rowspan="4" class="bc">Stock Bal Before Adj</th>
-      <th rowspan="4" class="bc">Adjustment</th>
       <th rowspan="4" class="bc">Stock Bal</th>
     </tr>
     <tr>
@@ -349,8 +329,6 @@ $html = '
       '.$gtDispatchFooter.'
       <td class="br">'.number_format($grandInQty,  2).'</td>
       '.$gtReceiveFooter.'
-      <td></td>
-      <td></td>
       <td></td>
     </tr>
   </tfoot>

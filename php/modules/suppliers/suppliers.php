@@ -9,7 +9,11 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $code = filter_input(INPUT_POST, 'code', FILTER_SANITIZE_STRING);
     $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
     $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_STRING);
-    $reg_no = null;
+    $regNo = null;
+    $ssmNo = null;
+    $icNo = null;
+    $ssmFile = null;
+    $ctosReportNo = null;
 	$address = null;
     $address2 = null;
     $address3 = null;
@@ -32,8 +36,47 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $supplierType = 'Normal';
     $isManual = 'N';
 
-    if(isset($_POST['reg_no']) && $_POST['reg_no'] != null && $_POST['reg_no'] != ''){
-        $reg_no = filter_input(INPUT_POST, 'reg_no', FILTER_SANITIZE_STRING);
+    if(isset($_POST['regNo']) && $_POST['regNo'] != null && $_POST['regNo'] != ''){
+        $regNo = filter_input(INPUT_POST, 'regNo', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['ssmNo']) && $_POST['ssmNo'] != null && $_POST['ssmNo'] != ''){
+        $ssmNo = filter_input(INPUT_POST, 'ssmNo', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['ctosReportNo']) && $_POST['ctosReportNo'] != null && $_POST['ctosReportNo'] != ''){
+        $ctosReportNo = filter_input(INPUT_POST, 'ctosReportNo', FILTER_SANITIZE_STRING);
+    }
+
+    if(isset($_POST['icNo']) && $_POST['icNo'] != null && $_POST['icNo'] != ''){
+        $icNo = filter_input(INPUT_POST, 'icNo', FILTER_SANITIZE_STRING);
+    }
+
+    // Handle SSM file upload
+    if(isset($_FILES['ssmFile']) && $_FILES['ssmFile']['error'] === UPLOAD_ERR_OK){
+        require_once '../../uploadFileHelper.php';
+        $result = uploadFile($_FILES['ssmFile'], 'ssm', $company, $db);
+        if ($result['status'] === 'failed') {
+            echo json_encode(array("status"=> "failed", "message"=> $result['message']));
+            exit;
+        }
+        $ssmFile = $result['fid'];
+
+        // Delete old SSM file on update
+        if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
+            $stmt = $db->prepare("SELECT ssm_file FROM supplies WHERE id = ? AND customer = ?");
+            $stmt->bind_param('ss', $_POST['id'], $company);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                if ($row['ssm_file']) {
+                    deleteOldFile($row['ssm_file'], $db);
+                }
+            }
+            $stmt->close();
+        }
+    } elseif(isset($_POST['ssmFilePath']) && $_POST['ssmFilePath'] != ''){
+        $ssmFile = filter_input(INPUT_POST, 'ssmFilePath', FILTER_SANITIZE_STRING);
     }
 
     if(isset($_POST['address']) && $_POST['address'] != null && $_POST['address'] != ''){
@@ -117,8 +160,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     }
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, fax=?, pic=?, parent=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, currency=?, supplier_type=?, is_manual=?, modified_by=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $supplierType, $isManual, $userID, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE supplies SET supplier_code=?, reg_no=?, ssm=?, ic_no=?, ssm_file=?, ctos_report_no=?, supplier_name=?, supplier_address=?, supplier_address2=?, supplier_address3=?, supplier_address4=?, states=?, supplier_phone=?, fax=?, pic=?, parent=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, currency=?, supplier_type=?, is_manual=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('ssssssssssssssssssssssssssssss', $code, $regNo, $ssmNo, $icNo, $ssmFile, $ctosReportNo, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $supplierType, $isManual, $userID, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -143,8 +186,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, fax, pic, customer, parent, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, currency, supplier_type, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssssssssssssssssssssssss', $code, $reg_no, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $company, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $supplierType, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO supplies (supplier_code, reg_no, ssm, ic_no, ssm_file, ctos_report_no, supplier_name, supplier_address, supplier_address2, supplier_address3, supplier_address4, states, supplier_phone, fax, pic, customer, parent, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, currency, supplier_type, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('sssssssssssssssssssssssssssss', $code, $regNo, $ssmNo, $icNo, $ssmFile, $ctosReportNo, $name, $address, $address2, $address3, $address4, $states, $phone, $fax, $email, $company, $parent, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $supplierType, $userID);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

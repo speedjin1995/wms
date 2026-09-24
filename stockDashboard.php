@@ -912,24 +912,35 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
         <div class="sd-filter-bar">
           <div class="row align-items-center g-2">
             <div class="col-12 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['search_code'][$language]?></label>
               <div class="sd-search-wrap">
                 <i class="fas fa-search sd-search-icon"></i>
                 <input type="text" id="rawSearch" placeholder="Search...">
               </div>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['category_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="rawCategoryFilter">
                 <option value=""></option>
                 <?=$catOptions?>
               </select>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+              <select class="form-control form-control-sm" id="rawTypeFilter">
+                <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+              </select>
+            </div>
+            <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['product_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="rawProductFilter">
                 <option value=""></option>
                 <?=$prodOptions?>
               </select>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['grade_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="rawGradeFilter">
                 <option value=""></option>
                 <?=$gradeOptions?>
@@ -944,19 +955,20 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
                 <th><?=$languageArray['category_code'][$language]?></th>
                 <th><?=$languageArray['product_code'][$language]?></th>
                 <th><?=$languageArray['grade_code'][$language]?></th>
+                <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
                 <th class="text-right"><?=$languageArray['balance_code'][$language]?> (kg)</th>
               </tr>
             </thead>
             <tbody id="rawBody">
               <tr>
-                <td colspan="4" class="sd-empty">
+                <td colspan="5" class="sd-empty">
                   <i class="fas fa-spinner fa-spin mr-1"></i><?=$languageArray['loading_code'][$language]?>...
                 </td>
               </tr>
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3"><?=$languageArray['total_code'][$language]?></td>
+                <td colspan="4"><?=$languageArray['total_code'][$language]?></td>
                 <td class="text-right" id="rawTotal">0.00</td>
               </tr>
             </tfoot>
@@ -977,24 +989,28 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
         <div class="sd-filter-bar">
           <div class="row align-items-center">
             <div class="col-12 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['search_code'][$language]?></label>
               <div class="sd-search-wrap">
                 <i class="fas fa-search sd-search-icon"></i>
                 <input type="text" id="gradedSearch" placeholder="Search...">
               </div>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['category_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="gradedCategoryFilter">
                 <option value=""></option>
                 <?=$catOptions?>
               </select>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['product_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="gradedProductFilter">
                 <option value=""></option>
                 <?=$prodOptions?>
               </select>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['grade_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="gradedGradeFilter">
                 <option value=""></option>
                 <?=$gradeOptions?>
@@ -1042,24 +1058,28 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
         <div class="sd-filter-bar">
           <div class="row align-items-center">
             <div class="col-12 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['search_code'][$language]?></label>
               <div class="sd-search-wrap">
                 <i class="fas fa-search sd-search-icon"></i>
                 <input type="text" id="packedSearch" placeholder="Search...">
               </div>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['category_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="packedCategoryFilter">
                 <option value=""></option>
                 <?=$catOptions?>
               </select>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['product_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="packedProductFilter">
                 <option value=""></option>
                 <?=$prodOptions?>
               </select>
             </div>
             <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['grade_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="packedGradeFilter">
                 <option value=""></option>
                 <?=$gradeOptions?>
@@ -1150,7 +1170,7 @@ $(function() {
   });
 
   /* ── Filter change → reload from server ───────────────── */
-  $('#rawCategoryFilter, #rawProductFilter, #rawGradeFilter').on('change', loadRaw);
+  $('#rawCategoryFilter, #rawProductFilter, #rawGradeFilter, #rawTypeFilter').on('change', loadRaw);
   $('#gradedCategoryFilter, #gradedProductFilter, #gradedGradeFilter').on('change', loadGraded);
   $('#packedCategoryFilter, #packedProductFilter, #packedGradeFilter').on('change', loadPacked);
 
@@ -1302,11 +1322,12 @@ function getPageNums(cur, total) {
 }
 
 /* ── Filter helper ─────────────────────────────────────── */
-function filterRows(rows, search, cat, prod, grade) {
+function filterRows(rows, search, cat, prod, grade, productType) {
   return rows.filter(function(r) {
-    if (cat   && r.category_id != cat)   return false;
-    if (prod  && r.product_id  != prod)  return false;
-    if (grade && r.grade       != grade) return false;
+    if (cat         && r.category_id != cat)          return false;
+    if (prod        && r.product_id  != prod)         return false;
+    if (grade       && r.grade       != grade)        return false;
+    if (productType && r.type        != productType)  return false;
     if (search) {
       var s = search.toLowerCase();
       if ((r.product_name  || '').toLowerCase().indexOf(s) === -1 &&
@@ -1325,7 +1346,8 @@ function renderRaw() {
     $('#rawSearch').val(),
     $('#rawCategoryFilter').val(),
     $('#rawProductFilter').val(),
-    $('#rawGradeFilter').val()
+    $('#rawGradeFilter').val(),
+    $('#rawTypeFilter').val()
   );
 
   var total = 0;
@@ -1337,7 +1359,7 @@ function renderRaw() {
   var tbody = $('#rawBody').empty();
 
   if (!paged.length) {
-    tbody.append('<tr><td colspan="4" class="sd-empty">No data available</td></tr>');
+    tbody.append('<tr><td colspan="5" class="sd-empty">No data available</td></tr>');
   } else {
     paged.forEach(function(r) {
       tbody.append(
@@ -1345,6 +1367,7 @@ function renderRaw() {
         '<td>' + escHtml(r.category_name) + '</td>' +
         '<td>' + dotCell('blue', r.product_name) + '</td>' +
         '<td>' + gradePill(r.grade_name) + '</td>' +
+        '<td>' + escHtml(r.type || '') + '</td>' +
         '<td class="text-right">' + parseFloat(r.balance).toFixed(2) + '</td>' +
         '</tr>'
       );
@@ -1366,10 +1389,11 @@ function renderRaw() {
 function loadRaw() {
   rawPage = 1;
   $.post('php/stock/getStockDashboard.php', {
-    type:     'raw',
-    category: $('#rawCategoryFilter').val(),
-    product:  $('#rawProductFilter').val(),
-    grade:    $('#rawGradeFilter').val()
+    type:        'raw',
+    category:    $('#rawCategoryFilter').val(),
+    product:     $('#rawProductFilter').val(),
+    grade:       $('#rawGradeFilter').val(),
+    productType: $('#rawTypeFilter').val()
   }, function(data) {
     var obj = JSON.parse(data);
     rawData = (obj.status === 'success') ? obj.data : [];

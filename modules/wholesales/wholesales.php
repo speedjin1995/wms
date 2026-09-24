@@ -459,6 +459,15 @@ else{
                   <input type="text" class="form-control" id="doPoNo" name="doPoNo">
                 </div>
               </div>
+              <div class="col-md-3">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['product_type_code'][$language] ?? 'Product Type'?></label>
+                  <select class="form-control" id="productType" name="productType">
+                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                  </select>
+                </div>
+              </div>
               <div class="col-md-3" id="securityBillDiv">
                 <div class="form-group-modern">
                   <label class="form-label-modern"><?=$languageArray['sec_bill_no_code'][$language]?></label>
@@ -850,6 +859,8 @@ var allowInvoice = '<?=$allowInvoice?>';
 var allowPcsBasket = '<?=$allowPcsBasket?>';
 var userLocation = '<?=$userLocationId?>';
 var columnSetup = <?=json_encode($columnSetup)?>;
+var currentProductType = 'Local';
+var productsDataByType = [];
 
 // Default column definitions in order: [key, data field, label, extra options]
 var defaultColumns = [
@@ -1155,6 +1166,24 @@ $(function () {
     $('#weightDetailsTable').find('select[id^="grade_id"]').trigger('change');
   });
 
+  // Product Type change handler
+  $('#extendModal').find('#productType').on('change', function() {
+    var newType = $(this).val();
+    if (newType === currentProductType) return;
+    
+    currentProductType = newType;
+    
+    // Clear existing weight and reject details
+    $('#weightDetailsTable').empty();
+    $('#rejectDetailsTable').empty();
+    weightCount = 0;
+    rejectCount = 0;
+    updateTotals();
+    
+    // Reload products for the new type
+    loadProductsByType(newType);
+  });
+
   $('#extendModal').find('#customer').on('change', function () {
     var customer = $(this).val();
     if(customer == "OTHERS"){
@@ -1342,18 +1371,12 @@ $(function () {
         </td>
         <td>
           <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
-            <option value="" selected disabled>Select Product</option>
-            <?php while($rowProduct=mysqli_fetch_assoc($products3)){ ?>
-              <option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
-            <?php } ?>
+            ${buildProductOptions()}
           </select>
         </td>
         <td>
           <select class="form-control select2" id="grade_id${idx}" name="weightDetails[${idx}][grade_id]" required>
             <option value="" selected disabled>Select Grade</option>
-            <?php while($rowGrade=mysqli_fetch_assoc($grades4)){ ?>
-              <option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
-            <?php } ?>
           </select>
         </td>
         <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
@@ -1405,17 +1428,6 @@ $(function () {
     `;
     $('#weightDetailsTable').append(row);
 
-    var newSelect = $('#weightDetailsTable').find(`select[name="weightDetails[${idx}][product]"]`);
-    newSelect.data('original-options', newSelect.html());
-    var selectedCategory = $('#category').val();
-    if (selectedCategory) {
-        newSelect.find('option').each(function() {
-            if ($(this).val() && $(this).data('category') != selectedCategory) {
-                $(this).remove();
-            }
-        });
-    }
-
     // Initialize Select2 for the newly added row's select elements
     var newRow = $('#weightDetailsTable tr:last');
     newRow.find('.select2').each(function() {
@@ -1441,45 +1453,19 @@ $(function () {
     var row = $(this).closest('tr');
     var productId = $(this).val();
     var productName = $(this).find('option:selected').data('name');
-    var customerId = $('#extendModal').find('#customer').val();
     row.find('input[name*="[product_name]"]').val(productName);
     row.find('input[name*="[product_desc]"]').val(productName);
     
-    // Filter grades by selected product
+    // Build grade options from productsDataByType
     var gradeSelect = row.find('select[name*="[grade_id]"]');
-    var currentGrade = gradeSelect.val();
-    var currentGradeId = gradeSelect.find(':selected').data('id');
-
-    // Destroy Select2 before modifying options
     gradeSelect.select2('destroy');
-    
-    // Store all original options if not already stored
-    if (!gradeSelect.data('original-options')) {
-      gradeSelect.data('original-options', gradeSelect.html());
-    }
-    
-    // Reset to original options
-    gradeSelect.html(gradeSelect.data('original-options'));
-    
-    if(productName) {
-      // Remove options that don't match the selected product
-      gradeSelect.find('option').each(function() {
-        var gradeProduct = $(this).attr('data-product');
-        if(gradeProduct && gradeProduct != productName) {
-          $(this).remove();
-        }
-      });
-    }
-    
-    // Recreate Select2
+    gradeSelect.html(buildGradeOptions(productId));
     gradeSelect.select2({
       allowClear: true,
       placeholder: "Please Select",
       dropdownParent: $('#extendModal .modal-content'),
       width: '100%'
     });
-    
-    gradeSelect.val(currentGrade).trigger('change');
   });
 
   $('#weightDetailsTable').on('change', 'select[id^="grade_id"]', function() {
@@ -1971,6 +1957,54 @@ function applyCustomerCurrency(currencyId) {
 }
 
 // ============================================================================
+// PRODUCT TYPE FUNCTIONS
+// ============================================================================
+
+function loadProductsByType(type, callback) {
+  $.post('php/modules/products/api.php', { action: 'getProductsByType', type: type || currentProductType })
+    .done(function(data) {
+      var obj = typeof data === 'string' ? JSON.parse(data) : data;
+      if (obj.status === 'success') {
+        productsDataByType = obj.data;
+        if (callback) callback();
+      } else {
+        toastr['error'](obj.message || 'Failed to load products', 'Error:');
+      }
+    })
+    .fail(function() {
+      toastr['error']('Failed to load products', 'Error:');
+    });
+}
+
+function buildProductOptions() {
+  var options = '<option value="" selected disabled>Select Product</option>';
+  var selectedCategory = $('#category').val();
+  
+  productsDataByType.forEach(function(p) {
+    if (!selectedCategory || p.category == selectedCategory) {
+      options += '<option value="' + p.id + '" data-category="' + p.category + '" data-name="' + p.product_name + '">' + p.product_name + '</option>';
+    }
+  });
+  
+  return options;
+}
+
+function buildGradeOptions(productId) {
+  var options = '<option value="" selected disabled>Select Grade</option>';
+  
+  if (productId) {
+    var product = productsDataByType.find(function(p) { return p.id == productId; });
+    if (product && product.grades) {
+      product.grades.forEach(function(g) {
+        options += '<option value="' + g.grade_id + '" data-name="' + g.grade_name + '">' + g.grade_name + '</option>';
+      });
+    }
+  }
+  
+  return options;
+}
+
+// ============================================================================
 // DATATABLE ROW EXPANSION
 // ============================================================================
 
@@ -2301,6 +2335,8 @@ function newEntry() {
   $('#extendModal').find('#category').val("").trigger('change');
   $('#extendModal').find('#paymentMethod').val("").trigger('change');
   $('#extendModal').find('#status').val("DISPATCH").trigger('change');
+  $('#extendModal').find('#productType').val("Local");
+  currentProductType = 'Local';
   $('#extendModal').find('#doPoNo').val("");
   $('#extendModal').find('#securityBillNo').val("");
   $('#extendModal').find('#customer').val("").trigger('change');
@@ -2331,7 +2367,13 @@ function newEntry() {
   $('#extendModal').find('#avgBasketWeight').val('0.00');
   $('#weightDetailsTable').empty();
   $('#rejectDetailsTable').empty();
-  $('#extendModal').modal('show');
+  weightCount = 0;
+  rejectCount = 0;
+  
+  // Load products by type then show modal
+  loadProductsByType('Local', function() {
+    $('#extendModal').modal('show');
+  });
   
   $('#extendForm').validate({
     errorElement: 'span',
@@ -2369,6 +2411,8 @@ function edit(id) {
       $('#extendModal').find('#category').val(obj.message.category).trigger('change');
       $('#extendModal').find('#paymentMethod').val(obj.message.payment_method).trigger('change');
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
+      $('#extendModal').find('#productType').val(obj.message.type || 'Local');
+      currentProductType = obj.message.type || 'Local';
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
@@ -2644,8 +2688,11 @@ function edit(id) {
           dropdownParent: $('#extendModal .modal-content')
         });
       });
-      
-      $('#extendModal').modal('show');
+
+      // Load products by type then show modal
+      loadProductsByType(currentProductType, function() {
+        $('#extendModal').modal('show');
+      });
 
       $('#extendForm').validate({
         errorElement: 'span',

@@ -93,6 +93,11 @@ if(isset($_GET['product']) && $_GET['product'] != null && $_GET['product'] != ''
   $searchQuery .= " AND wholesales.weight_details LIKE '%\"product\":\"" . mysqli_real_escape_string($db, $_GET['product']) . "\"%'";
 }
 
+$typeFilter = (isset($_GET['type']) && in_array($_GET['type'], ['Local', 'Export'])) ? $_GET['type'] : '';
+if (!empty($typeFilter)) {
+  $searchQuery .= " AND wholesales.type = '" . mysqli_real_escape_string($db, $typeFilter) . "'";
+}
+
 // Fetch records
 $query = $db->query("SELECT * FROM wholesales WHERE 1=1 $searchQuery");
 
