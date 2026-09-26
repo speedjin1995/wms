@@ -1931,6 +1931,7 @@ function getTableColumns() {
         buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
       }
       buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
+      buttons += '<button type="button" onclick="exportExcel('+data+')" class="btn btn-sm btn-outline-success" title="<?=$languageArray['export_excel_code'][$language] ?? 'Export Excel'?>"><i class="fas fa-file-excel"></i></button>';
       if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
         buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
       }
@@ -2075,6 +2076,7 @@ function format(row) {
       <div class="details-header">
         <span class="details-title"><?=$languageArray['weighing_details_code'][$language]?></span>
         <div class="details-filters">
+          <button type="button" class="btn btn-sm btn-outline-success" onclick="exportExcel(${row.id})" title="<?=$languageArray['export_excel_code'][$language] ?? 'Export Excel'?>"><i class="fas fa-file-excel"></i></button>
           <select class="form-control form-control-sm details-filter-select" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
             <option value=""><?=$languageArray['all_products_code'][$language]?></option>
           </select>
@@ -2248,6 +2250,22 @@ function format(row) {
   `;
   
   return returnString;
+}
+
+function exportExcel(id) {
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'php/modules/wholesales/exportExcel.php';
+  form.target = '_blank';
+
+  var input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'id';
+  input.value = id;
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
 }
 
 function filterWeightTable(rowId) {
