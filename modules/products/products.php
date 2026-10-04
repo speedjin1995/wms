@@ -104,6 +104,7 @@ else{
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+                  <th><?=$languageArray['category_code'][$language]?></th>
                   <th><?=$languageArray['product_code_code'][$language]?></th>
                   <th><?=$languageArray['product_name_code'][$language]?></th>
                   <th><?=$languageArray['weight_code'][$language]?></th>
@@ -831,6 +832,7 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
+      { data: 'category_name' },
       { data: 'product_code' },
       { data: 'product_name' },
       { data: 'weight' },
