@@ -253,8 +253,8 @@ if (!empty($categoryIds)) {
           <div class="modal-section">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="section-title mb-0"><i class="fas fa-boxes mr-2"></i><?=$languageArray['target_products_packed_code'][$language]?></div>
-              <button type="button" class="btn btn-action btn-action-success" id="addRowBtn">
-                <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
+              <button type="button" class="btn btn-modern btn-modern-primary btn-sm" id="addRowBtn">
+                <i class="fas fa-plus mr-1"></i><?=$languageArray['add_new_code'][$language]?>
               </button>
             </div>
             <div class="row">
