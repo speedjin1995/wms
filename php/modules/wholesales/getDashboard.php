@@ -13,6 +13,7 @@ $customerId = $_POST['customer']  ?? '';
 $supplierId = $_POST['supplier']  ?? '';
 $locationId = $_POST['location']  ?? '';
 $partyType  = $_POST['partyType'] ?? '';  // Normal, Packing, or empty (all)
+$categoryId = $_POST['category']  ?? '';  // product category id, or empty (all)
 
 // Get current user's company and role from session
 $company = $_SESSION['customer'];
@@ -78,6 +79,32 @@ if ($role != 'SADMIN') {
   $companyFilter = '';
 }
 
+// Filter by product category — resolve to product ids, then match records containing any of them
+$categoryProductIds = null;
+if ($categoryId != '') {
+  $categoryProductIds = array();
+  if ($role != 'SADMIN') {
+    $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND customer = ? AND deleted = '0'");
+    $catStmt->bind_param('ss', $categoryId, $company);
+  } else {
+    $catStmt = $db->prepare("SELECT id FROM products WHERE category = ? AND deleted = '0'");
+    $catStmt->bind_param('s', $categoryId);
+  }
+  $catStmt->execute();
+  $catResult = $catStmt->get_result();
+  while ($catRow = $catResult->fetch_assoc()) {
+    $categoryProductIds[] = (string) $catRow['id'];
+  }
+  $catStmt->close();
+
+  if (count($categoryProductIds) > 0) {
+    $likeConditions = array_map(function ($id) { return "w.weight_details LIKE '%\"product\":\"" . intval($id) . "\"%'"; }, $categoryProductIds);
+    $searchQuery .= " AND (" . implode(' OR ', $likeConditions) . ")";
+  } else {
+    $searchQuery .= " AND 1=0";
+  }
+}
+
 ## Fetch records
 // Fetch all wholesale records matching the filters, joining supplier and customer names
 $empQuery = "SELECT w.status, w.weight_details, w.supplier, w.customer,
@@ -124,6 +151,17 @@ while ($row = mysqli_fetch_assoc($empRecords)) {
   // Guard against null or malformed weight_details
   if (!is_array($details)) {
     $details = array();
+  }
+
+  // When filtering by category, only count line items whose product belongs to that category
+  if ($categoryProductIds !== null) {
+    $details = array_values(array_filter($details, function ($item) use ($categoryProductIds) {
+      return in_array((string) ($item['product'] ?? ''), $categoryProductIds, true);
+    }));
+
+    if (count($details) == 0) {
+      continue;
+    }
   }
 
   // Sum up net weight and value across all line items in this record
