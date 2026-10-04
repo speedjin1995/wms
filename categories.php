@@ -190,7 +190,8 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/categories/loadCategory.php',
+      'url':'php/modules/categories/api.php',
+      'data': { action: 'list' }
     },
     'columns': [
       {
@@ -206,7 +207,7 @@ $(function () {
       { 
         data: 'deleted',
         render: function (data, type, row) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="d-flex" style="gap:4px;"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
         }
       }
     ],
@@ -220,8 +221,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/categories/categories.php', $('#categoryForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
+          $.post('php/modules/categories/api.php', $('#categoryForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
@@ -313,12 +313,11 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/categories/uploadCategory.php',
+        url: 'php/modules/categories/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(response) {
-            var obj = JSON.parse(response);
+        success: function(obj) {
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
@@ -356,8 +355,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/categories/deleteCategory.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
+          $.post('php/modules/categories/api.php', {action: 'delete', ids: selectedIds}, function(obj){
               
               if(obj.status === 'success'){
                 $('#categoryTable').DataTable().ajax.reload();
@@ -435,8 +433,7 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/categories/getCategory.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  $.post('php/modules/categories/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
         $('#addModal').find('#id').val(obj.message.id);
@@ -471,8 +468,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/categories/deleteCategory.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/categories/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");

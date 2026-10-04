@@ -85,7 +85,8 @@ $(function () {
     },
         'order': [[ 1, 'asc' ]],
         'ajax': {
-            'url':'php/loadUnits.php'
+            'url':'php/modules/units/api.php',
+            'data': { action: 'list' }
         },
         'columns': [
             { data: 'no' },
@@ -106,8 +107,7 @@ $(function () {
     $.validator.setDefaults({
         submitHandler: function () {
             //$('#spinnerLoading').show();
-            $.post('php/units.php', $('#supplierForm').serialize(), function(data){
-                var obj = JSON.parse(data); 
+            $.post('php/modules/units/api.php', $('#supplierForm').serialize() + '&action=save', function(obj){
                 
                 if(obj.status === 'success'){
                   $('#addModal').modal('hide');
@@ -152,8 +152,7 @@ $(function () {
 
 function edit(id){
     //$('#spinnerLoading').show();
-    $.post('php/getUnits.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/units/api.php', {action: 'get', id: id}, function(obj){
         
         if(obj.status === 'success'){
             $('#addModal').find('#id').val(obj.message.id);
@@ -187,8 +186,7 @@ function edit(id){
 function deactivate(id){
     if (confirm('Are you sure you want to delete this items?')) {
         //$('#spinnerLoading').show();
-        $.post('php/deleteUnits.php', {userID: id}, function(data){
-            var obj = JSON.parse(data);
+        $.post('php/modules/units/api.php', {action: 'delete', ids: [id]}, function(obj){
             
             if(obj.status === 'success'){
                 toastr["success"](obj.message, "Success:");
@@ -210,8 +208,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     //$('#spinnerLoading').show();
-    $.post('php/reactivateSupplier.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/units/api.php', {action: 'reactivate', id: id}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");

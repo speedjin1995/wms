@@ -144,7 +144,8 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/currencies/loadCurrencies.php',
+      'url':'php/modules/currencies/api.php',
+      'data': { action: 'list' }
     },
     'columns': [
       {
@@ -179,8 +180,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/currencies/currencies.php', $('#currencyForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
+          $.post('php/modules/currencies/api.php', $('#currencyForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
@@ -235,8 +235,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to delete the selected currencies?')) {
-          $.post('php/modules/currencies/deleteCurrency.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
+          $.post('php/modules/currencies/api.php', {action: 'delete', ids: selectedIds}, function(obj){
               
               if(obj.status === 'success'){
                 $('#currencyTable').DataTable().ajax.reload();
@@ -263,8 +262,7 @@ $(function () {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/currencies/getCurrency.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  $.post('php/modules/currencies/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
           $('#modalTitle').text('Edit Currency');
@@ -302,8 +300,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this currency?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/currencies/deleteCurrency.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/currencies/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
@@ -323,8 +320,7 @@ function deactivate(id){
 }
 
 function toggleDefault(id) {
-  $.post('php/modules/currencies/setDefaultCurrency.php', { id: id }, function(data) {
-    var obj = JSON.parse(data);
+  $.post('php/modules/currencies/api.php', {action: 'setDefault', id: id}, function(obj){
     if (obj.status === 'success') {
       toastr["success"](obj.message, "Success:");
       $('#currencyTable').DataTable().ajax.reload();

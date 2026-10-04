@@ -223,7 +223,8 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/vehicles/loadVehicles.php',
+      'url':'php/modules/vehicles/api.php',
+      'data': { action: 'list' }
     },
     'columns': [
       {
@@ -262,8 +263,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/vehicles/vehicles.php', $('#vehicleForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
+          $.post('php/modules/vehicles/api.php', $('#vehicleForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
@@ -359,12 +359,11 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/vehicles/uploadVehicle.php',
+        url: 'php/modules/vehicles/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(response) {
-            var obj = JSON.parse(response);
+        success: function(obj){
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
@@ -402,8 +401,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/vehicles/deleteVehicle.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
+          $.post('php/modules/vehicles/api.php', {action: 'delete', ids: selectedIds}, function(obj){
               
               if(obj.status === 'success'){
                 $('#vehicleTable').DataTable().ajax.reload();
@@ -481,8 +479,7 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/vehicles/getVehicle.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  $.post('php/modules/vehicles/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
           $('#addModal').find('#id').val(obj.message.id);
@@ -521,8 +518,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/vehicles/deleteVehicle.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/vehicles/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
@@ -544,8 +540,7 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/vehicles/reactivateVehicle.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/vehicles/api.php', {action: 'reactivate', id: id}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");

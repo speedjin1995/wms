@@ -127,7 +127,8 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/states/loadStates.php',
+      'url':'php/modules/states/api.php',
+      'data': { action: 'list' }
     },
     'columns': [
       {
@@ -151,8 +152,7 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/states/states.php', $('#stateForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
+          $.post('php/modules/states/api.php', $('#stateForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
@@ -205,8 +205,7 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to delete the selected states?')) {
-          $.post('php/modules/states/deleteState.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
+          $.post('php/modules/states/api.php', {action: 'delete', ids: selectedIds}, function(obj){
               
               if(obj.status === 'success'){
                 $('#stateTable').DataTable().ajax.reload();
@@ -233,8 +232,7 @@ $(function () {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/states/getState.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  $.post('php/modules/states/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
           $('#modalTitle').text('Edit State');
@@ -270,8 +268,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this state?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/states/deleteState.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/states/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
