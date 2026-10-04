@@ -18,6 +18,7 @@ $(function () {
 
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var target = $(e.target).attr('href');
+    if (target === '#tabRepacking') loadRepacking();
     if (target === '#tabGrading')   loadGrading();
     if (target === '#tabPackaging') loadPackaging();
     if (target === '#tabPulpPaste') loadPulpPaste();
@@ -44,6 +45,7 @@ function getPkgParams() {
 /* ── Load all ───────────────────────────────────────────── */
 function loadAllDashboards() {
   loadWholesales();
+  loadRepacking();
   loadGrading();
   loadPackaging();
   loadPulpPaste();
