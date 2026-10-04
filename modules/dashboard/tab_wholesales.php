@@ -8,7 +8,6 @@
         <button type="button" class="btn btn-outline-secondary ws-type-btn active" data-value=""><?=$languageArray['all_code'][$language]?></button>
         <button type="button" class="btn btn-outline-info ws-type-btn" data-value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></button>
         <button type="button" class="btn btn-outline-success ws-type-btn" data-value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></button>
-        <button type="button" class="btn btn-outline-primary ws-type-btn" data-value="REPACKING"><?=$languageArray['repacking_code'][$language]?></button>
       </div>
       <input type="hidden" id="wsType" value="">
     </div>
@@ -70,20 +69,6 @@
         <div class="stat-label"><?=$languageArray['dispatch_code'][$language]?><br><?=$languageArray['total_value_code'][$language]?></div>
         <div class="stat-value" id="wsDispatchValue">—</div>
         <div class="stat-sub"><?=$languageArray['total_value_code'][$language]?></div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3 mb-3" id="wsRepackCard" style="display:none;">
-      <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#6f42c1,#59359a);">
-        <div class="stat-label"><?=$languageArray['repacking_code'][$language]?><br><?=$languageArray['total_weight_code'][$language]?></div>
-        <div class="stat-value" id="wsRepackWeight">—</div>
-        <div class="stat-sub"><span id="wsRepackCount">—</span> records | kg</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3 mb-3" id="wsRepackTypeCard" style="display:none;">
-      <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#20c997,#17a589);">
-        <div class="stat-label"><?=$languageArray['repacking_code'][$language]?><br><?=$languageArray['local_code'][$language]?> / <?=$languageArray['export_code'][$language]?></div>
-        <div class="stat-value"><span id="wsRepackLocal">—</span> / <span id="wsRepackExport">—</span></div>
-        <div class="stat-sub">kg</div>
       </div>
     </div>
   </div>
@@ -177,24 +162,6 @@
         </div>
         <div class="card-body" id="wsCustomerPackingBody">
           <div id="wsCustomerPackingBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Repacking Breakdown -->
-  <h6 class="dash-section-header" id="wsRepackHeader" style="display:none;"><?=$languageArray['repacking_code'][$language]?> <?=$languageArray['breakdown_code'][$language]?></h6>
-  <div class="row" id="wsRepackRow" style="display:none;">
-    <div class="col-12 mb-3">
-      <div class="card h-100 dash-section-card">
-        <div class="card-header" onclick="toggleCard('wsRepackBody','wsRepackChevron')">
-          <div class="d-flex align-items-center flex-1">
-            <i class="fas fa-chevron-down dash-chevron" id="wsRepackChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['source_product_code'][$language]?> &rarr; <?=$languageArray['target_product_code'][$language] ?? 'Target Product'?> (kg)</span>
-          </div>
-        </div>
-        <div class="card-body" id="wsRepackBody">
-          <div id="wsRepackBreakdown"><p class="text-muted"><?=$languageArray['no_data_code'][$language]?></p></div>
         </div>
       </div>
     </div>
