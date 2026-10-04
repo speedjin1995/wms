@@ -24,15 +24,21 @@ $(function () {
     var val = $(this).data('value');
 
     if (val === 'DISPATCH') {
+      $('#wsSupplierWrap').hide();
       $('#wsCustomerWrap').show();
-    } else {
+      $('#wsSupplier').val('').trigger('change.select2');
+    } else if (val === 'RECEIVING') {
       $('#wsCustomerWrap').hide();
+      $('#wsSupplierWrap').show();
       $('#wsCustomer').val('').trigger('change.select2');
+    } else {
+      $('#wsSupplierWrap, #wsCustomerWrap').hide();
+      $('#wsSupplier, #wsCustomer').val('').trigger('change.select2');
     }
     loadWholesales();
   });
 
-  $('#wsCategory, #wsCustomer').on('change', function () {
+  $('#wsCategory, #wsSupplier, #wsCustomer').on('change', function () {
     loadWholesales();
   });
 });
@@ -42,6 +48,7 @@ function loadWholesales() {
   var params = $.extend(getDateParams(), {
     status:    $('#wsType').val(),
     customer:  $('#wsCustomer').val() || '',
+    supplier:  $('#wsSupplier').val() || '',
     category:  $('#wsCategory').val() || ''
   });
 
@@ -312,6 +319,8 @@ function doExportBreakdown() {
   
   if (base === 'customer') {
     url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
+  } else {
+    url += '&supplier=' + encodeURIComponent($('#wsSupplier').val() || '');
   }
   
   $('#wsExportTypeModal').modal('hide');

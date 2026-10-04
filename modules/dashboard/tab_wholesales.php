@@ -20,6 +20,15 @@
         <?php } ?>
       </select>
     </div>
+    <div class="form-group col-12 col-md-3" id="wsSupplierWrap" style="display:none;">
+      <label><?=$languageArray['supplier_code'][$language]?></label>
+      <select class="form-control select2" id="wsSupplier" data-all-label="<?=$languageArray['all_code'][$language]?> <?=$languageArray['supplier_code'][$language]?>">
+        <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['supplier_code'][$language]?></option>
+        <?php while ($row = mysqli_fetch_assoc($suppliers)) { ?>
+          <option value="<?= $row['id'] ?>" data-type="<?= htmlspecialchars($row['supplier_type'] ?? 'Normal') ?>"><?= htmlspecialchars($row['supplier_name']) ?></option>
+        <?php } ?>
+      </select>
+    </div>
     <div class="form-group col-12 col-md-3" id="wsCustomerWrap" style="display:none;">
       <label><?=$languageArray['customer_code'][$language]?></label>
       <select class="form-control select2" id="wsCustomer" data-all-label="<?=$languageArray['all_code'][$language]?> <?=$languageArray['customer_code'][$language]?>">
