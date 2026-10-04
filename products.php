@@ -838,10 +838,10 @@ $(function () {
       { 
         data: 'id',
         render: function ( data, type, row ) {
-          return '<div style="display:flex;gap:4px;">'
-            + '<button type="button" onclick="edit('+data+')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button>'
-            + '<button type="button" onclick="openCustomers('+data+')" class="btn btn-info btn-sm"><i class="fas fa-users"></i></button>'
-            + '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>'
+          return '<div class="d-flex" style="gap:4px;">'
+            + '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>'
+            + '<button type="button" onclick="openCustomers('+data+')" class="btn btn-sm btn-outline-info" title="Customers"><i class="fas fa-users"></i></button>'
+            + '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>'
             + '</div>';
         }
       }

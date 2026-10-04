@@ -19,75 +19,56 @@ else{
 }
 ?>
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><?=$languageArray['packaging_code'][$language]?></h1>
-			</div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
 </div>
-<!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
-	<div class="container-fluid">
-        <div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-              <div class="row">
-                  <div class="col-4"></div>
-                  <div class="col-2">
-                    <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                      <?=$languageArray['delete_packaging_code'][$language]?>
-                    </button>
-                  </div>                  
-                  <div class="col-2">
-                    <a href="template/Packaging_Template.xlsx" download>
-                      <button type="button" class="btn btn-block bg-gradient-info btn-sm">
-                        <?=$languageArray['download_template_code'][$language]?>
-                      </button>
-                    </a>
-                  </div>
-                  <div class="col-2">
-                    <button type="button" id="uploadExcel" class="btn btn-block bg-gradient-success btn-sm">
-                      <?=$languageArray['upload_excel_code'][$language]?>
-                    </button>
-                  </div>
-                  <!-- <div class="col-2">
-                      <input type="file" id="fileInput" accept=".xlsx, .xls" />
-                  </div>
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="importExcelbtn">Import Excel</button>
-                  </div>                             -->
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addPackaging"><?=$languageArray['add_packaging_code'][$language]?></button>
-                  </div>
-              </div>
+<section class="content page-modern">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card results-card show-dt-controls">
+          <div class="card-header">
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-box mr-2"></i><?=$languageArray['packaging_code'][$language]?></h3>
+            </div>
+            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+              <a href="template/Packaging_Template.xlsx" download class="btn btn-action btn-action-warning">
+                <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
+              </a>
+              <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
+                <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
+              </button>
+              <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_packaging_code'][$language]?>
+              </button>
+              <button type="button" class="btn btn-action btn-action-primary" id="addPackaging">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_packaging_code'][$language]?>
+              </button>
+            </div>
           </div>
-					<div class="card-body">
-						<table id="packagingTable" class="table table-bordered table-striped">
-							<thead>
-								<tr>
+          <div class="card-body">
+            <table id="packagingTable" class="table data-table">
+              <thead>
+                <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
                   <th><?=$languageArray['packaging_name_code'][$language]?></th>
                   <th><?=$languageArray['packaging_type_code'][$language]?></th>
                   <th><?=$languageArray['packaging_weight_code'][$language]?></th>
                   <th><?=$languageArray['by_weight_code'][$language]?></th>
-									<th><?=$languageArray['actions_code'][$language]?></th>
-								</tr>
-							</thead>
-						</table>
-					</div><!-- /.card-body -->
-				</div><!-- /.card -->
-			</div><!-- /.col -->
-		</div><!-- /.row -->
-	</div><!-- /.container-fluid -->
+                  <th><?=$languageArray['actions_code'][$language]?></th>
+                </tr>
+              </thead>
+            </table>
+          </div><!-- /.card-body -->
+        </div><!-- /.card -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade" id="uploadModal">
+<div class="modal fade modal-modern" id="uploadModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -105,8 +86,8 @@ else{
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-primary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-success" id="uploadPackaging"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadPackaging"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -115,7 +96,7 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="errorModal" style="display:none">
+<div class="modal fade modal-modern" id="errorModal" style="display:none">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -139,7 +120,7 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade" id="addModal">
+<div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <form role="form" id="packagingForm">
@@ -150,45 +131,57 @@ else{
               </button>
             </div>
             <div class="modal-body">
-              <div class="card-body">
-                <div class="form-group">
-                  <input type="hidden" class="form-control" id="id" name="id">
-                </div>
-                <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
+              <input type="hidden" class="form-control" id="id" name="id">
+              <div class="modal-section" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label for="packagingName"><?=$languageArray['packaging_name_code'][$language]?> *</label>
-                  <input type="text" class="form-control" name="packagingName" id="packagingName" placeholder="<?=$languageArray['enter_packaging_name_code'][$language]?>" required>
+              </div>
+              <div class="modal-section">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['packaging_name_code'][$language]?> <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="packagingName" id="packagingName" placeholder="<?=$languageArray['enter_packaging_name_code'][$language]?>" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="form-label-modern"><?=$languageArray['packaging_type_code'][$language]?> <span class="text-danger">*</span></label>
+                      <select class="form-control" name="packagingType" id="packagingType" required>
+                        <option value="Original"><?=$languageArray['original_code'][$language]?></option>
+                        <option value="Repack"><?=$languageArray['repack_code'][$language]?></option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label for="packagingType"><?=$languageArray['packaging_type_code'][$language]?> *</label>
-                  <select class="form-control" name="packagingType" id="packagingType" required>
-                    <option value="Original"><?=$languageArray['original_code'][$language]?></option>
-                    <option value="Repack"><?=$languageArray['repack_code'][$language]?></option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="packagingWeight"><?=$languageArray['packaging_weight_code'][$language]?></label>
-                  <input type="number" class="form-control" name="packagingWeight" id="packagingWeight" placeholder="<?=$languageArray['enter_packaging_weight_code'][$language]?>">
-                </div>
-                <div class="form-group">
-                  <label for="packagingByWeight"><?=$languageArray['by_weight_code'][$language]?></label>
-                  <select class="form-control" name="packagingByWeight" id="packagingByWeight">
-                    <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
-                    <option value="N"><?=$languageArray['no_code'][$language]?></option>
-                  </select>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['packaging_weight_code'][$language]?></label>
+                      <input type="number" class="form-control" name="packagingWeight" id="packagingWeight" placeholder="<?=$languageArray['enter_packaging_weight_code'][$language]?>">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group mb-0">
+                      <label class="form-label-modern"><?=$languageArray['by_weight_code'][$language]?></label>
+                      <select class="form-control" name="packagingByWeight" id="packagingByWeight">
+                        <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+                        <option value="N"><?=$languageArray['no_code'][$language]?></option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+              <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -211,7 +204,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : undefined
     });
   });
 
@@ -221,6 +214,10 @@ $(function () {
     'processing': true,
     'serverSide': true,
     'serverMethod': 'post',
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     'ajax': {
       'url':'php/modules/packaging/loadPackaging.php',
     },
@@ -242,10 +239,10 @@ $(function () {
         data: 'deleted',
         render: function (data, type, row) {
           if (data == 0) {
-            return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+            return '<div class="d-flex" style="gap:4px;"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
           } 
           else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-warning btn-sm">Reactivate</button>';
+            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-sm btn-outline-warning">Reactivate</button>';
           }
         }
       }
