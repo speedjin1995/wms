@@ -140,7 +140,7 @@ class CustomerService extends BaseService
     {
         return $this->uploadRecords('customers', 'customer_name', 'Customer Name', $rows, function (array $row): array {
             return [
-                'parent' => !empty($row['Parent']) ? $this->findCustomerIdByName(trim($row['Parent'])) : null,
+                'parent' => !empty($row['Parent']) ? searchCustomerIdByName(trim($row['Parent']), $this->company, $this->db) : null,
                 'customer_code' => !empty($row['CustomerCode']) ? trim($row['CustomerCode']) : '',
                 'reg_no' => !empty($row['RegistrationNo']) ? trim($row['RegistrationNo']) : '',
                 'customer_name' => !empty($row['CustomerName']) ? trim($row['CustomerName']) : '',
@@ -148,13 +148,13 @@ class CustomerService extends BaseService
                 'customer_address2' => !empty($row['Address2']) ? trim($row['Address2']) : '',
                 'customer_address3' => !empty($row['Address3']) ? trim($row['Address3']) : '',
                 'customer_address4' => !empty($row['Address4']) ? trim($row['Address4']) : '',
-                'states' => !empty($row['State']) ? $this->findStateIdByName(trim($row['State'])) : null,
+                'states' => !empty($row['State']) ? searchStateIdByName(trim($row['State']), $this->company, $this->db) : null,
                 'billing_name' => !empty($row['BillingName']) ? trim($row['BillingName']) : '',
                 'billing_address' => !empty($row['BillingAddress']) ? trim($row['BillingAddress']) : '',
                 'billing_address2' => !empty($row['BillingAddress2']) ? trim($row['BillingAddress2']) : '',
                 'billing_address3' => !empty($row['BillingAddress3']) ? trim($row['BillingAddress3']) : '',
                 'billing_address4' => !empty($row['BillingAddress4']) ? trim($row['BillingAddress4']) : '',
-                'billing_state' => !empty($row['BillingState']) ? $this->findStateIdByName(trim($row['BillingState'])) : null,
+                'billing_state' => !empty($row['BillingState']) ? searchStateIdByName(trim($row['BillingState']), $this->company, $this->db) : null,
                 'billing_phone' => !empty($row['BillingPhone']) ? trim($row['BillingPhone']) : '',
                 'billing_pic' => !empty($row['BillingPIC']) ? trim($row['BillingPIC']) : '',
                 'billing_fax' => !empty($row['BillingFax']) ? trim($row['BillingFax']) : '',
@@ -328,19 +328,5 @@ class CustomerService extends BaseService
         $decoded = json_decode($pendingBins, true);
 
         return is_array($decoded) ? $decoded : [];
-    }
-
-    private function findCustomerIdByName(string $name): ?int
-    {
-        $row = $this->fetchOne("SELECT id FROM customers WHERE customer_name = ? AND customer = ? AND deleted = 0", 'si', [$name, $this->company]);
-
-        return $row ? (int)$row['id'] : null;
-    }
-
-    private function findStateIdByName(string $name): ?int
-    {
-        $row = $this->fetchOne("SELECT id FROM states WHERE states = ?", 's', [$name]);
-
-        return $row ? (int)$row['id'] : null;
     }
 }

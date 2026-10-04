@@ -249,7 +249,7 @@ function searchDriverIcByDriverName($value, $company, $db) {
 }
 
 function searchDriverIdByDriverName($value, $company, $db) {
-    $id = '';
+    $id = null;
 
     if(isset($value)){
         if ($select_stmt = $db->prepare("SELECT * FROM drivers WHERE driver_name=? AND customer=? AND deleted = 0")) {
@@ -284,12 +284,13 @@ function checkMasterDataVehicle($value, $company, $db) {
     return $exists;
 }
 
-function searchStateIdByName($value, $db) {
-    $id = '';
+function searchStateIdByName($value, $company, $db) {
+    $id = null;
 
     if(isset($value)){
-        if ($select_stmt = $db->prepare("SELECT * FROM states WHERE states=?")) {
-            $select_stmt->bind_param('s', $value);
+        // States belong to a company, so only match the company's active states
+        if ($select_stmt = $db->prepare("SELECT * FROM states WHERE states=? AND customer=? AND deleted = 0")) {
+            $select_stmt->bind_param('ss', $value, $company);
             $select_stmt->execute();
             $result = $select_stmt->get_result();
             if ($row = $result->fetch_assoc()) {

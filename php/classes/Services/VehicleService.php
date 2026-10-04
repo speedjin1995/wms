@@ -118,18 +118,9 @@ class VehicleService extends BaseService
             return [
                 'veh_number' => !empty($row['VehicleNumber']) ? trim($row['VehicleNumber']) : '',
                 'vehicle_weight' => !empty($row['VehicleWeight']) ? trim($row['VehicleWeight']) : '',
-                'driver' => !empty($row['DriverName']) ? $this->findDriverId(trim($row['DriverName'])) : null
+                'driver' => !empty($row['DriverName']) ? searchDriverIdByDriverName(trim($row['DriverName']), $this->company, $this->db) : null
             ];
         });
     }
 
-    /**
-     * Find active driver ID by name within the session company
-     */
-    private function findDriverId(string $driverName): ?int
-    {
-        $row = $this->fetchOne("SELECT id FROM drivers WHERE driver_name = ? AND customer = ? AND deleted = 0", 'si', [$driverName, $this->company]);
-
-        return $row ? (int)$row['id'] : null;
-    }
 }

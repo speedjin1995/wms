@@ -139,7 +139,7 @@ class SupplierService extends BaseService
     {
         return $this->uploadRecords('supplies', 'supplier_name', 'Supplier Name', $rows, function (array $row): array {
             return [
-                'parent' => !empty($row['Parent']) ? $this->findSupplierIdByName(trim($row['Parent'])) : null,
+                'parent' => !empty($row['Parent']) ? searchSupplierIdByName(trim($row['Parent']), $this->company, $this->db) : null,
                 'supplier_code' => !empty($row['SupplierCode']) ? trim($row['SupplierCode']) : '',
                 'reg_no' => !empty($row['RegistrationNo']) ? trim($row['RegistrationNo']) : '',
                 'supplier_name' => !empty($row['SupplierName']) ? trim($row['SupplierName']) : '',
@@ -147,13 +147,13 @@ class SupplierService extends BaseService
                 'supplier_address2' => !empty($row['Address2']) ? trim($row['Address2']) : '',
                 'supplier_address3' => !empty($row['Address3']) ? trim($row['Address3']) : '',
                 'supplier_address4' => !empty($row['Address4']) ? trim($row['Address4']) : '',
-                'states' => !empty($row['State']) ? $this->findStateIdByName(trim($row['State'])) : null,
+                'states' => !empty($row['State']) ? searchStateIdByName(trim($row['State']), $this->company, $this->db) : null,
                 'billing_name' => !empty($row['BillingName']) ? trim($row['BillingName']) : '',
                 'billing_address' => !empty($row['BillingAddress']) ? trim($row['BillingAddress']) : '',
                 'billing_address2' => !empty($row['BillingAddress2']) ? trim($row['BillingAddress2']) : '',
                 'billing_address3' => !empty($row['BillingAddress3']) ? trim($row['BillingAddress3']) : '',
                 'billing_address4' => !empty($row['BillingAddress4']) ? trim($row['BillingAddress4']) : '',
-                'billing_state' => !empty($row['BillingState']) ? $this->findStateIdByName(trim($row['BillingState'])) : null,
+                'billing_state' => !empty($row['BillingState']) ? searchStateIdByName(trim($row['BillingState']), $this->company, $this->db) : null,
                 'supplier_phone' => !empty($row['Phone']) ? trim($row['Phone']) : '',
                 'pic' => !empty($row['PIC']) ? trim($row['PIC']) : '',
                 'fax' => !empty($row['Fax']) ? trim($row['Fax']) : '',
@@ -218,17 +218,4 @@ class SupplierService extends BaseService
         return !empty($row['ssm_file']) ? (string)$row['ssm_file'] : null;
     }
 
-    private function findSupplierIdByName(string $name): ?int
-    {
-        $row = $this->fetchOne("SELECT id FROM supplies WHERE supplier_name = ? AND customer = ? AND deleted = 0", 'si', [$name, $this->company]);
-
-        return $row ? (int)$row['id'] : null;
-    }
-
-    private function findStateIdByName(string $name): ?int
-    {
-        $row = $this->fetchOne("SELECT id FROM states WHERE states = ?", 's', [$name]);
-
-        return $row ? (int)$row['id'] : null;
-    }
 }

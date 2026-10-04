@@ -247,9 +247,10 @@ class ProductController extends BaseController
                 'data' => $products
             ];
         } catch (\Exception $e) {
+            error_log('ProductController::getProductsByType - ' . $e->getMessage());
             return [
                 'status' => 'failed',
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Something went wrong'
             ];
         }
     }

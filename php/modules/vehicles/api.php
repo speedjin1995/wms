@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../db_connect.php';
+require_once __DIR__ . '/../../lookup.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
 use App\Controllers\VehicleController;
