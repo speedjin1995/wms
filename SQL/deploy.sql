@@ -3633,3 +3633,142 @@ DELIMITER ;
 UPDATE raw_stock_balance SET type = 'Local';
 
 UPDATE stock_movements SET type = 'Local';
+
+-- 04/10/2026 -- 
+CREATE TABLE `repacking` (
+  `id` int(11) NOT NULL,
+  `repacking_no` varchar(20) NOT NULL,
+  `repacking_date` date NOT NULL,
+  `source_category` int(11) DEFAULT NULL,
+  `target_category` int(11) DEFAULT NULL,
+  `source_product` int(11) NOT NULL,
+  `source_grade` int(11) DEFAULT NULL,
+  `source_weight` decimal(12,2) NOT NULL,
+  `type` varchar(10) NOT NULL DEFAULT 'Local',
+  `company` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `created_by` int(11) DEFAULT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `repacking` ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `repacking_no` (`repacking_no`), ADD KEY `company` (`company`);
+
+ALTER TABLE `repacking` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `repacking_items` (
+  `id` int(11) NOT NULL,
+  `repacking_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade_id` int(11) DEFAULT NULL,
+  `weight` decimal(12,2) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `created_by` int(11) DEFAULT NULL,
+  `modified_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `repacking_items` ADD PRIMARY KEY (`id`), ADD KEY `repacking_id` (`repacking_id`);
+
+ALTER TABLE `repacking_items` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE `repacking_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `repacking_id` int(11) NOT NULL,
+  `repacking_no` varchar(20) NOT NULL,
+  `repacking_date` date NOT NULL,
+  `source_category` int(11) DEFAULT NULL,
+  `target_category` int(11) DEFAULT NULL,
+  `source_product` int(11) NOT NULL,
+  `source_grade` int(11) DEFAULT NULL,
+  `source_weight` decimal(12,2) NOT NULL,
+  `type` varchar(10) NOT NULL,
+  `company` int(11) NOT NULL,
+  `action_id` varchar(5) NOT NULL,
+  `action_by` varchar(15) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_REPACKING` AFTER INSERT ON `repacking` FOR EACH ROW
+BEGIN
+    INSERT INTO repacking_log (
+        repacking_id, repacking_no, repacking_date, source_category, target_category, source_product, source_grade, source_weight, type, company, action_id, action_by, event_date
+    ) VALUES (
+        NEW.id, NEW.repacking_no, NEW.repacking_date, NEW.source_category, NEW.target_category, NEW.source_product, NEW.source_grade, NEW.source_weight, NEW.type, NEW.company, 1, NEW.created_by, NOW()
+    );
+
+    -- Picked up by the item triggers of the same save
+    SET @repacking_log_id = LAST_INSERT_ID();
+END
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_REPACKING` BEFORE UPDATE ON `repacking` FOR EACH ROW
+BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO repacking_log (
+        repacking_id, repacking_no, repacking_date, source_category, target_category, source_product, source_grade, source_weight, type, company, action_id, action_by, event_date
+    ) VALUES (
+        NEW.id, NEW.repacking_no, NEW.repacking_date, NEW.source_category, NEW.target_category, NEW.source_product, NEW.source_grade, NEW.source_weight, NEW.type, NEW.company, action_value, NEW.modified_by, NOW()
+    );
+
+    -- Picked up by the item triggers of the same save
+    SET @repacking_log_id = LAST_INSERT_ID();
+END
+$$
+DELIMITER ;
+
+CREATE TABLE `repacking_items_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_id` int(11) NOT NULL,
+  `repacking_id` int(11) NOT NULL,
+  `repacking_log_id` int(11) DEFAULT NULL,
+  `product_id` int(11) NOT NULL,
+  `grade_id` int(11) DEFAULT NULL,
+  `weight` decimal(12,2) NOT NULL,
+  `action_id` varchar(5) NOT NULL,
+  `action_by` varchar(15) NOT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `repacking_log_id` (`repacking_log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_REPACKING_ITEM` AFTER INSERT ON `repacking_items` FOR EACH ROW
+INSERT INTO repacking_items_log (
+    item_id, repacking_id, repacking_log_id, product_id, grade_id, weight, action_id, action_by, event_date
+) VALUES (
+    NEW.id, NEW.repacking_id, @repacking_log_id, NEW.product_id, NEW.grade_id, NEW.weight, 1, NEW.created_by, NOW()
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_REPACKING_ITEM` BEFORE UPDATE ON `repacking_items` FOR EACH ROW
+BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO repacking_items_log (
+        item_id, repacking_id, repacking_log_id, product_id, grade_id, weight, action_id, action_by, event_date
+    ) VALUES (
+        NEW.id, NEW.repacking_id, @repacking_log_id, NEW.product_id, NEW.grade_id, NEW.weight, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;

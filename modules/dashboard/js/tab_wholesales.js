@@ -41,10 +41,27 @@ $(function () {
   $('#wsCategory, #wsSupplier, #wsCustomer').on('change', function () {
     loadWholesales();
   });
+
+  // Repacking breakdown: expand a source product to see its targets
+  $('#wsRepackBreakdown').on('click', '.ws-repack-row', function () {
+    $('#wsRepackTargets' + $(this).data('idx')).slideToggle(150);
+    $(this).find('.ws-repack-chevron').toggleClass('fa-chevron-right fa-chevron-down');
+  });
 });
 
 /* ── Load ───────────────────────────────────────────────── */
 function loadWholesales() {
+  var selectedType = $('#wsType').val();
+  loadRepackingSummary(selectedType);
+
+  // Repacking only: hide the wholesales sections
+  if (selectedType === 'REPACKING') {
+    $('#wsReceivingCard, #wsReceivingValueCard, #wsDispatchCard, #wsDispatchValueCard, ' +
+      '#wsSupplierBreakdownHeader, #wsSupplierBreakdownRow, #wsCustomerBreakdownHeader, #wsCustomerBreakdownRow, ' +
+      '#wsGradeHeader, #wsGradeRow, #wsHourlyHeader, #wsHourlyWrap, #wsTrendHeader, #wsTrendWrap').hide();
+    return;
+  }
+
   var params = $.extend(getDateParams(), {
     status:    $('#wsType').val(),
     customer:  $('#wsCustomer').val() || '',
@@ -58,6 +75,8 @@ function loadWholesales() {
 
     var s      = obj.summary;
     var wsType = $('#wsType').val();
+    // Switched to Repacking while this was loading
+    if (wsType === 'REPACKING') return;
 
     /* --- stat cards visibility --- */
     if (wsType === 'DISPATCH' || wsType === 'STOCK-BAL') {
@@ -259,6 +278,85 @@ function loadWholesales() {
       $('#wsHourlyDispWrap').hide();
     }
   });
+}
+
+/* ── Repacking ──────────────────────────────────────────── */
+function loadRepackingSummary(wsType) {
+  // Repacking cards show on All and Repacking; the breakdown only on Repacking
+  if (wsType !== '' && wsType !== 'REPACKING') {
+    $('#wsRepackCard, #wsRepackTypeCard, #wsRepackHeader, #wsRepackRow').hide();
+    return;
+  }
+
+  var params = $.extend(getDateParams(), {
+    action:   'dashboard',
+    category: $('#wsCategory').val() || ''
+  });
+
+  $.post('php/modules/repacking/api.php', params, function (obj) {
+    if (obj.status !== 'success' || $('#wsType').val() !== wsType) return;
+
+    var s = obj.message.summary;
+    $('#wsRepackWeight').text(formatNum(s.total_weight));
+    $('#wsRepackCount').text(s.record_count || 0);
+    $('#wsRepackLocal').text(formatNum(s.local_weight));
+    $('#wsRepackExport').text(formatNum(s.export_weight));
+    $('#wsRepackCard, #wsRepackTypeCard').show();
+
+    if (wsType === 'REPACKING') {
+      renderRepackBreakdown(obj.message.breakdown || []);
+      $('#wsRepackHeader, #wsRepackRow').show();
+    } else {
+      $('#wsRepackHeader, #wsRepackRow').hide();
+    }
+  });
+}
+
+function renderRepackBreakdown(items) {
+  if (items.length === 0) {
+    $('#wsRepackBreakdown').html('<p class="text-muted">No data.</p>');
+    return;
+  }
+
+  var grandTotal = items.reduce(function (sum, i) { return sum + (parseFloat(i.total_weight) || 0); }, 0);
+  var html = '';
+
+  items.forEach(function (item, idx) {
+    var pct = grandTotal > 0 ? (parseFloat(item.total_weight) / grandTotal * 100).toFixed(1) : 0;
+
+    html += '<div class="card mb-2 shadow-sm">' +
+      '<div class="card-header py-2 px-3 ws-repack-row" data-idx="' + idx + '" style="cursor:pointer;background:#f4f6f9;">' +
+        '<div class="d-flex justify-content-between align-items-center">' +
+          '<div><i class="fas fa-chevron-right ws-repack-chevron mr-2" style="font-size:11px;color:#6c757d;"></i><strong>' + escapeRepackText(item.name) + '</strong></div>' +
+          '<div class="text-right">' +
+            '<span class="badge badge-secondary mr-2">' + pct + '%</span>' +
+            '<span class="font-weight-bold">' + formatNum(item.total_weight) + ' kg</span>' +
+            '<span class="text-muted ml-2" style="font-size:12px;">(' + item.record_count + ' records)</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mt-1"><div style="background:#dee2e6;border-radius:4px;height:6px;">' +
+          '<div style="width:' + pct + '%;background:#6f42c1;border-radius:4px;height:6px;"></div>' +
+        '</div></div>' +
+      '</div>' +
+      '<div id="wsRepackTargets' + idx + '" style="display:none;">' +
+        '<div class="card-body py-2 px-3">';
+
+    (item.targets || []).forEach(function (target) {
+      var tPct = item.total_weight > 0 ? (parseFloat(target.total_weight) / item.total_weight * 100).toFixed(1) : 0;
+      html += '<div class="d-flex justify-content-between align-items-center py-1 border-bottom">' +
+        '<span class="text-muted" style="font-size:13px;"><i class="fas fa-long-arrow-alt-right mr-1"></i>' + escapeRepackText(target.name) + '</span>' +
+        '<span style="font-size:13px;">' + formatNum(target.total_weight) + ' kg <span class="text-muted">(' + tPct + '%)</span></span>' +
+      '</div>';
+    });
+
+    html += '</div></div></div>';
+  });
+
+  $('#wsRepackBreakdown').html(html);
+}
+
+function escapeRepackText(text) {
+  return $('<div>').text(text || '').html();
 }
 
 /* ── Pager ──────────────────────────────────────────────── */
