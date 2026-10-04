@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -12,13 +12,6 @@ else{
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
-
-  if ($role != 'SADMIN'){
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = 0 AND customer = '".$company."' ORDER BY driver_name ASC");
-  }
-  else{
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = 0 ORDER BY driver_name ASC");
-  }
 
   // Language
   $language = $_SESSION['language'];
@@ -38,33 +31,29 @@ else{
         <div class="card results-card show-dt-controls">
           <div class="card-header">
             <div class="results-header-left">
-              <h3 class="results-title"><i class="fas fa-truck mr-2"></i><?=$languageArray['vehicles_code'][$language]?></h3>
+              <h3 class="results-title"><i class="fas fa-industry mr-2"></i><?=$languageArray['production_lines_code'][$language]?></h3>
             </div>
             <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
-              <a href="template/Vehicle_Template.xlsx" download class="btn btn-action btn-action-warning">
+              <a href="template/Production_Line_Template.xlsx" download class="btn btn-action btn-action-warning">
                 <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
               </a>
               <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
                 <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
               </button>
               <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
-                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_vehicle_code'][$language]?>
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_production_line_code'][$language]?>
               </button>
-              <button type="button" class="btn btn-action btn-action-primary" id="addVehicle">
-                <i class="fas fa-plus"></i> <?=$languageArray['add_vehicle_code'][$language]?>
+              <button type="button" class="btn btn-action btn-action-primary" id="addProductionLine">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_production_line_code'][$language]?>
               </button>
             </div>
           </div>
           <div class="card-body">
-            <table id="vehicleTable" class="table data-table">
+            <table id="productionLineTable" class="table data-table">
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['vehicle_number_code'][$language]?></th>
-                  <th><?=$languageArray['vehicle_weight_code'][$language]?> (Kg)</th>
-                  <th><?=$languageArray['driver_code'][$language]?></th>
-                  <!-- <th>Attendence 1</th>
-                  <th>Attendence 2</th> -->
+                  <th><?=$languageArray['production_lines_code'][$language]?></th>
                   <th><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -95,7 +84,7 @@ else{
           </div>
           <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadVehicle"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadShipmentType"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -131,9 +120,9 @@ else{
 <div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="vehicleForm">
+        <form role="form" id="productionLineForm">
             <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_vehicle_code'][$language]?></h4>
+              <h4 class="modal-title"><?=$languageArray['add_production_line_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -151,41 +140,15 @@ else{
                 </div>
               </div>
               <div class="modal-section">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="form-label-modern"><?=$languageArray['vehicle_number_code'][$language]?> <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="vehicleNumber" id="vehicleNumber" placeholder="<?=$languageArray['enter_vehicle_number_code'][$language]?>" required>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="form-label-modern"><?=$languageArray['vehicle_weight_code'][$language]?> (Kg)</label>
-                      <input type="text" class="form-control" name="vehicleWeight" id="vehicleWeight" placeholder="<?=$languageArray['enter_vehicle_weight_code'][$language]?>">
-                    </div>
-                  </div>
-                </div>
                 <div class="form-group mb-0">
-                  <label class="form-label-modern"><?=$languageArray['driver_code'][$language]?></label>
-                  <select class="form-control select2" style="width: 100%;" id="driver" name="driver">
-                    <?php while($rowDriver=mysqli_fetch_assoc($drivers)){ ?>
-                      <option value="<?=$rowDriver['id'] ?>"><?=$rowDriver['driver_name'] ?></option>
-                    <?php } ?>
-                  </select>
+                  <label class="form-label-modern"><?=$languageArray['production_lines_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="productionLine" id="productionLine" placeholder="<?=$languageArray['enter_production_line_code'][$language]?>" required>
                 </div>
-                <!-- <div class="form-group">
-                  <label for="name">Attendence 1</label>
-                  <input type="text" class="form-control" name="attendence1" id="attendence1" placeholder="Enter Attendence 1">
-                </div>
-                <div class="form-group">
-                  <label for="name">Attendence 2</label>
-                  <input type="text" class="form-control" name="attendence2" id="attendence2" placeholder="Enter Attendence 2">
-                </div> -->
               </div>
             </div>
             <div class="modal-footer justify-content-between">
               <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -199,7 +162,7 @@ else{
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#vehicleTable tbody input[type="checkbox"]');
+    var checkboxes = $('#productionLineTable tbody input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
@@ -212,7 +175,7 @@ $(function () {
     });
   });
 
-  $("#vehicleTable").DataTable({
+  $("#productionLineTable").DataTable({
     "responsive": true,
     "autoWidth": false,
     'processing': true,
@@ -223,7 +186,7 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/vehicles/api.php',
+      'url':'php/modules/productionLines/api.php',
       'data': { action: 'list' }
     },
     'columns': [
@@ -236,11 +199,7 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
-      { data: 'veh_number' },
-      { data: 'vehicle_weight' },
-      { data: 'driver_name' },
-      // { data: 'attandence_1' },
-      // { data: 'attandence_2' },
+      { data: 'production_line' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
@@ -263,12 +222,12 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/vehicles/api.php', $('#vehicleForm').serialize() + '&action=save', function(obj){
+          $.post('php/modules/productionLines/api.php', $('#productionLineForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
-                $('#vehicleTable').DataTable().ajax.reload();
+                $('#productionLineTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -283,16 +242,12 @@ $(function () {
       }
   });
 
-  $('#addVehicle').on('click', function(){
+  $('#addProductionLine').on('click', function(){
     $('#addModal').find('#id').val("");
-    $('#addModal').find('#vehicleNumber').val("");
-    $('#addModal').find('#vehicleWeight').val("");
-    $('#addModal').find('#driver').val("").trigger('change');
-    $('#addModal').find('#attendance1').val("");
-    $('#addModal').find('#attendance2').val("");
+    $('#addModal').find('#productionLine').val("");
     $('#addModal').modal('show');
     
-    $('#vehicleForm').validate({
+    $('#productionLineForm').validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
             error.addClass('invalid-feedback');
@@ -307,7 +262,7 @@ $(function () {
     });
   });
 
-   $('#uploadExcel').on('click', function(){
+  $('#uploadExcel').on('click', function(){
     $('#uploadModal').modal('show');
 
     $('#uploadForm').validate({
@@ -339,7 +294,7 @@ $(function () {
     reader.readAsBinaryString(file);
   });
 
-  $('#uploadVehicle').on('click', function(){
+  $('#uploadShipmentType').on('click', function(){
     $('#spinnerLoading').show();
     var formData = $('#uploadForm').serializeArray();
     var data = [];
@@ -359,7 +314,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/vehicles/api.php?action=upload',
+        url: 'php/modules/productionLines/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -367,7 +322,7 @@ $(function () {
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
-              $('#vehicleTable').DataTable().ajax.reload();
+              $('#productionLineTable').DataTable().ajax.reload();
             } 
             else if (obj.status === 'failed') {
               $('#spinnerLoading').hide();
@@ -393,7 +348,7 @@ $(function () {
     $('#spinnerLoading').show();
     var selectedIds = []; // An array to store the selected 'id' values
 
-    $("#vehicleTable tbody input[type='checkbox']").each(function () {
+    $("#productionLineTable tbody input[type='checkbox']").each(function () {
       if (this.checked) {
           selectedIds.push($(this).val());
       }
@@ -401,10 +356,10 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/vehicles/api.php', {action: 'delete', ids: selectedIds}, function(obj){
+          $.post('php/modules/productionLines/api.php', {action: 'delete', ids: selectedIds}, function(obj){
               
               if(obj.status === 'success'){
-                $('#vehicleTable').DataTable().ajax.reload();
+                $('#productionLineTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -420,7 +375,7 @@ $(function () {
     } 
     else {
         // Optionally, you can display a message or take another action if no IDs are selected
-        alert("Please select at least one vehicle to delete.");
+        alert("Please select at least one shipment type to delete.");
         $('#spinnerLoading').hide();
     }     
   });
@@ -440,14 +395,14 @@ function displayPreview(data) {
     // Get the headers from first row
     var headers = jsonData[0] || [];
 
-    // Ensure we handle cases where there may be less than 3 columns
-    while (headers.length < 3) {
-        headers.push(''); // Adding empty headers to reach 3 columns
+    // Ensure we handle cases where there may be less than 1 columns
+    while (headers.length < 1) {
+        headers.push(''); // Adding empty headers to reach 1 columns
     }
 
     // Create HTML table headers
     var htmlTable = '<table style="width:50%;"><thead><tr>';
-    for (var h = 0; h < 3; h++) {
+    for (var h = 0; h < 1; h++) {
         htmlTable += '<th>' + (headers[h] || '') + '</th>';
     }
     htmlTable += '</tr></thead><tbody>';
@@ -457,7 +412,7 @@ function displayPreview(data) {
         htmlTable += '<tr>';
         var rowData = jsonData[i] || [];
 
-        for (var j = 0; j < 3; j++) {
+        for (var j = 0; j < 1; j++) {
             var cellData = rowData[j];
             var formattedData = cellData;
 
@@ -479,19 +434,15 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/vehicles/api.php', {action: 'get', id: id}, function(obj){
+  $.post('php/modules/productionLines/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
           $('#addModal').find('#id').val(obj.message.id);
-          $('#addModal').find('#vehicleNumber').val(obj.message.veh_number);
-          $('#addModal').find('#vehicleWeight').val(obj.message.vehicle_weight);
-          $('#addModal').find('#driver').val(obj.message.driver).trigger('change');
-          $('#addModal').find('#attendance1').val(obj.message.attandence_1);
-          $('#addModal').find('#attendance2').val(obj.message.attandence_2);
-          $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+          $('#addModal').find('#productionLine').val(obj.message.production_line);
+          $('#addModal').find('#company').val(obj.message.customers);
           $('#addModal').modal('show');
           
-          $('#vehicleForm').validate({
+          $('#productionLineForm').validate({
               errorElement: 'span',
               errorPlacement: function (error, element) {
                   error.addClass('invalid-feedback');
@@ -518,11 +469,11 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/vehicles/api.php', {action: 'delete', ids: [id]}, function(obj){
+    $.post('php/modules/productionLines/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#vehicleTable').DataTable().ajax.reload();
+            $('#productionLineTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){
@@ -540,11 +491,11 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/vehicles/api.php', {action: 'reactivate', id: id}, function(obj){
+    $.post('php/modules/productionLines/api.php', {action: 'reactivate', id: id}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#vehicleTable').DataTable().ajax.reload();
+            $('#productionLineTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){

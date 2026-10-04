@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -31,30 +31,29 @@ else{
         <div class="card results-card show-dt-controls">
           <div class="card-header">
             <div class="results-header-left">
-              <h3 class="results-title"><i class="fas fa-id-card mr-2"></i><?=$languageArray['drivers_code'][$language]?></h3>
+              <h3 class="results-title"><i class="fas fa-star mr-2"></i><?=$languageArray['grades_code'][$language]?></h3>
             </div>
             <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
-              <a href="template/Driver_Template.xlsx" download class="btn btn-action btn-action-warning">
+              <a href="template/Grade_Template.xlsx" download class="btn btn-action btn-action-warning">
                 <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
               </a>
               <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
                 <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
               </button>
               <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
-                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_driver_code'][$language]?>
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_grade_code'][$language]?>
               </button>
-              <button type="button" class="btn btn-action btn-action-primary" id="addDriver">
-                <i class="fas fa-plus"></i> <?=$languageArray['add_driver_code'][$language]?>
+              <button type="button" class="btn btn-action btn-action-primary" id="addGrade">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_grade_code'][$language]?>
               </button>
             </div>
           </div>
           <div class="card-body">
-            <table id="driverTable" class="table data-table">
+            <table id="gradeTable" class="table data-table">
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['driver_name_code'][$language]?></th>
-                  <th><?=$languageArray['driver_ic_code'][$language]?></th>
+                  <th><?=$languageArray['unit_code'][$language]?></th>
                   <th><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -85,7 +84,7 @@ else{
           </div>
           <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadDriver"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadGrade"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -121,9 +120,9 @@ else{
 <div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="driverForm">
+        <form role="form" id="gradeForm">
             <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_driver_code'][$language]?></h4>
+              <h4 class="modal-title"><?=$languageArray['add_grade_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -141,19 +140,9 @@ else{
                 </div>
               </div>
               <div class="modal-section">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['driver_name_code'][$language]?> <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="driverName" id="driverName" placeholder="<?=$languageArray['enter_driver_name_code'][$language]?>" required>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['driver_ic_code'][$language]?> <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="driverIC" id="driverIC" placeholder="<?=$languageArray['enter_driver_ic_code'][$language]?>" required>
-                    </div>
-                  </div>
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['unit_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="unit" id="unit" placeholder="<?=$languageArray['enter_unit_code'][$language]?>" required>
                 </div>
               </div>
             </div>
@@ -173,7 +162,7 @@ else{
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#driverTable tbody input[type="checkbox"]');
+    var checkboxes = $('#gradeTable tbody input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
@@ -186,7 +175,7 @@ $(function () {
     });
   });
 
-  $("#driverTable").DataTable({
+  $("#gradeTable").DataTable({
     "responsive": true,
     "autoWidth": false,
     'processing': true,
@@ -197,7 +186,7 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/drivers/api.php',
+      'url':'php/modules/grades/api.php',
       'data': { action: 'list' }
     },
     'columns': [
@@ -210,8 +199,7 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
-      { data: 'driver_name' },
-      { data: 'driver_ic' },
+      { data: 'units' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
@@ -228,18 +216,18 @@ $(function () {
       if (data.is_manual == 'Y') {
         $(row).css('background-color', '#f8d7da');
       }
-    },    
+    },  
   });
-
+  
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/drivers/api.php', $('#driverForm').serialize() + '&action=save', function(obj){
+          $.post('php/modules/grades/api.php', $('#gradeForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
-                $('#driverTable').DataTable().ajax.reload();
+                $('#gradeTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -254,13 +242,12 @@ $(function () {
       }
   });
 
-  $('#addDriver').on('click', function(){
+  $('#addGrade').on('click', function(){
     $('#addModal').find('#id').val("");
-    $('#addModal').find('#driverName').val("");
-    $('#addModal').find('#driverIC').val("");
+    $('#addModal').find('#unit').val("");
     $('#addModal').modal('show');
     
-    $('#driverForm').validate({
+    $('#gradeForm').validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
             error.addClass('invalid-feedback');
@@ -307,43 +294,7 @@ $(function () {
     reader.readAsBinaryString(file);
   });
 
-  $('#multiDeactivate').on('click', function () {
-    $('#spinnerLoading').show();
-    var selectedIds = []; // An array to store the selected 'id' values
-
-    $("#driverTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0) {
-      if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/drivers/api.php', {action: 'delete', ids: selectedIds}, function(obj){
-              
-              if(obj.status === 'success'){
-                $('#driverTable').DataTable().ajax.reload();
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                $('#spinnerLoading').hide();
-              }
-              else{
-                $('#spinnerLoading').hide();
-              }
-          });
-      }
-
-      $('#spinnerLoading').hide();
-    } 
-    else {
-        // Optionally, you can display a message or take another action if no IDs are selected
-        alert("Please select at least one driver to delete.");
-        $('#spinnerLoading').hide();
-    }     
-  });
-
-  $('#uploadDriver').on('click', function(){
+  $('#uploadGrade').on('click', function(){
     $('#spinnerLoading').show();
     var formData = $('#uploadForm').serializeArray();
     var data = [];
@@ -363,7 +314,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/drivers/api.php?action=upload',
+        url: 'php/modules/grades/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -371,7 +322,7 @@ $(function () {
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
-              $('#driverTable').DataTable().ajax.reload();
+              $('#gradeTable').DataTable().ajax.reload();
             } 
             else if (obj.status === 'failed') {
               $('#spinnerLoading').hide();
@@ -391,7 +342,42 @@ $(function () {
             }
         }
     });
+  });
 
+  $('#multiDeactivate').on('click', function () {
+    $('#spinnerLoading').show();
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#gradeTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0) {
+      if (confirm('Are you sure you want to cancel these items?')) {
+          $.post('php/modules/grades/api.php', {action: 'delete', ids: selectedIds}, function(obj){
+              
+              if(obj.status === 'success'){
+                $('#gradeTable').DataTable().ajax.reload();
+                $('#spinnerLoading').hide();
+              }
+              else if(obj.status === 'failed'){
+                $('#spinnerLoading').hide();
+              }
+              else{
+                $('#spinnerLoading').hide();
+              }
+          });
+      }
+
+      $('#spinnerLoading').hide();
+    } 
+    else {
+        // Optionally, you can display a message or take another action if no IDs are selected
+        alert("Please select at least one grade to delete.");
+        $('#spinnerLoading').hide();
+    }     
   });
 });
 
@@ -404,14 +390,14 @@ function displayPreview(data) {
   var sheet = workbook.Sheets[sheetName];
 
   // Convert the sheet to an array of objects
-  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 2 });
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
   // Get the headers
-  var headers = Object.keys(jsonData[0] || {});
+  var headers = jsonData[0];
 
-  // Ensure we handle cases where there may be less than 2 columns
-  while (headers.length < 2) {
-      headers.push(''); // Adding empty headers to reach 2 columns
+  // Ensure we handle cases where there may be less than 1 columns
+  while (headers.length < 1) {
+      headers.push(''); // Adding empty headers to reach 1 columns
   }
 
   // Create HTML table headers
@@ -422,12 +408,17 @@ function displayPreview(data) {
   htmlTable += '</tr></thead><tbody>';
 
   // Iterate over the data and create table rows
-  for (var i = 0; i < jsonData.length; i++) {
+  for (var i = 1; i < jsonData.length; i++) {
       htmlTable += '<tr>';
       var rowData = jsonData[i];
 
-      for (var j = 0; j < 2 && j < headers.length; j++) {
-          var cellData = rowData[headers[j]];
+      // Ensure we handle cases where there may be less than 1 cells in a row
+      while (rowData.length < 1) {
+          rowData.push(''); // Adding empty cells to reach 1 columns
+      }
+
+      for (var j = 0; j < 1; j++) {
+          var cellData = rowData[j];
           var formattedData = cellData;
 
           // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
@@ -435,7 +426,7 @@ function displayPreview(data) {
               var excelDate = XLSX.SSF.parse_date_code(cellData);
           }
 
-          htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
+          htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+(i-1)+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+(i-1)+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
       }
       htmlTable += '</tr>';
   }
@@ -448,27 +439,26 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/drivers/api.php', {action: 'get', id: id}, function(obj){
+  $.post('php/modules/grades/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
           $('#addModal').find('#id').val(obj.message.id);
-          $('#addModal').find('#driverName').val(obj.message.driver_name);
-          $('#addModal').find('#driverIC').val(obj.message.driver_ic);
+          $('#addModal').find('#unit').val(obj.message.units);
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').modal('show');
           
-          $('#driverForm').validate({
-            errorElement: 'span',
-            errorPlacement: function (error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.form-group').append(error);
-            },
-            highlight: function (element, errorClass, validClass) {
-                $(element).addClass('is-invalid');
-            },
-            unhighlight: function (element, errorClass, validClass) {
-                $(element).removeClass('is-invalid');
-            }
+          $('#gradeForm').validate({
+              errorElement: 'span',
+              errorPlacement: function (error, element) {
+                  error.addClass('invalid-feedback');
+                  element.closest('.form-group').append(error);
+              },
+              highlight: function (element, errorClass, validClass) {
+                  $(element).addClass('is-invalid');
+              },
+              unhighlight: function (element, errorClass, validClass) {
+                  $(element).removeClass('is-invalid');
+              }
           });
       }
       else if(obj.status === 'failed'){
@@ -484,11 +474,11 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/drivers/api.php', {action: 'delete', ids: [id]}, function(obj){
+    $.post('php/modules/grades/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#driverTable').DataTable().ajax.reload();
+            $('#gradeTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){
@@ -506,11 +496,11 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/drivers/api.php', {action: 'reactivate', id: id}, function(obj){
+    $.post('php/modules/grades/api.php', {action: 'reactivate', id: id}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#driverTable').DataTable().ajax.reload();
+            $('#gradeTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){

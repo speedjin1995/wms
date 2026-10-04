@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -11,6 +11,7 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
+  $module = $_SESSION['module'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
 
   // Language
@@ -20,50 +21,52 @@ else{
 ?>
 
 <div class="content-header" style="padding-bottom: 0;">
-  <div class="container-fluid"></div>
+  <div class="container-fluid">
+    <!-- Breadcrumb or minimal header can go here if needed -->
+  </div>
 </div>
 
 <!-- Main content -->
-<section class="content page-modern">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12">
-        <div class="card results-card show-dt-controls">
-          <div class="card-header">
-            <div class="results-header-left">
-              <h3 class="results-title"><i class="fas fa-shipping-fast mr-2"></i><?=$languageArray['shipment_types_code'][$language]?></h3>
-            </div>
-            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
-              <a href="template/Shipment_Type_Template.xlsx" download class="btn btn-action btn-action-warning">
-                <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
-              </a>
-              <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
-                <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
-              </button>
-              <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
-                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_shipment_type_code'][$language]?>
-              </button>
-              <button type="button" class="btn btn-action btn-action-primary" id="addShipmentType">
-                <i class="fas fa-plus"></i> <?=$languageArray['add_shipment_type_code'][$language]?>
-              </button>
-            </div>
+<div class="content page-modern">
+	<div class="container-fluid">
+        <div class="row">
+			<div class="col-12">
+				<div class="card results-card show-dt-controls">
+					<div class="card-header">
+              <div class="results-header-left">
+                <h3 class="results-title"><i class="fas fa-tags mr-2"></i><?=$languageArray['category_code'][$language]?></h3>
+              </div>
+              <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+                <a href="template/Category_Template.xlsx" download class="btn btn-action btn-action-warning">
+                  <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
+                </a>
+                <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
+                  <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
+                </button>
+                <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
+                  <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_category_code'][$language]?>
+                </button>
+                <button type="button" class="btn btn-action btn-action-primary" id="addCategory">
+                  <i class="fas fa-plus"></i> <?=$languageArray['add_category_code'][$language]?>
+                </button>
+              </div>
           </div>
-          <div class="card-body">
-            <table id="shipmentTypeTable" class="table data-table">
-              <thead>
-                <tr>
+					<div class="card-body">
+						<table id="categoryTable" class="table data-table">
+							<thead>
+								<tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['shipment_types_code'][$language]?></th>
-                  <th><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-            </table>
-          </div><!-- /.card-body -->
-        </div><!-- /.card -->
-      </div><!-- /.col -->
-    </div><!-- /.row -->
-  </div><!-- /.container-fluid -->
-</section><!-- /.content -->
+                  <th><?=$languageArray['category_name_code'][$language]?></th>
+									<th><?=$languageArray['actions_code'][$language]?></th>
+								</tr>
+							</thead>
+						</table>
+					</div><!-- /.card-body -->
+				</div><!-- /.card -->
+			</div><!-- /.col -->
+		</div><!-- /.row -->
+	</div><!-- /.container-fluid -->
+</div><!-- /.content -->
 
 <div class="modal fade modal-modern" id="uploadModal">
   <div class="modal-dialog modal-xl">
@@ -84,7 +87,7 @@ else{
           </div>
           <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadShipmentType"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadCategory"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -93,7 +96,7 @@ else{
   <!-- /.modal-dialog -->
 </div>
 
-<div class="modal fade modal-modern" id="errorModal" style="display:none">
+<div class="modal fade modal-modern" id="errorModal">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <form role="form" id="uploadForm">
@@ -120,15 +123,16 @@ else{
 <div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="shipmentTypeForm">
+        <form role="form" id="categoryForm">
             <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_shipment_type_code'][$language]?></h4>
+              <h4 class="modal-title"><?=$languageArray['add_category_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
               <input type="hidden" class="form-control" id="id" name="id">
+              <input type="hidden" class="form-control" id="module" name="module" value="<?= $module ?>">
               <div class="modal-section" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
                 <div class="form-group mb-0">
                   <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
@@ -141,14 +145,14 @@ else{
               </div>
               <div class="modal-section">
                 <div class="form-group mb-0">
-                  <label class="form-label-modern"><?=$languageArray['shipment_types_code'][$language]?> <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="shipmentType" id="shipmentType" placeholder="<?=$languageArray['enter_shipment_type_code'][$language]?>" required>
+                  <label class="form-label-modern"><?=$languageArray['category_name_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="categoryName" id="categoryName" placeholder="<?=$languageArray['enter_category_name_code'][$language]?>" required>
                 </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
               <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
+              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -162,7 +166,7 @@ else{
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#shipmentTypeTable tbody input[type="checkbox"]');
+    var checkboxes = $('#categoryTable tbody input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
@@ -175,7 +179,7 @@ $(function () {
     });
   });
 
-  $("#shipmentTypeTable").DataTable({
+  $("#categoryTable").DataTable({
     "responsive": true,
     "autoWidth": false,
     'processing': true,
@@ -186,7 +190,7 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/shipmentTypes/api.php',
+      'url':'php/modules/categories/api.php',
       'data': { action: 'list' }
     },
     'columns': [
@@ -199,16 +203,11 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
-      { data: 'shipment_type' },
+      { data: 'category_name' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
-          if (data == 0) {
-            return '<div class="d-flex" style="gap:4px;"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
-          } 
-          else{
-            return '<button type="button" id="reactivate' + row.id + '" onclick="reactivate(' + row.id + ')" class="btn btn-sm btn-outline-warning">Reactivate</button>';
-          }
+          return '<div class="d-flex" style="gap:4px;"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
         }
       }
     ],
@@ -222,12 +221,12 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/shipmentTypes/api.php', $('#shipmentTypeForm').serialize() + '&action=save', function(obj){
+          $.post('php/modules/categories/api.php', $('#categoryForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
-                $('#shipmentTypeTable').DataTable().ajax.reload();
+                $('#categoryTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -242,12 +241,12 @@ $(function () {
       }
   });
 
-  $('#addShipmentType').on('click', function(){
+  $('#addCategory').on('click', function(){
     $('#addModal').find('#id').val("");
-    $('#addModal').find('#shipmentType').val("");
+    $('#addModal').find('#categoryName').val("");
     $('#addModal').modal('show');
     
-    $('#shipmentTypeForm').validate({
+    $('#categoryForm').validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
             error.addClass('invalid-feedback');
@@ -262,7 +261,7 @@ $(function () {
     });
   });
 
-  $('#uploadExcel').on('click', function(){
+   $('#uploadExcel').on('click', function(){
     $('#uploadModal').modal('show');
 
     $('#uploadForm').validate({
@@ -294,7 +293,7 @@ $(function () {
     reader.readAsBinaryString(file);
   });
 
-  $('#uploadShipmentType').on('click', function(){
+  $('#uploadCategory').on('click', function(){
     $('#spinnerLoading').show();
     var formData = $('#uploadForm').serializeArray();
     var data = [];
@@ -314,15 +313,15 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/shipmentTypes/api.php?action=upload',
+        url: 'php/modules/categories/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(obj){
+        success: function(obj) {
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
-              $('#shipmentTypeTable').DataTable().ajax.reload();
+              $('#categoryTable').DataTable().ajax.reload();
             } 
             else if (obj.status === 'failed') {
               $('#spinnerLoading').hide();
@@ -348,7 +347,7 @@ $(function () {
     $('#spinnerLoading').show();
     var selectedIds = []; // An array to store the selected 'id' values
 
-    $("#shipmentTypeTable tbody input[type='checkbox']").each(function () {
+    $("#categoryTable tbody input[type='checkbox']").each(function () {
       if (this.checked) {
           selectedIds.push($(this).val());
       }
@@ -356,10 +355,10 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/shipmentTypes/api.php', {action: 'delete', ids: selectedIds}, function(obj){
+          $.post('php/modules/categories/api.php', {action: 'delete', ids: selectedIds}, function(obj){
               
               if(obj.status === 'success'){
-                $('#shipmentTypeTable').DataTable().ajax.reload();
+                $('#categoryTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -375,7 +374,7 @@ $(function () {
     } 
     else {
         // Optionally, you can display a message or take another action if no IDs are selected
-        alert("Please select at least one shipment type to delete.");
+        alert("Please select at least one category to delete.");
         $('#spinnerLoading').hide();
     }     
   });
@@ -434,33 +433,33 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/shipmentTypes/api.php', {action: 'get', id: id}, function(obj){
+  $.post('php/modules/categories/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
-          $('#addModal').find('#id').val(obj.message.id);
-          $('#addModal').find('#shipmentType').val(obj.message.shipment_type);
-          $('#addModal').find('#company').val(obj.message.customer);
-          $('#addModal').modal('show');
-          
-          $('#shipmentTypeForm').validate({
-              errorElement: 'span',
-              errorPlacement: function (error, element) {
-                  error.addClass('invalid-feedback');
-                  element.closest('.form-group').append(error);
-              },
-              highlight: function (element, errorClass, validClass) {
-                  $(element).addClass('is-invalid');
-              },
-              unhighlight: function (element, errorClass, validClass) {
-                  $(element).removeClass('is-invalid');
-              }
-          });
+        $('#addModal').find('#id').val(obj.message.id);
+        $('#addModal').find('#categoryName').val(obj.message.category_name);
+        $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+        $('#addModal').modal('show');
+        
+        $('#categoryForm').validate({
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
       }
       else if(obj.status === 'failed'){
-          toastr["error"](obj.message, "Failed:");
+        toastr["error"](obj.message, "Failed:");
       }
       else{
-          toastr["error"]("Something wrong when activate", "Failed:");
+        toastr["error"]("Something wrong when activate", "Failed:");
       }
       $('#spinnerLoading').hide();
   });
@@ -469,33 +468,11 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/shipmentTypes/api.php', {action: 'delete', ids: [id]}, function(obj){
+    $.post('php/modules/categories/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#shipmentTypeTable').DataTable().ajax.reload();
-            $('#spinnerLoading').hide();
-        }
-        else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-            $('#spinnerLoading').hide();
-        }
-        else{
-            toastr["error"]("Something wrong when activate", "Failed:");
-            $('#spinnerLoading').hide();
-        }
-    });
-  }
-}
-
-function reactivate(id){
-  if (confirm('Are you sure you want to reactivate this items?')) {
-    $('#spinnerLoading').show();
-    $.post('php/modules/shipmentTypes/api.php', {action: 'reactivate', id: id}, function(obj){
-        
-        if(obj.status === 'success'){
-            toastr["success"](obj.message, "Success:");
-            $('#shipmentTypeTable').DataTable().ajax.reload();
+            $('#categoryTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){

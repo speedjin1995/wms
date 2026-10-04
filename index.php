@@ -710,85 +710,85 @@ to get the desired effect
                 </a>
                 <ul class="nav nav-treeview" style="display: none;">
                   <li class="nav-item">
-                    <a href="#translations" data-file="translations.php" class="nav-link link">
+                    <a href="#translations" data-file="modules/translations/translations.php" class="nav-link link">
                       <i class="nav-icon fas fa-language"></i>
                       <p>'.$languageArray['translations_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#states" data-file="states.php" class="nav-link link">
+                    <a href="#states" data-file="modules/states/states.php" class="nav-link link">
                       <i class="nav-icon fas fa-map-marker-alt"></i>
                       <p>'.$languageArray['states_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#currencies" data-file="currencies.php" class="nav-link link">
+                    <a href="#currencies" data-file="modules/currencies/currencies.php" class="nav-link link">
                       <i class="nav-icon fas fa-dollar-sign"></i>
                       <p>'.$languageArray['currency_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#units" data-file="units.php" class="nav-link link">
+                    <a href="#units" data-file="modules/units/units.php" class="nav-link link">
                       <i class="nav-icon fas fa-balance-scale"></i>
                       <p>'.$languageArray['units_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#categories" data-file="categories.php" class="nav-link link">
+                    <a href="#categories" data-file="modules/categories/categories.php" class="nav-link link">
                       <i class="nav-icon fas fa-tags"></i>
                       <p>'.$languageArray['category_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#packaging" data-file="packaging.php" class="nav-link link">
+                    <a href="#packaging" data-file="modules/packaging/packaging.php" class="nav-link link">
                       <i class="nav-icon fas fa-box"></i>
                       <p>'.$languageArray['packaging_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#customer" data-file="customers.php" class="nav-link link">
+                    <a href="#customer" data-file="modules/customers/customers.php" class="nav-link link">
                       <i class="nav-icon fas fa-users"></i>
                       <p>'.$languageArray['customer_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#supplier" data-file="suppliers.php" class="nav-link link">
+                    <a href="#supplier" data-file="modules/suppliers/suppliers.php" class="nav-link link">
                       <i class="nav-icon fas fa-file-alt"></i>
                       <p>'.$languageArray['supplier_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#products" data-file="products.php" class="nav-link link">
+                    <a href="#products" data-file="modules/products/products.php" class="nav-link link">
                       <i class="nav-icon fas fa-shopping-cart"></i>
                       <p>'.$languageArray['products_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#drivers" data-file="drivers.php" class="nav-link link">
+                    <a href="#drivers" data-file="modules/drivers/drivers.php" class="nav-link link">
                       <i class="nav-icon fas fa-id-card"></i>
                       <p>'.$languageArray['drivers_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#vehicles" data-file="vehicles.php" class="nav-link link">
+                    <a href="#vehicles" data-file="modules/vehicles/vehicles.php" class="nav-link link">
                       <i class="nav-icon fas fa-truck"></i>
                       <p>'.$languageArray['vehicles_code'][$language].'</p>
                     </a>
                   </li>
                   <!--li class="nav-item">
-                    <a href="#transporters" data-file="transporters.php" class="nav-link link">
+                    <a href="#transporters" data-file="modules/transporters/transporters.php" class="nav-link link">
                       <i class="nav-icon fas fa-shipping-fast"></i>
                       <p>'.$languageArray['transporters_code'][$language].'</p>
                     </a>
                   </li-->
                   <li class="nav-item">
-                    <a href="#grades" data-file="grades.php" class="nav-link link">
+                    <a href="#grades" data-file="modules/grades/grades.php" class="nav-link link">
                       <i class="nav-icon fas fa-star"></i>
                       <p>'.$languageArray['grades_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#locations" data-file="locations.php" class="nav-link link">
+                    <a href="#locations" data-file="modules/locations/locations.php" class="nav-link link">
                       <i class="nav-icon fas fa-map-marker-alt"></i>
                       <p>'.$languageArray['locations_code'][$language].'</p>
                     </a>
@@ -797,13 +797,13 @@ to get the desired effect
                 if ($module == 'processing') {
                   echo '
                   <li class="nav-item">
-                    <a href="#shipmentTypes" data-file="shipmentTypes.php" class="nav-link link">
+                    <a href="#shipmentTypes" data-file="modules/shipmentTypes/shipmentTypes.php" class="nav-link link">
                       <i class="nav-icon fas fa-shipping-fast"></i>
                       <p>'.$languageArray['shipment_types_code'][$language].'</p>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#productionLines" data-file="productionLines.php" class="nav-link link">
+                    <a href="#productionLines" data-file="modules/productionLines/productionLines.php" class="nav-link link">
                       <i class="nav-icon fas fa-industry"></i>
                       <p>'.$languageArray['production_lines_code'][$language].'</p>
                     </a>
@@ -813,7 +813,7 @@ to get the desired effect
                 if (in_array('basket', $_SESSION['products'])){
                   echo '
                   <li class="nav-item">
-                    <a href="#binType" data-file="binType.php" class="nav-link link">
+                    <a href="#binType" data-file="modules/binType/binType.php" class="nav-link link">
                       <i class="nav-icon fas fa-dumpster"></i>
                       <p>'.$languageArray['bin_types_code'][$language].'</p>
                     </a>

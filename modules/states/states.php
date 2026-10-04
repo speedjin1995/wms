@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -19,85 +19,78 @@ else{
 }
 ?>
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0 text-dark"><?=$languageArray['bin_types_code'][$language]?></h1>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
 </div>
-<!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
-	<div class="container-fluid">
-        <div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-            <div class="row">
-                <div class="col-8"></div>
-                <div class="col-2">
-                  <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                    <?=$languageArray['delete_bin_types_code'][$language]?>
-                  </button>
-                </div>
-                <div class="col-2">
-                    <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addBinType"><?=$languageArray['add_bin_types_code'][$language]?></button>
-                </div>
+<section class="content page-modern">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card results-card show-dt-controls">
+          <div class="card-header">
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-map-marker-alt mr-2"></i><?=$languageArray['states_code'][$language]?></h3>
+            </div>
+            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+              <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_states_code'][$language]?>
+              </button>
+              <button type="button" class="btn btn-action btn-action-primary" id="addState">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_states_code'][$language]?>
+              </button>
             </div>
           </div>
-					<div class="card-body">
-						<table id="binTypeTable" class="table table-bordered table-striped">
-							<thead>
-								<tr>
+          <div class="card-body">
+            <table id="stateTable" class="table data-table">
+              <thead>
+                <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['bin_types_code'][$language]?></th>
-									<th><?=$languageArray['actions_code'][$language]?></th>
-								</tr>
-							</thead>
-						</table>
-					</div><!-- /.card-body -->
-				</div><!-- /.card -->
-			</div><!-- /.col -->
-		</div><!-- /.row -->
-	</div><!-- /.container-fluid -->
+                  <th><?=$languageArray['states_code'][$language]?></th>
+                  <th><?=$languageArray['actions_code'][$language]?></th>
+                </tr>
+              </thead>
+            </table>
+          </div><!-- /.card-body -->
+        </div><!-- /.card -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade" id="addModal">
+<div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="binTypeForm">
+        <form role="form" id="stateForm">
             <div class="modal-header">
-              <h4 class="modal-title" id="modalTitle"><?=$languageArray['add_bin_types_code'][$language]?></h4>
+              <h4 class="modal-title" id="modalTitle"><?=$languageArray['add_states_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              <div class="card-body">
-                <div class="form-group">
-                  <input type="hidden" class="form-control" id="id" name="id">
-                </div>
-                <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                  <label for="company"><?=$languageArray['company_code'][$language]?> *</label>
+              <input type="hidden" class="form-control" id="id" name="id">
+              <div class="modal-section" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label for="binType"><?=$languageArray['bin_types_code'][$language]?> *</label>
-                  <input type="text" class="form-control" name="binType" id="binType" placeholder="<?=$languageArray['enter_bin_type_code'][$language]?>" required>
+              </div>
+              <div class="modal-section">
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['states_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="state" id="state" placeholder="Enter state name" required>
                 </div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
+              <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -106,11 +99,12 @@ else{
     <!-- /.modal-dialog -->
 </div>
 
+<!-- jQuery -->
 <script>
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#binTypeTable tbody input[type="checkbox"]');
+    var checkboxes = $('#stateTable tbody input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
@@ -118,18 +112,23 @@ $(function () {
     $(this).select2({
         allowClear: true,
         placeholder: "Please Select",
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : undefined
     });
   });
 
-  $("#binTypeTable").DataTable({
+  $("#stateTable").DataTable({
     "responsive": true,
     "autoWidth": false,
     'processing': true,
     'serverSide': true,
     'serverMethod': 'post',
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     'ajax': {
-      'url':'php/modules/binType/loadBinType.php',
+      'url':'php/modules/states/api.php',
+      'data': { action: 'list' }
     },
     'columns': [
       {
@@ -140,11 +139,11 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
-      { data: 'bin_type' },
+      { data: 'states' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
-          return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="d-flex" style="gap:4px;"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
         }
       }
     ],
@@ -153,13 +152,12 @@ $(function () {
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/binType/binType.php', $('#binTypeForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
+          $.post('php/modules/states/api.php', $('#stateForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
-                $('#binTypeTable').DataTable().ajax.reload();
+                $('#stateTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -174,13 +172,13 @@ $(function () {
       }
   });
 
-  $('#addBinType').on('click', function(){
-    $('#modalTitle').text('Add Bin Type');
+  $('#addState').on('click', function(){
+    $('#modalTitle').text('Add State');
     $('#addModal').find('#id').val("");
-    $('#addModal').find('#binType').val("");
+    $('#addModal').find('#state').val("");
     $('#addModal').modal('show');
     
-    $('#binTypeForm').validate({
+    $('#stateForm').validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
             error.addClass('invalid-feedback');
@@ -199,19 +197,18 @@ $(function () {
     $('#spinnerLoading').show();
     var selectedIds = [];
 
-    $("#binTypeTable tbody input[type='checkbox']").each(function () {
+    $("#stateTable tbody input[type='checkbox']").each(function () {
       if (this.checked) {
           selectedIds.push($(this).val());
       }
     });
 
     if (selectedIds.length > 0) {
-      if (confirm('Are you sure you want to delete the selected bin types?')) {
-          $.post('php/modules/binType/deleteBinType.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
+      if (confirm('Are you sure you want to delete the selected states?')) {
+          $.post('php/modules/states/api.php', {action: 'delete', ids: selectedIds}, function(obj){
               
               if(obj.status === 'success'){
-                $('#binTypeTable').DataTable().ajax.reload();
+                $('#stateTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -227,7 +224,7 @@ $(function () {
       }
     } 
     else {
-        alert("Please select at least one bin type to delete.");
+        alert("Please select at least one state to delete.");
         $('#spinnerLoading').hide();
     }     
   });
@@ -235,17 +232,16 @@ $(function () {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/binType/getBinType.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  $.post('php/modules/states/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
-          $('#modalTitle').text('Edit Bin Type');
+          $('#modalTitle').text('Edit State');
           $('#addModal').find('#id').val(obj.message.id);
-          $('#addModal').find('#binType').val(obj.message.bin_type);
+          $('#addModal').find('#state').val(obj.message.states);
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').modal('show');
           
-          $('#binTypeForm').validate({
+          $('#stateForm').validate({
               errorElement: 'span',
               errorPlacement: function (error, element) {
                   error.addClass('invalid-feedback');
@@ -270,14 +266,13 @@ function edit(id){
 }
 
 function deactivate(id){
-  if (confirm('Are you sure you want to delete this bin type?')) {
+  if (confirm('Are you sure you want to delete this state?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/binType/deleteBinType.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/states/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#binTypeTable').DataTable().ajax.reload();
+            $('#stateTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){

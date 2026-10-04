@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -31,32 +31,30 @@ else{
         <div class="card results-card show-dt-controls">
           <div class="card-header">
             <div class="results-header-left">
-              <h3 class="results-title"><i class="fas fa-box mr-2"></i><?=$languageArray['packaging_code'][$language]?></h3>
+              <h3 class="results-title"><i class="fas fa-id-card mr-2"></i><?=$languageArray['drivers_code'][$language]?></h3>
             </div>
             <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
-              <a href="template/Packaging_Template.xlsx" download class="btn btn-action btn-action-warning">
+              <a href="template/Driver_Template.xlsx" download class="btn btn-action btn-action-warning">
                 <i class="fas fa-download"></i> <?=$languageArray['download_template_code'][$language]?>
               </a>
               <button type="button" id="uploadExcel" class="btn btn-action btn-action-success">
                 <i class="fas fa-upload"></i> <?=$languageArray['upload_excel_code'][$language]?>
               </button>
               <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
-                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_packaging_code'][$language]?>
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_driver_code'][$language]?>
               </button>
-              <button type="button" class="btn btn-action btn-action-primary" id="addPackaging">
-                <i class="fas fa-plus"></i> <?=$languageArray['add_packaging_code'][$language]?>
+              <button type="button" class="btn btn-action btn-action-primary" id="addDriver">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_driver_code'][$language]?>
               </button>
             </div>
           </div>
           <div class="card-body">
-            <table id="packagingTable" class="table data-table">
+            <table id="driverTable" class="table data-table">
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['packaging_name_code'][$language]?></th>
-                  <th><?=$languageArray['packaging_type_code'][$language]?></th>
-                  <th><?=$languageArray['packaging_weight_code'][$language]?></th>
-                  <th><?=$languageArray['by_weight_code'][$language]?></th>
+                  <th><?=$languageArray['driver_name_code'][$language]?></th>
+                  <th><?=$languageArray['driver_ic_code'][$language]?></th>
                   <th><?=$languageArray['actions_code'][$language]?></th>
                 </tr>
               </thead>
@@ -87,7 +85,7 @@ else{
           </div>
           <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadPackaging"><?=$languageArray['submit_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="uploadDriver"><?=$languageArray['submit_code'][$language]?></button>
           </div>
       </form>
     </div>
@@ -123,9 +121,9 @@ else{
 <div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="packagingForm">
+        <form role="form" id="driverForm">
             <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_packaging_code'][$language]?></h4>
+              <h4 class="modal-title"><?=$languageArray['add_driver_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -145,35 +143,15 @@ else{
               <div class="modal-section">
                 <div class="row">
                   <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="form-label-modern"><?=$languageArray['packaging_name_code'][$language]?> <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="packagingName" id="packagingName" placeholder="<?=$languageArray['enter_packaging_name_code'][$language]?>" required>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label class="form-label-modern"><?=$languageArray['packaging_type_code'][$language]?> <span class="text-danger">*</span></label>
-                      <select class="form-control" name="packagingType" id="packagingType" required>
-                        <option value="Original"><?=$languageArray['original_code'][$language]?></option>
-                        <option value="Repack"><?=$languageArray['repack_code'][$language]?></option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
                     <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['packaging_weight_code'][$language]?></label>
-                      <input type="number" class="form-control" name="packagingWeight" id="packagingWeight" placeholder="<?=$languageArray['enter_packaging_weight_code'][$language]?>">
+                      <label class="form-label-modern"><?=$languageArray['driver_name_code'][$language]?> <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="driverName" id="driverName" placeholder="<?=$languageArray['enter_driver_name_code'][$language]?>" required>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group mb-0">
-                      <label class="form-label-modern"><?=$languageArray['by_weight_code'][$language]?></label>
-                      <select class="form-control" name="packagingByWeight" id="packagingByWeight">
-                        <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
-                        <option value="N"><?=$languageArray['no_code'][$language]?></option>
-                      </select>
+                      <label class="form-label-modern"><?=$languageArray['driver_ic_code'][$language]?> <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="driverIC" id="driverIC" placeholder="<?=$languageArray['enter_driver_ic_code'][$language]?>" required>
                     </div>
                   </div>
                 </div>
@@ -195,7 +173,7 @@ else{
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#packagingTable tbody input[type="checkbox"]');
+    var checkboxes = $('#driverTable tbody input[type="checkbox"]');
     checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
   });
 
@@ -208,7 +186,7 @@ $(function () {
     });
   });
 
-  $("#packagingTable").DataTable({
+  $("#driverTable").DataTable({
     "responsive": true,
     "autoWidth": false,
     'processing': true,
@@ -219,7 +197,7 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/packaging/api.php',
+      'url':'php/modules/drivers/api.php',
       'data': { action: 'list' }
     },
     'columns': [
@@ -232,10 +210,8 @@ $(function () {
             return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
         }
       },
-      { data: 'packaging_name' },
-      { data: 'packaging_type', render: function(data){ return data ? data.charAt(0).toUpperCase() + data.slice(1) : ''; } },
-      { data: 'weight' },
-      { data: 'is_by_weight' },
+      { data: 'driver_name' },
+      { data: 'driver_ic' },
       { 
         data: 'deleted',
         render: function (data, type, row) {
@@ -252,18 +228,18 @@ $(function () {
       if (data.is_manual == 'Y') {
         $(row).css('background-color', '#f8d7da');
       }
-    }, 
+    },    
   });
-  
+
   $.validator.setDefaults({
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post('php/modules/packaging/api.php', $('#packagingForm').serialize() + '&action=save', function(obj){
+          $.post('php/modules/drivers/api.php', $('#driverForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
-                $('#packagingTable').DataTable().ajax.reload();
+                $('#driverTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
               }
               else if(obj.status === 'failed'){
@@ -278,15 +254,13 @@ $(function () {
       }
   });
 
-  $('#addPackaging').on('click', function(){
+  $('#addDriver').on('click', function(){
     $('#addModal').find('#id').val("");
-    $('#addModal').find('#packagingName').val("");
-    $('#addModal').find('#packagingType').val("Original");
-    $('#addModal').find('#packagingWeight').val(0);
-    $('#addModal').find('#packagingByWeight').val("N");
+    $('#addModal').find('#driverName').val("");
+    $('#addModal').find('#driverIC').val("");
     $('#addModal').modal('show');
     
-    $('#packagingForm').validate({
+    $('#driverForm').validate({
         errorElement: 'span',
         errorPlacement: function (error, element) {
             error.addClass('invalid-feedback');
@@ -301,7 +275,7 @@ $(function () {
     });
   });
 
-   $('#uploadExcel').on('click', function(){
+  $('#uploadExcel').on('click', function(){
     $('#uploadModal').modal('show');
 
     $('#uploadForm').validate({
@@ -333,7 +307,43 @@ $(function () {
     reader.readAsBinaryString(file);
   });
 
-  $('#uploadPackaging').on('click', function(){
+  $('#multiDeactivate').on('click', function () {
+    $('#spinnerLoading').show();
+    var selectedIds = []; // An array to store the selected 'id' values
+
+    $("#driverTable tbody input[type='checkbox']").each(function () {
+      if (this.checked) {
+          selectedIds.push($(this).val());
+      }
+    });
+
+    if (selectedIds.length > 0) {
+      if (confirm('Are you sure you want to cancel these items?')) {
+          $.post('php/modules/drivers/api.php', {action: 'delete', ids: selectedIds}, function(obj){
+              
+              if(obj.status === 'success'){
+                $('#driverTable').DataTable().ajax.reload();
+                $('#spinnerLoading').hide();
+              }
+              else if(obj.status === 'failed'){
+                $('#spinnerLoading').hide();
+              }
+              else{
+                $('#spinnerLoading').hide();
+              }
+          });
+      }
+
+      $('#spinnerLoading').hide();
+    } 
+    else {
+        // Optionally, you can display a message or take another action if no IDs are selected
+        alert("Please select at least one driver to delete.");
+        $('#spinnerLoading').hide();
+    }     
+  });
+
+  $('#uploadDriver').on('click', function(){
     $('#spinnerLoading').show();
     var formData = $('#uploadForm').serializeArray();
     var data = [];
@@ -353,7 +363,7 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/packaging/api.php?action=upload',
+        url: 'php/modules/drivers/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -361,7 +371,7 @@ $(function () {
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
-              $('#packagingTable').DataTable().ajax.reload();
+              $('#driverTable').DataTable().ajax.reload();
             } 
             else if (obj.status === 'failed') {
               $('#spinnerLoading').hide();
@@ -381,110 +391,73 @@ $(function () {
             }
         }
     });
-  });
 
-  $('#multiDeactivate').on('click', function () {
-    $('#spinnerLoading').show();
-    var selectedIds = []; // An array to store the selected 'id' values
-
-    $("#packagingTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0) {
-      if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/packaging/api.php', {action: 'delete', ids: selectedIds}, function(obj){
-              
-              if(obj.status === 'success'){
-                $('#packagingTable').DataTable().ajax.reload();
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                $('#spinnerLoading').hide();
-              }
-              else{
-                $('#spinnerLoading').hide();
-              }
-          });
-      }
-
-      $('#spinnerLoading').hide();
-    } 
-    else {
-        // Optionally, you can display a message or take another action if no IDs are selected
-        alert("Please select at least one packaging to delete.");
-        $('#spinnerLoading').hide();
-    }     
   });
 });
 
 function displayPreview(data) {
-    // Parse the Excel data
-    var workbook = XLSX.read(data, { type: 'binary' });
+  // Parse the Excel data
+  var workbook = XLSX.read(data, { type: 'binary' });
 
-    // Get the first sheet
-    var sheetName = workbook.SheetNames[0];
-    var sheet = workbook.Sheets[sheetName];
+  // Get the first sheet
+  var sheetName = workbook.SheetNames[0];
+  var sheet = workbook.Sheets[sheetName];
 
-    // Convert the sheet to an array of arrays
-    var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  // Convert the sheet to an array of objects
+  var jsonData = XLSX.utils.sheet_to_json(sheet, { header: 2 });
 
-    // Get the headers from first row
-    var headers = jsonData[0] || [];
+  // Get the headers
+  var headers = Object.keys(jsonData[0] || {});
 
-    // Ensure we handle cases where there may be less than 4 columns
-    while (headers.length < 4) {
-        headers.push(''); // Adding empty headers to reach 4 columns
-    }
+  // Ensure we handle cases where there may be less than 2 columns
+  while (headers.length < 2) {
+      headers.push(''); // Adding empty headers to reach 2 columns
+  }
 
-    // Create HTML table headers
-    var htmlTable = '<table style="width:50%;"><thead><tr>';
-    for (var h = 0; h < 4; h++) {
-        htmlTable += '<th>' + (headers[h] || '') + '</th>';
-    }
-    htmlTable += '</tr></thead><tbody>';
+  // Create HTML table headers
+  var htmlTable = '<table style="width:20%;"><thead><tr>';
+  headers.forEach(function(header) {
+      htmlTable += '<th>' + header + '</th>';
+  });
+  htmlTable += '</tr></thead><tbody>';
 
-    // Iterate over the data and create table rows (skip header row)
-    for (var i = 1; i < jsonData.length; i++) {
-        htmlTable += '<tr>';
-        var rowData = jsonData[i] || [];
+  // Iterate over the data and create table rows
+  for (var i = 0; i < jsonData.length; i++) {
+      htmlTable += '<tr>';
+      var rowData = jsonData[i];
 
-        for (var j = 0; j < 4; j++) {
-            var cellData = rowData[j];
-            var formattedData = cellData;
+      for (var j = 0; j < 2 && j < headers.length; j++) {
+          var cellData = rowData[headers[j]];
+          var formattedData = cellData;
 
-            // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
-            if (typeof cellData === 'number' && cellData > 0) {
-                var excelDate = XLSX.SSF.parse_date_code(cellData);
-            }
+          // Check if cellData is a valid Excel date serial number and format it to DD/MM/YYYY
+          if (typeof cellData === 'number' && cellData > 0) {
+              var excelDate = XLSX.SSF.parse_date_code(cellData);
+          }
 
-            htmlTable += '<td><input type="text" id="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+(i-1)+'" name="'+(headers[j] || '').replace(/[^a-zA-Z0-9]/g, '')+'['+(i-1)+']" value="' + (formattedData == null || formattedData === undefined ? '' : formattedData) + '" /></td>';
-        }
-        htmlTable += '</tr>';
-    }
+          htmlTable += '<td><input type="text" id="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+i+'" name="'+headers[j].replace(/[^a-zA-Z0-9]/g, '')+'['+i+']" value="' + (formattedData == null ? '' : formattedData) + '" /></td>';
+      }
+      htmlTable += '</tr>';
+  }
 
-    htmlTable += '</tbody></table>';
+  htmlTable += '</tbody></table>';
 
-    var previewTable = document.getElementById('previewTable');
-    previewTable.innerHTML = htmlTable;
+  var previewTable = document.getElementById('previewTable');
+  previewTable.innerHTML = htmlTable;
 }
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/packaging/api.php', {action: 'get', id: id}, function(obj){
+  $.post('php/modules/drivers/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
-        $('#addModal').find('#id').val(obj.message.id);
-        $('#addModal').find('#packagingName').val(obj.message.packaging_name);
-        $('#addModal').find('#packagingType').val(obj.message.packaging_type);
-        $('#addModal').find('#packagingWeight').val(obj.message.weight);
-        $('#addModal').find('#packagingByWeight').val(obj.message.is_by_weight);
-        $('#addModal').find('#company').val(obj.message.customer).trigger('change');
-        $('#addModal').modal('show');
-        
-        $('#packagingForm').validate({
+          $('#addModal').find('#id').val(obj.message.id);
+          $('#addModal').find('#driverName').val(obj.message.driver_name);
+          $('#addModal').find('#driverIC').val(obj.message.driver_ic);
+          $('#addModal').find('#company').val(obj.message.customer).trigger('change');
+          $('#addModal').modal('show');
+          
+          $('#driverForm').validate({
             errorElement: 'span',
             errorPlacement: function (error, element) {
                 error.addClass('invalid-feedback');
@@ -496,13 +469,13 @@ function edit(id){
             unhighlight: function (element, errorClass, validClass) {
                 $(element).removeClass('is-invalid');
             }
-        });
+          });
       }
       else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
+          toastr["error"](obj.message, "Failed:");
       }
       else{
-        toastr["error"]("Something wrong when activate", "Failed:");
+          toastr["error"]("Something wrong when activate", "Failed:");
       }
       $('#spinnerLoading').hide();
   });
@@ -511,11 +484,11 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/packaging/api.php', {action: 'delete', ids: [id]}, function(obj){
+    $.post('php/modules/drivers/api.php', {action: 'delete', ids: [id]}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#packagingTable').DataTable().ajax.reload();
+            $('#driverTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){
@@ -533,11 +506,11 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/packaging/api.php', {action: 'reactivate', id: id}, function(obj){
+    $.post('php/modules/drivers/api.php', {action: 'reactivate', id: id}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
-            $('#packagingTable').DataTable().ajax.reload();
+            $('#driverTable').DataTable().ajax.reload();
             $('#spinnerLoading').hide();
         }
         else if(obj.status === 'failed'){
