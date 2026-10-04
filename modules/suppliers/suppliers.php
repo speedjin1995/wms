@@ -250,7 +250,7 @@ else{
                         <input type="file" class="custom-file-input" id="ssmFile" name="ssmFile" accept=".pdf,.png,.jpg,.jpeg">
                         <label class="custom-file-label" for="ssmFile" id="ssmFileLabel"><?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?></label>
                       </div>
-                      <div id="ssmFilePreview" class="d-flex align-items-center" style="display:none !important; gap: 0.375rem;">
+                      <div id="ssmFilePreview" class="d-none align-items-center" style="gap: 0.375rem;">
                         <a href="#" id="ssmFileLink" target="_blank" class="btn btn-outline-info btn-sm" title="<?=$languageArray['view_file_code'][$language] ?? 'View File'?>"><i class="fas fa-eye mr-1"></i><?=$languageArray['view_file_code'][$language] ?? 'View'?></a>
                         <button type="button" class="btn btn-outline-danger btn-sm" id="removeSsmFile" title="<?=$languageArray['remove_file_code'][$language] ?? 'Remove File'?>"><i class="fas fa-times"></i></button>
                         <input type="hidden" name="ssmFilePath" id="ssmFilePath" value="">
@@ -499,7 +499,8 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-        'url':'php/modules/suppliers/loadSupplier.php'
+        'url':'php/modules/suppliers/api.php',
+        'data': { action: 'list' }
     },
     'columns': [
       {
@@ -554,22 +555,20 @@ $(function () {
       
       $('#spinnerLoading').show();
       var formData = new FormData($('#supplierForm')[0]);
+      formData.append('action', 'save');
       $.ajax({
-        url: 'php/modules/suppliers/suppliers.php',
+        url: 'php/modules/suppliers/api.php',
         type: 'POST',
         data: formData,
         processData: false,
         contentType: false,
-        success: function(data) {
-          var obj = JSON.parse(data); 
-          
+        success: function(obj) {
           if(obj.status === 'success'){
             $('#addModal').modal('hide');
             toastr["success"](obj.message, "Success:");
             $('#supplierTable').DataTable().ajax.reload();
             // Refresh the parent dropdown
-            $.get('php/modules/suppliers/getSuppliers.php', function(data) {
-              var suppliers = JSON.parse(data);
+            $.post('php/modules/suppliers/api.php', {action: 'dropdown'}, function(suppliers) {
               $('#parent').empty().append('<option value="">Please Select</option>');
               suppliers.forEach(function(supplier) {
                 $('#parent').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
@@ -630,7 +629,7 @@ $(function () {
   // Remove SSM file
   $('#removeSsmFile').on('click', function() {
     $('#ssmFilePath').val('');
-    $('#ssmFilePreview').hide();
+    $('#ssmFilePreview').removeClass('d-flex').addClass('d-none');
     $('#ssmFile').val('');
     $('#ssmFileLabel').text('<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
   });
@@ -645,7 +644,7 @@ $(function () {
       $('#addModal').find('#ssmFile').val("");
       $('#addModal').find('#ssmFileLabel').text('<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
       $('#addModal').find('#ssmFilePath').val("");
-      $('#addModal').find('#ssmFilePreview').hide();
+      $('#addModal').find('#ssmFilePreview').removeClass('d-flex').addClass('d-none');
       $('#addModal').find('#name').val("");
       $('#addModal').find('#address').val("");
       $('#addModal').find('#address2').val("");
@@ -736,12 +735,11 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/suppliers/uploadSupplier.php',
+        url: 'php/modules/suppliers/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(response) {
-            var obj = JSON.parse(response);
+        success: function(obj) {
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
@@ -779,9 +777,8 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/suppliers/deleteSupplier.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
-              
+          $.post('php/modules/suppliers/api.php', {action: 'delete', ids: selectedIds}, function(obj){
+
               if(obj.status === 'success'){
                 $('#supplierTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
@@ -816,11 +813,10 @@ $(function () {
     if (!valid) { toastr["error"]("Please check prefix (max 10 chars) and value (min 1).", "Failed:"); return; }
     $('#spinnerLoading').show();
     $.ajax({
-      url: 'php/modules/suppliers/runningNo.php',
+      url: 'php/modules/suppliers/api.php',
       type: 'POST',
-      data: { entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
-      success: function(res) {
-        var obj = JSON.parse(res);
+      data: { action: 'saveRunningNo', entity_id: $('#runningNoEntityId').val(), invoice_code: $('#runningNoInvoiceCode').val().trim(), rows: rows },
+      success: function(obj) {
         if (obj.status === 'success') {
           $('#runningNoModal').modal('hide');
           toastr["success"](obj.message, "Success:");
@@ -839,8 +835,12 @@ function openRunningNo(id, name) {
   $('#runningNoInvoiceCode').val('');
   $('#runningNoBody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i></td></tr>');
   $('#runningNoModal').modal('show');
-  $.get('php/modules/suppliers/runningNo.php', { entity_id: id }, function(res) {
-    var obj = JSON.parse(res);
+  $.post('php/modules/suppliers/api.php', { action: 'getRunningNo', entity_id: id }, function(obj) {
+    if (obj.status !== 'success') {
+      toastr["error"](obj.message, "Failed:");
+      $('#runningNoModal').modal('hide');
+      return;
+    }
     $('#runningNoInvoiceCode').val(obj.invoice_code || '');
     var html = '';
     obj.data.forEach(function(row) {
@@ -907,9 +907,8 @@ function displayPreview(data) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/suppliers/getSupplier.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
-      
+  $.post('php/modules/suppliers/api.php', {action: 'get', id: id}, function(obj){
+
       if(obj.status === 'success'){
           $('#addModal').find('#id').val(obj.message.id);
           $('#addModal').find('#code').val(obj.message.supplier_code);
@@ -944,10 +943,10 @@ function edit(id){
           if (obj.message.ssm_file) {
             $('#addModal').find('#ssmFilePath').val(obj.message.ssm_file);
             $('#addModal').find('#ssmFileLink').attr('href', 'php/viewPhoto.php?file=' + obj.message.ssm_file + '&type=file_table');
-            $('#addModal').find('#ssmFilePreview').css('display', 'flex').show();
+            $('#addModal').find('#ssmFilePreview').removeClass('d-none').addClass('d-flex');
           } else {
             $('#addModal').find('#ssmFilePath').val('');
-            $('#addModal').find('#ssmFilePreview').hide();
+            $('#addModal').find('#ssmFilePreview').removeClass('d-flex').addClass('d-none');
           }
           $('#addModal').find('#ssmFile').val('');
           $('#addModal').find('#ssmFileLabel').text('<?=$languageArray['choose_file_code'][$language] ?? 'Choose file'?>');
@@ -983,9 +982,8 @@ function edit(id){
 function deactivate(id){
     if (confirm('Are you sure you want to delete this items?')) {
         //$('#spinnerLoading').show();
-        $.post('php/modules/suppliers/deleteSupplier.php', {userID: id}, function(data){
-            var obj = JSON.parse(data);
-            
+        $.post('php/modules/suppliers/api.php', {action: 'delete', ids: [id]}, function(obj){
+
             if(obj.status === 'success'){
                 toastr["success"](obj.message, "Success:");
                 $('#supplierTable').DataTable().ajax.reload();
@@ -1006,9 +1004,8 @@ function deactivate(id){
 function reactivate(id){
   if (confirm('Are you sure you want to reactivate this items?')) {
     //$('#spinnerLoading').show();
-    $.post('php/modules/suppliers/reactivateSupplier.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
-        
+    $.post('php/modules/suppliers/api.php', {action: 'reactivate', id: id}, function(obj){
+
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");
             $('#supplierTable').DataTable().ajax.reload();

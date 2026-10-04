@@ -1495,8 +1495,7 @@ function calculateVariance(row){
   var nett = parseFloat(row.find('input[id^="net"]').val());
 
   if (nett > 0){
-    $.post('php/modules/products/getProduct.php', {userID: productId}, function(data){
-      var obj = JSON.parse(data);
+    $.post('php/modules/products/api.php', {action: 'get', id: productId}, function(obj){
 
       if(obj.status === 'success'){
         var okWeight = parseFloat(obj.message.ok_weight); 
@@ -1776,8 +1775,7 @@ function newEntry(){
 
 function calculatePrice(productId, status, customerId, currentGrade, element) {
   if (productId){
-    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, type: "getPrice"}, function(data){
-      var obj = JSON.parse(data);
+    $.post('php/modules/products/api.php', {action: 'getPrice', id: productId, status: status, customerID: customerId, grade: currentGrade}, function(obj){
 
       if(obj.status === 'success'){
         var pricingType = obj.message.pricingType;

@@ -1,62 +1,112 @@
 <?php
 namespace App\Services;
 
-class ProductionLineService extends MasterDataService
+class ProductionLineService extends BaseService
 {
-    protected function table(): string
+    /**
+     * Get paginated production lines for DataTables
+     */
+    public function getList(int $start, int $length, string $orderColumn, string $orderDir, string $search): array
     {
-        return 'production_lines';
+        $where = "production_lines.deleted = 0";
+        $params = [];
+        $types = '';
+        $this->applyCompanyScope($where, $params, $types, 'production_lines.customers');
+
+        $totalRecords = $this->countRows('production_lines', $where, $types, $params);
+
+        $this->applySearch($where, $params, $types, ['production_lines.production_line'], $search);
+        $totalFiltered = $this->countRows('production_lines', $where, $types, $params);
+
+        $orderBy = $this->orderBy(
+            ['id' => 'production_lines.id', 'production_line' => 'production_lines.production_line'],
+            $orderColumn, $orderDir, 'production_lines.id'
+        );
+        $params[] = $start;
+        $params[] = $length;
+        $types .= 'ii';
+
+        $rows = $this->fetchAll("SELECT * FROM production_lines WHERE $where ORDER BY production_lines.deleted, $orderBy LIMIT ?, ?", $types, $params);
+
+        $data = [];
+        foreach ($rows as $row) {
+            $data[] = [
+                'id' => $row['id'],
+                'production_line' => $row['production_line'],
+                'customers' => $row['customers'],
+                'deleted' => $row['deleted']
+            ];
+        }
+
+        return ['totalRecords' => $totalRecords, 'totalFiltered' => $totalFiltered, 'data' => $data];
     }
 
-    protected function companyColumn(): ?string
+    /**
+     * Get single production line by ID
+     */
+    public function getById(int $id): ?array
     {
-        return 'customers';
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types, 'customers');
+
+        return $this->fetchOne("SELECT id, production_line, customers FROM production_lines WHERE $where", $types, $params);
     }
 
-    protected function searchColumns(): array
+    /**
+     * Create new production line
+     */
+    public function create(array $data, int $company): array
     {
-        return ['production_lines.production_line'];
+        $data['customers'] = $this->resolveCompany($company);
+        $data['created_by'] = $this->user;
+
+        if (!$this->insertRow('production_lines', $data)) {
+            return ['status' => 'failed', 'message' => 'Failed to add record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Added Successfully!!'];
     }
 
-    protected function sortColumns(): array
+    /**
+     * Update existing production line
+     */
+    public function update(int $id, array $data): array
     {
-        return ['id' => 'production_lines.id', 'production_line' => 'production_lines.production_line'];
+        $data['modified_by'] = $this->user;
+
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types, 'customers');
+
+        if (!$this->updateRow('production_lines', $data, $where, $types, $params)) {
+            return ['status' => 'failed', 'message' => 'Failed to update record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Updated Successfully!!'];
     }
 
-    protected function formatListRow(array $row, int $rowNumber): array
+    public function delete(array $ids): array
     {
-        return [
-            'id' => $row['id'],
-            'production_line' => $row['production_line'],
-            'customers' => $row['customers'],
-            'deleted' => $row['deleted']
-        ];
+        return $this->softDeleteRecords('production_lines', $ids, 'customers');
     }
 
-    protected function getColumns(): array
+    public function reactivate(int $id): array
     {
-        return ['id', 'production_line', 'customers'];
+        return $this->reactivateRecord('production_lines', $id, 'customers');
     }
 
-    protected function updateColumns(): array
+    /**
+     * Bulk insert production lines from Excel upload
+     */
+    public function upload(array $rows): array
     {
-        return ['production_line'];
-    }
-
-    protected function uploadNameColumn(): ?string
-    {
-        return 'production_line';
-    }
-
-    protected function uploadLabel(): string
-    {
-        return 'Production Line';
-    }
-
-    protected function mapUploadRow(array $row): array
-    {
-        return [
-            'production_line' => !empty($row['ProductionLine']) ? trim($row['ProductionLine']) : ''
-        ];
+        return $this->uploadRecords('production_lines', 'production_line', 'Production Line', $rows, function (array $row): array {
+            return [
+                'production_line' => !empty($row['ProductionLine']) ? trim($row['ProductionLine']) : ''
+            ];
+        }, 'customers');
     }
 }

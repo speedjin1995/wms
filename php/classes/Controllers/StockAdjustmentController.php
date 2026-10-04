@@ -5,7 +5,7 @@ use App\Models\StockAdjustment;
 use App\Models\StockAdjustmentItem;
 use App\Services\StockAdjustmentService;
 
-class StockAdjustmentController
+class StockAdjustmentController extends BaseController
 {
     private StockAdjustmentService $service;
 
@@ -32,7 +32,7 @@ class StockAdjustmentController
      */
     public function get(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
 
         if (!$id) {
             return ['status' => 'failed', 'message' => 'Missing adjustment ID'];
@@ -66,7 +66,7 @@ class StockAdjustmentController
      */
     public function update(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
         
         if (!$id) {
             return ['status' => 'failed', 'message' => 'Adjustment ID is required for update'];
@@ -145,7 +145,7 @@ class StockAdjustmentController
      */
     public function delete(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
 
         if (!$id) {
             return ['status' => 'failed', 'message' => 'Missing adjustment ID'];
@@ -159,7 +159,7 @@ class StockAdjustmentController
      */
     public function balance(): array
     {
-        $productId = (int)($_POST['product_id'] ?? 0);
+        $productId = $this->postId('product_id');
         $grade = $_POST['grade'] ?? null;
         $type = $_POST['type'] ?? 'Local';
 

@@ -14,7 +14,7 @@ if (!isset($_SESSION['userID'])) {
 }
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
-$service = new StockAdjustmentService($db, (int)$_SESSION['customer'], (int)$_SESSION['userID']);
+$service = new StockAdjustmentService($db, (int)$_SESSION['customer'], (int)$_SESSION['userID'], (string)($_SESSION['role'] ?? ''));
 $controller = new StockAdjustmentController($service);
 
 switch ($action) {

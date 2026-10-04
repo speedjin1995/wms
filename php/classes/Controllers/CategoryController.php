@@ -3,7 +3,7 @@ namespace App\Controllers;
 
 use App\Services\CategoryService;
 
-class CategoryController
+class CategoryController extends BaseController
 {
     private CategoryService $service;
 
@@ -17,27 +17,16 @@ class CategoryController
      */
     public function list(): array
     {
-        $draw = (int)($_POST['draw'] ?? 0);
-        $start = (int)($_POST['start'] ?? 0);
-        $length = (int)($_POST['length'] ?? 10);
-        $columnIndex = $_POST['order'][0]['column'] ?? 0;
-        $orderColumn = $_POST['columns'][$columnIndex]['data'] ?? 'id';
-        $orderDir = $_POST['order'][0]['dir'] ?? 'asc';
-        $search = trim($_POST['search']['value'] ?? '');
+        $p = $this->dataTableParams();
 
         try {
-            $result = $this->service->getList($start, $length, (string)$orderColumn, (string)$orderDir, $search);
+            $result = $this->service->getList($p['start'], $p['length'], $p['orderColumn'], $p['orderDir'], $p['search']);
         } catch (\Exception $e) {
             error_log('CategoryController::list - ' . $e->getMessage());
-            $result = ['totalRecords' => 0, 'totalFiltered' => 0, 'data' => []];
+            $result = $this->emptyListResult();
         }
 
-        return [
-            'draw' => $draw,
-            'iTotalRecords' => $result['totalRecords'],
-            'iTotalDisplayRecords' => $result['totalFiltered'],
-            'aaData' => $result['data']
-        ];
+        return $this->dataTableResponse($p['draw'], $result);
     }
 
     /**
@@ -45,7 +34,7 @@ class CategoryController
      */
     public function get(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
 
         if (!$id) {
             return ['status' => 'failed', 'message' => 'Missing Attribute'];
@@ -70,9 +59,9 @@ class CategoryController
      */
     public function save(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
         $categoryName = trim($_POST['categoryName'] ?? '');
-        $company = (int)($_POST['company'] ?? 0);
+        $company = $this->postId('company');
         $module = trim($_POST['module'] ?? '');
 
         if ($categoryName === '' || !$company || $module === '') {
@@ -91,13 +80,7 @@ class CategoryController
      */
     public function delete(): array
     {
-        $ids = $_POST['ids'] ?? [];
-
-        if (!is_array($ids)) {
-            $ids = [$ids];
-        }
-
-        return $this->service->delete($ids);
+        return $this->service->delete($this->postIds());
     }
 
     /**
@@ -105,9 +88,9 @@ class CategoryController
      */
     public function upload(): array
     {
-        $rows = json_decode(file_get_contents('php://input'), true);
+        $rows = $this->jsonBody();
 
-        if (empty($rows) || !is_array($rows)) {
+        if ($rows === null) {
             return ['status' => 'failed', 'message' => 'Please fill in all the fields'];
         }
 

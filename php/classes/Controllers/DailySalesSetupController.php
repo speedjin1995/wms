@@ -3,7 +3,7 @@ namespace App\Controllers;
 
 use App\Services\DailySalesSetupService;
 
-class DailySalesSetupController
+class DailySalesSetupController extends BaseController
 {
     private DailySalesSetupService $service;
 
@@ -17,18 +17,13 @@ class DailySalesSetupController
      */
     public function list(array $languageArray, string $language): array
     {
-        $draw = (int)($_POST['draw'] ?? 0);
-        $start = (int)($_POST['start'] ?? 0);
-        $length = (int)($_POST['length'] ?? 10);
-        $columnIndex = $_POST['order'][0]['column'] ?? 0;
-        $orderColumn = $_POST['columns'][$columnIndex]['data'] ?? 'id';
-        $orderDir = $_POST['order'][0]['dir'] ?? 'asc';
+        $p = $this->dataTableParams();
 
         try {
-            $result = $this->service->getList($start, $length, (string)$orderColumn, (string)$orderDir);
+            $result = $this->service->getList($p['start'], $p['length'], $p['orderColumn'], $p['orderDir']);
         } catch (\Exception $e) {
             error_log('DailySalesSetupController::list - ' . $e->getMessage());
-            $result = ['totalRecords' => 0, 'totalFiltered' => 0, 'data' => []];
+            $result = $this->emptyListResult();
         }
 
         foreach ($result['data'] as &$row) {
@@ -36,12 +31,7 @@ class DailySalesSetupController
         }
         unset($row);
 
-        return [
-            'draw' => $draw,
-            'iTotalRecords' => $result['totalRecords'],
-            'iTotalDisplayRecords' => $result['totalFiltered'],
-            'aaData' => $result['data']
-        ];
+        return $this->dataTableResponse($p['draw'], $result);
     }
 
     /**
@@ -49,7 +39,7 @@ class DailySalesSetupController
      */
     public function get(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
 
         if (!$id) {
             return ['status' => 'failed', 'message' => 'Missing Attribute'];
@@ -74,9 +64,9 @@ class DailySalesSetupController
      */
     public function save(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
         $module = trim($_POST['module'] ?? '');
-        $company = (int)($_POST['company'] ?? 0);
+        $company = $this->postId('company');
         $states = $_POST['state'] ?? [];
 
         if (!is_array($states)) {
@@ -106,7 +96,7 @@ class DailySalesSetupController
      */
     public function delete(): array
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = $this->postId();
 
         if (!$id) {
             return ['status' => 'failed', 'message' => 'Please fill in all the fields'];

@@ -1,22 +1,9 @@
 <?php
 namespace App\Services;
 
-class DailySalesSetupService
+class DailySalesSetupService extends BaseService
 {
     public const MODULES = ['industrial', 'weighing', 'wholesales', 'packing', 'pricing'];
-
-    private \mysqli $db;
-    private int $company;
-    private int $user;
-    private string $role;
-
-    public function __construct(\mysqli $db, int $company, int $user, string $role)
-    {
-        $this->db = $db;
-        $this->company = $company;
-        $this->user = $user;
-        $this->role = $role;
-    }
 
     /**
      * Get paginated setups for DataTables
@@ -32,9 +19,9 @@ class DailySalesSetupService
         $where = "deleted = 0";
         $params = [];
         $types = '';
-        $this->applyCompanyScope($where, $params, $types);
+        $this->applyCompanyScope($where, $params, $types, 'company');
 
-        $total = $this->count($where, $types, $params);
+        $total = $this->countRows('daily_sales_setup', $where, $types, $params);
 
         $sql = "SELECT id, module, state FROM daily_sales_setup WHERE $where ORDER BY $orderColumn $orderDir LIMIT ?, ?";
         $params[] = $start;
@@ -77,7 +64,7 @@ class DailySalesSetupService
         $where = "id = ?";
         $params = [$id];
         $types = 'i';
-        $this->applyCompanyScope($where, $params, $types);
+        $this->applyCompanyScope($where, $params, $types, 'company');
 
         $stmt = $this->db->prepare("SELECT id, module, state, company FROM daily_sales_setup WHERE $where");
         if (!$stmt) {
@@ -167,7 +154,7 @@ class DailySalesSetupService
         $where = "id = ?";
         $params = [$this->user, $id];
         $types = 'ii';
-        $this->applyCompanyScope($where, $params, $types);
+        $this->applyCompanyScope($where, $params, $types, 'company');
 
         $stmt = $this->db->prepare("UPDATE daily_sales_setup SET deleted = 1, modified_by = ? WHERE $where");
         if (!$stmt) {
@@ -197,52 +184,5 @@ class DailySalesSetupService
         $stmt->close();
 
         return $exists;
-    }
-
-    private function isSuperAdmin(): bool
-    {
-        return $this->role === 'SADMIN';
-    }
-
-    /**
-     * Only SADMIN may write setups for another company
-     */
-    private function resolveCompany(int $company): int
-    {
-        if (!$this->isSuperAdmin() || !$company) {
-            return $this->company;
-        }
-
-        return $company;
-    }
-
-    private function applyCompanyScope(string &$where, array &$params, string &$types): void
-    {
-        if ($this->isSuperAdmin()) {
-            return;
-        }
-
-        $where .= " AND company = ?";
-        $params[] = $this->company;
-        $types .= 'i';
-    }
-
-    private function count(string $where, string $types, array $params): int
-    {
-        $stmt = $this->db->prepare("SELECT COUNT(*) AS allcount FROM daily_sales_setup WHERE $where");
-        if (!$stmt) {
-            throw new \Exception('Failed to prepare daily sales setup count query');
-        }
-        if ($types !== '') {
-            $stmt->bind_param($types, ...$params);
-        }
-        if (!$stmt->execute()) {
-            $stmt->close();
-            throw new \Exception('Failed to count daily sales setups');
-        }
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        return (int)$row['allcount'];
     }
 }

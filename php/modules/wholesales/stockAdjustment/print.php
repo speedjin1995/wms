@@ -17,7 +17,7 @@ $userId = (int)$_SESSION['userID'];
 
 $companyDetail = searchCompanyById($company, $db);
 
-$service = new StockAdjustmentService($db, $company, $userId);
+$service = new StockAdjustmentService($db, $company, $userId, (string)($_SESSION['role'] ?? ''));
 $controller = new StockAdjustmentController($service);
 
 $controller->print($companyDetail);

@@ -4,19 +4,8 @@ namespace App\Services;
 use App\Models\StockAdjustment;
 use App\Models\StockAdjustmentItem;
 
-class StockAdjustmentService
+class StockAdjustmentService extends BaseService
 {
-    private \mysqli $db;
-    private int $company;
-    private int $userId;
-
-    public function __construct(\mysqli $db, int $company, int $userId)
-    {
-        $this->db = $db;
-        $this->company = $company;
-        $this->userId = $userId;
-    }
-
     /**
      * Get list of stock adjustments with optional date filter
      */
@@ -395,7 +384,7 @@ class StockAdjustmentService
             $totalQty,
             $totalCost,
             $this->company,
-            $this->userId
+            $this->user
         );
         $stmt->execute();
         $id = $this->db->insert_id;
@@ -420,7 +409,7 @@ class StockAdjustmentService
             $adjustment->totalItems,
             $totalQty,
             $totalCost,
-            $this->userId,
+            $this->user,
             $adjustment->id
         );
         $stmt->execute();
@@ -450,7 +439,7 @@ class StockAdjustmentService
             $unitCost,
             $totalCost,
             $item->reason,
-            $this->userId
+            $this->user
         );
         $stmt->execute();
         $item->id = $this->db->insert_id;
@@ -481,7 +470,7 @@ class StockAdjustmentService
             $unitCost,
             $totalCost,
             $item->reason,
-            $this->userId,
+            $this->user,
             $item->id
         );
         $stmt->execute();
@@ -491,7 +480,7 @@ class StockAdjustmentService
     private function softDeleteItems(int $adjustmentId): void
     {
         $stmt = $this->db->prepare("UPDATE stock_adjustment_items SET deleted = 1, modified_by = ? WHERE adjustment_id = ? AND deleted = 0");
-        $stmt->bind_param('ii', $this->userId, $adjustmentId);
+        $stmt->bind_param('ii', $this->user, $adjustmentId);
         $stmt->execute();
         $stmt->close();
     }
@@ -499,7 +488,7 @@ class StockAdjustmentService
     private function softDeleteHeader(int $id): void
     {
         $stmt = $this->db->prepare("UPDATE stock_adjustments SET deleted = 1, modified_by = ? WHERE id = ?");
-        $stmt->bind_param('ii', $this->userId, $id);
+        $stmt->bind_param('ii', $this->user, $id);
         $stmt->execute();
         $stmt->close();
     }
@@ -527,7 +516,7 @@ class StockAdjustmentService
             $updateStmt = $this->db->prepare(
                 "UPDATE raw_stock_balance SET balance = ?, modified_by = ? WHERE id = ?"
             );
-            $updateStmt->bind_param('dii', $item->quantityAfter, $this->userId, $row['id']);
+            $updateStmt->bind_param('dii', $item->quantityAfter, $this->user, $row['id']);
             $updateStmt->execute();
             $updateStmt->close();
         } else {
@@ -535,7 +524,7 @@ class StockAdjustmentService
                 "INSERT INTO raw_stock_balance (product_id, grade, type, company, balance, created_by) 
                  VALUES (?, ?, ?, ?, ?, ?)"
             );
-            $insertStmt->bind_param('issidi', $item->productId, $item->grade, $type, $this->company, $item->quantityAfter, $this->userId);
+            $insertStmt->bind_param('issidi', $item->productId, $item->grade, $type, $this->company, $item->quantityAfter, $this->user);
             $insertStmt->execute();
             $insertStmt->close();
         }
@@ -557,7 +546,7 @@ class StockAdjustmentService
             $updateStmt = $this->db->prepare(
                 "UPDATE raw_stock_balance SET balance = ?, modified_by = ? WHERE id = ?"
             );
-            $updateStmt->bind_param('dii', $newBalance, $this->userId, $row['id']);
+            $updateStmt->bind_param('dii', $newBalance, $this->user, $row['id']);
             $updateStmt->execute();
             $updateStmt->close();
         }
@@ -583,7 +572,7 @@ class StockAdjustmentService
             $item->quantityAfter,
             null,
             null,
-            $this->userId,
+            $this->user,
             null,
             null,
             $type
@@ -621,7 +610,7 @@ class StockAdjustmentService
             $newBalance,
             null,
             null,
-            $this->userId,
+            $this->user,
             null,
             null,
             $type

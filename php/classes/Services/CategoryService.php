@@ -1,20 +1,13 @@
 <?php
 namespace App\Services;
 
-class CategoryService
+class CategoryService extends BaseService
 {
-    private \mysqli $db;
-    private int $company;
-    private int $user;
-    private string $role;
     private string $module;
 
     public function __construct(\mysqli $db, int $company, int $user, string $role, string $module)
     {
-        $this->db = $db;
-        $this->company = $company;
-        $this->user = $user;
-        $this->role = $role;
+        parent::__construct($db, $company, $user, $role);
         $this->module = $module;
     }
 
@@ -48,7 +41,7 @@ class CategoryService
             $types .= 'i';
         }
 
-        $totalRecords = $this->count($where, $types, $params);
+        $totalRecords = $this->countRows('categories', $where, $types, $params);
 
         // Search filter
         if ($search !== '') {
@@ -57,7 +50,7 @@ class CategoryService
             $types .= 's';
         }
 
-        $totalFiltered = $this->count($where, $types, $params);
+        $totalFiltered = $this->countRows('categories', $where, $types, $params);
 
         $sql = "SELECT id, category_name, deleted FROM categories WHERE $where ORDER BY deleted, $orderColumn $orderDir LIMIT ?, ?";
         $params[] = $start;
@@ -262,29 +255,5 @@ class CategoryService
         }
 
         return ['status' => 'success', 'message' => 'Added Successfully!!'];
-    }
-
-    private function isSuperAdmin(): bool
-    {
-        return $this->role === 'SADMIN';
-    }
-
-    private function count(string $where, string $types, array $params): int
-    {
-        $stmt = $this->db->prepare("SELECT COUNT(*) AS allcount FROM categories WHERE $where");
-        if (!$stmt) {
-            throw new \Exception('Failed to prepare category count query');
-        }
-        if ($types !== '') {
-            $stmt->bind_param($types, ...$params);
-        }
-        if (!$stmt->execute()) {
-            $stmt->close();
-            throw new \Exception('Failed to count categories');
-        }
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        return (int)$row['allcount'];
     }
 }

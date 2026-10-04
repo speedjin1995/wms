@@ -3,8 +3,9 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../uploadFileHelper.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\ProductController;
-use App\Services\ProductService;
+use App\Controllers\SupplierController;
+use App\Services\EntityRunningNoService;
+use App\Services\SupplierService;
 
 session_start();
 header('Content-Type: application/json');
@@ -15,13 +16,21 @@ if (!isset($_SESSION['userID'])) {
 }
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
-$service = new ProductService(
+$service = new SupplierService(
     $db,
     (int)$_SESSION['customer'],
     (int)$_SESSION['userID'],
     (string)($_SESSION['role'] ?? '')
 );
-$controller = new ProductController($service);
+$runningNoService = new EntityRunningNoService(
+    $db,
+    (int)$_SESSION['customer'],
+    (int)$_SESSION['userID'],
+    (string)($_SESSION['role'] ?? ''),
+    (string)($_SESSION['module'] ?? ''),
+    'Supplier'
+);
+$controller = new SupplierController($service, $runningNoService);
 
 try {
     switch ($action) {
@@ -33,16 +42,8 @@ try {
             echo json_encode($controller->get());
             break;
 
-        case 'getPrice':
-            echo json_encode($controller->getPrice());
-            break;
-
         case 'save':
             echo json_encode($controller->save());
-            break;
-
-        case 'saveCustomerSupplier':
-            echo json_encode($controller->saveCustomerSupplier());
             break;
 
         case 'delete':
@@ -57,25 +58,22 @@ try {
             echo json_encode($controller->upload());
             break;
 
-        case 'getProductsByType':
-            $categoryIds = [];
-            $userModuleAccess = $_SESSION['userModuleAccess'] ?? [];
-            if (!empty($userModuleAccess['categories'])) {
-                $allowedModules = ['wholesale', 'processing'];
-                foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
-                    if (in_array($module, $allowedModules)) {
-                        $categoryIds = array_merge($categoryIds, $moduleCategories);
-                    }
-                }
-                $categoryIds = array_unique(array_map('intval', $categoryIds));
-            }
-            echo json_encode($controller->getProductsByType($categoryIds));
+        case 'dropdown':
+            echo json_encode($controller->dropdown());
+            break;
+
+        case 'getRunningNo':
+            echo json_encode($controller->getRunningNo());
+            break;
+
+        case 'saveRunningNo':
+            echo json_encode($controller->saveRunningNo());
             break;
 
         default:
             echo json_encode(['status' => 'failed', 'message' => 'Invalid action']);
     }
 } catch (\Throwable $e) {
-    error_log('products/api.php - ' . $e->getMessage());
+    error_log('suppliers/api.php - ' . $e->getMessage());
     echo json_encode(['status' => 'failed', 'message' => 'Something went wrong']);
 }

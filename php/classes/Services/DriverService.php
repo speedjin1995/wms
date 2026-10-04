@@ -1,69 +1,115 @@
 <?php
 namespace App\Services;
 
-class DriverService extends MasterDataService
+class DriverService extends BaseService
 {
-    protected function table(): string
+    /**
+     * Get paginated drivers for DataTables
+     */
+    public function getList(int $start, int $length, string $orderColumn, string $orderDir, string $search): array
     {
-        return 'drivers';
+        $where = "drivers.deleted = 0";
+        $params = [];
+        $types = '';
+        $this->applyCompanyScope($where, $params, $types, 'drivers.customer');
+
+        $totalRecords = $this->countRows('drivers', $where, $types, $params);
+
+        $this->applySearch($where, $params, $types, ['drivers.driver_name', 'drivers.driver_ic'], $search);
+        $totalFiltered = $this->countRows('drivers', $where, $types, $params);
+
+        $orderBy = $this->orderBy(
+            ['id' => 'drivers.id', 'driver_name' => 'drivers.driver_name', 'driver_ic' => 'drivers.driver_ic'],
+            $orderColumn, $orderDir, 'drivers.id'
+        );
+        $params[] = $start;
+        $params[] = $length;
+        $types .= 'ii';
+
+        $rows = $this->fetchAll("SELECT * FROM drivers WHERE $where ORDER BY drivers.deleted, (drivers.is_manual = 'Y') DESC, $orderBy LIMIT ?, ?", $types, $params);
+
+        $data = [];
+        foreach ($rows as $row) {
+            $data[] = [
+                'id' => $row['id'],
+                'driver_name' => $row['driver_name'],
+                'driver_ic' => $row['driver_ic'],
+                'is_manual' => $row['is_manual'],
+                'deleted' => $row['deleted']
+            ];
+        }
+
+        return ['totalRecords' => $totalRecords, 'totalFiltered' => $totalFiltered, 'data' => $data];
     }
 
-    protected function searchColumns(): array
+    /**
+     * Get single driver by ID
+     */
+    public function getById(int $id): ?array
     {
-        return ['drivers.driver_name', 'drivers.driver_ic'];
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        return $this->fetchOne("SELECT id, driver_name, driver_ic, customer FROM drivers WHERE $where", $types, $params);
     }
 
-    protected function sortColumns(): array
+    /**
+     * Create new driver
+     */
+    public function create(array $data, int $company): array
     {
-        return ['id' => 'drivers.id', 'driver_name' => 'drivers.driver_name', 'driver_ic' => 'drivers.driver_ic'];
+        $data['customer'] = $this->resolveCompany($company);
+        $data['created_by'] = $this->user;
+
+        if (!$this->insertRow('drivers', $data)) {
+            return ['status' => 'failed', 'message' => 'Failed to add record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Added Successfully!!'];
     }
 
-    protected function orderPrefix(): string
+    /**
+     * Update existing driver
+     */
+    public function update(int $id, array $data): array
     {
-        return "drivers.deleted, (drivers.is_manual = 'Y') DESC";
+        $data['is_manual'] = 'N';
+        $data['modified_by'] = $this->user;
+
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        if (!$this->updateRow('drivers', $data, $where, $types, $params)) {
+            return ['status' => 'failed', 'message' => 'Failed to update record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Updated Successfully!!'];
     }
 
-    protected function formatListRow(array $row, int $rowNumber): array
+    public function delete(array $ids): array
     {
-        return [
-            'id' => $row['id'],
-            'driver_name' => $row['driver_name'],
-            'driver_ic' => $row['driver_ic'],
-            'is_manual' => $row['is_manual'],
-            'deleted' => $row['deleted']
-        ];
+        return $this->softDeleteRecords('drivers', $ids);
     }
 
-    protected function getColumns(): array
+    public function reactivate(int $id): array
     {
-        return ['id', 'driver_name', 'driver_ic', 'customer'];
+        return $this->reactivateRecord('drivers', $id);
     }
 
-    protected function updateColumns(): array
+    /**
+     * Bulk insert drivers from Excel upload
+     */
+    public function upload(array $rows): array
     {
-        return ['driver_name', 'driver_ic'];
-    }
-
-    protected function updateExtras(): array
-    {
-        return ['is_manual' => 'N'];
-    }
-
-    protected function uploadNameColumn(): ?string
-    {
-        return 'driver_name';
-    }
-
-    protected function uploadLabel(): string
-    {
-        return 'Driver Name';
-    }
-
-    protected function mapUploadRow(array $row): array
-    {
-        return [
-            'driver_name' => !empty($row['DriverName']) ? trim($row['DriverName']) : '',
-            'driver_ic' => !empty($row['DriverIC']) ? trim($row['DriverIC']) : ''
-        ];
+        return $this->uploadRecords('drivers', 'driver_name', 'Driver Name', $rows, function (array $row): array {
+            return [
+                'driver_name' => !empty($row['DriverName']) ? trim($row['DriverName']) : '',
+                'driver_ic' => !empty($row['DriverIC']) ? trim($row['DriverIC']) : ''
+            ];
+        });
     }
 }

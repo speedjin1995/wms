@@ -818,8 +818,9 @@ $(function () {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     'ajax': {
-      'url':'php/modules/products/loadProducts.php',
+      'url':'php/modules/products/api.php',
       'data': {
+        action: 'list',
         id: <?=$company ?>
       }
     },
@@ -902,14 +903,14 @@ $(function () {
       }
       $('#spinnerLoading').show();
       var formData = new FormData($('#productForm')[0]);
+      formData.append('action', 'save');
       $.ajax({
-        url: 'php/modules/products/products.php',
+        url: 'php/modules/products/api.php',
         type: 'POST',
         data: formData,
         processData: false,
         contentType: false,
-        success: function(data){
-          var obj = JSON.parse(data);
+        success: function(obj){
           if(obj.status === 'success'){
             $('#productModal').modal('hide');
             toastr["success"](obj.message, "Success:");
@@ -1031,12 +1032,11 @@ $(function () {
 
     // Send the JSON array to the server
     $.ajax({
-        url: 'php/modules/products/uploadProduct.php',
+        url: 'php/modules/products/api.php?action=upload',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        success: function(response) {
-            var obj = JSON.parse(response);
+        success: function(obj) {
             if (obj.status === 'success') {
               $('#spinnerLoading').hide();
               $('#uploadModal').modal('hide');
@@ -1074,9 +1074,8 @@ $(function () {
 
     if (selectedIds.length > 0) {
       if (confirm('Are you sure you want to cancel these items?')) {
-          $.post('php/modules/products/deleteProduct.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
-              
+          $.post('php/modules/products/api.php', {action: 'delete', ids: selectedIds}, function(obj){
+
               if(obj.status === 'success'){
                 $('#productTable').DataTable().ajax.reload();
                 $('#spinnerLoading').hide();
@@ -1325,11 +1324,10 @@ $(function () {
     e.preventDefault();
     $('#spinnerLoading').show();
     $.ajax({
-      url: 'php/modules/products/productCustomerSupplier.php',
+      url: 'php/modules/products/api.php',
       type: 'POST',
-      data: $(this).serialize(),
-      success: function(data) {
-        var obj = JSON.parse(data);
+      data: $(this).serialize() + '&action=saveCustomerSupplier',
+      success: function(obj) {
         $('#spinnerLoading').hide();
         if (obj.status === 'success') {
           toastr["success"](obj.message, "Success:");
@@ -1502,9 +1500,8 @@ function setProductImagePreview(file) {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/products/getProduct.php', {userID: id}, function(data){
-    var obj = JSON.parse(data);
-    
+  $.post('php/modules/products/api.php', {action: 'get', id: id}, function(obj){
+
     if(obj.status === 'success'){
       $('#productModal').find('#id').val(obj.message.id);
       $('#productModal').find('#code').val(obj.message.product_code);
@@ -1626,8 +1623,7 @@ function openCustomers(id) {
   $('#customersForm').find('#customerProductId').val(id);
   // Reset to customers tab
   $('#tabCustomersLink').tab('show');
-  $.post('php/modules/products/getProduct.php', {userID: id}, function(data) {
-    var obj = JSON.parse(data);
+  $.post('php/modules/products/api.php', {action: 'get', id: id}, function(obj) {
     if (obj.status === 'success') {
       // Load customers
       var items = obj.message.productCustomers;
@@ -1730,9 +1726,8 @@ function setRangeSet(val) {
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     //$('#spinnerLoading').show();
-    $.post('php/modules/products/deleteProduct.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
-        
+    $.post('php/modules/products/api.php', {action: 'delete', ids: [id]}, function(obj){
+
         if(obj.status === 'success'){
           toastr["success"](obj.message, "Success:");
           $('#productTable').DataTable().ajax.reload();

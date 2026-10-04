@@ -2794,8 +2794,7 @@ function calculatePrice(productId, status, customerId, currentGrade, element, ov
   if (productId && currencyId){
     $('#spinnerLoading').show();
 
-    $.post('php/modules/products/getProduct.php', {userID: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId, type: "getPrice"}, function(data){
-      var obj = JSON.parse(data);
+    $.post('php/modules/products/api.php', {action: 'getPrice', id: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId}, function(obj){
 
       if(obj.status === 'success'){
         var pricingType = obj.message.pricingType;

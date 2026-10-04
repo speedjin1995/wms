@@ -1,44 +1,97 @@
 <?php
 namespace App\Services;
 
-class StateService extends MasterDataService
+class StateService extends BaseService
 {
-    protected function table(): string
+    /**
+     * Get paginated states for DataTables
+     */
+    public function getList(int $start, int $length, string $orderColumn, string $orderDir, string $search): array
     {
-        return 'states';
+        $where = "states.deleted = 0";
+        $params = [];
+        $types = '';
+        $this->applyCompanyScope($where, $params, $types, 'states.customer');
+
+        $totalRecords = $this->countRows('states', $where, $types, $params);
+
+        $this->applySearch($where, $params, $types, ['states.states'], $search);
+        $totalFiltered = $this->countRows('states', $where, $types, $params);
+
+        $orderBy = $this->orderBy(['id' => 'states.id', 'states' => 'states.states'], $orderColumn, $orderDir, 'states.id');
+        $params[] = $start;
+        $params[] = $length;
+        $types .= 'ii';
+
+        $rows = $this->fetchAll("SELECT * FROM states WHERE $where ORDER BY states.deleted, $orderBy LIMIT ?, ?", $types, $params);
+
+        $data = [];
+        foreach ($rows as $row) {
+            $data[] = [
+                'id' => $row['id'],
+                'states' => $row['states'],
+                'deleted' => $row['deleted']
+            ];
+        }
+
+        return ['totalRecords' => $totalRecords, 'totalFiltered' => $totalFiltered, 'data' => $data];
     }
 
-    protected function searchColumns(): array
+    /**
+     * Get single state by ID
+     */
+    public function getById(int $id): ?array
     {
-        return ['states.states'];
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        return $this->fetchOne("SELECT id, states, customer FROM states WHERE $where", $types, $params);
     }
 
-    protected function sortColumns(): array
+    /**
+     * Create new state
+     */
+    public function create(array $data, int $company): array
     {
-        return ['id' => 'states.id', 'states' => 'states.states'];
+        $data['customer'] = $this->resolveCompany($company);
+        $data['created_by'] = $this->user;
+
+        if (!$this->insertRow('states', $data)) {
+            return ['status' => 'failed', 'message' => 'Failed to add record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Added Successfully!!'];
     }
 
-    protected function formatListRow(array $row, int $rowNumber): array
+    /**
+     * Update existing state (SADMIN may move it to another company)
+     */
+    public function update(int $id, array $data, int $company): array
     {
-        return [
-            'id' => $row['id'],
-            'states' => $row['states'],
-            'deleted' => $row['deleted']
-        ];
+        $data['customer'] = $this->resolveCompany($company);
+        $data['modified_by'] = $this->user;
+
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        if (!$this->updateRow('states', $data, $where, $types, $params)) {
+            return ['status' => 'failed', 'message' => 'Failed to update record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Updated Successfully!!'];
     }
 
-    protected function getColumns(): array
+    public function delete(array $ids): array
     {
-        return ['id', 'states', 'customer'];
+        return $this->softDeleteRecords('states', $ids);
     }
 
-    protected function updateColumns(): array
+    public function reactivate(int $id): array
     {
-        return ['states'];
-    }
-
-    protected function updatesCompany(): bool
-    {
-        return true;
+        return $this->reactivateRecord('states', $id);
     }
 }

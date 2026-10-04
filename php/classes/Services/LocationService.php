@@ -1,56 +1,108 @@
 <?php
 namespace App\Services;
 
-class LocationService extends MasterDataService
+class LocationService extends BaseService
 {
-    protected function table(): string
+    /**
+     * Get paginated locations for DataTables
+     */
+    public function getList(int $start, int $length, string $orderColumn, string $orderDir, string $search): array
     {
-        return 'locations';
+        $where = "locations.deleted = 0";
+        $params = [];
+        $types = '';
+        $this->applyCompanyScope($where, $params, $types, 'locations.customer');
+
+        $totalRecords = $this->countRows('locations', $where, $types, $params);
+
+        $this->applySearch($where, $params, $types, ['locations.locations'], $search);
+        $totalFiltered = $this->countRows('locations', $where, $types, $params);
+
+        $orderBy = $this->orderBy(['id' => 'locations.id', 'locations' => 'locations.locations'], $orderColumn, $orderDir, 'locations.id');
+        $params[] = $start;
+        $params[] = $length;
+        $types .= 'ii';
+
+        $rows = $this->fetchAll("SELECT * FROM locations WHERE $where ORDER BY locations.deleted, $orderBy LIMIT ?, ?", $types, $params);
+
+        $data = [];
+        foreach ($rows as $row) {
+            $data[] = [
+                'id' => $row['id'],
+                'locations' => $row['locations'],
+                'deleted' => $row['deleted']
+            ];
+        }
+
+        return ['totalRecords' => $totalRecords, 'totalFiltered' => $totalFiltered, 'data' => $data];
     }
 
-    protected function searchColumns(): array
+    /**
+     * Get single location by ID
+     */
+    public function getById(int $id): ?array
     {
-        return ['locations.locations'];
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        return $this->fetchOne("SELECT id, locations, customer FROM locations WHERE $where", $types, $params);
     }
 
-    protected function sortColumns(): array
+    /**
+     * Create new location
+     */
+    public function create(array $data, int $company): array
     {
-        return ['id' => 'locations.id', 'locations' => 'locations.locations'];
+        $data['customer'] = $this->resolveCompany($company);
+        $data['created_by'] = $this->user;
+
+        if (!$this->insertRow('locations', $data)) {
+            return ['status' => 'failed', 'message' => 'Failed to add record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Added Successfully!!'];
     }
 
-    protected function formatListRow(array $row, int $rowNumber): array
+    /**
+     * Update existing location
+     */
+    public function update(int $id, array $data): array
     {
-        return [
-            'id' => $row['id'],
-            'locations' => $row['locations'],
-            'deleted' => $row['deleted']
-        ];
+        $data['modified_by'] = $this->user;
+
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        if (!$this->updateRow('locations', $data, $where, $types, $params)) {
+            return ['status' => 'failed', 'message' => 'Failed to update record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Updated Successfully!!'];
     }
 
-    protected function getColumns(): array
+    public function delete(array $ids): array
     {
-        return ['id', 'locations', 'customer'];
+        return $this->softDeleteRecords('locations', $ids);
     }
 
-    protected function updateColumns(): array
+    public function reactivate(int $id): array
     {
-        return ['locations'];
+        return $this->reactivateRecord('locations', $id);
     }
 
-    protected function uploadNameColumn(): ?string
+    /**
+     * Bulk insert locations from Excel upload
+     */
+    public function upload(array $rows): array
     {
-        return 'locations';
-    }
-
-    protected function uploadLabel(): string
-    {
-        return 'Location';
-    }
-
-    protected function mapUploadRow(array $row): array
-    {
-        return [
-            'locations' => !empty($row['Location']) ? trim($row['Location']) : ''
-        ];
+        return $this->uploadRecords('locations', 'locations', 'Location', $rows, function (array $row): array {
+            return [
+                'locations' => !empty($row['Location']) ? trim($row['Location']) : ''
+            ];
+        });
     }
 }

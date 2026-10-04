@@ -1,48 +1,104 @@
 <?php
 namespace App\Services;
 
-class CurrencyService extends MasterDataService
+class CurrencyService extends BaseService
 {
-    protected function table(): string
+    /**
+     * Get paginated currencies for DataTables
+     */
+    public function getList(int $start, int $length, string $orderColumn, string $orderDir, string $search): array
     {
-        return 'currency';
+        $where = "currency.deleted = 0";
+        $params = [];
+        $types = '';
+        $this->applyCompanyScope($where, $params, $types, 'currency.customer');
+
+        $totalRecords = $this->countRows('currency', $where, $types, $params);
+
+        $this->applySearch($where, $params, $types, ['currency.currency', 'currency.description'], $search);
+        $totalFiltered = $this->countRows('currency', $where, $types, $params);
+
+        $orderBy = $this->orderBy(
+            ['id' => 'currency.id', 'currency' => 'currency.currency', 'description' => 'currency.description'],
+            $orderColumn, $orderDir, 'currency.id'
+        );
+        $params[] = $start;
+        $params[] = $length;
+        $types .= 'ii';
+
+        $rows = $this->fetchAll("SELECT * FROM currency WHERE $where ORDER BY currency.deleted, $orderBy LIMIT ?, ?", $types, $params);
+
+        $data = [];
+        foreach ($rows as $row) {
+            $data[] = [
+                'id' => $row['id'],
+                'currency' => $row['currency'],
+                'description' => $row['description'],
+                'rate' => $row['rate'],
+                'is_default' => $row['is_default'],
+                'deleted' => $row['deleted']
+            ];
+        }
+
+        return ['totalRecords' => $totalRecords, 'totalFiltered' => $totalFiltered, 'data' => $data];
     }
 
-    protected function searchColumns(): array
+    /**
+     * Get single currency by ID
+     */
+    public function getById(int $id): ?array
     {
-        return ['currency.currency', 'currency.description'];
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        return $this->fetchOne("SELECT id, currency, description, rate, is_default, customer FROM currency WHERE $where", $types, $params);
     }
 
-    protected function sortColumns(): array
+    /**
+     * Create new currency
+     */
+    public function create(array $data, int $company): array
     {
-        return ['id' => 'currency.id', 'currency' => 'currency.currency', 'description' => 'currency.description'];
+        $data['customer'] = $this->resolveCompany($company);
+        $data['created_by'] = $this->user;
+
+        if (!$this->insertRow('currency', $data)) {
+            return ['status' => 'failed', 'message' => 'Failed to add record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Added Successfully!!'];
     }
 
-    protected function formatListRow(array $row, int $rowNumber): array
+    /**
+     * Update existing currency (SADMIN may move it to another company)
+     */
+    public function update(int $id, array $data, int $company): array
     {
-        return [
-            'id' => $row['id'],
-            'currency' => $row['currency'],
-            'description' => $row['description'],
-            'rate' => $row['rate'],
-            'is_default' => $row['is_default'],
-            'deleted' => $row['deleted']
-        ];
+        $data['customer'] = $this->resolveCompany($company);
+        $data['modified_by'] = $this->user;
+
+        $where = "id = ?";
+        $params = [$id];
+        $types = 'i';
+        $this->applyCompanyScope($where, $params, $types);
+
+        if (!$this->updateRow('currency', $data, $where, $types, $params)) {
+            return ['status' => 'failed', 'message' => 'Failed to update record'];
+        }
+
+        return ['status' => 'success', 'message' => 'Updated Successfully!!'];
     }
 
-    protected function getColumns(): array
+    public function delete(array $ids): array
     {
-        return ['id', 'currency', 'description', 'rate', 'is_default', 'customer'];
+        return $this->softDeleteRecords('currency', $ids);
     }
 
-    protected function updateColumns(): array
+    public function reactivate(int $id): array
     {
-        return ['currency', 'description', 'rate'];
-    }
-
-    protected function updatesCompany(): bool
-    {
-        return true;
+        return $this->reactivateRecord('currency', $id);
     }
 
     /**
@@ -63,9 +119,11 @@ class CurrencyService extends MasterDataService
             if (!$this->executeWrite("UPDATE currency SET is_default = 0 WHERE customer = ? AND deleted = 0", 'i', [$targetCompany])) {
                 throw new \Exception('Failed to reset default currency');
             }
+
             if (!$this->executeWrite("UPDATE currency SET is_default = 1 WHERE id = ?", 'i', [$id])) {
                 throw new \Exception('Failed to set default currency');
             }
+
             $this->db->commit();
         } catch (\Exception $e) {
             $this->db->rollback();
