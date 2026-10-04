@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 
 session_start();
 
@@ -13,7 +13,12 @@ else{
   $role = $_SESSION['role'];
   $products = $_SESSION['products'];
   $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
-  $states = $db->query("SELECT * FROM states ORDER BY states ASC");
+  if ($role != 'SADMIN'){
+    $states = $db->query("SELECT * FROM states WHERE deleted = 0 AND customer = '$company' ORDER BY states ASC");
+  }
+  else{
+    $states = $db->query("SELECT * FROM states WHERE deleted = 0 ORDER BY states ASC");
+  }
 
   // Language
   $language = $_SESSION['language'];
@@ -21,49 +26,44 @@ else{
 }
 ?>
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-			<div class="col-sm-6">
-				<h1 class="m-0 text-dark"><?=$languageArray['daily_sales_setup_code'][$language]?></h1>
-			</div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
 </div>
-<!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
-	<div class="container-fluid">
-        <div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-              <div class="row">
-                  <div class="col-10"></div>
-                  <div class="col-2">
-                      <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addDailySales"><?=$languageArray['add_code'][$language]?></button>
-                  </div>
-              </div>
+<section class="content page-modern">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card results-card show-dt-controls">
+          <div class="card-header">
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-calendar-check mr-2"></i><?=$languageArray['daily_sales_setup_code'][$language]?></h3>
+            </div>
+            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+              <button type="button" class="btn btn-action btn-action-primary" id="addDailySales">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_code'][$language]?>
+              </button>
+            </div>
           </div>
-					<div class="card-body">
-						<table id="dailySalesSetupTable" class="table table-bordered table-striped">
-							<thead>
-								<tr>
+          <div class="card-body">
+            <table id="dailySalesSetupTable" class="table data-table">
+              <thead>
+                <tr>
                   <th><?=$languageArray['modules_code'][$language]?></th>
                   <th><?=$languageArray['states_code'][$language]?></th>
-									<th><?=$languageArray['actions_code'][$language]?></th>
-								</tr>
-							</thead>
-						</table>
-					</div><!-- /.card-body -->
-				</div><!-- /.card -->
-			</div><!-- /.col -->
-		</div><!-- /.row -->
-	</div><!-- /.container-fluid -->
+                  <th><?=$languageArray['actions_code'][$language]?></th>
+                </tr>
+              </thead>
+            </table>
+          </div><!-- /.card-body -->
+        </div><!-- /.card -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </section><!-- /.content -->
 
-<div class="modal fade" id="addModal">
+<div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <form role="form" id="dailySalesSetupForm">
@@ -74,20 +74,20 @@ else{
               </button>
             </div>
             <div class="modal-body">
-              <div class="card-body">
-                <div class="form-group">
-                  <input type="hidden" class="form-control" id="id" name="id">
-                </div>
-                <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                  <label for="code"><?=$languageArray['company_code'][$language]?> *</label>
+              <input type="hidden" class="form-control" id="id" name="id">
+              <div class="modal-section" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
                     <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
                       <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
+              </div>
+              <div class="modal-section">
                 <div class="form-group">
-                  <label for="module"><?=$languageArray['modules_code'][$language]?> *</label>
+                  <label class="form-label-modern"><?=$languageArray['modules_code'][$language]?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" style="width: 100%;" id="module" name="module" required>
                     <?php if (in_array('industrial', $products, true)) { ?>
                       <option value="industrial"><?=$languageArray['pulp_and_paste_code'][$language]?></option>
@@ -106,9 +106,9 @@ else{
                     <?php } ?>
                   </select>
                 </div>
-                <div class="form-group mb-2">
-                  <label class="font-weight-bold"><?=$languageArray['states_code'][$language]?> *</label>
-                  <select class="form-control select2" id="state" name="state[]" multiple="multiple" required>
+                <div class="form-group mb-0">
+                  <label class="form-label-modern"><?=$languageArray['states_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" style="width: 100%;" id="state" name="state[]" multiple="multiple" required>
                     <?php while($rowstates=mysqli_fetch_assoc($states)){ ?>
                       <option value="<?=$rowstates['id']?>"><?=$rowstates['states']?></option>
                     <?php } ?>
@@ -117,8 +117,8 @@ else{
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
+              <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+              <button type="submit" class="btn btn-modern btn-modern-primary" name="submit" id="submitMember"><?=$languageArray['submit_code'][$language]?></button>
             </div>
         </form>
       </div>
@@ -136,7 +136,7 @@ $(function () {
         allowClear: true,
         placeholder: "Please Select",
         // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
+        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal') : undefined
     });
   });
 
@@ -146,8 +146,13 @@ $(function () {
     'processing': true,
     'serverSide': true,
     'serverMethod': 'post',
+    'language': {
+      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+    },
     'ajax': {
-      'url':'php/modules/dailySalesSetup/filterDailySalesSetup.php',
+      'url':'php/modules/dailySalesSetup/api.php',
+      'data': { action: 'list' }
     },
     'columns': [
       { data: 'module' },
@@ -155,7 +160,7 @@ $(function () {
       { 
         data: 'id',
         render: function (data, type, row) {
-          return '<div class="row"><div class="col-3"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
+          return '<div class="d-flex" style="gap:4px;"><button type="button" id="edit' + row.id + '" onclick="edit(' + row.id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" id="delete' + row.id + '" onclick="deactivate(' + row.id + ')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
         }
       }
     ]
@@ -165,8 +170,7 @@ $(function () {
       submitHandler: function () {
           $('#spinnerLoading').show();
           $('#addModal').find('#module').prop('disabled', false);
-          $.post('php/modules/dailySalesSetup/dailySalesSetup.php', $('#dailySalesSetupForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
+          $.post('php/modules/dailySalesSetup/api.php', $('#dailySalesSetupForm').serialize() + '&action=save', function(obj){
               
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
@@ -214,8 +218,7 @@ $(function () {
 
 function edit(id){
   $('#spinnerLoading').show();
-  $.post('php/modules/dailySalesSetup/getDailySalesSetup.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
+  $.post('php/modules/dailySalesSetup/api.php', {action: 'get', id: id}, function(obj){
       
       if(obj.status === 'success'){
         $('#addModal').find('#id').val(obj.message.id);
@@ -251,8 +254,7 @@ function edit(id){
 function deactivate(id){
   if (confirm('Are you sure you want to delete this items?')) {
     $('#spinnerLoading').show();
-    $.post('php/modules/dailySalesSetup/deleteDailySales.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
+    $.post('php/modules/dailySalesSetup/api.php', {action: 'delete', id: id}, function(obj){
         
         if(obj.status === 'success'){
             toastr["success"](obj.message, "Success:");

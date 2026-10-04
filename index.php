@@ -849,7 +849,7 @@ to get the desired effect
                   if ($enableDailySales == 'Y'){
                     echo '
                         <li class="nav-item">
-                          <a href="#dailySalesSetup" data-file="dailySalesSetup.php" class="nav-link link">
+                          <a href="#dailySalesSetup" data-file="modules/dailySalesSetup/dailySalesSetup.php" class="nav-link link">
                             <i class="nav-icon fas fa-calendar-check"></i>
                             <p>'.$languageArray['daily_sales_setup_code'][$language].'</p>
                           </a>
