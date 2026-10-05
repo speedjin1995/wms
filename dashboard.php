@@ -100,6 +100,11 @@ if (!isset($_SESSION['userID'])) {
           <i class="fas fa-cubes"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['wholesales_code'][$language]?></span>
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#tabRepacking">
+          <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['repacking_code'][$language]?></span>
+        </a>
+      </li>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
       <li class="nav-item">
@@ -126,6 +131,7 @@ if (!isset($_SESSION['userID'])) {
     <div class="tab-content dash-tab-content">
       <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
         <?php require_once 'modules/dashboard/tab_wholesales.php'; ?>
+        <?php require_once 'modules/dashboard/tab_repacking.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
         <?php require_once 'modules/dashboard/tab_pulppaste.php'; ?>
@@ -140,8 +146,9 @@ if (!isset($_SESSION['userID'])) {
 </div>
 
 <!-- ── JS — load shared utils first, then per-tab logic ── -->
-<script src="modules/dashboard/js/dashboard.js"></script>
+<script src="modules/dashboard/js/dashboard.js?v=<?=time()?>"></script>
 <script src="modules/dashboard/js/tab_wholesales.js?v=<?=time()?>"></script>
+<script src="modules/dashboard/js/tab_repacking.js?v=<?=time()?>"></script>
 <script src="modules/dashboard/js/tab_grading.js?v=<?=time()?>"></script>
 <script src="modules/dashboard/js/tab_packaging.js?v=<?=time()?>" ></script>
 <script src="modules/dashboard/js/tab_pulppaste.js"></script>

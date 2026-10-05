@@ -483,7 +483,7 @@ to get the desired effect
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#repacking" data-file="repacking.php" class="nav-link link">
+                <a href="#repacking" data-file="modules/repacking/repacking.php" class="nav-link link">
                   <i class="nav-icon fas fa-box-open"></i>
                   <p><?=$languageArray['repacking_code'][$language]?></p>
                 </a>
@@ -541,12 +541,12 @@ to get the desired effect
                 </a>
               </li> -->
               <?php if ($module == 'wholesale') { ?>
-              <li class="nav-item">
-                <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
-                  <i class="nav-icon fas fa-cubes"></i>
-                  <p><?=$languageArray['wholesales_code'][$language]?></p>
-                </a>
-              </li>
+                <li class="nav-item">
+                  <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
+                    <i class="nav-icon fas fa-cubes"></i>
+                    <p><?=$languageArray['wholesales_code'][$language]?></p>
+                  </a>
+                </li>
                 <?php if ($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
                 <li class="nav-item">
                   <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
@@ -555,6 +555,12 @@ to get the desired effect
                   </a>
                 </li>
                 <?php } ?>
+                <li class="nav-item">
+                  <a href="#repacking" data-file="modules/repacking/repacking.php" class="nav-link link">
+                    <i class="nav-icon fas fa-box-open"></i>
+                    <p><?=$languageArray['repacking_code'][$language]?></p>
+                  </a>
+                </li>
               <?php } ?>
               <?php if ($module == 'weighing') { ?>
               <li class="nav-item">
