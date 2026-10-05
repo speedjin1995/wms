@@ -345,6 +345,79 @@
   border-top: 1px solid var(--page-border);
 }
 
+.page-modern .form-card .input-group-text {
+  background: var(--page-border-light);
+  border-color: var(--page-border);
+  color: var(--page-text-muted);
+}
+
+.page-modern .form-card .input-group-prepend .input-group-text {
+  border-radius: var(--page-radius) 0 0 var(--page-radius);
+}
+
+.page-modern .form-card .input-group > .form-control:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.page-modern .form-card .select2-container {
+  width: 100% !important;
+}
+
+.page-modern .form-card .select2-container--default .select2-selection--single {
+  height: calc(1.5em + 0.75rem + 2px);
+  border-color: var(--page-border);
+  border-radius: var(--page-radius);
+}
+
+.page-modern .form-card .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: calc(1.5em + 0.5rem);
+  font-size: 0.875rem;
+}
+
+.page-modern .form-card .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: calc(1.5em + 0.5rem);
+}
+
+/* Toggle tile (label + switch) */
+.page-modern .form-card .toggle-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+  background: var(--page-border-light);
+}
+
+.page-modern .form-card .toggle-tile-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--page-text);
+}
+
+/* Logo preview */
+.page-modern .form-card .logo-thumb {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--page-border);
+  border-radius: var(--page-radius);
+  background: var(--page-border-light);
+  color: var(--page-text-muted);
+  overflow: hidden;
+}
+
+.page-modern .form-card .logo-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
 /* Action Button in Header */
 .page-modern .btn-action {
   height: 34px;

@@ -836,7 +836,7 @@ to get the desired effect
               <?php 
                 if($role == "ADMIN" || $role == "SADMIN"){
                   echo '<li class="nav-item">
-                          <a href="#company" data-file="company.php" class="nav-link link">
+                          <a href="#company" data-file="modules/company/company.php" class="nav-link link">
                             <i class="nav-icon fas fa-building"></i>
                             <p>'.$languageArray['company_profile_code'][$language].'</p>
                           </a>
@@ -861,7 +861,7 @@ to get the desired effect
               ?>
 
               <li class="nav-item">
-                <a href="#setup" data-file="setup.php" class="nav-link link">
+                <a href="#setup" data-file="modules/indicatorSetup/indicatorSetup.php" class="nav-link link">
                   <i class="nav-icon fas fa-tachometer-alt"></i>
                   <p><?=$languageArray['indicator_setup_code'][$language]?></p>
                 </a>
