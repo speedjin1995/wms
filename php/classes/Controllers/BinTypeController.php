@@ -1,13 +1,13 @@
 <?php
 namespace App\Controllers;
 
-use App\Services\TranslationService;
+use App\Services\BinTypeService;
 
-class TranslationController extends BaseController
+class BinTypeController extends BaseController
 {
-    private TranslationService $service;
+    private BinTypeService $service;
 
-    public function __construct(TranslationService $service)
+    public function __construct(BinTypeService $service)
     {
         $this->service = $service;
     }
@@ -22,7 +22,7 @@ class TranslationController extends BaseController
         try {
             $result = $this->service->getList($p['start'], $p['length'], $p['orderColumn'], $p['orderDir'], $p['search']);
         } catch (\Exception $e) {
-            error_log('TranslationController::list - ' . $e->getMessage());
+            error_log('BinTypeController::list - ' . $e->getMessage());
             $result = $this->emptyListResult();
         }
 
@@ -43,7 +43,7 @@ class TranslationController extends BaseController
         try {
             $record = $this->service->getById($id);
         } catch (\Exception $e) {
-            error_log('TranslationController::get - ' . $e->getMessage());
+            error_log('BinTypeController::get - ' . $e->getMessage());
             return ['status' => 'failed', 'message' => 'Something went wrong'];
         }
 
@@ -59,40 +59,26 @@ class TranslationController extends BaseController
      */
     public function save(): array
     {
-        $id = $this->postId('keyId');
+        $id = $this->postId();
+        $binType = $this->postText('binType');
+        $company = $this->postId('company');
 
-        $data = [
-            'message_key_code' => $this->postText('keyCode'),
-            'en' => $this->postText('englishDecs'),
-            'zh' => $this->postText('chineseDecs'),
-            'my' => $this->postText('malayDecs'),
-            'ne' => $this->postText('tamilDecs'),
-            'ja' => $this->postText('japaneseDecs'),
-            'company' => (int)($_POST['company'] ?? 0)
-        ];
-
-        if ($data['message_key_code'] === '' || $data['en'] === '') {
+        if ($binType === '') {
             return ['status' => 'failed', 'message' => 'Please fill in all the fields'];
         }
 
         if ($id) {
-            return $this->service->update($id, $data);
+            return $this->service->update($id, $binType, $company);
         }
 
-        return $this->service->create($data);
+        return $this->service->create($binType, $company);
     }
 
     /**
-     * Delete single record
+     * Soft delete single or multiple records
      */
     public function delete(): array
     {
-        $id = $this->postId();
-
-        if (!$id) {
-            return ['status' => 'failed', 'message' => 'Please fill in all the fields'];
-        }
-
-        return $this->service->delete($id);
+        return $this->service->delete($this->postIds());
     }
 }

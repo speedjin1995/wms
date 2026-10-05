@@ -11,7 +11,16 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+
+  if ($role == 'SADMIN') {
+    $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+  } else {
+    $companyStmt = $db->prepare("SELECT * FROM companies WHERE id = ? AND deleted = 0");
+    $companyStmt->bind_param('i', $company);
+    $companyStmt->execute();
+    $companies = $companyStmt->get_result();
+    $companyStmt->close();
+  }
 
   // Language
   $language = $_SESSION['language'];
@@ -19,276 +28,98 @@ else{
 }
 ?>
 
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0 text-dark"><?=$languageArray['bin_types_code'][$language]?></h1>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
 </div>
-<!-- /.content-header -->
 
 <!-- Main content -->
-<section class="content">
-	<div class="container-fluid">
-        <div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-            <div class="row">
-                <div class="col-8"></div>
-                <div class="col-2">
-                  <button type="button" id="multiDeactivate" class="btn btn-block bg-gradient-danger btn-sm">
-                    <?=$languageArray['delete_bin_types_code'][$language]?>
-                  </button>
-                </div>
-                <div class="col-2">
-                    <button type="button" class="btn btn-block bg-gradient-warning btn-sm" id="addBinType"><?=$languageArray['add_bin_types_code'][$language]?></button>
-                </div>
+<section class="content page-modern">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card results-card show-dt-controls">
+          <div class="card-header">
+            <div class="results-header-left">
+              <h3 class="results-title"><i class="fas fa-box mr-2"></i><?=$languageArray['bin_types_code'][$language]?></h3>
             </div>
-          </div>
-					<div class="card-body">
-						<table id="binTypeTable" class="table table-bordered table-striped">
-							<thead>
-								<tr>
-                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['bin_types_code'][$language]?></th>
-									<th><?=$languageArray['actions_code'][$language]?></th>
-								</tr>
-							</thead>
-						</table>
-					</div><!-- /.card-body -->
-				</div><!-- /.card -->
-			</div><!-- /.col -->
-		</div><!-- /.row -->
-	</div><!-- /.container-fluid -->
-</section><!-- /.content -->
-
-<div class="modal fade" id="addModal">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <form role="form" id="binTypeForm">
-            <div class="modal-header">
-              <h4 class="modal-title" id="modalTitle"><?=$languageArray['add_bin_types_code'][$language]?></h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+            <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+              <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
+                <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_bin_types_code'][$language]?>
+              </button>
+              <button type="button" class="btn btn-action btn-action-primary" id="addBinType">
+                <i class="fas fa-plus"></i> <?=$languageArray['add_bin_types_code'][$language]?>
               </button>
             </div>
-            <div class="modal-body">
-              <div class="card-body">
-                <div class="form-group">
-                  <input type="hidden" class="form-control" id="id" name="id">
-                </div>
-                <div class="form-group" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
-                  <label for="company"><?=$languageArray['company_code'][$language]?> *</label>
-                  <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
-                    <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
-                      <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
-                    <?php } ?>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="binType"><?=$languageArray['bin_types_code'][$language]?> *</label>
-                  <input type="text" class="form-control" name="binType" id="binType" placeholder="<?=$languageArray['enter_bin_type_code'][$language]?>" required>
-                </div>
-              </div>
+          </div>
+          <div class="card-body">
+            <table id="binTypeTable" class="table data-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
+                  <th><?=$languageArray['bin_types_code'][$language]?></th>
+                  <th width="10%"><?=$languageArray['actions_code'][$language]?></th>
+                </tr>
+              </thead>
+            </table>
+          </div><!-- /.card-body -->
+        </div><!-- /.card -->
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
+</section><!-- /.content -->
+
+<div class="modal fade modal-modern" id="addModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form role="form" id="binTypeForm">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modalTitle"><?=$languageArray['add_bin_types_code'][$language]?></h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" class="form-control" id="id" name="id">
+
+          <!-- Company (SADMIN only) -->
+          <div class="modal-section" <?php if($role != 'SADMIN'){ echo 'style="display:none;"'; } ?>>
+            <div class="form-group mb-0">
+              <label class="form-label-modern"><?=$languageArray['company_code'][$language]?> <span class="text-danger">*</span></label>
+              <select class="form-control select2" style="width: 100%;" id="company" name="company" required>
+                <?php while($rowCompany=mysqli_fetch_assoc($companies)){ ?>
+                  <option value="<?=$rowCompany['id'] ?>" <?php if($rowCompany['id'] == $company) echo 'selected'; ?>><?=$rowCompany['name'] ?></option>
+                <?php } ?>
+              </select>
             </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-danger" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="submit" class="btn btn-primary" name="submit"><?=$languageArray['submit_code'][$language]?></button>
+          </div>
+
+          <div class="modal-section">
+            <div class="form-group mb-0">
+              <label class="form-label-modern"><?=$languageArray['bin_types_code'][$language]?> <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="binType" id="binType" placeholder="<?=$languageArray['enter_bin_type_code'][$language]?>" required>
             </div>
-        </form>
-      </div>
-      <!-- /.modal-content -->
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary" name="submit" id="submitBinType"><?=$languageArray['submit_code'][$language]?></button>
+        </div>
+      </form>
     </div>
-    <!-- /.modal-dialog -->
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
 </div>
 
 <script>
-
-$(function () {
-  $('#selectAllCheckbox').on('change', function() {
-    var checkboxes = $('#binTypeTable tbody input[type="checkbox"]');
-    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
-  });
-
-  $('.select2').each(function() {
-    $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        dropdownParent: $(this).closest('.modal').length ? $(this).closest('.modal-body') : undefined
-    });
-  });
-
-  $("#binTypeTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'ajax': {
-      'url':'php/modules/binType/loadBinType.php',
-    },
-    'columns': [
-      {
-        data: 'id',
-        className: 'select-checkbox',
-        orderable: false,
-        render: function (data, type, row) {
-            return '<input type="checkbox" class="select-checkbox" id="checkbox_' + data + '" value="'+data+'"/>';
-        }
-      },
-      { data: 'bin_type' },
-      { 
-        data: 'deleted',
-        render: function (data, type, row) {
-          return '<div class="row"><div class="col-3"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-success btn-sm"><i class="fas fa-pen"></i></button></div><div class="col-3"><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></div></div>';
-        }
-      }
-    ],
-  });
-  
-  $.validator.setDefaults({
-      submitHandler: function () {
-          $('#spinnerLoading').show();
-          $.post('php/modules/binType/binType.php', $('#binTypeForm').serialize(), function(data){
-              var obj = JSON.parse(data); 
-              
-              if(obj.status === 'success'){
-                $('#addModal').modal('hide');
-                toastr["success"](obj.message, "Success:");
-                $('#binTypeTable').DataTable().ajax.reload();
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                toastr["error"](obj.message, "Failed:");
-                $('#spinnerLoading').hide();
-              }
-              else{
-                toastr["error"]("Something went wrong", "Failed:");
-                $('#spinnerLoading').hide();
-              }
-          });
-      }
-  });
-
-  $('#addBinType').on('click', function(){
-    $('#modalTitle').text('Add Bin Type');
-    $('#addModal').find('#id').val("");
-    $('#addModal').find('#binType').val("");
-    $('#addModal').modal('show');
-    
-    $('#binTypeForm').validate({
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-            $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-            $(element).removeClass('is-invalid');
-        }
-    });
-  });
-
-  $('#multiDeactivate').on('click', function () {
-    $('#spinnerLoading').show();
-    var selectedIds = [];
-
-    $("#binTypeTable tbody input[type='checkbox']").each(function () {
-      if (this.checked) {
-          selectedIds.push($(this).val());
-      }
-    });
-
-    if (selectedIds.length > 0) {
-      if (confirm('Are you sure you want to delete the selected bin types?')) {
-          $.post('php/modules/binType/deleteBinType.php', {userID: selectedIds, type: 'MULTI'}, function(data){
-              var obj = JSON.parse(data);
-              
-              if(obj.status === 'success'){
-                $('#binTypeTable').DataTable().ajax.reload();
-                $('#spinnerLoading').hide();
-              }
-              else if(obj.status === 'failed'){
-                toastr["error"](obj.message, "Failed:");
-                $('#spinnerLoading').hide();
-              }
-              else{
-                $('#spinnerLoading').hide();
-              }
-          });
-      } else {
-        $('#spinnerLoading').hide();
-      }
-    } 
-    else {
-        alert("Please select at least one bin type to delete.");
-        $('#spinnerLoading').hide();
-    }     
-  });
-});
-
-function edit(id){
-  $('#spinnerLoading').show();
-  $.post('php/modules/binType/getBinType.php', {userID: id}, function(data){
-      var obj = JSON.parse(data);
-      
-      if(obj.status === 'success'){
-          $('#modalTitle').text('Edit Bin Type');
-          $('#addModal').find('#id').val(obj.message.id);
-          $('#addModal').find('#binType').val(obj.message.bin_type);
-          $('#addModal').find('#company').val(obj.message.customer).trigger('change');
-          $('#addModal').modal('show');
-          
-          $('#binTypeForm').validate({
-              errorElement: 'span',
-              errorPlacement: function (error, element) {
-                  error.addClass('invalid-feedback');
-                  element.closest('.form-group').append(error);
-              },
-              highlight: function (element, errorClass, validClass) {
-                  $(element).addClass('is-invalid');
-              },
-              unhighlight: function (element, errorClass, validClass) {
-                  $(element).removeClass('is-invalid');
-              }
-          });
-      }
-      else if(obj.status === 'failed'){
-          toastr["error"](obj.message, "Failed:");
-      }
-      else{
-          toastr["error"]("Something went wrong", "Failed:");
-      }
-      $('#spinnerLoading').hide();
-  });
-}
-
-function deactivate(id){
-  if (confirm('Are you sure you want to delete this bin type?')) {
-    $('#spinnerLoading').show();
-    $.post('php/modules/binType/deleteBinType.php', {userID: id}, function(data){
-        var obj = JSON.parse(data);
-        
-        if(obj.status === 'success'){
-            toastr["success"](obj.message, "Success:");
-            $('#binTypeTable').DataTable().ajax.reload();
-            $('#spinnerLoading').hide();
-        }
-        else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-            $('#spinnerLoading').hide();
-        }
-        else{
-            toastr["error"]("Something went wrong", "Failed:");
-            $('#spinnerLoading').hide();
-        }
-    });
-  }
-}
+var binTypeText = {
+  'addTitle': '<?=$languageArray['add_bin_types_code'][$language]?>',
+  'editTitle': '<?=$languageArray['edit_bin_types_code'][$language] ?? 'Edit Bin Type'?>',
+  'pleaseSelect': '<?=$languageArray['please_select_code'][$language] ?? 'Please Select'?>'
+};
+var binTypeTableLanguage = {
+  'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+  'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+};
 </script>
+<script src="modules/binType/js/binType.js?v=<?=time()?>"></script>

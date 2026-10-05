@@ -67,6 +67,17 @@ abstract class BaseController
     }
 
     /**
+     * Trimmed POST text with tags stripped and quotes encoded (same output as the former FILTER_SANITIZE_STRING).
+     * Use for values echoed unescaped into HTML / JS strings.
+     */
+    protected function postText(string $key): string
+    {
+        $value = strip_tags(trim((string)($_POST[$key] ?? '')));
+
+        return str_replace(['"', "'"], ['&#34;', '&#39;'], $value);
+    }
+
+    /**
      * Read form fields (POST name => ['column' => db column, 'required' => bool]) as column => value.
      * Empty values become null; returns null when a required field is empty.
      */
