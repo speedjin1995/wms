@@ -1,0 +1,77 @@
+<?php
+require_once __DIR__ . '/../../db_connect.php';
+require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use App\Controllers\WeighbridgeController;
+use App\Services\WeighbridgeReportService;
+use App\Services\WeighbridgeService;
+
+session_start();
+
+$action = $_POST['action'] ?? $_GET['action'] ?? '';
+$isDownload = in_array($action, ['exportExcel', 'exportPdf'], true);
+
+if (!$isDownload) {
+    header('Content-Type: application/json');
+}
+
+if (!isset($_SESSION['userID'])) {
+    if ($isDownload) {
+        http_response_code(401);
+        exit('Unauthorized');
+    }
+    echo json_encode(['status' => 'failed', 'message' => 'Unauthorized']);
+    exit;
+}
+
+$company = (int)$_SESSION['customer'];
+$userId = (int)$_SESSION['userID'];
+$role = (string)($_SESSION['role'] ?? '');
+
+$controller = new WeighbridgeController(
+    new WeighbridgeService($db, $company, $userId, $role),
+    new WeighbridgeReportService($db, $company, $userId, $role)
+);
+
+try {
+    switch ($action) {
+        case 'list':
+            echo json_encode($controller->list());
+            break;
+
+        case 'get':
+            echo json_encode($controller->get());
+            break;
+
+        case 'save':
+            echo json_encode($controller->save());
+            break;
+
+        case 'cancel':
+            echo json_encode($controller->cancel());
+            break;
+
+        case 'printSlip':
+            echo json_encode($controller->printSlip());
+            break;
+
+        case 'exportExcel':
+            $controller->exportExcel();
+            break;
+
+        case 'exportPdf':
+            $controller->exportPdf();
+            break;
+
+        default:
+            echo json_encode(['status' => 'failed', 'message' => 'Invalid action']);
+    }
+} catch (\Throwable $e) {
+    error_log('wb/api.php - ' . $e->getMessage());
+    if ($isDownload) {
+        http_response_code(500);
+        exit('Something went wrong');
+    }
+    echo json_encode(['status' => 'failed', 'message' => 'Something went wrong']);
+}
