@@ -42,6 +42,7 @@ $(document).ready(function () {
     columns: wbColumns().concat([
       {
         data: 'id',
+        responsivePriority: 1,
         orderable: false,
         render: function (data) {
           return '<div class="d-flex" style="gap:4px;">' + actionButtons(data) + '</div>';

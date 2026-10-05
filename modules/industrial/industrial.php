@@ -744,6 +744,7 @@ $(function () {
       <?php }?>
       { 
         data: 'id',
+        responsivePriority: 1,
         class: 'action-button',
         render: function ( data, type, row ) {
           var buttons = '<div class="row">';
@@ -869,6 +870,7 @@ $(function () {
         <?php }?>
         { 
           data: 'id',
+          responsivePriority: 1,
           class: 'action-button',
           render: function ( data, type, row ) {
             var buttons = '<div class="row">';

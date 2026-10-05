@@ -1924,7 +1924,7 @@ function getTableColumns() {
     cols.push({ data: item.col[1], visible: item.visible });
   });
   cols.push({
-    data: 'id', class: 'action-button', orderable: false,
+    data: 'id', responsivePriority: 1, class: 'action-button', orderable: false,
     render: function(data, type, row) {
       var buttons = '<div class="d-flex" style="gap:4px;">';
       if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {

@@ -404,6 +404,7 @@ $(function () {
       { data: 'shipmentType' },
       { 
         data: 'id',
+        responsivePriority: 1,
         class: 'action-button',
         render: function ( data, type, row ) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
@@ -490,6 +491,7 @@ $(function () {
         { data: 'shipmentType' },
         { 
           data: 'id',
+          responsivePriority: 1,
           class: 'action-button',
           render: function ( data, type, row ) {
             var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';

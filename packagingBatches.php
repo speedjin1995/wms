@@ -625,6 +625,7 @@ $(function () {
       { data: 'status', render: function(d) { var cls = { pending: 'warning', partial: 'info', completed: 'success' }; return '<span class="badge badge-' + (cls[d] || 'secondary') + '">' + d + '</span>'; } },
       { 
         data: 'id',
+        responsivePriority: 1,
         class: 'action-button',
         orderable: false,
         render: function ( data, type, row ) {
@@ -721,6 +722,7 @@ $(function () {
         { data: 'status', render: function(d) { var cls = { pending: 'warning', partial: 'info', completed: 'success' }; return '<span class="badge badge-' + (cls[d] || 'secondary') + '">' + d + '</span>'; } },
         { 
           data: 'id',
+          responsivePriority: 1,
           class: 'action-button',
           orderable: false,
           render: function ( data, type, row ) {

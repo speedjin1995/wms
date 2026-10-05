@@ -35,6 +35,7 @@ $(function () {
       { data: 'states' },
       { 
         data: 'deleted',
+        responsivePriority: 1,
         render: function (data, type, row) {
           return '<div class="d-flex" style="gap:4px;"><button type="button" onclick="edit(' + row.id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" onclick="deactivate(' + row.id + ')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
         }

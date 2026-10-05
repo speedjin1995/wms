@@ -52,6 +52,7 @@ $(function () {
       { data: 'remark' },
       { 
         data: 'id',
+        responsivePriority: 1,
         render: function ( data, type, row ) {
           return '<div class="d-flex" style="gap:4px;">'
             + '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>'

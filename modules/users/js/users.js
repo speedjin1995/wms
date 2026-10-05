@@ -34,6 +34,7 @@ $(document).ready(function() {
       { data: 'created_date' },
       {
         data: 'id',
+        responsivePriority: 1,
         orderable: false,
         render: function(data) {
           return '<div class="d-flex" style="gap:4px;">' +

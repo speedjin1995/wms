@@ -75,6 +75,7 @@ $(function () {
       },
       { 
         data: 'deleted',
+        responsivePriority: 1,
         render: function (data, type, row) {
           if (data == 0) {
             return '<div class="d-flex" style="gap:4px;">'

@@ -324,6 +324,7 @@ $(function () {
       { data: 'weighted_by' },
       { 
         data: 'id',
+        responsivePriority: 1,
         render: function ( data, type, row ) {
           return '<button type="button" onclick="printReport('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
         }
@@ -416,6 +417,7 @@ $(function () {
         { data: 'weighted_by' },
         { 
           data: 'id',
+          responsivePriority: 1,
           render: function ( data, type, row ) {
             return '<button type="button" onclick="printReport('+data+')" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button>';
           }

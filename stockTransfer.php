@@ -330,7 +330,7 @@ $(function () {
       { data: 'to_batch_no' },
       { data: 'created_date' },
       { data: 'remarks' },
-      { data: 'id', class: 'action-button', render: function(data) {
+      { data: 'id', responsivePriority: 1, class: 'action-button', render: function(data) {
           var btn = '<div class="d-flex flex-nowrap" style="gap:4px;">';
           <?php if($allowDelete == 'Y'){ ?>
             btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-undo"></i></button>';
@@ -371,7 +371,7 @@ $(function () {
         { data: 'to_batch_no' },
         { data: 'created_date' },
         { data: 'remarks' },
-        { data: 'id', class: 'action-button', render: function(data) {
+        { data: 'id', responsivePriority: 1, class: 'action-button', render: function(data) {
             var btn = '<div class="d-flex flex-nowrap" style="gap:4px;">';
             <?php if($allowDelete == 'Y'){ ?>
             btn += '<button type="button" onclick="deactivate('+data+')" class="btn btn-danger btn-sm"><i class="fas fa-undo"></i></button>';

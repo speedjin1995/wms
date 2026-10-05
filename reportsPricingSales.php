@@ -303,6 +303,7 @@ $(function () {
       { data: 'created_datetime' },
       { 
         data: 'id',
+        responsivePriority: 1,
         render: function ( data, type, row ) {
           return `
             <div class="row">
@@ -368,6 +369,7 @@ $(function () {
         { data: 'created_datetime' },
         { 
           data: 'id',
+          responsivePriority: 1,
           render: function ( data, type, row ) {
             return `
               <div class="row">

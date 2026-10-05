@@ -730,6 +730,7 @@ function initDataTable() {
       { data: 'end_date' },
       {
         data: 'id',
+        responsivePriority: 1,
         className: 'action-button',
         render: function(data) {
           var buttons = '<div class="d-flex flex-nowrap" style="gap:4px;">';
