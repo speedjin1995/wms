@@ -388,13 +388,9 @@ to get the desired effect
         </a>
         <div class="dropdown-menu dropdown-menu-right">
           <h6 class="dropdown-header"><?=$languageArray['welcome_code'][$language]?>, <?=$username?>!</h6>
-          <a href="#myprofile" data-file="myprofile.php" class="dropdown-item link">
+          <a href="#myprofile" data-file="modules/profile/profile.php" class="dropdown-item link">
             <i class="fas fa-user-circle"></i>
             <span><?=$languageArray['profile_code'][$language]?></span>
-          </a>
-          <a href="#changepassword" data-file="changePassword.php" class="dropdown-item link">
-            <i class="fas fa-key"></i>
-            <span><?=$languageArray['change_password_code'][$language]?></span>
           </a>
           <a class="dropdown-item dropdown-item-logout" href="php/logout.php">
             <i class="fas fa-sign-out-alt"></i>
@@ -422,7 +418,7 @@ to get the desired effect
         </div>
         <div class="info">
           <span class="user-welcome"><?=$languageArray['welcome_code'][$language]?></span>
-          <a href="#myprofile" data-file="myprofile.php" id="goToProfile" class="user-name"><?=$name?></a>
+          <a href="#myprofile" data-file="modules/profile/profile.php" id="goToProfile" class="user-name"><?=$name?></a>
         </div>
       </div>
 
@@ -872,18 +868,12 @@ to get the desired effect
               </li>
 
               <li class="nav-item">
-                <a href="#myprofile" data-file="myprofile.php" class="nav-link link">
+                <a href="#myprofile" data-file="modules/profile/profile.php" class="nav-link link">
                   <i class="nav-icon fas fa-id-badge"></i>
                   <p><?=$languageArray['profile_code'][$language]?></p>
                 </a>
               </li>
-          
-              <li class="nav-item">
-                <a href="#changepassword" data-file="changePassword.php" class="nav-link link">
-                  <i class="nav-icon fas fa-key"></i>
-                  <p><?=$languageArray['change_password_code'][$language]?></p>
-                </a>
-              </li>
+
             </ul>
           </li>
           <li class="nav-item nav-item-logout">

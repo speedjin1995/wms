@@ -304,6 +304,47 @@
   padding: 0;
 }
 
+/* Form Card (results-card holding a form instead of a table) */
+.page-modern .results-card.form-card .card-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.page-modern .form-card .form-label-modern {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--page-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.page-modern .form-card .form-control {
+  font-size: 0.875rem;
+  border-color: var(--page-border);
+  border-radius: var(--page-radius);
+}
+
+.page-modern .form-card .form-control:focus {
+  border-color: var(--page-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.page-modern .form-card .form-control[readonly] {
+  background: var(--page-border-light);
+  color: var(--page-text-secondary);
+}
+
+.page-modern .form-card .form-text {
+  font-size: 0.75rem;
+}
+
+.page-modern .form-card .card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.875rem 1.5rem;
+  background: var(--page-surface);
+  border-top: 1px solid var(--page-border);
+}
+
 /* Action Button in Header */
 .page-modern .btn-action {
   height: 34px;
