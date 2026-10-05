@@ -11,7 +11,20 @@ else{
   $company = $_SESSION['customer'];
   $user = $_SESSION['userID'];
   $role = $_SESSION['role'];
-  $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+
+  // Language
+  $language = $_SESSION['language'];
+  $languageArray = $_SESSION['languageArray'];
+
+  if ($role == 'SADMIN') {
+    $companies = $db->query("SELECT * FROM companies WHERE deleted = 0 ORDER BY name ASC");
+  } else {
+    $companyStmt = $db->prepare("SELECT * FROM companies WHERE id = ? AND deleted = 0");
+    $companyStmt->bind_param('i', $company);
+    $companyStmt->execute();
+    $companies = $companyStmt->get_result();
+    $companyStmt->close();
+  }
 }
 ?>
 
@@ -141,136 +154,9 @@ else{
 </div>
 
 <script>
-var table;
-
-$(function () {
-  table = $("#translationTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'order': [[ 1, 'asc' ]],
-    'ajax': {
-      'url':'php/modules/translations/loadTranslations.php'
-    },
-    'columns': [
-      { data: 'counter' },
-      { data: 'message_key_code' },
-      { data: 'en' },
-      { data: 'zh' },
-      { data: 'my' },
-      { data: 'ne' },
-      { data: 'ja' },
-      { 
-        data: 'id',
-        render: function ( data, type, row ) {
-          return '<div class="d-flex" style="gap:4px;"><button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button><button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button></div>';
-        }
-      }
-    ]
-  });
-  
-  $.validator.setDefaults({
-    submitHandler: function () {
-      $.post('php/modules/translations/translations.php', $('#translationForm').serialize(), function(data){
-        var obj = JSON.parse(data); 
-        
-        if(obj.status === 'success'){
-          $('#translationModal').modal('hide');
-          toastr["success"](obj.message, "Success:");
-          table.ajax.reload();
-        }
-        else if(obj.status === 'failed'){
-          toastr["error"](obj.message, "Failed:");
-        }
-        else{
-          toastr["error"]("Something went wrong", "Failed:");
-        }
-      });
-    }
-  });
-
-  $('#addTranslation').on('click', function(){
-    $('#translationModal').find('#keyId').val('');
-    $('#translationModal').find('#keyCode').val('');
-    $('#translationModal').find('#englishDecs').val('');
-    $('#translationModal').find('#chineseDecs').val('');
-    $('#translationModal').find('#malayDecs').val('');
-    $('#translationModal').find('#japaneseDecs').val('');
-    $('#translationModal').find('#tamilDecs').val('');
-    $('#translationModal').modal('show');
-    
-    $('#translationForm').validate({
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-        error.addClass('invalid-feedback');
-        element.closest('.form-group').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-        $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-        $(element).removeClass('is-invalid');
-      }
-    });
-  });
-});
-
-function edit(id){
-  $.post('php/modules/translations/getTranslation.php', {messageId: id}, function(data){
-    var obj = JSON.parse(data);
-    
-    if(obj.status === 'success'){
-      $('#translationModal').find('#keyId').val(obj.message.id);
-      $('#translationModal').find('#keyCode').val(obj.message.message_key_code);
-      $('#translationModal').find('#englishDecs').val(obj.message.en);
-      $('#translationModal').find('#chineseDecs').val(obj.message.zh);
-      $('#translationModal').find('#malayDecs').val(obj.message.my);
-      $('#translationModal').find('#japaneseDecs').val(obj.message.ja);
-      $('#translationModal').find('#tamilDecs').val(obj.message.ne);
-      $('#translationModal').find('#company').val(obj.message.company).trigger('change');
-      $('#translationModal').modal('show');
-      
-      $('#translationForm').validate({
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-        },
-        highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-        }
-      });
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something went wrong", "Failed:");
-    }
-  });
-}
-
-function deactivate(id){
-  if (confirm('Are you sure you want to delete this item?')) {
-    $.post('php/modules/translations/deleteMessage.php', {messageId: id}, function(data){
-      var obj = JSON.parse(data);
-      
-      if(obj.status === 'success'){
-        toastr["success"](obj.message, "Success:");
-        table.ajax.reload();
-      }
-      else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
-      }
-      else{
-        toastr["error"]("Something went wrong", "Failed:");
-      }
-    });
-  }
-}
+var translationTableLanguage = {
+  'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
+  'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
+};
 </script>
+<script src="modules/translations/js/translations.js?v=<?=time()?>"></script>
