@@ -846,7 +846,7 @@ to get the desired effect
                           </a>
                         </li>
                         <li class="nav-item">
-                          <a href="#users" data-file="users.php" class="nav-link link">
+                          <a href="#users" data-file="modules/users/users.php" class="nav-link link">
                             <i class="nav-icon fas fa-user"></i>
                             <p>'.$languageArray['staffs_code'][$language].'</p>
                           </a>
