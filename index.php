@@ -695,7 +695,7 @@ to get the desired effect
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="#paymentVoucher" data-file="paymentVoucher.php" class="nav-link link">
+                <a href="#paymentVoucher" data-file="modules/paymentVoucher/paymentVoucher.php" class="nav-link link">
                   <i class="nav-icon fas fa-file-invoice-dollar"></i>
                   <p><?=$languageArray['payment_voucher_code'][$language]?></p>
                 </a>
