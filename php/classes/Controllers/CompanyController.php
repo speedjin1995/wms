@@ -20,21 +20,21 @@ class CompanyController extends BaseController
         $details = [
             'reg_no' => $this->postText('regNo'),
             'name' => $this->postText('name'),
-            'chinese_name' => $this->optionalText('chineseName'),
-            'tin_no' => $this->optionalText('tinNo'),
+            'chinese_name' => $this->optionalText('chineseName', true),
+            'tin_no' => $this->optionalText('tinNo', true),
             'address' => $this->postText('address1'),
-            'address2' => $this->optionalText('address2'),
-            'address3' => $this->optionalText('address3'),
-            'address4' => $this->optionalText('address4'),
-            'phone' => $this->optionalText('phone'),
-            'email' => $this->optionalText('email'),
-            'fax' => $this->optionalText('fax')
+            'address2' => $this->optionalText('address2', true),
+            'address3' => $this->optionalText('address3', true),
+            'address4' => $this->optionalText('address4', true),
+            'phone' => $this->optionalText('phone', true),
+            'email' => $this->optionalText('email', true),
+            'fax' => $this->optionalText('fax', true)
         ];
 
         $banking = [
-            'banker_name' => $this->optionalText('bankerName'),
-            'bank_acct_no' => $this->optionalText('bankAccountNo'),
-            'bank_swift_code' => $this->optionalText('bankSwiftCode')
+            'banker_name' => $this->optionalText('bankerName', true),
+            'bank_acct_no' => $this->optionalText('bankAccountNo', true),
+            'bank_swift_code' => $this->optionalText('bankSwiftCode', true)
         ];
 
         $preferences = [
@@ -58,16 +58,6 @@ class CompanyController extends BaseController
         }
 
         return $this->service->uploadLogo($_FILES['file']);
-    }
-
-    /**
-     * Sanitised text, null when empty
-     */
-    private function optionalText(string $key): ?string
-    {
-        $value = $this->postText($key);
-
-        return $value === '' ? null : $value;
     }
 
     private function postYesNo(string $key): string

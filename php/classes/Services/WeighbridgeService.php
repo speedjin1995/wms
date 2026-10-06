@@ -313,10 +313,10 @@ class WeighbridgeService extends BaseService
             $prefix = 'M';
         }
 
+        // One counter for today's records across S / P / M
         $row = $this->fetchOne("SELECT COUNT(*) AS total FROM Weight WHERE created_date >= ? AND company = ?", 'si', [date("Y-m-d 00:00:00"), $this->company]);
-        $count = (int)($row['total'] ?? 0) + 1;
 
-        return $prefix . date("Ymd") . str_pad((string)$count, 4, '0', STR_PAD_LEFT);
+        return $this->nextRunningNo('Weight', 'transaction_id', $prefix . date("Ymd"), $this->company, (int)($row['total'] ?? 0) + 1);
     }
 
     private function statusLabel(string $status): string

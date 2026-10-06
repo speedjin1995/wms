@@ -480,26 +480,10 @@ class RepackingService extends BaseService
      */
     private function generateRepackingNo(int $company): string
     {
-        $today = date('Ymd');
-        $dateStart = date('Y-m-d') . ' 00:00:00';
+        $row = $this->fetchOne("SELECT COUNT(*) AS total FROM repacking WHERE company = ? AND created_datetime >= ?", 'is', [$company, date('Y-m-d 00:00:00')]);
 
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM repacking WHERE company = ? AND created_datetime >= ?");
-        $stmt->bind_param('is', $company, $dateStart);
-        $stmt->execute();
-        $count = (int)$stmt->get_result()->fetch_row()[0] + 1;
-        $stmt->close();
-
-        $chk = $this->db->prepare("SELECT COUNT(*) FROM repacking WHERE repacking_no = ?");
-        do {
-            $repackingNo = 'RP' . $today . str_pad((string)$count, 4, '0', STR_PAD_LEFT);
-            $chk->bind_param('s', $repackingNo);
-            $chk->execute();
-            $exists = (int)$chk->get_result()->fetch_row()[0];
-            $count++;
-        } while ($exists > 0);
-        $chk->close();
-
-        return $repackingNo;
+        // repacking_no is unique across all companies, so the free-number check is not company scoped
+        return $this->nextRunningNo('repacking', 'repacking_no', 'RP' . date('Ymd'), null, (int)($row['total'] ?? 0) + 1);
     }
 
     /**

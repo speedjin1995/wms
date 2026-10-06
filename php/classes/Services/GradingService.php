@@ -28,7 +28,7 @@ class GradingService extends BaseService
      */
     public function getLookups(): array
     {
-        $categoryIds = $this->accessibleCategoryIds();
+        $categoryIds = $this->accessibleCategoryIds($this->userModuleAccess, self::CATEGORY_MODULES);
         $modules = "'" . implode("','", self::CATEGORY_MODULES) . "'";
 
         if ($this->isSuperAdmin()) {
@@ -45,12 +45,7 @@ class GradingService extends BaseService
             ];
         }
 
-        $categoryFilter = '';
-        $categoryTypes = '';
-        if (!empty($categoryIds)) {
-            $categoryFilter = " AND c.id IN (" . $this->placeholders(count($categoryIds)) . ")";
-            $categoryTypes = str_repeat('i', count($categoryIds));
-        }
+        [$categoryFilter, $categoryTypes] = $this->categoryIdFilter('c.id', $categoryIds);
 
         $products = $this->fetchAll(
             "SELECT p.id, p.product_name, p.category FROM products p INNER JOIN categories c ON p.category = c.id
@@ -532,32 +527,7 @@ class GradingService extends BaseService
      */
     private function nextGradingNo(string $startDate): string
     {
-        $prefix = 'G' . date('Ymd', strtotime($startDate));
-        $row = $this->fetchOne("SELECT COUNT(*) AS total FROM grading WHERE company = ? AND grading_no LIKE ?", 'is', [$this->company, $prefix . '%']);
-        $count = (int)($row['total'] ?? 0) + 1;
-
-        do {
-            $gradingNo = $prefix . str_pad((string)$count, 4, '0', STR_PAD_LEFT);
-            $exists = $this->fetchOne("SELECT id FROM grading WHERE grading_no = ? AND company = ?", 'si', [$gradingNo, $this->company]);
-            $count++;
-        } while ($exists);
-
-        return $gradingNo;
-    }
-
-    /**
-     * Category IDs the user may access in the grading modules (empty = no restriction)
-     */
-    private function accessibleCategoryIds(): array
-    {
-        $ids = [];
-        foreach ($this->userModuleAccess['categories'] ?? [] as $module => $moduleCategories) {
-            if (in_array($module, self::CATEGORY_MODULES, true)) {
-                $ids = array_merge($ids, (array)$moduleCategories);
-            }
-        }
-
-        return array_values(array_unique(array_map('intval', $ids)));
+        return $this->nextRunningNo('grading', 'grading_no', 'G' . date('Ymd', strtotime($startDate)), $this->company);
     }
 
     /**
@@ -589,20 +559,14 @@ class GradingService extends BaseService
         }
 
         // Gradings containing a product in the chosen category, otherwise in the user's accessible categories
-        $itemsWithProduct = "g.id IN (SELECT gi.grading_id FROM grading_items gi INNER JOIN products p ON p.id = gi.product_id WHERE gi.deleted = 0 AND p.deleted = '0'";
-        if ($value('category') !== '') {
-            $where .= " AND $itemsWithProduct AND p.category = ?)";
-            $params[] = (int)$value('category');
-            $types .= 'i';
-        } elseif (!empty($this->userModuleAccess['categories'])) {
-            $categoryIds = $this->accessibleCategoryIds();
-            if (!empty($categoryIds)) {
-                $where .= " AND $itemsWithProduct AND p.category IN (" . $this->placeholders(count($categoryIds)) . "))";
-                $params = array_merge($params, $categoryIds);
-                $types .= str_repeat('i', count($categoryIds));
-            } else {
-                $where .= " AND $itemsWithProduct)";
-            }
-        }
+        $this->applyItemCategoryFilter(
+            $where,
+            $params,
+            $types,
+            "g.id IN (SELECT gi.grading_id FROM grading_items gi INNER JOIN products p ON p.id = gi.product_id WHERE gi.deleted = 0 AND p.deleted = '0'",
+            $value('category'),
+            $this->userModuleAccess,
+            self::CATEGORY_MODULES
+        );
     }
 }

@@ -69,16 +69,16 @@ class PackagingBatchController extends BaseController
             return ['status' => 'failed', 'message' => 'You do not have permission to perform this action'];
         }
 
-        $packagingDate = \DateTime::createFromFormat('d/m/Y H:i', trim((string)($_POST['packagingDate'] ?? '')));
+        $packagingDate = $this->postDateTime('packagingDate');
         $location = $this->postId('location');
 
-        if (!$packagingDate || !$location) {
+        if ($packagingDate === null || !$location) {
             return ['status' => 'failed', 'message' => 'Please fill in all the fields'];
         }
 
         $productionLine = $this->postId('productionLines');
         $header = [
-            'packaging_date' => $packagingDate->format('Y-m-d H:i:s'),
+            'packaging_date' => $packagingDate,
             'location' => $location,
             'production_line' => $productionLine ?: null,
             'remarks' => $this->optionalText('remarks'),
@@ -190,33 +190,5 @@ class PackagingBatchController extends BaseController
         }
 
         return $items;
-    }
-
-    /**
-     * Single file from a multi-file input ($_FILES[$key][...][$index]), null when not uploaded
-     */
-    private function uploadedFile(string $key, $index): ?array
-    {
-        if (!isset($_FILES[$key]['error'][$index]) || $_FILES[$key]['error'][$index] !== UPLOAD_ERR_OK) {
-            return null;
-        }
-
-        return [
-            'name' => $_FILES[$key]['name'][$index],
-            'tmp_name' => $_FILES[$key]['tmp_name'][$index],
-            'size' => $_FILES[$key]['size'][$index],
-            'type' => $_FILES[$key]['type'][$index],
-            'error' => $_FILES[$key]['error'][$index]
-        ];
-    }
-
-    /**
-     * Trimmed POST text, null when empty
-     */
-    private function optionalText(string $key): ?string
-    {
-        $value = trim((string)($_POST[$key] ?? ''));
-
-        return $value === '' ? null : $value;
     }
 }

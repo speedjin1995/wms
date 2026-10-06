@@ -341,18 +341,9 @@ class StockAdjustmentService extends BaseService
 
     private function generateAdjustmentNo(): string
     {
-        $today = date('Ymd');
-        $stmt = $this->db->prepare(
-            "SELECT COUNT(*) as cnt FROM stock_adjustments 
-             WHERE company = ? AND DATE(created_datetime) = CURDATE()"
-        );
-        $stmt->bind_param('i', $this->company);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        
-        $seq = (int)$row['cnt'] + 1;
-        return 'ADJ-' . $today . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+        $row = $this->fetchOne("SELECT COUNT(*) AS cnt FROM stock_adjustments WHERE company = ? AND DATE(created_datetime) = CURDATE()", 'i', [$this->company]);
+
+        return $this->nextRunningNo('stock_adjustments', 'adjustment_no', 'ADJ-' . date('Ymd') . '-', $this->company, (int)($row['cnt'] ?? 0) + 1);
     }
 
     private function getAdjustmentNo(int $id): string

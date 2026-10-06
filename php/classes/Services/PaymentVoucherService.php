@@ -562,16 +562,6 @@ class PaymentVoucherService extends BaseService
      */
     private function nextVoucherNo(int $company): string
     {
-        $prefix = 'PV' . date('Ymd');
-        $row = $this->fetchOne("SELECT COUNT(*) AS total FROM payment_vouchers WHERE company = ? AND voucher_no LIKE ?", 'is', [$company, $prefix . '%']);
-        $count = (int)($row['total'] ?? 0) + 1;
-
-        do {
-            $voucherNo = $prefix . str_pad((string)$count, 4, '0', STR_PAD_LEFT);
-            $exists = $this->fetchOne("SELECT id FROM payment_vouchers WHERE voucher_no = ? AND company = ?", 'si', [$voucherNo, $company]);
-            $count++;
-        } while ($exists);
-
-        return $voucherNo;
+        return $this->nextRunningNo('payment_vouchers', 'voucher_no', 'PV' . date('Ymd'), $company);
     }
 }

@@ -65,6 +65,57 @@ abstract class BaseService
     }
 
     /**
+     * Category IDs the user may access in the given category modules ($_SESSION['userModuleAccess']; empty = no restriction)
+     */
+    protected function accessibleCategoryIds(array $userModuleAccess, array $modules): array
+    {
+        $ids = [];
+        foreach ($userModuleAccess['categories'] ?? [] as $module => $moduleCategories) {
+            if (in_array($module, $modules, true)) {
+                $ids = array_merge($ids, (array)$moduleCategories);
+            }
+        }
+
+        return array_values(array_unique(array_map('intval', $ids)));
+    }
+
+    /**
+     * [" AND $column IN (?,...)", types] for the category IDs, or ['', ''] when unrestricted
+     */
+    protected function categoryIdFilter(string $column, array $categoryIds): array
+    {
+        if (empty($categoryIds)) {
+            return ['', ''];
+        }
+
+        return [" AND $column IN (" . $this->placeholders(count($categoryIds)) . ")", str_repeat('i', count($categoryIds))];
+    }
+
+    /**
+     * Records with an item product in the chosen category, otherwise in the user's accessible categories.
+     * $itemsWithProduct: unclosed "x.id IN (SELECT ... INNER JOIN products p ... WHERE ..." subquery.
+     */
+    protected function applyItemCategoryFilter(string &$where, array &$params, string &$types, string $itemsWithProduct, string $category, array $userModuleAccess, array $modules): void
+    {
+        if ($category !== '') {
+            $where .= " AND $itemsWithProduct AND p.category = ?)";
+            $params[] = (int)$category;
+            $types .= 'i';
+            return;
+        }
+
+        if (empty($userModuleAccess['categories'])) {
+            return;
+        }
+
+        $categoryIds = $this->accessibleCategoryIds($userModuleAccess, $modules);
+        [$filter, $filterTypes] = $this->categoryIdFilter('p.category', $categoryIds);
+        $where .= " AND $itemsWithProduct$filter)";
+        $params = array_merge($params, $categoryIds);
+        $types .= $filterTypes;
+    }
+
+    /**
      * Append a LIKE search over the given columns
      */
     protected function applySearch(string &$where, array &$params, string &$types, array $columns, string $search): void
@@ -91,6 +142,41 @@ abstract class BaseService
         $dir = strtolower($orderDir) === 'desc' ? 'DESC' : 'ASC';
 
         return "$expr $dir";
+    }
+
+    /**
+     * First unused "$prefix + zero-padded number" in $table.$column (e.g. G202610060001).
+     * Counting starts at $start, or by default after the numbers already using the prefix.
+     * $company scopes the count / uniqueness check to one company; null checks the whole table (globally unique column).
+     */
+    protected function nextRunningNo(string $table, string $column, string $prefix, ?int $company, ?int $start = null, int $digits = 4): string
+    {
+        $where = "$column = ?";
+        $types = 's';
+        $params = [];
+        if ($company !== null) {
+            $where .= " AND company = ?";
+            $types .= 'i';
+            $params[] = $company;
+        }
+
+        if ($start === null) {
+            $row = $this->fetchOne(
+                "SELECT COUNT(*) AS total FROM $table WHERE $column LIKE ?" . ($company !== null ? " AND company = ?" : ''),
+                $types,
+                array_merge([$prefix . '%'], $params)
+            );
+            $start = (int)($row['total'] ?? 0) + 1;
+        }
+
+        $count = $start;
+        do {
+            $number = $prefix . str_pad((string)$count, $digits, '0', STR_PAD_LEFT);
+            $exists = $this->fetchOne("SELECT 1 FROM $table WHERE $where", $types, array_merge([$number], $params));
+            $count++;
+        } while ($exists);
+
+        return $number;
     }
 
     protected function cleanIds(array $ids): array

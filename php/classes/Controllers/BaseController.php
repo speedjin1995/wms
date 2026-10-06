@@ -78,6 +78,44 @@ abstract class BaseController
     }
 
     /**
+     * Trimmed POST text, null when empty. $sanitize uses postText() (tags stripped, quotes encoded).
+     */
+    protected function optionalText(string $key, bool $sanitize = false): ?string
+    {
+        $value = $sanitize ? $this->postText($key) : trim((string)($_POST[$key] ?? ''));
+
+        return $value === '' ? null : $value;
+    }
+
+    /**
+     * DD/MM/YYYY HH:mm POST value as Y-m-d H:i:s, null when empty / invalid
+     */
+    protected function postDateTime(string $key): ?string
+    {
+        $date = \DateTime::createFromFormat('d/m/Y H:i', trim((string)($_POST[$key] ?? '')));
+
+        return $date ? $date->format('Y-m-d H:i:s') : null;
+    }
+
+    /**
+     * Single file from a multi-file input ($_FILES[$key][...][$index]), null when not uploaded
+     */
+    protected function uploadedFile(string $key, $index): ?array
+    {
+        if (!isset($_FILES[$key]['error'][$index]) || $_FILES[$key]['error'][$index] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        return [
+            'name' => $_FILES[$key]['name'][$index],
+            'tmp_name' => $_FILES[$key]['tmp_name'][$index],
+            'size' => $_FILES[$key]['size'][$index],
+            'type' => $_FILES[$key]['type'][$index],
+            'error' => $_FILES[$key]['error'][$index]
+        ];
+    }
+
+    /**
      * Read form fields (POST name => ['column' => db column, 'required' => bool]) as column => value.
      * Empty values become null; returns null when a required field is empty.
      */

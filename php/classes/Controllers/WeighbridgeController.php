@@ -206,16 +206,6 @@ class WeighbridgeController extends BaseController
     }
 
     /**
-     * DD/MM/YYYY HH:mm POST value as Y-m-d H:i:s, null when empty / invalid
-     */
-    private function postDateTime(string $key): ?string
-    {
-        $date = \DateTime::createFromFormat('d/m/Y H:i', trim((string)($_POST[$key] ?? '')));
-
-        return $date ? $date->format('Y-m-d H:i:s') : null;
-    }
-
-    /**
      * Numeric weight: null when empty, false when not a non-negative number
      * @return string|null|false
      */

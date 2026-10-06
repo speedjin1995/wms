@@ -50,13 +50,8 @@ class PackagingBatchService extends BaseService
             ];
         }
 
-        $categoryIds = $this->accessibleCategoryIds();
-        $categoryFilter = '';
-        $categoryTypes = '';
-        if (!empty($categoryIds)) {
-            $categoryFilter = " AND c.id IN (" . $this->placeholders(count($categoryIds)) . ")";
-            $categoryTypes = str_repeat('i', count($categoryIds));
-        }
+        $categoryIds = $this->accessibleCategoryIds($this->userModuleAccess, self::CATEGORY_MODULES);
+        [$categoryFilter, $categoryTypes] = $this->categoryIdFilter('c.id', $categoryIds);
 
         $products = $this->fetchAll(
             "SELECT p.id, p.product_name, p.category FROM products p INNER JOIN categories c ON p.category = c.id
@@ -447,32 +442,7 @@ class PackagingBatchService extends BaseService
      */
     private function nextBatchNo(string $packagingDate, int $company): string
     {
-        $prefix = 'B' . date('Ymd', strtotime($packagingDate));
-        $row = $this->fetchOne("SELECT COUNT(*) AS total FROM packaging_batches WHERE company = ? AND batch_no LIKE ?", 'is', [$company, $prefix . '%']);
-        $count = (int)($row['total'] ?? 0) + 1;
-
-        do {
-            $batchNo = $prefix . str_pad((string)$count, 4, '0', STR_PAD_LEFT);
-            $exists = $this->fetchOne("SELECT id FROM packaging_batches WHERE batch_no = ? AND company = ?", 'si', [$batchNo, $company]);
-            $count++;
-        } while ($exists);
-
-        return $batchNo;
-    }
-
-    /**
-     * Category IDs the user may access in the packaging modules (empty = no restriction)
-     */
-    private function accessibleCategoryIds(): array
-    {
-        $ids = [];
-        foreach ($this->userModuleAccess['categories'] ?? [] as $module => $moduleCategories) {
-            if (in_array($module, self::CATEGORY_MODULES, true)) {
-                $ids = array_merge($ids, (array)$moduleCategories);
-            }
-        }
-
-        return array_values(array_unique(array_map('intval', $ids)));
+        return $this->nextRunningNo('packaging_batches', 'batch_no', 'B' . date('Ymd', strtotime($packagingDate)), $company);
     }
 
     /**
@@ -510,20 +480,14 @@ class PackagingBatchService extends BaseService
         }
 
         // Batches containing a product in the chosen category, otherwise in the user's accessible categories
-        $itemsWithProduct = "pb.id IN (SELECT pbi.packaging_batch_id FROM packaging_batch_items pbi INNER JOIN products p ON p.id = pbi.product_id WHERE pbi.deleted = 0 AND p.deleted = '0'";
-        if ($value('category') !== '') {
-            $where .= " AND $itemsWithProduct AND p.category = ?)";
-            $params[] = (int)$value('category');
-            $types .= 'i';
-        } elseif (!empty($this->userModuleAccess['categories'])) {
-            $categoryIds = $this->accessibleCategoryIds();
-            if (!empty($categoryIds)) {
-                $where .= " AND $itemsWithProduct AND p.category IN (" . $this->placeholders(count($categoryIds)) . "))";
-                $params = array_merge($params, $categoryIds);
-                $types .= str_repeat('i', count($categoryIds));
-            } else {
-                $where .= " AND $itemsWithProduct)";
-            }
-        }
+        $this->applyItemCategoryFilter(
+            $where,
+            $params,
+            $types,
+            "pb.id IN (SELECT pbi.packaging_batch_id FROM packaging_batch_items pbi INNER JOIN products p ON p.id = pbi.product_id WHERE pbi.deleted = 0 AND p.deleted = '0'",
+            $value('category'),
+            $this->userModuleAccess,
+            self::CATEGORY_MODULES
+        );
     }
 }

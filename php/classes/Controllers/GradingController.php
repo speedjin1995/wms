@@ -78,7 +78,6 @@ class GradingController extends BaseController
             return ['status' => 'failed', 'message' => 'Please fill in all the fields'];
         }
 
-        $remark = trim((string)($_POST['remarks'] ?? ''));
         $category = $this->postId('category');
 
         $header = [
@@ -86,7 +85,7 @@ class GradingController extends BaseController
             'start_date' => $startDate,
             'end_date' => $this->postDateTime('endTime'),
             'product_category' => $category ?: null,
-            'remark' => $remark === '' ? null : $remark
+            'remark' => $this->optionalText('remarks')
         ];
 
         $weights = $this->postItems('weightDetails', 'photoFiles', false);
@@ -242,33 +241,5 @@ class GradingController extends BaseController
         }
 
         return $items;
-    }
-
-    /**
-     * Single file from a multi-file input ($_FILES[$key][...][$index]), null when not uploaded
-     */
-    private function uploadedFile(string $key, $index): ?array
-    {
-        if (!isset($_FILES[$key]['error'][$index]) || $_FILES[$key]['error'][$index] !== UPLOAD_ERR_OK) {
-            return null;
-        }
-
-        return [
-            'name' => $_FILES[$key]['name'][$index],
-            'tmp_name' => $_FILES[$key]['tmp_name'][$index],
-            'size' => $_FILES[$key]['size'][$index],
-            'type' => $_FILES[$key]['type'][$index],
-            'error' => $_FILES[$key]['error'][$index]
-        ];
-    }
-
-    /**
-     * DD/MM/YYYY HH:mm POST value as Y-m-d H:i:s, null when empty / invalid
-     */
-    private function postDateTime(string $key): ?string
-    {
-        $date = \DateTime::createFromFormat('d/m/Y H:i', trim((string)($_POST[$key] ?? '')));
-
-        return $date ? $date->format('Y-m-d H:i:s') : null;
     }
 }
