@@ -515,7 +515,7 @@ to get the desired effect
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#packagingBatches" data-file="packagingBatches.php" class="nav-link link">
+                <a href="#packagingBatches" data-file="modules/packagingBatches/packagingBatches.php" class="nav-link link">
                   <i class="nav-icon fas fa-box-open"></i>
                   <p><?=$languageArray['batch_packaging_code'][$language]?></p>
                 </a>

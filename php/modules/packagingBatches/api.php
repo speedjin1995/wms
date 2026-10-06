@@ -1,0 +1,64 @@
+<?php
+require_once __DIR__ . '/../../db_connect.php';
+require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use App\Controllers\PackagingBatchController;
+use App\Services\PackagingBatchReportService;
+use App\Services\PackagingBatchService;
+
+session_start();
+
+$action = $_POST['action'] ?? $_GET['action'] ?? '';
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['userID'])) {
+    echo json_encode(['status' => 'failed', 'message' => 'Unauthorized']);
+    exit;
+}
+
+$company = (int)$_SESSION['customer'];
+$userId = (int)$_SESSION['userID'];
+$role = (string)($_SESSION['role'] ?? '');
+
+$controller = new PackagingBatchController(
+    new PackagingBatchService(
+        $db,
+        $company,
+        $userId,
+        $role,
+        (array)($_SESSION['userModuleAccess'] ?? []),
+        in_array('stocks', (array)($_SESSION['products'] ?? []), true)
+    ),
+    new PackagingBatchReportService($db, $company, $userId, $role)
+);
+
+try {
+    switch ($action) {
+        case 'list':
+            echo json_encode($controller->list());
+            break;
+
+        case 'get':
+            echo json_encode($controller->get());
+            break;
+
+        case 'save':
+            echo json_encode($controller->save());
+            break;
+
+        case 'cancel':
+            echo json_encode($controller->cancel());
+            break;
+
+        case 'printSlip':
+            echo json_encode($controller->printSlip());
+            break;
+
+        default:
+            echo json_encode(['status' => 'failed', 'message' => 'Invalid action']);
+    }
+} catch (\Throwable $e) {
+    error_log('packagingBatches/api.php - ' . $e->getMessage());
+    echo json_encode(['status' => 'failed', 'message' => 'Something went wrong']);
+}
