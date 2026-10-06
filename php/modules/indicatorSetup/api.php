@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\IndicatorController;
-use App\Services\IndicatorService;
+use App\Modules\Indicator\IndicatorController;
+use App\Modules\Indicator\IndicatorService;
 
 session_start();
 header('Content-Type: application/json');

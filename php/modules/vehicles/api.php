@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../lookup.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\VehicleController;
-use App\Services\VehicleService;
+use App\Modules\Vehicle\VehicleController;
+use App\Modules\Vehicle\VehicleService;
 
 session_start();
 header('Content-Type: application/json');

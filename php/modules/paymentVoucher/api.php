@@ -3,9 +3,9 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use App\Controllers\PaymentVoucherController;
-use App\Services\PaymentVoucherReportService;
-use App\Services\PaymentVoucherService;
+use App\Modules\PaymentVoucher\PaymentVoucherController;
+use App\Modules\PaymentVoucher\PaymentVoucherReportService;
+use App\Modules\PaymentVoucher\PaymentVoucherService;
 
 session_start();
 

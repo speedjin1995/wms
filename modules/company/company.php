@@ -2,7 +2,7 @@
 require_once '../../php/db_connect.php';
 require_once '../../php/bootstrap.php';
 
-use App\Services\CompanyService;
+use App\Modules\Company\CompanyService;
 
 session_start();
 

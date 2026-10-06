@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\RepackingController;
-use App\Services\RepackingService;
+use App\Modules\Repacking\RepackingController;
+use App\Modules\Repacking\RepackingService;
 
 session_start();
 header('Content-Type: application/json');

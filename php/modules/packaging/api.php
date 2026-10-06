@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\PackagingController;
-use App\Services\PackagingService;
+use App\Modules\Packaging\PackagingController;
+use App\Modules\Packaging\PackagingService;
 
 session_start();
 header('Content-Type: application/json');

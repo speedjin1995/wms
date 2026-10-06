@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\TranslationController;
-use App\Services\TranslationService;
+use App\Modules\Translation\TranslationController;
+use App\Modules\Translation\TranslationService;
 
 session_start();
 header('Content-Type: application/json');

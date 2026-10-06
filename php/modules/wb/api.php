@@ -3,9 +3,9 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use App\Controllers\WeighbridgeController;
-use App\Services\WeighbridgeReportService;
-use App\Services\WeighbridgeService;
+use App\Modules\Weighbridge\WeighbridgeController;
+use App\Modules\Weighbridge\WeighbridgeReportService;
+use App\Modules\Weighbridge\WeighbridgeService;
 
 session_start();
 

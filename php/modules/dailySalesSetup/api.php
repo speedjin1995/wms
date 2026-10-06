@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../lookup.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\DailySalesSetupController;
-use App\Services\DailySalesSetupService;
+use App\Modules\DailySalesSetup\DailySalesSetupController;
+use App\Modules\DailySalesSetup\DailySalesSetupService;
 
 session_start();
 header('Content-Type: application/json');

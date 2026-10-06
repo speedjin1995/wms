@@ -3,9 +3,9 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use App\Controllers\PackagingBatchController;
-use App\Services\PackagingBatchReportService;
-use App\Services\PackagingBatchService;
+use App\Modules\PackagingBatch\PackagingBatchController;
+use App\Modules\PackagingBatch\PackagingBatchReportService;
+use App\Modules\PackagingBatch\PackagingBatchService;
 
 session_start();
 

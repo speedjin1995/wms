@@ -3,9 +3,9 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use App\Controllers\GradingController;
-use App\Services\GradingReportService;
-use App\Services\GradingService;
+use App\Modules\Grading\GradingController;
+use App\Modules\Grading\GradingReportService;
+use App\Modules\Grading\GradingService;
 
 session_start();
 

@@ -2,7 +2,7 @@
 require_once '../../php/db_connect.php';
 require_once '../../php/bootstrap.php';
 
-use App\Services\PaymentVoucherService;
+use App\Modules\PaymentVoucher\PaymentVoucherService;
 
 session_start();
 

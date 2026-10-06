@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\CompanyController;
-use App\Services\CompanyService;
+use App\Modules\Company\CompanyController;
+use App\Modules\Company\CompanyService;
 
 session_start();
 header('Content-Type: application/json');

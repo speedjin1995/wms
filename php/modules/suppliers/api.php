@@ -4,9 +4,9 @@ require_once __DIR__ . '/../../lookup.php';
 require_once __DIR__ . '/../../uploadFileHelper.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\SupplierController;
-use App\Services\EntityRunningNoService;
-use App\Services\SupplierService;
+use App\Modules\Supplier\SupplierController;
+use App\Shared\EntityRunningNoService;
+use App\Modules\Supplier\SupplierService;
 
 session_start();
 header('Content-Type: application/json');

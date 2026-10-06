@@ -2,7 +2,7 @@
 require_once '../../php/db_connect.php';
 require_once '../../php/bootstrap.php';
 
-use App\Services\IndicatorService;
+use App\Modules\Indicator\IndicatorService;
 
 session_start();
 

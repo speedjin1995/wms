@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../uploadFileHelper.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\ProductController;
-use App\Services\ProductService;
+use App\Modules\Product\ProductController;
+use App\Modules\Product\ProductService;
 
 session_start();
 header('Content-Type: application/json');

@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\LocationController;
-use App\Services\LocationService;
+use App\Modules\Location\LocationController;
+use App\Modules\Location\LocationService;
 
 session_start();
 header('Content-Type: application/json');

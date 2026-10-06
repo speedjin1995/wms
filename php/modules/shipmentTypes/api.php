@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\ShipmentTypeController;
-use App\Services\ShipmentTypeService;
+use App\Modules\ShipmentType\ShipmentTypeController;
+use App\Modules\ShipmentType\ShipmentTypeService;
 
 session_start();
 header('Content-Type: application/json');

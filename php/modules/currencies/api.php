@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\CurrencyController;
-use App\Services\CurrencyService;
+use App\Modules\Currency\CurrencyController;
+use App\Modules\Currency\CurrencyService;
 
 session_start();
 header('Content-Type: application/json');

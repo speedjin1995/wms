@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\CategoryController;
-use App\Services\CategoryService;
+use App\Modules\Category\CategoryController;
+use App\Modules\Category\CategoryService;
 
 session_start();
 header('Content-Type: application/json');

@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\ProfileController;
-use App\Services\ProfileService;
+use App\Modules\Profile\ProfileController;
+use App\Modules\Profile\ProfileService;
 
 session_start();
 header('Content-Type: application/json');

@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../../db_connect.php';
 require_once __DIR__ . '/../../../bootstrap.php';
 
-use App\Controllers\StockAdjustmentController;
-use App\Services\StockAdjustmentService;
+use App\Modules\StockAdjustment\StockAdjustmentController;
+use App\Modules\StockAdjustment\StockAdjustmentService;
 
 session_start();
 header('Content-Type: application/json');

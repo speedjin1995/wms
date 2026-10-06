@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\DriverController;
-use App\Services\DriverService;
+use App\Modules\Driver\DriverController;
+use App\Modules\Driver\DriverService;
 
 session_start();
 header('Content-Type: application/json');

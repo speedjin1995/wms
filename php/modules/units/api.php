@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\UnitController;
-use App\Services\UnitService;
+use App\Modules\Unit\UnitController;
+use App\Modules\Unit\UnitService;
 
 session_start();
 header('Content-Type: application/json');

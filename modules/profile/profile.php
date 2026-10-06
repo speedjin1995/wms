@@ -2,7 +2,7 @@
 require_once '../../php/db_connect.php';
 require_once '../../php/bootstrap.php';
 
-use App\Services\ProfileService;
+use App\Modules\Profile\ProfileService;
 
 session_start();
 

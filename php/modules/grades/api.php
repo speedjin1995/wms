@@ -2,8 +2,8 @@
 require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 
-use App\Controllers\GradeController;
-use App\Services\GradeService;
+use App\Modules\Grade\GradeController;
+use App\Modules\Grade\GradeService;
 
 session_start();
 header('Content-Type: application/json');

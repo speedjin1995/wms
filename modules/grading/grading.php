@@ -2,7 +2,7 @@
 require_once '../../php/db_connect.php';
 require_once '../../php/bootstrap.php';
 
-use App\Services\GradingService;
+use App\Modules\Grading\GradingService;
 
 session_start();
 
