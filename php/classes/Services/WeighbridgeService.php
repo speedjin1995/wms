@@ -13,20 +13,6 @@ class WeighbridgeService extends BaseService
     private const RECORD_TYPE = 'fruits';
 
     /**
-     * Current user's add / edit / delete flags
-     */
-    public function getPermissions(): array
-    {
-        $row = $this->fetchOne("SELECT allow_add, allow_edit, allow_delete FROM users WHERE id = ?", 'i', [$this->user]);
-
-        return [
-            'allowAdd' => ($row['allow_add'] ?? 'N') === 'Y',
-            'allowEdit' => ($row['allow_edit'] ?? 'N') === 'Y',
-            'allowDelete' => ($row['allow_delete'] ?? 'N') === 'Y'
-        ];
-    }
-
-    /**
      * Dropdown data for the filter / entry forms.
      * $byModule limits products to the active module's categories (and daily sales states) with a fallback to all company products.
      */

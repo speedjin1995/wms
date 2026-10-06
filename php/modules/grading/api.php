@@ -3,9 +3,9 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use App\Controllers\WeighbridgeController;
-use App\Services\WeighbridgeReportService;
-use App\Services\WeighbridgeService;
+use App\Controllers\GradingController;
+use App\Services\GradingReportService;
+use App\Services\GradingService;
 
 session_start();
 
@@ -32,9 +32,16 @@ $company = (int)$_SESSION['customer'];
 $userId = (int)$_SESSION['userID'];
 $role = (string)($_SESSION['role'] ?? '');
 
-$controller = new WeighbridgeController(
-    new WeighbridgeService($db, $company, $userId, $role),
-    new WeighbridgeReportService($db, $company, $userId, $role)
+$controller = new GradingController(
+    new GradingService(
+        $db,
+        $company,
+        $userId,
+        $role,
+        (array)($_SESSION['userModuleAccess'] ?? []),
+        in_array('stocks', (array)($_SESSION['products'] ?? []), true)
+    ),
+    new GradingReportService($db, $company, $userId, $role)
 );
 
 try {
@@ -71,7 +78,7 @@ try {
             echo json_encode(['status' => 'failed', 'message' => 'Invalid action']);
     }
 } catch (\Throwable $e) {
-    error_log('wb/api.php - ' . $e->getMessage());
+    error_log('grading/api.php - ' . $e->getMessage());
     if ($isDownload) {
         http_response_code(500);
         exit('Something went wrong');

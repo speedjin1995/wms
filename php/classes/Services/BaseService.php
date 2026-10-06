@@ -19,6 +19,20 @@ abstract class BaseService
         $this->role = $role;
     }
 
+    /**
+     * Current user's add / edit / delete flags (from the users table)
+     */
+    public function getPermissions(): array
+    {
+        $row = $this->fetchOne("SELECT allow_add, allow_edit, allow_delete FROM users WHERE id = ?", 'i', [$this->user]);
+
+        return [
+            'allowAdd' => ($row['allow_add'] ?? 'N') === 'Y',
+            'allowEdit' => ($row['allow_edit'] ?? 'N') === 'Y',
+            'allowDelete' => ($row['allow_delete'] ?? 'N') === 'Y'
+        ];
+    }
+
     protected function isSuperAdmin(): bool
     {
         return $this->role === 'SADMIN';

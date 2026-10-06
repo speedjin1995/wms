@@ -509,7 +509,7 @@ to get the desired effect
                 </li>
               <?php } ?>
               <li class="nav-item">
-                <a href="#grading" data-file="grading.php" class="nav-link link">
+                <a href="#grading" data-file="modules/grading/grading.php" class="nav-link link">
                   <i class="nav-icon fas fa-clipboard-check"></i>
                   <p><?=$languageArray['grading_code'][$language]?></p>
                 </a>
