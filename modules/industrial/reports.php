@@ -346,7 +346,7 @@ $(function () {
         var reportType = $('#pdfReportType').val();
         var params = buildParams();
         var selectedIds = getSelectedIds();
-        var base = "php/modules/wholesales/exportPdf.php?reportType="+reportType+"&recordType=industrial" + params;
+        var base = "php/modules/industrial/api.php?action=exportReportPdf&reportType="+reportType + params;
         if (selectedIds.length > 0) {
           window.open(base + "&isMulti=Y&ids=" + selectedIds);
         } else {
@@ -377,7 +377,7 @@ $(function () {
   $('#exportExcel').on('click', function() {
     var params = buildParams();
     var selectedIds = getSelectedIds();
-    window.open("php/modules/wholesales/export.php?recordType=industrial" + params + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
+    window.open("php/modules/industrial/api.php?action=exportReport" + params + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
   });
 
   if (allowIntegration === 'Y') {
@@ -423,7 +423,7 @@ $(function () {
       }
       var params = buildParams();
       var selectedIds = getSelectedIds();
-      window.open("php/modules/wholesales/exportIntegration.php?configId=" + configId + "&recordType=industrial" + params + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
+      window.open("php/modules/industrial/api.php?action=exportIntegration&configId=" + configId + params + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
       $('#integrationModal').modal('hide');
     });
   }
@@ -489,8 +489,9 @@ function initTable() {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     ajax: {
-      url: 'php/modules/wholesales/filterWholesale.php',
+      url: 'php/modules/industrial/api.php',
       data: {
+        action: 'list',
         fromDate: $('#fromDate').val(),
         toDate: $('#toDate').val(),
         transactionStatus: $('#transactionStatusFilter').val(),
@@ -505,8 +506,7 @@ function initTable() {
         weightedBy: $('#weightByFilter').val() || '',
         location: $('#locationFilter').val() || '',
         partyType: $('#partyTypeFilter').val() || '',
-        indicator: $('#indicatorFilter').val() || '',
-        recordType: 'industrial'
+        indicator: $('#indicatorFilter').val() || ''
       }
     },
     columns: [

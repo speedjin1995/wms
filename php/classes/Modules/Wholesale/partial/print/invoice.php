@@ -1,28 +1,5 @@
 <?php
-require_once '../../db_connect.php';
-require_once '../../lookup.php';
-
-session_start();
-
-if(isset($_GET['id'])){
-    $languageArray = $_SESSION['languageArray'];
-    $language = 'en';
-    $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_STRING);
-
-    if ($select_stmt = $db->prepare("SELECT * FROM wholesales LEFT JOIN companies ON wholesales.company = companies.id WHERE wholesales.id = ?")) {
-        $select_stmt->bind_param('s', $id);
-
-        if (! $select_stmt->execute()) {
-            echo json_encode(
-                array(
-                    "status" => "failed",
-                    "message" => "Something went wrong went execute"
-                )); 
-        }
-        else{
-            $result = $select_stmt->get_result();
-
-            if ($wholesale = $result->fetch_assoc()) {
+// Wholesale invoice HTML. Expects: $wholesale (wholesales LEFT JOIN companies row), $db, $languageArray, $language. Sets $message.
                 // Company info from companies table (joined)
                 $companyNameCn = $wholesale['chinese_name'] ?? '';
                 $companyName = $wholesale['name'] ?? '';
@@ -473,37 +450,3 @@ if(isset($_GET['id'])){
                     </body>
                     </html>
                 ';
-
-                echo json_encode(
-                    array(
-                        "status" => "success",
-                        "message" => $message
-                    ),
-                    JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
-                );
-            } else {
-                echo json_encode(
-                    array(
-                        "status" => "failed",
-                        "message" => "Record not found"
-                    )
-                );
-            }
-        }
-    }
-    else{
-        echo json_encode(
-            array(
-                "status" => "failed",
-                "message" => "Something went wrong"
-            )); 
-    }
-}
-else{
-    echo json_encode(
-        array(
-            "status"=> "failed", 
-            "message"=> "Please fill in all the fields"
-        )
-    ); 
-}

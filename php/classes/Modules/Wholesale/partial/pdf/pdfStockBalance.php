@@ -1,13 +1,13 @@
 <?php
 // Stock Month End Balance Report
-// Variables available: $db, $mpdf, $companyDetail, $company, $query, $asAtDate, $defaultCurrency
+// Variables available: $db, $mpdf, $companyDetail, $company, $records, $filters, $asAtDate, $defaultCurrency
 
 // ── Processing ───────────────────────────────────────────────────────────────
 
-$locationFilter = empty($_GET['location']) ? 'All' : searchLocationById($_GET['location'], $db);
-$categoryFilter = empty($_GET['category']) ? 'All' : searchCategoryById($_GET['category'], $db);
-$productFilter  = empty($_GET['product'])  ? 'All' : searchProductNameById($_GET['product'], $db);
-$typeFilter     = (isset($_GET['type']) && in_array($_GET['type'], ['Local', 'Export'])) ? $_GET['type'] : 'All';
+$locationFilter = empty($filters['location']) ? 'All' : searchLocationById($filters['location'], $db);
+$categoryFilter = empty($filters['category']) ? 'All' : searchCategoryById($filters['category'], $db);
+$productFilter  = empty($filters['product'])  ? 'All' : searchProductNameById($filters['product'], $db);
+$typeFilter     = (isset($filters['type']) && in_array($filters['type'], ['Local', 'Export'])) ? $filters['type'] : 'All';
 
 $locResult = $db->query("SELECT id, locations FROM locations WHERE customer = '$company' AND deleted = '0' ORDER BY locations");
 $locations = [];
@@ -15,8 +15,8 @@ while ($lr = $locResult->fetch_assoc()) {
   $locations[$lr['id']] = $lr['locations'];
 }
 
-if (isset($_GET['location']) && $_GET['location'] != null && $_GET['location'] != '' && $_GET['location'] != '-') {
-  $locations = array_intersect_key($locations, [$_GET['location'] => true]);
+if (isset($filters['location']) && $filters['location'] != null && $filters['location'] != '' && $filters['location'] != '-') {
+  $locations = array_intersect_key($locations, [$filters['location'] => true]);
 }
 
 $productCache      = [];
@@ -31,7 +31,7 @@ $grandOutCost      = [];
 $inStatuses  = ['RECEIVING', 'INCOMING'];
 $outStatuses = ['DISPATCH', 'OUTGOING', 'STOCK-BAL'];
 
-while ($wRow = $query->fetch_assoc()) {
+foreach ($records as $wRow) {
   $isIn  = in_array($wRow['status'], $inStatuses);
   $isOut = in_array($wRow['status'], $outStatuses);
   if (!$isIn && !$isOut) {
@@ -54,13 +54,13 @@ while ($wRow = $query->fetch_assoc()) {
 
     $pRow = getProductById($productId, $db, $productCache);
 
-    if (!empty($_GET['category']) && $_GET['category'] != '-') {
-      if (($pRow['category'] ?? '') != $_GET['category']) {
+    if (!empty($filters['category']) && $filters['category'] != '-') {
+      if (($pRow['category'] ?? '') != $filters['category']) {
         continue;
       }
     }
-    if (!empty($_GET['product']) && $_GET['product'] != '-') {
-      if ($productId != $_GET['product']) {
+    if (!empty($filters['product']) && $filters['product'] != '-') {
+      if ($productId != $filters['product']) {
         continue;
       }
     }

@@ -497,7 +497,7 @@ $(function () {
           if (this.checked) selectedIds.push($(this).val());
         });
 
-        var base = "php/modules/wholesales/exportPdf.php?reportType="+reportType+"&fromDate="+fromDateI+"&toDate="+toDateI+
+        var base = "php/modules/wholesales/api.php?action=exportReportPdf&reportType="+reportType+"&fromDate="+fromDateI+"&toDate="+toDateI+
           "&transactionStatus="+transactionStatusI+"&status="+statusI+
           "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
           "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
@@ -533,7 +533,7 @@ $(function () {
   $('#exportExcel').on('click', function() {
     var params = buildParams();
     var selectedIds = getSelectedIds();
-    window.open("php/modules/wholesales/export.php?" + params.substring(1) + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
+    window.open("php/modules/wholesales/api.php?action=exportReport" + params + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
   });
 
   if (allowIntegration === 'Y') {
@@ -580,7 +580,7 @@ $(function () {
       }
       var params = buildParams();
       var selectedIds = getSelectedIds();
-      window.open("php/modules/wholesales/exportIntegration.php?configId=" + configId + params + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
+      window.open("php/modules/wholesales/api.php?action=exportIntegration&configId=" + configId + params + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
       $('#integrationModal').modal('hide');
     });
   }
@@ -671,8 +671,9 @@ function initTable() {
       zeroRecords: '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     },
     ajax: {
-      url: 'php/modules/wholesales/filterWholesale.php',
+      url: 'php/modules/wholesales/api.php',
       data: {
+        action: 'list',
         fromDate: $('#fromDate').val(),
         toDate: $('#toDate').val(),
         transactionStatus: $('#transactionStatusFilter').val(),

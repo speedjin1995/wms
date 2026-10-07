@@ -412,7 +412,7 @@ function buildReportUrl() {
   var location = $('#locationFilter').val() || '';
   var product = $('#productFilter').val() || '';
   var type = $('#typeFilter').val() || '';
-  return 'php/modules/wholesales/exportStockBalance.php?asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product + '&type=' + encodeURIComponent(type);
+  return 'php/modules/wholesales/api.php?action=exportStockBalance&asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product + '&type=' + encodeURIComponent(type);
 }
 
 function loadPreview() {

@@ -1,171 +1,74 @@
 <?php
 require_once '../../php/db_connect.php';
-require_once '../../php/lookup.php';
+require_once '../../php/bootstrap.php';
+
+use App\Modules\Wholesale\WholesaleService;
 
 session_start();
 
 if(!isset($_SESSION['userID'])){
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
+  exit;
 }
-else{
-  $user = $_SESSION['userID'];
-  $company = $_SESSION['customer'];
-  $module = $_SESSION['module'];
-  $companyProducts = $_SESSION['products'];
-  $enableDailySales = $_SESSION['enableDailySales'];
-  $dailySalesModules = $_SESSION['dailySalesModules'];
-  
-  // Get user permissions from session
-  $role = $_SESSION['role'] ?? 'NORMAL';
-  $userAllowAdd = $_SESSION['userAllowAdd'] ?? 'N';
-  $userAllowEdit = $_SESSION['userAllowEdit'] ?? 'N';
-  $userAllowDelete = $_SESSION['userAllowDelete'] ?? 'N';
-  $userAllowPrice = $_SESSION['userAllowPrice'] ?? 'N';
-  $userLocationId = $_SESSION['userLocationId'] ?? null;
-  $userModuleAccess = $_SESSION['userModuleAccess'];
-  $categoryIds = [];
-  if (!empty($userModuleAccess['categories'])) {
-    $allowedModules = ['wholesale', 'processing'];
-    foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
-      if (in_array($module, $allowedModules)) {
-        $categoryIds = array_merge($categoryIds, $moduleCategories);
-      }
-    }
-    $categoryIds = array_unique($categoryIds);
-  }
 
-  $allowPhoto = 'N';
-  $allowPrice = 'N';
-  $allowInvoice = 'N';
-  $allowPayment = 'N';
-  $allowPcsBasket = 'N';
-  $allowBasketTare = 'N';
-  $secRemarksExists = false;
+$wholesaleService = new WholesaleService(
+  $db,
+  (int)$_SESSION['customer'],
+  (int)$_SESSION['userID'],
+  (string)($_SESSION['role'] ?? ''),
+  'wholesales',
+  (array)($_SESSION['userModuleAccess'] ?? [])
+);
+$permissions = $wholesaleService->getPermissions();
+$flags = $wholesaleService->getFeatureFlags();
+$lookups = $wholesaleService->getLookups();
+$showPrice = $flags['price'] && $permissions['allowPrice'];
+$stockEnabled = in_array('stocks', (array)($_SESSION['products'] ?? []), true);
 
-  $filterStates = [];
-  if ($enableDailySales == 'Y' && in_array($module, $dailySalesModules)){
-    // Query to get daily setup states
-    $stateQuery = "SELECT * FROM daily_sales_setup WHERE module = 'wholesales' AND company = ? AND deleted = 0";
-    if ($state_stmt = $db->prepare($stateQuery)) {
-        $state_stmt->bind_param('s', $company);
-        $state_stmt->execute();
-        $state_result = $state_stmt->get_result();
-        while ($state_row = $state_result->fetch_assoc()) {
-            $decoded = json_decode($state_row['state'], true);
-            if (is_array($decoded)) {
-                $filterStates = array_merge($filterStates, $decoded);
-            }
-        }
-    }
-  }
+// Language
+$language = $_SESSION['language'];
+$languageArray = $_SESSION['languageArray'];
+$t = function ($key, $default = '') use ($languageArray, $language) {
+  return $languageArray[$key][$language] ?? $default;
+};
+$e = function ($value) {
+  return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+};
 
-  if ($role != 'SADMIN'){
-    $stateFilter = '';
-    if (!empty($filterStates)) {
-      $stateJson = json_encode(array_values($filterStates));
-      $stateFilter = " AND JSON_OVERLAPS(p.state, '$stateJson')";
-    }
-    $categoryFilter = !empty($categoryIds) ? " AND c.id IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
-    $categories = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
-    $categories2 = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$stateFilter$categoryFilter ORDER BY p.product_name ASC";    
-    $productCheck = $db->query($productQuery);
-    if ($productCheck->num_rows == 0) {
-      $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
-    }
-    $products = $db->query($productQuery);
-    $products2 = $db->query($productQuery);
-    $products3 = $db->query($productQuery);
-    $products4 = $db->query($productQuery);
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
-    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
-    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
-    $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' AND customer = '$company' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $users = $db->query("SELECT * FROM users WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
-    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
-    $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
-    $currency = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
-    $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
-    $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
-    $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
-    $indicators = $db->query("SELECT * FROM indicators WHERE customer = '$company' ORDER BY nickname ASC");
-
-    // Feature Flagging
-    $allowPhoto = $_SESSION['featureFlags']['include_photo'] ?? 'N';
-    $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
-    $allowInvoice = $_SESSION['featureFlags']['include_invoice'] ?? 'N';
-    $allowPayment = $_SESSION['featureFlags']['include_payment'] ?? 'N';
-    $allowPcsBasket = $_SESSION['featureFlags']['include_pcs_basket'] ?? 'N';
-    $allowBasketTare = $_SESSION['featureFlags']['allow_basket_tare'] ?? 'N';
-    $secRemarksExists = ($_SESSION['featureFlags']['include_sec_remark'] ?? '') == 'Y' ? true : false;
-
-    $companyDetail = searchCompanyById($company, $db);
-    $columnSetup = [];
-    if (!empty($companyDetail['column_setup'])) {
-      $columnSetupAll = json_decode($companyDetail['column_setup'], true);
-      $columnSetup = $columnSetupAll['wholesale']['columns'] ?? [];
-    }
-  } else {
-    $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $categories2 = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
-    $products = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $products2 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $products3 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $products4 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
-    $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
-    $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
-    $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
-    $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
-    $vehicles2 = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
-    $drivers = $db->query("SELECT * FROM drivers WHERE deleted = '0' ORDER BY driver_name ASC");
-    $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades2 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades3 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $grades4 = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $users = $db->query("SELECT * FROM users WHERE deleted = '0' ORDER BY name ASC");
-    $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
-    $locations2 = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
-    $currency = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
-    $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
-    $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
-    $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
-    $indicators = $db->query("SELECT * FROM indicators ORDER BY nickname ASC");
-
-    $allowPhoto = 'Y';
-    $allowPrice = 'Y';
-    $allowInvoice = 'Y';
-    $allowPayment = 'Y';
-    $allowPcsBasket = 'Y';
-    $secRemarksExists = true;
-    $columnSetup = [];
-  }
-
-  $units = $db->query("SELECT * FROM units WHERE deleted = '0'");
-  $units1 = $db->query("SELECT * FROM units WHERE deleted = '0'");
-
-  // Default Currency
-  $defaultCurrencyId = null;
-  if ($curreny_stmt = $db->prepare("SELECT * FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1")) {
-    $curreny_stmt->bind_param('s', $company);
-    $curreny_stmt->execute();
-    $curreny_result = $curreny_stmt->get_result();
-    while ($curreny_row = $curreny_result->fetch_assoc()) {
-      $defaultCurrencyId = $curreny_row['id'];
+// List columns: key => [data field, label], ordered / hidden by the company column setup
+$defaultColumns = [
+  'serial_no_code'          => ['serial_no', $t('serial_no_code')],
+  'do_po_no_code'           => ['po_no', $t('do_po_no_code')],
+  'location_code'           => ['location', $t('locations_code')],
+  'sec_bill_no_code'        => ['security_bills', $t('sec_bill_no_code')],
+  'start_time_code'         => ['start_time', $t('start_time_code')],
+  'end_time_code'           => ['end_time', $t('end_time_code')],
+  'parent_code'             => ['parent', $t('parent_code')],
+  'customer_supplier_code'  => ['customer_supplier', $t('customer_supplier_code')],
+  'vehicle_no_code'         => ['vehicle_no', $t('vehicle_no_code')],
+  'driver_code'             => ['driver', $t('driver_code')],
+  'total_item_code'         => ['total_item', $t('total_item_code')],
+  'total_weight_code'       => ['total_weight', $t('total_weight_code')],
+  'total_price_reject_code' => $showPrice ? ['total_price', $t('total_price_code', 'Total Price')] : ['total_reject', $t('total_reject_code')],
+  'weighed_by_code'         => ['weighted_by', $t('weighed_by_code')],
+  'checked_by_code'         => ['checked_by', $t('checked_by_code')],
+  'modified_by_code'        => ['modified_by', $t('modified_by_code', 'Modified By')]
+];
+if ($flags['secRemark']) {
+  $defaultColumns['second_remarks_code'] = ['remarks2', $t('second_remarks_code')];
+}
+$columns = [];
+if (!empty($lookups['columnSetup'])) {
+  foreach ($lookups['columnSetup'] as $setup) {
+    if (isset($defaultColumns[$setup['key']])) {
+      $columns[] = ['data' => $defaultColumns[$setup['key']][0], 'label' => $defaultColumns[$setup['key']][1], 'visible' => ($setup['visible'] ?? true) !== false];
     }
   }
-
-  // Language
-  $language = $_SESSION['language'];
-  $languageArray = $_SESSION['languageArray'];
+} else {
+  foreach ($defaultColumns as $column) {
+    $columns[] = ['data' => $column[0], 'label' => $column[1], 'visible' => true];
+  }
 }
 ?>
 
@@ -174,7 +77,7 @@ else{
   <div class="container-fluid">
     <!-- Page Header -->
     <div class="page-header">
-      <h1 class="page-title"><i class="fas fa-weight"></i> <?=$languageArray['wholesales_code'][$language]?></h1>
+      <h1 class="page-title"><i class="fas fa-weight"></i> <?=$t('wholesales_code')?></h1>
     </div>
 
     <!-- Filter Card -->
@@ -182,7 +85,7 @@ else{
       <div class="card-body">
         <div class="filter-row">
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['from_date_code'][$language]?></label>
+            <label class="filter-label"><?=$t('from_date_code')?></label>
             <div class="input-group date" id="fromDatePicker" data-target-input="nearest">
               <input type="text" class="form-control datetimepicker-input" data-target="#fromDatePicker" id="fromDate"/>
               <div class="input-group-append" data-target="#fromDatePicker" data-toggle="datetimepicker">
@@ -192,7 +95,7 @@ else{
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['to_date_code'][$language]?></label>
+            <label class="filter-label"><?=$t('to_date_code')?></label>
             <div class="input-group date" id="toDatePicker" data-target-input="nearest">
               <input type="text" class="form-control datetimepicker-input" data-target="#toDatePicker" id="toDate"/>
               <div class="input-group-append" data-target="#toDatePicker" data-toggle="datetimepicker">
@@ -202,107 +105,107 @@ else{
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['transaction_status_code'][$language]?></label>
-            <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
-              <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
-              <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-              <?php if (in_array('stocks', $companyProducts)) { ?>
-              <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+            <label class="filter-label"><?=$t('transaction_status_code')?></label>
+            <select class="form-control" id="transactionStatusFilter">
+              <option value="DISPATCH" selected><?=$t('dispatch_code')?></option>
+              <option value="RECEIVING"><?=$t('receiving_code')?></option>
+              <?php if ($stockEnabled) { ?>
+              <option value="STOCK-BAL"><?=$t('stock_balance_code')?></option>
               <?php } ?>
             </select>
           </div>
 
           <div class="filter-group" id="customerStatusDiv">
-            <label class="filter-label"><?=$languageArray['customer_code'][$language]?></label>
-            <select class="form-control select2" id="customerNoFilter" name="customerNoFilter">
-              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-              <?php while($rowCustomer2=mysqli_fetch_assoc($customers)){ ?>
-                <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['customer_name'] ?></option>
+            <label class="filter-label"><?=$t('customer_code')?></label>
+            <select class="form-control select2" id="customerNoFilter">
+              <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+              <?php foreach ($lookups['customers'] as $row) { ?>
+                <option value="<?=$row['id']?>"><?=$e($row['customer_name'])?></option>
               <?php } ?>
             </select>
           </div>
 
           <div class="filter-group" id="supplierStatusDiv" style="display: none;">
-            <label class="filter-label"><?=$languageArray['supplier_code'][$language]?></label>
-            <select class="form-control select2" id="supplierNoFilter" name="supplierNoFilter">
-              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-              <?php while($rowCustomer2=mysqli_fetch_assoc($supplies)){ ?>
-                <option value="<?=$rowCustomer2['id'] ?>"><?=$rowCustomer2['supplier_name'] ?></option>
+            <label class="filter-label"><?=$t('supplier_code')?></label>
+            <select class="form-control select2" id="supplierNoFilter">
+              <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+              <?php foreach ($lookups['suppliers'] as $row) { ?>
+                <option value="<?=$row['id']?>"><?=$e($row['supplier_name'])?></option>
               <?php } ?>
             </select>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['vehicle_no_code'][$language]?></label>
-            <select class="form-control select2" id="vehicleNoFilter" name="vehicleNoFilter">
-              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-              <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-              <?php while($rowVehicle=mysqli_fetch_assoc($vehicles2)){ ?>
-                <option value="<?=$rowVehicle['veh_number'] ?>"><?=$rowVehicle['veh_number'] ?></option>
+            <label class="filter-label"><?=$t('vehicle_no_code')?></label>
+            <select class="form-control select2" id="vehicleNoFilter">
+              <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+              <option value="OTHERS"><?=$t('others_code')?></option>
+              <?php foreach ($lookups['vehicles'] as $row) { ?>
+                <option value="<?=$e($row['veh_number'])?>"><?=$e($row['veh_number'])?></option>
               <?php } ?>
             </select>
           </div>
 
           <div class="filter-group" id="otherVehicleFilterDiv" style="display: none;">
-            <label class="filter-label"><?=$languageArray['other_vehicle_no_code'][$language]?></label>
-            <input type="text" class="form-control" id="otherVehicleNoFilter" name="otherVehicleNoFilter" placeholder="<?=$languageArray['please_enter_vehicle_no_code'][$language]?>">
+            <label class="filter-label"><?=$t('other_vehicle_no_code')?></label>
+            <input type="text" class="form-control" id="otherVehicleNoFilter" placeholder="<?=$t('please_enter_vehicle_no_code')?>">
           </div>
         </div>
 
         <div class="filter-row mt-3">
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
-            <select class="form-control select2" id="categoryFilter" name="categoryFilter">
-              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-              <?php while($rowCategory=mysqli_fetch_assoc($categories)){ ?>
-                <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
+            <label class="filter-label"><?=$t('category_code')?></label>
+            <select class="form-control select2" id="categoryFilter">
+              <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+              <?php foreach ($lookups['categories'] as $row) { ?>
+                <option value="<?=$row['id']?>"><?=$e($row['category_name'])?></option>
               <?php } ?>
             </select>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['locations_code'][$language]?></label>
-            <select class="form-control select2" id="locationFilter" name="locationFilter">
+            <label class="filter-label"><?=$t('locations_code')?></label>
+            <select class="form-control select2" id="locationFilter">
               <option value="">-</option>
-              <?php while($rowLocation=mysqli_fetch_assoc($locations2)){ ?>
-                <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+              <?php foreach ($lookups['locations'] as $row) { ?>
+                <option value="<?=$row['id']?>"><?=$e($row['locations'])?></option>
               <?php } ?>
             </select>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
+            <label class="filter-label"><?=$t('type_code', 'Type')?></label>
+            <select class="form-control" id="partyTypeFilter">
+              <option value="" selected><?=$t('all_code', 'All')?></option>
+              <option value="Normal"><?=$t('normal_code', 'Normal')?></option>
+              <option value="Packing"><?=$t('packing_code', 'Packing')?></option>
             </select>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['indicator_code'][$language]?></label>
+            <label class="filter-label"><?=$t('indicator_code')?></label>
             <select class="form-control select2" id="indicatorFilter">
-              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-              <option value="web"><?=$languageArray['web_code'][$language] ?? 'Web'?></option>
-              <?php while($rowIndicator=mysqli_fetch_assoc($indicators)){ ?>
-                <option value="<?=$rowIndicator['nickname'] ?>"><?=$rowIndicator['nickname'] ?></option>
+              <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+              <option value="web"><?=$t('web_code', 'Web')?></option>
+              <?php foreach ($lookups['indicators'] as $row) { ?>
+                <option value="<?=$e($row['nickname'])?>"><?=$e($row['nickname'])?></option>
               <?php } ?>
             </select>
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
-            <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
+            <label class="filter-label"><?=$t('checked_by_code')?></label>
+            <input type="text" class="form-control" id="checkedByFilter" placeholder="<?=$t('please_enter_name_code')?>">
           </div>
         </div>
 
         <div class="filter-row mt-3">
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
-            <select class="form-control select2" id="weightByFilter" name="weightByFilter">
-              <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-              <?php while($rowUser=mysqli_fetch_assoc($users)){ ?>
-                <option value="<?=$rowUser['id'] ?>"><?=$rowUser['name'] ?></option>
+            <label class="filter-label"><?=$t('weighed_by_code')?></label>
+            <select class="form-control select2" id="weightByFilter">
+              <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+              <?php foreach ($lookups['users'] as $row) { ?>
+                <option value="<?=$row['id']?>"><?=$e($row['name'])?></option>
               <?php } ?>
             </select>
           </div>
@@ -310,13 +213,10 @@ else{
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
             <button type="button" class="btn btn-filter btn-filter-primary" id="filterSearch">
-              <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+              <i class="fas fa-search"></i> <?=$t('search_code')?>
             </button>
           </div>
         </div>
-
-        <!-- Hidden status filter -->
-        <input type="hidden" id="statusFilter" name="statusFilter" value="active">
       </div>
     </div>
 
@@ -324,26 +224,26 @@ else{
     <div class="card results-card show-dt-controls">
       <div class="card-header">
         <div class="results-header-left">
-          <h3 class="results-title"><i class="fas fa-list"></i> <?=$languageArray['wholesales_code'][$language]?></h3>
+          <h3 class="results-title"><i class="fas fa-list"></i> <?=$t('wholesales_code')?></h3>
         </div>
         <div class="results-header-right d-flex" style="gap: 0.5rem;">
           <div class="dropdown">
             <button class="btn btn-action btn-action-secondary dropdown-toggle" type="button" id="columnToggleBtn" data-toggle="dropdown">
-              <i class="fas fa-columns"></i> <?=$languageArray['columns_code'][$language] ?? 'Columns'?>
+              <i class="fas fa-columns"></i> <?=$t('columns_code', 'Columns')?>
             </button>
             <div class="dropdown-menu dropdown-menu-right p-2" id="columnToggleMenu" style="min-width:200px;max-height:300px;overflow-y:auto;"></div>
           </div>
-          <button type="button" class="btn btn-action btn-action-success" onclick="printSelected()">
-            <i class="fas fa-print"></i> <?=$languageArray['print_selected_code'][$language] ?? 'Print Selected'?>
+          <button type="button" class="btn btn-action btn-action-success" id="printSelected">
+            <i class="fas fa-print"></i> <?=$t('print_selected_code', 'Print Selected')?>
           </button>
-          <?php if($allowInvoice == 'Y' && $userAllowPrice == 'Y'){ ?>
-          <button type="button" class="btn btn-action btn-action-warning" onclick="exportInvoices()">
-            <i class="fas fa-file-invoice"></i> <?=$languageArray['export_invoice_code'][$language] ?? 'Export Invoice'?>
+          <?php if ($flags['invoice'] && $permissions['allowPrice']) { ?>
+          <button type="button" class="btn btn-action btn-action-warning" id="exportInvoices">
+            <i class="fas fa-file-invoice"></i> <?=$t('export_invoice_code', 'Export Invoice')?>
           </button>
           <?php } ?>
-          <?php if($userAllowAdd == 'Y'){ ?>
-          <button type="button" class="btn btn-action btn-action-primary" onclick="newEntry()">
-            <i class="fas fa-plus"></i> <?=$languageArray['add_new_code'][$language]?>
+          <?php if ($permissions['allowAdd']) { ?>
+          <button type="button" class="btn btn-action btn-action-primary" id="addEntry">
+            <i class="fas fa-plus"></i> <?=$t('add_new_code')?>
           </button>
           <?php } ?>
         </div>
@@ -354,36 +254,10 @@ else{
           <thead>
             <tr>
               <th style="width:40px;"><input type="checkbox" id="selectAllRows"></th>
-              <?php
-              $defaultColHeaders = [
-                'serial_no_code'         => $languageArray['serial_no_code'][$language],
-                'do_po_no_code'          => $languageArray['do_po_no_code'][$language],
-                'location_code'          => $languageArray['locations_code'][$language],
-                'sec_bill_no_code'       => $languageArray['sec_bill_no_code'][$language],
-                'start_time_code'        => $languageArray['start_time_code'][$language],
-                'end_time_code'          => $languageArray['end_time_code'][$language],
-                'parent_code'            => $languageArray['parent_code'][$language],
-                'customer_supplier_code' => $languageArray['customer_supplier_code'][$language],
-                'vehicle_no_code'        => $languageArray['vehicle_no_code'][$language],
-                'driver_code'            => $languageArray['driver_code'][$language],
-                'total_item_code'        => $languageArray['total_item_code'][$language],
-                'total_weight_code'      => $languageArray['total_weight_code'][$language],
-                'total_price_reject_code'=> ($allowPrice == 'Y' && $userAllowPrice == 'Y') ? ($languageArray['total_price_code'][$language] ?? 'Total Price') : $languageArray['total_reject_code'][$language],
-                'weighed_by_code'        => $languageArray['weighed_by_code'][$language],
-                'checked_by_code'        => $languageArray['checked_by_code'][$language],
-                'modified_by_code'       => $languageArray['modified_by_code'][$language] ?? 'Modified By',
-              ];
-              if ($secRemarksExists) {
-                $defaultColHeaders['second_remarks_code'] = $languageArray['second_remarks_code'][$language];
-              }
-              $orderedHeaders = !empty($columnSetup)
-                ? array_filter(array_map(fn($col) => isset($defaultColHeaders[$col['key']]) ? [$col['key'], $defaultColHeaders[$col['key']]] : null, $columnSetup))
-                : array_map(fn($k, $v) => [$k, $v], array_keys($defaultColHeaders), $defaultColHeaders);
-              foreach ($orderedHeaders as $col) {
-                echo '<th>' . htmlspecialchars($col[1]) . '</th>';
-              }
-              ?>
-              <th style="width:120px;"><?=$languageArray['actions_code'][$language]?></th>
+              <?php foreach ($columns as $column) { ?>
+                <th><?=$e($column['label'])?></th>
+              <?php } ?>
+              <th style="width:120px;"><?=$t('actions_code')?></th>
             </tr>
           </thead>
         </table>
@@ -392,46 +266,46 @@ else{
   </div>
 </div>
 
+<!-- Add / Edit Modal -->
 <div class="modal fade modal-modern" id="extendModal">
   <div class="modal-dialog modal-xl" style="max-width: 1700px;">
     <div class="modal-content">
       <form role="form" id="extendForm">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-weight mr-2 text-muted"></i><?=$languageArray['add_new_entry_code'][$language]?></h5>
+          <h5 class="modal-title"><i class="fas fa-weight mr-2 text-muted"></i><?=$t('add_new_entry_code')?></h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
 
         <div class="modal-body">
-          <input type="hidden" class="form-control" id="id" name="id">
-          <input type="hidden" class="form-control" id="recordType" name="recordType" value="wholesales">
+          <input type="hidden" id="id" name="id">
 
           <!-- Order Information Section -->
           <div class="modal-section">
-            <h6 class="section-title"><i class="fas fa-info-circle mr-2"></i><?=$languageArray['order_information_code'][$language] ?? 'Order Information'?></h6>
+            <h6 class="section-title"><i class="fas fa-info-circle mr-2"></i><?=$t('order_information_code', 'Order Information')?></h6>
             <div class="row">
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['serial_no_code'][$language]?> <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="serialNo" name="serialNo" readonly>
+                  <label class="form-label-modern"><?=$t('serial_no_code')?></label>
+                  <input type="text" class="form-control" id="serialNo" readonly>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['status_code'][$language]?> <span class="text-danger">*</span></label>
+                  <label class="form-label-modern"><?=$t('status_code')?> <span class="text-danger">*</span></label>
                   <select class="form-control" id="status" name="status" required>
-                    <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
-                    <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
-                    <?php if (in_array('stocks', $companyProducts)) { ?>
-                    <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
+                    <option value="DISPATCH"><?=$t('dispatch_code')?></option>
+                    <option value="RECEIVING"><?=$t('receiving_code')?></option>
+                    <?php if ($stockEnabled) { ?>
+                    <option value="STOCK-BAL"><?=$t('stock_balance_code')?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['start_time_code'][$language]?> <span class="text-danger">*</span></label>
+                  <label class="form-label-modern"><?=$t('start_time_code')?> <span class="text-danger">*</span></label>
                   <div class="input-group date" id="startTimePicker" data-target-input="nearest">
                     <input type="text" class="form-control datetimepicker-input" data-target="#startTimePicker" id="startTime" name="startTime" required/>
                     <div class="input-group-append" data-target="#startTimePicker" data-toggle="datetimepicker">
@@ -442,7 +316,7 @@ else{
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['end_time_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('end_time_code')?></label>
                   <div class="input-group date" id="endTimePicker" data-target-input="nearest">
                     <input type="text" class="form-control datetimepicker-input" data-target="#endTimePicker" id="endTime" name="endTime"/>
                     <div class="input-group-append" data-target="#endTimePicker" data-toggle="datetimepicker">
@@ -455,43 +329,43 @@ else{
             <div class="row">
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['do_po_no_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('do_po_no_code')?></label>
                   <input type="text" class="form-control" id="doPoNo" name="doPoNo">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['product_type_code'][$language] ?? 'Product Type'?></label>
+                  <label class="form-label-modern"><?=$t('product_type_code', 'Product Type')?></label>
                   <select class="form-control" id="productType" name="productType">
-                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                    <option value="Local"><?=$t('local_code', 'Local')?></option>
+                    <option value="Export"><?=$t('export_code', 'Export')?></option>
                   </select>
                 </div>
               </div>
               <div class="col-md-3" id="securityBillDiv">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['sec_bill_no_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('sec_bill_no_code')?></label>
                   <input type="text" class="form-control" id="securityBillNo" name="securityBillNo">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['category_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('category_code')?></label>
                   <select class="form-control select2" id="category" name="category">
-                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowCategory=mysqli_fetch_assoc($categories2)){ ?>
-                      <option value="<?=$rowCategory['id'] ?>"><?=$rowCategory['category_name'] ?></option>
+                    <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+                    <?php foreach ($lookups['categories'] as $row) { ?>
+                      <option value="<?=$row['id']?>"><?=$e($row['category_name'])?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['locations_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('locations_code')?></label>
                   <select class="form-control select2" id="location" name="location">
-                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-                    <?php while($rowLocation=mysqli_fetch_assoc($locations)){ ?>
-                      <option value="<?=$rowLocation['id'] ?>"><?=$rowLocation['locations'] ?></option>
+                    <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+                    <?php foreach ($lookups['locations'] as $row) { ?>
+                      <option value="<?=$row['id']?>"><?=$e($row['locations'])?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -501,87 +375,87 @@ else{
 
           <!-- Customer/Supplier & Transport Section -->
           <div class="modal-section">
-            <h6 class="section-title"><i class="fas fa-truck mr-2"></i><?=$languageArray['transport_details_code'][$language] ?? 'Transport Details'?></h6>
+            <h6 class="section-title"><i class="fas fa-truck mr-2"></i><?=$t('transport_details_code', 'Transport Details')?></h6>
             <div class="row">
               <div class="col-md-3" id="customerDiv">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['customer_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('customer_code')?></label>
                   <select class="form-control select2" id="customer" name="customer">
-                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                    <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
-                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>" data-type="<?=$rowCustomer3['customer_type'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                    <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+                    <option value="OTHERS"><?=$t('others_code')?></option>
+                    <?php foreach ($lookups['customers'] as $row) { ?>
+                      <option value="<?=$row['id']?>" data-currency="<?=$e($row['currency'])?>" data-type="<?=$e($row['customer_type'])?>"><?=$e($row['customer_name'])?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
               <div class="col-md-3" id="customerOtherDiv" style="display:none;">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['customer_other_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('customer_other_code')?></label>
                   <input type="text" class="form-control" id="customerOther" name="customerOther">
                 </div>
               </div>
               <div class="col-md-3" id="supplierDiv" style="display:none;">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['supplier_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('supplier_code')?></label>
                   <select class="form-control select2" id="supplier" name="supplier">
-                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                    <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
-                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>" data-type="<?=$rowSupplier3['supplier_type'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                    <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+                    <option value="OTHERS"><?=$t('others_code')?></option>
+                    <?php foreach ($lookups['suppliers'] as $row) { ?>
+                      <option value="<?=$row['id']?>" data-currency="<?=$e($row['currency'])?>" data-type="<?=$e($row['supplier_type'])?>"><?=$e($row['supplier_name'])?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
               <div class="col-md-3" id="supplierOtherDiv" style="display:none;">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['supplier_other_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('supplier_other_code')?></label>
                   <input type="text" class="form-control" id="supplierOther" name="supplierOther">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['vehicle_no_code'][$language]?> <span class="text-danger">*</span></label>
+                  <label class="form-label-modern"><?=$t('vehicle_no_code')?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" id="vehicle" name="vehicle" required>
-                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                    <?php while($rowVehicle3=mysqli_fetch_assoc($vehicles)){ ?>
-                      <option value="<?=$rowVehicle3['veh_number'] ?>"><?=$rowVehicle3['veh_number'] ?></option>
+                    <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+                    <option value="OTHERS"><?=$t('others_code')?></option>
+                    <?php foreach ($lookups['vehicles'] as $row) { ?>
+                      <option value="<?=$e($row['veh_number'])?>"><?=$e($row['veh_number'])?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
               <div class="col-md-3" id="vehicleNoOtherDiv" style="display:none;">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['other_vehicle_no_code'][$language]?> <span class="text-danger">*</span></label>
+                  <label class="form-label-modern"><?=$t('other_vehicle_no_code')?> <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="otherVehicleNo" name="otherVehicleNo">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['driver_code'][$language]?> <span class="text-danger">*</span></label>
+                  <label class="form-label-modern"><?=$t('driver_code')?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" id="driver" name="driver" required>
-                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
-                    <?php while($rowDriver3=mysqli_fetch_assoc($drivers)){ ?>
-                      <option value="<?=$rowDriver3['driver_name'] ?>"><?=$rowDriver3['driver_name'] ?></option>
+                    <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+                    <option value="OTHERS"><?=$t('others_code')?></option>
+                    <?php foreach ($lookups['drivers'] as $row) { ?>
+                      <option value="<?=$e($row['driver_name'])?>"><?=$e($row['driver_name'])?></option>
                     <?php } ?>
                   </select>
                 </div>
               </div>
               <div class="col-md-3" id="driverOtherDiv" style="display:none;">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['other_driver_code'][$language]?> <span class="text-danger">*</span></label>
+                  <label class="form-label-modern"><?=$t('other_driver_code')?> <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="otherDriver" name="otherDriver">
                 </div>
               </div>
-              <div class="col-md-3" <?=$allowPayment == 'Y' ? '' : 'style="display:none;"'?>>
+              <div class="col-md-3" <?=$flags['payment'] ? '' : 'style="display:none;"'?>>
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['payment_method_code'][$language]?></label>
+                  <label class="form-label-modern"><?=$t('payment_method_code')?></label>
                   <select class="form-control select2" id="paymentMethod" name="paymentMethod">
-                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
-                    <option value="Cash"><?=$languageArray['cash_code'][$language]?></option>
-                    <option value="Bank Transfer"><?=$languageArray['bank_transfer_code'][$language]?></option>
+                    <option value=""><?=$t('please_select_code', 'Please Select')?></option>
+                    <option value="Cash"><?=$t('cash_code')?></option>
+                    <option value="Bank Transfer"><?=$t('bank_transfer_code')?></option>
                   </select>
                 </div>
               </div>
@@ -590,42 +464,42 @@ else{
 
           <!-- Remarks Section -->
           <div class="modal-section">
-            <h6 class="section-title"><i class="fas fa-comment-alt mr-2"></i><?=$languageArray['remark_code'][$language]?></h6>
+            <h6 class="section-title"><i class="fas fa-comment-alt mr-2"></i><?=$t('remark_code')?></h6>
             <div class="row">
-              <div class="col-md-<?=$secRemarksExists ? '6' : '12'?>">
+              <div class="col-md-<?=$flags['secRemark'] ? '6' : '12'?>">
                 <div class="form-group-modern">
-                  <textarea class="form-control" id="remarks" name="remarks" rows="2" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
+                  <textarea class="form-control" id="remarks" name="remarks" rows="2" placeholder="<?=$t('enter_remark_code')?>"></textarea>
                 </div>
               </div>
-              <?php if ($secRemarksExists) { ?>
+              <?php if ($flags['secRemark']) { ?>
               <div class="col-md-6">
                 <div class="form-group-modern">
-                  <textarea class="form-control" id="remarks2" name="remarks2" rows="2" placeholder="<?=$languageArray['second_remarks_code'][$language]?>"></textarea>
+                  <textarea class="form-control" id="remarks2" name="remarks2" rows="2" placeholder="<?=$t('second_remarks_code')?>"></textarea>
                 </div>
               </div>
               <?php } ?>
             </div>
           </div>
-          
+
           <!-- Basket Tare Calculation Section -->
-          <div class="modal-section" <?php if ($allowBasketTare != 'Y') { echo 'style="display:none;"'; } ?>>
-            <h6 class="section-title"><i class="fas fa-shopping-basket mr-2"></i><?=$languageArray['basket_tare_calculation_code'][$language] ?? 'Basket Tare Calculation'?></h6>
+          <div class="modal-section" <?=$flags['basketTare'] ? '' : 'style="display:none;"'?>>
+            <h6 class="section-title"><i class="fas fa-shopping-basket mr-2"></i><?=$t('basket_tare_calculation_code', 'Basket Tare Calculation')?></h6>
             <div class="row align-items-end">
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['empty_baskets_weight_code'][$language] ?? 'Empty Baskets Weight'?> (kg)</label>
+                  <label class="form-label-modern"><?=$t('empty_baskets_weight_code', 'Empty Baskets Weight')?> (kg)</label>
                   <input type="number" class="form-control" id="emptyBasketWeight" name="emptyBasketWeight" step="0.01" min="0" value="0.00" placeholder="0.00">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['basket_count_code'][$language] ?? 'Basket Count'?></label>
+                  <label class="form-label-modern"><?=$t('basket_count_code', 'Basket Count')?></label>
                   <input type="number" class="form-control" id="basketCount" name="basketCount" step="1" min="0" value="0" placeholder="0">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['average_weight_code'][$language] ?? 'Average Weight'?> (kg)</label>
+                  <label class="form-label-modern"><?=$t('average_weight_code', 'Average Weight')?> (kg)</label>
                   <input type="number" class="form-control" id="avgBasketWeight" name="avgBasketWeight" step="0.01" value="0.00" readonly style="background-color:#e9ecef;">
                 </div>
               </div>
@@ -633,7 +507,7 @@ else{
                 <div class="form-group-modern">
                   <label class="form-label-modern">&nbsp;</label>
                   <button type="button" class="btn btn-modern btn-modern-primary btn-block" id="applyTareBtn">
-                    <i class="fas fa-sync-alt mr-1"></i><?=$languageArray['apply_to_tare_code'][$language] ?? 'Apply to Tare'?>
+                    <i class="fas fa-sync-alt mr-1"></i><?=$t('apply_to_tare_code', 'Apply to Tare')?>
                   </button>
                 </div>
               </div>
@@ -643,14 +517,16 @@ else{
           <!-- Weight Details Section -->
           <div class="modal-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="section-title mb-0"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['weight_details_code'][$language]?></h6>
+              <h6 class="section-title mb-0"><i class="fas fa-balance-scale mr-2"></i><?=$t('weight_details_code')?></h6>
               <div class="d-flex align-items-center" style="gap:0.5rem;">
+                <?php if ($showPrice) { ?>
                 <div class="d-flex align-items-center">
-                  <label class="form-label-modern mb-0 mr-2" style="font-size:0.75rem;"><?=$languageArray['unit_price_code'][$language]?></label>
+                  <label class="form-label-modern mb-0 mr-2" style="font-size:0.75rem;"><?=$t('unit_price_code')?></label>
                   <input type="number" class="form-control form-control-sm" id="bulkUnitPrice" step="0.01" placeholder="0.00" style="width:100px;">
                 </div>
+                <?php } ?>
                 <button type="button" class="btn btn-modern btn-modern-primary btn-sm" id="addWeightBtn">
-                  <i class="fas fa-plus mr-1"></i><?=$languageArray['add_weight_code'][$language]?>
+                  <i class="fas fa-plus mr-1"></i><?=$t('add_weight_code')?>
                 </button>
               </div>
             </div>
@@ -659,39 +535,39 @@ else{
                 <thead class="thead-light">
                   <tr class="text-center">
                     <th style="width:3%;"><input type="checkbox" id="selectAllWeightCheckbox"></th>
-                    <th style="width:11%;"><?=$languageArray['product_code'][$language]?></th>
-                    <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['gross_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['tare_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['net_code'][$language]?></th>
-                    <?php if($allowPcsBasket == 'Y') { ?>
-                    <th style="width:6%;"><?=$languageArray['pcs_basket_code'][$language] ?? 'Pcs/Basket'?></th>
+                    <th style="width:11%;"><?=$t('product_code')?></th>
+                    <th style="width:8%;"><?=$t('grade_code')?></th>
+                    <th style="width:7%;"><?=$t('gross_code')?></th>
+                    <th style="width:7%;"><?=$t('tare_code')?></th>
+                    <th style="width:7%;"><?=$t('net_code')?></th>
+                    <?php if ($flags['pcsBasket']) { ?>
+                    <th style="width:6%;"><?=$t('pcs_basket_code', 'Pcs/Basket')?></th>
                     <?php } ?>
-                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
-                    <th style="width:6%;"><?=$languageArray['currency_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['price_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['before_disc_code'][$language] ?? "Before Disc"?></th>
-                    <th style="width:11%;"><?=$languageArray['discount_code'][$language] ?? "Discount"?></th>
-                    <th style="width:7%;"><?=$languageArray['total_code'][$language]?></th>
+                    <?php if ($showPrice) { ?>
+                    <th style="width:6%;"><?=$t('currency_code')?></th>
+                    <th style="width:7%;"><?=$t('price_code')?></th>
+                    <th style="width:7%;"><?=$t('before_disc_code', 'Before Disc')?></th>
+                    <th style="width:11%;"><?=$t('discount_code', 'Discount')?></th>
+                    <th style="width:7%;"><?=$t('total_code')?></th>
                     <?php } ?>
-                    <th style="width:5%;"><?=$languageArray['time_code'][$language]?></th>
-                    <?php if($allowPhoto == 'Y') { ?>
-                    <th style="width:3%;"><?=$languageArray['photo_code'][$language]?></th>
+                    <th style="width:5%;"><?=$t('time_code')?></th>
+                    <?php if ($flags['photo']) { ?>
+                    <th style="width:3%;"><?=$t('photo_code')?></th>
                     <?php } ?>
-                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
+                    <th style="width:5%;"><?=$t('actions_code')?></th>
                   </tr>
                 </thead>
                 <tbody id="weightDetailsTable"></tbody>
-                <tfoot class="bg-light font-weight-bold" id="weightDetailsFooter">
+                <tfoot class="bg-light font-weight-bold">
                   <tr class="text-center">
-                    <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                    <td colspan="3" class="text-right"><?=$t('total_code')?></td>
                     <td id="totalWeightGross">0.00</td>
                     <td id="totalWeightTare">0.00</td>
                     <td class="text-primary font-weight-bold" id="totalWeightNet">0.00</td>
-                    <?php if($allowPcsBasket == 'Y') { ?>
+                    <?php if ($flags['pcsBasket']) { ?>
                     <td id="totalWeightBasket">0</td>
                     <?php } ?>
-                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
+                    <?php if ($showPrice) { ?>
                     <td></td>
                     <td></td>
                     <td class="font-weight-bold" id="totalWeightBeforeDiscount">0.00</td>
@@ -699,7 +575,7 @@ else{
                     <td class="text-success font-weight-bold" id="totalWeightPrice">0.00</td>
                     <?php } ?>
                     <td></td>
-                    <?php if($allowPhoto == 'Y') { ?><td></td><?php } ?>
+                    <?php if ($flags['photo']) { ?><td></td><?php } ?>
                     <td></td>
                   </tr>
                 </tfoot>
@@ -710,9 +586,9 @@ else{
           <!-- Reject Details Section -->
           <div class="modal-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="section-title mb-0 text-danger"><i class="fas fa-times-circle mr-2"></i><?=$languageArray['reject_details_code'][$language]?></h6>
+              <h6 class="section-title mb-0 text-danger"><i class="fas fa-times-circle mr-2"></i><?=$t('reject_details_code')?></h6>
               <button type="button" class="btn btn-modern btn-modern-danger btn-sm" id="addRejectWeightBtn">
-                <i class="fas fa-plus mr-1"></i><?=$languageArray['add_reject_weight_code'][$language]?>
+                <i class="fas fa-plus mr-1"></i><?=$t('add_reject_weight_code')?>
               </button>
             </div>
             <div class="table-responsive">
@@ -720,33 +596,33 @@ else{
                 <thead class="thead-light">
                   <tr class="text-center">
                     <th style="width:3%;">#</th>
-                    <th style="width:11%;"><?=$languageArray['product_code'][$language]?></th>
-                    <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['gross_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['tare_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['net_code'][$language]?></th>
-                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
-                    <th style="width:6%;"><?=$languageArray['currency_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['price_code'][$language]?></th>
-                    <th style="width:7%;"><?=$languageArray['before_disc_code'][$language] ?? "Before Disc"?></th>
-                    <th style="width:11%;"><?=$languageArray['discount_code'][$language] ?? "Discount"?></th>
-                    <th style="width:7%;"><?=$languageArray['total_code'][$language]?></th>
+                    <th style="width:11%;"><?=$t('product_code')?></th>
+                    <th style="width:8%;"><?=$t('grade_code')?></th>
+                    <th style="width:7%;"><?=$t('gross_code')?></th>
+                    <th style="width:7%;"><?=$t('tare_code')?></th>
+                    <th style="width:7%;"><?=$t('net_code')?></th>
+                    <?php if ($showPrice) { ?>
+                    <th style="width:6%;"><?=$t('currency_code')?></th>
+                    <th style="width:7%;"><?=$t('price_code')?></th>
+                    <th style="width:7%;"><?=$t('before_disc_code', 'Before Disc')?></th>
+                    <th style="width:11%;"><?=$t('discount_code', 'Discount')?></th>
+                    <th style="width:7%;"><?=$t('total_code')?></th>
                     <?php } ?>
-                    <th style="width:5%;"><?=$languageArray['time_code'][$language]?></th>
-                    <?php if($allowPhoto == 'Y') { ?>
-                    <th style="width:3%;"><?=$languageArray['photo_code'][$language]?></th>
+                    <th style="width:5%;"><?=$t('time_code')?></th>
+                    <?php if ($flags['photo']) { ?>
+                    <th style="width:3%;"><?=$t('photo_code')?></th>
                     <?php } ?>
-                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
+                    <th style="width:5%;"><?=$t('actions_code')?></th>
                   </tr>
                 </thead>
                 <tbody id="rejectDetailsTable"></tbody>
-                <tfoot class="bg-light font-weight-bold" id="rejectDetailsFooter">
+                <tfoot class="bg-light font-weight-bold">
                   <tr class="text-center">
-                    <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                    <td colspan="3" class="text-right"><?=$t('total_code')?></td>
                     <td id="totalRejectGross">0.00</td>
                     <td id="totalRejectTare">0.00</td>
                     <td class="text-danger font-weight-bold" id="totalRejectNet">0.00</td>
-                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
+                    <?php if ($showPrice) { ?>
                     <td></td>
                     <td></td>
                     <td class="font-weight-bold" id="totalRejectBeforeDiscount">0.00</td>
@@ -754,7 +630,7 @@ else{
                     <td class="text-danger font-weight-bold" id="totalRejectPrice">0.00</td>
                     <?php } ?>
                     <td></td>
-                    <?php if($allowPhoto == 'Y') { ?><td></td><?php } ?>
+                    <?php if ($flags['photo']) { ?><td></td><?php } ?>
                     <td></td>
                   </tr>
                 </tfoot>
@@ -764,82 +640,83 @@ else{
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-modern btn-modern-primary" id="saveButton"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>   
-
-<div class="modal fade modal-modern" id="cancelModal">
-  <div class="modal-dialog" style="max-width:500px;">
-    <div class="modal-content">
-      <form role="form" id="cancelForm">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-trash-alt mr-2 text-danger"></i><?=$languageArray['delete_reason_code'][$language]?></h5>
-          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group-modern">
-            <label class="form-label-modern"><?=$languageArray['delete_reason_code'][$language]?> <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required placeholder="<?=$languageArray['enter_reason_code'][$language] ?? 'Enter reason for deletion...'?>"></textarea>
-          </div>
-          <input type="hidden" id="id" name="id">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-          <button type="submit" class="btn btn-modern btn-modern-danger" id="submitCancel"><i class="fas fa-trash mr-1"></i><?=$languageArray['delete_code'][$language] ?? 'Delete'?></button>
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('close_code')?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary" id="saveButton"><i class="fas fa-save mr-1"></i><?=$t('save_code')?></button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<!-- Cancel (Delete) Modal -->
+<div class="modal fade modal-modern" id="cancelModal">
+  <div class="modal-dialog" style="max-width:500px;">
+    <div class="modal-content">
+      <form role="form" id="cancelForm">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-trash-alt mr-2 text-danger"></i><?=$t('delete_reason_code')?></h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group-modern">
+            <label class="form-label-modern"><?=$t('delete_reason_code')?> <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required placeholder="<?=$t('enter_reason_code', 'Enter reason for deletion...')?>"></textarea>
+          </div>
+          <input type="hidden" id="cancelId" name="id">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('close_code')?></button>
+          <button type="submit" class="btn btn-modern btn-modern-danger" id="submitCancel"><i class="fas fa-trash mr-1"></i><?=$t('delete_code', 'Delete')?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Print Options Modal -->
 <div class="modal fade modal-modern" id="printOptionsModal" tabindex="-1">
   <div class="modal-dialog" style="max-width:400px;">
     <div class="modal-content">
       <form id="printOptionsForm">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="fas fa-print mr-2 text-muted"></i><?=$languageArray['print_options_code'][$language]?></h5>
+          <h5 class="modal-title"><i class="fas fa-print mr-2 text-muted"></i><?=$t('print_options_code')?></h5>
           <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="printID" name="userID">
           <div class="form-group-modern">
-            <label class="form-label-modern"><?=$languageArray['paper_size_code'][$language]?></label>
+            <label class="form-label-modern"><?=$t('paper_size_code')?></label>
             <select class="form-control" id="paperSize" name="paperSize">
               <option value="A4">A4</option>
               <option value="A5">A5</option>
             </select>
           </div>
           <div class="form-group-modern" id="a4TemplateDiv">
-            <label class="form-label-modern">A4 <?=$languageArray['template_code'][$language]?></label>
+            <label class="form-label-modern">A4 <?=$t('template_code')?></label>
             <select class="form-control" id="a4Template" name="a4Template">
-              <option value="A4"><?=$languageArray['default_code'][$language]?></option>
-              <option value="A4Classic"><?=$languageArray['classic_code'][$language]?></option>
-              <option value="A4Price"><?=$languageArray['price_code'][$language]?></option>
-              <option value="A4PriceDetail"><?=$languageArray['price_detail_code'][$language]?></option>
+              <option value="A4"><?=$t('default_code')?></option>
+              <option value="A4Classic"><?=$t('classic_code')?></option>
+              <option value="A4Price"><?=$t('price_code')?></option>
+              <option value="A4PriceDetail"><?=$t('price_detail_code')?></option>
             </select>
           </div>
           <div class="form-group-modern">
-            <label class="form-label-modern"><?=$languageArray['print_with_photo_code'][$language]?></label>
+            <label class="form-label-modern"><?=$t('print_with_photo_code')?></label>
             <select class="form-control" id="printWithPhoto" name="withPhoto">
-              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
-              <option value="N"><?=$languageArray['no_code'][$language]?></option>
+              <option value="Y"><?=$t('yes_code')?></option>
+              <option value="N"><?=$t('no_code')?></option>
             </select>
           </div>
           <div class="form-group-modern" id="withDetailsDiv" style="display:none;">
-            <label class="form-label-modern"><?=$languageArray['with_details_code'][$language]?></label>
+            <label class="form-label-modern"><?=$t('with_details_code')?></label>
             <select class="form-control" id="printWithDetails" name="withDetails">
-              <option value="N"><?=$languageArray['no_code'][$language]?></option>
-              <option value="Y"><?=$languageArray['yes_code'][$language]?></option>
+              <option value="N"><?=$t('no_code')?></option>
+              <option value="Y"><?=$t('yes_code')?></option>
             </select>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
-          <button type="submit" class="btn btn-modern btn-modern-primary"><i class="fas fa-print mr-1"></i><?=$languageArray['print_code'][$language]?></button>
+          <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('cancel_code')?></button>
+          <button type="submit" class="btn btn-modern btn-modern-primary"><i class="fas fa-print mr-1"></i><?=$t('print_code')?></button>
         </div>
       </form>
     </div>
@@ -847,2493 +724,79 @@ else{
 </div>
 
 <script>
-// Values
-var netFromCalc = false; // variable to see where trigger nett weight from calculation or user input
-var currency = "1";
-var weightCount = 0;
-var rejectCount = 0;
-var allowPhoto = '<?=$allowPhoto?>';
-var allowPrice = '<?=$allowPrice?>';
-var userAllowPrice = '<?=$userAllowPrice?>';
-var allowInvoice = '<?=$allowInvoice?>';
-var allowPcsBasket = '<?=$allowPcsBasket?>';
-var userLocation = '<?=$userLocationId?>';
-var columnSetup = <?=json_encode($columnSetup)?>;
-var currentProductType = 'Local';
-var productsDataByType = [];
-
-// Default column definitions in order: [key, data field, label, extra options]
-var defaultColumns = [
-  ['serial_no_code',          'serial_no',        '<?=$languageArray['serial_no_code'][$language]?>'],
-  ['do_po_no_code',           'po_no',            '<?=$languageArray['do_po_no_code'][$language]?>'],
-  ['location_code',           'location',         '<?=$languageArray['locations_code'][$language]?>'],
-  ['sec_bill_no_code',        'security_bills',   '<?=$languageArray['sec_bill_no_code'][$language]?>'],
-  ['start_time_code',         'start_time',       '<?=$languageArray['start_time_code'][$language]?>'],
-  ['end_time_code',           'end_time',         '<?=$languageArray['end_time_code'][$language]?>'],
-  ['parent_code',             'parent',           '<?=$languageArray['parent_code'][$language]?>'],
-  ['customer_supplier_code',  'customer_supplier','<?=$languageArray['customer_supplier_code'][$language]?>'],
-  ['vehicle_no_code',         'vehicle_no',       '<?=$languageArray['vehicle_no_code'][$language]?>'],
-  ['driver_code',             'driver',           '<?=$languageArray['driver_code'][$language]?>'],
-  ['total_item_code',         'total_item',       '<?=$languageArray['total_item_code'][$language]?>'],
-  ['total_weight_code',       'total_weight',     '<?=$languageArray['total_weight_code'][$language]?>'],
-  ['total_price_reject_code', (allowPrice == 'Y' && userAllowPrice == 'Y') ? 'total_price' : 'total_reject', (allowPrice == 'Y' && userAllowPrice == 'Y') ? '<?=$languageArray['total_price_code'][$language] ?? 'Total Price'?>' : '<?=$languageArray['total_reject_code'][$language]?>'],
-  ['weighed_by_code',         'weighted_by',      '<?=$languageArray['weighed_by_code'][$language]?>'],
-  ['checked_by_code',         'checked_by',       '<?=$languageArray['checked_by_code'][$language]?>'],
-  ['modified_by_code',        'modified_by',      '<?=$languageArray['modified_by_code'][$language] ?? 'Modified By'?>']
-  <?php if ($secRemarksExists) { ?>,['second_remarks_code', 'remarks2', '<?=$languageArray['second_remarks_code'][$language]?>']<?php } ?>
-];
-
-$(function () {
-  $('#uomhidden').hide();
-  var userRole = '<?=$role ?>';
-  const today = new Date();
-  const tomorrow = new Date(today);
-  const yesterday = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  yesterday.setDate(yesterday.getDate() - 7);
-
-  $('#fromDatePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY',
-    defaultDate: today
-  });
-
-  $('#toDatePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY',
-    defaultDate: today
-  });
-
-  $('#startTimePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY HH:mm'
-  });
-
-  $('#endTimePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY HH:mm'
-  });
-
-  $('.select2').each(function() {
-    $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        // Conditionally set dropdownParent based on the element’s location
-        dropdownParent: $(this).closest('.modal').length > 0 ? $('#extendModal .modal-content') : $(this).parent()
-    });
-  });
-
-  // Build column toggle menu
-  buildColumnToggleMenu();
-
-  // Render Table
-  renderTable();
-
-  $('#filterSearch').on('click', function(){
-    renderTable();
-  });
-
-  $('#selectAllRows').on('change', function() {
-    $('#weightTable tbody .rowCheckbox').prop('checked', $(this).prop('checked'));
-  });
-
-  // Add event listener for opening and closing details on row click
-  $('#weightTable tbody').on('click', 'tr', function (e) {
-      var tr = $(this); // The row that was clicked
-      var row = table.row(tr);
-
-      // Exclude clicks on buttons, checkboxes, and form elements
-      if ($(e.target).closest('td').hasClass('select-checkbox') || 
-          $(e.target).closest('td').hasClass('action-button') ||
-          $(e.target).is('select') || 
-          $(e.target).is('input') ||
-          $(e.target).is('button')) {
-        return;
-      }
-
-      if (row.child.isShown()) {
-          // This row is already open - close it
-          row.child.hide();
-          tr.removeClass('shown');
-      } else {
-          $.post('php/modules/wholesales/getWholesale.php', { userID: row.data().id}, function (data) {
-            var obj = JSON.parse(data);
-            if (obj.status === 'success') {
-              row.child(format(obj.message)).show();
-              tr.addClass("shown");
-              if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
-                populateFilters(obj.message.id, obj.message.weightDetails);
-              }
-            }
-          });
-      }
-  });
-
-  $.validator.setDefaults({
-    submitHandler: function () {
-      if($('#extendModal').hasClass('show')){
-        var vehicle = $('#extendModal').find('#vehicle').val();
-        var otherVehicleNo = $('#extendModal').find('#otherVehicleNo').val();
-        if((vehicle == 'OTHERS' || vehicle == 'UNKNOWN' || vehicle == 'UNKOWN NO') && !otherVehicleNo) {
-          alert('Please enter the vehicle number.');
-          return false;
-        }
-        // Validate weight detail rows
-        var weightRowError = false;
-        var nettWeightError = false;
-        $('#weightDetailsTable tr').each(function() {
-          var product = $(this).find('select[name*="[product]"]').val();
-          var grade = $(this).find('select[name*="[grade_id]"]').val();
-          var gross = parseFloat($(this).find('input[name*="[gross]"]').val());
-          var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
-          if (!product || !grade || isNaN(gross) || gross <= 0) {
-            weightRowError = true;
-            return false;
-          }
-          if (nettWeight < 0) {
-            nettWeightError = true;
-            return false;
-          }
-        });
-
-        if ($('#rejectDetailsTable tr').length > 0) {
-          $('#rejectDetailsTable tr').each(function() {
-            var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
-            if (nettWeight < 0) {
-              nettWeightError = true;
-              return false;
-            }
-          });
-        }
-        
-        if (weightRowError) {
-          toastr["error"]("Please fill in Product, Grade and Gross for all weight detail rows.", "Validation Error:");
-          return false;
-        }
-        if (nettWeightError) {
-          toastr["error"]("Nett weight cannot be negative. Please check your gross and tare values.", "Validation Error:");
-          return false;
-        }
-        $('#spinnerLoading').show();
-        var formData = new FormData($('#extendForm')[0]);
-        $.ajax({
-          url: 'php/modules/wholesales/wholesales.php',
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: function(data){
-            var obj = JSON.parse(data); 
-            if(obj.status === 'success'){
-              $('#extendModal').modal('hide');
-              toastr["success"](obj.message, "Success:");
-              $('#weightTable').DataTable().ajax.reload();
-            }
-            else if(obj.status === 'failed'){
-              toastr["error"](obj.message, "Failed:");
-            }
-            else{
-              toastr["error"]("Something wrong when edit", "Failed:");
-            }
-            $('#spinnerLoading').hide();
-          },
-          error: function(){
-            toastr["error"]("Something wrong when saving", "Failed:");
-            $('#spinnerLoading').hide();
-          }
-        });
-      }else if($('#cancelModal').hasClass('show')){
-        $('#spinnerLoading').show();
-        $.post('php/modules/wholesales/deleteWholesale.php', $('#cancelForm').serialize(), function(data){
-          var obj = JSON.parse(data);
-
-          if(obj.status === 'success'){
-            $('#cancelModal').modal('hide');
-            toastr["success"](obj.message, "Success:");
-            $('#weightTable').DataTable().ajax.reload();
-            
-          }
-          else if(obj.status === 'failed'){
-            toastr["error"](obj.message, "Failed:");
-          }
-          else{
-            toastr["error"]("Something wrong when delete", "Failed:");
-          }
-          $('#spinnerLoading').hide();
-        });
-      }else if ($('#printOptionsModal').hasClass('show')){
-        var formData = $('#printOptionsForm').serialize();
-        var selectedPaperSize = $('#paperSize').val();
-        var multiPrintIds = $('#printOptionsForm').data('multiPrintIds');
-        var singleId = $('#printID').val();
-        
-        // Validate we have something to print
-        if ((!multiPrintIds || multiPrintIds.length === 0) && !singleId) {
-          toastr["error"]("No record selected for printing", "Error:");
-          return false;
-        }
-        
-        $('#printOptionsModal').modal('hide');
-        
-        if (multiPrintIds && multiPrintIds.length > 1) {
-          // Multi-print: process sequentially via iframes
-          openMultiPrintPreview(multiPrintIds, formData, selectedPaperSize);
-          $('#printOptionsForm').data('multiPrintIds', null); // Clear after use
-        } else {
-          // Single print
-          var printId = multiPrintIds && multiPrintIds.length === 1 ? multiPrintIds[0] : singleId;
-          formData += '&userID=' + printId;
-          
-          $.post('php/modules/wholesales/print.php', formData, function(data){
-            var obj = JSON.parse(data);
-            if(obj.status === 'success') {
-              openPrintPreview(obj.message, selectedPaperSize);
-            }
-            else if(obj.status === 'failed'){
-              toastr["error"](obj.message, "Failed:");
-            }
-            else{
-              toastr["error"]("Something wrong when printing", "Failed:");
-            }
-          }).fail(function() {
-            toastr["error"]("Failed to generate print document", "Failed:");
-          });
-          $('#printOptionsForm').data('multiPrintIds', null); // Clear after use
-        }
-      }
-    }
-  });
-
-  $('#transactionStatusFilter').on('change', function () {
-    var status = $(this).val();
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
-      $('#customerStatusDiv').show();
-      $('#supplierStatusDiv').hide();
-    }
-    else{
-      $('#customerStatusDiv').hide();
-      $('#supplierStatusDiv').show();
-    }
-  });
-
-  $('#category').on('change', function() {
-    var selectedCategory = $(this).val();
-    $('#weightDetailsTable select[name*="[product]"], #rejectDetailsTable select[name*="[product]"]').each(function() {
-        var select = $(this);
-        var currentVal = select.val();
-        select.select2('destroy');
-        
-        if (!select.data('original-options')) {
-            select.data('original-options', select.html());
-        }
-        select.html(select.data('original-options'));
-        
-        if (selectedCategory) {
-            select.find('option').each(function() {
-                if ($(this).val() && $(this).data('category') != selectedCategory) {
-                    $(this).remove();
-                }
-            });
-        }
-
-        // Re-apply previously selected value if it still exists in the filtered options
-        if (currentVal && select.find('option[value="' + currentVal + '"]').length) {
-            select.val(currentVal);
-        }
-        
-        select.select2({
-            allowClear: true,
-            placeholder: "Please Select",
-            dropdownParent: $('#extendModal .modal-content'),
-            width: '100%'
-        });
-    });
-  });
-
-  $('#extendModal').find('#status').on('change', function () {
-    var status = $(this).val();
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
-      $('#extendModal').find('#customerDiv').show();
-      $('#extendModal').find('#supplierDiv').hide();
-      $('#extendModal').find('#securityBillDiv').hide();
-    }
-    else{
-      $('#extendModal').find('#customerDiv').hide();
-      $('#extendModal').find('#supplierDiv').show();
-      $('#extendModal').find('#securityBillDiv').show();
-    }
-    
-    $('#weightDetailsTable').find('select[id^="grade_id"]').trigger('change');
-  });
-
-  // Product Type change handler
-  $('#extendModal').find('#productType').on('change', function() {
-    var newType = $(this).val();
-    if (newType === currentProductType) return;
-    
-    currentProductType = newType;
-    
-    // Clear existing weight and reject details
-    $('#weightDetailsTable').empty();
-    $('#rejectDetailsTable').empty();
-    weightCount = 0;
-    rejectCount = 0;
-    updateTotals();
-    
-    // Reload products for the new type
-    loadProductsByType(newType);
-  });
-
-  $('#extendModal').find('#customer').on('change', function () {
-    var customer = $(this).val();
-    if(customer == "OTHERS"){
-      $('#extendModal').find('#customerOtherDiv').show();
-    }
-    else{
-      $('#extendModal').find('#customerOtherDiv').hide();
-    }
-
-    var customerId = customer;
-    var status = $('#extendModal').find('#status').val();
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && customerId && status) {
-      $('#weightDetailsTable tr.details').each(function() {
-        $(this).find('select[id^="grade_id"]').trigger('change');
-      });
-      // Recalculate prices for all reject detail rows
-      $('#rejectDetailsTable tr.details').each(function() {
-        $(this).find('select[id^="grade"]').trigger('change');
-      });
-    }
-    applyCustomerCurrency($(this).find('option:selected').data('currency'));
-  });
-
-  $('#extendModal').find('#supplier').on('change', function () {
-    var supplier = $(this).val();
-    if(supplier == "OTHERS"){
-      $('#extendModal').find('#supplierOtherDiv').show();
-    }
-    else{
-      $('#extendModal').find('#supplierOtherDiv').hide();
-    }
-    
-    var status = $('#extendModal').find('#status').val();
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && supplier && status) {
-      // Recalculate prices for all weight detail rows
-      $('#weightDetailsTable tr.details').each(function() {
-        $(this).find('select[id^="grade_id"]').trigger('change');
-      });
-      // Recalculate prices for all reject detail rows
-      $('#rejectDetailsTable tr.details').each(function() {
-        $(this).find('select[id^="grade"]').trigger('change');
-      });
-    }
-    applyCustomerCurrency($(this).find('option:selected').data('currency'));
-  });
-
-  $('#extendModal').find('#vehicle').on('change', function () {
-    var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
-      $('#extendModal').find('#vehicleNoOtherDiv').show();
-    }
-    else{
-      $('#extendModal').find('#vehicleNoOtherDiv').hide();
-    }
-  });
-
-  $('#extendModal').find('#driver').on('change', function () {
-    var driver = $(this).val();
-    if(driver == "UNKOWN NO" || driver == "OTHERS" || driver == "UNKNOWN"){
-      $('#extendModal').find('#driverOtherDiv').show();
-    }
-    else{
-      $('#extendModal').find('#driverOtherDiv').hide();
-    }
-  });
-
-  $('#paperSize').on('change', function() {
-    var val = $(this).val();
-    $('#withDetailsDiv').toggle(val === 'A5');
-    $('#a4TemplateDiv').toggle(val === 'A4');
-  });
-
-  $('#vehicleNoFilter').on('change', function () {
-    var vehicleNo = $(this).val();
-    if(vehicleNo == "UNKOWN NO" || vehicleNo == "OTHERS" || vehicleNo == "UNKNOWN"){
-      $('#otherVehicleFilterDiv').show();
-    }
-    else{
-      $('#otherVehicleFilterDiv').hide();
-    }
-  });
-
-  $('#addRejectWeightBtn').on('click', function() {
-    var idx = rejectCount++;
-    var rowNum = $('#rejectDetailsTable tr').length + 1;
-    var now = new Date();
-    var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                      now.getMinutes().toString().padStart(2, '0') + ':' + 
-                      now.getSeconds().toString().padStart(2, '0');
-    var row = `
-      <tr class="details">
-        <td style="text-align: center">${rowNum}</td>
-        <td style="display:none">
-          <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="35">
-          <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="1REJ">
-          <input type="hidden" id="pretare${idx}" name="rejectDetails[${idx}][pretare]" value="0.00">
-          <input type="hidden" id="unit${idx}" name="rejectDetails[${idx}][unit]" value="Kg">
-          <input type="hidden" id="package${idx}" name="rejectDetails[${idx}][package]" value="">
-          <input type="hidden" id="fixedfloat${idx}" name="rejectDetails[${idx}][fixedfloat]" value="">
-          <input type="hidden" id="isedit${idx}" name="rejectDetails[${idx}][isedit]" value="N">
-          <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="0.00">
-          <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="YES">
-          <input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="REJECT (拒收)">
-          <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="REJ">
-        </td>
-        <td>REJECT (拒收)</td>
-        <td>REJ</td>
-        <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="net${idx}" name="rejectDetails[${idx}][net]" step="0.01" value="0.00" readonly></td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
-            <option value="" selected disabled>Select Currency</option>
-            <?php while($rowCurrency=mysqli_fetch_assoc($currency2)){ ?>
-              <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
-            <?php } ?>
-          </select>
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="price${idx}" name="rejectDetails[${idx}][price]" step="0.01" value="0.00" readonly>
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="before_discount${idx}" name="rejectDetails[${idx}][before_discount]" step="0.01" value="0.00" readonly>
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <div class="input-group input-group-sm">
-            <select class="form-control" id="discount_type${idx}" name="rejectDetails[${idx}][discount_type]" style="max-width:60px;">
-              <option value="fixed">Fix</option>
-              <option value="percent">%</option>
-            </select>
-            <input type="number" class="form-control" id="discount${idx}" name="rejectDetails[${idx}][discount]" step="0.01" value="0.00">
-          </div>
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="total${idx}" name="rejectDetails[${idx}][total]" step="0.01" value="0.00" readonly>
-        </td>
-        <td>
-          <input type="time" class="form-control" id="time${idx}" name="rejectDetails[${idx}][time]" value="${currentTime}"/>
-        </td>
-        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-          <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="">
-          <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#rejectPhotoFile${idx}').click()"><i class="fas fa-camera"></i></button>
-          <span id="rejectPhotoStatus${idx}"></span>
-        </td>
-        <td>
-          <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-    $('#rejectDetailsTable').append(row);
-
-    var status = $('#extendModal').find('#status').val();
-    var currencyId = status === 'RECEIVING' || status === 'INCOMING'
-      ? $('#extendModal').find('#supplier option:selected').data('currency')
-      : $('#extendModal').find('#customer option:selected').data('currency');
-    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
-    if (currencyId) {
-      $(`#rejectDetailsTable`).find(`select[name="rejectDetails[${idx}][currency]"]`).val(currencyId).trigger('change');
-    }
-  });
-
-  $('#addWeightBtn').on('click', function() {
-    var idx = weightCount++;
-    var rowNum = $('#weightDetailsTable tr').length + 1;
-    var now = new Date();
-    var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
-                      now.getMinutes().toString().padStart(2, '0') + ':' + 
-                      now.getSeconds().toString().padStart(2, '0');
-    var row = `
-      <tr class="details">
-        <td style="text-align: center"><input type="checkbox" id="weightCheckbox${idx}"></td>
-        <td style="display:none">
-          <input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="">
-          <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="">
-          <input type="hidden" id="pretare${idx}" name="weightDetails[${idx}][pretare]" value="0.00">
-          <input type="hidden" id="unit${idx}" name="weightDetails[${idx}][unit]" value="Kg">
-          <input type="hidden" id="package${idx}" name="weightDetails[${idx}][package]" value="">
-          <input type="hidden" id="fixedfloat${idx}" name="weightDetails[${idx}][fixedfloat]" value="">
-          <input type="hidden" id="isedit${idx}" name="weightDetails[${idx}][isedit]" value="N">
-          <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="0.00">
-          <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="NO">
-          <input type="hidden" id="grade${idx}" name="weightDetails[${idx}][grade]" value="">
-        </td>
-        <td>
-          <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
-            ${buildProductOptions()}
-          </select>
-        </td>
-        <td>
-          <select class="form-control select2" id="grade_id${idx}" name="weightDetails[${idx}][grade_id]" required>
-            <option value="" selected disabled>Select Grade</option>
-          </select>
-        </td>
-        <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" step="0.01" value="0.00" required min="0.01"></td>
-        <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" step="0.01" value="0.00"></td>
-        <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" step="0.01" value="0.00"></td>
-        <td ${allowPcsBasket == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="0">
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' ? 'required' : ''}>
-            <option value="" selected disabled>Select Currency</option>
-            <?php while($rowCurrency=mysqli_fetch_assoc($currency)){ ?>
-              <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
-            <?php } ?>
-          </select>
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" step="0.01" value="0.00">
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="before_discount${idx}" name="weightDetails[${idx}][before_discount]" step="0.01" value="0.00" readonly>
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <div class="input-group input-group-sm">
-            <select class="form-control" id="discount_type${idx}" name="weightDetails[${idx}][discount_type]" style="max-width:60px;">
-              <option value="fixed">Fix</option>
-              <option value="percent">%</option>
-            </select>
-            <input type="number" class="form-control" id="discount${idx}" name="weightDetails[${idx}][discount]" step="0.01" value="0.00">
-          </div>
-        </td>
-        <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-          <input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" step="0.01" value="0.00" readonly>
-        </td>
-        <td>
-          <input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${currentTime}"/>
-        </td>
-        <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-          <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="">
-          <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-          <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
-          <span id="photoStatus${idx}"></span>
-        </td>
-        <td>
-          <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-    $('#weightDetailsTable').append(row);
-
-    // Initialize Select2 for the newly added row's select elements
-    var newRow = $('#weightDetailsTable tr:last');
-    newRow.find('.select2').each(function() {
-      $(this).select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        dropdownParent: $('#extendModal .modal-content'),
-        width: '100%'
-      });
-    });
-
-    var status = $('#extendModal').find('#status').val();
-    var currencyId = status === 'RECEIVING' || status === 'INCOMING'
-      ? $('#extendModal').find('#supplier option:selected').data('currency')
-      : $('#extendModal').find('#customer option:selected').data('currency');
-    if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
-    if (currencyId) {
-      $(`#weightDetailsTable`).find(`select[name="weightDetails[${idx}][currency]"]`).val(currencyId).trigger('change');
-    }
-  });
-
-  $('#weightDetailsTable').on('change', 'select[name*="[product]"]', function() {
-    var row = $(this).closest('tr');
-    var productId = $(this).val();
-    var productName = $(this).find('option:selected').data('name');
-    row.find('input[name*="[product_name]"]').val(productName);
-    row.find('input[name*="[product_desc]"]').val(productName);
-    
-    // Build grade options from productsDataByType
-    var gradeSelect = row.find('select[name*="[grade_id]"]');
-    gradeSelect.select2('destroy');
-    gradeSelect.html(buildGradeOptions(productId));
-    gradeSelect.select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-content'),
-      width: '100%'
-    });
-  });
-
-  $('#weightDetailsTable').on('change', 'select[id^="grade_id"]', function() {
-    var gradeId = $(this).val();
-    var gradeName = $(this).find('option:selected').data('name');
-    var productId = $(this).closest('tr').find('select[id^="product"]').val();
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
-    var status = $('#extendModal').find('#status').val();
-    $(this).closest('tr').find('input[name*="[grade]"]').val(gradeName);
-
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
-      if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
-      }else{
-        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
-      }
-    }
-  });
-
-  $('#weightDetailsTable').on('change', 'select[name*="[currency]"]', function() {
-    var row = $(this).closest('tr');
-    var productId = row.find('select[id^="product"]').val();
-    var gradeId = row.find('select[id^="grade_id"]').val();
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
-    var status = $('#extendModal').find('#status').val();
-
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
-      if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
-      }else{
-        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
-      }
-    }
-  });
-
-  $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
-    // Retrieve the input's attributes
-    var gross = parseFloat($(this).val());
-    var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
-    var nettWeight = gross - tare;
-
-    if (nettWeight < 0){
-      // $(this).val(0);
-      alert("Nett Weight cannot be negative value");
-      // return;
-    }
-
-    netFromCalc = true;
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
-    netFromCalc = false;
-  });
-
-  $("#weightDetailsTable").on('change', 'input[id^="tare"]', function(){
-    // Retrieve the input's attributes
-    var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
-    var tare = parseFloat($(this).val());
-    var nettWeight = gross - tare;
-
-    if (nettWeight < 0){
-      // $(this).val(0);
-      alert("Nett Weight cannot be negative value");
-      // return;
-    }
-    
-    netFromCalc = true;
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
-    netFromCalc = false;
-  });
-
-  $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
-    if (!netFromCalc) {
-      var nett = parseFloat($(this).val()) || 0;
-      var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val()) || 0;
-      var gross = nett + tare;
-
-      if (isNaN(gross) || gross < 0) {
-        alert("Gross Weight cannot be negative or invalid value");
-        gross = 0;
-      }
-
-      $(this).closest('tr').find('input[id^="gross"]').val(gross.toFixed(2));
-    }
-
-    var totalGross = 0;
-    var totalTare = 0;
-    var totalNet = 0;
-    var totalPrice = 0;
-    var totalBasket = 0;
-
-    $('#weightDetailsTable tr').each(function() {
-      totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
-      totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
-      totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
-    });
-
-    $('#totalWeightGross').text(totalGross.toFixed(2));
-    $('#totalWeightTare').text(totalTare.toFixed(2));
-    $('#totalWeightNet').text(totalNet.toFixed(2));
-
-    $('#weightDetailsTable tr').each(function() {
-      totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
-    });
-    $('#totalWeightBasket').text(totalBasket);
-
-    $(this).closest('tr').find('input[id^="price"]').trigger("blur");
-  });
-
-  $("#weightDetailsTable").on('blur', 'input[id^="price"]', function(){
-    var row = $(this).closest('tr');
-    var price = parseFloat($(this).val());
-    var productId = row.find('select[id^="product"]').val();
-    var status = $('#extendModal').find('#status').val();
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
-    var gradeId = row.find('select[id^="grade"]').val();
-
-    if (productId && status) {
-      if (status == 'RECEIVING' || status == 'INCOMING') {
-        calculatePrice(productId, status, supplierId, gradeId, $(this), price);
-      } else {
-        calculatePrice(productId, status, customerId, gradeId, $(this), price);
-      }
-    }
-  });
-
-  $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
-    updateTotals();
-  });
-
-  $('#weightDetailsTable').on('change input', 'input[name*="[no_basket]"]', function() {
-    var totalBasket = 0;
-    $('#weightDetailsTable tr').each(function() {
-      totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
-    });
-    $('#totalWeightBasket').text(totalBasket);
-  });
-
-  $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
-    var row = $(this).closest('tr');
-    var productName = $(this).val();
-    var productId = $(this).find('option:selected').data('id');
-    row.find('input[name*="[product]"]').val(productId);
-    row.find('input[name*="[product_desc]"]').val(productName);
-    
-    // Filter grades by selected product
-    var gradeSelect = row.find('select[name*="[grade]"]');
-    var currentGrade = gradeSelect.val();
-    var currentGradeId = gradeSelect.find(':selected').data('id');
-
-    // Destroy Select2 before modifying options
-    gradeSelect.select2('destroy');
-    
-    // Store all original options if not already stored
-    if (!gradeSelect.data('original-options')) {
-      gradeSelect.data('original-options', gradeSelect.html());
-    }
-    
-    // Reset to original options
-    gradeSelect.html(gradeSelect.data('original-options'));
-    
-    if(productName) {
-      // Remove options that don't match the selected product
-      gradeSelect.find('option').each(function() {
-        var gradeProduct = $(this).attr('data-product');
-        if(gradeProduct && gradeProduct !== productName) {
-          $(this).remove();
-        }
-      });
-    }
-    
-    // Recreate Select2
-    gradeSelect.select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-content'),
-      width: '100%'
-    });
-    
-    gradeSelect.val(currentGrade).trigger('change');
-  });
-
-  $('#rejectDetailsTable').on('change', 'select[id^="grade"]', function() {
-    var grade = $(this).find(':selected').data('id');
-    var productId = $(this).closest('tr').find('select[id^="product"]').find(':selected').data('id');
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
-    var status = $('#extendModal').find('#status').val();
-
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
-      if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, grade, $(this), undefined, true);
-      }else{
-        calculatePrice(productId, status, customerId, grade, $(this), undefined, true);
-      }
-    }
-  });
-
-  $('#rejectDetailsTable').on('change', 'select[name*="[currency]"]', function() {
-    var row = $(this).closest('tr');
-    var productId = row.find('select[id^="product"]').find(':selected').data('id');
-    var gradeId = row.find('select[id^="grade"]').find(':selected').data('id');
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
-    var status = $('#extendModal').find('#status').val();
-
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
-      if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
-      }else{
-        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
-      }
-    }
-  });
-
-  $("#rejectDetailsTable").on('change', 'input[id^="gross"]', function(){
-    var gross = parseFloat($(this).val());
-    var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
-    var nettWeight = gross - tare;
-
-    if (nettWeight < 0){
-      // $(this).val(0);
-      alert("Nett Weight cannot be negative value");
-      // return;
-    }
-
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
-  });
-
-  $("#rejectDetailsTable").on('change', 'input[id^="tare"]', function(){
-    var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
-    var tare = parseFloat($(this).val());
-    var nettWeight = gross - tare;
-
-    if (nettWeight < 0){
-      // $(this).val(0);
-      alert("Nett Weight cannot be negative value");
-      // return;
-    }
-    
-    $(this).closest('tr').find('input[id^="net"]').val(nettWeight.toFixed(2)).trigger("change");
-  });
-
-  $("#rejectDetailsTable").on('change', 'input[id^="net"]', function(){
-    var totalGross = 0, totalTare = 0, totalNet = 0;
-    $('#rejectDetailsTable tr').each(function() {
-      totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
-      totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
-      totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
-    });
-    $('#totalRejectGross').text(totalGross.toFixed(2));
-    $('#totalRejectTare').text(totalTare.toFixed(2));
-    $('#totalRejectNet').text(totalNet.toFixed(2));
-
-    $(this).closest('tr').find('input[id^="price"]').trigger("change");
-  });
-
-  $("#rejectDetailsTable").on('change', 'input[id^="price"]', function(){
-    var row = $(this).closest('tr');
-    var price = parseFloat($(this).val());
-    var pricingType = row.find('input[id^="fixedfloat"]').val();
-    var net = parseFloat(row.find('input[id^="net"]').val());
-    var beforeDiscount = 0;
-
-    if (pricingType == 'Float'){
-      beforeDiscount = price * net;
-    }else{
-      beforeDiscount = price;
-    }
-
-    row.find('input[id^="before_discount"]').val(beforeDiscount.toFixed(2));
-    var discountType = row.find('select[id^="discount_type"]').val();
-    var discount = parseFloat(row.find('input[id^="discount"]').val()) || 0;
-    var total = discountType === 'percent' ? beforeDiscount - (beforeDiscount * discount / 100) : beforeDiscount - discount;
-    if (total < 0) total = 0;
-    row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger("change");
-  });
-
-  $('#rejectDetailsTable').on('change', 'input[name*="[total]"]', function() {
-    updateTotals();
-  });
-
-  $('#weightDetailsTable, #rejectDetailsTable').on('change', 'input[id^="discount"], select[id^="discount_type"]', function() {
-    var row = $(this).closest('tr');
-    var beforeDiscount = parseFloat(row.find('input[id^="before_discount"]').val()) || 0;
-    var discountType = row.find('select[id^="discount_type"]').val();
-    var discount = parseFloat(row.find('input[id^="discount"]').val()) || 0;
-    var total = discountType === 'percent' ? beforeDiscount - (beforeDiscount * discount / 100) : beforeDiscount - discount;
-    if (total < 0) total = 0;
-    row.find('input[name*="[total]"]').val(total.toFixed(2)).trigger('change');
-  });
-
-  // Show tick when file is selected
-  $('#extendForm').on('change', 'input[type="file"]', function() {
-    var statusSpan = $(this).siblings('span[id$="Status"], span[id*="photoStatus"], span[id*="PhotoStatus"]');
-    if (this.files && this.files[0]) {
-      statusSpan.html('<i class="fas fa-check-circle text-success"></i>');
-    } else {
-      statusSpan.html('');
-    }
-  });
-
-  $('#bulkUnitPrice').on('input', function() {
-    var price = parseFloat($(this).val());
-    if (isNaN(price)) return;
-    $('#weightDetailsTable input[type="checkbox"]:checked').each(function() {
-      $(this).closest('tr').find('input[id^="price"]').val(price.toFixed(2)).trigger('change');
-    });
-  });
-
-  $('#selectAllWeightCheckbox').on('change', function() {
-    var checkboxes = $('#weightDetailsTable input[type="checkbox"]');
-    checkboxes.prop('checked', $(this).prop('checked')).trigger('change');
-  });
-
-  // Calculate average basket weight
-  $('#emptyBasketWeight, #basketCount').on('input change', function() {
-    var emptyWeight = parseFloat($('#emptyBasketWeight').val()) || 0;
-    var count = parseInt($('#basketCount').val()) || 0;
-    var avg = count > 0 ? (emptyWeight / count) : 0;
-    $('#avgBasketWeight').val(avg.toFixed(2));
-  });
-
-  // Apply average weight to all tare fields
-  $('#applyTareBtn').on('click', function() {
-    var avgWeight = parseFloat($('#avgBasketWeight').val()) || 0;
-    if (avgWeight <= 0) {
-      toastr["warning"]("<?=$languageArray['please_calculate_average_first_code'][$language] ?? 'Please calculate average weight first'?>", "Warning:");
-      return;
-    }
-    if (!confirm("<?=$languageArray['apply_tare_confirm_code'][$language] ?? 'This will replace all tare values in the weight details table. Are you sure?'?>")) {
-      return;
-    }
-    $('#weightDetailsTable tr.details').each(function() {
-      $(this).find('input[id^="tare"]').val(avgWeight.toFixed(2)).trigger('change');
-    });
-    toastr["success"]("<?=$languageArray['tare_applied_success_code'][$language] ?? 'Average weight applied to all tare fields'?>", "Success:");
-  });
-});
-
-// ============================================================================
-// DATATABLE CONFIGURATION
-// ============================================================================
-
-function buildColumnToggleMenu() {
-  var menu = $('#columnToggleMenu');
-  menu.empty();
-  var ordered = buildColumnDefs();
-  ordered.forEach(function(item) {
-    var label = item.col[2];
-    var dataField = item.col[1];
-    menu.append(
-      '<div class="form-check">' +
-        '<input class="form-check-input column-toggle" type="checkbox" data-field="' + dataField + '"' + (item.visible ? ' checked' : '') + '>' +
-        '<label class="form-check-label">' + label + '</label>' +
-      '</div>'
-    );
-  });
-  menu.on('click', function(e) { e.stopPropagation(); });
-  menu.on('change', '.column-toggle', function() {
-    var field = $(this).data('field');
-    var visible = $(this).is(':checked');
-    var dt = $('#weightTable').DataTable();
-    dt.columns().every(function() {
-      if (this.dataSrc() === field) { this.visible(visible); }
-    });
-  });
-}
-
-function renderTable() {
-  var fromDateI = $('#fromDate').val();
-  var toDateI = $('#toDate').val();
-  var transactionStatusI = $('#transactionStatusFilter').val();
-  var statusI = $('#statusFilter').val();
-  var productI = $('#productFilter').val() || '';
-  var categoryI = $('#categoryFilter').val() || '';
-  var customerNoI = $('#customerNoFilter').val() || '';
-  var supplierNoI = $('#supplierNoFilter').val() || '';
-  var vehicleNoI = $('#vehicleNoFilter').val() || '';
-  var otherVehicleNoI = $('#otherVehicleNoFilter').val() || '';
-  var checkedByI = $('#checkedByFilter').val() || '';
-  var weightedByI = $('#weightByFilter').val() || '';
-  var locationI = $('#locationFilter').val() || '';
-  var partyTypeI = $('#partyTypeFilter').val() || '';
-  var indicatorI = $('#indicatorFilter').val() || '';
-
-  // Destroy the old Datatable if exists
-  if ($.fn.DataTable.isDataTable('#weightTable')) {
-    $('#weightTable').DataTable().clear().destroy();
-  }
-
-  // Create new Datatable
-  table = $('#weightTable').DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'searching': true,
-    'order': [[0, 'asc']],
-    'language': {
-      'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
-      'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
-    },
-    'drawCallback': function(settings) {
-    },
-    'ajax': {
-      'url': 'php/modules/wholesales/filterWholesale.php',
-      'data': {
-        fromDate: fromDateI,
-        toDate: toDateI,
-        transactionStatus: transactionStatusI,
-        status: statusI,
-        product: productI,
-        category: categoryI,
-        customer: customerNoI,
-        supplier: supplierNoI,
-        vehicle: vehicleNoI,
-        otherVehicle: otherVehicleNoI,
-        checkedBy: checkedByI,
-        weightedBy: weightedByI,
-        location: locationI,
-        partyType: partyTypeI,
-        indicator: indicatorI
-      }
-    },
-    'columns': getTableColumns()
-  });
-}
-
-function buildColumnDefs() {
-  var colMap = {};
-  defaultColumns.forEach(function(col) { colMap[col[0]] = col; });
-
-  var ordered = (columnSetup && columnSetup.length > 0)
-    ? columnSetup.filter(function(s) { return colMap[s.key]; }).map(function(s) {
-        return { col: colMap[s.key], visible: s.visible !== false };
-      })
-    : defaultColumns.map(function(col) { return { col: col, visible: true }; });
-
-  return ordered;
-}
-
-function getTableColumns() {
-  var ordered = buildColumnDefs();
-  var cols = [
-    {
-      data: 'id', orderable: false, class: 'select-checkbox',
-      render: function(data, type, row) {
-        return '<input type="checkbox" class="rowCheckbox" value="'+data+'">';
-      }
-    }
-  ];
-  ordered.forEach(function(item) {
-    cols.push({ data: item.col[1], visible: item.visible });
-  });
-  cols.push({
-    data: 'id', responsivePriority: 1, class: 'action-button', orderable: false,
-    render: function(data, type, row) {
-      var buttons = '<div class="d-flex" style="gap:4px;">';
-      if(<?=$userAllowEdit == 'Y' ? 'true' : 'false'?>) {
-        buttons += '<button type="button" onclick="edit('+data+')" class="btn btn-sm btn-outline-primary" title="<?=$languageArray['edit_code'][$language] ?? 'Edit'?>"><i class="fas fa-pen"></i></button>';
-      }
-      buttons += '<button type="button" onclick="print('+data+')" class="btn btn-sm btn-outline-secondary" title="<?=$languageArray['print_code'][$language] ?? 'Print'?>"><i class="fas fa-print"></i></button>';
-      buttons += '<button type="button" onclick="exportExcel('+data+')" class="btn btn-sm btn-outline-success" title="<?=$languageArray['export_excel_code'][$language] ?? 'Export Excel'?>"><i class="fas fa-file-excel"></i></button>';
-      if(allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING')){
-        buttons += '<button type="button" onclick="printInvoice('+data+')" class="btn btn-sm btn-outline-info" title="<?=$languageArray['invoice_code'][$language] ?? 'Invoice'?>"><i class="fas fa-file-invoice"></i></button>';
-      }
-      if(<?=$userAllowDelete == 'Y' ? 'true' : 'false'?>) {
-        buttons += '<button type="button" onclick="deactivate('+data+')" class="btn btn-sm btn-outline-danger" title="<?=$languageArray['delete_code'][$language] ?? 'Delete'?>"><i class="fas fa-trash"></i></button>';
-      }
-      buttons += '</div>';
-      return buttons;
-    }
-  });
-  return cols;
-}
-
-// ============================================================================
-// FORM HELPERS
-// ============================================================================
-
-function applyCustomerCurrency(currencyId) {
-  if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
-  if (!currencyId) return;
-  $('#weightDetailsTable tr.details, #rejectDetailsTable tr.details').each(function() {
-    $(this).find('select[name*="[currency]"]').val(currencyId).trigger('change');
-  });
-}
-
-// ============================================================================
-// PRODUCT TYPE FUNCTIONS
-// ============================================================================
-
-function loadProductsByType(type, callback) {
-  $.post('php/modules/products/api.php', { action: 'getProductsByType', type: type || currentProductType })
-    .done(function(data) {
-      var obj = typeof data === 'string' ? JSON.parse(data) : data;
-      if (obj.status === 'success') {
-        productsDataByType = obj.data;
-        if (callback) callback();
-      } else {
-        toastr['error'](obj.message || 'Failed to load products', 'Error:');
-      }
-    })
-    .fail(function() {
-      toastr['error']('Failed to load products', 'Error:');
-    });
-}
-
-function buildProductOptions() {
-  var options = '<option value="" selected disabled>Select Product</option>';
-  var selectedCategory = $('#category').val();
-  
-  productsDataByType.forEach(function(p) {
-    if (!selectedCategory || p.category == selectedCategory) {
-      options += '<option value="' + p.id + '" data-category="' + p.category + '" data-name="' + p.product_name + '">' + p.product_name + '</option>';
-    }
-  });
-  
-  return options;
-}
-
-function buildGradeOptions(productId) {
-  var options = '<option value="" selected disabled>Select Grade</option>';
-  
-  if (productId) {
-    var product = productsDataByType.find(function(p) { return p.id == productId; });
-    if (product && product.grades) {
-      product.grades.forEach(function(g) {
-        options += '<option value="' + g.grade_id + '" data-name="' + g.grade_name + '">' + g.grade_name + '</option>';
-      });
-    }
-  }
-  
-  return options;
-}
-
-// ============================================================================
-// DATATABLE ROW EXPANSION
-// ============================================================================
-
-function format(row) {
-  var returnString = `
-  <div class="expanded-row-content">
-    <!-- Header -->
-    <div class="expanded-header">
-      <div>
-        <div class="expanded-header-title">${row.serial_no}</div>
-        <div class="expanded-header-subtitle">${row.customer_supplier || '-'}</div>
-      </div>
-      <div class="expanded-actions">
-        ${<?=$userAllowEdit == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="edit('+row.id+')" class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i></button>' : ''}
-        <button type="button" onclick="print(${row.id})" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print"></i></button>
-        ${allowInvoice == 'Y' && userAllowPrice == 'Y' && (row.status == 'DISPATCH' || row.status == 'RECEIVING') ? '<button type="button" onclick="printInvoice('+row.id+')" class="btn btn-sm btn-outline-info"><i class="fas fa-file-invoice"></i></button>' : ''}
-        ${<?=$userAllowDelete == 'Y' ? 'true' : 'false'?> ? '<button type="button" onclick="deactivate('+row.id+')" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>' : ''}
-      </div>
-    </div>
-
-    <!-- KPI Summary -->
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <div class="kpi-label"><?=$languageArray['total_item_code'][$language]?></div>
-        <div class="kpi-value">${row.totalItems || 0}</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label"><?=$languageArray['total_weight_code'][$language]?></div>
-        <div class="kpi-value kpi-value-primary">${row.totalWeight ? parseFloat(row.totalWeight).toFixed(2) : '0.00'} <span class="kpi-unit">Kg</span></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label"><?=$languageArray['total_reject_code'][$language]?></div>
-        <div class="kpi-value kpi-value-danger">${row.totalReject ? parseFloat(row.totalReject).toFixed(2) : '0.00'} <span class="kpi-unit">Kg</span></div>
-      </div>
-      ${allowPrice == 'Y' && userAllowPrice == 'Y' ? `
-      <div class="kpi-card kpi-card-success">
-        <div class="kpi-label"><?=$languageArray['total_price_code'][$language]?></div>
-        <div class="kpi-value">${parseFloat(row.totalPrice).toFixed(2)}</div>
-      </div>` : ''}
-    </div>
-
-    <!-- Order Info -->
-    <div class="info-section">
-      <div class="info-section-title"><?=$languageArray['wholesale_order_information_code'][$language]?></div>
-      <div class="info-grid">
-        <div><span class="info-item-label"><?=$languageArray['serial_no_code'][$language]?></span><span class="info-item-value">${row.serial_no || '-'}</span></div>
-        <div><span class="info-item-label"><?=$languageArray['do_po_no_code'][$language]?></span><span class="info-item-value">${row.po_no || '-'}</span></div>
-        <div><span class="info-item-label"><?=$languageArray['vehicle_no_code'][$language]?></span><span class="info-item-value">${row.vehicle_no || '-'}</span></div>
-        <div><span class="info-item-label"><?=$languageArray['driver_code'][$language]?></span><span class="info-item-value">${row.driver || '-'}</span></div>
-        <div><span class="info-item-label"><?=$languageArray['weighed_by_code'][$language]?></span><span class="info-item-value">${row.weighted_by || '-'}</span></div>
-        <div><span class="info-item-label"><?=$languageArray['locations_code'][$language]?></span><span class="info-item-value">${row.location_name || '-'}</span></div>
-      </div>
-      ${row.remark ? '<div class="info-remark"><span class="info-item-label"><?=$languageArray['remark_code'][$language]?></span><span class="info-item-value">' + row.remark + '</span></div>' : ''}
-    </div>
-
-    <!-- Basket Tare Calculation -->
-    <div class="info-section" <?php if ($allowBasketTare != 'Y') { echo 'style="display:none;"'; } ?>>
-      <div class="info-section-title"><i class="fas fa-shopping-basket mr-1"></i><?=$languageArray['basket_tare_calculation_code'][$language] ?? 'Basket Tare Calculation'?></div>
-      <div class="info-grid">
-        <div><span class="info-item-label"><?=$languageArray['empty_baskets_weight_code'][$language] ?? 'Empty Baskets Weight'?></span><span class="info-item-value">${row.empty_baskets_weight ? parseFloat(row.empty_baskets_weight).toFixed(2) + ' kg' : '-'}</span></div>
-        <div><span class="info-item-label"><?=$languageArray['basket_count_code'][$language] ?? 'Basket Count'?></span><span class="info-item-value">${row.basket_count || '-'}</span></div>
-        <div><span class="info-item-label"><?=$languageArray['average_weight_code'][$language] ?? 'Average Weight'?></span><span class="info-item-value">${row.avg_basket_weight ? parseFloat(row.avg_basket_weight).toFixed(2) + ' kg' : '-'}</span></div>
-      </div>
-    </div>
-
-    <!-- Weighing Details -->
-    <div class="details-section">
-      <div class="details-header">
-        <span class="details-title"><?=$languageArray['weighing_details_code'][$language]?></span>
-        <div class="details-filters">
-          <button type="button" class="btn btn-sm btn-outline-success" onclick="exportExcel(${row.id})" title="<?=$languageArray['export_excel_code'][$language] ?? 'Export Excel'?>"><i class="fas fa-file-excel"></i></button>
-          <select class="form-control form-control-sm details-filter-select" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-            <option value=""><?=$languageArray['all_products_code'][$language]?></option>
-          </select>
-          <select class="form-control form-control-sm details-filter-select" id="gradeFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
-            <option value=""><?=$languageArray['all_grades_code'][$language]?></option>
-          </select>
-        </div>
-      </div>
-      <div class="table-responsive">
-        <table class="table details-table mb-0" id="weightTable_${row.id}">
-          <thead>
-            <tr>
-              <th><?=$languageArray['product_code'][$language]?></th>
-              <th><?=$languageArray['grade_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
-              ${allowPcsBasket == 'Y' ? '<th class="text-right"><?=$languageArray['pcs_basket_code'][$language] ?? 'Pcs/Basket'?></th>' : ''}
-              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
-              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
-              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
-            </tr>
-          </thead>
-          <tbody>`;
-
-      var totalWeightGross = 0;
-      var totalWeightTare = 0;
-      var totalWeightNet = 0;
-      var totalWeightPrice = 0;
-      var totalWeightBeforeDiscount = 0;
-      var totalWeightDiscount = 0;
-      var totalWeightBasket = 0;
-      for (var i = 0; i < row.weightDetails.length; i++) {
-        var detail = row.weightDetails[i];
-        var discountDisplay = '';
-        var discountAmount = 0;
-        if (allowPrice == 'Y' && userAllowPrice == 'Y') {
-          var discVal = parseFloat(detail.discount) || 0;
-          var beforeDisc = parseFloat(detail.before_discount) || 0;
-          if (detail.discount_type === 'percent') {
-            discountDisplay = discVal.toFixed(2) + '%';
-            discountAmount = beforeDisc * discVal / 100;
-          } else {
-            discountDisplay = discVal.toFixed(2);
-            discountAmount = discVal;
-          }
-        }
-        
-        returnString += `
-              <tr>
-                <td>${detail.product_name}</td>
-                <td><span class="grade-badge">${detail.grade}</span></td>
-                <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
-                <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
-                <td class="text-right text-mono text-primary font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
-                ${allowPcsBasket == 'Y' ? `<td class="text-right text-mono">${parseInt(detail.no_per_basket)||0}</td>` : ''}
-                ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-success font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
-                <td class="text-center text-muted">${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
-              </tr>`;
-
-        totalWeightGross += parseFloat(detail.gross);
-        totalWeightTare += parseFloat(detail.tare);
-        totalWeightNet += parseFloat(detail.net);
-        totalWeightPrice += parseFloat(detail.total);
-        totalWeightBeforeDiscount += parseFloat(detail.before_discount) || 0;
-        totalWeightDiscount += discountAmount;
-        totalWeightBasket += parseInt(detail.no_per_basket) || 0;
-      }
-
-      returnString += `
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
-              <td class="text-right text-mono" id="footGross_${row.id}">${totalWeightGross.toFixed(2)}</td>
-              <td class="text-right text-mono" id="footTare_${row.id}">${totalWeightTare.toFixed(2)}</td>
-              <td class="text-right text-mono text-primary" id="footNet_${row.id}">${totalWeightNet.toFixed(2)}</td>
-              ${allowPcsBasket == 'Y' ? `<td class="text-right text-mono">${totalWeightBasket}</td>` : ''}
-              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono" id="footBeforeDiscount_' + row.id + '">' + totalWeightBeforeDiscount.toFixed(2) + '</td><td class="text-right text-mono text-danger" id="footDiscount_' + row.id + '">' + totalWeightDiscount.toFixed(2) + '</td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
-              <td></td>
-              ${allowPhoto == 'Y' ? '<td></td>' : ''}
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-
-    <!-- Reject Details -->
-    <div class="details-section">
-      <div class="details-header">
-        <span class="details-title details-title-danger"><i class="fas fa-times-circle mr-1"></i><?=$languageArray['reject_details_code'][$language]?></span>
-      </div>
-      <div class="table-responsive">
-        <table class="table details-table mb-0">
-          <thead>
-            <tr>
-              <th><?=$languageArray['product_code'][$language]?></th>
-              <th><?=$languageArray['grade_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
-              <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
-              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
-              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
-              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
-            </tr>
-          </thead>
-          <tbody>`;
-
-      var totalRejectGross = 0;
-      var totalRejectTare = 0;
-      var totalRejectNet = 0;
-      var totalRejectPrice = 0;
-      var totalRejectBeforeDiscount = 0;
-      
-      if (row.rejectDetails.length === 0) {
-        returnString += `
-              <tr>
-                <td colspan="${allowPrice == 'Y' && userAllowPrice == 'Y' ? (allowPhoto == 'Y' ? '12' : '11') : (allowPhoto == 'Y' ? '7' : '6')}" class="details-empty">
-                  <i class="fas fa-check-circle"></i>
-                  <?=$languageArray['no_reject_items_code'][$language] ?? 'No rejected items'?>
-                </td>
-              </tr>`;
-      } else {
-        for (var i = 0; i < row.rejectDetails.length; i++) {
-          var detail = row.rejectDetails[i];
-          var discountDisplay = '';
-          if (allowPrice == 'Y' && userAllowPrice == 'Y') {
-            var discVal = parseFloat(detail.discount) || 0;
-            discountDisplay = detail.discount_type === 'percent' ? discVal.toFixed(2) + '%' : discVal.toFixed(2);
-          }
-          
-          returnString += `
-              <tr>
-                <td>${detail.product_name}</td>
-                <td><span class="grade-badge grade-badge-danger">${detail.grade}</span></td>
-                <td class="text-right text-mono">${parseFloat(detail.gross).toFixed(2)}</td>
-                <td class="text-right text-mono">${parseFloat(detail.tare).toFixed(2)}</td>
-                <td class="text-right text-mono text-danger font-weight-bold">${parseFloat(detail.net).toFixed(2)}</td>
-                ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-danger font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
-                <td class="text-center text-muted">${detail.time}</td>
-                ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
-              </tr>`;
-
-          totalRejectGross += parseFloat(detail.gross);
-          totalRejectTare += parseFloat(detail.tare);
-          totalRejectNet += parseFloat(detail.net);
-          totalRejectPrice += parseFloat(detail.total);
-          totalRejectBeforeDiscount += parseFloat(detail.before_discount) || 0;
-        }
-      }
-
-      returnString += `
-          </tbody>
-          ${row.rejectDetails.length > 0 ? `
-          <tfoot>
-            <tr>
-              <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
-              <td class="text-right text-mono">${totalRejectGross.toFixed(2)}</td>
-              <td class="text-right text-mono">${totalRejectTare.toFixed(2)}</td>
-              <td class="text-right text-mono text-danger">${totalRejectNet.toFixed(2)}</td>
-              ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono">' + totalRejectBeforeDiscount.toFixed(2) + '</td><td></td><td class="text-right text-mono text-danger">' + totalRejectPrice.toFixed(2) + '</td>' : ''}
-              <td></td>
-              ${allowPhoto == 'Y' ? '<td></td>' : ''}
-            </tr>
-          </tfoot>` : ''}
-        </table>
-      </div>
-    </div>
-  </div>
-  `;
-  
-  return returnString;
-}
-
-function exportExcel(id) {
-  var form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'php/modules/wholesales/exportExcel.php';
-  form.target = '_blank';
-
-  var input = document.createElement('input');
-  input.type = 'hidden';
-  input.name = 'id';
-  input.value = id;
-  form.appendChild(input);
-  document.body.appendChild(form);
-  form.submit();
-  form.remove();
-}
-
-function filterWeightTable(rowId) {
-  var productFilter = $('#productFilter_' + rowId).val();
-  var gradeFilter = $('#gradeFilter_' + rowId).val();
-
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0;
-
-  $('#weightTable_' + rowId + ' tbody tr').each(function() {
-    var product = $(this).find('td:eq(0)').text().trim();
-    var grade = $(this).find('td:eq(1)').text().trim();
-    var showProduct = !productFilter || product === productFilter;
-    var showGrade = !gradeFilter || grade === gradeFilter;
-    var show = showProduct && showGrade;
-    $(this).toggle(show);
-
-    if (show) {
-      totalGross += parseFloat($(this).find('td:eq(2)').text()) || 0;
-      totalTare  += parseFloat($(this).find('td:eq(3)').text()) || 0;
-      totalNet   += parseFloat($(this).find('td:eq(4)').text()) || 0;
-      if (allowPrice == 'Y' && userAllowPrice == 'Y') {
-        totalBeforeDiscount += parseFloat($(this).find('td:eq(7)').text()) || 0;
-        totalDiscount += parseFloat($(this).find('td:eq(8)').text()) || 0;
-        totalPrice += parseFloat($(this).find('td:eq(9)').text()) || 0;
-      }
-    }
-  });
-
-  $('#footGross_' + rowId).text(totalGross.toFixed(2));
-  $('#footTare_'  + rowId).text(totalTare.toFixed(2));
-  $('#footNet_'   + rowId).text(totalNet.toFixed(2));
-  $('#footBeforeDiscount_' + rowId).text(totalBeforeDiscount.toFixed(2));
-  $('#footDiscount_' + rowId).text(totalDiscount.toFixed(2));
-  $('#footPrice_' + rowId).text(totalPrice.toFixed(2));
-
-  var gradeSelect = $('#gradeFilter_' + rowId);
-  var currentGrade = gradeSelect.val();
-  gradeSelect.find('option:not(:first)').remove();
-
-  var grades = [];
-  $('#weightTable_' + rowId + ' tbody tr').each(function() {
-    if (!productFilter || $(this).find('td:eq(0)').text().trim() === productFilter) {
-      var grade = $(this).find('td:eq(1)').text().trim();
-      if (grades.indexOf(grade) === -1) grades.push(grade);
-    }
-  });
-
-  grades.sort();
-  $.each(grades, function(i, grade) {
-    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-  });
-  gradeSelect.val(currentGrade);
-}
-
-function populateFilters(rowId, weightDetails) {
-  var products = {};
-  var grades = [];
-  
-  weightDetails.forEach(function(detail) {
-    products[detail.product_name] = true;
-    if(grades.indexOf(detail.grade) === -1) {
-      grades.push(detail.grade);
-    }
-  });
-  
-  var productSelect = $('#productFilter_' + rowId);
-  for(var product in products) {
-    productSelect.append('<option value="' + product + '">' + product + '</option>');
-  }
-  
-  grades.sort();
-  var gradeSelect = $('#gradeFilter_' + rowId);
-  grades.forEach(function(grade) {
-    gradeSelect.append('<option value="' + grade + '">' + grade + '</option>');
-  });
-}
-
-// ============================================================================
-// CRUD OPERATIONS
-// ============================================================================
-
-function newEntry() {
-  $('#extendModal').find('#id').val("");
-  $('#extendModal').find('#serialNo').val("");
-  $('#extendModal').find('#category').val("").trigger('change');
-  $('#extendModal').find('#paymentMethod').val("").trigger('change');
-  $('#extendModal').find('#status').val("DISPATCH").trigger('change');
-  $('#extendModal').find('#productType').val("Local");
-  currentProductType = 'Local';
-  $('#extendModal').find('#doPoNo').val("");
-  $('#extendModal').find('#securityBillNo').val("");
-  $('#extendModal').find('#customer').val("").trigger('change');
-  $('#extendModal').find('#supplier').val("").trigger('change');
-  $('#extendModal').find('#vehicle').val("").trigger('change');
-  $('#extendModal').find('#driver').val("").trigger('change');
-  $('#extendModal').find('#location').val(userLocation).trigger('change');
-  $('#extendModal').find('#startTime').val("");
-  $('#startTimePicker').datetimepicker('date', moment());
-  $('#endTimePicker').datetimepicker('clear');
-  $('#extendModal').find('#remarks').val("");
-  $('#extendModal').find('#remarks2').val("");
-  $('#extendModal').find('#totalWeightGross').text(0.00);
-  $('#extendModal').find('#totalWeightTare').text(0.00);
-  $('#extendModal').find('#totalWeightNet').text(0.00);
-  $('#extendModal').find('#totalWeightPrice').text(0.00);
-  $('#extendModal').find('#totalWeightBeforeDiscount').text(0.00);
-  $('#extendModal').find('#totalWeightDiscount').text(0.00);
-  $('#extendModal').find('#totalRejectGross').text(0.00);
-  $('#extendModal').find('#totalRejectTare').text(0.00);
-  $('#extendModal').find('#totalRejectNet').text(0.00);
-  $('#extendModal').find('#totalRejectPrice').text(0.00);
-  $('#extendModal').find('#totalRejectBeforeDiscount').text(0.00);
-  $('#extendModal').find('#totalRejectDiscount').text(0.00);
-  $('#extendModal').find('#bulkUnitPrice').val('');
-  $('#extendModal').find('#emptyBasketWeight').val('0.00');
-  $('#extendModal').find('#basketCount').val('0');
-  $('#extendModal').find('#avgBasketWeight').val('0.00');
-  $('#weightDetailsTable').empty();
-  $('#rejectDetailsTable').empty();
-  weightCount = 0;
-  rejectCount = 0;
-  
-  // Load products by type then show modal
-  loadProductsByType('Local', function() {
-    $('#extendModal').modal('show');
-  });
-  
-  $('#extendForm').validate({
-    errorElement: 'span',
-    ignore: [],
-    errorPlacement: function (error, element) {
-      error.addClass('invalid-feedback').css('display', 'block');
-      if (element.hasClass('select2') || element.next('.select2-container').length) {
-        error.insertAfter(element.next('.select2-container'));
-      } else {
-        element.closest('td').append(error);
-      }
-    },
-    highlight: function (element, errorClass, validClass) {
-      $(element).addClass('is-invalid');
-      if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
-        $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
-      }
-    },
-    unhighlight: function (element, errorClass, validClass) {
-      $(element).removeClass('is-invalid');
-      $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
-    }
-  });
-}
-
-function edit(id) {
-  var defaultCurrencyId = '<?= $defaultCurrencyId ?>';
-  $('#spinnerLoading').show();
-  $.post('php/modules/wholesales/getWholesale.php', {userID: id}, function(data){
-    var obj = JSON.parse(data);
-    
-    if(obj.status === 'success'){
-      $('#extendModal').find('#id').val(obj.message.id);
-      $('#extendModal').find('#serialNo').val(obj.message.serial_no);
-      $('#extendModal').find('#category').val(obj.message.category).trigger('change');
-      $('#extendModal').find('#paymentMethod').val(obj.message.payment_method).trigger('change');
-      $('#extendModal').find('#status').val(obj.message.status).trigger('change');
-      $('#extendModal').find('#productType').val(obj.message.type || 'Local');
-      currentProductType = obj.message.type || 'Local';
-      $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
-      $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
-      $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
-      $('#extendModal').find('#supplier').val(obj.message.supplier).trigger('change');
-      $('#extendModal').find('#location').val(obj.message.location).trigger('change');
-      $('#extendModal').find('#remarks').val(obj.message.remark);
-      $('#extendModal').find('#remarks2').val(obj.message.remarks2).trigger('change');
-      $('#extendModal').find('#bulkUnitPrice').val('');
-      $('#extendModal').find('#emptyBasketWeight').val(obj.message.empty_baskets_weight || '0.00');
-      $('#extendModal').find('#basketCount').val(obj.message.basket_count || '0');
-      $('#extendModal').find('#avgBasketWeight').val(obj.message.avg_basket_weight || '0.00');
-
-      if (obj.message.other_vehicle){
-        $('#extendModal').find('#vehicle').val('OTHERS').trigger('change');
-        $('#extendModal').find('#otherVehicleNo').val(obj.message.vehicle_no);
-      } else {
-        $('#extendModal').find('#vehicle').val(obj.message.vehicle_no).trigger('change');
-        $('#extendModal').find('#otherVehicleNo').val('');
-      }
-      $('#extendModal').find('#driver').val(obj.message.driver).trigger('change');
-      if (obj.message.start_time) {
-        $('#startTimePicker').datetimepicker('date', moment(obj.message.start_time, 'YYYY-MM-DD HH:mm:ss'));
-      } else {
-        $('#startTimePicker').datetimepicker('clear');
-      }
-      if (obj.message.end_time) {
-        $('#endTimePicker').datetimepicker('date', moment(obj.message.end_time, 'YYYY-MM-DD HH:mm:ss'));
-      } else {
-        $('#endTimePicker').datetimepicker('clear');
-      }
-      $('#extendModal').find('#remark').val(obj.message.remark);
-      
-      // Populate weight details table
-      var tbody = $('#weightDetailsTable');
-      tbody.empty();
-      
-      if(obj.message.weightDetails && obj.message.weightDetails.length > 0) {
-        var totalGross = 0;
-        var totalTare = 0;
-        var totalNet = 0;
-        var totalPrice = 0;
-        var totalBeforeDiscount = 0;
-        var totalDiscount = 0;
-
-        for(var i = 0; i < obj.message.weightDetails.length; i++) {
-          var detail = obj.message.weightDetails[i];
-          var idx = weightCount++;
-          var row = `
-            <tr class="details">
-              <td style="text-align: center"><input type="checkbox" id="weightCheckbox${idx}"></td>
-              <td style="display:none">
-                <input type="hidden" id="product_name${idx}" name="weightDetails[${idx}][product_name]" value="${detail.product_name}">
-                <input type="hidden" id="product_desc${idx}" name="weightDetails[${idx}][product_desc]" value="${detail.product_desc}">
-                <input type="hidden" id="pretare${idx}" name="weightDetails[${idx}][pretare]" value="${detail.pretare}">
-                <input type="hidden" id="unit${idx}" name="weightDetails[${idx}][unit]" value="${detail.unit}">
-                <input type="hidden" id="package${idx}" name="weightDetails[${idx}][package]" value="${detail.package}">
-                <input type="hidden" id="fixedfloat${idx}" name="weightDetails[${idx}][fixedfloat]" value="${detail.fixedfloat}">
-                <input type="hidden" id="isedit${idx}" name="weightDetails[${idx}][isedit]" value="${detail.isedit}">
-                <input type="hidden" id="reject${idx}" name="weightDetails[${idx}][reject]" value="${detail.reject}">
-                <input type="hidden" id="isRejected${idx}" name="weightDetails[${idx}][isRejected]" value="${detail.isRejected}">
-                <input type="hidden" id="grade${idx}" name="weightDetails[${idx}][grade]" value="${detail.grade}">
-              </td>
-              <td>
-                <select class="form-control select2" id="product${idx}" name="weightDetails[${idx}][product]" required>
-                  <option value="" selected disabled>Select Product</option>
-                  <?php while($rowProduct=mysqli_fetch_assoc($products4)){ ?>
-                    <option value="<?=$rowProduct['id'] ?>" data-category="<?=$rowProduct['category'] ?>" data-name="<?=$rowProduct['product_name'] ?>"><?=$rowProduct['product_name'] ?></option>
-                  <?php } ?>
-                </select>
-              </td>
-              <td>
-                <select class="form-control select2" id="grade_id${idx}" name="weightDetails[${idx}][grade_id]" required>
-                  <option value="" selected disabled>Select Grade</option>
-                  <?php while($rowGrade=mysqli_fetch_assoc($grades)){ ?>
-                    <option value="<?=$rowGrade['id'] ?>" data-product="<?=$rowGrade['product_name'] ?>" data-name="<?=$rowGrade['units'] ?>"><?=$rowGrade['units'] ?></option>
-                  <?php } ?>
-                </select>
-              </td>
-              <td><input type="number" class="form-control" id="gross${idx}" name="weightDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01" required min="0.01"></td>
-              <td><input type="number" class="form-control" id="tare${idx}" name="weightDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
-              <td><input type="number" class="form-control" id="net${idx}" name="weightDetails[${idx}][net]" value="${(parseFloat(detail.net)||0).toFixed(2)}" step="0.01"></td>
-              <td ${allowPcsBasket == 'Y' ? '' : 'style="display:none"'}>
-                <input type="number" class="form-control" id="no_basket${idx}" name="weightDetails[${idx}][no_basket]" step="1" min="0" value="${parseInt(detail.no_per_basket)||0}">
-              </td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <select class="form-control select2" id="currency${idx}" name="weightDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
-                  <option value="" selected disabled>Select Currency</option>
-                  <?php while($rowCurrency=mysqli_fetch_assoc($currency3)){ ?>
-                    <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
-                  <?php } ?>
-                </select>
-              </td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="price${idx}" name="weightDetails[${idx}][price]" value="${(parseFloat(detail.price)||0).toFixed(2)}"></td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="before_discount${idx}" name="weightDetails[${idx}][before_discount]" value="${(parseFloat(detail.before_discount)||0).toFixed(2)}" readonly></td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <div class="input-group input-group-sm">
-                  <select class="form-control" id="discount_type${idx}" name="weightDetails[${idx}][discount_type]" style="max-width:60px;">
-                    <option value="fixed" ${(detail.discount_type||'fixed')==='fixed'?'selected':''}>Fix</option>
-                    <option value="percent" ${detail.discount_type==='percent'?'selected':''}>%</option>
-                  </select>
-                  <input type="number" class="form-control" id="discount${idx}" name="weightDetails[${idx}][discount]" value="${(parseFloat(detail.discount)||0).toFixed(2)}" step="0.01">
-                </div>
-              </td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="number" class="form-control" id="total${idx}" name="weightDetails[${idx}][total]" value="${(parseFloat(detail.total)||0).toFixed(2)}" readonly></td>
-              <td><input type="time" class="form-control" id="time${idx}" name="weightDetails[${idx}][time]" value="${detail.time}"></td>
-              <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-                <input type="hidden" id="photo${idx}" name="weightDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
-                <input type="file" name="photoFiles[${idx}]" id="photoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$('#photoFile${idx}').click()"><i class="fas fa-camera"></i></button>
-                <span id="photoStatus${idx}"></span>
-              </td>
-              <td>
-                <button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightDetail(this)"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-          `;
-          tbody.append(row);
-
-          tbody.find(`select[name="weightDetails[${idx}][currency]"]`).val(detail.currency || defaultCurrencyId).trigger('change');
-          
-          // Store original options and filter by selected category
-          var newProductSelect = tbody.find(`select[name="weightDetails[${idx}][product]"]`);
-          newProductSelect.data('original-options', newProductSelect.html());
-          var selectedCategory = $('#category').val();
-          if (selectedCategory) {
-              newProductSelect.find('option').each(function() {
-                  if ($(this).val() && $(this).data('category') != selectedCategory) {
-                      $(this).remove();
-                  }
-              });
-          }
-          
-          // Filter grades by product
-          var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade_id]"]`);
-          var productName = detail.product_name;
-          // Store original options before filtering
-          gradeSelect.data('original-options', gradeSelect.html());
-          gradeSelect.find('option').each(function() {
-            var gradeProduct = $(this).attr('data-product');
-            if(gradeProduct && gradeProduct !== productName) {
-              $(this).remove();
-            }
-          });
-
-          // Set selected grade_id
-          gradeSelect.val(detail.grade_id);
-
-          // Set hidden grade name
-          tbody.find(`input[name="weightDetails[${idx}][grade]"]`).val(detail.grade);
-
-          // Set selected product
-          tbody.find(`select[name="weightDetails[${idx}][product]"]`).val(detail.product);
-
-          // Set hidden product_name
-          tbody.find(`input[name="weightDetails[${idx}][product_name]"]`).val(detail.product_name);
-
-          totalGross += parseFloat(detail.gross) || 0;
-          totalTare += parseFloat(detail.tare) || 0;
-          totalNet += parseFloat(detail.net) || 0;
-          totalPrice += parseFloat(detail.total) || 0;
-          totalBeforeDiscount += parseFloat(detail.before_discount) || 0;
-          var discVal = parseFloat(detail.discount) || 0;
-          var beforeDisc = parseFloat(detail.before_discount) || 0;
-          if (detail.discount_type === 'percent') {
-            totalDiscount += beforeDisc * discVal / 100;
-          } else {
-            totalDiscount += discVal;
-          }
-        }
-
-        $('#weightDetailsFooter').find('#totalWeightGross').text(totalGross.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightTare').text(totalTare.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightNet').text(totalNet.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightPrice').text(totalPrice.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
-        $('#weightDetailsFooter').find('#totalWeightDiscount').text(totalDiscount.toFixed(2));
-        var totalBasket = 0;
-        $('#weightDetailsTable tr').each(function() {
-          totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
-        });
-        $('#weightDetailsFooter').find('#totalWeightBasket').text(totalBasket);
-      }
-      
-      // Populate reject details table
-      var tbody = $('#rejectDetailsTable');
-      tbody.empty();
-      
-      if(obj.message.rejectDetails && obj.message.rejectDetails.length > 0) {
-        var totalRejectGross = 0;
-        var totalRejectTare = 0;
-        var totalRejectNet = 0;
-        var totalRejectPrice = 0;
-
-        for(var i = 0; i < obj.message.rejectDetails.length; i++) {
-          var detail = obj.message.rejectDetails[i];
-          var idx = rejectCount++;
-          var row = `
-            <tr class="details">
-              <td>${i + 1}</td>
-              <td style="display:none">
-                <input type="hidden" id="product${idx}" name="rejectDetails[${idx}][product]" value="${detail.product}">
-                <input type="hidden" id="product_desc${idx}" name="rejectDetails[${idx}][product_desc]" value="${detail.product_desc}">
-                <input type="hidden" id="pretare${idx}" name="rejectDetails[${idx}][pretare]" value="${detail.pretare}">
-                <input type="hidden" id="unit${idx}" name="rejectDetails[${idx}][unit]" value="${detail.unit}">
-                <input type="hidden" id="package${idx}" name="rejectDetails[${idx}][package]" value="${detail.package}">
-                <input type="hidden" id="fixedfloat${idx}" name="rejectDetails[${idx}][fixedfloat]" value="${detail.fixedfloat}">
-                <input type="hidden" id="isedit${idx}" name="rejectDetails[${idx}][isedit]" value="${detail.isedit}">
-                <input type="hidden" id="reject${idx}" name="rejectDetails[${idx}][reject]" value="${detail.reject}">
-                <input type="hidden" id="isRejected${idx}" name="rejectDetails[${idx}][isRejected]" value="${detail.isRejected}">
-              </td>
-              <td><input type="hidden" id="product_name${idx}" name="rejectDetails[${idx}][product_name]" value="${detail.product_name}">${detail.product_name}</td>
-              <td>
-                <input type="hidden" id="grade${idx}" name="rejectDetails[${idx}][grade]" value="${detail.grade}">${detail.grade}
-              </td>
-              <td><input type="number" class="form-control" id="gross${idx}" name="rejectDetails[${idx}][gross]" value="${(parseFloat(detail.gross)||0).toFixed(2)}" step="0.01"></td>
-              <td><input type="number" class="form-control" id="tare${idx}" name="rejectDetails[${idx}][tare]" value="${(parseFloat(detail.tare)||0).toFixed(2)}" step="0.01"></td>
-              <td><input type="hidden" id="net${idx}" name="rejectDetails[${idx}][net]" value="${detail.net}">${(parseFloat(detail.net)||0).toFixed(2)} ${detail.unit}</td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <select class="form-control select2" id="currency${idx}" name="rejectDetails[${idx}][currency]" ${allowPrice == 'Y' && userAllowPrice == 'Y' ? 'required' : ''}>
-                  <option value="" selected disabled>Select Currency</option>
-                  <?php while($rowCurrency=mysqli_fetch_assoc($currency4)){ ?>
-                    <option value="<?=$rowCurrency['id'] ?>" data-currency="<?=$rowCurrency['currency'] ?>"><?=$rowCurrency['currency'] ?></option>
-                  <?php } ?>
-                </select>
-              </td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="price${idx}" name="rejectDetails[${idx}][price]" value="${detail.price}">RM ${(parseFloat(detail.price)||0).toFixed(2)}</td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="before_discount${idx}" name="rejectDetails[${idx}][before_discount]" value="${(parseFloat(detail.before_discount)||0).toFixed(2)}">${(parseFloat(detail.before_discount)||0).toFixed(2)}</td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}>
-                <input type="hidden" id="discount_type${idx}" name="rejectDetails[${idx}][discount_type]" value="${detail.discount_type||'fixed'}">
-                <input type="hidden" id="discount${idx}" name="rejectDetails[${idx}][discount]" value="${(parseFloat(detail.discount)||0).toFixed(2)}">
-                ${detail.discount_type==='percent' ? (parseFloat(detail.discount)||0).toFixed(2)+'%' : 'RM '+(parseFloat(detail.discount)||0).toFixed(2)}
-              </td>
-              <td ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '' : 'style="display:none"'}><input type="hidden" id="total${idx}" name="rejectDetails[${idx}][total]" value="${detail.total}">RM ${(parseFloat(detail.total)||0).toFixed(2)}</td>
-              <td><input type="time" class="form-control" id="time${idx}" name="rejectDetails[${idx}][time]" value="${detail.time}"></td>
-              <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
-                <input type="hidden" id="photo${idx}" name="rejectDetails[${idx}][photoPath]" value="${detail.photoPath || ''}">
-                <input type="file" name="rejectPhotoFiles[${idx}]" id="rejectPhotoFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
-                ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-success btn-sm mr-1" title="View Photo"><i class="fas fa-image"></i></a>' : ''}
-                <button type="button" class="btn btn-info btn-sm" onclick="$(\'#rejectPhotoFile${idx}\').click()"><i class="fas fa-camera"></i></button>
-                <span id="rejectPhotoStatus${idx}"></span>
-              </td>
-              <td>
-                <button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeRejectDetail(this)"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-          `;
-          tbody.append(row);
-          
-          tbody.find(`select[name="rejectDetails[${idx}][currency]"]`).val(detail.currency).trigger('change');
-
-          // Set the selected value for the grade dropdown
-          tbody.find(`select[name="rejectDetails[${idx}][grade]"]`).val(detail.grade);
-
-          totalRejectGross += parseFloat(detail.gross) || 0;
-          totalRejectTare += parseFloat(detail.tare) || 0;
-          totalRejectNet += parseFloat(detail.net) || 0;
-          totalRejectPrice += parseFloat(detail.total) || 0;
-        }
-
-        $('#rejectDetailsFooter').find('#totalRejectGross').text(totalRejectGross.toFixed(2));
-        $('#rejectDetailsFooter').find('#totalRejectTare').text(totalRejectTare.toFixed(2));
-        $('#rejectDetailsFooter').find('#totalRejectNet').text(totalRejectNet.toFixed(2));
-        $('#rejectDetailsFooter').find('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
-      }
-
-      $('.select2').each(function() {
-        $(this).select2({
-          allowClear: true,
-          placeholder: "Please Select",
-          dropdownParent: $('#extendModal .modal-content')
-        });
-      });
-
-      // Load products by type then show modal
-      loadProductsByType(currentProductType, function() {
-        $('#extendModal').modal('show');
-      });
-
-      $('#extendForm').validate({
-        errorElement: 'span',
-        ignore: [],
-        errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback').css('display', 'block');
-          if (element.hasClass('select2') || element.next('.select2-container').length) {
-            error.insertAfter(element.next('.select2-container'));
-          } else {
-            element.closest('td').append(error);
-          }
-        },
-        highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-          if ($(element).hasClass('select2') || $(element).next('.select2-container').length) {
-            $(element).next('.select2-container').find('.select2-selection').addClass('is-invalid').css('border-color', '#dc3545');
-          }
-        },
-        unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-          $(element).next('.select2-container').find('.select2-selection').removeClass('is-invalid').css('border-color', '');
-        }
-      });
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something wrong when pull data", "Failed:");
-    }
-    $('#spinnerLoading').hide();
-  });
-}
-
-function deactivate(id) {
-  if (confirm('Are you sure you want to delete this item?')) {
-    $('#cancelModal').find('#id').val(id);
-    $('#cancelModal').modal('show');
-
-    $('#cancelForm').validate({
-      errorElement: 'span',
-      errorPlacement: function (error, element) {
-          error.addClass('invalid-feedback');
-          element.closest('.form-group').append(error);
-      },
-      highlight: function (element, errorClass, validClass) {
-          $(element).addClass('is-invalid');
-      },
-      unhighlight: function (element, errorClass, validClass) {
-          $(element).removeClass('is-invalid');
-      }
-    });
-  }
-}
-
-// ============================================================================
-// PRICING FUNCTIONS
-// ============================================================================
-
-function getSelectedPartyType() {
-  var status = $('#extendModal').find('#status').val();
-  if (status === 'RECEIVING' || status === 'INCOMING') {
-    return $('#extendModal').find('#supplier option:selected').data('type') || '';
-  } else {
-    return $('#extendModal').find('#customer option:selected').data('type') || '';
-  }
-}
-
-function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
-  var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
-  
-  // If party type is Packing, default price to 0
-  var partyType = getSelectedPartyType();
-  if (partyType === 'Packing' && forceReplace) {
-    element.closest('tr').find('input[id^="price"]').val('0.00');
-    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
-    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
-    return;
-  }
-  
-  if (productId && currencyId){
-    $('#spinnerLoading').show();
-
-    $.post('php/modules/products/api.php', {action: 'getPrice', id: productId, status: status, customerID: customerId, grade: currentGrade, currency: currencyId}, function(obj){
-
-      if(obj.status === 'success'){
-        var pricingType = obj.message.pricingType;
-        var existingPrice = element.closest('tr').find('input[id^="price"]').val();
-        var price;
-        if (overridePrice !== undefined) {
-          price = parseFloat(overridePrice) || 0;
-        } else if (forceReplace) {
-          price = parseFloat(obj.message.price) || 0;
-        } else {
-          price = (existingPrice !== '' && parseFloat(existingPrice) > 0) ? parseFloat(existingPrice) : (parseFloat(obj.message.price) || 0);
-        }
-        var net = parseFloat(element.closest('tr').find('input[id^="net"]').val()) || 0;
-        var total = (pricingType == 'Float') ? price * net : price;
-
-        element.closest('tr').find('input[id^="fixedfloat"]').val(pricingType);
-        element.closest('tr').find('input[id^="price"]').val(price);
-        element.closest('tr').find('input[id^="before_discount"]').val(total.toFixed(2));
-        var discountType = element.closest('tr').find('select[id^="discount_type"]').val();
-        var discount = parseFloat(element.closest('tr').find('input[id^="discount"]').val()) || 0;
-        var finalTotal = discountType === 'percent' ? total - (total * discount / 100) : total - discount;
-        if (finalTotal < 0) finalTotal = 0;
-        element.closest('tr').find('input[name*="[total]"]').val(finalTotal.toFixed(2)).trigger('change');
-      }
-      else if(obj.status === 'failed'){
-        toastr["error"](obj.message, "Failed:");
-      }
-      else{
-        toastr["error"]("Something wrong when delete", "Failed:");
-      }
-      $('#spinnerLoading').hide();
-    });
-  }
-}
-
-// ============================================================================
-// WEIGHT DETAILS TABLE MANAGEMENT
-// ============================================================================
-
-function rejectRow(button) {
-  var row = $(button).closest('tr');
-  var rejectIndex = $('#rejectDetailsTable tr').length;
-  
-  row.find('input[type="hidden"], input[type="number"], input[type="time"], select').each(function() {
-    var name = $(this).attr('name');
-    var id = $(this).attr('id');
-    if(name) {
-      var newName = name.replace('weightDetails', 'rejectDetails').replace(/\[\d+\]/, '[' + rejectIndex + ']');
-      $(this).attr('name', newName);
-    }
-    if(id) {
-      $(this).attr('id', id.replace(/\d+$/, rejectIndex));
-    }
-  });
-
-  // Rename file input from photoFiles to rejectPhotoFiles
-  row.find('input[type="file"]').each(function() {
-    var name = $(this).attr('name');
-    if(name) {
-      $(this).attr('name', name.replace('photoFiles', 'rejectPhotoFiles').replace(/\[\d+\]/, '[' + rejectIndex + ']'));
-    }
-  });
-
-  // Hardcode product and grade to REJECT
-  row.find('input[name*="[product]"]').val('35');
-  row.find('input[name*="[product_name]"]').val('REJECT (拒收)');
-  row.find('input[name*="[product_desc]"]').val('REJ');
-  row.find('input[name*="[isRejected]"]').val('YES');
-
-  // Replace product_name select/text with static display
-  var productCell = row.find('select[name*="[product_name]"]').closest('td');
-  if(productCell.length) {
-    productCell.find('select').select2('destroy').remove();
-    productCell.text('REJECT (拒收)');
-    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][product_name]', value:'REJECT (拒收)'}).appendTo(productCell);
-  }
-
-  // Replace grade select with static display
-  var gradeCell = row.find('select[name*="[grade]"]').closest('td');
-  if(gradeCell.length) {
-    gradeCell.find('select').select2('destroy').remove();
-    gradeCell.text('REJ');
-    $('<input>').attr({type:'hidden', name:'rejectDetails['+rejectIndex+'][grade]', value:'REJ'}).appendTo(gradeCell);
-  }
-
-  row.find('button[onclick*="rejectRow"]').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="acceptRow(this)"><i class="fas fa-check"></i></button>');
-  row.find('button[onclick*="removeWeightDetail"]').attr('onclick', 'removeRejectDetail(this)');
-  
-  $('#rejectDetailsTable').append(row);
-  reindexWeightDetails();
-  reindexRejectDetails();
-  updateTotals();
-}
-
-function acceptRow(button) {
-  var row = $(button).closest('tr');
-  var weightIndex = $('#weightDetailsTable tr').length;
-  
-  row.find('input[type="hidden"], input[type="number"], input[type="time"], select').each(function() {
-    var name = $(this).attr('name');
-    var id = $(this).attr('id');
-    if(name) {
-      var newName = name.replace('rejectDetails', 'weightDetails').replace(/\[\d+\]/, '[' + weightIndex + ']');
-      $(this).attr('name', newName);
-    }
-    if(id) {
-      $(this).attr('id', id.replace(/\d+$/, weightIndex));
-    }
-  });
-
-  // Rename file input from rejectPhotoFiles to photoFiles
-  row.find('input[type="file"]').each(function() {
-    var name = $(this).attr('name');
-    if(name) {
-      $(this).attr('name', name.replace('rejectPhotoFiles', 'photoFiles').replace(/\[\d+\]/, '[' + weightIndex + ']'));
-    }
-  });
-  
-  row.find('button[onclick*="acceptRow"]').replaceWith('<button type="button" class="btn btn-warning btn-sm" onclick="rejectRow(this)"><i class="fas fa-times"></i></button>');
-  row.find('button[onclick*="removeRejectDetail"]').attr('onclick', 'removeWeightDetail(this)');
-  
-  $('#weightDetailsTable').append(row);
-  reindexWeightDetails();
-  reindexRejectDetails();
-  updateTotals();
-  // Initialize Select2 for the moved row's select elements
-  row.find('.select2').each(function() {
-    $(this).select2({
-      allowClear: true,
-      placeholder: "Please Select",
-      dropdownParent: $('#extendModal .modal-content'),
-      width: '100%'
-    });
-  });
-}
-
-function reindexWeightDetails() {
-  $('#weightDetailsTable tr').each(function(index) {
-    $(this).find('td:first').text(index + 1);
-    $(this).find('input, select').each(function() {
-      var name = $(this).attr('name');
-      if(name) {
-        $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
-      }
-    });
-  });
-}
-
-function reindexRejectDetails() {
-  $('#rejectDetailsTable tr').each(function(index) {
-    $(this).find('td:first').text(index + 1);
-    $(this).find('input, select').each(function() {
-      var name = $(this).attr('name');
-      if(name) {
-        $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
-      }
-    });
-  });
-}
-
-function removeWeightDetail(button) {
-  $(button).closest('tr').remove();
-  reindexWeightDetails();
-  updateTotals();
-}
-
-function removeRejectDetail(button) {
-  $(button).closest('tr').remove();
-  reindexRejectDetails();
-  updateTotals();
-}
-
-function updateTotals() {
-  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalDiscount = 0, totalBasket = 0;
-  $('#weightDetailsTable tr').each(function() {
-    totalGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
-    totalTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
-    totalNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
-    totalPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-    totalBeforeDiscount += parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-    var discType = $(this).find('select[name*="[discount_type]"]').val();
-    var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
-    var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-    if (discType === 'percent') {
-      totalDiscount += beforeDisc * discVal / 100;
-    } else {
-      totalDiscount += discVal;
-    }
-  });
-  $('#totalWeightGross').text(totalGross.toFixed(2));
-  $('#totalWeightTare').text(totalTare.toFixed(2));
-  $('#totalWeightNet').text(totalNet.toFixed(2));
-  $('#totalWeightPrice').text(totalPrice.toFixed(2));
-  $('#totalWeightBeforeDiscount').text(totalBeforeDiscount.toFixed(2));
-  $('#totalWeightDiscount').text(totalDiscount.toFixed(2));
-  $('#weightDetailsTable tr').each(function() {
-    totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
-  });
-  $('#totalWeightBasket').text(totalBasket);
-  
-  var totalRejectGross = 0, totalRejectTare = 0, totalRejectNet = 0, totalRejectPrice = 0, totalRejectBeforeDiscount = 0, totalRejectDiscount = 0;
-  $('#rejectDetailsTable tr').each(function() {
-    totalRejectGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
-    totalRejectTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
-    totalRejectNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
-    totalRejectPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
-    totalRejectBeforeDiscount += parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-    var discType = $(this).find('select[name*="[discount_type]"]').val();
-    var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
-    var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
-    if (discType === 'percent') {
-      totalRejectDiscount += beforeDisc * discVal / 100;
-    } else {
-      totalRejectDiscount += discVal;
-    }
-  });
-  $('#totalRejectGross').text(totalRejectGross.toFixed(2));
-  $('#totalRejectTare').text(totalRejectTare.toFixed(2));
-  $('#totalRejectNet').text(totalRejectNet.toFixed(2));
-  $('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
-  $('#totalRejectBeforeDiscount').text(totalRejectBeforeDiscount.toFixed(2));
-  $('#totalRejectDiscount').text(totalRejectDiscount.toFixed(2));
-}
-
-// ============================================================================
-// PRINT FUNCTIONS
-// ============================================================================
-
-function print(id) {
-  // Store single ID for print
-  $('#printID').val(id);
-  $('#printOptionsForm').data('multiPrintIds', null); // Clear multi-print data
-  $('#printOptionsModal').modal('show');
-
-  $('#printOptionsForm').validate({
-    errorElement: 'span',
-    errorPlacement: function (error, element) {
-        error.addClass('invalid-feedback');
-        element.closest('.form-group').append(error);
-    },
-    highlight: function (element, errorClass, validClass) {
-        $(element).addClass('is-invalid');
-    },
-    unhighlight: function (element, errorClass, validClass) {
-        $(element).removeClass('is-invalid');
-    }
-  });
-}
-
-function printSelected() {
-  var selectedIds = [];
-  $('#weightTable tbody .rowCheckbox:checked').each(function() {
-    selectedIds.push($(this).val());
-  });
-  if (selectedIds.length === 0) {
-    toastr["warning"]("<?=$languageArray['please_select_record_code'][$language] ?? 'Please select at least one record to print.'?>", "Warning:");
-    return;
-  }
-  
-  // Max 10 records limit
-  if (selectedIds.length > 10) {
-    toastr["error"]("<?=$languageArray['max_print_records_code'][$language] ?? 'Maximum 10 records can be printed at once. Please select fewer records.'?>", "Error:");
-    return;
-  }
-  
-  // Store selected IDs for multi-print processing
-  $('#printOptionsForm').data('multiPrintIds', selectedIds);
-  $('#printID').val(''); // Clear single ID
-  $('#printOptionsModal').modal('show');
-  
-  $('#printOptionsForm').validate({
-    errorElement: 'span',
-    errorPlacement: function (error, element) {
-        error.addClass('invalid-feedback');
-        element.closest('.form-group').append(error);
-    },
-    highlight: function (element, errorClass, validClass) {
-        $(element).addClass('is-invalid');
-    },
-    unhighlight: function (element, errorClass, validClass) {
-        $(element).removeClass('is-invalid');
-    }
-  });
-}
-
-// Reusable print preview function for single record
-function openPrintPreview(printHtml, paperSize) {
-  var printWindow = window.open('', '', 'height=' + screen.height + ',width=' + screen.width);
-  printWindow.document.write(printHtml);
-  printWindow.document.close();
-  
-  if (paperSize == 'A5') {
-    // A5: Wait for all QR images to load
-    var qrImages = printWindow.document.querySelectorAll('.qr-block img');
-    if (qrImages.length > 0) {
-      var loadedCount = 0;
-      var totalImages = qrImages.length;
-      var allLoaded = function() {
-        loadedCount++;
-        if (loadedCount >= totalImages) {
-          setTimeout(function() {
-            printWindow.print();
-            printWindow.close();
-          }, 300);
-        }
-      };
-      qrImages.forEach(function(img) {
-        if (img.complete) {
-          allLoaded();
-        } else {
-          img.onload = allLoaded;
-          img.onerror = allLoaded;
-        }
-      });
-      // Fallback timeout
-      setTimeout(function() {
-        if (loadedCount < totalImages) {
-          printWindow.print();
-          printWindow.close();
-        }
-      }, 5000);
-    } else {
-      setTimeout(function() {
-        printWindow.print();
-        printWindow.close();
-      }, 300);
-    }
-  } else {
-    // A4: Wait for Paged.js to render
-    var pollCount = 0;
-    var poll = setInterval(function() {
-      pollCount++;
-      var rendered = printWindow.document.querySelector('.pagedjs_pages');
-      if (rendered || pollCount > 60) {
-        clearInterval(poll);
-        setTimeout(function() {
-          printWindow.print();
-          printWindow.close();
-        }, 300);
-      }
-    }, 200);
-  }
-}
-
-function openMultiPrintPreview(ids, formData, paperSize) {
-  var processedPages = [];
-  var currentIndex = 0;
-  var totalRecords = ids.length;
-  
-  $('#spinnerLoading').show();
-  
-  function processNextRecord() {
-    if (currentIndex >= totalRecords) {
-      $('#spinnerLoading').hide();
-      combineAndPrint(processedPages, paperSize);
-      return;
-    }
-    
-    var recordId = ids[currentIndex];
-    var singleFormData = formData + '&userID=' + recordId + '&mode=content';
-    
-    $.post('php/modules/wholesales/print.php', singleFormData, function(data) {
-      var obj = JSON.parse(data);
-      if (obj.status === 'success') {
-        processedPages.push(obj.message);
-      }
-      currentIndex++;
-      processNextRecord();
-    }).fail(function() {
-      currentIndex++;
-      processNextRecord();
-    });
-  }
-  
-  processNextRecord();
-}
-
-function combineAndPrint(pages, paperSize) {
-  if (pages.length === 0) {
-    toastr["error"]("<?=$languageArray['no_records_to_print_code'][$language] ?? 'No records to print'?>", "Error:");
-    return;
-  }
-  
-  var combinedHtml = '';
-  
-  if (paperSize == 'A5') {
-    combinedHtml = '<html><head><style>' +
-      '@page { size: A4 portrait; margin: 0; }' +
-      '* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
-      'body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 0 1mm; background: #fff; }' +
-      '.record-section { page-break-after: always; width: 210mm; height: 148mm; overflow: hidden; padding: 5mm 0; }' +
-      '.record-section:last-child { page-break-after: avoid; }' +
-      '.a5-wrapper { width: 100%; height: 138mm; }' +
-      '.slip-border { border: 2px solid #000; padding: 8px; box-sizing: border-box; width: 100%; height: 100%; position: relative; }' +
-      '.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }' +
-      '.company-name { font-size: 16px; font-weight: bold; }' +
-      '.slip-title { font-size: 18px; font-weight: bold; text-decoration: underline; text-align: right; margin-right: 50px; }' +
-      '.info-block { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 6px; }' +
-      '.info-left { flex: 1; }' +
-      '.info-right { text-align: left; }' +
-      '.info-row { display: flex; margin-bottom: 3px; }' +
-      '.info-label { font-weight: bold; width: 90px; flex-shrink: 0; }' +
-      '.info-value { flex: 1; }' +
-      'table.items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }' +
-      'table.items th { border-bottom: 2px solid #000; padding: 3px 4px; text-decoration: underline; font-weight: bold; text-align: center; font-size: 14px; }' +
-      'table.items td { padding: 2px 4px; text-align: center; font-size: 14px; }' +
-      '.a5-footer { display: flex; justify-content: space-between; align-items: flex-end; position: absolute; bottom: 8px; left: 8px; right: 8px; }' +
-      '.qr-block { }' +
-      '.footer-row { }' +
-      'table.summary { border-collapse: collapse; }' +
-      'table.summary th, table.summary td { border: 1px solid #000; padding: 6px 8px; text-align: center; }' +
-      'table.summary th { font-weight: bold; }' +
-      'table.summary td { font-weight: bold; }' +
-      '@media print { @page { size: A4 portrait; margin: 0; } body { padding: 0 1mm; } }' +
-      '</style></head><body>' + pages.join('') + '</body></html>';
-  } else {
-    combinedHtml = '<html><head><style>' +
-      '* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
-      'body { font-family: Arial, sans-serif; font-size: 13px; margin: 0; padding: 10mm; }' +
-      '.record-section { page-break-after: always; margin-bottom: 10mm; }' +
-      '.record-section:last-child { page-break-after: avoid; }' +
-      '.record-header { margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px; }' +
-      '.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }' +
-      '.company-name { font-size: 18px; font-weight: bold; }' +
-      '.slip-title { font-size: 20px; font-weight: bold; text-decoration: underline; }' +
-      '.info-block { display: flex; justify-content: space-between; }' +
-      '.info-row { margin-bottom: 1px; font-size: 12px; display: flex; white-space: nowrap; }' +
-      '.info-label { font-weight: bold; width: 95px; display: inline-block; text-align: left; flex-shrink: 0; }' +
-      '.info-value { }' +
-      '.info-right { }' +
-      'table.items { width: 100%; border-collapse: collapse; }' +
-      'table.items th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 6px 4px; font-weight: bold; text-align: center; font-size: 13px; }' +
-      'table.items td { border: none; padding: 4px; text-align: center; font-size: 13px; }' +
-      'table.items td:nth-child(2) { text-align: left; }' +
-      '.summary-section { margin-top: 20px; display: flex; justify-content: flex-end; }' +
-      'table.summary { border-collapse: collapse; }' +
-      'table.summary th, table.summary td { border: 1px solid #000; padding: 8px 12px; text-align: center; }' +
-      'table.summary th { background: #f0f0f0; font-weight: bold; }' +
-      'table.summary td { font-weight: bold; font-size: 13px; }' +
-      '.row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }' +
-      '.col-4 { flex: 0 0 33.333333%; max-width: 33.333333%; padding: 0 5px; box-sizing: border-box; }' +
-      '.col-8 { flex: 0 0 66.666667%; max-width: 66.666667%; padding: 0 5px; box-sizing: border-box; }' +
-      '.mb-1 { margin-bottom: 0.25rem; }' +
-      '.mb-3 { margin-bottom: 1rem; }' +
-      '.address { font-size: 14px; }' +
-      '.header-row { margin-bottom: 5px; font-size: 14px; display: flex; }' +
-      '.header-label { width: 120px; flex-shrink: 0; }' +
-      '.header-value { flex: 1; }' +
-      'table.grade-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }' +
-      'table.grade-table th, table.grade-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 10px; }' +
-      'table.grade-table th { background-color: #f0f0f0; }' +
-      '.info-section { display: flex; width: 100%; margin-bottom: 3px; border-bottom: 1px solid #000; padding-bottom: 3px; }' +
-      '.info-col { flex: 1; padding-right: 6px; }' +
-      '.irow { display: flex; margin-bottom: 1px; font-size: 11px; }' +
-      '.ilabel { width: 90px; flex-shrink: 0; font-weight: bold; }' +
-      '.ivalue { flex: 1; }' +
-      '.hrow { display: flex; font-size: 11px; margin-bottom: 2px; }' +
-      '.hlabel { width: 90px; flex-shrink: 0; }' +
-      '.hvalue { flex: 1; }' +
-      '.status-title { font-size: 22px; font-weight: bold; text-align: center; margin-bottom: 4px; }' +
-      '@page { size: A4 portrait; margin: 10mm; }' +
-      '@media print { body { margin: 0; padding: 0; } }' +
-      '</style></head><body>' + pages.join('') + '</body></html>';
-  }
-  
-  var printWindow = window.open('', '_blank', 'height=' + screen.height + ',width=' + screen.width);
-  printWindow.document.write(combinedHtml);
-  printWindow.document.close();
-  
-  setTimeout(function() {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  }, 500);
-}
-
-// ============================================================================
-// INVOICE EXPORT
-// ============================================================================
-
-function exportInvoices() {
-  var ids = [];
-  $('#weightTable tbody .rowCheckbox:checked').each(function() {
-    ids.push($(this).val());
-  });
-  if (ids.length === 0) {
-    toastr["warning"]("Please select at least one invoice.", "Warning:");
-    return;
-  }
-  if (ids.length === 1) {
-    printInvoice(ids[0]);
-    return;
-  }
-  $('#spinnerLoading').show();
-  var requests = ids.map(function(id) {
-    return $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id);
-  });
-  $.when.apply($, requests).then(function() {
-    var responses = ids.length === 1 ? [arguments] : Array.from(arguments);
-    var combined = '';
-    responses.forEach(function(args) {
-      var obj = JSON.parse(args[0]);
-      if (obj.status === 'success') {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(obj.message, 'text/html');
-        var body = doc.body.innerHTML;
-        combined += '<div style="page-break-after: always;">' + body + '</div>';
-      }
-    });
-    if (combined) {
-      var firstObj = JSON.parse(responses[0][0]);
-      var firstDoc = new DOMParser().parseFromString(firstObj.message, 'text/html');
-      var head = firstDoc.head.innerHTML;
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write('<html><head>' + head + '</head><body>' + combined + '</body></html>');
-      printWindow.document.close();
-    }
-    $('#spinnerLoading').hide();
-  }).fail(function() {
-    toastr["error"]("Failed to load invoices.", "Error:");
-    $('#spinnerLoading').hide();
-  });
-}
-
-function printInvoice(id) {
-  $.get('php/modules/wholesales/printWholesalesInvoice.php?id=' + id, function(data){
-    var obj = JSON.parse(data);
-    if(obj.status === 'success') {
-      var printWindow = window.open('', '_blank');
-      printWindow.document.write(obj.message);
-      printWindow.document.close();
-    }
-    else if(obj.status === 'failed'){
-      toastr["error"](obj.message, "Failed:");
-    }
-    else{
-      toastr["error"]("Something wrong when printing invoice", "Failed:");
-    }
-  });
-}
-
+var wholesalesPermissions = <?=json_encode($permissions)?>;
+var wholesalesFlags = <?=json_encode($flags + ['showPrice' => $showPrice])?>;
+var wholesalesLookups = <?=json_encode([
+  'columns' => $columns,
+  'currencies' => $lookups['currencies'],
+  'defaultCurrencyId' => $lookups['defaultCurrencyId'],
+  'drivers' => array_column($lookups['drivers'], 'driver_name'),
+  'userLocationId' => $_SESSION['userLocationId'] ?? null
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
+var wholesalesText = <?=json_encode([
+  'pleaseSelect' => $t('please_select_code', 'Please Select'),
+  'selectProduct' => $t('select_product_code', 'Select Product'),
+  'selectGrade' => $t('select_grade_code', 'Select Grade'),
+  'selectCurrency' => $t('select_currency_code', 'Select Currency'),
+  'noRecordsFound' => $t('no_records_found_code', 'No Records Found'),
+  'noRecordsMessage' => $t('no_records_message_code', 'Try adjusting your search or filter criteria'),
+  'noMatchingRecords' => $t('no_matching_records_code', 'No Matching Records'),
+  'noMatchingMessage' => $t('no_matching_message_code', 'No results match your current filters. Try different criteria.'),
+  'edit' => $t('edit_code', 'Edit'),
+  'print' => $t('print_code', 'Print'),
+  'exportExcel' => $t('export_excel_code', 'Export Excel'),
+  'invoice' => $t('invoice_code', 'Invoice'),
+  'delete' => $t('delete_code', 'Delete'),
+  'totalItem' => $t('total_item_code'),
+  'totalWeight' => $t('total_weight_code'),
+  'totalReject' => $t('total_reject_code'),
+  'totalPrice' => $t('total_price_code', 'Total Price'),
+  'orderInformation' => $t('wholesale_order_information_code', 'Order Information'),
+  'serialNo' => $t('serial_no_code'),
+  'doPoNo' => $t('do_po_no_code'),
+  'vehicleNo' => $t('vehicle_no_code'),
+  'driver' => $t('driver_code'),
+  'weighedBy' => $t('weighed_by_code'),
+  'location' => $t('locations_code'),
+  'remark' => $t('remark_code'),
+  'basketTare' => $t('basket_tare_calculation_code', 'Basket Tare Calculation'),
+  'emptyBasketsWeight' => $t('empty_baskets_weight_code', 'Empty Baskets Weight'),
+  'basketCount' => $t('basket_count_code', 'Basket Count'),
+  'averageWeight' => $t('average_weight_code', 'Average Weight'),
+  'weighingDetails' => $t('weighing_details_code', 'Weighing Details'),
+  'rejectDetails' => $t('reject_details_code'),
+  'allProducts' => $t('all_products_code', 'All Products'),
+  'allGrades' => $t('all_grades_code', 'All Grades'),
+  'product' => $t('product_code'),
+  'grade' => $t('grade_code'),
+  'gross' => $t('gross_code'),
+  'tare' => $t('tare_code'),
+  'net' => $t('net_code'),
+  'pcsBasket' => $t('pcs_basket_code', 'Pcs/Basket'),
+  'currency' => $t('currency_code'),
+  'price' => $t('price_code'),
+  'beforeDisc' => $t('before_disc_code', 'Before Disc'),
+  'discount' => $t('discount_code', 'Discount'),
+  'total' => $t('total_code'),
+  'time' => $t('time_code'),
+  'photo' => $t('photo_code'),
+  'noRejectItems' => $t('no_reject_items_code', 'No rejected items'),
+  'confirmDelete' => $t('delete_confirm_message_code', 'Are you sure you want to delete this item?'),
+  'yes' => $t('yes_code', 'Yes'),
+  'cancel' => $t('cancel_code', 'Cancel'),
+  'enterVehicleNo' => $t('please_enter_vehicle_no_code', 'Please enter the vehicle number.'),
+  'enterDriver' => $t('please_enter_driver_code', 'Please enter the driver name.'),
+  'weightRowError' => $t('weight_row_error_code', 'Please fill in Product, Grade and Gross for all weight detail rows.'),
+  'negativeNetError' => $t('negative_net_error_code', 'Nett weight cannot be negative. Please check your gross and tare values.'),
+  'negativeNet' => $t('negative_net_code', 'Nett Weight cannot be negative value'),
+  'negativeGross' => $t('negative_gross_code', 'Gross Weight cannot be negative or invalid value'),
+  'calculateAverageFirst' => $t('please_calculate_average_first_code', 'Please calculate average weight first'),
+  'applyTareConfirm' => $t('apply_tare_confirm_code', 'This will replace all tare values in the weight details table. Are you sure?'),
+  'tareApplied' => $t('tare_applied_success_code', 'Average weight applied to all tare fields'),
+  'selectRecord' => $t('please_select_record_code', 'Please select at least one record to print.'),
+  'maxPrintRecords' => $t('max_print_records_code', 'Maximum 10 records can be printed at once. Please select fewer records.'),
+  'noRecordsToPrint' => $t('no_records_to_print_code', 'No records to print'),
+  'selectInvoice' => $t('please_select_invoice_code', 'Please select at least one invoice.')
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 </script>
+<script src="modules/wholesales/js/wholesales.js?v=<?=time()?>"></script>

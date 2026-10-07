@@ -1,17 +1,17 @@
 <?php
 // Invoice Listing Report — grouped by customer/supplier, shows Doc No, Date, Code, Name, Amount
-// Variables available: $db, $mpdf, $query, $companyDetail, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus
+// Variables available: $db, $mpdf, $records, $filters, $companyDetail, $allowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus
 
 $isDispatchStatus = in_array($transactionStatus, ['DISPATCH', 'OUTGOING', 'STOCK-BAL']);
 
-function buildInvoiceRows($query, $isDispatchStatus, $defaultCurrency, $db) {
+function buildInvoiceRows($records, $isDispatchStatus, $defaultCurrency, $db) {
   $grandTotal    = [];
   $grouped       = [];
   $customerCache = [];
   $supplierCache = [];
 
-  if ($query->num_rows > 0) {
-    while ($row = $query->fetch_assoc()) {
+  if (!empty($records)) {
+    foreach ($records as $row) {
       $startTime    = new DateTime($row['start_time']);
       $formattedDate = $startTime->format('d/m/Y');
 
@@ -84,7 +84,7 @@ function buildInvoiceRows($query, $isDispatchStatus, $defaultCurrency, $db) {
   return [$grouped, $grandTotal];
 }
 
-[$grouped, $grandTotal] = buildInvoiceRows($query, $isDispatchStatus, $defaultCurrency, $db);
+[$grouped, $grandTotal] = buildInvoiceRows($records, $isDispatchStatus, $defaultCurrency, $db);
 
 // Transaction summary: group by currency
 $transactionSummaryRows = [];
@@ -142,18 +142,18 @@ $printDate   = date('d/m/y H:i A');
 $reportDate  = isset($toDate) ? $toDate : date('d/m/Y');
 $reportTitle = in_array($transactionStatus, ['DISPATCH', 'OUTGOING', 'STOCK-BAL']) ? 'Invoice Listing' : 'Purchase Invoice Listing';
 $partyLabel  = $isDispatchStatus ? 'Customer' : 'Supplier';
-$partyFilter = $isDispatchStatus ? (empty($_GET['customer']) ? 'All' : searchCustomerNameById($_GET['customer'], '', $db)) : (empty($_GET['supplier']) ? 'All' : searchSupplierNameById($_GET['supplier'], '', $db));
-$categoryFilter  = empty($_GET['category'])   ? 'All' : searchCategoryById($_GET['category'], $db);
-$locationFilter  = empty($_GET['location'])   ? 'All' : searchLocationById($_GET['location'], $db);
-$checkedByFilter = empty($_GET['checkedBy'])  ? 'All' : searchUserNameById($_GET['checkedBy'], $db);
-$weightedByFilter= empty($_GET['weightedBy']) ? 'All' : searchUserNameById($_GET['weightedBy'], $db);
+$partyFilter = $isDispatchStatus ? (empty($filters['customer']) ? 'All' : searchCustomerNameById($filters['customer'], '', $db)) : (empty($filters['supplier']) ? 'All' : searchSupplierNameById($filters['supplier'], '', $db));
+$categoryFilter  = empty($filters['category'])   ? 'All' : searchCategoryById($filters['category'], $db);
+$locationFilter  = empty($filters['location'])   ? 'All' : searchLocationById($filters['location'], $db);
+$checkedByFilter = empty($filters['checkedBy'])  ? 'All' : searchUserNameById($filters['checkedBy'], $db);
+$weightedByFilter= empty($filters['weightedBy']) ? 'All' : searchUserNameById($filters['weightedBy'], $db);
 
-if (empty($_GET['vehicle']) || $_GET['vehicle'] == '-') {
+if (empty($filters['vehicle']) || $filters['vehicle'] == '-') {
   $vehicleFilter = 'All';
-} elseif (in_array($_GET['vehicle'], ['UNKOWN NO', 'OTHERS', 'UNKNOWN'])) {
-  $vehicleFilter = (empty($_GET['otherVehicle']) || $_GET['otherVehicle'] == '-') ? 'All' : $_GET['otherVehicle'];
+} elseif (in_array($filters['vehicle'], ['UNKOWN NO', 'OTHERS', 'UNKNOWN'])) {
+  $vehicleFilter = (empty($filters['otherVehicle']) || $filters['otherVehicle'] == '-') ? 'All' : $filters['otherVehicle'];
 } else {
-  $vehicleFilter = $_GET['vehicle'];
+  $vehicleFilter = $filters['vehicle'];
 }
 
 $headerHtml = '

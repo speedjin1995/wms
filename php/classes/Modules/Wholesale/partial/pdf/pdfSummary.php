@@ -41,13 +41,13 @@ function calculateSubtotals($allRows, $productGradeColumns) {
     return [$subtotals, $subtotalGradePrice, $subtotalGradeActualPrice, $subtotalCurrencyTotals];
 }
 
-// Variables available: $db, $mpdf, $query, $companyDetail, $allowPrice, $defaultCurrency, $fromDate, $toDate
+// Variables available: $db, $mpdf, $records, $filters, $companyDetail, $allowPrice, $allowPcsBasket, $userAllowPrice, $defaultCurrency, $fromDate, $toDate, $transactionStatus
 $productGradeColumns = [];
 $allRows = [];
 
-if ($query->num_rows > 0) {
+if (!empty($records)) {
     $count = 1;
-    while ($row = $query->fetch_assoc()) {
+    foreach ($records as $row) {
         $startTime = new DateTime($row['start_time']);
         $formattedDate = $startTime->format('d/m/Y');
         $formattedTime = $startTime->format('H:i:s');
@@ -273,7 +273,7 @@ $html = '
                 </tr>
                 <tr>
                     <td style="width: 50%; border: none; text-align: left; padding: 0; font-size: 14px;">
-                        <div class="fw-bold">From ' . ($isDispatchStatus ? 'Customer' : 'Supplier') . ': ' . ($isDispatchStatus ? searchCustomerNameById($_GET['customer'], '', $db) : searchSupplierNameById($_GET['supplier'], '', $db)).'</div>
+                        <div class="fw-bold">From ' . ($isDispatchStatus ? 'Customer' : 'Supplier') . ': ' . ($isDispatchStatus ? searchCustomerNameById($filters['customer'], '', $db) : searchSupplierNameById($filters['supplier'], '', $db)).'</div>
                     </td>
                     <td style="width: 50%; border: none; text-align: right; padding: 0; font-size: 14px;">
                         <div class="fw-bold">Weight Status: '.$statusLabel.'</div>
@@ -305,10 +305,10 @@ $html = '
                         <th>Machine Nickname</th>
                         <th>Weigh Slip No.</th>
                         <th>'.($status == 'DISPATCH' || $status == 'STOCK-BAL' || $status == 'OUTGOING' ? 'Delivery' : 'Purchase').' No.</th>';
-                        if ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
+                        if ($filters['transactionStatus'] == 'RECEIVING' || $filters['transactionStatus'] == 'INCOMING') {
                             $html .= '<th>Security Bill</th>';
                         }
-                        $html .= '<th>'.($_GET['transactionStatus'] == 'DISPATCH' || $_GET['transactionStatus'] == 'STOCK-BAL' || $_GET['transactionStatus'] == 'OUTGOING' ? 'Customer' : 'Supplier').' Name</th>';
+                        $html .= '<th>'.($filters['transactionStatus'] == 'DISPATCH' || $filters['transactionStatus'] == 'STOCK-BAL' || $filters['transactionStatus'] == 'OUTGOING' ? 'Customer' : 'Supplier').' Name</th>';
                         foreach ($productGradeColumns as $product => $grades) {
                             foreach ($grades as $grade) {
                                 $html .= '<th>'.htmlspecialchars($grade).'</th>';
@@ -342,7 +342,7 @@ $html = '
                 </tbody>
                 <tfoot>
                     <tr style="font-weight: bold; background-color: #f0f0f0;">
-                        <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '9' : '8').'">SUBTOTAL</td>';
+                        <td colspan="'.($filters['transactionStatus'] == 'RECEIVING' || $filters['transactionStatus'] == 'INCOMING' ? '9' : '8').'">SUBTOTAL</td>';
                         foreach ($productGradeColumns as $product => $grades) {
                             foreach ($grades as $grade) {
                                 $html .= '<td>'.number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2).'</td>';
@@ -360,7 +360,7 @@ $html = '
                         }
                         $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
                         if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
-                            $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
+                            $fixedColCount2 = ($filters['transactionStatus'] == 'RECEIVING' || $filters['transactionStatus'] == 'INCOMING') ? 9 : 8;
                             foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
                                 $html .= '<tr style="font-weight: bold; background-color: #e8f4e8;">';
                                 $html .= '<td colspan="'.$fixedColCount2.'">TOTAL PRICE ('.$cur.')</td>';
