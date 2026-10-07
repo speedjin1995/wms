@@ -2,6 +2,7 @@
 
 // 1. Variables
 var batchApi = 'php/modules/packagingBatches/api.php';
+var loadingApi = 'php/modules/loadingOrders/api.php';
 var batchTable;
 var weightCount = 0;
 var shipmentBatchItems = [];
@@ -221,7 +222,7 @@ function actionButtons(id, status) {
     buttons += '<button type="button" onclick="edit(' + id + ')" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-pen"></i></button>';
   }
   buttons += '<button type="button" onclick="printBatch(' + id + ')" class="btn btn-sm btn-outline-secondary" title="Print"><i class="fas fa-print"></i></button>';
-  if (status !== 'completed') {
+  if (status !== 'completed' && batchPermissions.allowAdd) {
     buttons += '<button type="button" onclick="openShipmentModal(' + id + ')" class="btn btn-sm btn-outline-info" title="Shipment"><i class="fas fa-shipping-fast"></i></button>';
   }
   if (batchPermissions.allowDelete) {
@@ -652,7 +653,7 @@ function openShipmentModal(id) {
   $('#shipmentForm').validate().resetForm();
 
   $('#spinnerLoading').show();
-  $.post('php/modules/loading/getPackagingBatchItems.php', { batch_id: id }, function (obj) {
+  $.post(loadingApi, { action: 'batchItems', batchId: id }, function (obj) {
     if (obj.status !== 'success') {
       toastr.error(obj.message || 'Something went wrong', 'Failed:');
       return;
@@ -681,6 +682,7 @@ function submitShipment() {
 
   var remarks = $('#shipmentRemark').val();
   var postData = {
+    action: 'save',
     loadingDate: $('#shipmentLoadingDate').val(),
     shipmentType: $('#shipmentType').val(),
     remarks: remarks
@@ -688,13 +690,7 @@ function submitShipment() {
   $.each(shipmentBatchItems, function (i, item) {
     var prefix = 'items[' + i + ']';
     postData[prefix + '[packaging_batch_item_id]'] = item.id;
-    postData[prefix + '[packaging_batch_id]'] = item.packaging_batch_id;
     postData[prefix + '[customer_id]'] = customerId;
-    postData[prefix + '[product_id]'] = item.product_id;
-    postData[prefix + '[grade]'] = item.grade;
-    postData[prefix + '[packaging_size]'] = item.packaging_size;
-    postData[prefix + '[units_per_box]'] = item.units_per_box;
-    postData[prefix + '[weight]'] = item.weight;
     postData[prefix + '[loading_time]'] = moment().format('HH:mm');
     postData[prefix + '[remarks]'] = remarks;
   });
@@ -702,7 +698,7 @@ function submitShipment() {
   $('#spinnerLoading').show();
   $('#submitShipment').prop('disabled', true);
 
-  $.post('php/modules/loading/loadingOrder.php', postData, function (obj) {
+  $.post(loadingApi, postData, function (obj) {
     if (obj.status === 'success') {
       $('#shipmentModal').modal('hide');
       toastr.success(obj.message, 'Success:');
