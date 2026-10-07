@@ -35,14 +35,15 @@ $(function () {
 function loadPulpPaste() {
   var ppType = $('#ppType').val();
   var params = $.extend(getDateParams(), {
+    action:   'dashboard',
     status:   ppType,
     supplier: $('#ppSupplier').val() || '',
     customer: $('#ppCustomer').val() || ''
   });
 
-  $.post('php/modules/industrial/getDashboard.php', params, function (data) {
-    var obj = JSON.parse(data);
-    if (obj.status !== 'success') return;
+  $.post('php/modules/industrial/api.php', params, function (data) {
+    if (data.status !== 'success') return;
+    var obj = data.message;
 
     var s = obj.summary;
 

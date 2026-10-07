@@ -428,7 +428,7 @@ to get the desired effect
           <!-- Add icons to the links using the .nav-icon class
             with font-awesome or any other icon font library -->
           <!--li class="nav-item">
-            <a href="#dashboard" data-file="dashboard.php" class="nav-link link">
+            <a href="#dashboard" data-file="modules/dashboard/dashboard.php" class="nav-link link">
               <i class="nav-icon fas fa-user"></i>
               <p>Dashboard</p>
             </a>
@@ -441,7 +441,7 @@ to get the desired effect
           </li>
           <?php if ($module == 'dashboard') { ?>
           <li class="nav-item">
-            <a href="#dashboard" data-file="dashboard.php" class="nav-link link">
+            <a href="#dashboard" data-file="modules/dashboard/dashboard.php" class="nav-link link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p><?=$languageArray['dashboard_code'][$language]?></p>
             </a>

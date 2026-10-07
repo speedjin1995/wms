@@ -1,56 +1,11 @@
 <?php
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-$company = $_SESSION['customer'];
-$role    = $_SESSION['role'];
-$companyDetail = searchCompanyById($company, $db);
-$allowPrice = $companyDetail['include_price'];
-
-// Get filter params
-$fromDate   = $_GET['fromDate'] ?? '';
-$toDate     = $_GET['toDate'] ?? '';
-$customerId = $_GET['customer'] ?? '';
-$locationId = $_GET['location'] ?? '';
-$partyType  = $_GET['partyType'] ?? '';
-
-// Build search query
-$searchQuery = " AND w.status IN ('DISPATCH','OUTGOING')";
-
-if ($fromDate != '') {
-    $fromDateObj = DateTime::createFromFormat('d/m/Y', $fromDate);
-    $searchQuery .= " AND DATE(w.start_time) >= '" . $fromDateObj->format('Y-m-d') . "'";
-}
-if ($toDate != '') {
-    $toDateObj = DateTime::createFromFormat('d/m/Y', $toDate);
-    $searchQuery .= " AND DATE(w.start_time) <= '" . $toDateObj->format('Y-m-d') . "'";
-}
-if ($customerId != '') {
-    $customerId = mysqli_real_escape_string($db, $customerId);
-    $searchQuery .= " AND w.customer = '$customerId'";
-}
-if ($locationId != '') {
-    $locationId = mysqli_real_escape_string($db, $locationId);
-    $searchQuery .= " AND w.location = '$locationId'";
-}
-if ($partyType != '') {
-    $partyType = mysqli_real_escape_string($db, $partyType);
-    $searchQuery .= " AND c.customer_type = '$partyType'";
-}
-
-$companyFilter = ($role != 'SADMIN') ? " AND w.company = '$company'" : '';
-
-// Fetch records
-$query = "SELECT w.*, c.customer_name
-          FROM wholesales w
-          LEFT JOIN customers c ON w.customer = c.id
-          WHERE w.deleted = 0" . $companyFilter . $searchQuery . "
-          ORDER BY c.customer_name, w.start_time";
-$result = mysqli_query($db, $query);
+// Variables available: $db, $records, $companyDetail, $allowPrice, $fromDate, $toDate, $partyType (rendered by WholesaleDashboardService)
 
 // Build hierarchical data: Customer > Product > Grade > Records
 $data = [];
@@ -58,7 +13,7 @@ $productCache = [];
 $currencyCache = [];
 $allCurrencies = [];
 
-while ($row = mysqli_fetch_assoc($result)) {
+foreach ($records as $row) {
     $customerName = $row['customer_name'] ?: 'Unknown';
     $details = json_decode($row['weight_details'], true) ?: [];
     
@@ -344,11 +299,3 @@ if ($allowPrice == 'Y') {
 
 // Output
 $fileName = ($partyType ? $partyType . '_' : '') . 'Customer_Breakdown_' . date('Y-m-d') . '.xlsx';
-$writer = new Xlsx($spreadsheet);
-
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="' . $fileName . '"');
-header('Cache-Control: max-age=0');
-
-$writer->save('php://output');
-exit;

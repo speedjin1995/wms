@@ -15,12 +15,18 @@ class WholesaleController extends BaseController
     private WholesaleService $service;
     private ?WholesaleReportService $reportService;
     private ?WholesaleExportService $exportService;
+    private ?WholesaleDashboardService $dashboardService;
 
-    public function __construct(WholesaleService $service, ?WholesaleReportService $reportService = null, ?WholesaleExportService $exportService = null)
-    {
+    public function __construct(
+        WholesaleService $service,
+        ?WholesaleReportService $reportService = null,
+        ?WholesaleExportService $exportService = null,
+        ?WholesaleDashboardService $dashboardService = null
+    ) {
         $this->service = $service;
         $this->reportService = $reportService;
         $this->exportService = $exportService;
+        $this->dashboardService = $dashboardService;
     }
 
     /**
@@ -260,6 +266,38 @@ class WholesaleController extends BaseController
 
         $export = $this->exportService->buildStockBalancePdf($this->service->getStockBalanceRecords($filters), $filters);
         $export['pdf']->Output($export['fileName'], 'I');
+    }
+
+    /**
+     * Wholesales dashboard tab data (POST filters)
+     */
+    public function dashboard(): array
+    {
+        $filters = [];
+        foreach (['fromDate', 'toDate', 'status', 'customer', 'supplier', 'location', 'partyType', 'category'] as $key) {
+            $filters[$key] = trim((string)($_POST[$key] ?? ''));
+        }
+
+        return ['status' => 'success', 'message' => $this->dashboardService->getSummary($filters)];
+    }
+
+    /**
+     * Stream a dashboard breakdown Excel (type = customer / supplier / customer_individual / supplier_individual / grade)
+     */
+    public function exportDashboard(): void
+    {
+        $filters = [];
+        foreach (['fromDate', 'toDate', 'customer', 'supplier', 'location', 'partyType', 'status'] as $key) {
+            $filters[$key] = trim((string)($_GET[$key] ?? ''));
+        }
+
+        $export = $this->dashboardService->buildExport((string)($_GET['type'] ?? ''), $filters);
+        if (!$export) {
+            http_response_code(400);
+            exit('Invalid export type');
+        }
+
+        $this->streamExcel($export);
     }
 
     /**

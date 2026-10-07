@@ -1,5 +1,5 @@
 <?php
-require_once 'php/db_connect.php';
+require_once '../../php/db_connect.php';
 session_start();
 
 if (!isset($_SESSION['userID'])) {
@@ -144,15 +144,15 @@ if (!isset($_SESSION['userID'])) {
     <!-- ── Tab Panes ──────────────────────────────────────── -->
     <div class="tab-content dash-tab-content">
       <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
-        <?php require_once 'modules/dashboard/tab_wholesales.php'; ?>
-        <?php require_once 'modules/dashboard/tab_repacking.php'; ?>
+        <?php require_once __DIR__ . '/tab_wholesales.php'; ?>
+        <?php require_once __DIR__ . '/tab_repacking.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
-        <?php require_once 'modules/dashboard/tab_pulppaste.php'; ?>
+        <?php require_once __DIR__ . '/tab_pulppaste.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
-        <?php require_once 'modules/dashboard/tab_grading.php'; ?>
-        <?php require_once 'modules/dashboard/tab_packaging.php'; ?>
+        <?php require_once __DIR__ . '/tab_grading.php'; ?>
+        <?php require_once __DIR__ . '/tab_packaging.php'; ?>
       <?php } ?>
     </div>
 
@@ -165,7 +165,7 @@ if (!isset($_SESSION['userID'])) {
 <script src="modules/dashboard/js/tab_repacking.js?v=<?=time()?>"></script>
 <script src="modules/dashboard/js/tab_grading.js?v=<?=time()?>"></script>
 <script src="modules/dashboard/js/tab_packaging.js?v=<?=time()?>" ></script>
-<script src="modules/dashboard/js/tab_pulppaste.js"></script>
+<script src="modules/dashboard/js/tab_pulppaste.js?v=<?=time()?>"></script>
 <script>
 function toggleFilterCard() {
   var $body    = $('#dashFilterBody');

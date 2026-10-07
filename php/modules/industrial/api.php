@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Modules\Wholesale\WholesaleController;
+use App\Modules\Wholesale\WholesaleDashboardService;
 use App\Modules\Wholesale\WholesaleExportService;
 use App\Modules\Wholesale\WholesaleReportService;
 use App\Modules\Wholesale\WholesaleService;
@@ -53,7 +54,8 @@ $controller = new WholesaleController(
         (array)($_SESSION['languageArray'] ?? []),
         (string)($_SESSION['language'] ?? 'en')
     ),
-    new WholesaleExportService($db, $company, $userId, $role)
+    new WholesaleExportService($db, $company, $userId, $role),
+    new WholesaleDashboardService($db, $company, $userId, $role, 'industrial')
 );
 
 try {
@@ -77,6 +79,10 @@ try {
         case 'printSlip':
             // Print HTML may hold invalid UTF-8 from master data
             echo json_encode($controller->printSlip(), JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            break;
+
+        case 'dashboard':
+            echo json_encode($controller->dashboard());
             break;
 
         case 'exportReport':

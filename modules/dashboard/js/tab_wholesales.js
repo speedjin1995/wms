@@ -46,15 +46,16 @@ $(function () {
 /* ── Load ───────────────────────────────────────────────── */
 function loadWholesales() {
   var params = $.extend(getDateParams(), {
+    action:    'dashboard',
     status:    $('#wsType').val(),
     customer:  $('#wsCustomer').val() || '',
     supplier:  $('#wsSupplier').val() || '',
     category:  $('#wsCategory').val() || ''
   });
 
-  $.post('php/modules/wholesales/getDashboard.php', params, function (data) {
-    var obj = JSON.parse(data);
-    if (obj.status !== 'success') return;
+  $.post('php/modules/wholesales/api.php', params, function (data) {
+    if (data.status !== 'success') return;
+    var obj = data.message;
 
     var s      = obj.summary;
     var wsType = $('#wsType').val();
@@ -308,9 +309,9 @@ function doExportBreakdown() {
   var partyType = parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : ''; // Normal or Packing
   
   if (exportType === 'individual') {
-    url = 'php/modules/wholesales/exportDashboard.php?type=' + base + '_individual';
+    url = 'php/modules/wholesales/api.php?action=exportDashboard&type=' + base + '_individual';
   } else {
-    url = 'php/modules/wholesales/exportDashboard.php?type=' + base;
+    url = 'php/modules/wholesales/api.php?action=exportDashboard&type=' + base;
   }
   
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
@@ -329,7 +330,7 @@ function doExportBreakdown() {
 
 function exportGradeDistribution(status) {
   var params = getDateParams();
-  var url = 'php/modules/wholesales/exportDashboard.php?type=grade';
+  var url = 'php/modules/wholesales/api.php?action=exportDashboard&type=grade';
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
   url += '&toDate=' + encodeURIComponent(params.toDate);
   url += '&status=' + encodeURIComponent(status);

@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Modules\Wholesale\WholesaleController;
+use App\Modules\Wholesale\WholesaleDashboardService;
 use App\Modules\Wholesale\WholesaleExportService;
 use App\Modules\Wholesale\WholesaleReportService;
 use App\Modules\Wholesale\WholesaleService;
@@ -11,7 +12,7 @@ use App\Modules\Wholesale\WholesaleService;
 session_start();
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
-$isDownload = in_array($action, ['exportExcel', 'exportReport', 'exportReportPdf', 'exportIntegration', 'exportStockBalance'], true);
+$isDownload = in_array($action, ['exportExcel', 'exportReport', 'exportReportPdf', 'exportIntegration', 'exportStockBalance', 'exportDashboard'], true);
 
 if ($isDownload) {
     // Warnings must not be written into the file stream (they are still logged)
@@ -52,7 +53,8 @@ $controller = new WholesaleController(
         (array)($_SESSION['languageArray'] ?? []),
         (string)($_SESSION['language'] ?? 'en')
     ),
-    new WholesaleExportService($db, $company, $userId, $role)
+    new WholesaleExportService($db, $company, $userId, $role),
+    new WholesaleDashboardService($db, $company, $userId, $role)
 );
 
 // Print HTML may hold invalid UTF-8 from master data
@@ -102,6 +104,14 @@ try {
 
         case 'exportStockBalance':
             $controller->exportStockBalance();
+            break;
+
+        case 'dashboard':
+            echo json_encode($controller->dashboard());
+            break;
+
+        case 'exportDashboard':
+            $controller->exportDashboard();
             break;
 
         default:

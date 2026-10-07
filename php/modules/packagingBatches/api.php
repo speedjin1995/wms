@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Modules\PackagingBatch\PackagingBatchController;
+use App\Modules\PackagingBatch\PackagingBatchDashboardService;
 use App\Modules\PackagingBatch\PackagingBatchReportService;
 use App\Modules\PackagingBatch\PackagingBatchService;
 
@@ -30,11 +31,16 @@ $controller = new PackagingBatchController(
         (array)($_SESSION['userModuleAccess'] ?? []),
         in_array('stocks', (array)($_SESSION['products'] ?? []), true)
     ),
-    new PackagingBatchReportService($db, $company, $userId, $role)
+    new PackagingBatchReportService($db, $company, $userId, $role),
+    new PackagingBatchDashboardService($db, $company, $userId, $role)
 );
 
 try {
     switch ($action) {
+        case 'dashboard':
+            echo json_encode($controller->dashboard());
+            break;
+
         case 'list':
             echo json_encode($controller->list());
             break;

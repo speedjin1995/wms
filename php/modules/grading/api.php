@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Modules\Grading\GradingController;
+use App\Modules\Grading\GradingDashboardService;
 use App\Modules\Grading\GradingReportService;
 use App\Modules\Grading\GradingService;
 
@@ -41,7 +42,8 @@ $controller = new GradingController(
         (array)($_SESSION['userModuleAccess'] ?? []),
         in_array('stocks', (array)($_SESSION['products'] ?? []), true)
     ),
-    new GradingReportService($db, $company, $userId, $role)
+    new GradingReportService($db, $company, $userId, $role),
+    new GradingDashboardService($db, $company, $userId, $role)
 );
 
 try {
@@ -64,6 +66,10 @@ try {
 
         case 'printSlip':
             echo json_encode($controller->printSlip());
+            break;
+
+        case 'dashboard':
+            echo json_encode($controller->dashboard());
             break;
 
         case 'exportExcel':

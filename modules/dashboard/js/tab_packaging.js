@@ -9,9 +9,9 @@ $(function () {
 });
 
 function loadPackaging() {
-  $.post('php/modules/packagingBatches/getDashboard.php', getPkgParams(), function (data) {
-    var obj = JSON.parse(data);
-    if (obj.status !== 'success') return;
+  $.post('php/modules/packagingBatches/api.php', $.extend(getPkgParams(), { action: 'dashboard' }), function (data) {
+    if (data.status !== 'success') return;
+    var obj = data.message;
 
     var s = obj.summary;
     $('#pkgTotalWeight').text(formatNum(s.total_weight));

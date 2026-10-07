@@ -3,9 +3,9 @@
    ============================================================ */
 
 function loadGrading() {
-  $.post('php/modules/grading/getDashboard.php', getDateParams(), function (data) {
-    var obj = JSON.parse(data);
-    if (obj.status !== 'success') return;
+  $.post('php/modules/grading/api.php', $.extend(getDateParams(), { action: 'dashboard' }), function (data) {
+    if (data.status !== 'success') return;
+    var obj = data.message;
 
     var s = obj.summary;
     $('#grTotalNet').text(formatNum(s.total_net));

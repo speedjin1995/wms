@@ -9,11 +9,26 @@ class GradingController extends BaseController
 {
     private GradingService $service;
     private ?GradingReportService $reportService;
+    private ?GradingDashboardService $dashboardService;
 
-    public function __construct(GradingService $service, ?GradingReportService $reportService = null)
+    public function __construct(GradingService $service, ?GradingReportService $reportService = null, ?GradingDashboardService $dashboardService = null)
     {
         $this->service = $service;
         $this->reportService = $reportService;
+        $this->dashboardService = $dashboardService;
+    }
+
+    /**
+     * Grading dashboard tab data (fromDate, toDate, location)
+     */
+    public function dashboard(): array
+    {
+        $filters = [];
+        foreach (['fromDate', 'toDate', 'location'] as $key) {
+            $filters[$key] = trim((string)($_POST[$key] ?? ''));
+        }
+
+        return ['status' => 'success', 'message' => $this->dashboardService->getSummary($filters)];
     }
 
     /**

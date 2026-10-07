@@ -1,52 +1,10 @@
 <?php
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-$company = $_SESSION['customer'];
-$role    = $_SESSION['role'];
-$companyDetail = searchCompanyById($company, $db);
-$allowPrice = $companyDetail['include_price'];
-
-// Get filter params
-$fromDate   = $_GET['fromDate'] ?? '';
-$toDate     = $_GET['toDate'] ?? '';
-$status     = $_GET['status'] ?? '';
-$locationId = $_GET['location'] ?? '';
-
-// Build search query
-$searchQuery = '';
-
-if ($fromDate != '') {
-    $fromDateObj = DateTime::createFromFormat('d/m/Y', $fromDate);
-    $searchQuery .= " AND DATE(w.start_time) >= '" . $fromDateObj->format('Y-m-d') . "'";
-}
-if ($toDate != '') {
-    $toDateObj = DateTime::createFromFormat('d/m/Y', $toDate);
-    $searchQuery .= " AND DATE(w.start_time) <= '" . $toDateObj->format('Y-m-d') . "'";
-}
-if ($status === 'RECEIVING') {
-    $searchQuery .= " AND w.status IN ('RECEIVING','INCOMING')";
-} elseif ($status === 'DISPATCH') {
-    $searchQuery .= " AND w.status IN ('DISPATCH','OUTGOING')";
-} else {
-    $searchQuery .= " AND w.status IN ('RECEIVING','INCOMING','DISPATCH','OUTGOING')";
-}
-if ($locationId != '') {
-    $locationId = mysqli_real_escape_string($db, $locationId);
-    $searchQuery .= " AND w.location = '$locationId'";
-}
-
-$companyFilter = ($role != 'SADMIN') ? " AND w.company = '$company'" : '';
-
-// Fetch records
-$query = "SELECT w.weight_details, w.status, DATE(w.start_time) as trade_date
-          FROM wholesales w
-          WHERE w.deleted = 0" . $companyFilter . $searchQuery . "
-          ORDER BY w.start_time";
-$result = mysqli_query($db, $query);
+// Variables available: $db, $records, $companyDetail, $allowPrice, $fromDate, $toDate, $status (rendered by WholesaleDashboardService)
 
 // Build hierarchical data: Product > Grade > Date+Price
 $dataRecv = [];
@@ -54,7 +12,7 @@ $dataDisp = [];
 $productCache = [];
 $currencyCache = [];
 
-while ($row = mysqli_fetch_assoc($result)) {
+foreach ($records as $row) {
     $details = json_decode($row['weight_details'], true) ?: [];
     $isReceiving = in_array($row['status'], ['RECEIVING', 'INCOMING']);
     $tradeDate = $row['trade_date'];
@@ -375,11 +333,3 @@ if ($status === 'RECEIVING') {
 // Output
 $statusLabel = ($status === 'RECEIVING') ? 'Receiving' : 'Dispatch';
 $fileName = 'Grade_Distribution_' . $statusLabel . '_' . date('Y-m-d') . '.xlsx';
-$writer = new Xlsx($spreadsheet);
-
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="' . $fileName . '"');
-header('Cache-Control: max-age=0');
-
-$writer->save('php://output');
-exit;

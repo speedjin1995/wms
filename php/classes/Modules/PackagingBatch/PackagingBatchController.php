@@ -7,11 +7,29 @@ class PackagingBatchController extends BaseController
 {
     private PackagingBatchService $service;
     private ?PackagingBatchReportService $reportService;
+    private ?PackagingBatchDashboardService $dashboardService;
 
-    public function __construct(PackagingBatchService $service, ?PackagingBatchReportService $reportService = null)
-    {
+    public function __construct(
+        PackagingBatchService $service,
+        ?PackagingBatchReportService $reportService = null,
+        ?PackagingBatchDashboardService $dashboardService = null
+    ) {
         $this->service = $service;
         $this->reportService = $reportService;
+        $this->dashboardService = $dashboardService;
+    }
+
+    /**
+     * Packaging dashboard tab data (fromDate, toDate, location, productionLine)
+     */
+    public function dashboard(): array
+    {
+        $filters = [];
+        foreach (['fromDate', 'toDate', 'location', 'productionLine'] as $key) {
+            $filters[$key] = trim((string)($_POST[$key] ?? ''));
+        }
+
+        return ['status' => 'success', 'message' => $this->dashboardService->getSummary($filters)];
     }
 
     /**
