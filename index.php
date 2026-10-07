@@ -673,7 +673,7 @@ to get the desired effect
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#stockTransfer" data-file="stockTransfer.php" class="nav-link link">
+                <a href="#stockTransfer" data-file="modules/stockTransfer/stockTransfer.php" class="nav-link link">
                   <i class="nav-icon fas fa-exchange-alt"></i>
                   <p><?=$languageArray['stock_transfer_code'][$language]?></p>
                 </a>
