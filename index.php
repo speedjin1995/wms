@@ -665,7 +665,7 @@ to get the desired effect
               <i class="nav-icon fas fa-chart-bar"></i>
               <p><?=$languageArray['stock_management'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
-            <ul class="nav nav-treeview" style="display: none;">
+            <ul class="nav nav-treeview" style="display: block;">
               <li class="nav-item">
                 <a href="#stockDashboard" data-file="stockDashboard.php" class="nav-link link">
                   <i class="nav-icon fas fa-tachometer-alt"></i>
