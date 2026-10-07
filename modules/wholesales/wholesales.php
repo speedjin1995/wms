@@ -72,14 +72,13 @@ if (!empty($lookups['columnSetup'])) {
 }
 ?>
 
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
+</div>
+
 <!-- Main content -->
 <div class="content page-modern">
   <div class="container-fluid">
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1 class="page-title"><i class="fas fa-weight"></i> <?=$t('wholesales_code')?></h1>
-    </div>
-
     <!-- Filter Card -->
     <div class="card filter-card">
       <div class="card-body">

@@ -52,14 +52,12 @@ else{
 }
 ?>
 
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
+</div>
+
 <div class="content page-modern">
   <div class="container-fluid">
-
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1 class="page-title"><i class="fas fa-chart-bar"></i> <?=$languageArray['reports_code'][$language]?></h1>
-    </div>
-
     <!-- Filter Card -->
     <div class="card filter-card">
       <div class="card-body">
