@@ -346,16 +346,17 @@ if(isset($_GET['id'])){
 
                                 if ($wholesale['status'] == 'RECEIVING'){
                                     $message .= '
-                                    <div class="section-title">PAYMENT TO :</div>
+                                    <div class="section-title">SUPPLIER : ' . $deliverToName . '</div>
+                                    <div class="section-title">PAYMENT TO : ' . $billToName . '</div>
                                     ';
                                 }else{
                                     $message .= '
                                     <div class="section-title">BILL TO :</div>
+                                    <div class="addr-name">' . $billToName . '</div>
                                     ';
                                 }
 
                                 $message .= '
-                                    <div class="addr-name">' . $billToName . '</div>
                                     <div class="addr-line">' . $billToAddr1 . '</div>
                                     <div class="addr-line">' . $billToAddr2 . '</div>
                                     <div class="addr-line">' . $billToAddr3 . '</div>
