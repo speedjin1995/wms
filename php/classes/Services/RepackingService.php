@@ -112,9 +112,18 @@ class RepackingService extends BaseService
 
         $data = [];
         foreach ($rows as $row) {
+            // Group identical product + grade + weight lines into one entry with a quantity
             $targets = [];
             foreach ($items[$row['id']] ?? [] as $item) {
-                $targets[] = $this->productLabel($item['product_name'], $item['grade_name']) . ' (' . $this->formatWeight($item['weight']) . ' kg)';
+                $key = $item['product_id'] . ':' . $item['grade_id'] . ':' . $this->formatWeight($item['weight']);
+                if (!isset($targets[$key])) {
+                    $targets[$key] = [
+                        'name' => $this->productLabel($item['product_name'], $item['grade_name']),
+                        'weight' => $this->formatWeight($item['weight']),
+                        'qty' => 0
+                    ];
+                }
+                $targets[$key]['qty']++;
             }
 
             $data[] = [
@@ -124,7 +133,7 @@ class RepackingService extends BaseService
                 'type' => $row['type'],
                 'source_product_name' => $this->productLabel($row['source_product_name'], $row['source_grade_name']),
                 'source_weight' => $this->formatWeight($row['source_weight']),
-                'targets' => implode(', ', $targets),
+                'targets' => array_values($targets),
                 'created_by_name' => $row['created_by_name']
             ];
         }

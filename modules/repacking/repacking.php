@@ -391,7 +391,20 @@ $(function () {
       { data: 'type' },
       { data: 'source_product_name' },
       { data: 'source_weight' },
-      { data: 'targets', orderable: false },
+      {
+        data: 'targets',
+        orderable: false,
+        render: function (data, type, row) {
+          var $cell = $('<div>');
+          $.each(data || [], function (i, target) {
+            $('<div class="text-nowrap">')
+              .append($('<span class="badge badge-info mr-2">').text(target.qty + ' × ' + target.weight + ' kg'))
+              .append($('<span>').text(target.name))
+              .appendTo($cell);
+          });
+          return $cell.html();
+        }
+      },
       { data: 'created_by_name' },
       {
         data: 'id',
