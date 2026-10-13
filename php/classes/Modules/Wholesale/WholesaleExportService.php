@@ -183,7 +183,8 @@ class WholesaleExportService extends BaseService
      */
     public function buildStockBalancePdf(array $records, array $filters): array
     {
-        $mpdf = $this->newPdf(['format' => 'A4-L', 'margin_top' => 30, 'margin_header' => 5]);
+        // Top margin follows the header height so the table never covers the filter / page lines
+        $mpdf = $this->newPdf(['format' => 'A4-L', 'margin_top' => 30, 'margin_header' => 5, 'setAutoTopMargin' => 'stretch']);
 
         // Variables used by the template
         $db = $this->db;

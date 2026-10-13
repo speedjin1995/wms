@@ -6,14 +6,25 @@ use App\Modules\StockAdjustment\StockAdjustmentController;
 use App\Modules\StockAdjustment\StockAdjustmentService;
 
 session_start();
-header('Content-Type: application/json');
+
+$action = $_POST['action'] ?? $_GET['action'] ?? '';
+$isDownload = $action === 'print';
+
+if ($isDownload) {
+    // Warnings must not be written into the PDF stream (they are still logged)
+    ini_set('display_errors', '0');
+} else {
+    header('Content-Type: application/json');
+}
 
 if (!isset($_SESSION['userID'])) {
+    if ($isDownload) {
+        die('Unauthorized');
+    }
     echo json_encode(['status' => 'failed', 'message' => 'Unauthorized']);
     exit;
 }
 
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
 $service = new StockAdjustmentService($db, (int)$_SESSION['customer'], (int)$_SESSION['userID'], (string)($_SESSION['role'] ?? ''));
 $controller = new StockAdjustmentController($service);
 
@@ -56,6 +67,11 @@ switch ($action) {
         }
         $type = $_POST['type'] ?? 'Local';
         echo json_encode($controller->products($categoryIds, $type));
+        break;
+
+    case 'print':
+        require_once __DIR__ . '/../../../lookup.php';
+        $controller->print(searchCompanyById((int)$_SESSION['customer'], $db));
         break;
 
     default:

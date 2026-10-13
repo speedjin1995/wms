@@ -108,19 +108,7 @@ class WholesaleService extends BaseService
      */
     public function getLookups(): array
     {
-        $modules = "'" . implode("','", self::CATEGORY_MODULES[$this->recordType]) . "'";
-
-        if ($this->isSuperAdmin()) {
-            $categories = $this->fetchAll("SELECT id, category_name FROM categories WHERE deleted = '0' AND module IN ($modules) ORDER BY category_name ASC");
-        } else {
-            $categoryIds = $this->accessibleCategoryIds($this->userModuleAccess, self::CATEGORY_MODULES[$this->recordType]);
-            [$categoryFilter, $categoryTypes] = $this->categoryIdFilter('id', $categoryIds);
-            $categories = $this->fetchAll(
-                "SELECT id, category_name FROM categories WHERE deleted = '0' AND customer = ? AND module IN ($modules)$categoryFilter ORDER BY category_name ASC",
-                'i' . $categoryTypes,
-                array_merge([$this->company], $categoryIds)
-            );
-        }
+        $categories = $this->accessibleCategories();
 
         $defaultCurrency = $this->fetchOne("SELECT id FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1", 'i', [$this->company]);
 
@@ -590,7 +578,8 @@ class WholesaleService extends BaseService
         }
 
         if (in_array($filters['type'] ?? '', ['Local', 'Export'], true)) {
-            $where .= " AND type = ?";
+            // Records saved before the type column have no type and count as Local (as in save / delete)
+            $where .= $filters['type'] === 'Local' ? " AND (type = ? OR type IS NULL OR type = '')" : " AND type = ?";
             $params[] = $filters['type'];
             $types .= 's';
         }
@@ -748,6 +737,58 @@ class WholesaleService extends BaseService
     /**
      * Rows of a master table for the session company (all companies for SADMIN), ordered by $orderColumn
      */
+    /**
+     * Stock balance report filters: categories, locations and products (with category, for the category filter)
+     */
+    public function getStockBalanceLookups(): array
+    {
+        if ($this->isSuperAdmin()) {
+            $products = $this->fetchAll("SELECT id, product_name, category FROM products WHERE deleted = '0' ORDER BY product_name ASC");
+        } else {
+            $categoryIds = $this->accessibleCategoryIds($this->userModuleAccess, self::CATEGORY_MODULES['wholesales']);
+            [$categoryFilter, $categoryTypes] = $this->categoryIdFilter('c.id', $categoryIds);
+            $products = $this->fetchAll(
+                "SELECT p.id, p.product_name, p.category FROM products p INNER JOIN categories c ON p.category = c.id
+                WHERE p.deleted = '0' AND p.customer = ? AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$categoryFilter
+                ORDER BY p.product_name ASC",
+                'i' . $categoryTypes,
+                array_merge([$this->company], $categoryIds)
+            );
+
+            // No products in the wholesale categories: fall back to all company products
+            if (empty($products)) {
+                $products = $this->fetchAll("SELECT id, product_name, category FROM products WHERE deleted = '0' AND customer = ? ORDER BY product_name ASC", 'i', [$this->company]);
+            }
+        }
+
+        return [
+            'categories' => $this->accessibleCategories(),
+            'locations' => $this->companyRows("SELECT id, locations FROM locations WHERE deleted = '0'", 'customer', 'locations'),
+            'products' => $products
+        ];
+    }
+
+    /**
+     * Categories of the record type's modules the user may access
+     */
+    private function accessibleCategories(): array
+    {
+        $modules = "'" . implode("','", self::CATEGORY_MODULES[$this->recordType]) . "'";
+
+        if ($this->isSuperAdmin()) {
+            return $this->fetchAll("SELECT id, category_name FROM categories WHERE deleted = '0' AND module IN ($modules) ORDER BY category_name ASC");
+        }
+
+        $categoryIds = $this->accessibleCategoryIds($this->userModuleAccess, self::CATEGORY_MODULES[$this->recordType]);
+        [$categoryFilter, $categoryTypes] = $this->categoryIdFilter('id', $categoryIds);
+
+        return $this->fetchAll(
+            "SELECT id, category_name FROM categories WHERE deleted = '0' AND customer = ? AND module IN ($modules)$categoryFilter ORDER BY category_name ASC",
+            'i' . $categoryTypes,
+            array_merge([$this->company], $categoryIds)
+        );
+    }
+
     private function companyRows(string $select, string $companyColumn, string $orderColumn): array
     {
         if ($this->isSuperAdmin()) {
