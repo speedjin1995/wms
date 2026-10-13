@@ -1,55 +1,34 @@
 <?php
 require_once '../../php/db_connect.php';
-require_once '../../php/lookup.php';
+require_once '../../php/bootstrap.php';
+
+use App\Modules\Wholesale\BulkPriceUpdateService;
 
 session_start();
 
 if(!isset($_SESSION['userID'])){
   echo '<script type="text/javascript">';
   echo 'window.location.href = "login.html";</script>';
+  exit;
 }
-else{
-  $user = $_SESSION['userID'];
-  $company = $_SESSION['customer'];
-  $companyProducts = $_SESSION['products'];
-  $role = $_SESSION['role'] ?? 'NORMAL';
-  $allowEdit = $_SESSION['userAllowEdit'] ?? 'N';
-  $userModuleAccess = $_SESSION['userModuleAccess'];
-  $categoryIds = [];
-  if (!empty($userModuleAccess['categories'])) {
-    $allowedModules = ['wholesale', 'processing'];
-    foreach ($userModuleAccess['categories'] as $module => $moduleCategories) {
-      if (in_array($module, $allowedModules)) {
-        $categoryIds = array_merge($categoryIds, $moduleCategories);
-      }
-    }
-    $categoryIds = array_unique($categoryIds);
-  }
 
-  if ($role != 'SADMIN'){
-    $categoryFilter = !empty($categoryIds) ? " AND c.id IN (" . implode(',', array_map('intval', $categoryIds)) . ")" : "";
-    $productQuery = "SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND p.customer = '$company' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'$categoryFilter ORDER BY p.product_name ASC";
-    if ($db->query($productQuery)->num_rows == 0) {
-      $productQuery = "SELECT * FROM products WHERE deleted = '0' AND customer = '$company' ORDER BY product_name ASC";
-    }
-    $products = $db->query($productQuery);
-    $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY p.product_name ASC, g.units ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' AND (customer_type = 'Normal' OR customer_type IS NULL OR customer_type = '') ORDER BY customer_name ASC");
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' AND (supplier_type = 'Normal' OR supplier_type IS NULL OR supplier_type = '') ORDER BY supplier_name ASC");
-  } else {
-    $products = $db->query("SELECT p.* FROM products p INNER JOIN categories c ON p.category = c.id WHERE p.deleted = '0' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0' ORDER BY p.product_name ASC");
-    $grades = $db->query("SELECT DISTINCT g.*, p.product_name FROM grades g LEFT JOIN product_grades pg ON g.id = pg.grade_id LEFT JOIN products p ON pg.product_id = p.id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY p.product_name ASC, g.units ASC");
-    $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND (customer_type = 'Normal' OR customer_type IS NULL OR customer_type = '') ORDER BY customer_name ASC");
-    $suppliers = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND (supplier_type = 'Normal' OR supplier_type IS NULL OR supplier_type = '') ORDER BY supplier_name ASC");
-  }
+$bulkPriceService = new BulkPriceUpdateService(
+  $db,
+  (int)$_SESSION['customer'],
+  (int)$_SESSION['userID'],
+  (string)($_SESSION['role'] ?? ''),
+  (array)($_SESSION['userModuleAccess'] ?? [])
+);
+$permissions = $bulkPriceService->getPermissions();
+$lookups = $bulkPriceService->getLookups();
 
-  // Language
-  $language = $_SESSION['language'];
-  $languageArray = $_SESSION['languageArray'];
-}
+// Language
+$language = $_SESSION['language'];
+$languageArray = $_SESSION['languageArray'];
+$t = function ($key, $default = '') use ($languageArray, $language) {
+  return $languageArray[$key][$language] ?? $default;
+};
 ?>
-
-
 
 <style>
 /* Child Table (expanded row) */
@@ -92,16 +71,13 @@ else{
 .confirm-warning { background: #f1f5f9; border-radius: 6px; padding: 12px 16px; font-size: 13px; color: #64748b; display: inline-block; }
 </style>
 
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
+</div>
+
+<!-- Main content -->
 <div class="content page-modern">
   <div class="container-fluid">
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1 class="page-title">
-        <i class="fas fa-tags"></i>
-        <?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?>
-      </h1>
-    </div>
-
     <!-- Filter Card -->
     <div class="filter-card">
       <div class="card-body">
@@ -131,8 +107,8 @@ else{
             <label class="filter-label"><?=$languageArray['customer_code'][$language] ?? 'Customer'?></label>
             <select class="form-control select2-filter" id="customerFilter">
               <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
-              <?php while($c = mysqli_fetch_assoc($customers)){ ?>
-                <option value="<?=$c['id']?>"><?=$c['customer_name']?></option>
+              <?php foreach($lookups['customers'] as $c){ ?>
+                <option value="<?=$c['id']?>"><?=htmlspecialchars($c['customer_name'])?></option>
               <?php } ?>
             </select>
           </div>
@@ -142,8 +118,8 @@ else{
             <label class="filter-label"><?=$languageArray['supplier_code'][$language] ?? 'Supplier'?></label>
             <select class="form-control select2-filter" id="supplierFilter">
               <option value=""><?=$languageArray['please_select_code'][$language] ?? 'Please Select'?></option>
-              <?php while($s = mysqli_fetch_assoc($suppliers)){ ?>
-                <option value="<?=$s['id']?>"><?=$s['supplier_name']?></option>
+              <?php foreach($lookups['suppliers'] as $s){ ?>
+                <option value="<?=$s['id']?>"><?=htmlspecialchars($s['supplier_name'])?></option>
               <?php } ?>
             </select>
           </div>
@@ -153,8 +129,8 @@ else{
             <label class="filter-label text-muted"><?=$languageArray['product_code'][$language]?> <small>(<?=$languageArray['optional_code'][$language] ?? 'Optional'?>)</small></label>
             <select class="form-control select2-filter" id="productFilter">
               <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <?php while($p = mysqli_fetch_assoc($products)){ ?>
-                <option value="<?=$p['id']?>"><?=$p['product_name']?></option>
+              <?php foreach($lookups['products'] as $p){ ?>
+                <option value="<?=$p['id']?>"><?=htmlspecialchars($p['product_name'])?></option>
               <?php } ?>
             </select>
           </div>
@@ -183,11 +159,11 @@ else{
         <div class="results-header-left">
           <h3 class="results-title">
             <i class="fas fa-list-alt"></i>
-            <?=$languageArray['results_code'][$language] ?? 'Results'?>
+            <?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?>
           </h3>
           <span class="results-count" id="resultCount">0</span>
         </div>
-        <?php if($allowEdit == 'Y'){ ?>
+        <?php if($permissions['allowEdit']){ ?>
         <div class="results-header-right">
           <button type="button" class="btn btn-action btn-action-warning" id="btnOpenBulkPrice" onclick="openBulkPriceModal()">
             <i class="fas fa-edit"></i> <?=$languageArray['update_price_code'][$language] ?? 'Update Price'?>
@@ -355,320 +331,22 @@ else{
 </div>
 
 <script>
-// Variables
-var bulkTable;
-var colProduct  = '<?=$languageArray["product_code"][$language]?>';
-var colGrade    = '<?=$languageArray["grade_code"][$language]?>';
-var colNet      = '<?=$languageArray["net_code"][$language]?>';
-var colPrice    = '<?=$languageArray["price_code"][$language]?>';
-var colTotal    = '<?=$languageArray["total_code"][$language]?>';
-var labelFloat  = '<?=$languageArray["float_code"][$language]?>';
-var labelFixed  = '<?=$languageArray["fixed_code"][$language]?>';
-var labelDispatch = '<?=$languageArray["dispatch_code"][$language]?>';
-var labelReceiving = '<?=$languageArray["receiving_code"][$language]?>';
-var gradesByProduct = <?php
-  $gradeMap = [];
-  // Re-query since result cursor is exhausted
-  if ($role != 'SADMIN') {
-    $gRes = $db->query("SELECT DISTINCT g.id, g.units, pg.product_id FROM grades g INNER JOIN product_grades pg ON g.id = pg.grade_id WHERE g.deleted = '0' AND pg.deleted = '0' AND g.customer = '$company' ORDER BY g.units ASC");
-  } else {
-    $gRes = $db->query("SELECT DISTINCT g.id, g.units, pg.product_id FROM grades g INNER JOIN product_grades pg ON g.id = pg.grade_id WHERE g.deleted = '0' AND pg.deleted = '0' ORDER BY g.units ASC");
-  }
-  while ($gr = mysqli_fetch_assoc($gRes)) {
-    $gradeMap[$gr['product_id']][] = ['id' => $gr['id'], 'units' => $gr['units']];
-  }
-  echo json_encode($gradeMap);
-?>;
-
-// document.ready
-$(function() {
-  toastr.options = {
-    "closeButton": false,
-    "progressBar": false,
-    "positionClass": "toast-top-right",
-    "timeOut": "5000"
-  };
-
-  $('#datePicker').datetimepicker({
-    icons: { time: 'far fa-clock' },
-    format: 'DD/MM/YYYY',
-    defaultDate: new Date()
-  });
-
-  $('.select2-filter').select2({ 
-    allowClear: true, 
-    placeholder: "Please Select",
-    width: '100%'
-  });
-
-  $('#productFilter').on('change', function() {
-    var productId = $(this).val();
-    $('#gradeFilter').select2('destroy').html('<option value=""><?=$languageArray["all_code"][$language] ?? "All"?></option>');
-    if (productId && gradesByProduct[productId]) {
-      $.each(gradesByProduct[productId], function(i, g) {
-        $('#gradeFilter').append('<option value="' + g.units + '">' + g.units + '</option>');
-      });
-    }
-    $('#gradeFilter').select2({ allowClear: true, placeholder: "Please Select", width: '100%' });
-  });
-
-  $('#transactionStatusFilter').on('change', function() {
-    var status = $(this).val();
-    if (status === 'RECEIVING') {
-      $('#customerFilterGroup').hide();
-      $('#supplierFilterGroup').show();
-      $('#customerFilter').val('').trigger('change');
-    } else {
-      $('#customerFilterGroup').show();
-      $('#supplierFilterGroup').hide();
-      $('#supplierFilter').val('').trigger('change');
-    }
-  });
-
-  $('#bulkFilterSearch').on('click', function() {
-    if (bulkTable) { 
-      bulkTable.clear().destroy(); 
-    }
-    bulkTable = buildTable();
-  });
-
-  $('#weightTable').on('click', '.expand-icon', function() {
-    var tr = $(this).closest('tr');
-    var row = bulkTable.row(tr);
-    if (row.child.isShown()) {
-      row.child.hide();
-      $(this).removeClass('expanded').find('i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
-    } else {
-      row.child(format(row.data())).show();
-      $(this).addClass('expanded').find('i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
-    }
-  });
-
-  $('#btnPreview').on('click', function() {
-    var priceRows = collectPriceRows();
-    if (priceRows.length === 0) {
-      toastr["error"]("Please enter at least one price.", "Validation Error:");
-      return;
-    }
-    var $btn = $(this);
-    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Loading...');
-    $.post('php/modules/wholesales/bulkPriceUpdate/bulkUpdatePrice.php', {
-      mode: 'preview',
-      date: $('#date').val(),
-      status: $('#transactionStatusFilter').val(),
-      customer: $('#customerFilter').val(),
-      supplier: $('#supplierFilter').val(),
-      product: $('#productFilter').val(),
-      grade: $('#gradeFilter').val(),
-      priceRows: priceRows
-    }, function(data) {
-      var obj = JSON.parse(data);
-      if (obj.status === 'success') {
-        if (obj.rows.length === 0) {
-          toastr["error"]("No matching records found.", "Preview:");
-        } else {
-          var tbody = $('#previewTableBody').empty();
-          $.each(obj.rows, function(i, r) {
-            tbody.append('<tr>' +
-              '<td>' + r.serial_no + '</td>' +
-              '<td>' + r.start_time + '</td>' +
-              '<td>' + r.product_name + '</td>' +
-              '<td>' + r.grade + '</td>' +
-              '<td class="text-right">' + r.net + '</td>' +
-              '<td class="text-right text-muted">' + r.old_price + '</td>' +
-              '<td class="text-right text-muted">' + r.old_total + '</td>' +
-              '<td class="text-right new-value font-weight-bold">' + r.new_price + '</td>' +
-              '<td class="text-right new-value font-weight-bold">' + r.new_total + '</td>' +
-            '</tr>');
-          });
-          $('#confirmCount').text(obj.rows.length);
-          wizardGoTo(2);
-        }
-      } else {
-        toastr["error"](obj.message, "Failed:");
-      }
-      $btn.prop('disabled', false).html('<?=$languageArray["preview_code"][$language] ?? "Preview"?><i class="fas fa-arrow-right ml-1"></i>');
-    }).fail(function() {
-      toastr["error"]("Request failed. Please try again.", "Error:");
-      $btn.prop('disabled', false).html('<?=$languageArray["preview_code"][$language] ?? "Preview"?><i class="fas fa-arrow-right ml-1"></i>');
-    });
-  });
-  
-  $('#bulkFilterSearch').click();
-});
-
-// Functions
-function format(d) {
-  var html = '<div class="child-row-wrapper"><table class="child-table">'
-    + '<thead><tr><th>' + colProduct + '</th><th>' + colGrade + '</th><th class="text-right">' + colNet + '</th><th class="text-right">' + colPrice + '</th><th class="text-right">' + colTotal + '</th></tr></thead><tbody>';
-  $.each(d.items, function(i, item) {
-    html += '<tr><td>' + item.product_name + '</td><td>' + item.grade + '</td><td class="text-right">' + item.net + '</td><td class="text-right">' + item.price + '</td><td class="text-right">' + item.total + '</td></tr>';
-  });
-  return html + '</tbody></table></div>';
-}
-
-function buildTable(){
-  return $("#weightTable").DataTable({
-    "responsive": true,
-    "autoWidth": false,
-    'processing': true,
-    'serverSide': true,
-    'serverMethod': 'post',
-    'order': [[2, 'asc']],
-    'drawCallback': function(settings) {
-      var info = this.api().page.info();
-      var hasRecords = info.recordsTotal > 0;
-      $('#resultsCard').show();
-      $('#weightTable').toggle(hasRecords);
-      $('#emptyState').toggle(!hasRecords);
-      $('#resultCount').text(info.recordsTotal);
-      $('#btnOpenBulkPrice').prop('disabled', !hasRecords);
-    },
-    'ajax': {
-      'url': 'php/modules/wholesales/bulkPriceUpdate/filterBulkPrice.php',
-      'data': {
-        date: $('#date').val(),
-        product: $('#productFilter').val(),
-        grade: $('#gradeFilter').val(),
-        status: $('#transactionStatusFilter').val(),
-        customer: $('#customerFilter').val(),
-        supplier: $('#supplierFilter').val()
-      }
-    },
-    'columns': [
-      {
-        data: null, orderable: false, className: 'text-center', width: '50px',
-        render: function() {
-          return '<span class="expand-icon"><i class="fas fa-chevron-right"></i></span>';
-        }
-      },
-      { data: 'serial_no' },
-      { data: 'po_no' },
-      { data: 'customer_supplier' },
-      { data: 'start_time' },
-      { 
-        data: 'status', 
-        className: 'text-center',
-        render: function(data) {
-          var badgeClass = data === 'DISPATCH' ? 'badge-dispatch' : 'badge-receiving';
-          var label = data === 'DISPATCH' ? labelDispatch : labelReceiving;
-          return '<span class="badge-status ' + badgeClass + '">' + label + '</span>';
-        }
-      },
-      { 
-        data: 'item_count', 
-        className: 'text-center',
-        render: function(data) {
-          return '<span class="badge-count">' + data + '</span>';
-        }
-      }
-    ]
-  });
-}
-
-function openBulkPriceModal() {
-  wizardGoTo(1);
-  $('#priceInputBody').html('<tr><td colspan="4" class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>');
-  $('#bulkPriceModal').modal('show');
-
-  $.post('php/modules/wholesales/bulkPriceUpdate/getProductGradesByFilter.php', {
-    date: $('#date').val(),
-    status: $('#transactionStatusFilter').val(),
-    customer: $('#customerFilter').val(),
-    supplier: $('#supplierFilter').val(),
-    product: $('#productFilter').val(),
-    grade: $('#gradeFilter').val()
-  }, function(data) {
-    var obj = JSON.parse(data);
-    var tbody = $('#priceInputBody').empty();
-    if (obj.status === 'success' && obj.combos.length > 0) {
-      $.each(obj.combos, function(i, c) {
-        tbody.append(
-          '<tr>' +
-            '<td>' + c.product_name + '<input type="hidden" class="combo-product" value="' + c.product_id + '"></td>' +
-            '<td>' + c.grade + '<input type="hidden" class="combo-grade" value="' + c.grade + '"></td>' +
-            '<td>' +
-              '<select class="form-control form-control-sm combo-type">' +
-                '<option value="Float">' + labelFloat + '</option>' +
-                '<option value="Fixed">' + labelFixed + '</option>' +
-              '</select>' +
-            '</td>' +
-            '<td><input type="number" class="form-control form-control-sm combo-price" step="0.01" min="0" placeholder="0.00"></td>' +
-          '</tr>'
-        );
-      });
-    } else {
-      tbody.html('<tr><td colspan="4" class="text-center text-muted">No products found.</td></tr>');
-    }
-  });
-}
-
-function wizardGoTo(step) {
-  $('#stepInputs, #stepPreview, #stepConfirm').hide();
-  $('#btnPreview, #btnBackToInputs, #btnBackToPreview, #btnGoConfirm, #btnConfirm').hide();
-  $('#wizardStep1, #wizardStep2, #wizardStep3').removeClass('active done');
-  $('#wizardLine1, #wizardLine2').removeClass('done');
-
-  if (step === 1) {
-    $('#stepInputs').show();
-    $('#btnPreview').show();
-    $('#wizardStep1').addClass('active');
-  } else if (step === 2) {
-    $('#stepPreview').show();
-    $('#btnBackToInputs, #btnGoConfirm').show();
-    $('#wizardStep1').addClass('done');
-    $('#wizardStep2').addClass('active');
-    $('#wizardLine1').addClass('done');
-  } else {
-    $('#stepConfirm').show();
-    $('#btnBackToPreview, #btnConfirm').show();
-    $('#wizardStep1, #wizardStep2').addClass('done');
-    $('#wizardStep3').addClass('active');
-    $('#wizardLine1, #wizardLine2').addClass('done');
-  }
-}
-
-function collectPriceRows() {
-  var rows = [];
-  $('#priceInputBody tr').each(function() {
-    var price = $(this).find('.combo-price').val();
-    if (price === '' || price === null) return;
-    rows.push({
-      product:     $(this).find('.combo-product').val(),
-      grade:       $(this).find('.combo-grade').val(),
-      pricingType: $(this).find('.combo-type').val(),
-      newPrice:    price
-    });
-  });
-  return rows;
-}
-
-function confirmBulkUpdate() {
-  var $btn = $('#btnConfirm');
-  $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Updating...');
-  $.post('php/modules/wholesales/bulkPriceUpdate/bulkUpdatePrice.php', {
-    mode: 'save',
-    date: $('#date').val(),
-    status: $('#transactionStatusFilter').val(),
-    customer: $('#customerFilter').val(),
-    supplier: $('#supplierFilter').val(),
-    product: $('#productFilter').val(),
-    grade: $('#gradeFilter').val(),
-    priceRows: collectPriceRows()
-  }, function(data) {
-    var obj = JSON.parse(data);
-    if (obj.status === 'success') {
-      $('#bulkPriceModal').modal('hide');
-      toastr["success"](obj.message, "Success:");
-      bulkTable.clear().destroy();
-      bulkTable = buildTable();
-    } else {
-      toastr["error"](obj.message, "Failed:");
-    }
-    $btn.prop('disabled', false).html('<i class="fas fa-check mr-1"></i><?=$languageArray["confirm_update_code"][$language] ?? "Confirm Update"?>');
-  }).fail(function() {
-    toastr["error"]("Request failed. Please try again.", "Error:");
-    $btn.prop('disabled', false).html('<i class="fas fa-check mr-1"></i><?=$languageArray["confirm_update_code"][$language] ?? "Confirm Update"?>');
-  });
-}
+var bulkPriceLookups = <?=json_encode([
+  'gradesByProduct' => (object)$lookups['gradesByProduct']
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
+var bulkPriceText = <?=json_encode([
+  'product' => $t('product_code'),
+  'grade' => $t('grade_code'),
+  'net' => $t('net_code'),
+  'price' => $t('price_code'),
+  'total' => $t('total_code'),
+  'float' => $t('float_code'),
+  'fixed' => $t('fixed_code'),
+  'dispatch' => $t('dispatch_code'),
+  'receiving' => $t('receiving_code'),
+  'all' => $t('all_code', 'All'),
+  'preview' => $t('preview_code', 'Preview'),
+  'confirmUpdate' => $t('confirm_update_code', 'Confirm Update')
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 </script>
+<script src="modules/wholesales/js/bulkPriceUpdate.js?v=<?=time()?>"></script>
