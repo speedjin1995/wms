@@ -287,7 +287,7 @@ class WholesaleController extends BaseController
     public function exportDashboard(): void
     {
         $filters = [];
-        foreach (['fromDate', 'toDate', 'customer', 'supplier', 'location', 'partyType', 'status'] as $key) {
+        foreach (['fromDate', 'toDate', 'customer', 'supplier', 'location', 'partyType', 'status', 'category'] as $key) {
             $filters[$key] = trim((string)($_GET[$key] ?? ''));
         }
 

@@ -286,7 +286,7 @@ class WholesaleDashboardService extends BaseService
     /**
      * Breakdown Excel. $type: customer / supplier (by party, product, grade), customer_individual / supplier_individual
      * (by party and date), grade (grade distribution; status RECEIVING / DISPATCH / both).
-     * Filters: fromDate, toDate, customer / supplier, location (breakdowns and grade), partyType, status (grade). Null for an unknown type.
+     * Filters: fromDate, toDate, customer / supplier, location (breakdowns and grade), partyType, status (grade), category (empty / 0 = all). Null for an unknown type.
      */
     public function buildExport(string $type, array $filters): ?array
     {
@@ -296,6 +296,7 @@ class WholesaleDashboardService extends BaseService
 
         // Variables used by the templates
         $db = $this->db;
+        $categoryId = (int)($filters['category'] ?? 0);
         $records = $this->exportRecords($type, $filters);
         $companyDetail = searchCompanyById($this->company, $db);
         $allowPrice = $companyDetail['include_price'];
