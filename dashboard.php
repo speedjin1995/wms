@@ -112,11 +112,6 @@ if (!isset($_SESSION['userID'])) {
           <i class="fas fa-cubes"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['wholesales_code'][$language]?></span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#tabRepacking">
-          <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['repacking_code'][$language]?></span>
-        </a>
-      </li>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
       <li class="nav-item">
@@ -137,13 +132,19 @@ if (!isset($_SESSION['userID'])) {
         </a>
       </li>
       <?php } ?>
+      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#tabRepacking">
+          <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['repacking_code'][$language]?></span>
+        </a>
+      </li>
+      <?php } ?>
     </ul>
 
     <!-- ── Tab Panes ──────────────────────────────────────── -->
     <div class="tab-content dash-tab-content">
       <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
         <?php require_once 'modules/dashboard/tab_wholesales.php'; ?>
-        <?php require_once 'modules/dashboard/tab_repacking.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
         <?php require_once 'modules/dashboard/tab_pulppaste.php'; ?>
@@ -151,6 +152,9 @@ if (!isset($_SESSION['userID'])) {
       <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
         <?php require_once 'modules/dashboard/tab_grading.php'; ?>
         <?php require_once 'modules/dashboard/tab_packaging.php'; ?>
+      <?php } ?>
+      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
+        <?php require_once 'modules/dashboard/tab_repacking.php'; ?>
       <?php } ?>
     </div>
 

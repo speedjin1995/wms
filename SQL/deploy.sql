@@ -3772,3 +3772,7 @@ BEGIN
 END
 $$
 DELIMITER ;
+
+-- 17/10/2026 --
+UPDATE message_resource SET en='Target Product', zh='目标产品', my='Produk Sasaran', ne='இலக்கு தயாரிப்பு', ja='対象製品' WHERE message_key_code='target_products_packed_code';
+UPDATE message_resource SET en='Product', zh='产品', my='Produk', ne='தயாரிப்பு', ja='製品' WHERE message_key_code='product_bulk_code';

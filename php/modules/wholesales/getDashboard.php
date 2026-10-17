@@ -89,11 +89,7 @@ $dispatchWeight  = 0;
 $dispatchCount   = 0;
 $dispatchValue   = array();  // total value grouped by currency
 $supplierMap       = array();  // total receiving weight per supplier name
-$supplierNormalMap = array();  // normal supplier breakdown
-$supplierPackingMap = array(); // packing supplier breakdown
 $customerMap       = array();  // total dispatch weight per customer name
-$customerNormalMap = array();  // normal customer breakdown
-$customerPackingMap = array(); // packing customer breakdown
 $trendMap        = array();  // daily receiving/dispatch weight for the trend chart
 $gradeMapRecv    = array();  // receiving grade weight: [productName][gradeName] => weight
 $gradeMapDisp    = array();  // dispatch grade weight:  [productName][gradeName] => weight
@@ -158,13 +154,7 @@ while ($row = mysqli_fetch_assoc($empRecords)) {
 
     // Add to supplier weight map for the supplier breakdown chart
     $sName = $row['supplier_name'] ?: 'Unknown';
-    $sType = $row['supplier_type'] ?? 'Normal';
     $supplierMap[$sName] = ($supplierMap[$sName] ?? 0) + $rowNet;
-    if ($sType === 'Packing') {
-      $supplierPackingMap[$sName] = ($supplierPackingMap[$sName] ?? 0) + $rowNet;
-    } else {
-      $supplierNormalMap[$sName] = ($supplierNormalMap[$sName] ?? 0) + $rowNet;
-    }
 
     // Add to the daily trend
     $trendMap[$date]['receiving'] += $rowNet;
@@ -206,13 +196,7 @@ while ($row = mysqli_fetch_assoc($empRecords)) {
 
     // Add to customer weight map for the customer breakdown chart
     $cName = $row['customer_name'] ?: 'Unknown';
-    $cType = $row['customer_type'] ?? 'Normal';
     $customerMap[$cName] = ($customerMap[$cName] ?? 0) + $rowNet;
-    if ($cType === 'Packing') {
-      $customerPackingMap[$cName] = ($customerPackingMap[$cName] ?? 0) + $rowNet;
-    } else {
-      $customerNormalMap[$cName] = ($customerNormalMap[$cName] ?? 0) + $rowNet;
-    }
 
     // Add to the daily trend
     $trendMap[$date]['dispatch'] += $rowNet;
@@ -330,23 +314,15 @@ foreach ($dispatchValue as $cur => $val) {
 // Only include supplier breakdown when not filtering to dispatch-only
 if ($status !== 'DISPATCH') {
   $supplierBreakdown = buildBreakdown($supplierMap);
-  $supplierNormalBreakdown = buildBreakdown($supplierNormalMap);
-  $supplierPackingBreakdown = buildBreakdown($supplierPackingMap);
 } else {
   $supplierBreakdown = array();
-  $supplierNormalBreakdown = array();
-  $supplierPackingBreakdown = array();
 }
 
 // Only include customer breakdown when not filtering to receiving-only
 if ($status !== 'RECEIVING') {
   $customerBreakdown = buildBreakdown($customerMap);
-  $customerNormalBreakdown = buildBreakdown($customerNormalMap);
-  $customerPackingBreakdown = buildBreakdown($customerPackingMap);
 } else {
   $customerBreakdown = array();
-  $customerNormalBreakdown = array();
-  $customerPackingBreakdown = array();
 }
 
 ## Response
@@ -361,11 +337,7 @@ $response = array(
     'dispatch_value'   => $dispatchValueRounded,
   ),
   'supplierBreakdown'         => $supplierBreakdown,
-  'supplierNormalBreakdown'   => $supplierNormalBreakdown,
-  'supplierPackingBreakdown'  => $supplierPackingBreakdown,
   'customerBreakdown'         => $customerBreakdown,
-  'customerNormalBreakdown'   => $customerNormalBreakdown,
-  'customerPackingBreakdown'  => $customerPackingBreakdown,
   'gradeDistribution'         => buildGradeDist($gradeMapRecv),  // receiving: grouped by product
   'gradeDistributionDispatch' => buildGradeDist($gradeMapDisp),  // dispatch:  grouped by product
   'volumeTrend'               => $volumeTrend,

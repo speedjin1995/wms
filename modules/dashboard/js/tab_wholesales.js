@@ -5,14 +5,10 @@
 var wsTrendChart      = null;
 var wsHourlyRecvChart = null;
 var wsHourlyDispChart = null;
-var wsSupplierNormalData        = [];
-var wsSupplierNormalCurrentPage = 0;
-var wsSupplierPackingData       = [];
-var wsSupplierPackingCurrentPage = 0;
-var wsCustomerNormalData        = [];
-var wsCustomerNormalCurrentPage = 0;
-var wsCustomerPackingData       = [];
-var wsCustomerPackingCurrentPage = 0;
+var wsSupplierData        = [];
+var wsSupplierCurrentPage = 0;
+var wsCustomerData        = [];
+var wsCustomerCurrentPage = 0;
 var WS_PAGE_SIZE = 10;
 
 /* ── Filter change handlers ─────────────────────────────── */
@@ -119,57 +115,20 @@ function loadWholesales() {
       }
     }
 
-    /* --- supplier breakdown (Normal / Packing) --- */
-    var hasSupplierNormal = wsType !== 'DISPATCH' && obj.supplierNormalBreakdown.length > 0;
-    var hasSupplierPacking = wsType !== 'DISPATCH' && obj.supplierPackingBreakdown.length > 0;
-    
-    if (hasSupplierNormal) {
-      $('#wsSupplierNormalWrap').show();
-      wsSupplierNormalData = obj.supplierNormalBreakdown;
-      wsSupplierNormalCurrentPage = 0;
-      renderPagedBreakdown('wsSupplierNormalBreakdown', 'wsSupplierNormalPager', 'wsSupplierNormalPageInfo', wsSupplierNormalData, wsSupplierNormalCurrentPage, '#17a2b8');
-    } else {
-      $('#wsSupplierNormalWrap').hide();
-      wsSupplierNormalData = [];
-    }
+    /* --- supplier & customer breakdown: shown only when the filter allows it and there is data --- */
+    var showSupplier = wsType !== 'DISPATCH' && obj.supplierBreakdown.length > 0;
+    var showCustomer = wsType !== 'RECEIVING' && obj.customerBreakdown.length > 0;
+    $('#wsSupplierBreakdownWrap').toggle(showSupplier);
+    $('#wsCustomerBreakdownWrap').toggle(showCustomer);
+    $('#wsBreakdownRow').toggle(showSupplier || showCustomer);
 
-    if (hasSupplierPacking) {
-      $('#wsSupplierPackingWrap').show();
-      wsSupplierPackingData = obj.supplierPackingBreakdown;
-      wsSupplierPackingCurrentPage = 0;
-      renderPagedBreakdown('wsSupplierPackingBreakdown', 'wsSupplierPackingPager', 'wsSupplierPackingPageInfo', wsSupplierPackingData, wsSupplierPackingCurrentPage, '#17a2b8');
-    } else {
-      $('#wsSupplierPackingWrap').hide();
-      wsSupplierPackingData = [];
-    }
+    wsSupplierData = showSupplier ? obj.supplierBreakdown : [];
+    wsSupplierCurrentPage = 0;
+    if (showSupplier) renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
 
-    $('#wsSupplierBreakdownHeader, #wsSupplierBreakdownRow').toggle(hasSupplierNormal || hasSupplierPacking);
-
-    /* --- customer breakdown (Normal / Packing) --- */
-    var hasCustomerNormal = wsType !== 'RECEIVING' && obj.customerNormalBreakdown.length > 0;
-    var hasCustomerPacking = wsType !== 'RECEIVING' && obj.customerPackingBreakdown.length > 0;
-    
-    if (hasCustomerNormal) {
-      $('#wsCustomerNormalWrap').show();
-      wsCustomerNormalData = obj.customerNormalBreakdown;
-      wsCustomerNormalCurrentPage = 0;
-      renderPagedBreakdown('wsCustomerNormalBreakdown', 'wsCustomerNormalPager', 'wsCustomerNormalPageInfo', wsCustomerNormalData, wsCustomerNormalCurrentPage, '#28a745');
-    } else {
-      $('#wsCustomerNormalWrap').hide();
-      wsCustomerNormalData = [];
-    }
-
-    if (hasCustomerPacking) {
-      $('#wsCustomerPackingWrap').show();
-      wsCustomerPackingData = obj.customerPackingBreakdown;
-      wsCustomerPackingCurrentPage = 0;
-      renderPagedBreakdown('wsCustomerPackingBreakdown', 'wsCustomerPackingPager', 'wsCustomerPackingPageInfo', wsCustomerPackingData, wsCustomerPackingCurrentPage, '#28a745');
-    } else {
-      $('#wsCustomerPackingWrap').hide();
-      wsCustomerPackingData = [];
-    }
-
-    $('#wsCustomerBreakdownHeader, #wsCustomerBreakdownRow').toggle(hasCustomerNormal || hasCustomerPacking);
+    wsCustomerData = showCustomer ? obj.customerBreakdown : [];
+    wsCustomerCurrentPage = 0;
+    if (showCustomer) renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
 
     /* --- grade distribution receiving --- */
     var gradeRecv = obj.gradeDistribution || [];
@@ -263,28 +222,16 @@ function loadWholesales() {
 }
 
 /* ── Pager ──────────────────────────────────────────────── */
-function wsSupplierNormalPage(dir) {
-  var totalPages = Math.ceil(wsSupplierNormalData.length / WS_PAGE_SIZE);
-  wsSupplierNormalCurrentPage = Math.max(0, Math.min(wsSupplierNormalCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsSupplierNormalBreakdown', 'wsSupplierNormalPager', 'wsSupplierNormalPageInfo', wsSupplierNormalData, wsSupplierNormalCurrentPage, '#17a2b8');
+function wsSupplierPage(dir) {
+  var totalPages = Math.ceil(wsSupplierData.length / WS_PAGE_SIZE);
+  wsSupplierCurrentPage = Math.max(0, Math.min(wsSupplierCurrentPage + dir, totalPages - 1));
+  renderPagedBreakdown('wsSupplierBreakdown', 'wsSupplierPager', 'wsSupplierPageInfo', wsSupplierData, wsSupplierCurrentPage, '#17a2b8');
 }
 
-function wsSupplierPackingPage(dir) {
-  var totalPages = Math.ceil(wsSupplierPackingData.length / WS_PAGE_SIZE);
-  wsSupplierPackingCurrentPage = Math.max(0, Math.min(wsSupplierPackingCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsSupplierPackingBreakdown', 'wsSupplierPackingPager', 'wsSupplierPackingPageInfo', wsSupplierPackingData, wsSupplierPackingCurrentPage, '#17a2b8');
-}
-
-function wsCustomerNormalPage(dir) {
-  var totalPages = Math.ceil(wsCustomerNormalData.length / WS_PAGE_SIZE);
-  wsCustomerNormalCurrentPage = Math.max(0, Math.min(wsCustomerNormalCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsCustomerNormalBreakdown', 'wsCustomerNormalPager', 'wsCustomerNormalPageInfo', wsCustomerNormalData, wsCustomerNormalCurrentPage, '#28a745');
-}
-
-function wsCustomerPackingPage(dir) {
-  var totalPages = Math.ceil(wsCustomerPackingData.length / WS_PAGE_SIZE);
-  wsCustomerPackingCurrentPage = Math.max(0, Math.min(wsCustomerPackingCurrentPage + dir, totalPages - 1));
-  renderPagedBreakdown('wsCustomerPackingBreakdown', 'wsCustomerPackingPager', 'wsCustomerPackingPageInfo', wsCustomerPackingData, wsCustomerPackingCurrentPage, '#28a745');
+function wsCustomerPage(dir) {
+  var totalPages = Math.ceil(wsCustomerData.length / WS_PAGE_SIZE);
+  wsCustomerCurrentPage = Math.max(0, Math.min(wsCustomerCurrentPage + dir, totalPages - 1));
+  renderPagedBreakdown('wsCustomerBreakdown', 'wsCustomerPager', 'wsCustomerPageInfo', wsCustomerData, wsCustomerCurrentPage, '#28a745');
 }
 
 function wsGradeRecvPageFn(dir) { $('#wsGradeRecvBars').data('gradePage')(dir); }
