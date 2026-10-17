@@ -272,19 +272,20 @@ class RepackingService extends BaseService
     /**
      * Create repacking: deduct source stock, add target stock, save record
      */
-    public function create(string $repackingDate, string $type, int $sourceCategory, int $targetCategory, int $sourceProduct, int $sourceGrade, float $sourceWeight, array $items): array
+    public function create(string $repackingDate, string $type, int $sourceCategory, int $targetCategory, int $sourceProduct, int $sourceGrade, array $items): array
     {
         $this->db->begin_transaction();
 
         try {
             $date = $this->parseDate($repackingDate);
-            $company = $this->validate($type, $sourceProduct, $sourceGrade, $sourceWeight, $items);
+            $sourceWeight = round(array_sum(array_column($items, 'weight')), 2);
+            $company = $this->validate($type, $sourceProduct, $sourceGrade, $items);
             $sourceCategory = $this->checkCategory($sourceCategory, $company);
             $targetCategory = $this->checkCategory($targetCategory, $company);
 
             $repackingNo = $this->generateRepackingNo($company);
 
-            $stmt = $this->db->prepare("INSERT INTO repacking (repacking_no, repacking_date, source_category, target_category, source_product, source_grade, source_weight, type, company, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $this->db->prepare("INSERT INTO repacking (repacking_no, repacking_date, source_category, target_category, source_product, source_grade, source_weight, type, graded_posted, company, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)");
             $stmt->bind_param('ssiiiidsii', $repackingNo, $date, $sourceCategory, $targetCategory, $sourceProduct, $sourceGrade, $sourceWeight, $type, $company, $this->user);
             $stmt->execute();
             $repackingId = (int)$stmt->insert_id;
@@ -293,8 +294,8 @@ class RepackingService extends BaseService
             $this->insertItems($repackingId, $items);
 
             $newLines = $this->stockLines($company, $type, $sourceProduct, $sourceGrade, $sourceWeight, $items);
-            $this->checkStock([], $newLines);
-            $this->applyStock($repackingId, [], $newLines);
+            $this->checkAllStock([], $newLines, []);
+            $this->applyStock($repackingId, [], $newLines, []);
 
             $this->db->commit();
         } catch (\DomainException $e) {
@@ -312,7 +313,7 @@ class RepackingService extends BaseService
     /**
      * Update repacking: reverse the original stock movement, then apply the new one
      */
-    public function update(int $id, string $repackingDate, string $type, int $sourceCategory, int $targetCategory, int $sourceProduct, int $sourceGrade, float $sourceWeight, array $items): array
+    public function update(int $id, string $repackingDate, string $type, int $sourceCategory, int $targetCategory, int $sourceProduct, int $sourceGrade, array $items): array
     {
         $this->db->begin_transaction();
 
@@ -320,16 +321,18 @@ class RepackingService extends BaseService
             $date = $this->parseDate($repackingDate);
             $existing = $this->lockRecord($id);
 
-            $company = $this->validate($type, $sourceProduct, $sourceGrade, $sourceWeight, $items);
+            $sourceWeight = round(array_sum(array_column($items, 'weight')), 2);
+            $company = $this->validate($type, $sourceProduct, $sourceGrade, $items);
             $sourceCategory = $this->checkCategory($sourceCategory, $company);
             $targetCategory = $this->checkCategory($targetCategory, $company);
 
             $oldLines = $this->recordStockLines($existing);
+            $oldGradedLines = $existing['graded_posted'] ? $oldLines : [];
             $newLines = $this->stockLines($company, $type, $sourceProduct, $sourceGrade, $sourceWeight, $items);
-            $this->checkStock($oldLines, $newLines);
-            $this->applyStock($id, $oldLines, $newLines);
+            $this->checkAllStock($oldLines, $newLines, $oldGradedLines);
+            $this->applyStock($id, $oldLines, $newLines, $oldGradedLines);
 
-            $stmt = $this->db->prepare("UPDATE repacking SET repacking_date = ?, source_category = ?, target_category = ?, source_product = ?, source_grade = ?, source_weight = ?, type = ?, company = ?, modified_by = ? WHERE id = ?");
+            $stmt = $this->db->prepare("UPDATE repacking SET repacking_date = ?, source_category = ?, target_category = ?, source_product = ?, source_grade = ?, source_weight = ?, type = ?, graded_posted = 1, company = ?, modified_by = ? WHERE id = ?");
             $stmt->bind_param('siiiidsiii', $date, $sourceCategory, $targetCategory, $sourceProduct, $sourceGrade, $sourceWeight, $type, $company, $this->user, $id);
             $stmt->execute();
             $stmt->close();
@@ -364,8 +367,13 @@ class RepackingService extends BaseService
         try {
             $existing = $this->lockRecord($id);
 
-            $this->checkStock($this->recordStockLines($existing), []);
+            $oldLines = $this->recordStockLines($existing);
+            $oldGradedLines = $existing['graded_posted'] ? $oldLines : [];
+            $this->checkAllStock($oldLines, [], $oldGradedLines);
             $this->assertStockResult(processDeleteRawStock($this->db, $id, self::STOCK_MODULE, $existing['company'], $this->user, $existing['type']));
+            if ($existing['graded_posted']) {
+                $this->assertStockResult(processDeleteGradingStock($this->db, $id, $existing['company'], $this->user, self::STOCK_MODULE, $existing['type']));
+            }
 
             $stmt = $this->db->prepare("UPDATE repacking SET deleted = 1, modified_by = ? WHERE id = ?");
             $stmt->bind_param('ii', $this->user, $id);
@@ -393,26 +401,20 @@ class RepackingService extends BaseService
     /**
      * Validate products, company and weights. Returns the record's company.
      */
-    private function validate(string $type, int $sourceProduct, int $sourceGrade, float $sourceWeight, array $items): int
+    private function validate(string $type, int $sourceProduct, int $sourceGrade, array $items): int
     {
         if (!in_array($type, ['Local', 'Export'], true)) {
             throw new \DomainException('Invalid type');
         }
 
-        if (!$sourceProduct || !$sourceGrade || $sourceWeight <= 0 || empty($items)) {
+        if (!$sourceProduct || !$sourceGrade || empty($items)) {
             throw new \DomainException('Please fill in all the fields');
         }
 
-        $totalTarget = 0;
         foreach ($items as $item) {
             if (!$item['product_id'] || !$item['grade_id'] || $item['weight'] <= 0) {
                 throw new \DomainException('Please fill in all the fields');
             }
-            $totalTarget += $item['weight'];
-        }
-
-        if (round($totalTarget * 100) !== round($sourceWeight * 100)) {
-            throw new \DomainException('Total target weight (' . $this->formatWeight($totalTarget) . ' kg) must equal source weight (' . $this->formatWeight($sourceWeight) . ' kg).');
         }
 
         $productIds = array_unique(array_merge([$sourceProduct], array_column($items, 'product_id')));
@@ -521,7 +523,7 @@ class RepackingService extends BaseService
         $types = 'i';
         $this->applyCompanyScope($where, $params, $types, 'company');
 
-        $stmt = $this->db->prepare("SELECT id, source_product, source_grade, source_weight, type, company FROM repacking WHERE $where FOR UPDATE");
+        $stmt = $this->db->prepare("SELECT id, source_product, source_grade, source_weight, type, company, graded_posted FROM repacking WHERE $where FOR UPDATE");
         $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $record = $stmt->get_result()->fetch_assoc();
@@ -569,10 +571,24 @@ class RepackingService extends BaseService
     }
 
     /**
-     * Make sure no raw_stock_balance goes below zero after undoing $oldLines and applying $newLines
+     * Make sure no raw and graded stock balance goes below zero after undoing $oldLines and applying $newLines
      */
-    private function checkStock(array $oldLines, array $newLines): void
+    private function checkAllStock(array $oldLines, array $newLines, array $oldGradedLines): void
     {
+        $this->checkStock($oldLines, $newLines, 'raw_stock_balance');
+        $this->checkStock($oldGradedLines, $newLines, 'grading_stock_balance');
+    }
+
+    /**
+     * Make sure no $table balance goes below zero after undoing $oldLines and applying $newLines
+     */
+    private function checkStock(array $oldLines, array $newLines, string $table): void
+    {
+        if (!in_array($table, ['raw_stock_balance', 'grading_stock_balance'], true)) {
+            throw new \LogicException('Invalid stock table');
+        }
+        $prefix = $table === 'grading_stock_balance' ? 'graded ' : '';
+
         $changes = [];
         foreach ([[$oldLines, -1], [$newLines, 1]] as [$lines, $sign]) {
             foreach ($lines as $line) {
@@ -594,7 +610,7 @@ class RepackingService extends BaseService
             }
 
             $grade = (string)$change['grade_id'];
-            $stmt = $this->db->prepare("SELECT balance FROM raw_stock_balance WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = 0 LIMIT 1 FOR UPDATE");
+            $stmt = $this->db->prepare("SELECT balance FROM $table WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = 0 LIMIT 1 FOR UPDATE");
             $stmt->bind_param('issi', $change['product_id'], $grade, $change['type'], $change['company']);
             $stmt->execute();
             $row = $stmt->get_result()->fetch_assoc();
@@ -609,9 +625,9 @@ class RepackingService extends BaseService
             if ($change['deduct'] > 0) {
                 // Available = balance plus whatever this save gives back first
                 $available = $balance + $change['change'] + $change['deduct'];
-                throw new \DomainException('Insufficient stock for ' . $label . '. Available: ' . $this->formatWeight($available) . ' kg');
+                throw new \DomainException('Insufficient ' . $prefix . 'stock for ' . $label . '. Available: ' . $this->formatWeight($available) . ' kg');
             }
-            throw new \DomainException('Cannot reverse repacking: ' . $label . ' only has ' . $this->formatWeight($balance) . ' kg left (needs ' . $this->formatWeight(-$change['change']) . ' kg). The repacked stock may already be used.');
+            throw new \DomainException('Cannot reverse repacking: ' . $prefix . $label . ' only has ' . $this->formatWeight($balance) . ' kg left (needs ' . $this->formatWeight(-$change['change']) . ' kg). The repacked stock may already be used.');
         }
     }
 
@@ -620,7 +636,7 @@ class RepackingService extends BaseService
      * Lines only in the old save are edited down to 0 first, so the latest movement
      * per product/grade/type always belongs to the current save (used by processDeleteRawStock).
      */
-    private function applyStock(int $recordId, array $oldLines, array $newLines): void
+    private function applyStock(int $recordId, array $oldLines, array $newLines, array $oldGradedLines): void
     {
         foreach ($oldLines as $key => $old) {
             if (!isset($newLines[$key])) {
@@ -631,6 +647,17 @@ class RepackingService extends BaseService
         foreach ($newLines as $key => $new) {
             $isEdit = isset($oldLines[$key]);
             $this->postRawStock($recordId, $new, $new['weight'], $isEdit, $isEdit ? $oldLines[$key]['weight'] : 0);
+        }
+
+        foreach ($oldGradedLines as $key => $old) {
+            if (!isset($newLines[$key])) {
+                $this->postGradedStock($recordId, $old, 0, true, $old['weight']);
+            }
+        }
+
+        foreach ($newLines as $key => $new) {
+            $isEdit = isset($oldGradedLines[$key]);
+            $this->postGradedStock($recordId, $new, $new['weight'], $isEdit, $isEdit ? $oldGradedLines[$key]['weight'] : 0);
         }
     }
 
@@ -650,6 +677,25 @@ class RepackingService extends BaseService
             self::STOCK_MODULE,
             null,
             null,
+            $line['type']
+        ));
+    }
+
+    private function postGradedStock(int $recordId, array $line, float $newValue, bool $isEdit, float $beforeValue): void
+    {
+        $this->assertStockResult(processGradingStock(
+            $this->db,
+            $line['product_id'],
+            (string)$line['grade_id'],
+            $line['company'],
+            $newValue,
+            $this->user,
+            $isEdit,
+            $beforeValue,
+            $recordId,
+            $line['status'] === 'INCOMING',
+            self::STOCK_MODULE,
+            $line['status'],
             $line['type']
         ));
     }
@@ -786,8 +832,8 @@ class RepackingService extends BaseService
 
     /**
      * Load product options limited to the categories shown in the page's category dropdowns:
-     * for non-SADMIN, the company's categories of the current module, or all company
-     * categories when the module has none.
+     * for non-SADMIN, the company's wholesale and processing categories, or all company
+     * categories when neither module has any.
      */
     private function loadProducts(string $select, string $where): array
     {
@@ -797,9 +843,9 @@ class RepackingService extends BaseService
 
         if ($this->hasModuleCategories()) {
             return $this->queryProducts(
-                "$select INNER JOIN categories c ON p.category = c.id WHERE $where AND p.customer = ? AND c.customer = ? AND c.module = ? AND c.deleted = 0 ORDER BY p.product_name ASC",
-                'iis',
-                [$this->company, $this->company, $this->module]
+                "$select INNER JOIN categories c ON p.category = c.id WHERE $where AND p.customer = ? AND c.customer = ? AND c.module IN ('wholesale', 'processing') AND c.deleted = 0 ORDER BY p.product_name ASC",
+                'ii',
+                [$this->company, $this->company]
             );
         }
 
@@ -812,8 +858,8 @@ class RepackingService extends BaseService
 
     private function hasModuleCategories(): bool
     {
-        $stmt = $this->db->prepare("SELECT 1 FROM categories WHERE deleted = 0 AND customer = ? AND module = ? LIMIT 1");
-        $stmt->bind_param('is', $this->company, $this->module);
+        $stmt = $this->db->prepare("SELECT 1 FROM categories WHERE deleted = 0 AND customer = ? AND module IN ('wholesale', 'processing') LIMIT 1");
+        $stmt->bind_param('i', $this->company);
         $stmt->execute();
         $exists = (bool)$stmt->get_result()->fetch_row();
         $stmt->close();

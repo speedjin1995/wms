@@ -232,15 +232,26 @@ function processGradingStock($db, $productId, $grade, $company, $newValue, $user
  */
 function processDeleteGradingStock($db, $sourceId, $company, $userId, $module = 'grading', $type = 'Local') {
     try {
-        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.movement_type, s.quantity FROM stock_movements s INNER JOIN (SELECT product_id, grade, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND COALESCE(type, 'Local') = ? AND movement_type != 'REVERSAL' GROUP BY product_id, grade) latest ON s.id = latest.max_id");
-        $stmt->bind_param('ssss', $sourceId, $module, $company, $type);
+        // Movements already reversed are skipped, so a second delete cannot reverse them again.
+        // $type null: each movement reverses under its own type (NULL = Local).
+        $params     = [$sourceId, $module, $company];
+        $paramTypes = 'sss';
+        $typeWhere  = '';
+        if ($type !== null) {
+            $typeWhere  = " AND COALESCE(m.type, 'Local') = ?";
+            $params[]   = $type;
+            $paramTypes .= 's';
+        }
+
+        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, COALESCE(s.type, 'Local') AS type, s.movement_type, s.quantity, s.status FROM stock_movements s INNER JOIN (SELECT m.product_id, m.grade, COALESCE(m.type, 'Local') AS type, MAX(m.id) AS max_id FROM stock_movements m WHERE m.source_id = ? AND m.module = ? AND m.company = ? AND m.movement_type != 'REVERSAL' AND NOT EXISTS (SELECT 1 FROM stock_movements r WHERE r.original_movement_id = m.id AND r.movement_type = 'REVERSAL')$typeWhere GROUP BY m.product_id, m.grade, COALESCE(m.type, 'Local')) latest ON s.id = latest.max_id");
+        $stmt->bind_param($paramTypes, ...$params);
         $stmt->execute();
         $movements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
 
         foreach ($movements as $m) {
             $balStmt = $db->prepare("SELECT id, balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = '0'");
-            $balStmt->bind_param('ssss', $m['product_id'], $m['grade'], $type, $company);
+            $balStmt->bind_param('ssss', $m['product_id'], $m['grade'], $m['type'], $company);
             $balStmt->execute();
             $balRow = $balStmt->get_result()->fetch_assoc();
             $balStmt->close();
@@ -251,7 +262,7 @@ function processDeleteGradingStock($db, $sourceId, $company, $userId, $module = 
             $qty            = floatval($m['quantity']);
             $newBalance     = ($m['movement_type'] === 'ADD') ? $currentBalance - $qty : $currentBalance + $qty;
 
-            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, 'grading', $sourceId, 'REVERSAL', 'GRADING', $qty, $currentBalance, $newBalance, null, null, $userId, $m['id'], $m['movement_no'], $type);
+            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, $module, $sourceId, 'REVERSAL', $m['status'], $qty, $currentBalance, $newBalance, null, null, $userId, $m['id'], $m['movement_no'], $m['type']);
 
             $upd = $db->prepare("UPDATE grading_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
             $upd->bind_param('sss', $newBalance, $userId, $balRow['id']);
