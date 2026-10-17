@@ -15,6 +15,8 @@ $currencyCache = [];
 foreach ($records as $row) {
     $supplierName = $row['supplier_name'] ?: 'Unknown';
     $details      = json_decode($row['weight_details'], true) ?: [];
+    $details      = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+    if ($categoryId && !$details) continue;
     $startTime    = new DateTime($row['start_time']);
     $dateKey      = $startTime->format('Y-m-d');
     $dateDisplay  = $startTime->format('d-M-y');

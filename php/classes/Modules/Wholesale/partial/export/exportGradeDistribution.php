@@ -14,6 +14,8 @@ $currencyCache = [];
 
 foreach ($records as $row) {
     $details = json_decode($row['weight_details'], true) ?: [];
+    $details = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+    if ($categoryId && !$details) continue;
     $isReceiving = in_array($row['status'], ['RECEIVING', 'INCOMING']);
     $tradeDate = $row['trade_date'];
     

@@ -16,6 +16,8 @@ $allCurrencies = [];
 foreach ($records as $row) {
     $supplierName = $row['supplier_name'] ?: 'Unknown';
     $details = json_decode($row['weight_details'], true) ?: [];
+    $details = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+    if ($categoryId && !$details) continue;
     
     if (!isset($data[$supplierName])) {
         $data[$supplierName] = ['products' => [], 'totals' => ['net' => 0, 'gross' => 0, 'tare' => 0, 'price' => []]];
