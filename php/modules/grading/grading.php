@@ -35,6 +35,7 @@ if(isset($_POST['startTime'])){
     $gradingNo = null;
     $category = null;
     $location = null;
+    $type = (isset($_POST['type']) && $_POST['type'] === 'Export') ? 'Export' : 'Local';
 
     $startDateTimeObj = DateTime::createFromFormat('d/m/Y H:i', $startTime);
     $startDateTime = $startDateTimeObj->format("d/m/Y 00:00:00");
@@ -147,8 +148,15 @@ if(isset($_POST['startTime'])){
             }
         }
 
-        if ($update_stmt = $db->prepare("UPDATE grading SET grading_no=?, location=?, start_date=?, end_date=?, product_category=?, remark=?, modified_by=? WHERE id=?")){
-            $update_stmt->bind_param('ssssssss', $gradingNo, $location, $startDateTime3, $endDateTime, $category, $remarks, $userID, $_POST['id']);
+        $oldTypeStmt = $db->prepare("SELECT type FROM grading WHERE id = ?");
+        $oldTypeStmt->bind_param('s', $_POST['id']);
+        $oldTypeStmt->execute();
+        $oldTypeRow = $oldTypeStmt->get_result()->fetch_assoc();
+        $oldTypeStmt->close();
+        $oldType = $oldTypeRow['type'] ?? 'Local';
+
+        if ($update_stmt = $db->prepare("UPDATE grading SET grading_no=?, location=?, start_date=?, end_date=?, product_category=?, remark=?, type=?, modified_by=? WHERE id=?")){
+            $update_stmt->bind_param('sssssssss', $gradingNo, $location, $startDateTime3, $endDateTime, $category, $remarks, $type, $userID, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -224,11 +232,19 @@ if(isset($_POST['startTime'])){
                 // Process grading stock balance
                 if (in_array('stocks', $_SESSION['products']) && isset($_POST['weightDetails'])) {
                     $productWeights = groupWeightDetails($_POST['weightDetails']);
-                    foreach ($productWeights as $key => $productWeight) {
-                        $afterValue  = $productWeight['net'];
-                        $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
-                        if (floatval($afterValue) == floatval($beforeValue)) continue;
-                        processGradingStock($db, $productWeight['product'], $productWeight['grade'], $company, $afterValue, $userID, true, $beforeValue, $_POST['id']);
+                    if ($oldType !== $type) {
+                        // Type changed: reverse everything under the old type, then re-add under the new one
+                        processDeleteGradingStock($db, $_POST['id'], $company, $userID, 'grading', $oldType);
+                        foreach ($productWeights as $productWeight) {
+                            processGradingStock($db, $productWeight['product'], $productWeight['grade'], $company, $productWeight['net'], $userID, false, 0, $_POST['id'], true, 'grading', 'GRADING', $type);
+                        }
+                    } else {
+                        foreach ($productWeights as $key => $productWeight) {
+                            $afterValue  = $productWeight['net'];
+                            $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
+                            if (floatval($afterValue) == floatval($beforeValue)) continue;
+                            processGradingStock($db, $productWeight['product'], $productWeight['grade'], $company, $afterValue, $userID, true, $beforeValue, $_POST['id'], true, 'grading', 'GRADING', $type);
+                        }
                     }
                 }
 
@@ -252,8 +268,8 @@ if(isset($_POST['startTime'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO grading (grading_no, location, start_date, end_date, product_category, remark, company, created_by) VALUES  (?, ?, ?, ?, ?, ?, ?, ?)")){
-            $insert_stmt->bind_param('ssssssss', $gradingNo, $location, $startDateTime3, $endDateTime, $category, $remarks, $company, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO grading (grading_no, location, start_date, end_date, product_category, remark, type, company, created_by) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+            $insert_stmt->bind_param('sssssssss', $gradingNo, $location, $startDateTime3, $endDateTime, $category, $remarks, $type, $company, $userID);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
@@ -298,7 +314,7 @@ if(isset($_POST['startTime'])){
                 if (in_array('stocks', $_SESSION['products']) && isset($_POST['weightDetails'])) {
                     $productWeights = groupWeightDetails($_POST['weightDetails']);
                     foreach ($productWeights as $weight) {
-                        processGradingStock($db, $weight['product'], $weight['grade'], $company, $weight['net'], $userID, false, 0, $gradingId);
+                        processGradingStock($db, $weight['product'], $weight['grade'], $company, $weight['net'], $userID, false, 0, $gradingId, true, 'grading', 'GRADING', $type);
                     }
                 }
 

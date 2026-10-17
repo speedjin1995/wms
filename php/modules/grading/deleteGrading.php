@@ -20,7 +20,12 @@ if(isset($_POST['id'], $_POST['cancelReason'])){
 			$stmt2->close();
 
 			if (in_array('stocks', $_SESSION['products'])) {
-				processDeleteGradingStock($db, $id, $_SESSION['customer'], $userID);
+				$typeStmt = $db->prepare("SELECT type FROM grading WHERE id = ?");
+				$typeStmt->bind_param('s', $id);
+				$typeStmt->execute();
+				$typeRow = $typeStmt->get_result()->fetch_assoc();
+				$typeStmt->close();
+				processDeleteGradingStock($db, $id, $_SESSION['customer'], $userID, 'grading', $typeRow['type'] ?? 'Local');
 			}
 
 			$db->close();
