@@ -15,6 +15,7 @@ $fromDate   = $_GET['fromDate'] ?? '';
 $toDate     = $_GET['toDate'] ?? '';
 $supplierId = $_GET['supplier'] ?? '';
 $partyType  = $_GET['partyType'] ?? '';
+$categoryId = (int)($_GET['category'] ?? 0);
 
 $searchQuery = " AND w.status IN ('RECEIVING','INCOMING')";
 if ($fromDate != '') {
@@ -50,6 +51,8 @@ $currencyCache = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $supplierName = $row['supplier_name'] ?: 'Unknown';
     $details      = json_decode($row['weight_details'], true) ?: [];
+    $details      = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+    if ($categoryId && !$details) continue;
     $startTime    = new DateTime($row['start_time']);
     $dateKey      = $startTime->format('Y-m-d');
     $dateDisplay  = $startTime->format('d-M-y');

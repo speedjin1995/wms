@@ -17,6 +17,7 @@ $toDate     = $_GET['toDate'] ?? '';
 $supplierId = $_GET['supplier'] ?? '';
 $locationId = $_GET['location'] ?? '';
 $partyType  = $_GET['partyType'] ?? '';
+$categoryId = (int)($_GET['category'] ?? 0);
 
 // Build search query
 $searchQuery = " AND w.status IN ('RECEIVING','INCOMING')";
@@ -61,6 +62,8 @@ $allCurrencies = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $supplierName = $row['supplier_name'] ?: 'Unknown';
     $details = json_decode($row['weight_details'], true) ?: [];
+    $details = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+    if ($categoryId && !$details) continue;
     
     if (!isset($data[$supplierName])) {
         $data[$supplierName] = ['products' => [], 'totals' => ['net' => 0, 'gross' => 0, 'tare' => 0, 'price' => []]];

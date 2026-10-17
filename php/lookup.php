@@ -458,6 +458,15 @@ function getSupplierById($id, $db, &$cache) {
     return $cache[$id];
 }
 
+// Keeps only the weight_details line items whose product belongs to $categoryId (0 = no filter)
+function filterDetailsByCategory(array $details, int $categoryId, $db, &$cache) {
+    if (!$categoryId) return $details;
+    return array_values(array_filter($details, function ($item) use ($categoryId, $db, &$cache) {
+        $p = getProductById($item['product'] ?? '', $db, $cache);
+        return (int)($p['category'] ?? 0) === $categoryId;
+    }));
+}
+
 function getProductById($id, $db, &$cache) {
     if (!isset($cache[$id])) {
         $stmt = $db->prepare("SELECT * FROM products WHERE id = ?");

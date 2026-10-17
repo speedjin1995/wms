@@ -11,12 +11,13 @@
       </div>
       <input type="hidden" id="wsType" value="">
     </div>
-    <div class="form-group col-12 col-md-2" id="wsPartyTypeWrap" style="display:none;">
-      <label><?=$languageArray['type_code'][$language]?></label>
-      <select class="form-control" id="wsPartyType">
-        <option value=""><?=$languageArray['all_code'][$language]?></option>
-        <option value="Normal">Normal</option>
-        <option value="Packing">Packing</option>
+    <div class="form-group col-12 col-md-3">
+      <label><?=$languageArray['category_code'][$language]?></label>
+      <select class="form-control select2" id="wsCategory" data-all-label="<?=$languageArray['all_code'][$language]?> <?=$languageArray['category_code'][$language]?>">
+        <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['category_code'][$language]?></option>
+        <?php while ($row = mysqli_fetch_assoc($categories)) { ?>
+          <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['category_name']) ?></option>
+        <?php } ?>
       </select>
     </div>
     <div class="form-group col-12 col-md-3" id="wsSupplierWrap" style="display:none;">
@@ -24,7 +25,7 @@
       <select class="form-control select2" id="wsSupplier" data-all-label="<?=$languageArray['all_code'][$language]?> <?=$languageArray['supplier_code'][$language]?>">
         <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['supplier_code'][$language]?></option>
         <?php while ($row = mysqli_fetch_assoc($suppliers)) { ?>
-          <option value="<?= $row['id'] ?>" data-type="<?= htmlspecialchars($row['supplier_type'] ?? 'Normal') ?>"><?= htmlspecialchars($row['supplier_name']) ?></option>
+          <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['supplier_name']) ?></option>
         <?php } ?>
       </select>
     </div>
@@ -33,7 +34,7 @@
       <select class="form-control select2" id="wsCustomer" data-all-label="<?=$languageArray['all_code'][$language]?> <?=$languageArray['customer_code'][$language]?>">
         <option value=""><?=$languageArray['all_code'][$language]?> <?=$languageArray['customer_code'][$language]?></option>
         <?php while ($row = mysqli_fetch_assoc($customers)) { ?>
-          <option value="<?= $row['id'] ?>" data-type="<?= htmlspecialchars($row['customer_type'] ?? 'Normal') ?>"><?= htmlspecialchars($row['customer_name']) ?></option>
+          <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['customer_name']) ?></option>
         <?php } ?>
       </select>
     </div>

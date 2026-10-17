@@ -17,76 +17,32 @@ var WS_PAGE_SIZE = 10;
 
 /* ── Filter change handlers ─────────────────────────────── */
 $(function () {
-  // Store original options for filtering
-  window.wsSupplierOptions = $('#wsSupplier option').clone();
-  window.wsCustomerOptions = $('#wsCustomer option').clone();
-
   $('.ws-type-btn').on('click', function () {
     $('.ws-type-btn').removeClass('active');
     $(this).addClass('active');
     $('#wsType').val($(this).data('value'));
     var val = $(this).data('value');
     
-    // Reset party type when status changes
-    $('#wsPartyType').val('');
     
     if (val === 'DISPATCH') {
       $('#wsSupplierWrap').hide();
-      $('#wsPartyTypeWrap, #wsCustomerWrap').show();
+      $('#wsCustomerWrap').show();
       $('#wsSupplier').val('').trigger('change.select2');
-      filterWsPartyDropdowns();
     } else if (val === 'RECEIVING') {
       $('#wsCustomerWrap').hide();
-      $('#wsPartyTypeWrap, #wsSupplierWrap').show();
+      $('#wsSupplierWrap').show();
       $('#wsCustomer').val('').trigger('change.select2');
-      filterWsPartyDropdowns();
     } else {
-      $('#wsPartyTypeWrap, #wsSupplierWrap, #wsCustomerWrap').hide();
+      $('#wsSupplierWrap, #wsCustomerWrap').hide();
       $('#wsSupplier, #wsCustomer').val('').trigger('change.select2');
     }
     loadWholesales();
   });
 
-  $('#wsPartyType').on('change', function () {
-    filterWsPartyDropdowns();
-    loadWholesales();
-  });
-
-  $('#wsSupplier, #wsCustomer').on('change', function () {
+  $('#wsSupplier, #wsCustomer, #wsCategory').on('change', function () {
     loadWholesales();
   });
 });
-
-function filterWsPartyDropdowns() {
-  var partyType = $('#wsPartyType').val();
-  var wsType = $('#wsType').val();
-  
-  // Filter suppliers (only when RECEIVING)
-  if (wsType === 'RECEIVING') {
-    var $sup = $('#wsSupplier');
-    $sup.empty();
-    window.wsSupplierOptions.each(function () {
-      var $opt = $(this);
-      if ($opt.val() === '' || partyType === '' || $opt.data('type') === partyType) {
-        $sup.append($opt.clone());
-      }
-    });
-    $sup.val('').trigger('change.select2');
-  }
-
-  // Filter customers (only when DISPATCH)
-  if (wsType === 'DISPATCH') {
-    var $cust = $('#wsCustomer');
-    $cust.empty();
-    window.wsCustomerOptions.each(function () {
-      var $opt = $(this);
-      if ($opt.val() === '' || partyType === '' || $opt.data('type') === partyType) {
-        $cust.append($opt.clone());
-      }
-    });
-    $cust.val('').trigger('change.select2');
-  }
-}
 
 /* ── Load ───────────────────────────────────────────────── */
 function loadWholesales() {
@@ -94,7 +50,7 @@ function loadWholesales() {
     status:    $('#wsType').val(),
     customer:  $('#wsCustomer').val() || '',
     supplier:  $('#wsSupplier').val() || '',
-    partyType: $('#wsPartyType').val() || ''
+    category:  $('#wsCategory').val() || ''
   });
 
   $.post('php/modules/wholesales/getDashboard.php', params, function (data) {
@@ -361,6 +317,7 @@ function doExportBreakdown() {
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
   url += '&toDate=' + encodeURIComponent(params.toDate);
   url += '&partyType=' + encodeURIComponent(partyType);
+  url += '&category=' + encodeURIComponent($('#wsCategory').val() || '');
   
   if (base === 'customer') {
     url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
@@ -378,5 +335,6 @@ function exportGradeDistribution(status) {
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
   url += '&toDate=' + encodeURIComponent(params.toDate);
   url += '&status=' + encodeURIComponent(status);
+  url += '&category=' + encodeURIComponent($('#wsCategory').val() || '');
   window.open(url, '_blank');
 }

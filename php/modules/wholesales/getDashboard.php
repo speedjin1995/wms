@@ -12,7 +12,7 @@ $status     = $_POST['status']    ?? '';  // RECEIVING, DISPATCH, or empty (all)
 $customerId = $_POST['customer']  ?? '';
 $supplierId = $_POST['supplier']  ?? '';
 $locationId = $_POST['location']  ?? '';
-$partyType  = $_POST['partyType'] ?? '';  // Normal, Packing, or empty (all)
+$categoryId = (int)($_POST['category'] ?? 0);  // product category, 0 = all
 
 // Get current user's company and role from session
 $company = $_SESSION['customer'];
@@ -59,16 +59,6 @@ if ($supplierId != '') {
 if ($locationId != '') {
   $locationId = mysqli_real_escape_string($db, $locationId);
   $searchQuery .= " AND w.location = '$locationId'";
-}
-
-// Filter by party type (supplier_type or customer_type)
-if ($partyType != '') {
-  $partyType = mysqli_real_escape_string($db, $partyType);
-  if ($status === 'RECEIVING') {
-    $searchQuery .= " AND s.supplier_type = '$partyType'";
-  } elseif ($status === 'DISPATCH') {
-    $searchQuery .= " AND c.customer_type = '$partyType'";
-  }
 }
 
 // SADMIN sees all companies; other roles are restricted to their own company
@@ -125,6 +115,10 @@ while ($row = mysqli_fetch_assoc($empRecords)) {
   if (!is_array($details)) {
     $details = array();
   }
+
+  // Keep only the line items in the selected product category; skip records with none left
+  $details = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+  if ($categoryId && !$details) continue;
 
   // Sum up net weight and value across all line items in this record
   foreach ($details as $item) {

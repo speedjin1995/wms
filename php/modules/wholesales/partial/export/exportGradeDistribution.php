@@ -15,6 +15,7 @@ $fromDate   = $_GET['fromDate'] ?? '';
 $toDate     = $_GET['toDate'] ?? '';
 $status     = $_GET['status'] ?? '';
 $locationId = $_GET['location'] ?? '';
+$categoryId = (int)($_GET['category'] ?? 0);
 
 // Build search query
 $searchQuery = '';
@@ -56,6 +57,8 @@ $currencyCache = [];
 
 while ($row = mysqli_fetch_assoc($result)) {
     $details = json_decode($row['weight_details'], true) ?: [];
+    $details = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+    if ($categoryId && !$details) continue;
     $isReceiving = in_array($row['status'], ['RECEIVING', 'INCOMING']);
     $tradeDate = $row['trade_date'];
     
