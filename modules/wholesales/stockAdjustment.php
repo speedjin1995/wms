@@ -22,169 +22,167 @@ if(!isset($_SESSION['userID'])){
 }
 ?>
 
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
+</div>
+
 <div class="content page-modern">
   <div class="container-fluid">
+    <!-- Stock Type Tabs -->
+    <ul class="nav nav-tabs nav-tabs-modern mb-3" id="stockTypeTabs">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#rawTab" data-stock-table="raw">
+          <i class="fas fa-box mr-1"></i> <?=$languageArray['raw_material_stock_code'][$language] ?? 'Raw Stock'?>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#gradedTab" data-stock-table="graded">
+          <i class="fas fa-layer-group mr-1"></i> <?=$languageArray['graded_stock_code'][$language] ?? 'Grading'?>
+        </a>
+      </li>
+    </ul>
 
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1 class="page-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?></h1>
-    </div>
-
-        <!-- Stock Type Tabs -->
-        <ul class="nav nav-tabs nav-tabs-modern mb-3" id="stockTypeTabs">
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#rawTab" data-stock-table="raw">
-              <i class="fas fa-box mr-1"></i> <?=$languageArray['raw_material_stock_code'][$language] ?? 'Raw Stock'?>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#gradedTab" data-stock-table="graded">
-              <i class="fas fa-layer-group mr-1"></i> <?=$languageArray['graded_stock_code'][$language] ?? 'Grading'?>
-            </a>
-          </li>
-        </ul>
-
-        <!-- Filter Card -->
-        <div class="card filter-card">
-          <div class="card-body">
-            <div class="filter-row">
-              <div class="filter-group">
-                <label class="filter-label"><?=$languageArray['date_from_code'][$language] ?? 'Date From'?></label>
-                <div class="input-group date" id="adjDateFromPicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#adjDateFromPicker" id="adjDateFrom"/>
-                  <div class="input-group-append" data-target="#adjDateFromPicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-              <div class="filter-group">
-                <label class="filter-label"><?=$languageArray['date_to_code'][$language] ?? 'Date To'?></label>
-                <div class="input-group date" id="adjDateToPicker" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#adjDateToPicker" id="adjDateTo"/>
-                  <div class="input-group-append" data-target="#adjDateToPicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                  </div>
-                </div>
-              </div>
-              <div class="filter-group filter-group-action" style="margin-left:auto;">
-                <label class="filter-label">&nbsp;</label>
-                <div class="d-flex" style="gap:0.5rem;">
-                  <button type="button" class="btn btn-filter btn-filter-secondary" id="loadAdjListBtn">
-                    <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
-                  </button>
-                  <button type="button" class="btn btn-filter btn-filter-primary" id="newAdjBtn">
-                    <i class="fas fa-plus"></i> <?=$languageArray['new_adjustment_code'][$language] ?? 'New Adjustment'?>
-                  </button>
-                </div>
+    <!-- Filter Card -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['date_from_code'][$language] ?? 'Date From'?></label>
+            <div class="input-group date" id="adjDateFromPicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#adjDateFromPicker" id="adjDateFrom"/>
+              <div class="input-group-append" data-target="#adjDateFromPicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Results Card -->
-        <div class="card results-card show-dt-controls">
-          <div class="card-header">
-            <div class="results-header-left">
-              <h3 class="results-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?></h3>
-            </div>
-          </div>
-          <div class="card-body">
-            <table class="table data-table" id="adjustListTable">
-              <thead>
-                <tr>
-                  <th><?=$languageArray['adjustment_no_code'][$language] ?? 'Adjustment No'?></th>
-                  <th><?=$languageArray['date_code'][$language]?></th>
-                  <th><?=$languageArray['items_code'][$language] ?? 'Items'?></th>
-                  <th><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></th>
-                  <th><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
-                  <th><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></th>
-                  <th width="12%"><?=$languageArray['actions_code'][$language]?></th>
-                </tr>
-              </thead>
-            </table>
-          </div>
-        </div>
-
-      <!-- Stock Adjustment Modal -->
-      <div class="modal fade modal-modern" id="adjModal" tabindex="-1">
-        <div class="modal-dialog" style="max-width:95%;">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title"><i class="fas fa-sliders-h mr-2 text-muted"></i><span id="adjModalKind"><?=$languageArray['raw_material_stock_code'][$language] ?? 'Raw Stock'?></span> - <span id="adjModalTitle"><?=$languageArray['new_code'][$language] ?? 'New'?></span> <span id="adjProductLevelBadge" class="badge badge-info ml-2" style="display:none;"><?=$languageArray['product_level_code'][$language] ?? 'Product Level'?></span></h5>
-              <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-            <div class="modal-body">
-              <input type="hidden" id="adjId">
-              
-              <!-- Header Info -->
-              <div class="modal-section">
-                <div class="row">
-                  <div class="col-md-3">
-                    <div class="form-group-modern">
-                      <label class="form-label-modern"><?=$languageArray['adjustment_date_code'][$language] ?? 'Adjustment Date'?> <span class="text-danger">*</span></label>
-                      <div class="input-group date" id="adjDatePicker" data-target-input="nearest">
-                        <input type="text" class="form-control datetimepicker-input" data-target="#adjDatePicker" id="adjDate"/>
-                        <div class="input-group-append" data-target="#adjDatePicker" data-toggle="datetimepicker">
-                          <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group-modern">
-                      <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
-                      <input type="text" class="form-control" id="adjRemark" placeholder="<?=$languageArray['enter_remark_code'][$language] ?? 'Enter remark'?>">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Items Section -->
-              <div class="modal-section">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <div class="section-title mb-0"><i class="fas fa-list mr-2"></i><?=$languageArray['items_code'][$language] ?? 'Items'?></div>
-                  <button type="button" class="btn btn-sm btn-success" id="addAdjItemBtn"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_item_code'][$language] ?? 'Add Item'?></button>
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-bordered table-sm" id="adjItemsTable">
-                    <thead style="background:#f8fafc;">
-                      <tr>
-                        <th style="width:15%;"><?=$languageArray['product_code'][$language]?></th>
-                        <th style="width:10%;" class="adj-grade-col"><?=$languageArray['grade_code'][$language]?></th>
-                        <th style="width:8%;" class="text-right"><?=$languageArray['current_qty_code'][$language] ?? 'Current Qty'?></th>
-                        <th style="width:8%;" class="text-right"><?=$languageArray['adjust_qty_code'][$language] ?? 'Adjust Qty'?></th>
-                        <th style="width:8%;" class="text-right"><?=$languageArray['new_qty_code'][$language] ?? 'New Qty'?></th>
-                        <th style="width:8%;" class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
-                        <th style="width:8%;" class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
-                        <th style="width:30%;"><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
-                        <th style="width:5%;"></th>
-                      </tr>
-                    </thead>
-                    <tbody id="adjItemsBody"></tbody>
-                    <tfoot style="background:#f8fafc; font-weight:600;">
-                      <tr>
-                        <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language] ?? 'Total'?>:</td>
-                        <td class="text-right" id="adjTotalQty">0.00</td>
-                        <td colspan="2"></td>
-                        <td class="text-right" id="adjTotalCost">0.00</td>
-                        <td colspan="2"></td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-                <div id="adjItemsEmpty" class="text-center text-muted py-4" style="display:none;">
-                  <i class="fas fa-inbox fa-2x mb-2"></i>
-                  <p class="mb-0"><?=$languageArray['no_items_added_code'][$language] ?? 'No items added. Click "Add Item" to begin.'?></p>
-                </div>
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['date_to_code'][$language] ?? 'Date To'?></label>
+            <div class="input-group date" id="adjDateToPicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#adjDateToPicker" id="adjDateTo"/>
+              <div class="input-group-append" data-target="#adjDateToPicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
-              <button type="button" class="btn btn-modern btn-modern-success" id="saveAdjBtn"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
+          </div>
+          <div class="filter-group filter-group-action" style="margin-left:auto;">
+            <label class="filter-label">&nbsp;</label>
+            <div class="d-flex" style="gap:0.5rem;">
+              <button type="button" class="btn btn-filter btn-filter-secondary" id="loadAdjListBtn">
+                <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
+              </button>
+              <button type="button" class="btn btn-filter btn-filter-primary" id="newAdjBtn">
+                <i class="fas fa-plus"></i> <?=$languageArray['new_adjustment_code'][$language] ?? 'New Adjustment'?>
+              </button>
             </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card results-card show-dt-controls">
+      <div class="card-header">
+        <div class="results-header-left">
+          <h3 class="results-title"><i class="fas fa-sliders-h"></i> <?=$languageArray['stock_adjustment_code'][$language]?></h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <table class="table data-table" id="adjustListTable">
+          <thead>
+            <tr>
+              <th><?=$languageArray['adjustment_no_code'][$language] ?? 'Adjustment No'?></th>
+              <th><?=$languageArray['date_code'][$language]?></th>
+              <th><?=$languageArray['items_code'][$language] ?? 'Items'?></th>
+              <th><?=$languageArray['total_qty_code'][$language] ?? 'Total Qty'?></th>
+              <th><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
+              <th><?=$languageArray['created_by_code'][$language] ?? 'Created By'?></th>
+              <th width="12%"><?=$languageArray['actions_code'][$language]?></th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stock Adjustment Modal -->
+    <div class="modal fade modal-modern" id="adjModal" tabindex="-1">
+      <div class="modal-dialog" style="max-width:95%;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-sliders-h mr-2 text-muted"></i><span id="adjModalKind"><?=$languageArray['raw_material_stock_code'][$language] ?? 'Raw Stock'?></span> - <span id="adjModalTitle"><?=$languageArray['new_code'][$language] ?? 'New'?></span> <span id="adjProductLevelBadge" class="badge badge-info ml-2" style="display:none;"><?=$languageArray['product_level_code'][$language] ?? 'Product Level'?></span></h5>
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="adjId">
+            
+            <!-- Header Info -->
+            <div class="modal-section">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern"><?=$languageArray['adjustment_date_code'][$language] ?? 'Adjustment Date'?> <span class="text-danger">*</span></label>
+                    <div class="input-group date" id="adjDatePicker" data-target-input="nearest">
+                      <input type="text" class="form-control datetimepicker-input" data-target="#adjDatePicker" id="adjDate"/>
+                      <div class="input-group-append" data-target="#adjDatePicker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group-modern">
+                    <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
+                    <input type="text" class="form-control" id="adjRemark" placeholder="<?=$languageArray['enter_remark_code'][$language] ?? 'Enter remark'?>">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Items Section -->
+            <div class="modal-section">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="section-title mb-0"><i class="fas fa-list mr-2"></i><?=$languageArray['items_code'][$language] ?? 'Items'?></div>
+                <button type="button" class="btn btn-sm btn-success" id="addAdjItemBtn"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_item_code'][$language] ?? 'Add Item'?></button>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-bordered table-sm" id="adjItemsTable">
+                  <thead style="background:#f8fafc;">
+                    <tr>
+                      <th style="width:15%;"><?=$languageArray['product_code'][$language]?></th>
+                      <th style="width:10%;" class="adj-grade-col"><?=$languageArray['grade_code'][$language]?></th>
+                      <th style="width:8%;" class="text-right"><?=$languageArray['current_qty_code'][$language] ?? 'Current Qty'?></th>
+                      <th style="width:8%;" class="text-right"><?=$languageArray['adjust_qty_code'][$language] ?? 'Adjust Qty'?></th>
+                      <th style="width:8%;" class="text-right"><?=$languageArray['new_qty_code'][$language] ?? 'New Qty'?></th>
+                      <th style="width:8%;" class="text-right"><?=$languageArray['unit_cost_code'][$language] ?? 'Unit Cost'?></th>
+                      <th style="width:8%;" class="text-right"><?=$languageArray['total_cost_code'][$language] ?? 'Total Cost'?></th>
+                      <th style="width:30%;"><?=$languageArray['reason_code'][$language] ?? 'Reason'?></th>
+                      <th style="width:5%;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="adjItemsBody"></tbody>
+                  <tfoot style="background:#f8fafc; font-weight:600;">
+                    <tr>
+                      <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language] ?? 'Total'?>:</td>
+                      <td class="text-right" id="adjTotalQty">0.00</td>
+                      <td colspan="2"></td>
+                      <td class="text-right" id="adjTotalCost">0.00</td>
+                      <td colspan="2"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div id="adjItemsEmpty" class="text-center text-muted py-4" style="display:none;">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p class="mb-0"><?=$languageArray['no_items_added_code'][$language] ?? 'No items added. Click "Add Item" to begin.'?></p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+            <button type="button" class="btn btn-modern btn-modern-success" id="saveAdjBtn"><i class="fas fa-save mr-1"></i><?=$languageArray['save_code'][$language]?></button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
