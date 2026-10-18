@@ -6,7 +6,6 @@ use App\Modules\StockAdjustment\StockAdjustmentController;
 use App\Modules\StockAdjustment\StockAdjustmentService;
 
 session_start();
-
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 $isDownload = $action === 'print';
 
