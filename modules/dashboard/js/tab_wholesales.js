@@ -260,7 +260,6 @@ function doExportBreakdown() {
   
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
   url += '&toDate=' + encodeURIComponent(params.toDate);
-  url += '&productType=' + encodeURIComponent(params.type);
   url += '&category=' + encodeURIComponent($('#wsCategory').val() || '');
 
   if (base === 'customer') {
@@ -279,7 +278,6 @@ function exportGradeDistribution(status) {
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
   url += '&toDate=' + encodeURIComponent(params.toDate);
   url += '&status=' + encodeURIComponent(status);
-  url += '&productType=' + encodeURIComponent(params.type);
   url += '&category=' + encodeURIComponent($('#wsCategory').val() || '');
   window.open(url, '_blank');
 }

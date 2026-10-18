@@ -203,7 +203,6 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                     $no = $_POST['gradeNo'];
                     $productGradeId = (array)$_POST['productGradeId'];
                     $grades =  (array)$_POST['grades'];
-                    $gradeType = isset($_POST['gradeType']) ? (array)$_POST['gradeType'] : [];
                     $gradePricingType = (array)$_POST['gradePricingType'];
                     $gradePricingCurrency = isset($_POST['gradePricingCurrency']) ? (array)$_POST['gradePricingCurrency'] : [];
                     $gradePrice = (array)$_POST['gradePrice'];
@@ -231,7 +230,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                 $db->query("SET @skip_grade_log = NULL");
                                 foreach($no as $key => $number) {
                                     $gradeId = $grades[$key];
-                                    $gType = isset($gradeType[$key]) && $gradeType[$key] != '' ? $gradeType[$key] : 'Local';
+                                    $gType = 'Local';
                                     $gPricingType = $gradePricingType[$key];
                                     $gPricingCurrency = isset($gradePricingCurrency[$key]) && $gradePricingCurrency[$key] != '' ? $gradePricingCurrency[$key] : null;
                                     $gPrice = $gradePrice[$key];
@@ -355,7 +354,6 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                 if(isset($_POST['gradeNo'])){
                     $no = $_POST['gradeNo'];
                     $grades = $_POST['grades'];
-                    $gradeType = isset($_POST['gradeType']) ? $_POST['gradeType'] : [];
                     $gradePricingType = $_POST['gradePricingType'];
                     $gradePricingCurrency = isset($_POST['gradePricingCurrency']) ? $_POST['gradePricingCurrency'] : [];
                     $gradePrice = $_POST['gradePrice'];
@@ -365,7 +363,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
 
                     if(isset($no) && $no != null && count($no) > 0){
                         foreach ($no as $key => $number) {
-                            $gType = isset($gradeType[$key]) && $gradeType[$key] != '' ? $gradeType[$key] : 'Local';
+                            $gType = 'Local';
                             $gPricingCurrency = isset($gradePricingCurrency[$key]) && $gradePricingCurrency[$key] != '' ? $gradePricingCurrency[$key] : null;
                             $gPurchasingPricingCurrency = isset($gradePurchasingPricingCurrency[$key]) && $gradePurchasingPricingCurrency[$key] != '' ? $gradePurchasingPricingCurrency[$key] : null;
                             if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){

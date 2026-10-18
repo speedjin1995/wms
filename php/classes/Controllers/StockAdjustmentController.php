@@ -21,8 +21,9 @@ class StockAdjustmentController
     {
         $dateFrom = $this->parseDateInput($_POST['date_from'] ?? '');
         $dateTo = $this->parseDateInput($_POST['date_to'] ?? '');
+        $stockTable = $this->whitelistStockTable($_POST['stock_table'] ?? 'raw');
 
-        $data = $this->service->getList($dateFrom, $dateTo);
+        $data = $this->service->getList($dateFrom, $dateTo, $stockTable);
 
         return ['status' => 'success', 'data' => $data];
     }
@@ -58,6 +59,9 @@ class StockAdjustmentController
             return $adjustment; // Error response
         }
 
+        // Set stock_table from request (whitelisted)
+        $adjustment->stockTable = $this->whitelistStockTable($_POST['stock_table'] ?? 'raw');
+
         return $this->service->create($adjustment);
     }
 
@@ -79,6 +83,7 @@ class StockAdjustmentController
         }
 
         $adjustment->id = $id;
+        // Note: stock_table is NOT taken from POST on update - service uses stored header value
 
         return $this->service->update($adjustment);
     }
@@ -109,7 +114,7 @@ class StockAdjustmentController
         // Build model
         $adjustment = new StockAdjustment([
             'adjustment_date' => $dateObj,
-            'type' => $_POST['type'] ?? 'Local',
+            'type' => 'Local',
             'remark' => $_POST['remark'] ?? '',
         ]);
 
@@ -161,21 +166,22 @@ class StockAdjustmentController
     {
         $productId = (int)($_POST['product_id'] ?? 0);
         $grade = $_POST['grade'] ?? null;
-        $type = $_POST['type'] ?? 'Local';
+        $type = 'Local';
+        $stockTable = $this->whitelistStockTable($_POST['stock_table'] ?? 'raw');
 
         if (!$productId) {
             return ['status' => 'failed', 'message' => 'Missing product ID'];
         }
 
-        return $this->service->getStockBalance($productId, $grade, $type);
+        return $this->service->getStockBalance($productId, $grade, $type, $stockTable);
     }
 
     /**
      * GET /products - Get products with grades for form
      */
-    public function products(array $categoryIds = [], string $type = 'Local'): array
+    public function products(array $categoryIds = []): array
     {
-        $data = $this->service->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null, $type);
+        $data = $this->service->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null, 'Local');
 
         return ['status' => 'success', 'data' => $data];
     }
@@ -211,5 +217,13 @@ class StockAdjustmentController
 
         $dateObj = \DateTime::createFromFormat('d/m/Y', $date);
         return $dateObj ? $dateObj->format('Y-m-d') : null;
+    }
+
+    /**
+     * Whitelist stock_table to prevent SQL injection
+     */
+    private function whitelistStockTable(string $value): string
+    {
+        return in_array($value, ['raw', 'graded'], true) ? $value : 'raw';
     }
 }

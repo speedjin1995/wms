@@ -59,10 +59,6 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 		$location = $_POST['location'];
 	}
 
-    if(isset($_POST['gradeType']) && $_POST['gradeType'] != null && $_POST['gradeType'] != ''){
-		$type = in_array($_POST['gradeType'], ['Local', 'Export'], true) ? $_POST['gradeType'] : 'Local';
-	}
-
     if(!isset($_POST['batchNo']) || $_POST['batchNo'] == null || $_POST['batchNo'] == ''){
 		$batchNo = 'B'.$packagingDateTime2;
 

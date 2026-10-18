@@ -35,7 +35,7 @@ if(isset($_POST['startTime'])){
     $gradingNo = null;
     $category = null;
     $location = null;
-    $type = (isset($_POST['type']) && $_POST['type'] === 'Export') ? 'Export' : 'Local';
+    $type = 'Local';
 
     $startDateTimeObj = DateTime::createFromFormat('d/m/Y H:i', $startTime);
     $startDateTime = $startDateTimeObj->format("d/m/Y 00:00:00");

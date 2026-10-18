@@ -424,14 +424,6 @@ else{
           <!-- Grades -->
           <div class="modal-section">
             <div class="section-title mb-3"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
-            <ul class="nav nav-tabs" id="gradeTypeTabs">
-              <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#gradeLocalTab" style="font-size:0.8rem; padding:0.5rem 0.75rem;"><?=$languageArray['local_code'][$language] ?? 'Local'?></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#gradeExportTab" style="font-size:0.8rem; padding:0.5rem 0.75rem;"><?=$languageArray['export_code'][$language] ?? 'Export'?></a>
-              </li>
-            </ul>
             <div class="tab-content mt-2">
               <div class="tab-pane fade show active" id="gradeLocalTab">
                 <div class="mb-2 text-right">
@@ -439,18 +431,6 @@ else{
                 </div>
                 <div id="gradeLocalRowsContainer">
                   <div id="gradeLocalEmptyState" class="empty-state">
-                    <i class="fas fa-layer-group"></i>
-                    <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
-                    <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
-                  </div>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="gradeExportTab">
-                <div class="mb-2 text-right">
-                  <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade" data-type="Export"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
-                </div>
-                <div id="gradeExportRowsContainer">
-                  <div id="gradeExportEmptyState" class="empty-state">
                     <i class="fas fa-layer-group"></i>
                     <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
                     <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
@@ -491,14 +471,6 @@ else{
             <div class="tab-pane fade show active" id="tabCustomers">
               <div class="mb-2 d-flex justify-content-between align-items-center">
                 <div>
-                  <label class="mr-2 mb-0" style="font-size:0.85rem;"><?=$languageArray['filter_code'][$language] ?? 'Filter'?>:</label>
-                  <select class="form-control form-control-sm d-inline-block" id="customerTypeFilter" style="width:auto;">
-                    <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                  </select>
-                </div>
-                <div>
                   <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                   <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
                 </div>
@@ -512,14 +484,6 @@ else{
             </div>
             <div class="tab-pane fade" id="tabSuppliers">
               <div class="mb-2 d-flex justify-content-between align-items-center">
-                <div>
-                  <label class="mr-2 mb-0" style="font-size:0.85rem;"><?=$languageArray['filter_code'][$language] ?? 'Filter'?>:</label>
-                  <select class="form-control form-control-sm d-inline-block" id="supplierTypeFilter" style="width:auto;">
-                    <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                  </select>
-                </div>
                 <div>
                   <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                   <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
@@ -619,10 +583,6 @@ else{
           <option value="<?=$rowCustomer['id']?>" data-state="<?=$rowCustomer['state_name']?>"><?=$rowCustomer['customer_name']?></option>
         <?php } ?>
       </select>
-      <select class="form-control form-control-sm customer-type-select" id="customerType" name="customerType" style="width:90px; flex-shrink:0;">
-        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-      </select>
       <button type="button" class="cs-card-remove" id="remove"><i class="fas fa-times"></i></button>
     </div>
     <div class="cs-card-body">
@@ -676,10 +636,6 @@ else{
         <?php $suppliers->data_seek(0); while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
           <option value="<?=$rowSupplier['id']?>" data-state="<?=$rowSupplier['state_name']?>"><?=$rowSupplier['supplier_name']?></option>
         <?php } ?>
-      </select>
-      <select class="form-control form-control-sm supplier-type-select" id="supplierType" name="supplierType" style="width:90px; flex-shrink:0;">
-        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
       </select>
       <button type="button" class="cs-card-remove" id="removeSupplier"><i class="fas fa-times"></i></button>
     </div>
@@ -884,7 +840,7 @@ $(function () {
   $.validator.setDefaults({
     submitHandler: function () {
       var gradeError = false;
-      $('#gradeLocalRowsContainer .dynamic-card, #gradeExportRowsContainer .dynamic-card').each(function() {
+      $('#gradeLocalRowsContainer .dynamic-card').each(function() {
         var index = $(this).data('index');
         var $select = $('#gradesRow'+index);
         if (!$select.val()) {
@@ -955,9 +911,7 @@ $(function () {
     gradeRowCount = 0;
     $('#gradeTable').html('');
     $('#gradeLocalRowsContainer .dynamic-card').remove();
-    $('#gradeExportRowsContainer .dynamic-card').remove();
     $('#gradeLocalEmptyState').show();
-    $('#gradeExportEmptyState').show();
 
     $('#modalTitle').text('<?=$languageArray['add_products_code'][$language]?>');
     $('#productModal').modal('show');
@@ -1112,32 +1066,8 @@ $(function () {
   }
 
   function toggleCustomerEmptyState() {
-    var filter = $('#customerTypeFilter').val();
-    var visibleCount = filter ? $('#customerCards .cs-card[data-type="'+filter+'"]').length : $('#customerCards .cs-card').length;
-    $('#customerEmptyState').toggle(visibleCount === 0);
+    $('#customerEmptyState').toggle($('#customerCards .cs-card').length === 0);
   }
-
-  // Filter customers by type
-  $('#customerTypeFilter').on('change', function() {
-    var filter = $(this).val();
-    if (filter) {
-      $('#customerCards .cs-card').hide();
-      $('#customerCards .cs-card[data-type="'+filter+'"]').show();
-    } else {
-      $('#customerCards .cs-card').show();
-    }
-    toggleCustomerEmptyState();
-  });
-
-  // Update card data-type when type dropdown changes
-  $('#customerCards').on('change', '.customer-type-select', function() {
-    $(this).closest('.cs-card').attr('data-type', $(this).val());
-    var filter = $('#customerTypeFilter').val();
-    if (filter && $(this).val() !== filter) {
-      $(this).closest('.cs-card').hide();
-    }
-    toggleCustomerEmptyState();
-  });
 
   $(".add-customer").click(function(){
     $('#customerEmptyState').hide();
@@ -1145,13 +1075,11 @@ $(function () {
     $("#customerCards").append($addContents.html());
 
     var $card = $("#customerCards").find('.details:last');
-    var defaultType = $('#customerTypeFilter').val() || 'Local';
-    $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount).attr("data-type", defaultType);
+    $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount);
     $card.find('.cs-card-number').text(customerRowCount + 1);
     $card.find('#remove').attr("id", "remove" + customerRowCount);
     $card.find('#customerProductId').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount);
     $card.find('#customerRowType').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
-    $card.find('#customerType').attr('name', 'customerType['+customerRowCount+']').attr("id", "customerType" + customerRowCount).val(defaultType);
     $card.find('#no').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(customerRowCount+1);
     $card.find('#customers').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).select2({
       allowClear: true, placeholder: $("#customerDetail").find('#customers').data('placeholder'), dropdownParent: $('#customersModal')
@@ -1188,32 +1116,8 @@ $(function () {
   }
 
   function toggleSupplierEmptyState() {
-    var filter = $('#supplierTypeFilter').val();
-    var visibleCount = filter ? $('#supplierCards .cs-card[data-type="'+filter+'"]').length : $('#supplierCards .cs-card').length;
-    $('#supplierEmptyState').toggle(visibleCount === 0);
+    $('#supplierEmptyState').toggle($('#supplierCards .cs-card').length === 0);
   }
-
-  // Filter suppliers by type
-  $('#supplierTypeFilter').on('change', function() {
-    var filter = $(this).val();
-    if (filter) {
-      $('#supplierCards .cs-card').hide();
-      $('#supplierCards .cs-card[data-type="'+filter+'"]').show();
-    } else {
-      $('#supplierCards .cs-card').show();
-    }
-    toggleSupplierEmptyState();
-  });
-
-  // Update card data-type when type dropdown changes
-  $('#supplierCards').on('change', '.supplier-type-select', function() {
-    $(this).closest('.cs-card').attr('data-type', $(this).val());
-    var filter = $('#supplierTypeFilter').val();
-    if (filter && $(this).val() !== filter) {
-      $(this).closest('.cs-card').hide();
-    }
-    toggleSupplierEmptyState();
-  });
 
   $(".add-supplier").click(function(){
     $('#supplierEmptyState').hide();
@@ -1221,13 +1125,11 @@ $(function () {
     $("#supplierCards").append($addContents.html());
 
     var $card = $("#supplierCards").find('.details:last');
-    var defaultType = $('#supplierTypeFilter').val() || 'Local';
-    $card.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount).attr("data-type", defaultType);
+    $card.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
     $card.find('.cs-card-number').text(supplierRowCount + 1);
     $card.find('#removeSupplier').attr("id", "removeSupplier" + supplierRowCount);
     $card.find('#supplierProductId').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount);
     $card.find('#supplierRowType').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
-    $card.find('#supplierType').attr('name', 'supplierType['+supplierRowCount+']').attr("id", "supplierType" + supplierRowCount).val(defaultType);
     $card.find('#supplierNo').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(supplierRowCount+1);
     $card.find('#suppliers').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).select2({
       allowClear: true, placeholder: $("#supplierDetail").find('#suppliers').data('placeholder'), dropdownParent: $('#customersModal')
@@ -1258,7 +1160,7 @@ $(function () {
   });
 
   // Remove grade row
-  $('#gradeLocalRowsContainer, #gradeExportRowsContainer').on('click', '.dynamic-card-remove', function() {
+  $('#gradeLocalRowsContainer').on('click', '.dynamic-card-remove', function() {
     var index = $(this).data('index');
     $(this).closest('.dynamic-card').remove();
     $('#gradeTable').find('tr[data-index="'+index+'"]').remove();
@@ -1266,7 +1168,7 @@ $(function () {
   });
 
   // Sync row changes to hidden table
-  $('#gradeLocalRowsContainer, #gradeExportRowsContainer').on('change', 'select, input', function() {
+  $('#gradeLocalRowsContainer').on('change', 'select, input', function() {
     var index = $(this).closest('.dynamic-card').data('index');
     syncGradeRowToTable(index);
   });
@@ -1280,13 +1182,11 @@ $(function () {
   });
 
   $(".add-grade").click(function(){
-    var gradeType = $(this).data('type'); // 'Local' or 'Export'
-    var containerId = gradeType === 'Local' ? '#gradeLocalRowsContainer' : '#gradeExportRowsContainer';
-    var emptyStateId = gradeType === 'Local' ? '#gradeLocalEmptyState' : '#gradeExportEmptyState';
+    var gradeType = 'Local';
 
     // Add visual row
-    $(containerId).append(renderGradeRow(gradeRowCount, gradeType));
-    $(emptyStateId).hide();
+    $('#gradeLocalRowsContainer').append(renderGradeRow(gradeRowCount, gradeType));
+    $('#gradeLocalEmptyState').hide();
 
     // Init Select2 on new row
     $('#gradesRow'+gradeRowCount).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
@@ -1430,11 +1330,6 @@ function updateGradeEmptyState() {
   } else {
     $('#gradeLocalEmptyState').hide();
   }
-  if ($('#gradeExportRowsContainer .dynamic-card').length === 0) {
-    $('#gradeExportEmptyState').show();
-  } else {
-    $('#gradeExportEmptyState').hide();
-  }
 }
 
 function displayPreview(data) {
@@ -1539,17 +1434,13 @@ function edit(id){
       // grade table and rows
       $('#gradeTable').html('');
       $('#gradeLocalRowsContainer .dynamic-card').remove();
-      $('#gradeExportRowsContainer .dynamic-card').remove();
       gradeRowCount = 0;
       if (obj.message.productGrades.length > 0){
-        var hasLocal = false, hasExport = false;
         for(var i = 0; i < obj.message.productGrades.length; i++){
           var item = obj.message.productGrades[i];
-          var gradeType = item.type || 'Local';
-          var containerId = gradeType === 'Local' ? '#gradeLocalRowsContainer' : '#gradeExportRowsContainer';
-          if (gradeType === 'Local') hasLocal = true;
-          else hasExport = true;
-          
+          var gradeType = 'Local';
+          var containerId = '#gradeLocalRowsContainer';
+
           // Add visual row
           $(containerId).append(renderGradeRow(gradeRowCount, gradeType));
           $('#gradesRow'+gradeRowCount).val(item.grade_id).select2({ allowClear: true, placeholder: "Please Select", dropdownParent: $('#productModal') });
@@ -1579,11 +1470,9 @@ function edit(id){
 
           gradeRowCount++;
         }
-        $('#gradeLocalEmptyState').toggle(!hasLocal);
-        $('#gradeExportEmptyState').toggle(!hasExport);
+        $('#gradeLocalEmptyState').hide();
       } else {
         $('#gradeLocalEmptyState').show();
-        $('#gradeExportEmptyState').show();
       }
 
       $('#modalTitle').text('<?=$languageArray['edit_product_code'][$language] ?? 'Edit Product'?>');
@@ -1619,8 +1508,6 @@ function openCustomers(id) {
   $('#supplierCards').html('');
   customerRowCount = 0;
   supplierRowCount = 0;
-  $('#customerTypeFilter').val('');
-  $('#supplierTypeFilter').val('');
   $('#customersForm').find('#customerProductId').val(id);
   // Reset to customers tab
   $('#tabCustomersLink').tab('show');
@@ -1636,19 +1523,16 @@ function openCustomers(id) {
       }
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
-        var customerType = item.type || 'Local';
-        
         var $addContents = $("#customerDetail").clone();
         $("#customerCards").append($addContents.html());
 
         var $card = $("#customerCards").find('.details:last');
-        $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount).attr("data-type", customerType);
+        $card.attr("id", "detail" + customerRowCount).attr("data-index", customerRowCount);
         $card.find('.cs-card-number').text(customerRowCount + 1);
         $card.find('#remove').attr("id", "remove" + customerRowCount);
         $card.find('#no').attr('name', 'no['+customerRowCount+']').attr("id", "no" + customerRowCount).val(item.no);
         $card.find('#customerProductId').attr('name', 'customerProductId['+customerRowCount+']').attr("id", "customerProductId" + customerRowCount).val(item.id);
         $card.find('#customerRowType').attr('name', 'customerRowType['+customerRowCount+']').attr("id", "customerRowType" + customerRowCount);
-        $card.find('#customerType').attr('name', 'customerType['+customerRowCount+']').attr("id", "customerType" + customerRowCount).val(customerType);
         $card.find('#customers').attr('name', 'customers['+customerRowCount+']').attr("id", "customers" + customerRowCount).val(item.customer_id).select2({
           allowClear: true, placeholder: $("#customerDetail").find('#customers').data('placeholder'), dropdownParent: $('#customersModal')
         }).on('change', function() {
@@ -1678,19 +1562,16 @@ function openCustomers(id) {
       }
       for (var j = 0; j < supplierItems.length; j++) {
         var sItem = supplierItems[j];
-        var supplierType = sItem.type || 'Local';
-        
         var $sContents = $("#supplierDetail").clone();
         $("#supplierCards").append($sContents.html());
 
         var $sCard = $("#supplierCards").find('.details:last');
-        $sCard.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount).attr("data-type", supplierType);
+        $sCard.attr("id", "supplierDetail" + supplierRowCount).attr("data-index", supplierRowCount);
         $sCard.find('.cs-card-number').text(supplierRowCount + 1);
         $sCard.find('#removeSupplier').attr("id", "removeSupplier" + supplierRowCount);
         $sCard.find('#supplierNo').attr('name', 'supplierNo['+supplierRowCount+']').attr("id", "supplierNo" + supplierRowCount).val(sItem.no);
         $sCard.find('#supplierProductId').attr('name', 'supplierProductId['+supplierRowCount+']').attr("id", "supplierProductId" + supplierRowCount).val(sItem.id);
         $sCard.find('#supplierRowType').attr('name', 'supplierRowType['+supplierRowCount+']').attr("id", "supplierRowType" + supplierRowCount);
-        $sCard.find('#supplierType').attr('name', 'supplierType['+supplierRowCount+']').attr("id", "supplierType" + supplierRowCount).val(supplierType);
         $sCard.find('#suppliers').attr('name', 'suppliers['+supplierRowCount+']').attr("id", "suppliers" + supplierRowCount).val(sItem.supplier_id).select2({
           allowClear: true, placeholder: $("#supplierDetail").find('#suppliers').data('placeholder'), dropdownParent: $('#customersModal')
         }).on('change', function() {

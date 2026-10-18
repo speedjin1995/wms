@@ -411,13 +411,6 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
               </select>
             </div>
             <div class="col-6 col-sm-3">
-              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-              <select class="form-control form-control-sm" id="rawTypeFilter">
-                <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-              </select>
-            </div>
-            <div class="col-6 col-sm-3">
               <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['product_code'][$language]?></label>
               <select class="form-control form-control-sm select2-filter" id="rawProductFilter">
                 <option value=""></option>
@@ -440,20 +433,19 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
                 <th><?=$languageArray['category_code'][$language]?></th>
                 <th><?=$languageArray['product_code'][$language]?></th>
                 <th id="rawGradeHead"><?=$languageArray['grade_code'][$language]?></th>
-                <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
                 <th class="text-right"><?=$languageArray['balance_code'][$language]?> (kg)</th>
               </tr>
             </thead>
             <tbody id="rawBody">
               <tr>
-                <td colspan="5" class="sd-empty">
+                <td colspan="4" class="sd-empty">
                   <i class="fas fa-spinner fa-spin mr-1"></i><?=$languageArray['loading_code'][$language]?>...
                 </td>
               </tr>
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="4" id="rawTotalLabel"><?=$languageArray['total_code'][$language]?></td>
+                <td colspan="3" id="rawTotalLabel"><?=$languageArray['total_code'][$language]?></td>
                 <td class="text-right" id="rawTotal">0.00</td>
               </tr>
             </tfoot>
@@ -501,13 +493,6 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
                 <?=$gradeOptions?>
               </select>
             </div>
-            <div class="col-6 col-sm-3">
-              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-              <select class="form-control form-control-sm" id="gradedTypeFilter">
-                <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-              </select>
-            </div>
           </div>
         </div>
         <div class="table-responsive">
@@ -517,7 +502,6 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
                 <th><?=$languageArray['category_code'][$language]?></th>
                 <th><?=$languageArray['product_code'][$language]?></th>
                 <th><?=$languageArray['grade_code'][$language]?></th>
-                <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
                 <th class="text-right"><?=$languageArray['balance_code'][$language]?> (kg)</th>
               </tr>
             </thead>
@@ -530,7 +514,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="4"><?=$languageArray['total_code'][$language]?></td>
+                <td colspan="3"><?=$languageArray['total_code'][$language]?></td>
                 <td class="text-right" id="gradedTotal">0.00</td>
               </tr>
             </tfoot>
@@ -553,7 +537,6 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
               <tr>
                 <th><?=$languageArray['category_code'][$language]?></th>
                 <th><?=$languageArray['product_code'][$language]?></th>
-                <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
                 <th class="text-right"><?=$languageArray['raw_material_stock_code'][$language]?> (kg)</th>
                 <th class="text-right"><?=$languageArray['graded_stock_code'][$language]?> (kg)</th>
                 <th class="text-right"><?=$languageArray['variance_code'][$language] ?? 'Variance'?> (kg)</th>
@@ -561,7 +544,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
             </thead>
             <tbody id="compareBody">
               <tr>
-                <td colspan="6" class="sd-empty">
+                <td colspan="5" class="sd-empty">
                   <i class="fas fa-spinner fa-spin mr-1"></i><?=$languageArray['loading_code'][$language]?>...
                 </td>
               </tr>
@@ -695,8 +678,8 @@ $(function() {
   });
 
   /* ── Filter change → reload from server ───────────────── */
-  $('#rawCategoryFilter, #rawProductFilter, #rawGradeFilter, #rawTypeFilter').on('change', loadRaw);
-  $('#gradedCategoryFilter, #gradedProductFilter, #gradedGradeFilter, #gradedTypeFilter').on('change', loadGraded);
+  $('#rawCategoryFilter, #rawProductFilter, #rawGradeFilter').on('change', loadRaw);
+  $('#gradedCategoryFilter, #gradedProductFilter, #gradedGradeFilter').on('change', loadGraded);
   $('#packedCategoryFilter, #packedProductFilter, #packedGradeFilter').on('change', loadPacked);
 
   /* ── Refresh ───────────────────────────────────────────── */
@@ -851,12 +834,11 @@ function getPageNums(cur, total) {
 }
 
 /* ── Filter helper ─────────────────────────────────────── */
-function filterRows(rows, search, cat, prod, grade, productType) {
+function filterRows(rows, search, cat, prod, grade) {
   return rows.filter(function(r) {
     if (cat         && r.category_id != cat)          return false;
     if (prod        && r.product_id  != prod)         return false;
     if (grade       && r.grade       != grade)        return false;
-    if (productType && r.type        != productType)  return false;
     if (search) {
       var s = search.toLowerCase();
       if ((r.product_name  || '').toLowerCase().indexOf(s) === -1 &&
@@ -875,8 +857,7 @@ function renderRaw() {
     $('#rawSearch').val(),
     $('#rawCategoryFilter').val(),
     $('#rawProductFilter').val(),
-    $('#rawGradeFilter').val(),
-    $('#rawTypeFilter').val()
+    $('#rawGradeFilter').val()
   );
 
   var total = 0;
@@ -888,7 +869,7 @@ function renderRaw() {
   var tbody = $('#rawBody').empty();
 
   if (!paged.length) {
-    tbody.append('<tr><td colspan="5" class="sd-empty">No data available</td></tr>');
+    tbody.append('<tr><td colspan="4" class="sd-empty">No data available</td></tr>');
   } else {
     paged.forEach(function(r) {
       tbody.append(
@@ -896,7 +877,6 @@ function renderRaw() {
         '<td>' + escHtml(r.category_name) + '</td>' +
         '<td>' + dotCell('blue', r.product_name) + '</td>' +
         (stockLevel === 'PRODUCT' ? '' : '<td>' + gradePill(r.grade_name) + '</td>') +
-        '<td>' + escHtml(r.type || '') + '</td>' +
         '<td class="text-right">' + parseFloat(r.balance).toFixed(2) + '</td>' +
         '</tr>'
       );
@@ -921,8 +901,7 @@ function loadRaw() {
     type:        'raw',
     category:    $('#rawCategoryFilter').val(),
     product:     $('#rawProductFilter').val(),
-    grade:       $('#rawGradeFilter').val(),
-    productType: $('#rawTypeFilter').val()
+    grade:       $('#rawGradeFilter').val()
   }, function(data) {
     var obj = JSON.parse(data);
     rawData = (obj.status === 'success') ? obj.data : [];
@@ -939,8 +918,7 @@ function renderGraded() {
     $('#gradedSearch').val(),
     $('#gradedCategoryFilter').val(),
     $('#gradedProductFilter').val(),
-    $('#gradedGradeFilter').val(),
-    $('#gradedTypeFilter').val()
+    $('#gradedGradeFilter').val()
   );
 
   var total = 0;
@@ -952,7 +930,7 @@ function renderGraded() {
   var tbody = $('#gradedBody').empty();
 
   if (!paged.length) {
-    tbody.append('<tr><td colspan="5" class="sd-empty">No data available</td></tr>');
+    tbody.append('<tr><td colspan="4" class="sd-empty">No data available</td></tr>');
   } else {
     paged.forEach(function(r) {
       tbody.append(
@@ -960,7 +938,6 @@ function renderGraded() {
         '<td>' + escHtml(r.category_name) + '</td>' +
         '<td>' + dotCell('amber', r.product_name) + '</td>' +
         '<td>' + gradePill(r.grade_name) + '</td>' +
-        '<td>' + escHtml(r.type || '') + '</td>' +
         '<td class="text-right">' + parseFloat(r.balance).toFixed(2) + '</td>' +
         '</tr>'
       );
@@ -985,8 +962,7 @@ function loadGraded() {
     type:        'graded',
     category:    $('#gradedCategoryFilter').val(),
     product:     $('#gradedProductFilter').val(),
-    grade:       $('#gradedGradeFilter').val(),
-    productType: $('#gradedTypeFilter').val()
+    grade:       $('#gradedGradeFilter').val()
   }, function(data) {
     var obj = JSON.parse(data);
     gradedData = (obj.status === 'success') ? obj.data : [];
@@ -999,7 +975,7 @@ function applyStockLevel() {
   var isProduct = stockLevel === 'PRODUCT';
   $('#rawGradeHead').toggle(!isProduct);
   $('#rawGradeFilter').val('').closest('.col-6').toggle(!isProduct);
-  $('#rawTotalLabel').attr('colspan', isProduct ? 3 : 4);
+  $('#rawTotalLabel').attr('colspan', isProduct ? 2 : 3);
 }
 
 /* ── RAW VS GRADED ─────────────────────────────────────── */
@@ -1014,7 +990,7 @@ function renderCompare(rows) {
   var tbody = $('#compareBody').empty();
 
   if (!rows.length) {
-    tbody.append('<tr><td colspan="6" class="sd-empty">No data available</td></tr>');
+    tbody.append('<tr><td colspan="5" class="sd-empty">No data available</td></tr>');
   }
   rows.forEach(function(r) {
     var raw    = parseFloat(r.raw_balance) || 0;
@@ -1023,7 +999,6 @@ function renderCompare(rows) {
       '<tr>' +
       '<td>' + escHtml(r.category_name) + '</td>' +
       '<td>' + dotCell('blue', r.product_name) + '</td>' +
-      '<td>' + escHtml(r.type || '') + '</td>' +
       '<td class="text-right">' + raw.toFixed(2) + '</td>' +
       '<td class="text-right">' + graded.toFixed(2) + '</td>' +
       '<td class="text-right">' + (raw - graded).toFixed(2) + '</td>' +

@@ -266,9 +266,6 @@ if(isset($_POST['status'], $_POST['startTime'])){
 	}
 
     $productType = 'Local';
-    if(isset($_POST['productType']) && $_POST['productType'] != null && $_POST['productType'] != ''){
-		$productType = $_POST['productType'];
-	}
 
     if(isset($_POST['emptyBasketWeight']) && $_POST['emptyBasketWeight'] != null && $_POST['emptyBasketWeight'] != ''){
 		$emptyBasketsWeight = floatval($_POST['emptyBasketWeight']);

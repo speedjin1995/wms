@@ -22,7 +22,6 @@ function loadRepacking() {
     $('#rpTotalWeight').text(formatNum(s.total_weight));
     $('#rpRecordCount').text(s.record_count || 0);
     $('#rpLocalWeight').text(formatNum(s.local_weight));
-    $('#rpExportWeight').text(formatNum(s.export_weight));
 
     renderRepackBreakdown(obj.message.breakdown || []);
   });

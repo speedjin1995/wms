@@ -201,9 +201,7 @@ else{
             <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
             <input type="text" class="form-control" id="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
           </div>
-        </div>
-
-        <div class="filter-row mt-3">
+          
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
             <select class="form-control select2" id="weightByFilter">
@@ -213,7 +211,9 @@ else{
               <?php } ?>
             </select>
           </div>
+        </div>
 
+        <div class="filter-row mt-3">
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['status_code'][$language]?></label>
             <select class="form-control" id="statusFilter">

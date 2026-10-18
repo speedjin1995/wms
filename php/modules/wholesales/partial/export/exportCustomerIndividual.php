@@ -17,10 +17,6 @@ $customerId = $_GET['customer'] ?? '';
 $categoryId = (int)($_GET['category'] ?? 0);
 
 $searchQuery = " AND w.status IN ('DISPATCH','OUTGOING')";
-$productType = $_GET['productType'] ?? '';
-if (in_array($productType, ['Local', 'Export'], true)) {
-    $searchQuery .= " AND w.type = '$productType'";
-}
 if ($fromDate != '') {
     $fromDateObj = DateTime::createFromFormat('d/m/Y', $fromDate);
     $searchQuery .= " AND DATE(w.start_time) >= '" . $fromDateObj->format('Y-m-d') . "'";
