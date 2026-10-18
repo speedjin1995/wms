@@ -666,7 +666,6 @@ class WholesaleService extends BaseService
             $add("w.vehicle_no = ?", $vehicle);
         }
 
-            $params[] = $filters['partyType'];
         // active / deleted; anything else lists both (as before)
         if (($filters['status'] ?? '') === 'active') {
             $where .= " AND w.deleted = '0'";
