@@ -103,14 +103,6 @@ $(function () {
     });
   });
 
-  // Refresh grades when the type changes
-  $('#productType').on('change', function () {
-    fillGrades($('#sourceGrade'), findProduct(sourceProducts, $('#sourceProduct').val()));
-    $('#repackTable .details').each(function () {
-      fillGrades($(this).find('select[id^="targetGrade"]'), findProduct(targetProducts, $(this).find('select[id^="targetProduct"]').val()));
-    });
-  });
-
   // Target row: refresh grades when its product changes
   $('#repackTable').on('change', 'select[id^="targetProduct"]', function () {
     fillGrades($(this).closest('.details').find('select[id^="targetGrade"]'), findProduct(targetProducts, $(this).val()));
@@ -208,7 +200,6 @@ function openModal(record) {
     resetForm();
     $('#sourceCategory').val(record && record.source_category ? String(record.source_category) : '').trigger('change.select2');
     $('#targetCategory').val(record && record.target_category ? String(record.target_category) : '').trigger('change.select2');
-    $('#productType').val(record ? record.type : 'Local');
     $('#repackingNo').val(record ? record.repacking_no : '');
     $('#repackingDatePicker').datetimepicker('date', record ? moment(record.repacking_date, 'DD/MM/YYYY') : moment());
     fillSourceProducts(record ? record.source_product : null);
@@ -352,7 +343,7 @@ function fillTargetProducts($select) {
 }
 
 function fillGrades($select, product) {
-  var type = $('#productType').val();
+  var type = 'Local';
   var current = $select.val();
 
   $select.empty().append($('<option value="" selected disabled hidden>').text(lang.pleaseSelect));
