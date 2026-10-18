@@ -28,6 +28,9 @@ if ($locationId != null && $locationId != '') {
   $locationId = mysqli_real_escape_string($db, $locationId);
   $searchQuery .= " and pb.location = '".$locationId."'";
 }
+if (in_array($_POST['type'] ?? '', ['Local', 'Export'], true)) {
+  $searchQuery .= " and pb.type = '".$_POST['type']."'";
+}
 
 if ($productionLineId != null && $productionLineId != '') {
   $productionLineId = mysqli_real_escape_string($db, $productionLineId);

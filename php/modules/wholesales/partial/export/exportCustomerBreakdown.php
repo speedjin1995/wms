@@ -20,6 +20,10 @@ $categoryId = (int)($_GET['category'] ?? 0);
 
 // Build search query
 $searchQuery = " AND w.status IN ('DISPATCH','OUTGOING')";
+$productType = $_GET['productType'] ?? '';
+if (in_array($productType, ['Local', 'Export'], true)) {
+    $searchQuery .= " AND w.type = '$productType'";
+}
 
 if ($fromDate != '') {
     $fromDateObj = DateTime::createFromFormat('d/m/Y', $fromDate);

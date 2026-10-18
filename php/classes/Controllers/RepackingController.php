@@ -45,6 +45,7 @@ class RepackingController extends BaseController
         $filters = [
             'fromDate' => trim($_POST['fromDate'] ?? ''),
             'toDate' => trim($_POST['toDate'] ?? ''),
+            'type' => trim($_POST['type'] ?? ''),
             'category' => (int)($_POST['category'] ?? 0)
         ];
 
