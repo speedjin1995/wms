@@ -16,10 +16,14 @@ $fromDate   = $_GET['fromDate'] ?? '';
 $toDate     = $_GET['toDate'] ?? '';
 $supplierId = $_GET['supplier'] ?? '';
 $locationId = $_GET['location'] ?? '';
-$partyType  = $_GET['partyType'] ?? '';
+$categoryId = (int)($_GET['category'] ?? 0);
 
 // Build search query
 $searchQuery = " AND w.status IN ('RECEIVING','INCOMING')";
+$productType = $_GET['productType'] ?? '';
+if (in_array($productType, ['Local', 'Export'], true)) {
+    $searchQuery .= " AND w.type = '$productType'";
+}
 
 if ($fromDate != '') {
     $fromDateObj = DateTime::createFromFormat('d/m/Y', $fromDate);
@@ -37,11 +41,6 @@ if ($locationId != '') {
     $locationId = mysqli_real_escape_string($db, $locationId);
     $searchQuery .= " AND w.location = '$locationId'";
 }
-if ($partyType != '') {
-    $partyType = mysqli_real_escape_string($db, $partyType);
-    $searchQuery .= " AND s.supplier_type = '$partyType'";
-}
-
 $companyFilter = ($role != 'SADMIN') ? " AND w.company = '$company'" : '';
 
 // Fetch records
@@ -61,6 +60,8 @@ $allCurrencies = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $supplierName = $row['supplier_name'] ?: 'Unknown';
     $details = json_decode($row['weight_details'], true) ?: [];
+    $details = filterDetailsByCategory($details, $categoryId, $db, $productCache);
+    if ($categoryId && !$details) continue;
     
     if (!isset($data[$supplierName])) {
         $data[$supplierName] = ['products' => [], 'totals' => ['net' => 0, 'gross' => 0, 'tare' => 0, 'price' => []]];
@@ -190,7 +191,7 @@ $lastCol    = Coordinate::stringFromColumnIndex($lastColIdx);
 
 // Title row
 $row = 1;
-$sheet->setCellValue('A' . $row, ($partyType ? $partyType . ' ' : '') . 'Supplier Weighing Breakdown Report');
+$sheet->setCellValue('A' . $row, 'Supplier Weighing Breakdown Report');
 $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
 $row++;
 
@@ -343,7 +344,7 @@ if ($allowPrice == 'Y') {
 }
 
 // Output
-$fileName = ($partyType ? $partyType . '_' : '') . 'Supplier_Breakdown_' . date('Y-m-d') . '.xlsx';
+$fileName = 'Supplier_Breakdown_' . date('Y-m-d') . '.xlsx';
 $writer = new Xlsx($spreadsheet);
 
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

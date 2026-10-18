@@ -1,1 +1,5 @@
 .amazonq
+vendor/
+graphify-out/
+CLAUDE.md
+.serena

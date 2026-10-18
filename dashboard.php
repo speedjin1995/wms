@@ -20,6 +20,17 @@ if (!isset($_SESSION['userID'])) {
     $suppliers2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' AND customer = '$company' ORDER BY locations ASC");
     $productionLines = $db->query("SELECT * FROM production_lines WHERE deleted = '0' AND customers = '$company' ORDER BY production_line ASC");
+
+    $categoryIds = [];
+    if (!empty($_SESSION['userModuleAccess']['categories'])) {
+      foreach ($_SESSION['userModuleAccess']['categories'] as $module => $moduleCategories) {
+        if (in_array($module, ['wholesale', 'processing'])) {
+          $categoryIds = array_merge($categoryIds, $moduleCategories);
+        }
+      }
+    }
+    $categoryFilter = !empty($categoryIds) ? " AND c.id IN (" . implode(',', array_map('intval', array_unique($categoryIds))) . ")" : "";
+    $categories = $db->query("SELECT * FROM categories c WHERE c.deleted = '0' AND c.customer = '$company' AND c.module IN ('wholesale', 'processing')$categoryFilter ORDER BY c.category_name ASC");
   } else {
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
     $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
@@ -27,6 +38,7 @@ if (!isset($_SESSION['userID'])) {
     $suppliers2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $locations = $db->query("SELECT * FROM locations WHERE deleted = '0' ORDER BY locations ASC");
     $productionLines = $db->query("SELECT * FROM production_lines WHERE deleted = '0' ORDER BY production_line ASC");
+    $categories = $db->query("SELECT * FROM categories WHERE deleted = '0' AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
   }
 }
 ?>
@@ -83,7 +95,16 @@ if (!isset($_SESSION['userID'])) {
               <?php } ?>
             </select>
           </div>
-          <div class="form-group col-12 col-md-3 d-flex align-items-end">
+          <div class="form-group col-6 col-md-3">
+            <label><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="dashType">
+              <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+              <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+            </select>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="form-group col-12 col-md-3 offset-md-9 d-flex align-items-end">
             <button type="button" class="btn btn-primary btn-block" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
             </button>
@@ -98,11 +119,6 @@ if (!isset($_SESSION['userID'])) {
       <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#tabWholesales">
           <i class="fas fa-cubes"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['wholesales_code'][$language]?></span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#tabRepacking">
-          <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['repacking_code'][$language]?></span>
         </a>
       </li>
       <?php } ?>
@@ -125,13 +141,19 @@ if (!isset($_SESSION['userID'])) {
         </a>
       </li>
       <?php } ?>
+      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#tabRepacking">
+          <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['repacking_code'][$language]?></span>
+        </a>
+      </li>
+      <?php } ?>
     </ul>
 
     <!-- ── Tab Panes ──────────────────────────────────────── -->
     <div class="tab-content dash-tab-content">
       <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
         <?php require_once 'modules/dashboard/tab_wholesales.php'; ?>
-        <?php require_once 'modules/dashboard/tab_repacking.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
         <?php require_once 'modules/dashboard/tab_pulppaste.php'; ?>
@@ -139,6 +161,9 @@ if (!isset($_SESSION['userID'])) {
       <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
         <?php require_once 'modules/dashboard/tab_grading.php'; ?>
         <?php require_once 'modules/dashboard/tab_packaging.php'; ?>
+      <?php } ?>
+      <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
+        <?php require_once 'modules/dashboard/tab_repacking.php'; ?>
       <?php } ?>
     </div>
 

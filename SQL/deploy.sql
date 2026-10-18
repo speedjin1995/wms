@@ -3772,3 +3772,49 @@ BEGIN
 END
 $$
 DELIMITER ;
+
+-- 17/10/2026 --
+UPDATE message_resource SET en='Target Product', zh='目标产品', my='Produk Sasaran', ne='இலக்கு தயாரிப்பு', ja='対象製品' WHERE message_key_code='target_products_packed_code';
+UPDATE message_resource SET en='Product', zh='产品', my='Produk', ne='தயாரிப்பு', ja='製品' WHERE message_key_code='product_bulk_code';
+
+ALTER TABLE `companies` ADD `stock_level` VARCHAR(10) NOT NULL DEFAULT 'GRADE' AFTER `photo_upload_mode`;
+ALTER TABLE `grading_stock_balance` ADD `type` VARCHAR(20) NOT NULL DEFAULT 'Local' AFTER `grade`;
+ALTER TABLE `grading` ADD `type` VARCHAR(20) NOT NULL DEFAULT 'Local' AFTER `location`;
+ALTER TABLE `grading_log` ADD `type` VARCHAR(20) NOT NULL DEFAULT 'Local' AFTER `indicator`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_GRADING` AFTER INSERT ON `grading` FOR EACH ROW INSERT INTO grading_log (
+  grading_id, grading_no, location, indicator, type, start_date, end_date, product_category, remark, company, deleted, delete_reason, action_id, action_by, event_date
+)
+VALUES (
+  NEW.id, NEW.grading_no, NEW.location, NEW.indicator, NEW.type, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.company, NEW.deleted, NEW.delete_reason, 1, NEW.created_by, NEW.created_date
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_GRADING` BEFORE UPDATE ON `grading` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO grading_log (
+      grading_id, grading_no, location, indicator, type, start_date, end_date, product_category, remark, company, deleted, delete_reason, action_id, action_by, event_date
+  )
+  VALUES (
+      NEW.id, NEW.grading_no, NEW.location, NEW.indicator, NEW.type, NEW.start_date, NEW.end_date, NEW.product_category, NEW.remark, NEW.company, NEW.deleted, NEW.delete_reason, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `repacking` ADD `graded_posted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `type`;
+
+-- Stock movement source table (raw vs graded) so reversals never mix the two
+ALTER TABLE `stock_movements` ADD `stock_table` VARCHAR(10) NULL AFTER `type`;
+UPDATE `stock_movements` SET `stock_table` = 'raw' WHERE `module` = 'wholesales' AND `stock_table` IS NULL;
+UPDATE `stock_movements` SET `stock_table` = 'graded' WHERE `module` IN ('grading', 'packaging') AND `stock_table` IS NULL;

@@ -262,6 +262,15 @@ else{
               </div>
               <div class="col-md-4">
                 <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                  <select class="form-control" id="type" name="type">
+                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
                   <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
                   <textarea class="form-control" id="remarks" name="remarks" rows="1" placeholder="<?=$languageArray['enter_remark_code'][$language]?>"></textarea>
                 </div>
@@ -1079,6 +1088,7 @@ function newEntry() {
   $('#extendModal').find('#remarks').val('');
   $('#extendModal').find('#category').val('').trigger('change');
   $('#extendModal').find('#location').val('').trigger('change');
+  $('#extendModal').find('#type').val('Local');
   $('#totalWeightGross, #totalWeightTare, #totalWeightNet').text('0.00');
   $('#totalRejectGross, #totalRejectTare, #totalRejectNet').text('0.00');
   $('#weightDetailsTable, #rejectDetailsTable').empty();
@@ -1100,6 +1110,7 @@ function edit(id) {
       $('#extendModal').find('#remarks').val(msg.remark);
       $('#extendModal').find('#category').val(msg.product_category).trigger('change');
       $('#extendModal').find('#location').val(msg.location).trigger('change');
+      $('#extendModal').find('#type').val(msg.type || 'Local');
 
       if (msg.start_date) {
         $('#startTimePicker').datetimepicker('date', moment(msg.start_date, 'YYYY-MM-DD HH:mm:ss'));
@@ -1187,9 +1198,9 @@ function buildEditRow(detail, idx, type) {
           <input type="hidden" name="${prefix}[${idx}][grade]" value="REJ">
           <span class="badge badge-danger">REJ</span>
         </td>
-        <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
-        <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
-        <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
+        <td><input type="number" class="form-control form-control-sm" id="gross${idx}" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
+        <td><input type="number" class="form-control form-control-sm" id="tare${idx}" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
+        <td><input type="number" class="form-control form-control-sm" id="net${idx}" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
         <td><input type="time" class="form-control form-control-sm" name="${prefix}[${idx}][time]" value="${timeVal}"></td>
         ${allowPhoto == 'Y' ? `<td>
           <input type="hidden" name="${prefix}[${idx}][photoPath]" value="${detail.photo_path || ''}">
@@ -1219,9 +1230,9 @@ function buildEditRow(detail, idx, type) {
           ${gradeOptions}
         </select>
       </td>
-      <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
-      <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
-      <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
+      <td><input type="number" class="form-control form-control-sm" id="gross${idx}" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
+      <td><input type="number" class="form-control form-control-sm" id="tare${idx}" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
+      <td><input type="number" class="form-control form-control-sm" id="net${idx}" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
       <td><input type="time" class="form-control form-control-sm" name="${prefix}[${idx}][time]" value="${timeVal}"></td>
       ${allowPhoto == 'Y' ? `<td>
         <input type="hidden" name="${prefix}[${idx}][photoPath]" value="${detail.photo_path || ''}">

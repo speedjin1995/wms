@@ -45,6 +45,7 @@ class RepackingController extends BaseController
         $filters = [
             'fromDate' => trim($_POST['fromDate'] ?? ''),
             'toDate' => trim($_POST['toDate'] ?? ''),
+            'type' => trim($_POST['type'] ?? ''),
             'category' => (int)($_POST['category'] ?? 0)
         ];
 
@@ -106,7 +107,6 @@ class RepackingController extends BaseController
         $targetCategory = (int)($_POST['targetCategory'] ?? 0);
         $sourceProduct = (int)($_POST['sourceProduct'] ?? 0);
         $sourceGrade = (int)($_POST['sourceGrade'] ?? 0);
-        $sourceWeight = (float)($_POST['productWeight'] ?? 0);
         $itemProducts = $_POST['itemsRepack'] ?? [];
         $itemGrades = $_POST['itemGrade'] ?? [];
         $itemWeights = $_POST['itemWeight'] ?? [];
@@ -125,10 +125,10 @@ class RepackingController extends BaseController
         }
 
         if ($id) {
-            return $this->service->update($id, $repackingDate, $type, $sourceCategory, $targetCategory, $sourceProduct, $sourceGrade, $sourceWeight, $items);
+            return $this->service->update($id, $repackingDate, $type, $sourceCategory, $targetCategory, $sourceProduct, $sourceGrade, $items);
         }
 
-        return $this->service->create($repackingDate, $type, $sourceCategory, $targetCategory, $sourceProduct, $sourceGrade, $sourceWeight, $items);
+        return $this->service->create($repackingDate, $type, $sourceCategory, $targetCategory, $sourceProduct, $sourceGrade, $items);
     }
 
     /**

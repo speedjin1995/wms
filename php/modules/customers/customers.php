@@ -33,7 +33,6 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
     $fax = null;
     $email = null;
     $parent = null;
-    $customerType = 'Normal';
     $isManual = 'N';
 
     if(isset($_POST['regNo']) && $_POST['regNo'] != null && $_POST['regNo'] != ''){
@@ -154,13 +153,9 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
         $parent = filter_input(INPUT_POST, 'parent', FILTER_SANITIZE_STRING);
     }
 
-    if(isset($_POST['customerType']) && $_POST['customerType'] != null && $_POST['customerType'] != ''){
-        $customerType = filter_input(INPUT_POST, 'customerType', FILTER_SANITIZE_STRING);
-    }
-
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, ssm=?, ic_no=?, ssm_file=?, ctos_report_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, currency=?, customer_phone=?, pic=?, fax=?, parent=?, customer_type=?, is_manual=?, modified_by=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssssssssssssssssssssssss', $code, $regNo, $ssmNo, $icNo, $ssmFile, $ctosReportNo, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $phone, $email, $fax, $parent, $customerType, $isManual, $userID, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE customers SET customer_code=?, reg_no=?, ssm=?, ic_no=?, ssm_file=?, ctos_report_no=?, customer_name=?, customer_address=?, customer_address2=?, customer_address3=?, customer_address4=?, states=?, billing_name=?, billing_address=?, billing_address2=?, billing_address3=?, billing_address4=?, billing_state=?, billing_phone=?, billing_fax=?, billing_pic=?, currency=?, customer_phone=?, pic=?, fax=?, parent=?, is_manual=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssssssssssssssssssssss', $code, $regNo, $ssmNo, $icNo, $ssmFile, $ctosReportNo, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $phone, $email, $fax, $parent, $isManual, $userID, $_POST['id']);
             
             if (! $update_stmt->execute()) {
                 echo json_encode(array("status"=> "failed", "message"=> $update_stmt->error));
@@ -171,8 +166,8 @@ if(isset($_POST['code'], $_POST['name'], $_POST['company'])){
             }
         }
     } else {
-        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, ssm, ic_no, ssm_file, ctos_report_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, currency, customer_phone, pic, fax, parent, customer_type, customer, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssssssssssssssssssssssssssss', $code, $regNo, $ssmNo, $icNo, $ssmFile, $ctosReportNo, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $phone, $email, $fax, $parent, $customerType, $company, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO customers (customer_code, reg_no, ssm, ic_no, ssm_file, ctos_report_no, customer_name, customer_address, customer_address2, customer_address3, customer_address4, states, billing_name, billing_address, billing_address2, billing_address3, billing_address4, billing_state, billing_phone, billing_fax, billing_pic, currency, customer_phone, pic, fax, parent, customer, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssssssssssssssssssssssssss', $code, $regNo, $ssmNo, $icNo, $ssmFile, $ctosReportNo, $name, $address, $address2, $address3, $address4, $states, $billingName, $billingAddress, $billingAddress2, $billingAddress3, $billingAddress4, $billingStates, $billingPhone, $billingFax, $billingPic, $currency, $phone, $email, $fax, $parent, $company, $userID);
             
             if (! $insert_stmt->execute()) {
                 echo json_encode(array("status"=> "failed", "message"=> $insert_stmt->error));

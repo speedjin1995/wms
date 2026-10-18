@@ -477,7 +477,8 @@ if(isset($_POST['status'], $_POST['startTime'])){
 
                 if ($row = $result->fetch_assoc()) {
                     $existingWeights = json_decode($row['weight_details'], true);
-                    $existingGroupedWeights = groupWeightDetails($existingWeights); 
+                    $existingGroupedWeights = groupWeightDetails($existingWeights);
+                    $existingType = $row['type'] ?? 'Local';
                 }
 
                 $currentRecordStmt->close();
@@ -502,35 +503,41 @@ if(isset($_POST['status'], $_POST['startTime'])){
             else{
                 $update_stmt->close();
 
-                // If Stock Management is enabledand customer/supplier selected is normal, process the stock changes based on the weight details
+                // If Stock Management is enabled, process the stock changes based on the weight details
                 if (in_array('stocks', $_SESSION['products'])) {
-                    // Query customer/supplier type to determine if stock management should be applied
-                    $stockEnable = false;
-                    if ($status == 'RECEIVING' || $status == 'INCOMING') {
-                        $supplierDetails = getSupplierDetailsById($supplier, $db);
-                        if ($supplierDetails && isset($supplierDetails['supplier_type']) && $supplierDetails['supplier_type'] == 'Normal') {
-                            $stockEnable = true;
-                        }
-                    }else{
-                        $customerDetails = getCustomerDetailsById($customer, $db);
-                        if ($customerDetails && isset($customerDetails['customer_type']) && $customerDetails['customer_type'] == 'Normal') {
-                            $stockEnable = true;
+                    // Records saved before stock posting applied to every party have no movements; post them as new
+                    $movStmt = $db->prepare("SELECT id FROM stock_movements WHERE source_id = ? AND module = 'wholesales' AND company = ? LIMIT 1");
+                    $movStmt->bind_param('ss', $_POST['id'], $company);
+                    $movStmt->execute();
+                    $hasStockMovements = $movStmt->get_result()->num_rows > 0;
+                    $movStmt->close();
+
+                    $productWeights = groupWeightDetails($weightDetails);
+                    $typeChanged = $hasStockMovements && $existingType !== $productType;
+
+                    // Reverse old product/grade lines that are removed or moved to another type
+                    if ($hasStockMovements) {
+                        foreach ($existingGroupedWeights as $oldKey => $oldWeight){
+                            if (!$typeChanged && isset($productWeights[$oldKey])) continue;
+
+                            processRawStock($db, $oldWeight['product'], $oldWeight['grade_id'], $company, 0, $userID, $status, true, $oldWeight['net'], $_POST['id'], 'wholesales', $customer, $supplier, $existingType);
                         }
                     }
 
-                    if ($stockEnable){
-                        $productWeights = groupWeightDetails($weightDetails);
-                        
-                        foreach ($productWeights as $key => $productWeight){
-                            $productId = $productWeight['product'];
-                            $grade = $productWeight['grade_id'];
-                            $afterValue = $productWeight['net'];
-                            $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
+                    foreach ($productWeights as $key => $productWeight){
+                        $productId = $productWeight['product'];
+                        $grade = $productWeight['grade_id'];
+                        $afterValue = $productWeight['net'];
 
-                            if (floatval($afterValue) == floatval($beforeValue)) continue;
-
-                            processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue, $_POST['id'], 'wholesales', $customer, $supplier, $productType);
+                        if (!$hasStockMovements || $typeChanged) {
+                            processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, false, 0, $_POST['id'], 'wholesales', $customer, $supplier, $productType);
+                            continue;
                         }
+
+                        $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
+                        if (floatval($afterValue) == floatval($beforeValue)) continue;
+
+                        processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue, $_POST['id'], 'wholesales', $customer, $supplier, $productType);
                     }
                 }
 
@@ -589,30 +596,14 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 $wholesaleId = $insert_stmt->insert_id;
                 $insert_stmt->close();
 
-                // If Stock Management is enabled and customer/supplier selected is normal, process the stock changes based on the weight details
+                // If Stock Management is enabled, process the stock changes based on the weight details
                 if (in_array('stocks', $_SESSION['products'])) {
-                    // Query customer/supplier type to determine if stock management should be applied
-                    $stockEnable = false;
-                    if ($status == 'RECEIVING' || $status == 'INCOMING') {
-                        $supplierDetails = getSupplierDetailsById($supplier, $db);
-                        if ($supplierDetails && isset($supplierDetails['supplier_type']) && $supplierDetails['supplier_type'] == 'Normal') {
-                            $stockEnable = true;
-                        }
-                    }else{
-                        $customerDetails = getCustomerDetailsById($customer, $db);
-                        if ($customerDetails && isset($customerDetails['customer_type']) && $customerDetails['customer_type'] == 'Normal') {
-                            $stockEnable = true;
-                        }
-                    }
-
-                    if ($stockEnable){
-                        $productWeights = groupWeightDetails($weightDetails);
-                        foreach ($productWeights as $weight) {
-                            $productId = $weight['product'];
-                            $grade = $weight['grade_id'];
-                            $nettWeight = $weight['net'];
-                            processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status, false, 0, $wholesaleId, 'wholesales', $customer, $supplier, $productType);
-                        }
+                    $productWeights = groupWeightDetails($weightDetails);
+                    foreach ($productWeights as $weight) {
+                        $productId = $weight['product'];
+                        $grade = $weight['grade_id'];
+                        $nettWeight = $weight['net'];
+                        processRawStock($db, $productId, $grade, $company, $nettWeight, $userID, $status, false, 0, $wholesaleId, 'wholesales', $customer, $supplier, $productType);
                     }
                 }
 

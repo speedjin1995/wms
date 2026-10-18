@@ -15,8 +15,8 @@ $languageArray = $_SESSION['languageArray'];
 
 // Categories for the source and target category filters
 if ($role != 'SADMIN') {
-  $categoryStmt = $db->prepare("SELECT id, category_name FROM categories WHERE deleted = 0 AND customer = ? AND module = ? ORDER BY category_name ASC");
-  $categoryStmt->bind_param('is', $company, $module);
+  $categoryStmt = $db->prepare("SELECT id, category_name FROM categories WHERE deleted = 0 AND customer = ? AND module IN ('wholesale', 'processing') ORDER BY category_name ASC");
+  $categoryStmt->bind_param('i', $company);
   $categoryStmt->execute();
   $categories = $categoryStmt->get_result()->fetch_all(MYSQLI_ASSOC);
   $categoryStmt->close();
@@ -243,7 +243,7 @@ if (!empty($categoryIds)) {
               <div class="col-md-3">
                 <div class="form-group mb-0">
                   <label class="form-label-modern"><?=$languageArray['weight_to_deduct_code'][$language]?> <span class="text-danger">*</span></label>
-                  <input type="number" class="form-control" id="productWeight" name="productWeight" placeholder="<?=$languageArray['enter_weight_code'][$language]?>" step="0.01" min="0.01" required>
+                  <input type="number" class="form-control" id="productWeight" name="productWeight" step="0.01" readonly>
                 </div>
               </div>
             </div>
@@ -481,14 +481,6 @@ $(function () {
         return;
       }
 
-      var weight = parseFloat($('#productWeight').val()) || 0;
-
-      var totalTargetWeight = getTotalTargetWeight();
-      if (Math.round(totalTargetWeight * 100) !== Math.round(weight * 100)) {
-        toastr['error'](lang.targetWeightMismatch + ' (' + totalTargetWeight.toFixed(2) + ' / ' + weight.toFixed(2) + ' kg)', 'Failed:');
-        return;
-      }
-
       $('#spinnerLoading').show();
       $('#saveBtn').prop('disabled', true);
       $.post(apiUrl, $('#repackingForm').serialize() + '&action=save', function (obj) {
@@ -716,6 +708,7 @@ function getTotalTargetWeight() {
 
 function updateTotalWeight() {
   $('#totalTargetWeight').text(getTotalTargetWeight().toFixed(2));
+  $('#productWeight').val(getTotalTargetWeight().toFixed(2));
 }
 
 function findProduct(products, id) {

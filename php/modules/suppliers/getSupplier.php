@@ -50,7 +50,6 @@ if(isset($_POST['userID'])){
                 $message['billing_fax'] = $row['billing_fax'];
                 $message['billing_pic'] = $row['billing_pic'];
                 $message['currency'] = $row['currency'];
-                $message['supplier_type'] = $row['supplier_type'];
             }
             
             echo json_encode(

@@ -586,7 +586,8 @@ class StockAdjustmentService
             $this->userId,
             null,
             null,
-            $type
+            $type,
+            'raw'
         );
     }
 
@@ -624,7 +625,8 @@ class StockAdjustmentService
             $this->userId,
             null,
             null,
-            $type
+            $type,
+            'raw'
         );
     }
 

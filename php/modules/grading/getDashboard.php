@@ -32,6 +32,10 @@ if ($locationId != '') {
     $locationId   = mysqli_real_escape_string($db, $locationId);
     $searchQuery .= " AND g.location = '" . $locationId . "'";
 }
+if (in_array($_POST['type'] ?? '', ['Local', 'Export'], true)) {
+    $searchQuery   .= " AND g.type = '" . $_POST['type'] . "'";
+    $wsSearchQuery .= " AND w.type = '" . $_POST['type'] . "'";
+}
 
 ## ── 1. GRADING breakdown (grading_items) ──────────────────────────────────
 $gradingQuery = "SELECT gi.product_id, gi.nett_weight, gi.gross_weight, gi.tare_weight,
