@@ -564,7 +564,7 @@ class StockAdjustmentService
         $unitCost = (string)$item->unitCost;
         $totalCost = (string)$item->totalCost;
         $stmt->bind_param(
-            'isssssssiiii',
+            'isssssssiii',
             $item->productId,
             $item->grade,
             $qtyBefore,

@@ -686,7 +686,7 @@ function updateAdjustmentTotals() {
 // ADJUSTMENT TAB - CRUD FUNCTIONS
 // ============================================================================
 function printAdjustment(id) {
-  window.open('php/modules/wholesales/stockAdjustment/print.php?id=' + id, '_blank');
+  window.open('php/modules/wholesales/stockAdjustment/api.php?action=print&id=' + id, '_blank');
 }
 
 function saveAdjustment() {
@@ -817,32 +817,24 @@ function editAdjustment(id) {
 }
 
 function deleteAdjustment(id) {
-  Swal.fire({
-    title: '<?=$languageArray['confirm_delete_code'][$language] ?? 'Confirm Delete'?>',
-    text: '<?=$languageArray['delete_adjustment_confirm_code'][$language] ?? 'Are you sure you want to delete this adjustment? Stock will be reversed.'?>',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    confirmButtonText: '<?=$languageArray['delete_code'][$language] ?? 'Delete'?>'
-  }).then(function(result) {
-    if (result.isConfirmed) {
-      $('#spinnerLoading').show();
-      $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'delete', id: id })
-        .done(function(obj) {
-          if (obj.status === 'success') {
-            toastr.success(obj.message, 'Success:');
-            adjListTable.ajax.reload(null, false);
-          } else {
-            toastr.error(obj.message, 'Failed:');
-          }
-        })
-        .fail(function() {
-          toastr.error('Failed to delete adjustment.', 'Error:');
-        })
-        .always(function() {
-          $('#spinnerLoading').hide();
-        });
-    }
-  });
+  if (!confirm('<?=$languageArray['delete_adjustment_confirm_code'][$language] ?? 'Are you sure you want to delete this adjustment? Stock will be reversed.'?>')) {
+    return;
+  }
+  $('#spinnerLoading').show();
+  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'delete', id: id })
+    .done(function(obj) {
+      if (obj.status === 'success') {
+        toastr.success(obj.message, 'Success:');
+        adjListTable.ajax.reload(null, false);
+      } else {
+        toastr.error(obj.message, 'Failed:');
+      }
+    })
+    .fail(function() {
+      toastr.error('Failed to delete adjustment.', 'Error:');
+    })
+    .always(function() {
+      $('#spinnerLoading').hide();
+    });
 }
 </script>
