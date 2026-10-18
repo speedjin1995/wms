@@ -147,7 +147,7 @@ $lastCol    = Coordinate::stringFromColumnIndex($lastColIdx);
 
 // Title row
 $row = 1;
-$sheet->setCellValue('A' . $row, ($partyType ? $partyType . ' ' : '') . 'Customer Weighing Breakdown Report');
+$sheet->setCellValue('A' . $row, 'Customer Weighing Breakdown Report');
 $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
 $row++;
 

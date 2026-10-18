@@ -439,7 +439,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
               <tr>
                 <th><?=$languageArray['category_code'][$language]?></th>
                 <th><?=$languageArray['product_code'][$language]?></th>
-                <th><?=$languageArray['grade_code'][$language]?></th>
+                <th id="rawGradeHead"><?=$languageArray['grade_code'][$language]?></th>
                 <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
                 <th class="text-right"><?=$languageArray['balance_code'][$language]?> (kg)</th>
               </tr>
@@ -453,7 +453,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="4"><?=$languageArray['total_code'][$language]?></td>
+                <td colspan="4" id="rawTotalLabel"><?=$languageArray['total_code'][$language]?></td>
                 <td class="text-right" id="rawTotal">0.00</td>
               </tr>
             </tfoot>
@@ -501,6 +501,13 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
                 <?=$gradeOptions?>
               </select>
             </div>
+            <div class="col-6 col-sm-3">
+              <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+              <select class="form-control form-control-sm" id="gradedTypeFilter">
+                <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+                <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="table-responsive">
@@ -510,6 +517,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
                 <th><?=$languageArray['category_code'][$language]?></th>
                 <th><?=$languageArray['product_code'][$language]?></th>
                 <th><?=$languageArray['grade_code'][$language]?></th>
+                <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
                 <th class="text-right"><?=$languageArray['balance_code'][$language]?> (kg)</th>
               </tr>
             </thead>
@@ -522,7 +530,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3"><?=$languageArray['total_code'][$language]?></td>
+                <td colspan="4"><?=$languageArray['total_code'][$language]?></td>
                 <td class="text-right" id="gradedTotal">0.00</td>
               </tr>
             </tfoot>
@@ -531,6 +539,37 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
         <div class="sd-pagination" id="gradedPagination"></div>
       </div>
     </div><!-- /sectionGraded -->
+
+    <!-- RAW VS GRADED COMPARE -->
+    <div id="sectionCompare" class="mb-4 sd-section">
+      <div class="sd-table-card">
+        <div class="sd-table-header">
+          <h3 class="sd-table-title"><?=$languageArray['raw_material_stock_code'][$language]?> vs <?=$languageArray['graded_stock_code'][$language]?></h3>
+          <span class="sd-count-badge" id="compareCount">0 <?=$languageArray['items_code'][$language]?></span>
+        </div>
+        <div class="table-responsive">
+          <table class="sd-table">
+            <thead>
+              <tr>
+                <th><?=$languageArray['category_code'][$language]?></th>
+                <th><?=$languageArray['product_code'][$language]?></th>
+                <th><?=$languageArray['type_code'][$language] ?? 'Type'?></th>
+                <th class="text-right"><?=$languageArray['raw_material_stock_code'][$language]?> (kg)</th>
+                <th class="text-right"><?=$languageArray['graded_stock_code'][$language]?> (kg)</th>
+                <th class="text-right"><?=$languageArray['variance_code'][$language] ?? 'Variance'?> (kg)</th>
+              </tr>
+            </thead>
+            <tbody id="compareBody">
+              <tr>
+                <td colspan="6" class="sd-empty">
+                  <i class="fas fa-spinner fa-spin mr-1"></i><?=$languageArray['loading_code'][$language]?>...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /sectionCompare -->
 
     <!-- PACKED STOCK TABLE -->
     <div id="sectionPacked" class="mb-4 sd-section">
@@ -613,6 +652,7 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
 /* ── State ─────────────────────────────────────────────── */
 var rawData    = [];
 var gradedData = [];
+var stockLevel  = 'GRADE';
 var packedData = [];
 var rawPage    = 1;
 var gradedPage = 1;
@@ -656,7 +696,7 @@ $(function() {
 
   /* ── Filter change → reload from server ───────────────── */
   $('#rawCategoryFilter, #rawProductFilter, #rawGradeFilter, #rawTypeFilter').on('change', loadRaw);
-  $('#gradedCategoryFilter, #gradedProductFilter, #gradedGradeFilter').on('change', loadGraded);
+  $('#gradedCategoryFilter, #gradedProductFilter, #gradedGradeFilter, #gradedTypeFilter').on('change', loadGraded);
   $('#packedCategoryFilter, #packedProductFilter, #packedGradeFilter').on('change', loadPacked);
 
   /* ── Refresh ───────────────────────────────────────────── */
@@ -664,13 +704,15 @@ $(function() {
     var $icon = $(this).find('i');
     $icon.addClass('fa-spin');
     $.when(
-      $.post('php/stock/getStockDashboard.php', { type: 'raw' },    function(d) { rawData    = JSON.parse(d).data || []; }),
+      $.post('php/stock/getStockDashboard.php', { type: 'raw' },    function(d) { var o = JSON.parse(d); rawData = o.data || []; stockLevel = o.stock_level || stockLevel; }),
       $.post('php/stock/getStockDashboard.php', { type: 'graded' }, function(d) { gradedData = JSON.parse(d).data || []; }),
       $.post('php/stock/getStockDashboard.php', { type: 'packed' }, function(d) { packedData = JSON.parse(d).data || []; })
     ).then(function() {
+      applyStockLevel();
       renderRaw();
       renderGraded();
       renderPacked();
+      loadCompare();
       setTimestamp();
       $icon.removeClass('fa-spin');
     });
@@ -690,6 +732,7 @@ $(function() {
   loadRaw();
   loadGraded();
   loadPacked();
+  loadCompare();
 });
 
 /* ── Timestamp ─────────────────────────────────────────── */
@@ -704,6 +747,7 @@ function setTimestamp() {
 /* ── Tab logic ─────────────────────────────────────────── */
 function applyTab(tab) {
   activeTab = tab;
+  $('#sectionCompare').toggle(tab === 'overview');
   $('.sd-tab').removeClass('active');
   $('.sd-tab[data-tab="' + tab + '"]').addClass('active');
 
@@ -851,7 +895,7 @@ function renderRaw() {
         '<tr>' +
         '<td>' + escHtml(r.category_name) + '</td>' +
         '<td>' + dotCell('blue', r.product_name) + '</td>' +
-        '<td>' + gradePill(r.grade_name) + '</td>' +
+        (stockLevel === 'PRODUCT' ? '' : '<td>' + gradePill(r.grade_name) + '</td>') +
         '<td>' + escHtml(r.type || '') + '</td>' +
         '<td class="text-right">' + parseFloat(r.balance).toFixed(2) + '</td>' +
         '</tr>'
@@ -882,6 +926,8 @@ function loadRaw() {
   }, function(data) {
     var obj = JSON.parse(data);
     rawData = (obj.status === 'success') ? obj.data : [];
+    stockLevel = obj.stock_level || 'GRADE';
+    applyStockLevel();
     renderRaw();
   });
 }
@@ -893,7 +939,8 @@ function renderGraded() {
     $('#gradedSearch').val(),
     $('#gradedCategoryFilter').val(),
     $('#gradedProductFilter').val(),
-    $('#gradedGradeFilter').val()
+    $('#gradedGradeFilter').val(),
+    $('#gradedTypeFilter').val()
   );
 
   var total = 0;
@@ -905,7 +952,7 @@ function renderGraded() {
   var tbody = $('#gradedBody').empty();
 
   if (!paged.length) {
-    tbody.append('<tr><td colspan="4" class="sd-empty">No data available</td></tr>');
+    tbody.append('<tr><td colspan="5" class="sd-empty">No data available</td></tr>');
   } else {
     paged.forEach(function(r) {
       tbody.append(
@@ -913,6 +960,7 @@ function renderGraded() {
         '<td>' + escHtml(r.category_name) + '</td>' +
         '<td>' + dotCell('amber', r.product_name) + '</td>' +
         '<td>' + gradePill(r.grade_name) + '</td>' +
+        '<td>' + escHtml(r.type || '') + '</td>' +
         '<td class="text-right">' + parseFloat(r.balance).toFixed(2) + '</td>' +
         '</tr>'
       );
@@ -934,15 +982,55 @@ function renderGraded() {
 function loadGraded() {
   gradedPage = 1;
   $.post('php/stock/getStockDashboard.php', {
-    type:     'graded',
-    category: $('#gradedCategoryFilter').val(),
-    product:  $('#gradedProductFilter').val(),
-    grade:    $('#gradedGradeFilter').val()
+    type:        'graded',
+    category:    $('#gradedCategoryFilter').val(),
+    product:     $('#gradedProductFilter').val(),
+    grade:       $('#gradedGradeFilter').val(),
+    productType: $('#gradedTypeFilter').val()
   }, function(data) {
     var obj = JSON.parse(data);
     gradedData = (obj.status === 'success') ? obj.data : [];
     renderGraded();
   });
+}
+
+/* ── STOCK LEVEL (PRODUCT / GRADE) ─────────────────────── */
+function applyStockLevel() {
+  var isProduct = stockLevel === 'PRODUCT';
+  $('#rawGradeHead').toggle(!isProduct);
+  $('#rawGradeFilter').val('').closest('.col-6').toggle(!isProduct);
+  $('#rawTotalLabel').attr('colspan', isProduct ? 3 : 4);
+}
+
+/* ── RAW VS GRADED ─────────────────────────────────────── */
+function loadCompare() {
+  $.post('php/stock/getStockDashboard.php', { type: 'compare' }, function(data) {
+    var obj = JSON.parse(data);
+    renderCompare((obj.status === 'success') ? obj.data : []);
+  });
+}
+
+function renderCompare(rows) {
+  var tbody = $('#compareBody').empty();
+
+  if (!rows.length) {
+    tbody.append('<tr><td colspan="6" class="sd-empty">No data available</td></tr>');
+  }
+  rows.forEach(function(r) {
+    var raw    = parseFloat(r.raw_balance) || 0;
+    var graded = parseFloat(r.graded_balance) || 0;
+    tbody.append(
+      '<tr>' +
+      '<td>' + escHtml(r.category_name) + '</td>' +
+      '<td>' + dotCell('blue', r.product_name) + '</td>' +
+      '<td>' + escHtml(r.type || '') + '</td>' +
+      '<td class="text-right">' + raw.toFixed(2) + '</td>' +
+      '<td class="text-right">' + graded.toFixed(2) + '</td>' +
+      '<td class="text-right">' + (raw - graded).toFixed(2) + '</td>' +
+      '</tr>'
+    );
+  });
+  $('#compareCount').text(rows.length + ' items');
 }
 
 /* ── PACKED ────────────────────────────────────────────── */

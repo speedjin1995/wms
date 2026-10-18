@@ -161,14 +161,6 @@ else{
             </select>
           </div>
 
-          <div class="filter-group" style="display:none">
-            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-            </select>
-          </div>
 
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
@@ -459,7 +451,6 @@ function buildParams() {
     "&checkedBy=" + ($('#checkedByFilter').val() || '') +
     "&weightedBy=" + ($('#weightByFilter').val() || '') +
     "&location=" + ($('#locationFilter').val() || '') +
-    "&partyType=" + ($('#partyTypeFilter').val() || '') +
     "&indicator=" + ($('#indicatorFilter').val() || '')
     ;
 }
@@ -503,7 +494,6 @@ function initTable() {
         checkedBy: $('#checkedByFilter').val() || '',
         weightedBy: $('#weightByFilter').val() || '',
         location: $('#locationFilter').val() || '',
-        partyType: $('#partyTypeFilter').val() || '',
         indicator: $('#indicatorFilter').val() || ''
       }
     },

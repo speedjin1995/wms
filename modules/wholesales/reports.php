@@ -196,15 +196,6 @@ else{
           </div>
 
           <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-            </select>
-          </div>
-
-          <div class="filter-group">
             <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
             <input type="text" class="form-control" id="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
           </div>
@@ -487,7 +478,6 @@ $(function () {
         var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
         var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
         var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-        var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
         var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
         var selectedIds = [];
 
@@ -499,7 +489,7 @@ $(function () {
           "&transactionStatus="+transactionStatusI+"&status="+statusI+
           "&customer="+customerNoI+"&supplier="+supplierNoI+"&product="+productI+"&category="+categoryI+
           "&vehicle="+vehicleNoI+"&otherVehicle="+otherVehicleNoI+"&checkedBy="+checkedByI+
-          "&weightedBy="+weightedByI+"&location="+locationI+"&partyType="+partyTypeI+"&indicator="+indicatorI;
+          "&weightedBy="+weightedByI+"&location="+locationI+"&indicator="+indicatorI;
 
         if (selectedIds.length > 0) {
           window.open(base + "&isMulti=Y&ids=" + selectedIds);
@@ -616,7 +606,6 @@ function buildParams() {
     "&checkedBy=" + ($('#checkedByFilter').val() || '') +
     "&weightedBy=" + ($('#weightByFilter').val() || '') +
     "&location=" + ($('#locationFilter').val() || '') +
-    "&partyType=" + ($('#partyTypeFilter').val() || '') +
     "&indicator=" + ($('#indicatorFilter').val() || '')
     ;
 }
@@ -685,7 +674,6 @@ function initTable() {
         checkedBy: $('#checkedByFilter').val() || '',
         weightedBy: $('#weightByFilter').val() || '',
         location: $('#locationFilter').val() || '', 
-        partyType: $('#partyTypeFilter').val() || '', 
         indicator: $('#indicatorFilter').val() || '', 
       }
     },

@@ -565,7 +565,8 @@ class StockAdjustmentService extends BaseService
             $this->user,
             null,
             null,
-            $type
+            $type,
+            'raw'
         );
     }
 
@@ -603,7 +604,8 @@ class StockAdjustmentService extends BaseService
             $this->user,
             null,
             null,
-            $type
+            $type,
+            'raw'
         );
     }
 

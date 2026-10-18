@@ -41,9 +41,9 @@ function generateMovementNo($db, $company) {
  * edit_ref      : shared by the REVERSAL + new entry pair on edit, equals the
  *                 movement_no of the original row, used to group the pair in reports
  */
-function addStockMovement($db, $movementNo, $productId, $grade, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $userId, $originalMovementId = null, $editRef = null, $type = null) {
-    $stmt = $db->prepare("INSERT INTO stock_movements (movement_no, product_id, grade, type, company, module, source_id, movement_type, status, quantity, balance_before, balance_after, customer, supplier, original_movement_id, edit_ref, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    $stmt->bind_param('sssssssssssssssss', $movementNo, $productId, $grade, $type, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $originalMovementId, $editRef, $userId);
+function addStockMovement($db, $movementNo, $productId, $grade, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $userId, $originalMovementId = null, $editRef = null, $type = null, $stockTable = null) {
+    $stmt = $db->prepare("INSERT INTO stock_movements (movement_no, product_id, grade, type, company, module, source_id, movement_type, status, quantity, balance_before, balance_after, customer, supplier, original_movement_id, edit_ref, created_by, stock_table) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    $stmt->bind_param('ssssssssssssssssss', $movementNo, $productId, $grade, $type, $company, $module, $sourceId, $movementType, $status, $quantity, $balanceBefore, $balanceAfter, $customer, $supplier, $originalMovementId, $editRef, $userId, $stockTable);
     $stmt->execute();
     $stmt->close();
 }
@@ -79,7 +79,7 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
             $currentBalance = floatval($row['balance']);
 
             if ($isEdit) {
-                $origStmt = $db->prepare("SELECT id, movement_no FROM stock_movements WHERE source_id = ? AND module = ? AND product_id = ? AND grade = ? AND type = ? AND company = ? AND movement_type != 'REVERSAL' ORDER BY id DESC LIMIT 1");
+                $origStmt = $db->prepare("SELECT id, movement_no FROM stock_movements WHERE source_id = ? AND module = ? AND product_id = ? AND grade = ? AND type = ? AND company = ? AND movement_type != 'REVERSAL' AND stock_table = 'raw' ORDER BY id DESC LIMIT 1");
                 $origStmt->bind_param('ssssss', $sourceId, $module, $productId, $grade, $type, $company);
                 $origStmt->execute();
                 $origRow = $origStmt->get_result()->fetch_assoc();
@@ -90,13 +90,13 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
                 $newQty           = floatval($newValue);
                 $finalBalance     = $isAdd ? $balAfterReversal + $newQty    : $balAfterReversal - $newQty;
 
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, 'REVERSAL', $status, $reversalQty, $currentBalance, $balAfterReversal, $customer, $supplier, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null, $type);
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $newQty, $balAfterReversal, $finalBalance, $customer, $supplier, $userId, null, $origRow['movement_no'] ?? null, $type);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, 'REVERSAL', $status, $reversalQty, $currentBalance, $balAfterReversal, $customer, $supplier, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null, $type, 'raw');
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $newQty, $balAfterReversal, $finalBalance, $customer, $supplier, $userId, null, $origRow['movement_no'] ?? null, $type, 'raw');
             } else {
                 $qty          = floatval($newValue);
                 $finalBalance = $isAdd ? $currentBalance + $qty : $currentBalance - $qty;
 
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, $currentBalance, $finalBalance, $customer, $supplier, $userId, null, null, $type);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, $currentBalance, $finalBalance, $customer, $supplier, $userId, null, null, $type, 'raw');
             }
 
             $upd = $db->prepare("UPDATE raw_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
@@ -107,7 +107,7 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
             $qty          = floatval($newValue);
             $finalBalance = $isAdd ? $qty : -$qty;
 
-            addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, 0, $finalBalance, $customer, $supplier, $userId, null, null, $type);
+            addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, 0, $finalBalance, $customer, $supplier, $userId, null, null, $type, 'raw');
 
             $ins = $db->prepare("INSERT INTO raw_stock_balance (product_id, grade, type, company, balance, created_by) VALUES (?,?,?,?,?,?)");
             $ins->bind_param('ssssss', $productId, $grade, $type, $company, $finalBalance, $userId);
@@ -127,7 +127,7 @@ function processRawStock($db, $productId, $grade, $company, $newValue, $userId, 
  */
 function processDeleteRawStock($db, $sourceId, $module, $company, $userId, $type = 'Local') {
     try {
-        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.type, s.movement_type, s.status, s.quantity, s.customer, s.supplier FROM stock_movements s INNER JOIN (SELECT product_id, grade, type, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND type = ? AND movement_type != 'REVERSAL' GROUP BY product_id, grade, type) latest ON s.id = latest.max_id");
+        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.type, s.movement_type, s.status, s.quantity, s.customer, s.supplier FROM stock_movements s INNER JOIN (SELECT product_id, grade, type, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND type = ? AND movement_type != 'REVERSAL' AND stock_table = 'raw' GROUP BY product_id, grade, type) latest ON s.id = latest.max_id");
         $stmt->bind_param('ssss', $sourceId, $module, $company, $type);
         $stmt->execute();
         $movements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -146,7 +146,7 @@ function processDeleteRawStock($db, $sourceId, $module, $company, $userId, $type
             $qty            = floatval($m['quantity']);
             $newBalance     = ($m['movement_type'] === 'ADD') ? $currentBalance - $qty : $currentBalance + $qty;
 
-            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, $module, $sourceId, 'REVERSAL', $m['status'], $qty, $currentBalance, $newBalance, $m['customer'], $m['supplier'], $userId, $m['id'], $m['movement_no'], $type);
+            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, $module, $sourceId, 'REVERSAL', $m['status'], $qty, $currentBalance, $newBalance, $m['customer'], $m['supplier'], $userId, $m['id'], $m['movement_no'], $type, 'raw');
 
             $upd = $db->prepare("UPDATE raw_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
             $upd->bind_param('sss', $newBalance, $userId, $balRow['id']);
@@ -172,10 +172,10 @@ function processDeleteRawStock($db, $sourceId, $module, $company, $userId, $type
  * Grading always ADDs stock (output of grading process).
  * On EDIT: REVERSAL of previous qty + new ADD. Both rows share edit_ref.
  */
-function processGradingStock($db, $productId, $grade, $company, $newValue, $userId, $isEdit = false, $beforeValue = 0, $sourceId = null, $isAdd = true, $module = 'grading', $status = 'GRADING') {
+function processGradingStock($db, $productId, $grade, $company, $newValue, $userId, $isEdit = false, $beforeValue = 0, $sourceId = null, $isAdd = true, $module = 'grading', $status = 'GRADING', $type = 'Local') {
     try {
-        $stmt = $db->prepare("SELECT id, balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0'");
-        $stmt->bind_param('sss', $productId, $grade, $company);
+        $stmt = $db->prepare("SELECT id, balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = '0'");
+        $stmt->bind_param('ssss', $productId, $grade, $type, $company);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $stmt->close();
@@ -184,8 +184,8 @@ function processGradingStock($db, $productId, $grade, $company, $newValue, $user
             $currentBalance = floatval($row['balance']);
 
             if ($isEdit) {
-                $origStmt = $db->prepare("SELECT id, movement_no FROM stock_movements WHERE source_id = ? AND module = ? AND product_id = ? AND grade = ? AND company = ? AND movement_type != 'REVERSAL' ORDER BY id DESC LIMIT 1");
-                $origStmt->bind_param('sssss', $sourceId, $module, $productId, $grade, $company);
+                $origStmt = $db->prepare("SELECT id, movement_no FROM stock_movements WHERE source_id = ? AND module = ? AND product_id = ? AND grade = ? AND COALESCE(type, 'Local') = ? AND company = ? AND movement_type != 'REVERSAL' AND stock_table = 'graded' ORDER BY id DESC LIMIT 1");
+                $origStmt->bind_param('ssssss', $sourceId, $module, $productId, $grade, $type, $company);
                 $origStmt->execute();
                 $origRow = $origStmt->get_result()->fetch_assoc();
                 $origStmt->close();
@@ -195,13 +195,13 @@ function processGradingStock($db, $productId, $grade, $company, $newValue, $user
                 $newQty           = floatval($newValue);
                 $finalBalance     = $isAdd ? $balAfterReversal + $newQty : $balAfterReversal - $newQty;
 
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, 'REVERSAL', $status, $reversalQty, $currentBalance, $balAfterReversal, null, null, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null);
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $newQty, $balAfterReversal, $finalBalance, null, null, $userId, null, $origRow['movement_no'] ?? null);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, 'REVERSAL', $status, $reversalQty, $currentBalance, $balAfterReversal, null, null, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null, $type, 'graded');
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $newQty, $balAfterReversal, $finalBalance, null, null, $userId, null, $origRow['movement_no'] ?? null, $type, 'graded');
             } else {
                 $qty          = floatval($newValue);
                 $finalBalance = $isAdd ? $currentBalance + $qty : $currentBalance - $qty;
 
-                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, $currentBalance, $finalBalance, null, null, $userId);
+                addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, $currentBalance, $finalBalance, null, null, $userId, null, null, $type, 'graded');
             }
 
             $upd = $db->prepare("UPDATE grading_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
@@ -212,10 +212,10 @@ function processGradingStock($db, $productId, $grade, $company, $newValue, $user
             $qty          = floatval($newValue);
             $finalBalance = $isAdd ? $qty : -$qty;
 
-            addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, 0, $finalBalance, null, null, $userId);
+            addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, $module, $sourceId, $isAdd ? 'ADD' : 'MINUS', $status, $qty, 0, $finalBalance, null, null, $userId, null, null, $type, 'graded');
 
-            $ins = $db->prepare("INSERT INTO grading_stock_balance (product_id, grade, company, balance, created_by) VALUES (?,?,?,?,?)");
-            $ins->bind_param('sssss', $productId, $grade, $company, $finalBalance, $userId);
+            $ins = $db->prepare("INSERT INTO grading_stock_balance (product_id, grade, type, company, balance, created_by) VALUES (?,?,?,?,?,?)");
+            $ins->bind_param('ssssss', $productId, $grade, $type, $company, $finalBalance, $userId);
             $ins->execute();
             $ins->close();
         }
@@ -227,19 +227,31 @@ function processGradingStock($db, $productId, $grade, $company, $newValue, $user
 }
 
 /**
- * DELETE — reverses all grading stock movements for the given grading record.
+ * DELETE — reverses all grading stock movements for the given grading record and type.
+ * Legacy movements with NULL type are treated as 'Local'.
  */
-function processDeleteGradingStock($db, $sourceId, $company, $userId, $module = 'grading') {
+function processDeleteGradingStock($db, $sourceId, $company, $userId, $module = 'grading', $type = 'Local') {
     try {
-        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, s.movement_type, s.quantity FROM stock_movements s INNER JOIN (SELECT product_id, grade, MAX(id) as max_id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND movement_type != 'REVERSAL' GROUP BY product_id, grade) latest ON s.id = latest.max_id");
-        $stmt->bind_param('sss', $sourceId, $module, $company);
+        // Movements already reversed are skipped, so a second delete cannot reverse them again.
+        // $type null: each movement reverses under its own type (NULL = Local).
+        $params     = [$sourceId, $module, $company];
+        $paramTypes = 'sss';
+        $typeWhere  = '';
+        if ($type !== null) {
+            $typeWhere  = " AND COALESCE(m.type, 'Local') = ?";
+            $params[]   = $type;
+            $paramTypes .= 's';
+        }
+
+        $stmt = $db->prepare("SELECT s.id, s.movement_no, s.product_id, s.grade, COALESCE(s.type, 'Local') AS type, s.movement_type, s.quantity, s.status FROM stock_movements s INNER JOIN (SELECT m.product_id, m.grade, COALESCE(m.type, 'Local') AS type, MAX(m.id) AS max_id FROM stock_movements m WHERE m.source_id = ? AND m.module = ? AND m.company = ? AND m.movement_type != 'REVERSAL' AND m.stock_table = 'graded' AND NOT EXISTS (SELECT 1 FROM stock_movements r WHERE r.original_movement_id = m.id AND r.movement_type = 'REVERSAL')$typeWhere GROUP BY m.product_id, m.grade, COALESCE(m.type, 'Local')) latest ON s.id = latest.max_id");
+        $stmt->bind_param($paramTypes, ...$params);
         $stmt->execute();
         $movements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
 
         foreach ($movements as $m) {
-            $balStmt = $db->prepare("SELECT id, balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND company = ? AND deleted = '0'");
-            $balStmt->bind_param('sss', $m['product_id'], $m['grade'], $company);
+            $balStmt = $db->prepare("SELECT id, balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = '0'");
+            $balStmt->bind_param('ssss', $m['product_id'], $m['grade'], $m['type'], $company);
             $balStmt->execute();
             $balRow = $balStmt->get_result()->fetch_assoc();
             $balStmt->close();
@@ -250,7 +262,7 @@ function processDeleteGradingStock($db, $sourceId, $company, $userId, $module = 
             $qty            = floatval($m['quantity']);
             $newBalance     = ($m['movement_type'] === 'ADD') ? $currentBalance - $qty : $currentBalance + $qty;
 
-            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, 'grading', $sourceId, 'REVERSAL', 'GRADING', $qty, $currentBalance, $newBalance, null, null, $userId, $m['id'], $m['movement_no']);
+            addStockMovement($db, generateMovementNo($db, $company), $m['product_id'], $m['grade'], $company, $module, $sourceId, 'REVERSAL', $m['status'], $qty, $currentBalance, $newBalance, null, null, $userId, $m['id'], $m['movement_no'], $m['type'], 'graded');
 
             $upd = $db->prepare("UPDATE grading_stock_balance SET balance = ?, modified_by = ? WHERE id = ?");
             $upd->bind_param('sss', $newBalance, $userId, $balRow['id']);
@@ -281,13 +293,20 @@ function processDeleteGradingStock($db, $sourceId, $company, $userId, $module = 
  * CREATE : MINUS grading_stock_balance by total weight per product/grade,
  *          ADD box counts to stock_balances per product/grade/packaging_size.
  * EDIT   : reverse previous → apply new.
- * DELETE : REVERSAL on raw_stock_balance, decrement stock_balances.
+ * DELETE : REVERSAL on grading_stock_balance, decrement stock_balances.
  */
-function processPackagingBatch($db, $batchId, $company, $userId, $action, $newItems = [], $prevItems = []) {
+function processPackagingBatch($db, $batchId, $company, $userId, $action, $newItems = [], $prevItems = [], $type = 'Local') {
     try {
         if (($action === 'EDIT' || $action === 'DELETE') && !empty($prevItems)) {
-            processDeleteGradingStock($db, $batchId, $company, $userId, 'packaging');
-            _decrementStockBalances($db, $company, $userId, $prevItems);
+            // Reverse each movement under the type it was posted with (the batch type may have changed)
+            $result = processDeleteGradingStock($db, $batchId, $company, $userId, 'packaging', null);
+            if ($result['status'] !== 'success') {
+                return $result;
+            }
+            $result = _decrementStockBalances($db, $company, $userId, $prevItems);
+            if ($result['status'] !== 'success') {
+                return $result;
+            }
         }
 
         if ($action === 'CREATE' || $action === 'EDIT') {
@@ -299,15 +318,47 @@ function processPackagingBatch($db, $batchId, $company, $userId, $action, $newIt
                 $grouped[$key]['net']     = ($grouped[$key]['net'] ?? 0) + floatval($item['weight']);
             }
             foreach ($grouped as $g) {
-                processGradingStock($db, $g['product'], $g['grade'], $company, $g['net'], $userId, false, 0, $batchId, false, 'packaging', 'PACKAGING');
+                $balance = _getGradedBalance($db, $g['product'], $g['grade'], $type, $company);
+                if (round($balance * 100) < round($g['net'] * 100)) {
+                    return ['status' => 'failed', 'message' => 'Insufficient graded stock for ' . _stockItemLabel($db, $g['product'], $g['grade']) . '. Available: ' . number_format($balance, 2) . ' kg'];
+                }
+
+                $result = processGradingStock($db, $g['product'], $g['grade'], $company, $g['net'], $userId, false, 0, $batchId, false, 'packaging', 'PACKAGING', $type);
+                if ($result['status'] !== 'success') {
+                    return $result;
+                }
             }
-            _incrementStockBalances($db, $company, $userId, $newItems);
+
+            $result = _incrementStockBalances($db, $company, $userId, $newItems);
+            if ($result['status'] !== 'success') {
+                return $result;
+            }
         }
 
         return ['status' => 'success'];
     } catch (Exception $e) {
         return ['status' => 'failed', 'message' => $e->getMessage()];
     }
+}
+
+/** Current graded balance of product + grade + type. */
+function _getGradedBalance($db, $productId, $grade, $type, $company) {
+    $stmt = $db->prepare("SELECT balance FROM grading_stock_balance WHERE product_id = ? AND grade = ? AND type = ? AND company = ? AND deleted = '0'");
+    $stmt->bind_param('ssss', $productId, $grade, $type, $company);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $row ? floatval($row['balance']) : 0.0;
+}
+
+/** Readable "product (grade)" for error messages. */
+function _stockItemLabel($db, $productId, $grade) {
+    $stmt = $db->prepare("SELECT p.product_name, g.units FROM products p LEFT JOIN grades g ON g.id = ? WHERE p.id = ?");
+    $stmt->bind_param('ss', $grade, $productId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $row ? $row['product_name'] . ' (' . $row['units'] . ')' : 'product ' . $productId;
 }
 
 /**
@@ -331,6 +382,7 @@ function _incrementStockBalances($db, $company, $userId, $items) {
             $ins->close();
         }
     }
+    return ['status' => 'success'];
 }
 
 /**
@@ -340,14 +392,17 @@ function _incrementStockBalances($db, $company, $userId, $items) {
 function _decrementStockBalances($db, $company, $userId, $items) {
     foreach (_groupByPackaging($items, 'prev') as $g) {
         $row = _getStockBalanceRow($db, $g['product_id'], $g['grade'], $g['packaging_size'], $company);
-        if ($row) {
-            $newQty = max(0, intval($row['box_quantity']) - $g['box_count']);
-            $upd = $db->prepare("UPDATE stock_balances SET box_quantity = ?, modified_by = ? WHERE id = ?");
-            $upd->bind_param('sss', $newQty, $userId, $row['id']);
-            $upd->execute();
-            $upd->close();
+        // Boxes already loaded out cannot be taken back, so refuse instead of flooring at 0
+        if (!$row || intval($row['box_quantity']) < $g['box_count']) {
+            return ['status' => 'failed', 'message' => 'Boxes already dispatched for ' . _stockItemLabel($db, $g['product_id'], $g['grade']) . ', cannot reverse this batch'];
         }
+        $newQty = intval($row['box_quantity']) - $g['box_count'];
+        $upd = $db->prepare("UPDATE stock_balances SET box_quantity = ?, modified_by = ? WHERE id = ?");
+        $upd->bind_param('sss', $newQty, $userId, $row['id']);
+        $upd->execute();
+        $upd->close();
     }
+    return ['status' => 'success'];
 }
 
 /**

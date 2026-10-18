@@ -97,7 +97,16 @@ if (!isset($_SESSION['userID'])) {
               <?php } ?>
             </select>
           </div>
-          <div class="form-group col-12 col-md-3 d-flex align-items-end">
+          <div class="form-group col-6 col-md-3">
+            <label><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+            <select class="form-control" id="dashType">
+              <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
+              <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
+            </select>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="form-group col-12 col-md-3 offset-md-9 d-flex align-items-end">
             <button type="button" class="btn btn-primary btn-block" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
             </button>

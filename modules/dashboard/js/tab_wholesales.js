@@ -245,16 +245,13 @@ function openExportModal(party) {
 }
 
 function doExportBreakdown() {
-  var party = $('#wsExportParty').val(); // e.g. supplier_normal, supplier_packing, customer_normal, customer_packing
+  var party = $('#wsExportParty').val(); // supplier or customer
   var exportType = $('#wsExportType').val();
   var params = getDateParams();
   var url;
-  
-  // Parse party type (e.g. "supplier_normal" -> base="supplier", partyType="Normal")
-  var parts = party.split('_');
-  var base = parts[0]; // supplier or customer
-  var partyType = parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : ''; // Normal or Packing
-  
+
+  var base = party;
+
   if (exportType === 'individual') {
     url = 'php/modules/wholesales/api.php?action=exportDashboard&type=' + base + '_individual';
   } else {
@@ -263,9 +260,9 @@ function doExportBreakdown() {
   
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
   url += '&toDate=' + encodeURIComponent(params.toDate);
-  url += '&partyType=' + encodeURIComponent(partyType);
+  url += '&productType=' + encodeURIComponent(params.type);
   url += '&category=' + encodeURIComponent($('#wsCategory').val() || '');
-  
+
   if (base === 'customer') {
     url += '&customer=' + encodeURIComponent($('#wsCustomer').val() || '');
   } else {
@@ -282,6 +279,7 @@ function exportGradeDistribution(status) {
   url += '&fromDate=' + encodeURIComponent(params.fromDate);
   url += '&toDate=' + encodeURIComponent(params.toDate);
   url += '&status=' + encodeURIComponent(status);
+  url += '&productType=' + encodeURIComponent(params.type);
   url += '&category=' + encodeURIComponent($('#wsCategory').val() || '');
   window.open(url, '_blank');
 }

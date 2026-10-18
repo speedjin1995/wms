@@ -190,15 +190,6 @@ else{
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label-modern"><?=$languageArray['supplier_type_code'][$language] ?? 'Supplier Type'?></label>
-                    <select class="form-control select2" style="width:100%;" id="supplierType" name="supplierType">
-                      <option value="Normal" selected><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-                      <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
                   <div class="form-group mb-0">
                     <label class="form-label-modern"><?=$languageArray['parent_code'][$language]?></label>
                     <select class="form-control select2" style="width:100%;" id="parent" name="parent">

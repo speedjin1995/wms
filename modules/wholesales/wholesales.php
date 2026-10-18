@@ -172,14 +172,6 @@ if (!empty($lookups['columnSetup'])) {
             </select>
           </div>
 
-          <div class="filter-group">
-            <label class="filter-label"><?=$t('type_code', 'Type')?></label>
-            <select class="form-control" id="partyTypeFilter">
-              <option value="" selected><?=$t('all_code', 'All')?></option>
-              <option value="Normal"><?=$t('normal_code', 'Normal')?></option>
-              <option value="Packing"><?=$t('packing_code', 'Packing')?></option>
-            </select>
-          </div>
 
           <div class="filter-group">
             <label class="filter-label"><?=$t('indicator_code')?></label>
@@ -196,9 +188,7 @@ if (!empty($lookups['columnSetup'])) {
             <label class="filter-label"><?=$t('checked_by_code')?></label>
             <input type="text" class="form-control" id="checkedByFilter" placeholder="<?=$t('please_enter_name_code')?>">
           </div>
-        </div>
-
-        <div class="filter-row mt-3">
+          
           <div class="filter-group">
             <label class="filter-label"><?=$t('weighed_by_code')?></label>
             <select class="form-control select2" id="weightByFilter">
@@ -208,6 +198,10 @@ if (!empty($lookups['columnSetup'])) {
               <?php } ?>
             </select>
           </div>
+        </div>
+
+        <div class="filter-row mt-3">
+          
 
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
