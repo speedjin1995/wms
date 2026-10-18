@@ -5,21 +5,10 @@ use App\Core\BaseService;
 
 class StockAdjustmentService extends BaseService
 {
-    private \mysqli $db;
-    private int $company;
-    private int $userId;
-
     private const BALANCE_TABLES = [
         'raw' => 'raw_stock_balance',
         'graded' => 'grading_stock_balance'
     ];
-
-    public function __construct(\mysqli $db, int $company, int $userId)
-    {
-        $this->db = $db;
-        $this->company = $company;
-        $this->userId = $userId;
-    }
 
     /**
      * Get company stock level setting
@@ -490,12 +479,12 @@ class StockAdjustmentService extends BaseService
         $stmt = $this->db->prepare(
             "UPDATE stock_adjustments 
              SET adjustment_date = ?, type = ?, remark = ?, total_items = ?, total_qty = ?, total_cost = ?, modified_by = ? 
-             WHERE id = ?"
+             WHERE id = ? AND company = ?"
         );
         $totalQty = (string)$adjustment->totalQty;
         $totalCost = (string)$adjustment->totalCost;
         $stmt->bind_param(
-            'sssissii',
+            'sssissiii',
             $adjustment->adjustmentDate,
             $adjustment->type,
             $adjustment->remark,
@@ -503,7 +492,8 @@ class StockAdjustmentService extends BaseService
             $totalQty,
             $totalCost,
             $this->user,
-            $adjustment->id
+            $adjustment->id,
+            $this->company
         );
         $stmt->execute();
         $stmt->close();
@@ -554,7 +544,7 @@ class StockAdjustmentService extends BaseService
         $unitCost = (string)$item->unitCost;
         $totalCost = (string)$item->totalCost;
         $stmt->bind_param(
-            'isssssssiiii',
+            'isssssssiii',
             $item->productId,
             $item->grade,
             $qtyBefore,
@@ -563,7 +553,7 @@ class StockAdjustmentService extends BaseService
             $unitCost,
             $totalCost,
             $item->reason,
-            $this->userId,
+            $this->user,
             $item->id,
             $adjustmentId
         );
@@ -622,7 +612,7 @@ class StockAdjustmentService extends BaseService
             $updateStmt = $this->db->prepare(
                 "UPDATE {$tableName} SET balance = ?, modified_by = ? WHERE id = ?"
             );
-            $updateStmt->bind_param('dii', $balanceAfter, $this->userId, $row['id']);
+            $updateStmt->bind_param('dii', $balanceAfter, $this->user, $row['id']);
             $updateStmt->execute();
             $updateStmt->close();
         } else {
@@ -630,7 +620,7 @@ class StockAdjustmentService extends BaseService
                 "INSERT INTO {$tableName} (product_id, grade, type, company, balance, created_by) 
                  VALUES (?, ?, ?, ?, ?, ?)"
             );
-            $insertStmt->bind_param('issidi', $item->productId, $gradeToUse, $type, $this->company, $balanceAfter, $this->userId);
+            $insertStmt->bind_param('issidi', $item->productId, $gradeToUse, $type, $this->company, $balanceAfter, $this->user);
             $insertStmt->execute();
             $insertStmt->close();
         }
