@@ -19,8 +19,9 @@ class StockAdjustmentController extends BaseController
     {
         $dateFrom = $this->parseDateInput($_POST['date_from'] ?? '');
         $dateTo = $this->parseDateInput($_POST['date_to'] ?? '');
+        $stockTable = $this->whitelistStockTable($_POST['stock_table'] ?? 'raw');
 
-        $data = $this->service->getList($dateFrom, $dateTo);
+        $data = $this->service->getList($dateFrom, $dateTo, $stockTable);
 
         return ['status' => 'success', 'data' => $data];
     }
@@ -56,6 +57,9 @@ class StockAdjustmentController extends BaseController
             return $adjustment; // Error response
         }
 
+        // Set stock_table from request (whitelisted)
+        $adjustment->stockTable = $this->whitelistStockTable($_POST['stock_table'] ?? 'raw');
+
         return $this->service->create($adjustment);
     }
 
@@ -77,6 +81,7 @@ class StockAdjustmentController extends BaseController
         }
 
         $adjustment->id = $id;
+        // Note: stock_table is NOT taken from POST on update - service uses stored header value
 
         return $this->service->update($adjustment);
     }
@@ -160,12 +165,13 @@ class StockAdjustmentController extends BaseController
         $productId = $this->postId('product_id');
         $grade = $_POST['grade'] ?? null;
         $type = 'Local';
+        $stockTable = $this->whitelistStockTable($_POST['stock_table'] ?? 'raw');
 
         if (!$productId) {
             return ['status' => 'failed', 'message' => 'Missing product ID'];
         }
 
-        return $this->service->getStockBalance($productId, $grade, $type);
+        return $this->service->getStockBalance($productId, $grade, $type, $stockTable);
     }
 
     /**
@@ -209,5 +215,13 @@ class StockAdjustmentController extends BaseController
 
         $dateObj = \DateTime::createFromFormat('d/m/Y', $date);
         return $dateObj ? $dateObj->format('Y-m-d') : null;
+    }
+
+    /**
+     * Whitelist stock_table to prevent SQL injection
+     */
+    private function whitelistStockTable(string $value): string
+    {
+        return in_array($value, ['raw', 'graded'], true) ? $value : 'raw';
     }
 }

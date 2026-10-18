@@ -29,6 +29,16 @@ function buildReplacements(array $data, array $company): array
         $logoHtml = '<div class="logo"><img src="' . $logoSrc . '"></div>';
     }
 
+    // Stock kind and level info
+    $stockTable = $data['stock_table'] ?? 'raw';
+    $stockLevel = $data['stock_level'] ?? 'GRADE';
+    $stockKind = ($stockTable === 'graded') ? 'Grading' : 'Raw Stock';
+    $isProductLevel = ($stockTable === 'raw' && $stockLevel === 'PRODUCT');
+    $stockInfo = $stockKind;
+    if ($isProductLevel) {
+        $stockInfo .= ' · Product Level';
+    }
+
     // Items rows
     $itemsHtml = '';
     $rowNum = 1;
@@ -38,7 +48,8 @@ function buildReplacements(array $data, array $company): array
         $subtotal = floatval($item['total_cost'] ?? 0);
         
         $description = ($item['product_name'] ?? '');
-        if (!empty($item['grade_name'])) {
+        // For product-level, don't show grade suffix
+        if (!$isProductLevel && !empty($item['grade_name'])) {
             $description .= ' - ' . $item['grade_name'];
         }
         
@@ -68,6 +79,7 @@ function buildReplacements(array $data, array $company): array
         '{{COMPANY_EMAIL}}' => htmlspecialchars($company['email'] ?? ''),
         '{{ADJUSTMENT_NO}}' => htmlspecialchars($data['adjustment_no'] ?? ''),
         '{{ADJUSTMENT_DATE}}' => $adjDate,
+        '{{STOCK_INFO}}' => $stockInfo,
         '{{ITEMS_ROWS}}' => $itemsHtml,
         '{{REMARK}}' => htmlspecialchars($data['remark'] ?? ''),
         '{{TOTAL_COST}}' => formatAdjAmount(floatval($data['total_cost'] ?? 0)),
