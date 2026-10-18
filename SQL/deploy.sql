@@ -3818,3 +3818,38 @@ ALTER TABLE `repacking` ADD `graded_posted` TINYINT(1) NOT NULL DEFAULT 0 AFTER 
 ALTER TABLE `stock_movements` ADD `stock_table` VARCHAR(10) NULL AFTER `type`;
 UPDATE `stock_movements` SET `stock_table` = 'raw' WHERE `module` = 'wholesales' AND `stock_table` IS NULL;
 UPDATE `stock_movements` SET `stock_table` = 'graded' WHERE `module` IN ('grading', 'packaging') AND `stock_table` IS NULL;
+
+-- 18/10/2026 --
+ALTER TABLE `stock_adjustments` ADD `stock_table` VARCHAR(10) NOT NULL DEFAULT 'raw' AFTER `type`, ADD `stock_level` VARCHAR(10) NOT NULL DEFAULT 'GRADE' AFTER `stock_table`;
+ALTER TABLE `stock_adjustment_log` ADD `stock_table` VARCHAR(10) NOT NULL DEFAULT 'raw' AFTER `type`, ADD `stock_level` VARCHAR(10) NOT NULL DEFAULT 'GRADE' AFTER `stock_table`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_STK_ADJ` AFTER INSERT ON `stock_adjustments` FOR EACH ROW 
+  INSERT INTO stock_adjustment_log (
+    stk_adjustment_id, adjustment_no, adjustment_date, type, stock_table, stock_level, remark, total_items, total_qty, total_cost, company, action_id, action_by, event_date
+  ) 
+  VALUES (
+    NEW.id, NEW.adjustment_no, NEW.adjustment_date, NEW.type, NEW.stock_table, NEW.stock_level, NEW.remark, NEW.total_items, NEW.total_qty, NEW.total_cost, NEW.company, 1, NEW.created_by, NOW()
+  )
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_STK_ADJ` BEFORE UPDATE ON `stock_adjustments` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO stock_adjustment_log (
+        stk_adjustment_id, adjustment_no, adjustment_date, type, stock_table, stock_level, remark, total_items, total_qty, total_cost, company, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.adjustment_no, NEW.adjustment_date, NEW.type, NEW.stock_table, NEW.stock_level, NEW.remark, NEW.total_items, NEW.total_qty, NEW.total_cost, NEW.company, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;

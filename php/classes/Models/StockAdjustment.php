@@ -15,6 +15,8 @@ class StockAdjustment
     public ?int $createdBy = null;
     public ?string $createdDatetime = null;
     public ?string $createdByName = null;
+    public string $stockTable = 'raw';
+    public string $stockLevel = 'GRADE';
     
     /** @var StockAdjustmentItem[] */
     public array $items = [];
@@ -40,6 +42,8 @@ class StockAdjustment
         $this->createdBy = isset($data['created_by']) ? (int)$data['created_by'] : null;
         $this->createdDatetime = $data['created_datetime'] ?? null;
         $this->createdByName = $data['created_by_name'] ?? null;
+        $this->stockTable = $data['stock_table'] ?? 'raw';
+        $this->stockLevel = $data['stock_level'] ?? 'GRADE';
         
         return $this;
     }
@@ -102,6 +106,8 @@ class StockAdjustment
             'created_by' => $this->createdBy,
             'created_datetime' => $this->createdDatetime,
             'created_by_name' => $this->createdByName,
+            'stock_table' => $this->stockTable,
+            'stock_level' => $this->stockLevel,
         ];
         
         if ($includeItems) {
