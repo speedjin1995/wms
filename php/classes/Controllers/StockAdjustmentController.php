@@ -109,7 +109,7 @@ class StockAdjustmentController
         // Build model
         $adjustment = new StockAdjustment([
             'adjustment_date' => $dateObj,
-            'type' => $_POST['type'] ?? 'Local',
+            'type' => 'Local',
             'remark' => $_POST['remark'] ?? '',
         ]);
 
@@ -161,7 +161,7 @@ class StockAdjustmentController
     {
         $productId = (int)($_POST['product_id'] ?? 0);
         $grade = $_POST['grade'] ?? null;
-        $type = $_POST['type'] ?? 'Local';
+        $type = 'Local';
 
         if (!$productId) {
             return ['status' => 'failed', 'message' => 'Missing product ID'];
@@ -173,9 +173,9 @@ class StockAdjustmentController
     /**
      * GET /products - Get products with grades for form
      */
-    public function products(array $categoryIds = [], string $type = 'Local'): array
+    public function products(array $categoryIds = []): array
     {
-        $data = $this->service->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null, $type);
+        $data = $this->service->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null, 'Local');
 
         return ['status' => 'success', 'data' => $data];
     }

@@ -26,7 +26,6 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
         $no = $_POST['no'];
         $customers = (array)$_POST['customers'];
         $customerProductId = (array)$_POST['customerProductId'];
-        $customerType = isset($_POST['customerType']) ? (array)$_POST['customerType'] : [];
         $customerGrade = isset($_POST['customerGrade']) ? (array)$_POST['customerGrade'] : [];
         $customerPricingType = (array)$_POST['customerPricingType'];
         $customerCurrency = isset($_POST['customerCurrency']) ? (array)$_POST['customerCurrency'] : [];
@@ -34,7 +33,7 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
 
         foreach ($no as $key => $number) {
             $customerId = $customers[$key];
-            $cType = isset($customerType[$key]) && $customerType[$key] != '' ? $customerType[$key] : 'Local';
+            $cType = 'Local';
             $cGradeId = isset($customerGrade[$key]) && $customerGrade[$key] != '' ? $customerGrade[$key] : null;
             $cPricingType = $customerPricingType[$key];
             $cCurrency = isset($customerCurrency[$key]) && $customerCurrency[$key] != '' ? $customerCurrency[$key] : null;
@@ -84,7 +83,6 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
         $supplierNo = $_POST['supplierNo'];
         $suppliers = (array)$_POST['suppliers'];
         $supplierProductId = (array)$_POST['supplierProductId'];
-        $supplierType = isset($_POST['supplierType']) ? (array)$_POST['supplierType'] : [];
         $supplierGrade = isset($_POST['supplierGrade']) ? (array)$_POST['supplierGrade'] : [];
         $supplierPricingType = (array)$_POST['supplierPricingType'];
         $supplierCurrency = isset($_POST['supplierCurrency']) ? (array)$_POST['supplierCurrency'] : [];
@@ -92,7 +90,7 @@ if (isset($_POST['product_id']) && $_POST['product_id'] != '') {
 
         foreach ($supplierNo as $key => $number) {
             $supplierId = $suppliers[$key];
-            $sType = isset($supplierType[$key]) && $supplierType[$key] != '' ? $supplierType[$key] : 'Local';
+            $sType = 'Local';
             $sGradeId = isset($supplierGrade[$key]) && $supplierGrade[$key] != '' ? $supplierGrade[$key] : null;
             $sPricingType = $supplierPricingType[$key];
             $sCurrency = isset($supplierCurrency[$key]) && $supplierCurrency[$key] != '' ? $supplierCurrency[$key] : null;

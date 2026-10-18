@@ -21,7 +21,6 @@ class RepackingController extends BaseController
         $filters = [
             'fromDate' => trim($_POST['fromDate'] ?? ''),
             'toDate' => trim($_POST['toDate'] ?? ''),
-            'type' => trim($_POST['typeFilter'] ?? ''),
             'category' => (int)($_POST['categoryFilter'] ?? 0),
             'sourceProduct' => (int)($_POST['sourceProductFilter'] ?? 0),
             'targetProduct' => (int)($_POST['targetProductFilter'] ?? 0)
@@ -45,7 +44,6 @@ class RepackingController extends BaseController
         $filters = [
             'fromDate' => trim($_POST['fromDate'] ?? ''),
             'toDate' => trim($_POST['toDate'] ?? ''),
-            'type' => trim($_POST['type'] ?? ''),
             'category' => (int)($_POST['category'] ?? 0)
         ];
 
@@ -102,7 +100,7 @@ class RepackingController extends BaseController
     {
         $id = $this->postId();
         $repackingDate = trim($_POST['repackingDate'] ?? '');
-        $type = trim($_POST['productType'] ?? 'Local');
+        $type = 'Local';
         $sourceCategory = (int)($_POST['sourceCategory'] ?? 0);
         $targetCategory = (int)($_POST['targetCategory'] ?? 0);
         $sourceProduct = (int)($_POST['sourceProduct'] ?? 0);

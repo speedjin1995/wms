@@ -453,15 +453,6 @@ else{
                   <input type="text" class="form-control" id="doPoNo" name="doPoNo">
                 </div>
               </div>
-              <div class="col-md-3">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['product_type_code'][$language] ?? 'Product Type'?></label>
-                  <select class="form-control" id="productType" name="productType">
-                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                  </select>
-                </div>
-              </div>
               <div class="col-md-3" id="securityBillDiv">
                 <div class="form-group-modern">
                   <label class="form-label-modern"><?=$languageArray['sec_bill_no_code'][$language]?></label>
@@ -853,7 +844,6 @@ var allowInvoice = '<?=$allowInvoice?>';
 var allowPcsBasket = '<?=$allowPcsBasket?>';
 var userLocation = '<?=$userLocationId?>';
 var columnSetup = <?=json_encode($columnSetup)?>;
-var currentProductType = 'Local';
 var productsDataByType = [];
 
 // Default column definitions in order: [key, data field, label, extra options]
@@ -1158,24 +1148,6 @@ $(function () {
     }
     
     $('#weightDetailsTable').find('select[id^="grade_id"]').trigger('change');
-  });
-
-  // Product Type change handler
-  $('#extendModal').find('#productType').on('change', function() {
-    var newType = $(this).val();
-    if (newType === currentProductType) return;
-    
-    currentProductType = newType;
-    
-    // Clear existing weight and reject details
-    $('#weightDetailsTable').empty();
-    $('#rejectDetailsTable').empty();
-    weightCount = 0;
-    rejectCount = 0;
-    updateTotals();
-    
-    // Reload products for the new type
-    loadProductsByType(newType);
   });
 
   $('#extendModal').find('#customer').on('change', function () {
@@ -1954,7 +1926,7 @@ function applyCustomerCurrency(currencyId) {
 // ============================================================================
 
 function loadProductsByType(type, callback) {
-  $.post('php/modules/products/api.php', { action: 'getProductsByType', type: type || currentProductType })
+  $.post('php/modules/products/api.php', { action: 'getProductsByType', type: 'Local' })
     .done(function(data) {
       var obj = typeof data === 'string' ? JSON.parse(data) : data;
       if (obj.status === 'success') {
@@ -2345,8 +2317,6 @@ function newEntry() {
   $('#extendModal').find('#category').val("").trigger('change');
   $('#extendModal').find('#paymentMethod').val("").trigger('change');
   $('#extendModal').find('#status').val("DISPATCH").trigger('change');
-  $('#extendModal').find('#productType').val("Local");
-  currentProductType = 'Local';
   $('#extendModal').find('#doPoNo').val("");
   $('#extendModal').find('#securityBillNo').val("");
   $('#extendModal').find('#customer').val("").trigger('change');
@@ -2421,8 +2391,6 @@ function edit(id) {
       $('#extendModal').find('#category').val(obj.message.category).trigger('change');
       $('#extendModal').find('#paymentMethod').val(obj.message.payment_method).trigger('change');
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
-      $('#extendModal').find('#productType').val(obj.message.type || 'Local');
-      currentProductType = obj.message.type || 'Local';
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');
@@ -2700,7 +2668,7 @@ function edit(id) {
       });
 
       // Load products by type then show modal
-      loadProductsByType(currentProductType, function() {
+      loadProductsByType('Local', function() {
         $('#extendModal').modal('show');
       });
 

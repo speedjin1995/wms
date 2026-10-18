@@ -272,15 +272,6 @@ else{
               </div>
             </div>
             <div class="row">
-              <div class="col-md-3">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-                  <select class="form-control" id="gradeType" name="gradeType">
-                    <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                  </select>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -886,20 +877,6 @@ $(function () {
     var currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
                       now.getMinutes().toString().padStart(2, '0') + ':' + 
                       now.getSeconds().toString().padStart(2, '0');
-    var gradeTypeFilter = $('#gradeType').val();
-    
-    // Filter grade options by type
-    var filteredGradeOptions = gradeOptions;
-    if(gradeTypeFilter) {
-      var $temp = $('<select>').html(gradeOptions);
-      $temp.find('option').each(function() {
-        var gradeType = $(this).attr('data-type');
-        if(gradeType && gradeType != gradeTypeFilter) {
-          $(this).remove();
-        }
-      });
-      filteredGradeOptions = $temp.html();
-    }
     
     var row = `
       <tr class="details">
@@ -924,7 +901,7 @@ $(function () {
         </td>
         <td>
           <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]" required>
-            ${filteredGradeOptions}
+            ${gradeOptions}
           </select>
         </td>
         <td>
@@ -1031,7 +1008,6 @@ $(function () {
     var row = $(this).closest('tr');
     var productId = $(this).val();
     var productName = $(this).find('option:selected').text();
-    var gradeTypeFilter = $('#gradeType').val();
     
     // Filter grades by selected product and type
     var gradeSelect = row.find('select[name*="[grade]"]');
@@ -1052,14 +1028,12 @@ $(function () {
     // Remove options that don't match the selected product and type
     gradeSelect.find('option').each(function() {
       var gradeProduct = $(this).attr('data-product');
-      var gradeType = $(this).attr('data-type');
       var productMatch = !productId || !gradeProduct || gradeProduct == productId;
-      var typeMatch = !gradeTypeFilter || !gradeType || gradeType == gradeTypeFilter;
-      if(!productMatch || !typeMatch) {
+      if(!productMatch) {
         $(this).remove();
       }
     });
-    
+
     // Recreate Select2
     gradeSelect.select2({
       allowClear: true,
@@ -1069,49 +1043,6 @@ $(function () {
     });
     
     gradeSelect.val(currentGrade).trigger('change');
-  });
-
-  // Filter grades when type changes
-  $('#gradeType').on('change', function() {
-    var gradeTypeFilter = $(this).val();
-    
-    // Update all existing grade selects in the table
-    $('#weightDetailsTable tr').each(function() {
-      var row = $(this);
-      var productId = row.find('select[name*="[product]"]').val();
-      var gradeSelect = row.find('select[name*="[grade]"]');
-      var currentGrade = gradeSelect.val();
-      
-      gradeSelect.select2('destroy');
-      
-      if (!gradeSelect.data('original-options')) {
-        gradeSelect.data('original-options', gradeOptions);
-      }
-      
-      gradeSelect.html(gradeSelect.data('original-options'));
-      
-      gradeSelect.find('option').each(function() {
-        var gradeProduct = $(this).attr('data-product');
-        var gradeType = $(this).attr('data-type');
-        var productMatch = !productId || !gradeProduct || gradeProduct == productId;
-        var typeMatch = !gradeTypeFilter || !gradeType || gradeType == gradeTypeFilter;
-        if(!productMatch || !typeMatch) {
-          $(this).remove();
-        }
-      });
-      
-      gradeSelect.select2({
-        allowClear: true,
-        placeholder: "Please Select",
-        dropdownParent: $('#extendModal .modal-content'),
-        width: '100%'
-      });
-      
-      // Keep current value if still valid
-      if(gradeSelect.find('option[value="'+currentGrade+'"]').length) {
-        gradeSelect.val(currentGrade).trigger('change.select2');
-      }
-    });
   });
 
   // Auto-fill gross from selected packaging size
@@ -1182,15 +1113,12 @@ $(function () {
 
   $('#bulkProduct').on('change', function() {
     var productId = $(this).val();
-    var gradeTypeFilter = $('#gradeType').val();
     var gradeSelect = $('#bulkGrade');
     gradeSelect.html(gradeOptions);
     gradeSelect.find('option').each(function() {
       var gradeProduct = $(this).attr('data-product');
-      var gradeType = $(this).attr('data-type');
       var productMatch = !productId || !gradeProduct || gradeProduct == productId;
-      var typeMatch = !gradeTypeFilter || !gradeType || gradeType == gradeTypeFilter;
-      if(!productMatch || !typeMatch) {
+      if(!productMatch) {
         $(this).remove();
       }
     });
@@ -1240,20 +1168,6 @@ $(function () {
 
     for (var i = 0; i < bulkNo; i++) {
       var idx = weightCount++;
-      var gradeTypeFilter = $('#gradeType').val();
-      
-      // Filter grade options by type
-      var filteredGradeOptions = gradeOptions;
-      if(gradeTypeFilter) {
-        var $temp = $('<select>').html(gradeOptions);
-        $temp.find('option').each(function() {
-          var gradeType = $(this).attr('data-type');
-          if(gradeType && gradeType != gradeTypeFilter) {
-            $(this).remove();
-          }
-        });
-        filteredGradeOptions = $temp.html();
-      }
       
       var row = `
         <tr class="details">
@@ -1278,7 +1192,7 @@ $(function () {
           </td>
           <td>
             <select class="form-control select2" id="grade${idx}" name="weightDetails[${idx}][grade]" required>
-              ${filteredGradeOptions}
+              ${gradeOptions}
             </select>
           </td>
           <td>
@@ -1522,7 +1436,6 @@ function newEntry(){
   $('#extendModal').find('#labelSummary').val("");
   $('#extendModal').find('#location').val("").trigger('change');
   $('#extendModal').find('#productionLines').val("").trigger('change');
-  $('#extendModal').find('#gradeType').val("Local");
   $('#weightDetailsTable').empty();
   $('#extendModal').modal('show');
   
@@ -1553,7 +1466,6 @@ function edit(id) {
       $('#extendModal').find('#labelSummary').val(obj.message.label_remark);
       $('#extendModal').find('#location').val(obj.message.location).trigger('change');
       $('#extendModal').find('#productionLines').val(obj.message.production_line).trigger('change');
-      $('#extendModal').find('#gradeType').val(obj.message.type || 'Local').trigger('change');
       
       if (obj.message.packaging_date) {
         $('#packagingDatePicker').datetimepicker('date', moment(obj.message.packaging_date, 'YYYY-MM-DD HH:mm:ss'));
@@ -1661,13 +1573,10 @@ function edit(id) {
           // Filter and set grade
           var gradeSelect = tbody.find(`select[name="weightDetails[${idx}][grade]"]`);
           gradeSelect.data('original-options', gradeSelect.html());
-          var gradeTypeFilter = $('#gradeType').val();
           gradeSelect.find('option').each(function() {
             var optProduct = $(this).attr('data-product');
-            var optType = $(this).attr('data-type');
             var productMatch = !optProduct || optProduct == detail.product_id;
-            var typeMatch = !gradeTypeFilter || !optType || optType == gradeTypeFilter;
-            if (!productMatch || !typeMatch) {
+            if (!productMatch) {
               $(this).remove();
             }
           });

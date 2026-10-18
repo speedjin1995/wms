@@ -17,8 +17,8 @@ class ProductController
      */
     public function getProductsByType(?array $categoryIds = null): array
     {
-        $type = $_POST['type'] ?? 'Local';
-        
+        $type = 'Local';
+
         try {
             $products = $this->service->getProductsWithGrades($categoryIds, $type);
             return [

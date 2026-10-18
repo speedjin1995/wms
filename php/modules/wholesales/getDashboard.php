@@ -61,12 +61,6 @@ if ($locationId != '') {
   $searchQuery .= " AND w.location = '$locationId'";
 }
 
-// Filter by type (Local / Export), empty = all
-$typeId = $_POST['type'] ?? '';
-if (in_array($typeId, ['Local', 'Export'], true)) {
-  $searchQuery .= " AND w.type = '$typeId'";
-}
-
 // SADMIN sees all companies; other roles are restricted to their own company
 if ($role != 'SADMIN') {
   $companyFilter = " AND w.company = '$company'";

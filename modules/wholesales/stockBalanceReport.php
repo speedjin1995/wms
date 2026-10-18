@@ -121,13 +121,6 @@ if(!isset($_SESSION['userID'])){
                 </select>
               </div>
 
-              <div class="filter-group">
-                <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-                <select class="form-control" id="typeFilter">
-                  <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                  <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                </select>
-              </div>
 
               <div class="filter-group filter-group-action" style="margin-left:auto;">
                 <label class="filter-label">&nbsp;</label>
@@ -249,15 +242,6 @@ if(!isset($_SESSION['userID'])){
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <div class="form-group-modern">
-                      <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?> <span class="text-danger">*</span></label>
-                      <select class="form-control" id="adjType">
-                        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                      </select>
-                    </div>
-                  </div>
                   <div class="col-md-6">
                     <div class="form-group-modern">
                       <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
@@ -341,7 +325,6 @@ if(!isset($_SESSION['userID'])){
 var adjListTable = null;
 var adjItemRowCount = 0;
 var productsData = [];
-var currentAdjType = 'Local';
 
 // ============================================================================
 // DOCUMENT READY
@@ -397,10 +380,7 @@ function initAdjustmentTab() {
     .on('input', '.adj-adjust-qty', onAdjustQtyChange)
     .on('input', '.adj-unit-cost', onUnitCostChange);
 
-  // Type change event
-  $('#adjType').on('change', onTypeChange);
-
-  loadProductsData('Local');
+  loadProductsData();
 }
 
 // ============================================================================
@@ -411,8 +391,7 @@ function buildReportUrl() {
   var category = $('#categoryFilter').val() || '';
   var location = $('#locationFilter').val() || '';
   var product = $('#productFilter').val() || '';
-  var type = $('#typeFilter').val() || '';
-  return 'php/modules/wholesales/exportStockBalance.php?asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product + '&type=' + encodeURIComponent(type);
+  return 'php/modules/wholesales/exportStockBalance.php?asAtDate=' + encodeURIComponent(date) + '&category=' + category + '&location=' + location + '&product=' + product;
 }
 
 function loadPreview() {
@@ -460,29 +439,14 @@ function filterProductsByCategory() {
 // ============================================================================
 // ADJUSTMENT TAB - DATA FUNCTIONS
 // ============================================================================
-function loadProductsData(type, callback) {
-  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'products', type: type || currentAdjType })
+function loadProductsData(callback) {
+  $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'products' })
     .done(function(obj) {
       if (obj.status === 'success') {
         productsData = obj.data;
         if (callback) callback();
       }
     });
-}
-
-function onTypeChange() {
-  var newType = $('#adjType').val();
-  if (newType === currentAdjType) return;
-  
-  currentAdjType = newType;
-  
-  // Clear existing items and reload products
-  $('#adjItemsBody').html('');
-  adjItemRowCount = 0;
-  toggleAdjItemsEmpty();
-  updateAdjustmentTotals();
-  
-  loadProductsData(newType);
 }
 
 function loadAdjustmentList() {
@@ -702,8 +666,6 @@ function format(d) {
 function openAdjustmentModal(id) {
   $('#adjId').val(id || '');
   $('#adjModalTitle').text(id ? '<?=$languageArray['edit_code'][$language] ?? 'Edit'?>' : '<?=$languageArray['new_code'][$language] ?? 'New'?>');
-  $('#adjType').val('Local');
-  currentAdjType = 'Local';
   $('#adjDate').val(moment().format('DD/MM/YYYY'));
   $('#adjRemark').val('');
   $('#adjItemsBody').html('');
@@ -809,7 +771,7 @@ function onGradeChange() {
   $row.find('.adj-unit-cost').val(parseFloat(defaultCost).toFixed(2));
 
   if (productId && gradeId) {
-    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'balance', product_id: productId, grade: gradeId, type: currentAdjType })
+    $.post('php/modules/wholesales/stockAdjustment/api.php', { action: 'balance', product_id: productId, grade: gradeId })
       .done(function(obj) {
         if (obj.status === 'success') {
           $row.find('.adj-current-qty').val(parseFloat(obj.balance).toFixed(2));
@@ -918,7 +880,6 @@ function saveAdjustment() {
   $.post('php/modules/wholesales/stockAdjustment/api.php', {
     action: action,
     id: adjId,
-    type: $('#adjType').val(),
     adjustment_date: adjDate,
     remark: $('#adjRemark').val(),
     items: JSON.stringify(items)
@@ -948,15 +909,13 @@ function editAdjustment(id) {
         var d = obj.data;
         $('#adjId').val(d.id);
         $('#adjModalTitle').text('<?=$languageArray['edit_code'][$language] ?? 'Edit'?>');
-        $('#adjType').val(d.type || 'Local');
-        currentAdjType = d.type || 'Local';
         $('#adjDate').val(d.adjustment_date_display);
         $('#adjRemark').val(d.remark || '');
         $('#adjItemsBody').html('');
         adjItemRowCount = 0;
 
         // Load products for the type first, then add items
-        loadProductsData(currentAdjType, function() {
+        loadProductsData(function() {
           var itemsToAdd = d.items.length;
           if (itemsToAdd === 0) {
             toggleAdjItemsEmpty();

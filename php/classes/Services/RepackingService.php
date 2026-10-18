@@ -170,12 +170,12 @@ class RepackingService extends BaseService
 
         $items = $this->getItemsFor(array_column($rows, 'id'));
 
-        $summary = ['record_count' => count($rows), 'total_weight' => 0.0, 'local_weight' => 0.0, 'export_weight' => 0.0];
+        $summary = ['record_count' => count($rows), 'total_weight' => 0.0, 'local_weight' => 0.0];
         $breakdown = [];
         foreach ($rows as $row) {
             $weight = (float)$row['source_weight'];
             $summary['total_weight'] += $weight;
-            $summary[$row['type'] === 'Export' ? 'export_weight' : 'local_weight'] += $weight;
+            $summary['local_weight'] += $weight;
 
             $sourceKey = $row['source_product'] . ':' . $row['source_grade'];
             if (!isset($breakdown[$sourceKey])) {
@@ -403,10 +403,6 @@ class RepackingService extends BaseService
      */
     private function validate(string $type, int $sourceProduct, int $sourceGrade, array $items): int
     {
-        if (!in_array($type, ['Local', 'Export'], true)) {
-            throw new \DomainException('Invalid type');
-        }
-
         if (!$sourceProduct || !$sourceGrade || empty($items)) {
             throw new \DomainException('Please fill in all the fields');
         }
@@ -745,12 +741,6 @@ class RepackingService extends BaseService
         if ($toDate) {
             $where .= " AND r.repacking_date <= ?";
             $params[] = $toDate->format('Y-m-d');
-            $types .= 's';
-        }
-
-        if (in_array($filters['type'] ?? '', ['Local', 'Export'], true)) {
-            $where .= " AND r.type = ?";
-            $params[] = $filters['type'];
             $types .= 's';
         }
 
