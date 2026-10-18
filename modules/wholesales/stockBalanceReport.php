@@ -100,13 +100,6 @@ $t = function ($key, $default = '') use ($languageArray, $language) {
                 </select>
               </div>
 
-              <div class="filter-group">
-                <label class="filter-label"><?=$t('type_code', 'Type')?></label>
-                <select class="form-control" id="typeFilter">
-                  <option value="Local" selected><?=$t('local_code', 'Local')?></option>
-                  <option value="Export"><?=$t('export_code', 'Export')?></option>
-                </select>
-              </div>
 
               <div class="filter-group filter-group-action" style="margin-left:auto;">
                 <label class="filter-label">&nbsp;</label>
@@ -230,15 +223,6 @@ $t = function ($key, $default = '') use ($languageArray, $language) {
                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="form-group-modern">
-                <label class="form-label-modern"><?=$t('type_code', 'Type')?> <span class="text-danger">*</span></label>
-                <select class="form-control" id="adjType">
-                  <option value="Local"><?=$t('local_code', 'Local')?></option>
-                  <option value="Export"><?=$t('export_code', 'Export')?></option>
-                </select>
               </div>
             </div>
             <div class="col-md-6">

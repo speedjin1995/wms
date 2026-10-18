@@ -326,15 +326,6 @@ if (!empty($lookups['columnSetup'])) {
                   <input type="text" class="form-control" id="doPoNo" name="doPoNo">
                 </div>
               </div>
-              <div class="col-md-3">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$t('product_type_code', 'Product Type')?></label>
-                  <select class="form-control" id="productType" name="productType">
-                    <option value="Local"><?=$t('local_code', 'Local')?></option>
-                    <option value="Export"><?=$t('export_code', 'Export')?></option>
-                  </select>
-                </div>
-              </div>
               <div class="col-md-3" id="securityBillDiv">
                 <div class="form-group-modern">
                   <label class="form-label-modern"><?=$t('sec_bill_no_code')?></label>

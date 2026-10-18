@@ -97,13 +97,6 @@ if (!isset($_SESSION['userID'])) {
               <?php } ?>
             </select>
           </div>
-          <div class="form-group col-6 col-md-3">
-            <label><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="dashType">
-              <option value="Local" selected><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-              <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-            </select>
-          </div>
         </div>
         <div class="row mt-3">
           <div class="form-group col-12 col-md-3 offset-md-9 d-flex align-items-end">
@@ -124,6 +117,13 @@ if (!isset($_SESSION['userID'])) {
         </a>
       </li>
       <?php } ?>
+      <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#tabGrading">
+          <i class="fas fa-clipboard-check"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['grading_code'][$language]?></span>
+        </a>
+      </li>
+      <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#tabPulpPaste">
@@ -132,11 +132,6 @@ if (!isset($_SESSION['userID'])) {
       </li>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
-      <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#tabGrading">
-          <i class="fas fa-clipboard-check"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['grading_code'][$language]?></span>
-        </a>
-      </li>
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#tabPackaging">
           <i class="fas fa-box-open"></i><span class="d-none d-sm-inline ml-1"><?=$languageArray['batch_packaging_code'][$language]?></span>
@@ -157,6 +152,9 @@ if (!isset($_SESSION['userID'])) {
       <?php if (!empty(array_intersect($companyProducts, ['wholesale', 'processing']))) { ?>
         <?php require_once __DIR__ . '/tab_wholesales.php'; ?>
         <?php require_once __DIR__ . '/tab_repacking.php'; ?>
+      <?php } ?>
+      <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
+        <?php require_once 'modules/dashboard/tab_grading.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
         <?php require_once __DIR__ . '/tab_pulppaste.php'; ?>

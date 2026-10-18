@@ -8,7 +8,6 @@ $type    = $_POST['type'] ?? '';
 $product     = $_POST['product'] ?? '';
 $grade       = $_POST['grade'] ?? '';
 $category    = $_POST['category'] ?? '';
-$productType = $_POST['productType'] ?? '';
 
 $stockLevel = 'GRADE';
 $levelStmt = $db->prepare("SELECT stock_level FROM companies WHERE id = ?");
@@ -42,7 +41,7 @@ if ($product)          $baseFilters[] = ['t.product_id = ?', $product];
 if ($category)         $baseFilters[] = ['c.id = ?', $category];
 
 $gradeFilters = $grade ? [['t.grade = ?', $grade]] : [];
-$typeFilters  = in_array($productType, ['Local', 'Export']) ? [['t.type = ?', $productType]] : [];
+$localFilters = [['t.type = ?', 'Local']];
 
 $data = [];
 
@@ -58,7 +57,7 @@ if ($type === 'raw') {
                 WHERE t.deleted = 0{FILTERS}
                 GROUP BY t.product_id, t.type, p.product_name, c.id, c.category_name
                 ORDER BY c.category_name, p.product_name, t.type";
-        $data = runDashboardQuery($db, $sql, array_merge($baseFilters, $typeFilters));
+        $data = runDashboardQuery($db, $sql, array_merge($baseFilters, $localFilters));
     } else {
         $sql = "SELECT t.product_id, t.grade, t.balance, t.type,
                        p.product_name, c.id as category_id, c.category_name,
@@ -69,7 +68,7 @@ if ($type === 'raw') {
                 LEFT JOIN grades g    ON g.id = t.grade
                 WHERE t.deleted = 0{FILTERS}
                 ORDER BY c.category_name, p.product_name, g.units, t.type";
-        $data = runDashboardQuery($db, $sql, array_merge($baseFilters, $gradeFilters, $typeFilters));
+        $data = runDashboardQuery($db, $sql, array_merge($baseFilters, $gradeFilters, $localFilters));
     }
 
 } elseif ($type === 'graded') {
@@ -82,7 +81,7 @@ if ($type === 'raw') {
             LEFT JOIN grades g     ON g.id = t.grade
             WHERE t.deleted = 0{FILTERS}
             ORDER BY c.category_name, p.product_name, g.units, t.type";
-    $data = runDashboardQuery($db, $sql, array_merge($baseFilters, $gradeFilters, $typeFilters));
+    $data = runDashboardQuery($db, $sql, array_merge($baseFilters, $gradeFilters, $localFilters));
 
 } elseif ($type === 'compare') {
     // Raw vs graded per product + type (company scope applied to both sides)
@@ -92,12 +91,12 @@ if ($type === 'raw') {
             FROM (
                 SELECT t.product_id, t.type, SUM(t.balance) AS raw_balance, 0 AS graded_balance
                 FROM raw_stock_balance t
-                WHERE t.deleted = 0 $companyWhere
+                WHERE t.deleted = 0 AND t.type = 'Local' $companyWhere
                 GROUP BY t.product_id, t.type
                 UNION ALL
                 SELECT t.product_id, t.type, 0, SUM(t.balance)
                 FROM grading_stock_balance t
-                WHERE t.deleted = 0 $companyWhere
+                WHERE t.deleted = 0 AND t.type = 'Local' $companyWhere
                 GROUP BY t.product_id, t.type
             ) x
             LEFT JOIN products p   ON p.id = x.product_id

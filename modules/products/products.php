@@ -425,14 +425,6 @@ else{
           <!-- Grades -->
           <div class="modal-section">
             <div class="section-title mb-3"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
-            <ul class="nav nav-tabs" id="gradeTypeTabs">
-              <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#gradeLocalTab" style="font-size:0.8rem; padding:0.5rem 0.75rem;"><?=$languageArray['local_code'][$language] ?? 'Local'?></a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#gradeExportTab" style="font-size:0.8rem; padding:0.5rem 0.75rem;"><?=$languageArray['export_code'][$language] ?? 'Export'?></a>
-              </li>
-            </ul>
             <div class="tab-content mt-2">
               <div class="tab-pane fade show active" id="gradeLocalTab">
                 <div class="mb-2 text-right">
@@ -440,18 +432,6 @@ else{
                 </div>
                 <div id="gradeLocalRowsContainer">
                   <div id="gradeLocalEmptyState" class="empty-state">
-                    <i class="fas fa-layer-group"></i>
-                    <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
-                    <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
-                  </div>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="gradeExportTab">
-                <div class="mb-2 text-right">
-                  <button type="button" class="btn-modern btn-modern-primary btn-sm add-grade" data-type="Export"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_grade_code'][$language]?></button>
-                </div>
-                <div id="gradeExportRowsContainer">
-                  <div id="gradeExportEmptyState" class="empty-state">
                     <i class="fas fa-layer-group"></i>
                     <p><?=$languageArray['no_grades_added_code'][$language] ?? 'No grades added yet'?></p>
                     <span><?=$languageArray['click_add_grade_code'][$language] ?? 'Click "Add Grade" to add pricing by grade'?></span>
@@ -492,14 +472,6 @@ else{
             <div class="tab-pane fade show active" id="tabCustomers">
               <div class="mb-2 d-flex justify-content-between align-items-center">
                 <div>
-                  <label class="mr-2 mb-0" style="font-size:0.85rem;"><?=$languageArray['filter_code'][$language] ?? 'Filter'?>:</label>
-                  <select class="form-control form-control-sm d-inline-block" id="customerTypeFilter" style="width:auto;">
-                    <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                  </select>
-                </div>
-                <div>
                   <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByState"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                   <button type="button" class="btn btn-success btn-sm add-customer"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_customers_code'][$language]?></button>
                 </div>
@@ -513,14 +485,6 @@ else{
             </div>
             <div class="tab-pane fade" id="tabSuppliers">
               <div class="mb-2 d-flex justify-content-between align-items-center">
-                <div>
-                  <label class="mr-2 mb-0" style="font-size:0.85rem;"><?=$languageArray['filter_code'][$language] ?? 'Filter'?>:</label>
-                  <select class="form-control form-control-sm d-inline-block" id="supplierTypeFilter" style="width:auto;">
-                    <option value=""><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                  </select>
-                </div>
                 <div>
                   <button type="button" class="btn btn-warning btn-sm" id="bulkPriceByStateSupplier"><i class="fas fa-tags mr-1"></i><?=$languageArray['bulk_price_by_state_code'][$language]?></button>
                   <button type="button" class="btn btn-success btn-sm add-supplier"><i class="fas fa-plus mr-1"></i><?=$languageArray['add_supplier_code'][$language]?></button>
@@ -620,10 +584,6 @@ else{
           <option value="<?=$rowCustomer['id']?>" data-state="<?=$rowCustomer['state_name']?>"><?=$rowCustomer['customer_name']?></option>
         <?php } ?>
       </select>
-      <select class="form-control form-control-sm customer-type-select" id="customerType" name="customerType" style="width:90px; flex-shrink:0;">
-        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-      </select>
       <button type="button" class="cs-card-remove" id="remove"><i class="fas fa-times"></i></button>
     </div>
     <div class="cs-card-body">
@@ -677,10 +637,6 @@ else{
         <?php $suppliers->data_seek(0); while($rowSupplier=mysqli_fetch_assoc($suppliers)){ ?>
           <option value="<?=$rowSupplier['id']?>" data-state="<?=$rowSupplier['state_name']?>"><?=$rowSupplier['supplier_name']?></option>
         <?php } ?>
-      </select>
-      <select class="form-control form-control-sm supplier-type-select" id="supplierType" name="supplierType" style="width:90px; flex-shrink:0;">
-        <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-        <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
       </select>
       <button type="button" class="cs-card-remove" id="removeSupplier"><i class="fas fa-times"></i></button>
     </div>

@@ -82,14 +82,6 @@ if (!empty($categoryIds)) {
             </div>
           </div>
 
-          <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['product_type_code'][$language] ?? 'Product Type'?></label>
-            <select class="form-control" id="typeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-              <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-            </select>
-          </div>
 
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['category_code'][$language]?></label>
@@ -110,9 +102,7 @@ if (!empty($categoryIds)) {
               <?php } ?>
             </select>
           </div>
-        </div>
 
-        <div class="filter-row mt-3">
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['target_product_code'][$language]?></label>
             <select class="form-control select2-filter" id="targetProductFilter">
@@ -152,7 +142,6 @@ if (!empty($categoryIds)) {
                 <tr>
                   <th><?=$languageArray['repacking_no_code'][$language]?></th>
                   <th><?=$languageArray['date_code'][$language]?></th>
-                  <th><?=$languageArray['product_type_code'][$language] ?? 'Product Type'?></th>
                   <th><?=$languageArray['source_product_code'][$language]?></th>
                   <th><?=$languageArray['weight_code'][$language]?> (kg)</th>
                   <th><?=$languageArray['target_products_packed_code'][$language]?></th>
@@ -185,7 +174,7 @@ if (!empty($categoryIds)) {
           <div class="modal-section">
             <div class="section-title"><i class="fas fa-box-open mr-2"></i><?=$languageArray['source_product_code'][$language]?></div>
             <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label class="form-label-modern"><?=$languageArray['date_code'][$language]?> <span class="text-danger">*</span></label>
                   <div class="input-group date" id="repackingDatePicker" data-target-input="nearest">
@@ -196,22 +185,13 @@ if (!empty($categoryIds)) {
                   </div>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label class="form-label-modern"><?=$languageArray['repacking_no_code'][$language]?></label>
                   <input type="text" class="form-control" id="repackingNo" readonly>
                 </div>
               </div>
-              <div class="col-md-3">
-                <div class="form-group">
-                  <label class="form-label-modern"><?=$languageArray['product_type_code'][$language] ?? 'Product Type'?></label>
-                  <select class="form-control" id="productType" name="productType">
-                    <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
-                    <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
-                  </select>
-                </div>
-              </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="form-group mb-0">
                   <label class="form-label-modern"><?=$languageArray['category_code'][$language]?></label>
                   <select class="form-control select2" style="width:100%;" id="sourceCategory" name="sourceCategory">
@@ -222,9 +202,7 @@ if (!empty($categoryIds)) {
                   </select>
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="form-group mb-0">
                   <label class="form-label-modern"><?=$languageArray['product_bulk_code'][$language]?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" style="width:100%;" id="sourceProduct" name="sourceProduct" required>
@@ -232,7 +210,7 @@ if (!empty($categoryIds)) {
                   </select>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="form-group mb-0">
                   <label class="form-label-modern"><?=$languageArray['grade_code'][$language]?> <span class="text-danger">*</span></label>
                   <select class="form-control select2" style="width:100%;" id="sourceGrade" name="sourceGrade" required>
@@ -240,7 +218,7 @@ if (!empty($categoryIds)) {
                   </select>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4" style="display: none">
                 <div class="form-group mb-0">
                   <label class="form-label-modern"><?=$languageArray['weight_to_deduct_code'][$language]?> <span class="text-danger">*</span></label>
                   <input type="number" class="form-control" id="productWeight" name="productWeight" step="0.01" readonly>
@@ -290,7 +268,7 @@ if (!empty($categoryIds)) {
             </table>
           </div>
         </div>
-        <div class="modal-footer justify-content-between">
+        <div class="modal-footer">
           <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
           <button type="submit" class="btn btn-modern btn-modern-primary" id="saveBtn"><?=$languageArray['save_code'][$language]?></button>
         </div>

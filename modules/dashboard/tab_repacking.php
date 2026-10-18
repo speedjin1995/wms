@@ -18,13 +18,6 @@
         <div class="stat-sub">kg</div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
-      <div class="dash-stat-card h-100" style="background:linear-gradient(135deg,#20c997,#17a589);">
-        <div class="stat-label"><?=$languageArray['repacking_code'][$language]?><br><?=$languageArray['export_code'][$language]?></div>
-        <div class="stat-value" id="rpExportWeight">—</div>
-        <div class="stat-sub">kg</div>
-      </div>
-    </div>
   </div>
 
   <!-- Repacking Breakdown -->

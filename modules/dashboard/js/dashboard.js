@@ -32,8 +32,7 @@ function getDateParams() {
   return {
     fromDate: $('#dashFromDate').val(),
     toDate:   $('#dashToDate').val(),
-    location: $('#dashLocation').val() || '',
-    type:     $('#dashType').val()
+    location: $('#dashLocation').val() || ''
   };
 }
 
