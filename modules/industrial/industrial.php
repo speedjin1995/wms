@@ -215,14 +215,6 @@ else{
             </select>
           </div>
 
-          <div class="filter-group" style="display:none">
-            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-            </select>
-          </div>
 
           <div class="filter-group filter-group-action">
             <label class="filter-label">&nbsp;</label>
@@ -687,7 +679,6 @@ $(function () {
   var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
   var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
   var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-  var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
   var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
   var table = $("#weightTable").DataTable({
@@ -719,7 +710,6 @@ $(function () {
         checkedBy: checkedByI,
         weightedBy: weightedByI,
         location: locationI,
-        partyType: partyTypeI,
         indicator: indicatorI,
         recordType: 'industrial'
       } 
@@ -808,7 +798,6 @@ $(function () {
     var checkedByI = $('#checkedByFilter').val() ? $('#checkedByFilter').val() : '';
     var weightedByI = $('#weightByFilter').val() ? $('#weightByFilter').val() : '';
     var locationI = $('#locationFilter').val() ? $('#locationFilter').val() : '';
-    var partyTypeI = $('#partyTypeFilter').val() ? $('#partyTypeFilter').val() : '';
     var indicatorI = $('#indicatorFilter').val() ? $('#indicatorFilter').val() : '';
 
     //Destroy the old Datatable
@@ -844,7 +833,6 @@ $(function () {
           checkedBy: checkedByI,
           weightedBy: weightedByI,
           location: locationI,
-          partyType: partyTypeI,
           indicator: indicatorI,
           recordType: 'industrial'
         } 

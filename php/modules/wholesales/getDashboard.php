@@ -71,7 +71,7 @@ if ($role != 'SADMIN') {
 ## Fetch records
 // Fetch all wholesale records matching the filters, joining supplier and customer names
 $empQuery = "SELECT w.status, w.weight_details, w.supplier, w.customer,
-                    s.supplier_name, s.supplier_type, c.customer_name, c.customer_type,
+                    s.supplier_name, c.customer_name,
                     w.start_time, DATE(w.start_time) AS trade_date
              FROM wholesales w
              LEFT JOIN supplies s  ON w.supplier = s.id

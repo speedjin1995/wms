@@ -190,15 +190,6 @@ else{
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="form-group">
-                    <label class="form-label-modern"><?=$languageArray['supplier_type_code'][$language] ?? 'Supplier Type'?></label>
-                    <select class="form-control select2" style="width:100%;" id="supplierType" name="supplierType">
-                      <option value="Normal" selected><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-                      <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
                   <div class="form-group mb-0">
                     <label class="form-label-modern"><?=$languageArray['parent_code'][$language]?></label>
                     <select class="form-control select2" style="width:100%;" id="parent" name="parent">
@@ -666,7 +657,6 @@ $(function () {
       $('#addModal').find('#billingPic').val("");
       $('#addModal').find('#currency').val("").trigger('change');
       $('#addModal').find('#parent').val("").trigger('change');
-      $('#addModal').find('#supplierType').val("Normal").trigger('change');
       $('#addModal').modal('show');
       
       $('#supplierForm').validate({
@@ -938,7 +928,6 @@ function edit(id){
           $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
-          $('#addModal').find('#supplierType').val(obj.message.supplier_type || 'Normal').trigger('change');
           
           // SSM File preview
           if (obj.message.ssm_file) {

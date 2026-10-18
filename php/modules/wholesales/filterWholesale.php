@@ -70,11 +70,6 @@ if($_POST['location'] != null && $_POST['location'] != '' && $_POST['location'] 
   $searchQuery .= " and wholesales.location = '".$_POST['location']."'";
 }
 
-if($_POST['partyType'] != null && $_POST['partyType'] != '' && $_POST['partyType'] != '-'){
-  $partyType = $_POST['partyType'];
-  $searchQuery .= " and (c.customer_type = '".$partyType."' OR s.supplier_type = '".$partyType."')";
-}
-
 if($_POST['indicator'] != null && $_POST['indicator'] != '' && $_POST['indicator'] != '-'){
   $searchQuery .= " and wholesales.indicator = '".$_POST['indicator']."'";
 }

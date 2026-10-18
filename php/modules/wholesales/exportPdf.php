@@ -104,11 +104,6 @@ if(isset($_GET['location']) && $_GET['location'] != null && $_GET['location'] !=
   $searchQuery .= " and wholesales.location = '".mysqli_real_escape_string($db, $_GET['location'])."'";
 }
 
-if(isset($_GET['partyType']) && $_GET['partyType'] != null && $_GET['partyType'] != '' && $_GET['partyType'] != '-'){
-  $partyType = mysqli_real_escape_string($db, $_GET['partyType']);
-  $searchQuery .= " AND (c.customer_type = '" . $partyType . "' OR s.supplier_type = '" . $partyType . "')";
-}
-
 if(isset($_GET['indicator']) && $_GET['indicator'] != null && $_GET['indicator'] != '' && $_GET['indicator'] != '-'){
   $searchQuery .= " AND wholesales.indicator = '".$_GET['indicator']."'";
 }

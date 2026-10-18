@@ -44,7 +44,6 @@ if(isset($_POST['userID'])){
                 $message['fax'] = $row['fax'];
                 $message['customer'] = $row['customer'];
                 $message['parent'] = $row['parent'];
-                $message['customer_type'] = $row['customer_type'];
             }
             
             echo json_encode(array("status" => "success", "message" => $message));

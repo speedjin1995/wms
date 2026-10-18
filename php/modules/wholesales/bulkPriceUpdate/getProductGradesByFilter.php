@@ -45,8 +45,6 @@ $sql    = "SELECT w.weight_details FROM wholesales w
         LEFT JOIN customers c ON w.customer = c.id
         LEFT JOIN supplies s ON w.supplier = s.id
         WHERE w.deleted = '0' AND w.records_type = 'wholesales'
-        AND (c.customer_type IS NULL OR c.customer_type = '' OR c.customer_type = 'Normal' OR w.customer IS NULL OR w.customer = '')
-        AND (s.supplier_type IS NULL OR s.supplier_type = '' OR s.supplier_type = 'Normal' OR w.supplier IS NULL OR w.supplier = '')
         $companyFilter $dateFilter $statusFilter $partyFilter";
 $result = mysqli_query($db, $sql);
 

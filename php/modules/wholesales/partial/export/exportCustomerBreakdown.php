@@ -16,7 +16,6 @@ $fromDate   = $_GET['fromDate'] ?? '';
 $toDate     = $_GET['toDate'] ?? '';
 $customerId = $_GET['customer'] ?? '';
 $locationId = $_GET['location'] ?? '';
-$partyType  = $_GET['partyType'] ?? '';
 $categoryId = (int)($_GET['category'] ?? 0);
 
 // Build search query
@@ -38,11 +37,6 @@ if ($locationId != '') {
     $locationId = mysqli_real_escape_string($db, $locationId);
     $searchQuery .= " AND w.location = '$locationId'";
 }
-if ($partyType != '') {
-    $partyType = mysqli_real_escape_string($db, $partyType);
-    $searchQuery .= " AND c.customer_type = '$partyType'";
-}
-
 $companyFilter = ($role != 'SADMIN') ? " AND w.company = '$company'" : '';
 
 // Fetch records
@@ -193,7 +187,7 @@ $lastCol    = Coordinate::stringFromColumnIndex($lastColIdx);
 
 // Title row
 $row = 1;
-$sheet->setCellValue('A' . $row, ($partyType ? $partyType . ' ' : '') . 'Customer Weighing Breakdown Report');
+$sheet->setCellValue('A' . $row, 'Customer Weighing Breakdown Report');
 $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
 $row++;
 
@@ -346,7 +340,7 @@ if ($allowPrice == 'Y') {
 }
 
 // Output
-$fileName = ($partyType ? $partyType . '_' : '') . 'Customer_Breakdown_' . date('Y-m-d') . '.xlsx';
+$fileName = 'Customer_Breakdown_' . date('Y-m-d') . '.xlsx';
 $writer = new Xlsx($spreadsheet);
 
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

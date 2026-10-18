@@ -270,14 +270,6 @@ else{
             </select>
           </div>
 
-          <div class="filter-group">
-            <label class="filter-label"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
-            <select class="form-control" id="partyTypeFilter" name="partyTypeFilter">
-              <option value="" selected><?=$languageArray['all_code'][$language] ?? 'All'?></option>
-              <option value="Normal"><?=$languageArray['normal_code'][$language] ?? 'Normal'?></option>
-              <option value="Packing"><?=$languageArray['packing_code'][$language] ?? 'Packing'?></option>
-            </select>
-          </div>
 
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['indicator_code'][$language]?></label>
@@ -294,9 +286,7 @@ else{
             <label class="filter-label"><?=$languageArray['checked_by_code'][$language]?></label>
             <input type="text" class="form-control" id="checkedByFilter" name="checkedByFilter" placeholder="<?=$languageArray['please_enter_name_code'][$language]?>">
           </div>
-        </div>
-
-        <div class="filter-row mt-3">
+          
           <div class="filter-group">
             <label class="filter-label"><?=$languageArray['weighed_by_code'][$language]?></label>
             <select class="form-control select2" id="weightByFilter" name="weightByFilter">
@@ -306,6 +296,10 @@ else{
               <?php } ?>
             </select>
           </div>
+        </div>
+
+        <div class="filter-row mt-3">
+          
 
           <div class="filter-group filter-group-action" style="margin-left:auto;">
             <label class="filter-label">&nbsp;</label>
@@ -510,7 +504,7 @@ else{
                     <option value=""><?=$languageArray['please_select_code'][$language]?></option>
                     <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowCustomer3=mysqli_fetch_assoc($customers2)){ ?>
-                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>" data-type="<?=$rowCustomer3['customer_type'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
+                      <option value="<?=$rowCustomer3['id'] ?>" data-currency="<?=$rowCustomer3['currency'] ?>"><?=$rowCustomer3['customer_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -528,7 +522,7 @@ else{
                     <option value=""><?=$languageArray['please_select_code'][$language]?></option>
                     <option value="OTHERS"><?=$languageArray['others_code'][$language]?></option>
                     <?php while($rowSupplier3=mysqli_fetch_assoc($supplies2)){ ?>
-                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>" data-type="<?=$rowSupplier3['supplier_type'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
+                      <option value="<?=$rowSupplier3['id'] ?>" data-currency="<?=$rowSupplier3['currency'] ?>"><?=$rowSupplier3['supplier_name'] ?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -1850,7 +1844,6 @@ function renderTable() {
   var checkedByI = $('#checkedByFilter').val() || '';
   var weightedByI = $('#weightByFilter').val() || '';
   var locationI = $('#locationFilter').val() || '';
-  var partyTypeI = $('#partyTypeFilter').val() || '';
   var indicatorI = $('#indicatorFilter').val() || '';
 
   // Destroy the old Datatable if exists
@@ -1889,7 +1882,6 @@ function renderTable() {
         checkedBy: checkedByI,
         weightedBy: weightedByI,
         location: locationI,
-        partyType: partyTypeI,
         indicator: indicatorI
       }
     },
@@ -2770,27 +2762,9 @@ function deactivate(id) {
 // PRICING FUNCTIONS
 // ============================================================================
 
-function getSelectedPartyType() {
-  var status = $('#extendModal').find('#status').val();
-  if (status === 'RECEIVING' || status === 'INCOMING') {
-    return $('#extendModal').find('#supplier option:selected').data('type') || '';
-  } else {
-    return $('#extendModal').find('#customer option:selected').data('type') || '';
-  }
-}
-
 function calculatePrice(productId, status, customerId, currentGrade, element, overridePrice, forceReplace) {
   var currencyId = element.closest('tr').find('select[name*="[currency]"]').val();
-  
-  // If party type is Packing, default price to 0
-  var partyType = getSelectedPartyType();
-  if (partyType === 'Packing' && forceReplace) {
-    element.closest('tr').find('input[id^="price"]').val('0.00');
-    element.closest('tr').find('input[id^="before_discount"]').val('0.00');
-    element.closest('tr').find('input[name*="[total]"]').val('0.00').trigger('change');
-    return;
-  }
-  
+
   if (productId && currencyId){
     $('#spinnerLoading').show();
 
