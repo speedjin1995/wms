@@ -33,7 +33,7 @@ class WholesaleDashboardService extends BaseService
 
     /**
      * Dashboard data. Filters: fromDate, toDate (d/m/Y), status (RECEIVING / DISPATCH / empty = both), customer, supplier,
-     * location, partyType (Normal / Packing, with a status), category (only weight rows of that category are counted)
+     * location, category (only weight rows of that category are counted)
      */
     public function getSummary(array $filters): array
     {
@@ -54,12 +54,8 @@ class WholesaleDashboardService extends BaseService
                 $this->addCondition($where, $params, $types, "$column = ?", $filters[$key]);
             }
         }
-
-        $partyType = (string)($filters['partyType'] ?? '');
-        if ($partyType !== '' && $status === 'RECEIVING') {
-            $this->addCondition($where, $params, $types, "s.supplier_type = ?", $partyType);
-        } elseif ($partyType !== '' && $status === 'DISPATCH') {
-            $this->addCondition($where, $params, $types, "c.customer_type = ?", $partyType);
+        if (in_array($filters['productType'] ?? '', ['Local', 'Export'], true)) {
+            $this->addCondition($where, $params, $types, "w.type = ?", $filters['productType']);
         }
 
         // Category: records holding a product of the category; only those weight rows are counted
@@ -85,7 +81,7 @@ class WholesaleDashboardService extends BaseService
         }
 
         $records = $this->fetchAll(
-            "SELECT w.status, w.weight_details, w.supplier, w.customer, s.supplier_name, s.supplier_type, c.customer_name, c.customer_type,
+            "SELECT w.status, w.weight_details, w.supplier, w.customer, s.supplier_name, c.customer_name,
                     w.start_time, DATE(w.start_time) AS trade_date
              FROM wholesales w LEFT JOIN supplies s ON w.supplier = s.id LEFT JOIN customers c ON w.customer = c.id
              WHERE $where",
@@ -96,7 +92,7 @@ class WholesaleDashboardService extends BaseService
         $sides = [];
         foreach (['receiving', 'dispatch'] as $side) {
             $sides[$side] = [
-                'weight' => 0, 'count' => 0, 'value' => [], 'parties' => [], 'normal' => [], 'packing' => [],
+                'weight' => 0, 'count' => 0, 'value' => [], 'parties' => [],
                 'grades' => [], 'hourly' => array_fill(0, 24, 0)
             ];
         }
@@ -135,11 +131,9 @@ class WholesaleDashboardService extends BaseService
             if (in_array($row['status'], self::RECEIVING_STATUSES, true)) {
                 $side = 'receiving';
                 $partyName = $row['supplier_name'] ?: 'Unknown';
-                $partyType = $row['supplier_type'] ?? 'Normal';
             } elseif (in_array($row['status'], self::DISPATCH_STATUSES, true)) {
                 $side = 'dispatch';
                 $partyName = $row['customer_name'] ?: 'Unknown';
-                $partyType = $row['customer_type'] ?? 'Normal';
             } else {
                 continue;
             }
@@ -151,8 +145,6 @@ class WholesaleDashboardService extends BaseService
                 $data['value'][$currency] = ($data['value'][$currency] ?? 0) + $value;
             }
             $data['parties'][$partyName] = ($data['parties'][$partyName] ?? 0) + $rowNet;
-            $typeKey = $partyType === 'Packing' ? 'packing' : 'normal';
-            $data[$typeKey][$partyName] = ($data[$typeKey][$partyName] ?? 0) + $rowNet;
             $trendMap[$date][$side] += $rowNet;
             $data['hourly'][(int)date('G', strtotime($row['start_time']))] += $rowNet;
 
@@ -190,11 +182,7 @@ class WholesaleDashboardService extends BaseService
                 'dispatch_value' => $round($sides['dispatch']['value'])
             ],
             'supplierBreakdown' => $showSuppliers ? $this->breakdown($sides['receiving']['parties']) : [],
-            'supplierNormalBreakdown' => $showSuppliers ? $this->breakdown($sides['receiving']['normal']) : [],
-            'supplierPackingBreakdown' => $showSuppliers ? $this->breakdown($sides['receiving']['packing']) : [],
             'customerBreakdown' => $showCustomers ? $this->breakdown($sides['dispatch']['parties']) : [],
-            'customerNormalBreakdown' => $showCustomers ? $this->breakdown($sides['dispatch']['normal']) : [],
-            'customerPackingBreakdown' => $showCustomers ? $this->breakdown($sides['dispatch']['packing']) : [],
             'gradeDistribution' => $this->gradeDistribution($sides['receiving']['grades']),
             'gradeDistributionDispatch' => $this->gradeDistribution($sides['dispatch']['grades']),
             'volumeTrend' => $volumeTrend,
@@ -286,7 +274,7 @@ class WholesaleDashboardService extends BaseService
     /**
      * Breakdown Excel. $type: customer / supplier (by party, product, grade), customer_individual / supplier_individual
      * (by party and date), grade (grade distribution; status RECEIVING / DISPATCH / both).
-     * Filters: fromDate, toDate, customer / supplier, location (breakdowns and grade), partyType, status (grade), category (empty / 0 = all). Null for an unknown type.
+     * Filters: fromDate, toDate, customer / supplier, location (breakdowns and grade), productType (Local / Export), status (grade), category (empty / 0 = all). Null for an unknown type.
      */
     public function buildExport(string $type, array $filters): ?array
     {
@@ -302,7 +290,6 @@ class WholesaleDashboardService extends BaseService
         $allowPrice = $companyDetail['include_price'];
         $fromDate = (string)($filters['fromDate'] ?? '');
         $toDate = (string)($filters['toDate'] ?? '');
-        $partyType = (string)($filters['partyType'] ?? '');
         $status = (string)($filters['status'] ?? '');
         $spreadsheet = null;
         $fileName = '';
@@ -328,6 +315,9 @@ class WholesaleDashboardService extends BaseService
             if (($filters['location'] ?? '') !== '') {
                 $this->addCondition($where, $params, $types, "w.location = ?", $filters['location']);
             }
+            if (in_array($filters['productType'] ?? '', ['Local', 'Export'], true)) {
+                $this->addCondition($where, $params, $types, "w.type = ?", $filters['productType']);
+            }
 
             return $this->fetchAll(
                 "SELECT w.weight_details, w.status, DATE(w.start_time) AS trade_date FROM wholesales w WHERE $where ORDER BY w.start_time",
@@ -347,8 +337,8 @@ class WholesaleDashboardService extends BaseService
         if (strpos($type, '_individual') === false && ($filters['location'] ?? '') !== '') {
             $this->addCondition($where, $params, $types, "w.location = ?", $filters['location']);
         }
-        if (($filters['partyType'] ?? '') !== '') {
-            $this->addCondition($where, $params, $types, $isCustomer ? "c.customer_type = ?" : "s.supplier_type = ?", $filters['partyType']);
+        if (in_array($filters['productType'] ?? '', ['Local', 'Export'], true)) {
+            $this->addCondition($where, $params, $types, "w.type = ?", $filters['productType']);
         }
 
         $sql = $isCustomer

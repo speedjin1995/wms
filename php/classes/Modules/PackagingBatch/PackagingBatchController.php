@@ -28,6 +28,7 @@ class PackagingBatchController extends BaseController
         foreach (['fromDate', 'toDate', 'location', 'productionLine'] as $key) {
             $filters[$key] = trim((string)($_POST[$key] ?? ''));
         }
+        $filters['type'] = trim((string)($_POST['type'] ?? ''));
 
         return ['status' => 'success', 'message' => $this->dashboardService->getSummary($filters)];
     }

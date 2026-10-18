@@ -27,6 +27,7 @@ class GradingController extends BaseController
         foreach (['fromDate', 'toDate', 'location'] as $key) {
             $filters[$key] = trim((string)($_POST[$key] ?? ''));
         }
+        $filters['type'] = trim((string)($_POST['type'] ?? ''));
 
         return ['status' => 'success', 'message' => $this->dashboardService->getSummary($filters)];
     }
@@ -96,6 +97,7 @@ class GradingController extends BaseController
 
         $header = [
             'location' => $location,
+            'type' => in_array($_POST['type'] ?? '', ['Local', 'Export'], true) ? $_POST['type'] : 'Local',
             'start_date' => $startDate,
             'end_date' => $this->postDateTime('endTime'),
             'product_category' => $category ?: null,

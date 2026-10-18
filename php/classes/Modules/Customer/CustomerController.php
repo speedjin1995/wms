@@ -31,8 +31,7 @@ class CustomerController extends BaseController
         'phone' => ['column' => 'customer_phone', 'required' => false],
         'email' => ['column' => 'pic', 'required' => false],
         'fax' => ['column' => 'fax', 'required' => false],
-        'parent' => ['column' => 'parent', 'required' => false],
-        'customerType' => ['column' => 'customer_type', 'required' => false]
+        'parent' => ['column' => 'parent', 'required' => false]
     ];
 
     private CustomerService $customerService;
@@ -97,10 +96,6 @@ class CustomerController extends BaseController
         $data = $this->collectFields(self::FIELDS);
         if ($data === null) {
             return ['status' => 'failed', 'message' => 'Please fill in all the fields'];
-        }
-
-        if ($data['customer_type'] === null) {
-            $data['customer_type'] = 'Normal';
         }
 
         $ssm = $this->customerService->resolveSsmFile($id, $company, $_FILES['ssmFile'] ?? null, trim($_POST['ssmFilePath'] ?? ''));

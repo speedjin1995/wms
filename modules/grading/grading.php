@@ -206,6 +206,15 @@ $t = function ($key, $default = '') use ($languageArray, $language) {
               </div>
               <div class="col-md-4">
                 <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$t('type_code', 'Type')?></label>
+                  <select class="form-control" id="type" name="type">
+                    <option value="Local" selected><?=$t('local_code', 'Local')?></option>
+                    <option value="Export"><?=$t('export_code', 'Export')?></option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
                   <label class="form-label-modern"><?=$t('remark_code')?></label>
                   <textarea class="form-control" id="remarks" name="remarks" rows="1" placeholder="<?=$t('enter_remark_code')?>"></textarea>
                 </div>

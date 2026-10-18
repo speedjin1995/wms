@@ -280,9 +280,9 @@ class PackagingBatchService extends BaseService
             }
 
             if ($this->stockEnabled) {
-                $result = processPackagingBatch($this->db, $id, $recordCompany, $this->user, $existing ? 'EDIT' : 'CREATE', $stockItems, $prevItems);
+                $result = processPackagingBatch($this->db, $id, $recordCompany, $this->user, $existing ? 'EDIT' : 'CREATE', $stockItems, $prevItems, $header['type']);
                 if (($result['status'] ?? '') !== 'success') {
-                    throw new \Exception('Failed to update packaging stock: ' . ($result['message'] ?? ''));
+                    throw new \RuntimeException('Failed to update packaging stock: ' . ($result['message'] ?? ''));
                 }
             }
 
@@ -320,7 +320,7 @@ class PackagingBatchService extends BaseService
                 $prevItems = $this->fetchAll("SELECT * FROM packaging_batch_items WHERE packaging_batch_id = ? AND deleted = 0", 'i', [$id]);
                 $result = processPackagingBatch($this->db, $id, (int)$batch['company'], $this->user, 'DELETE', [], $prevItems);
                 if (($result['status'] ?? '') !== 'success') {
-                    throw new \Exception('Failed to reverse packaging stock: ' . ($result['message'] ?? ''));
+                    throw new \RuntimeException('Failed to reverse packaging stock: ' . ($result['message'] ?? ''));
                 }
             }
 
@@ -329,6 +329,9 @@ class PackagingBatchService extends BaseService
             }
 
             $this->db->commit();
+        } catch (\RuntimeException $e) {
+            $this->db->rollback();
+            return ['status' => 'failed', 'message' => $e->getMessage()];
         } catch (\Exception $e) {
             $this->db->rollback();
             error_log('PackagingBatchService::cancel - ' . $e->getMessage());

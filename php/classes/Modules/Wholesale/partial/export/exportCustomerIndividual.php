@@ -5,7 +5,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-// Variables available: $db, $records, $companyDetail, $allowPrice, $fromDate, $toDate, $partyType (rendered by WholesaleDashboardService)
+// Variables available: $db, $records, $companyDetail, $allowPrice, $fromDate, $toDate (rendered by WholesaleDashboardService)
 
 // data[customerName][dateKey] = ['display'=>..., 'dopos'=>[ doPoNo => [ [product,grade,net,price,total,currency], ... ] ] ]
 $data          = [];
@@ -202,4 +202,4 @@ foreach ($data as $customerName => $dateGroups) {
     }
 }
 
-$fileName = ($partyType ? $partyType . '_' : '') . 'Customer_Individual_' . date('Y-m-d') . '.xlsx';
+$fileName = 'Customer_Individual_' . date('Y-m-d') . '.xlsx';

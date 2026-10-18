@@ -34,6 +34,11 @@ class PackagingBatchDashboardService extends BaseService
                 $types .= 's';
             }
         }
+        if (in_array($filters['type'] ?? '', ['Local', 'Export'], true)) {
+            $where .= " AND pb.type = ?";
+            $params[] = $filters['type'];
+            $types .= 's';
+        }
 
         // One row per box; a box on a loading order carries its customer
         $rows = $this->fetchAll(

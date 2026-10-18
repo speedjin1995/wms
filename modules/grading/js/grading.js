@@ -372,6 +372,7 @@ function newEntry() {
   $('#endTimePicker').datetimepicker('clear');
   $('#category').val('').trigger('change');
   $('#location').val($('#locationFilter').val() || '').trigger('change');
+  $('#type').val('Local').trigger('change');
   $('#extendModal').modal('show');
 }
 
@@ -391,6 +392,7 @@ function edit(id) {
     $('#remarks').val(msg.remark);
     $('#category').val(msg.product_category || '').trigger('change');
     $('#location').val(msg.location).trigger('change');
+    $('#type').val(msg.type || 'Local').trigger('change');
     setPickerDate('#startTimePicker', msg.start_date);
     setPickerDate('#endTimePicker', msg.end_date);
 

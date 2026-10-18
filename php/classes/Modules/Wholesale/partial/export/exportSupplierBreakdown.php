@@ -5,7 +5,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-// Variables available: $db, $records, $companyDetail, $allowPrice, $fromDate, $toDate, $partyType (rendered by WholesaleDashboardService)
+// Variables available: $db, $records, $companyDetail, $allowPrice, $fromDate, $toDate (rendered by WholesaleDashboardService)
 
 // Build hierarchical data: Supplier > Product > Grade > Records
 $data = [];
@@ -300,4 +300,4 @@ if ($allowPrice == 'Y') {
 }
 
 // Output
-$fileName = ($partyType ? $partyType . '_' : '') . 'Supplier_Breakdown_' . date('Y-m-d') . '.xlsx';
+$fileName = 'Supplier_Breakdown_' . date('Y-m-d') . '.xlsx';

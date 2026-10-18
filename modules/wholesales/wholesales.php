@@ -377,7 +377,7 @@ if (!empty($lookups['columnSetup'])) {
                     <option value=""><?=$t('please_select_code', 'Please Select')?></option>
                     <option value="OTHERS"><?=$t('others_code')?></option>
                     <?php foreach ($lookups['customers'] as $row) { ?>
-                      <option value="<?=$row['id']?>" data-currency="<?=$e($row['currency'])?>" data-type="<?=$e($row['customer_type'])?>"><?=$e($row['customer_name'])?></option>
+                      <option value="<?=$row['id']?>" data-currency="<?=$e($row['currency'])?>"><?=$e($row['customer_name'])?></option>
                     <?php } ?>
                   </select>
                 </div>
@@ -395,7 +395,7 @@ if (!empty($lookups['columnSetup'])) {
                     <option value=""><?=$t('please_select_code', 'Please Select')?></option>
                     <option value="OTHERS"><?=$t('others_code')?></option>
                     <?php foreach ($lookups['suppliers'] as $row) { ?>
-                      <option value="<?=$row['id']?>" data-currency="<?=$e($row['currency'])?>" data-type="<?=$e($row['supplier_type'])?>"><?=$e($row['supplier_name'])?></option>
+                      <option value="<?=$row['id']?>" data-currency="<?=$e($row['currency'])?>"><?=$e($row['supplier_name'])?></option>
                     <?php } ?>
                   </select>
                 </div>

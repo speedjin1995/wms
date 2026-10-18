@@ -24,8 +24,8 @@ class BulkPriceUpdateService extends BaseService
      */
     public function getLookups(): array
     {
-        $normalCustomer = "deleted = '0' AND (customer_type = 'Normal' OR customer_type IS NULL OR customer_type = '')";
-        $normalSupplier = "deleted = '0' AND (supplier_type = 'Normal' OR supplier_type IS NULL OR supplier_type = '')";
+        $normalCustomer = "deleted = '0'";
+        $normalSupplier = "deleted = '0'";
         $productSelect = "SELECT p.id, p.product_name FROM products p INNER JOIN categories c ON p.category = c.id
             WHERE p.deleted = '0' AND c.module IN ('wholesale', 'processing') AND c.deleted = '0'";
         $gradeSelect = "SELECT DISTINCT g.id, g.units, pg.product_id FROM grades g INNER JOIN product_grades pg ON g.id = pg.grade_id
@@ -266,13 +266,11 @@ class BulkPriceUpdateService extends BaseService
     }
 
     /**
-     * Wholesales records of Normal-type (or no) customer / supplier, scoped to the company, date, status and party
+     * Wholesales records scoped to the company, date, status and party
      */
     private function recordWhere(array $filters): array
     {
-        $where = "w.deleted = '0' AND w.records_type = 'wholesales'
-            AND (c.customer_type IS NULL OR c.customer_type = '' OR c.customer_type = 'Normal' OR w.customer IS NULL OR w.customer = '')
-            AND (s.supplier_type IS NULL OR s.supplier_type = '' OR s.supplier_type = 'Normal' OR w.supplier IS NULL OR w.supplier = '')";
+        $where = "w.deleted = '0' AND w.records_type = 'wholesales'";
         $types = '';
         $params = [];
 

@@ -162,6 +162,7 @@ class GradingService extends BaseService
             'id' => $grading['id'],
             'grading_no' => $grading['grading_no'],
             'location' => $grading['location'],
+            'type' => $grading['type'],
             'locations' => $names['locations'] ?? '',
             'indicator' => $grading['indicator'],
             'start_date' => $grading['start_date'],
@@ -268,16 +269,33 @@ class GradingService extends BaseService
 
             if ($this->stockEnabled) {
                 $after = $this->groupedWeights($id);
-                foreach (array_unique(array_merge(array_keys($before), array_keys($after))) as $key) {
-                    $beforeNet = $before[$key]['net'] ?? 0;
-                    $afterNet = $after[$key]['net'] ?? 0;
-                    if (floatval($afterNet) == floatval($beforeNet)) {
-                        continue;
-                    }
-                    $group = $after[$key] ?? $before[$key];
-                    $result = processGradingStock($this->db, $group['product'], $group['grade'], $recordCompany, $afterNet, $this->user, (bool)$existing, $beforeNet, $id);
+                $type = $header['type'];
+                $oldType = $existing['type'] ?? $type;
+
+                if ($existing && $oldType !== $type) {
+                    // Type changed: reverse everything posted under the old type, then post all lines under the new type
+                    $result = processDeleteGradingStock($this->db, $id, $recordCompany, $this->user, 'grading', $oldType);
                     if (($result['status'] ?? '') !== 'success') {
-                        throw new \Exception('Failed to update grading stock: ' . ($result['message'] ?? ''));
+                        throw new \Exception('Failed to reverse grading stock: ' . ($result['message'] ?? ''));
+                    }
+                    foreach ($after as $group) {
+                        $result = processGradingStock($this->db, $group['product'], $group['grade'], $recordCompany, $group['net'], $this->user, false, 0, $id, true, 'grading', 'GRADING', $type);
+                        if (($result['status'] ?? '') !== 'success') {
+                            throw new \Exception('Failed to update grading stock: ' . ($result['message'] ?? ''));
+                        }
+                    }
+                } else {
+                    foreach (array_unique(array_merge(array_keys($before), array_keys($after))) as $key) {
+                        $beforeNet = $before[$key]['net'] ?? 0;
+                        $afterNet = $after[$key]['net'] ?? 0;
+                        if (floatval($afterNet) == floatval($beforeNet)) {
+                            continue;
+                        }
+                        $group = $after[$key] ?? $before[$key];
+                        $result = processGradingStock($this->db, $group['product'], $group['grade'], $recordCompany, $afterNet, $this->user, (bool)$existing, $beforeNet, $id, true, 'grading', 'GRADING', $type);
+                        if (($result['status'] ?? '') !== 'success') {
+                            throw new \Exception('Failed to update grading stock: ' . ($result['message'] ?? ''));
+                        }
                     }
                 }
             }

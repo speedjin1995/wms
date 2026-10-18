@@ -405,7 +405,6 @@ function filterParams() {
     checkedBy: $('#checkedByFilter').val() || '',
     weightedBy: $('#weightByFilter').val() || '',
     location: $('#locationFilter').val() || '',
-    partyType: $('#partyTypeFilter').val() || '',
     indicator: $('#indicatorFilter').val() || ''
   };
 }
@@ -1237,7 +1236,7 @@ function selectedParty() {
   var select = isSupplierStatus($('#status').val()) ? $('#supplier') : $('#customer');
   var option = select.find('option:selected');
 
-  return { id: select.val() || '', currency: option.data('currency') || '', type: option.data('type') || '' };
+  return { id: select.val() || '', currency: option.data('currency') || '' };
 }
 
 function partyCurrency() {
@@ -1280,16 +1279,6 @@ function calculatePrice(row, mode) {
   var productId = field(row, 'product').val();
   var currencyId = field(row, 'currency').val();
   var status = $('#status').val();
-  var party = selectedParty();
-
-  // Packing parties are not charged
-  if (mode === 'replace' && party.type === 'Packing') {
-    field(row, 'price').val('0.00');
-    field(row, 'before_discount').val('0.00');
-    field(row, 'total').val('0.00');
-    updateTotals();
-    return;
-  }
 
   if (!productId || !currencyId || !status) {
     return;

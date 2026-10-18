@@ -12,7 +12,7 @@ class SupplierService extends BaseService
         'supplier_address', 'supplier_address2', 'supplier_address3', 'supplier_address4', 'states',
         'supplier_phone', 'fax', 'pic', 'parent', 'billing_name', 'billing_address', 'billing_address2',
         'billing_address3', 'billing_address4', 'billing_state', 'billing_phone', 'billing_fax',
-        'billing_pic', 'currency', 'supplier_type'
+        'billing_pic', 'currency'
     ];
 
     /**

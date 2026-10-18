@@ -115,8 +115,8 @@ class WholesaleService extends BaseService
         return [
             'categories' => $categories,
             'products' => $this->recordType === 'industrial' ? $this->industrialProducts() : [],
-            'customers' => $this->companyRows("SELECT id, customer_name, currency, customer_type FROM customers WHERE deleted = '0'", 'customer', 'customer_name'),
-            'suppliers' => $this->companyRows("SELECT id, supplier_name, currency, supplier_type FROM supplies WHERE deleted = '0'", 'customer', 'supplier_name'),
+            'customers' => $this->companyRows("SELECT id, customer_name, currency FROM customers WHERE deleted = '0'", 'customer', 'customer_name'),
+            'suppliers' => $this->companyRows("SELECT id, supplier_name, currency FROM supplies WHERE deleted = '0'", 'customer', 'supplier_name'),
             'vehicles' => $this->companyRows("SELECT veh_number FROM vehicles WHERE deleted = '0'", 'customer', 'veh_number'),
             'drivers' => $this->companyRows("SELECT driver_name FROM drivers WHERE deleted = '0'", 'customer', 'driver_name'),
             'users' => $this->companyRows("SELECT id, name FROM users WHERE deleted = '0'", 'customer', 'name'),
@@ -666,13 +666,7 @@ class WholesaleService extends BaseService
             $add("w.vehicle_no = ?", $vehicle);
         }
 
-        if (($filters['partyType'] ?? '') !== '') {
-            $where .= " AND (c.customer_type = ? OR s.supplier_type = ?)";
             $params[] = $filters['partyType'];
-            $params[] = $filters['partyType'];
-            $types .= 'ss';
-        }
-
         // active / deleted; anything else lists both (as before)
         if (($filters['status'] ?? '') === 'active') {
             $where .= " AND w.deleted = '0'";
@@ -1030,6 +1024,10 @@ class WholesaleService extends BaseService
     private function syncRawStock(int $id, int $company, ?array $existing, array $data): void
     {
         $before = $existing ? $this->appliedWeights($existing) : [];
+        if ($existing && !$this->hasRawMovements($id, $company)) {
+            // Saved before raw stock applied to every party: nothing was posted, so nothing to reverse
+            $before = [];
+        }
         $after = $this->appliedWeights($data);
         $type = (string)$data['type'];
 
@@ -1054,6 +1052,15 @@ class WholesaleService extends BaseService
         }
     }
 
+    private function hasRawMovements(int $id, int $company): bool
+    {
+        return (bool)$this->fetchOne(
+            "SELECT id FROM stock_movements WHERE source_id = ? AND module = ? AND company = ? AND stock_table = 'raw' LIMIT 1",
+            'isi',
+            [$id, self::STOCK_MODULE, $company]
+        );
+    }
+
     private function moveRawStock(array $group, int $company, $net, array $record, bool $isEdit, $beforeNet, int $id): void
     {
         $result = processRawStock(
@@ -1066,18 +1073,10 @@ class WholesaleService extends BaseService
     }
 
     /**
-     * Net weight per product / grade that a record puts on raw stock (none for Packing / non-Normal parties)
+     * Net weight per product / grade that a record puts on raw stock
      */
     private function appliedWeights(array $record): array
     {
-        $isSupplier = $this->isSupplierSide($record['status']);
-        $party = $isSupplier
-            ? $this->fetchOne("SELECT supplier_type AS party_type FROM supplies WHERE id = ?", 's', [(string)$record['supplier']])
-            : $this->fetchOne("SELECT customer_type AS party_type FROM customers WHERE id = ?", 's', [(string)$record['customer']]);
-        if (($party['party_type'] ?? '') !== 'Normal') {
-            return [];
-        }
-
         $grouped = [];
         foreach (json_decode((string)$record['weight_details'], true) ?: [] as $detail) {
             $key = ($detail['product'] ?? '') . '_' . ($detail['grade_id'] ?? '');

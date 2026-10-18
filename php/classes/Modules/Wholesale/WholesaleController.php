@@ -9,7 +9,7 @@ class WholesaleController extends BaseController
     private const OTHER_VEHICLES = ['OTHERS', 'UNKNOWN', 'UNKOWN NO'];
     private const LIST_FILTERS = [
         'fromDate', 'toDate', 'transactionStatus', 'status', 'category', 'customer', 'supplier', 'vehicle', 'otherVehicle',
-        'checkedBy', 'weightedBy', 'location', 'partyType', 'indicator'
+        'checkedBy', 'weightedBy', 'location', 'indicator'
     ];
 
     private WholesaleService $service;
@@ -274,9 +274,10 @@ class WholesaleController extends BaseController
     public function dashboard(): array
     {
         $filters = [];
-        foreach (['fromDate', 'toDate', 'status', 'customer', 'supplier', 'location', 'partyType', 'category'] as $key) {
+        foreach (['fromDate', 'toDate', 'status', 'customer', 'supplier', 'location', 'category'] as $key) {
             $filters[$key] = trim((string)($_POST[$key] ?? ''));
         }
+        $filters['productType'] = trim((string)($_POST['type'] ?? ''));
 
         return ['status' => 'success', 'message' => $this->dashboardService->getSummary($filters)];
     }
@@ -287,9 +288,10 @@ class WholesaleController extends BaseController
     public function exportDashboard(): void
     {
         $filters = [];
-        foreach (['fromDate', 'toDate', 'customer', 'supplier', 'location', 'partyType', 'status', 'category'] as $key) {
+        foreach (['fromDate', 'toDate', 'customer', 'supplier', 'location', 'status', 'category'] as $key) {
             $filters[$key] = trim((string)($_GET[$key] ?? ''));
         }
+        $filters['productType'] = trim((string)($_GET['productType'] ?? ''));
 
         $export = $this->dashboardService->buildExport((string)($_GET['type'] ?? ''), $filters);
         if (!$export) {

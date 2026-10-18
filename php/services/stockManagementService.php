@@ -505,7 +505,16 @@ function processPackagedStock($db, $productId, $grade, $packagingSize, $boxQty, 
         $newQty     = ($action === 'DISPATCH') ? $currentQty - intval($boxQty) : $currentQty + intval($boxQty);
         $movType    = ($action === 'DISPATCH') ? 'MINUS' : 'REVERSAL';
 
-        addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, 'loading', $loadingOrderId, $movType, 'DISPATCH', $boxQty, $currentQty, $newQty, $customerId, null, $userId);
+        $origRow = null;
+        if ($action !== 'DISPATCH') {
+            $origStmt = $db->prepare("SELECT m.id, m.movement_no FROM stock_movements m WHERE m.source_id = ? AND m.module = 'loading' AND m.product_id = ? AND m.grade = ? AND m.company = ? AND m.movement_type = 'MINUS' AND NOT EXISTS (SELECT 1 FROM stock_movements r WHERE r.original_movement_id = m.id AND r.movement_type = 'REVERSAL') ORDER BY m.id DESC LIMIT 1");
+            $origStmt->bind_param('ssss', $loadingOrderId, $productId, $grade, $company);
+            $origStmt->execute();
+            $origRow = $origStmt->get_result()->fetch_assoc();
+            $origStmt->close();
+        }
+
+        addStockMovement($db, generateMovementNo($db, $company), $productId, $grade, $company, 'loading', $loadingOrderId, $movType, 'DISPATCH', $boxQty, $currentQty, $newQty, $customerId, null, $userId, $origRow['id'] ?? null, $origRow['movement_no'] ?? null);
 
         if ($row) {
             $upd = $db->prepare("UPDATE stock_balances SET box_quantity = ?, modified_by = ? WHERE id = ?");

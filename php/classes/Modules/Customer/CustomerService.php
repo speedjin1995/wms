@@ -12,7 +12,7 @@ class CustomerService extends BaseService
         'customer_address', 'customer_address2', 'customer_address3', 'customer_address4', 'states',
         'billing_name', 'billing_address', 'billing_address2', 'billing_address3', 'billing_address4',
         'billing_state', 'billing_phone', 'billing_fax', 'billing_pic', 'currency', 'customer_phone',
-        'pic', 'fax', 'parent', 'customer_type'
+        'pic', 'fax', 'parent'
     ];
 
     /**

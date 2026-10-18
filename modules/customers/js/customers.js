@@ -172,7 +172,6 @@ $(function () {
     $('#addModal').find('#ssmFilePath').val("");
     $('#addModal').find('#ssmFilePreview').removeClass('d-flex').addClass('d-none');
     $('#addModal').find('#name').val("");
-    $('#addModal').find('#customerType').val("Normal").trigger('change');
     $('#addModal').find('#address').val("");
     $('#addModal').find('#address2').val("");
     $('#addModal').find('#address3').val("");
@@ -507,7 +506,6 @@ function edit(id){
           $('#addModal').find('#currency').val(obj.message.currency).trigger('change');
           $('#addModal').find('#company').val(obj.message.customer).trigger('change');
           $('#addModal').find('#parent').val(obj.message.parent).trigger('change');
-          $('#addModal').find('#customerType').val(obj.message.customer_type || 'Normal').trigger('change');
           
           // SSM File preview
           if (obj.message.ssm_file) {

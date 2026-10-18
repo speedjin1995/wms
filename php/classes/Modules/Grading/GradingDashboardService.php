@@ -37,6 +37,11 @@ class GradingDashboardService extends BaseService
             $params[] = $filters['location'];
             $types .= 's';
         }
+        if (in_array($filters['type'] ?? '', ['Local', 'Export'], true)) {
+            $where .= " AND g.type = ?";
+            $params[] = $filters['type'];
+            $types .= 's';
+        }
 
         $gradingRows = $this->fetchAll(
             "SELECT gi.nett_weight, p.product_name, gr.units AS grade_name
@@ -65,6 +70,12 @@ class GradingDashboardService extends BaseService
         foreach ($dates as $operator => $date) {
             $where .= " AND DATE(w.start_time) $operator ?";
             $params[] = $date;
+            $types .= 's';
+        }
+
+        if (in_array($filters['type'] ?? '', ['Local', 'Export'], true)) {
+            $where .= " AND w.type = ?";
+            $params[] = $filters['type'];
             $types .= 's';
         }
 

@@ -31,8 +31,7 @@ class SupplierController extends BaseController
         'billingPhone' => ['column' => 'billing_phone', 'required' => false],
         'billingFax' => ['column' => 'billing_fax', 'required' => false],
         'billingPic' => ['column' => 'billing_pic', 'required' => false],
-        'currency' => ['column' => 'currency', 'required' => false],
-        'supplierType' => ['column' => 'supplier_type', 'required' => false]
+        'currency' => ['column' => 'currency', 'required' => false]
     ];
 
     private SupplierService $supplierService;
@@ -97,10 +96,6 @@ class SupplierController extends BaseController
         $data = $this->collectFields(self::FIELDS);
         if ($data === null) {
             return ['status' => 'failed', 'message' => 'Please fill in all the fields'];
-        }
-
-        if ($data['supplier_type'] === null) {
-            $data['supplier_type'] = 'Normal';
         }
 
         $ssm = $this->supplierService->resolveSsmFile($id, $company, $_FILES['ssmFile'] ?? null, trim($_POST['ssmFilePath'] ?? ''));
