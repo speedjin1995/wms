@@ -504,7 +504,6 @@ $packedPct   = $totalBoxes > 0 ? min(100, round($totalBoxes / 10)) : 0;
             <div class="col-6 col-sm-3">
               <label style="font-size:11px;color:var(--sd-muted);margin-bottom:2px;"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
               <select class="form-control form-control-sm" id="gradedTypeFilter">
-                <option value=""></option>
                 <option value="Local"><?=$languageArray['local_code'][$language] ?? 'Local'?></option>
                 <option value="Export"><?=$languageArray['export_code'][$language] ?? 'Export'?></option>
               </select>

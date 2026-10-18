@@ -484,7 +484,7 @@ to get the desired effect
               </li>
               <li class="nav-item">
                 <a href="#repacking" data-file="modules/repacking/repacking.php" class="nav-link link">
-                  <i class="nav-icon fas fa-box-open"></i>
+                  <i class="nav-icon fas fa-dolly"></i>
                   <p><?=$languageArray['repacking_code'][$language]?></p>
                 </a>
               </li>
@@ -524,6 +524,12 @@ to get the desired effect
                   <p><?=$languageArray['batch_packaging_code'][$language]?></p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="#repacking" data-file="modules/repacking/repacking.php" class="nav-link link">
+                  <i class="nav-icon fas fa-dolly"></i>
+                  <p><?=$languageArray['repacking_code'][$language]?></p>
+                </a>
+              </li>
             </ul>
           </li>
           <?php } ?>
@@ -557,7 +563,7 @@ to get the desired effect
                 <?php } ?>
                 <li class="nav-item">
                   <a href="#repacking" data-file="modules/repacking/repacking.php" class="nav-link link">
-                    <i class="nav-icon fas fa-box-open"></i>
+                    <i class="nav-icon fas fa-dolly"></i>
                     <p><?=$languageArray['repacking_code'][$language]?></p>
                   </a>
                 </li>

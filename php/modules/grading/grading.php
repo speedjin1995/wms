@@ -144,6 +144,8 @@ if(isset($_POST['startTime'])){
             $existItemsStmt->close();
             foreach ($existingItems as $ei) {
                 $key = $ei['product'] . '_' . $ei['grade'];
+                $existingGroupedWeights[$key]['product'] = $ei['product'];
+                $existingGroupedWeights[$key]['grade'] = $ei['grade'];
                 $existingGroupedWeights[$key]['net'] = ($existingGroupedWeights[$key]['net'] ?? 0) + floatval($ei['net']);
             }
         }
@@ -239,6 +241,12 @@ if(isset($_POST['startTime'])){
                             processGradingStock($db, $productWeight['product'], $productWeight['grade'], $company, $productWeight['net'], $userID, false, 0, $_POST['id'], true, 'grading', 'GRADING', $type);
                         }
                     } else {
+                        // Reverse old product/grade lines that were removed from the grading
+                        foreach ($existingGroupedWeights as $oldKey => $oldWeight) {
+                            if (isset($productWeights[$oldKey])) continue;
+                            processGradingStock($db, $oldWeight['product'], $oldWeight['grade'], $company, 0, $userID, true, $oldWeight['net'], $_POST['id'], true, 'grading', 'GRADING', $type);
+                        }
+
                         foreach ($productWeights as $key => $productWeight) {
                             $afterValue  = $productWeight['net'];
                             $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;

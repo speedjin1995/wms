@@ -477,7 +477,8 @@ if(isset($_POST['status'], $_POST['startTime'])){
 
                 if ($row = $result->fetch_assoc()) {
                     $existingWeights = json_decode($row['weight_details'], true);
-                    $existingGroupedWeights = groupWeightDetails($existingWeights); 
+                    $existingGroupedWeights = groupWeightDetails($existingWeights);
+                    $existingType = $row['type'] ?? 'Local';
                 }
 
                 $currentRecordStmt->close();
@@ -504,14 +505,36 @@ if(isset($_POST['status'], $_POST['startTime'])){
 
                 // If Stock Management is enabled, process the stock changes based on the weight details
                 if (in_array('stocks', $_SESSION['products'])) {
+                    // Records saved before stock posting applied to every party have no movements; post them as new
+                    $movStmt = $db->prepare("SELECT id FROM stock_movements WHERE source_id = ? AND module = 'wholesales' AND company = ? LIMIT 1");
+                    $movStmt->bind_param('ss', $_POST['id'], $company);
+                    $movStmt->execute();
+                    $hasStockMovements = $movStmt->get_result()->num_rows > 0;
+                    $movStmt->close();
+
                     $productWeights = groupWeightDetails($weightDetails);
-                    
+                    $typeChanged = $hasStockMovements && $existingType !== $productType;
+
+                    // Reverse old product/grade lines that are removed or moved to another type
+                    if ($hasStockMovements) {
+                        foreach ($existingGroupedWeights as $oldKey => $oldWeight){
+                            if (!$typeChanged && isset($productWeights[$oldKey])) continue;
+
+                            processRawStock($db, $oldWeight['product'], $oldWeight['grade_id'], $company, 0, $userID, $status, true, $oldWeight['net'], $_POST['id'], 'wholesales', $customer, $supplier, $existingType);
+                        }
+                    }
+
                     foreach ($productWeights as $key => $productWeight){
                         $productId = $productWeight['product'];
                         $grade = $productWeight['grade_id'];
                         $afterValue = $productWeight['net'];
-                        $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
 
+                        if (!$hasStockMovements || $typeChanged) {
+                            processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, false, 0, $_POST['id'], 'wholesales', $customer, $supplier, $productType);
+                            continue;
+                        }
+
+                        $beforeValue = $existingGroupedWeights[$key]['net'] ?? 0;
                         if (floatval($afterValue) == floatval($beforeValue)) continue;
 
                         processRawStock($db, $productId, $grade, $company, $afterValue, $userID, $status, true, $beforeValue, $_POST['id'], 'wholesales', $customer, $supplier, $productType);

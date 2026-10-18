@@ -3813,3 +3813,8 @@ $$
 DELIMITER ;
 
 ALTER TABLE `repacking` ADD `graded_posted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `type`;
+
+-- Stock movement source table (raw vs graded) so reversals never mix the two
+ALTER TABLE `stock_movements` ADD `stock_table` VARCHAR(10) NULL AFTER `type`;
+UPDATE `stock_movements` SET `stock_table` = 'raw' WHERE `module` = 'wholesales' AND `stock_table` IS NULL;
+UPDATE `stock_movements` SET `stock_table` = 'graded' WHERE `module` IN ('grading', 'packaging') AND `stock_table` IS NULL;

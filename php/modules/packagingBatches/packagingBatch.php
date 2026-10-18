@@ -60,7 +60,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 	}
 
     if(isset($_POST['gradeType']) && $_POST['gradeType'] != null && $_POST['gradeType'] != ''){
-		$type = $_POST['gradeType'];
+		$type = in_array($_POST['gradeType'], ['Local', 'Export'], true) ? $_POST['gradeType'] : 'Local';
 	}
 
     if(!isset($_POST['batchNo']) || $_POST['batchNo'] == null || $_POST['batchNo'] == ''){
@@ -136,6 +136,17 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 
     if(isset($_POST['id']) && $_POST['id'] != null && $_POST['id'] != ''){
         $batchId = $_POST['id'];
+        $ownStmt = $db->prepare("SELECT id FROM packaging_batches WHERE id = ? AND company = ? AND deleted = '0'");
+        $ownStmt->bind_param('ss', $batchId, $company);
+        $ownStmt->execute();
+        $owned = $ownStmt->get_result()->fetch_assoc();
+        $ownStmt->close();
+        if (!$owned) {
+            echo json_encode(array("status" => "failed", "message" => "Record not found"));
+            exit;
+        }
+
+        $db->begin_transaction();
 
         if ($update_stmt = $db->prepare("UPDATE packaging_batches SET batch_no=?, packaging_date=?, location=?, production_line=?, remarks=?, label_remark=?, type=?, modified_by=? WHERE id=?")){
             $update_stmt->bind_param('sssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $labelSummary, $type, $userID, $batchId);
@@ -191,11 +202,18 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 
                         // Reverse previous + apply new stock in one call
                         if (in_array('stocks', $_SESSION['products'])) {
-                            processPackagingBatch($db, $batchId, $company, $userID, 'EDIT', $data, $prevItems);
+                            $stockResult = processPackagingBatch($db, $batchId, $company, $userID, 'EDIT', $data, $prevItems, $type);
+                            if ($stockResult['status'] !== 'success') {
+                                $db->rollback();
+                                $db->close();
+                                echo json_encode(array("status" => "failed", "message" => $stockResult['message']));
+                                exit;
+                            }
                         }
                     }
                 }
 
+                $db->commit();
                 $db->close();
                 echo json_encode(
                     array(
@@ -215,6 +233,7 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
         }
     }
     else{
+        $db->begin_transaction();
         if ($insert_stmt = $db->prepare("INSERT INTO packaging_batches (batch_no, packaging_date, location, production_line, remarks, label_remark, type, company, created_by, status) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')")){
             $insert_stmt->bind_param('sssssssss', $batchNo, $packagingDateTime3, $location, $productionLines, $remarks, $labelSummary, $type, $company, $userID);
             
@@ -245,10 +264,17 @@ if(isset($_POST['packagingDate'], $_POST['location'])){
 
                     // If Stock Management is enabled, process the stock changes based on the weight details
                     if (in_array('stocks', $_SESSION['products'])) {
-                        processPackagingBatch($db, $packagingBatchId, $company, $userID, 'CREATE', $data);
+                        $stockResult = processPackagingBatch($db, $packagingBatchId, $company, $userID, 'CREATE', $data, [], $type);
+                        if ($stockResult['status'] !== 'success') {
+                            $db->rollback();
+                            $db->close();
+                            echo json_encode(array("status" => "failed", "message" => $stockResult['message']));
+                            exit;
+                        }
                     }
                 }
 
+                $db->commit();
                 $db->close();
                 echo json_encode(
                     array(

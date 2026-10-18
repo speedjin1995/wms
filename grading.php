@@ -1198,9 +1198,9 @@ function buildEditRow(detail, idx, type) {
           <input type="hidden" name="${prefix}[${idx}][grade]" value="REJ">
           <span class="badge badge-danger">REJ</span>
         </td>
-        <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
-        <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
-        <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
+        <td><input type="number" class="form-control form-control-sm" id="gross${idx}" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
+        <td><input type="number" class="form-control form-control-sm" id="tare${idx}" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
+        <td><input type="number" class="form-control form-control-sm" id="net${idx}" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
         <td><input type="time" class="form-control form-control-sm" name="${prefix}[${idx}][time]" value="${timeVal}"></td>
         ${allowPhoto == 'Y' ? `<td>
           <input type="hidden" name="${prefix}[${idx}][photoPath]" value="${detail.photo_path || ''}">
@@ -1230,9 +1230,9 @@ function buildEditRow(detail, idx, type) {
           ${gradeOptions}
         </select>
       </td>
-      <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
-      <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
-      <td><input type="number" class="form-control form-control-sm" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
+      <td><input type="number" class="form-control form-control-sm" id="gross${idx}" name="${prefix}[${idx}][gross]" value="${(parseFloat(detail.gross_weight)||0).toFixed(2)}" step="0.01"></td>
+      <td><input type="number" class="form-control form-control-sm" id="tare${idx}" name="${prefix}[${idx}][tare]" value="${(parseFloat(detail.tare_weight)||0).toFixed(2)}" step="0.01"></td>
+      <td><input type="number" class="form-control form-control-sm" id="net${idx}" name="${prefix}[${idx}][net]" value="${(parseFloat(detail.nett_weight)||0).toFixed(2)}" step="0.01" readonly></td>
       <td><input type="time" class="form-control form-control-sm" name="${prefix}[${idx}][time]" value="${timeVal}"></td>
       ${allowPhoto == 'Y' ? `<td>
         <input type="hidden" name="${prefix}[${idx}][photoPath]" value="${detail.photo_path || ''}">
