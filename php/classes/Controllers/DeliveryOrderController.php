@@ -1,0 +1,92 @@
+<?php
+namespace App\Controllers;
+
+use App\Services\DeliveryOrderService;
+
+class DeliveryOrderController extends BaseController
+{
+    private DeliveryOrderService $service;
+
+    public function __construct(DeliveryOrderService $service)
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * DO list for the date range
+     */
+    public function list(): array
+    {
+        $dateFrom = $this->parseDateInput($_POST['date_from'] ?? '');
+        $dateTo = $this->parseDateInput($_POST['date_to'] ?? '');
+
+        return ['status' => 'success', 'data' => $this->service->getList($dateFrom, $dateTo)];
+    }
+
+    /**
+     * DO header with linked wholesales rows
+     */
+    public function get(): array
+    {
+        $id = $this->postId();
+
+        if (!$id) {
+            return ['status' => 'failed', 'message' => 'Missing Attribute'];
+        }
+
+        $record = $this->service->getById($id);
+
+        if (!$record) {
+            return ['status' => 'failed', 'message' => 'Delivery order not found'];
+        }
+
+        return ['status' => 'success', 'data' => $record];
+    }
+
+    /**
+     * Create or update the DO header
+     */
+    public function save(): array
+    {
+        $doDate = $this->parseDateInput($_POST['do_date'] ?? '');
+
+        if (!$doDate) {
+            return ['status' => 'failed', 'message' => 'Invalid date format'];
+        }
+
+        $remark = trim($_POST['remark'] ?? '');
+
+        $items = json_decode($_POST['items'] ?? '[]', true);
+
+        return $this->service->save($this->postId(), trim($_POST['do_no'] ?? ''), $doDate, $remark === '' ? null : $remark, is_array($items) ? $items : []);
+    }
+
+    public function delete(): array
+    {
+        $id = $this->postId();
+
+        if (!$id) {
+            return ['status' => 'failed', 'message' => 'Missing Attribute'];
+        }
+
+        return $this->service->delete($id);
+    }
+
+    public function options(array $categoryIds): array
+    {
+        return ['status' => 'success', 'data' => $this->service->getOptions($categoryIds)];
+    }
+
+    /**
+     * Parse date from d/m/Y format to Y-m-d
+     */
+    private function parseDateInput(?string $date): ?string
+    {
+        if (empty($date)) {
+            return null;
+        }
+
+        $dateObj = \DateTime::createFromFormat('d/m/Y', $date);
+        return $dateObj ? $dateObj->format('Y-m-d') : null;
+    }
+}

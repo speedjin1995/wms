@@ -69,6 +69,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
     $emptyBasketsWeight = null;
     $basketCount = null;
     $avgBasketWeight = null;
+    $doId = null;
 
     $startDateTimeObj = DateTime::createFromFormat('d/m/Y H:i', $startTime);
     $startDateTime = $startDateTimeObj->format("d/m/Y 00:00:00");
@@ -278,6 +279,17 @@ if(isset($_POST['status'], $_POST['startTime'])){
     if(isset($_POST['avgBasketWeight']) && $_POST['avgBasketWeight'] != null && $_POST['avgBasketWeight'] != ''){
 		$avgBasketWeight = floatval($_POST['avgBasketWeight']);
 	}
+
+    // Delivery Order link, only when the DO belongs to this company
+    if(isset($_POST['doId']) && $_POST['doId'] != null && $_POST['doId'] != ''){
+        $doStmt = $db->prepare("SELECT id FROM delivery_orders WHERE id = ? AND company = ? AND deleted = 0");
+        $doStmt->bind_param('is', $_POST['doId'], $company);
+        $doStmt->execute();
+        if ($doRow = $doStmt->get_result()->fetch_assoc()) {
+            $doId = (int)$doRow['id'];
+        }
+        $doStmt->close();
+    }
 
     if(isset($_POST['weightDetails']) && $_POST['weightDetails'] != null && $_POST['weightDetails'] != ''){
 		$data = $_POST['weightDetails'];
@@ -575,10 +587,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
             exit;
         }
 
-        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, category, payment_method, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location, empty_baskets_weight, basket_count, avg_basket_weight, type) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, category, payment_method, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location, empty_baskets_weight, basket_count, avg_basket_weight, type, do_id) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $insert_stmt->bind_param('ssssssssssssssssssssssssssssdids', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType);
+            $insert_stmt->bind_param('ssssssssssssssssssssssssssssdidsi', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType, $doId);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
@@ -642,7 +654,9 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 echo json_encode(
                     array(
                         "status"=> "success", 
-                        "message"=> "Added Successfully!!" 
+                        "message"=> "Added Successfully!!",
+                        "id"=> $wholesaleId,
+                        "serialNo"=> $serialNo
                     )
                 );
             }

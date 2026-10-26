@@ -19,6 +19,7 @@ else{
   // Feature Flagging
   $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
   $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
+  $allowDeliveryOrder = $_SESSION['featureFlags']['include_delivery_order'] ?? 'N';
 
   // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
@@ -567,6 +568,14 @@ to get the desired effect
                     <p><?=$languageArray['repacking_code'][$language]?></p>
                   </a>
                 </li>
+                <?php if ($allowDeliveryOrder == 'Y') { ?>
+                <li class="nav-item">
+                  <a href="#deliveryOrder" data-file="modules/deliveryOrder/deliveryOrder.php" class="nav-link link">
+                    <i class="nav-icon fas fa-truck-loading"></i>
+                    <p><?=$languageArray['delivery_order_code'][$language] ?? 'Delivery Order'?></p>
+                  </a>
+                </li>
+                <?php } ?>
               <?php } ?>
               <?php if ($module == 'weighing') { ?>
               <li class="nav-item">
