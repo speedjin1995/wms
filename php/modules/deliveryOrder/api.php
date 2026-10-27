@@ -129,6 +129,185 @@ try {
             (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save('php://output');
             exit;
 
+        case 'report':
+            echo json_encode($controller->report());
+            break;
+
+        case 'report_excel':
+        case 'report_pdf':
+            require_once __DIR__ . '/../../../vendor/autoload.php';
+            $language = $_SESSION['language'] ?? 'en';
+            $t = function ($key, $default) use ($language) {
+                return $_SESSION['languageArray'][$key][$language] ?? $default;
+            };
+
+            // Same rows as the screen: DO No header + subtotal per DO, loss/% left blank when 0
+            $lines = [];
+            $totalReceived = 0;
+            $totalDo = 0;
+            $lastDoNo = null;
+            $groupReceived = 0;
+            $groupDo = 0;
+            $subtotalLine = function ($received, $do) use ($t) {
+                $loss = round($do - $received, 2);
+                return ['type' => 'subtotal', 'line' => [$t('subtotal_code', 'Subtotal'), '', '', '', '', $received, $do, $loss, $do > 0 ? $loss / $do : 0]];
+            };
+            foreach ($controller->report()['data'] as $r) {
+                if ($lastDoNo !== $r['do_no']) {
+                    if ($lastDoNo !== null) {
+                        $lines[] = $subtotalLine($groupReceived, $groupDo);
+                    }
+                    $lines[] = ['type' => 'header', 'text' => $t('do_no_code', 'DO No') . ': ' . $r['do_no']];
+                    $groupReceived = 0;
+                    $groupDo = 0;
+                }
+                $lastDoNo = $r['do_no'];
+                $received = (float)$r['received_weight'];
+                $do = (float)$r['do_weight'];
+                $loss = round($do - $received, 2);
+                $lines[] = [
+                    $r['supplier_name'],
+                    $r['serial_no'],
+                    $r['category_name'],
+                    $r['product_name'],
+                    $r['grade_name'],
+                    $received,
+                    $do,
+                    $loss != 0 ? $loss : null,
+                    ($loss != 0 && $do > 0) ? $loss / $do : null
+                ];
+                $totalReceived += $received;
+                $totalDo += $do;
+                $groupReceived += $received;
+                $groupDo += $do;
+            }
+            if ($lastDoNo !== null) {
+                $lines[] = $subtotalLine($groupReceived, $groupDo);
+            }
+            $totalLoss = round($totalDo - $totalReceived, 2);
+            $totalLine = [$t('total_code', 'Total'), '', '', '', '', $totalReceived, $totalDo, $totalLoss, $totalDo > 0 ? $totalLoss / $totalDo : 0];
+
+            $title = $t('do_receiving_report_code', 'Daily Receiving Report');
+            $period = $_GET['date'] ?? '';
+            $headers = [
+                $t('supplier_code', 'Supplier'),
+                $t('serial_no_code', 'Serial No'),
+                $t('category_code', 'Category'),
+                $t('product_code', 'Product'),
+                $t('grade_code', 'Grade'),
+                $t('received_weight_code', 'Received Weight'),
+                $t('do_weight_code', 'DO Weight'),
+                $t('weight_loss_code', 'Weight Loss'),
+                '%'
+            ];
+
+            if ($action === 'report_excel') {
+                $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                $sheet = $spreadsheet->getActiveSheet();
+                $sheet->setTitle('Report');
+                $sheet->setCellValue('A1', $title);
+                $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14)->setUnderline(true);
+                $sheet->setCellValue('A2', $period);
+                $sheet->fromArray($headers, null, 'A4');
+                $sheet->getStyle('A4:I4')->getFont()->setBold(true);
+                $sheet->getStyle('A4:I4')->getAlignment()->setHorizontal('center');
+
+                $row = 5;
+                foreach ($lines as $line) {
+                    if (($line['type'] ?? '') === 'header') {
+                        $sheet->setCellValue('A' . $row, $line['text']);
+                        $sheet->mergeCells('A' . $row . ':I' . $row);
+                        $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                        $sheet->getStyle('A' . $row)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('EEF2F7');
+                    } elseif (($line['type'] ?? '') === 'subtotal') {
+                        $sheet->fromArray($line['line'], null, 'A' . $row, true);
+                        $sheet->getStyle('A' . $row . ':I' . $row)->getFont()->setBold(true);
+                    } else {
+                        $sheet->fromArray($line, null, 'A' . $row, true);
+                    }
+                    $row++;
+                }
+                $row++;
+                $sheet->fromArray($totalLine, null, 'A' . $row, true);
+                $sheet->getStyle('A' . $row . ':I' . $row)->getFont()->setBold(true);
+                $sheet->getStyle('A' . $row . ':I' . $row)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('FFFF00');
+
+                $sheet->getStyle('A4:I' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                $sheet->getStyle('F5:H' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+                $sheet->getStyle('I5:I' . $row)->getNumberFormat()->setFormatCode('0.00%');
+                $sheet->getStyle('H4:I' . $row)->getFont()->getColor()->setRGB('0070C0');
+                foreach (['A' => 32, 'B' => 16, 'C' => 18, 'D' => 24, 'E' => 12, 'F' => 16, 'G' => 16, 'H' => 14, 'I' => 10] as $col => $width) {
+                    $sheet->getColumnDimension($col)->setWidth($width);
+                }
+
+                header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                header('Content-Disposition: attachment; filename="do_receiving_report.xlsx"');
+                header('Cache-Control: max-age=0');
+                (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save('php://output');
+                exit;
+            }
+
+            $e = function ($v) {
+                return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
+            };
+            $cells = function ($line) use ($e) {
+                $out = '';
+                for ($i = 0; $i < 5; $i++) {
+                    $out .= '<td>' . $e($line[$i]) . '</td>';
+                }
+                return $out
+                    . '<td class="num">' . number_format($line[5], 2) . '</td>'
+                    . '<td class="num">' . number_format($line[6], 2) . '</td>'
+                    . '<td class="num loss">' . ($line[7] !== null ? number_format($line[7], 2) : '') . '</td>'
+                    . '<td class="num loss">' . ($line[8] !== null ? number_format($line[8] * 100, 2) . '%' : '') . '</td>';
+            };
+
+            $html = '<style>
+                body { font-size: 10pt; }
+                h2 { text-decoration: underline; margin: 0; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #000; padding: 3px 5px; }
+                th { text-align: center; }
+                .num { text-align: right; }
+                .loss { color: #0070C0; }
+                .total td { background: #FFFF00; font-weight: bold; }
+                .grp td { background: #EEF2F7; font-weight: bold; }
+                .sub td { font-weight: bold; }
+            </style>';
+            $html .= '<h2>' . $e($title) . '</h2><div>' . $e($period) . '</div>';
+            $html .= '<table><thead><tr>';
+            foreach ($headers as $h) {
+                $html .= '<th>' . $e($h) . '</th>';
+            }
+            $html .= '</tr></thead><tbody>';
+            foreach ($lines as $line) {
+                if (($line['type'] ?? '') === 'header') {
+                    $html .= '<tr class="grp"><td colspan="9">' . $e($line['text']) . '</td></tr>';
+                } elseif (($line['type'] ?? '') === 'subtotal') {
+                    $html .= '<tr class="sub">' . $cells($line['line']) . '</tr>';
+                } else {
+                    $html .= '<tr>' . $cells($line) . '</tr>';
+                }
+            }
+            $html .= '<tr><td colspan="9">&nbsp;</td></tr><tr class="total">' . $cells($totalLine) . '</tr>';
+            $html .= '</tbody></table>';
+
+            $mpdf = new \Mpdf\Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4-L',
+                'tempDir' => sys_get_temp_dir(),
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'margin_top' => 10,
+                'margin_bottom' => 10,
+                'fontDir' => [__DIR__ . '/../../../vendor/mpdf/mpdf/ttfonts/'],
+                'fontdata' => ['sunexta' => ['R' => 'Sun-ExtA.ttf']],
+                'default_font' => 'sunexta',
+            ]);
+            $mpdf->WriteHTML($html);
+            $mpdf->Output('do_receiving_report.pdf', 'D');
+            exit;
+
         default:
             echo json_encode(['status' => 'failed', 'message' => 'Invalid action']);
     }

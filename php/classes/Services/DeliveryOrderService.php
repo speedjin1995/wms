@@ -43,6 +43,50 @@ class DeliveryOrderService extends BaseService
     }
 
     /**
+     * Receiving report: received vs DO weight per DO supplier (its wholesales serial) + product + grade, ordered by DO No for grouping
+     */
+    public function getReport(?string $dateFrom, ?string $dateTo, int $supplier = 0): array
+    {
+        $where = "i.company = ? AND i.deleted = 0";
+        $params = [$this->company];
+        $types = 'i';
+
+        if ($dateFrom) {
+            $where .= " AND d.do_date >= ?";
+            $params[] = $dateFrom;
+            $types .= 's';
+        }
+        if ($dateTo) {
+            $where .= " AND d.do_date <= ?";
+            $params[] = $dateTo;
+            $types .= 's';
+        }
+        if ($supplier) {
+            $where .= " AND i.supplier = ?";
+            $params[] = $supplier;
+            $types .= 'i';
+        }
+
+        return $this->fetchAll(
+            "SELECT i.do_id, d.do_no, i.supplier, s.supplier_name,
+                (SELECT MIN(w.serial_no) FROM wholesales w WHERE w.do_id = i.do_id AND w.supplier = i.supplier AND w.company = i.company AND w.deleted = '0') AS serial_no,
+                c.category_name, p.product_name, g.units AS grade_name,
+                SUM(i.total_received_weight) AS received_weight, SUM(i.total_do_weight) AS do_weight
+            FROM delivery_order_items i
+            JOIN delivery_orders d ON d.id = i.do_id AND d.company = i.company AND d.deleted = 0
+            LEFT JOIN supplies s ON s.id = i.supplier
+            LEFT JOIN categories c ON c.id = i.category
+            LEFT JOIN products p ON p.id = i.product
+            LEFT JOIN grades g ON g.id = i.grade_id
+            WHERE $where
+            GROUP BY i.do_id, d.do_no, i.supplier, i.category, i.product, i.grade_id, s.supplier_name, c.category_name, p.product_name, g.units
+            ORDER BY d.do_no ASC, s.supplier_name ASC, serial_no ASC, c.category_name ASC, p.product_name ASC, g.units ASC",
+            $types,
+            $params
+        );
+    }
+
+    /**
      * DO header with its linked wholesales rows
      */
     public function getById(int $id): ?array

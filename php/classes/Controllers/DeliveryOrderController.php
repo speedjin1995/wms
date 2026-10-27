@@ -24,6 +24,17 @@ class DeliveryOrderController extends BaseController
     }
 
     /**
+     * Receiving report rows; Excel/PDF exports pass the filters by GET
+     */
+    public function report(): array
+    {
+        // Daily report: a single date, falls back to today
+        $date = $this->parseDateInput($_REQUEST['date'] ?? '') ?: date('Y-m-d');
+
+        return ['status' => 'success', 'data' => $this->service->getReport($date, $date, (int)($_REQUEST['supplier'] ?? 0))];
+    }
+
+    /**
      * DO header with linked wholesales rows
      */
     public function get(): array

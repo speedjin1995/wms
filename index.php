@@ -631,6 +631,14 @@ to get the desired effect
               <p><?=$languageArray['reports_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
+              <?php if ($allowDeliveryOrder == 'Y') { ?>
+              <li class="nav-item">
+                <a href="#doReport" data-file="modules/deliveryOrder/doReport.php" class="nav-link link">
+                  <i class="nav-icon fas fa-file-alt"></i>
+                  <p><?=$languageArray['do_receiving_report_code'][$language] ?? 'Daily Receiving Report'?></p>
+                </a>
+              </li>
+              <?php } ?>
               <li class="nav-item">
                 <a href="#reports" data-file="modules/wholesales/reports.php" class="nav-link link">
                   <i class="nav-icon fas fa-chart-bar"></i>
