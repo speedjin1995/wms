@@ -35,7 +35,7 @@ class ProductService
         $params[] = $type;
         $types .= 's';
 
-        $sql = "SELECT p.id, p.product_code, p.product_name, p.category, c.category_name
+        $sql = "SELECT p.id, p.product_code, p.product_name, p.category, p.do_weight_tolerance, p.do_weight_tolerance_type, c.category_name
                 FROM products p 
                 LEFT JOIN categories c ON p.category = c.id
                 WHERE $where 
