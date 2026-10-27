@@ -261,6 +261,21 @@ var doText = <?=json_encode([
   'removeLineConfirm' => $t('do_remove_item_confirm_code', 'Remove this item and its weight entries?'),
   'removeSupplierConfirm' => $t('do_remove_supplier_confirm_code', 'Remove this supplier and all its items?'),
   'notWeighed' => $t('do_not_weighed_code', 'Not weighed yet'),
+  'matched' => $t('do_matched_code', 'Matched'),
+  'short' => $t('do_short_code', 'Short'),
+  'over' => $t('do_over_code', 'Over'),
+  'noEntries' => $t('do_no_weight_entries_code', 'No weight entries yet'),
+  'status' => $t('status_code', 'Status'),
+  'supplier' => $t('supplier_code', 'Supplier'),
+  'product' => $t('product_code', 'Product'),
+  'grade' => $t('grade_code', 'Grade'),
+  'total' => $t('total_code', 'Total'),
+  'category' => $t('category_code', 'Category'),
+  'allSuppliers' => $t('all_suppliers_code', 'All Suppliers'),
+  'allCategories' => $t('all_categories_code', 'All Categories'),
+  'allProducts' => $t('all_products_code', 'All Products'),
+  'allGrades' => $t('all_grades_code', 'All Grades'),
+  'noMatch' => $t('no_matching_records_code', 'No Matching Records'),
   'unsavedConfirm' => $t('do_unsaved_confirm_code', 'You have unsaved changes. Close without saving?'),
   'deleteConfirm' => $t('do_delete_confirm_code', 'Delete this delivery order? Its wholesales records will be deleted and stock reversed.'),
   'errDate' => $t('do_err_date_code', 'Please select DO date.'),
@@ -373,6 +388,13 @@ $(function() {
     });
 
   loadDoList();
+
+  // Click a row to open or close its weight comparison (same as wholesales.php)
+  $('#doListTable tbody')
+    .on('click', 'tr', toggleDoDetails)
+    .on('change', '.do-filter', function() {
+      filterDoDetails($(this).closest('.expanded-row-content'));
+    });
 });
 
 // ============================================================================
@@ -384,7 +406,8 @@ function loadDoList() {
   };
 
   doListTable = $('#doListTable').DataTable({
-    responsive: true,
+    // The child row is the weight comparison, so Responsive only hides columns
+    responsive: { details: false },
     autoWidth: false,
     processing: true,
     serverSide: false,
@@ -402,7 +425,7 @@ function loadDoList() {
       }
     },
     columns: [
-      { data: 'do_no' },
+      { data: 'do_no', className: 'all' },
       { data: 'do_date_display' },
       { data: 'supplier_count', className: 'text-center' },
       { data: 'do_weight', className: 'text-right', render: weightColumn },
@@ -420,7 +443,7 @@ function loadDoList() {
       {
         data: null,
         orderable: false,
-        className: 'action-button',
+        className: 'action-button all',
         width: '120px',
         render: function(d) {
           var html = '<div class="expanded-actions">';
@@ -442,6 +465,232 @@ function loadDoList() {
       'zeroRecords': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div class="empty-title"><?=$languageArray['no_matching_records_code'][$language] ?? 'No Matching Records'?></div><div class="empty-message"><?=$languageArray['no_matching_message_code'][$language] ?? 'No results match your current filters. Try different criteria.'?></div></div>'
     }
   });
+}
+
+// Expand / collapse the DO vs received weight comparison under a DO row
+function toggleDoDetails(e) {
+  var tr = $(this);
+  var row = doListTable.row(tr);
+
+  // Skip the action buttons and clicks inside an open comparison (child rows have no row data)
+  if ($(e.target).closest('td').hasClass('action-button') || $(e.target).closest('button').length || !row.data()) {
+    return;
+  }
+
+  if (row.child.isShown()) {
+    row.child.hide();
+    tr.removeClass('shown');
+    return;
+  }
+
+  var show = function() {
+    $.post('php/modules/deliveryOrder/api.php', { action: 'get', id: row.data().id }).done(function(obj) {
+      if (obj.status === 'failed') {
+        toastr.error(obj.message, 'Failed:');
+        return;
+      }
+
+      row.child(buildDoDetails(row.data(), obj.data), 'do-details-row').show();
+      // Select2 needs the selects on the page; it still fires 'change' for the filter handler
+      row.child().find('.do-filter').select2({ width: '180px' });
+      tr.addClass('shown');
+    });
+  };
+
+  // Names and tolerances come from the same options the modal uses
+  if (doOptions.products.length) {
+    show();
+  } else {
+    loadDoOptions(show);
+  }
+}
+
+// Same look as the wholesales expanded row: one section per supplier (its wholesale record) listing category, product and grade
+// per weight entry; entries flagged with the product's tolerance like updateDoTotals()
+function buildDoDetails(d, data) {
+  var statuses = {
+    matched: ['badge-success', 'fa-check', doText.matched],
+    short: ['badge-danger', 'fa-arrow-down', doText.short],
+    over: ['badge-info', 'fa-arrow-up', doText.over],
+    notWeighed: ['badge-secondary', 'fa-minus', doText.notWeighed]
+  };
+  var kpi = function(label, valueClass) {
+    return $('<div class="kpi-card">').append(
+      $('<div class="kpi-label">').text(label),
+      $('<div class="kpi-value">').addClass(valueClass).append($('<span>'), ' ', $('<span class="kpi-unit">').text('Kg'))
+    );
+  };
+  // value => label for each filter, in the order first seen
+  var choices = { supplier: {}, category: {}, product: {}, grade: {} };
+  var sections = {};
+  var sectionOrder = [];
+
+  (data.items || []).forEach(function(item) {
+    var supplier = findSupplier(item.supplier);
+    var category = doOptions.categories.find(function(c) { return c.id == item.category; });
+    var product = findProduct(item.product);
+    var grade = product ? product.grades.find(function(g) { return g.grade_id == item.grade_id; }) : null;
+    var names = {
+      supplier: supplier ? supplier.supplier_code + ' - ' + supplier.supplier_name : '-',
+      category: category ? category.category_name : '-',
+      product: product ? product.product_name : '-',
+      grade: grade ? grade.grade_name : '-'
+    };
+
+    if (!hasWeight(item.weight_details || [])) {
+      return;
+    }
+
+    if (!sections[item.supplier]) {
+      var wholesale = (data.suppliers || []).find(function(w) { return w.supplier == item.supplier; });
+      sections[item.supplier] = $('<tbody>');
+      sectionOrder.push({ id: item.supplier, name: names.supplier, serialNo: wholesale ? wholesale.serial_no : '' });
+    }
+
+    choices.supplier[item.supplier] = names.supplier;
+    choices.category[item.category || ''] = names.category;
+    choices.product[item.product] = names.product;
+    choices.grade[item.grade_id] = names.grade;
+
+    item.weight_details.forEach(function(p) {
+      var doW = parseFloat(p.do) || 0;
+      var recW = parseFloat(p.received) || 0;
+      var loss = Math.round((doW - recW) * 100) / 100;
+      var tolerance = doTolerance(product, doW);
+      var status = 'matched';
+      if (recW <= 0) {
+        status = 'notWeighed';
+      } else if (loss > 0 && loss >= tolerance) {
+        status = 'short';
+      } else if (loss < 0 && -loss >= tolerance) {
+        status = 'over';
+      }
+      var s = statuses[status];
+
+      sections[item.supplier].append($('<tr>')
+        .attr({ 'data-supplier': item.supplier, 'data-category': item.category || '', 'data-product': item.product, 'data-grade': item.grade_id, 'data-do': doW, 'data-rec': recW })
+        .append(
+          $('<td>').text(names.category),
+          $('<td>').text(names.product),
+          $('<td>').append($('<span class="grade-badge">').text(names.grade)),
+          $('<td class="text-right text-mono">').text(doW.toFixed(2)),
+          $('<td class="text-right text-mono text-primary font-weight-bold">').text(recW > 0 ? recW.toFixed(2) : '-'),
+          $('<td class="text-right text-mono">').addClass(status === 'short' ? 'text-danger font-weight-bold' : (status === 'over' ? 'text-info font-weight-bold' : '')).text(recW > 0 ? loss.toFixed(2) : '-'),
+          $('<td>').append($('<span class="badge">').addClass(s[0]).append($('<i class="fas mr-1">').addClass(s[1]), $('<span>').text(s[2])))
+        ));
+    });
+  });
+
+  var $filters = $('<div class="details-filters flex-wrap">');
+  [
+    ['supplier', doText.allSuppliers],
+    ['category', doText.allCategories],
+    ['product', doText.allProducts],
+    ['grade', doText.allGrades]
+  ].forEach(function(f) {
+    var $select = $('<select class="form-control form-control-sm details-filter-select do-filter">').attr('data-key', f[0])
+      .append($('<option value="">').text(f[1]));
+    $.each(choices[f[0]], function(value, label) {
+      $select.append($('<option>').val(value).text(label));
+    });
+    $filters.append($select);
+  });
+
+  var $wrap = $('<div class="expanded-row-content">').append(
+    $('<div class="expanded-header">').append(
+      $('<div>').append(
+        $('<div class="expanded-header-title">').text(d.do_no),
+        $('<div class="expanded-header-subtitle">').text(d.do_date_display + (d.remark ? ' - ' + d.remark : ''))
+      ),
+      sectionOrder.length ? $filters : ''
+    ),
+    $('<div class="kpi-row do-totals">').append(
+      kpi(doText.doWeight, ''),
+      kpi(doText.received, 'kpi-value-primary'),
+      kpi(doText.loss, 'kpi-value-danger')
+    )
+  );
+
+  sectionOrder.forEach(function(sup) {
+    $wrap.append($('<div class="details-section do-supplier-section">').append(
+      $('<div class="details-header">').append($('<span class="details-title">').text(sup.name + (sup.serialNo ? ' (' + sup.serialNo + ')' : ''))),
+      $('<div class="table-responsive">').append($('<table class="table details-table mb-0">').append(
+        $('<thead>').append($('<tr>').append(
+          $('<th>').text(doText.category),
+          $('<th>').text(doText.product),
+          $('<th>').text(doText.grade),
+          $('<th class="text-right">').text(doText.doWeight),
+          $('<th class="text-right">').text(doText.received),
+          $('<th class="text-right">').text(doText.loss),
+          $('<th>').text(doText.status)
+        )),
+        sections[sup.id],
+        $('<tfoot class="do-totals">').append($('<tr>').append(
+          $('<td colspan="3">').text(doText.total),
+          $('<td class="text-right text-mono">'),
+          $('<td class="text-right text-mono text-primary">'),
+          $('<td class="text-right text-mono">'),
+          $('<td>')
+        ))
+      ))
+    ));
+  });
+
+  $wrap.append($('<div class="details-empty do-no-match">').append(
+    $('<i class="fas fa-inbox">'), ' ', $('<span>').text(sectionOrder.length ? doText.noMatch : doText.noEntries)
+  ));
+
+  filterDoDetails($wrap);
+  return $wrap;
+}
+
+// Show only the entries matching every filter, then recount each supplier's total and the KPI cards
+function filterDoDetails($wrap) {
+  var filters = {};
+  $wrap.find('.do-filter').each(function() {
+    filters[$(this).attr('data-key')] = $(this).val();
+  });
+
+  // KPI cards hold the number in their first span, the footer row in its number cells
+  var setTotals = function($el, doTotal, recTotal) {
+    var values = [doTotal, recTotal, doTotal - recTotal];
+    $el.find('.kpi-value > span:first-child, td.text-mono').each(function(i) {
+      $(this).text(values[i].toFixed(2));
+    });
+  };
+
+  var allDo = 0;
+  var allRec = 0;
+  var anyShown = false;
+  $wrap.find('.do-supplier-section').each(function() {
+    var $section = $(this);
+    var sectionDo = 0;
+    var sectionRec = 0;
+    var shown = false;
+
+    $section.find('tbody tr').each(function() {
+      var $tr = $(this);
+      var show = Object.keys(filters).every(function(key) {
+        return !filters[key] || $tr.attr('data-' + key) === filters[key];
+      });
+
+      $tr.toggle(show);
+      if (show) {
+        shown = true;
+        sectionDo += parseFloat($tr.attr('data-do'));
+        sectionRec += parseFloat($tr.attr('data-rec'));
+      }
+    });
+
+    $section.toggle(shown);
+    setTotals($section.find('tfoot.do-totals'), sectionDo, sectionRec);
+    allDo += sectionDo;
+    allRec += sectionRec;
+    anyShown = anyShown || shown;
+  });
+
+  setTotals($wrap.find('.kpi-row.do-totals'), allDo, allRec);
+  $wrap.find('.do-no-match').toggle(!anyShown);
 }
 
 // ============================================================================
