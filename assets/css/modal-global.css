@@ -758,11 +758,10 @@
 .modal-modern .do-items > colgroup > col:nth-child(5) { width: 130px; }
 
 /* Weight header and weight entries share these widths so they line up */
-.modal-modern .do-bag-grid > colgroup > col:nth-child(1) { width: 26%; }
-.modal-modern .do-bag-grid > colgroup > col:nth-child(2) { width: 26%; }
-.modal-modern .do-bag-grid > colgroup > col:nth-child(3) { width: 18%; }
-.modal-modern .do-bag-grid > colgroup > col:nth-child(4) { width: 20%; }
-.modal-modern .do-bag-grid > colgroup > col:nth-child(5) { width: 10%; }
+.modal-modern .do-bag-grid > colgroup > col:nth-child(1) { width: 33%; }
+.modal-modern .do-bag-grid > colgroup > col:nth-child(2) { width: 33%; }
+.modal-modern .do-bag-grid > colgroup > col:nth-child(3) { width: 24%; }
+.modal-modern .do-bag-grid > colgroup > col:nth-child(4) { width: 10%; }
 
 .modal-modern .do-items > thead > tr > th {
   vertical-align: top;
@@ -780,20 +779,6 @@
   vertical-align: middle;
 }
 
-/* Correct DO Weight collapses until a received weight is entered (.do-show-correct set by JS) */
-.modal-modern .do-suppliers:not(.do-show-correct) col.do-col-correct {
-  width: 0;
-}
-
-.modal-modern .do-suppliers:not(.do-show-correct) th.do-col-correct,
-.modal-modern .do-suppliers:not(.do-show-correct) .do-bag-correct {
-  padding: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 0;
-  border: 0;
-}
-
 @media (min-width: 768px) {
   .modal-modern .do-items {
     min-width: 960px;
@@ -808,10 +793,6 @@
 
   .modal-modern .do-bag {
     border-top: 1px dashed var(--modal-border);
-  }
-
-  .modal-modern .do-suppliers:not(.do-show-correct) .do-bag-correct {
-    display: none;
   }
 }
 

@@ -179,13 +179,12 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
               <th><?=$t('grade_code', 'Grade')?></th>
               <th class="p-0">
                 <table class="do-bag-grid">
-                  <colgroup><col><col><col><col class="do-col-correct"><col></colgroup>
+                  <colgroup><col><col><col><col></colgroup>
                   <tbody>
                     <tr>
                       <th><?=$t('do_weight_code', 'DO Weight')?></th>
                       <th><?=$t('received_weight_code', 'Received Weight')?></th>
                       <th><?=$t('weight_loss_code', 'Weight Loss')?></th>
-                      <th class="do-col-correct"><?=$t('correct_do_weight_code', 'Correct DO Weight')?></th>
                       <th></th>
                     </tr>
                   </tbody>
@@ -213,22 +212,16 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
     <td class="p-0">
       <table class="do-bag-grid do-bags">
         <!-- Same columns as the weight header so they line up (widths in modal-global.css) -->
-        <colgroup><col><col><col><col class="do-col-correct"><col></colgroup>
+        <colgroup><col><col><col><col></colgroup>
         <tbody></tbody>
         <tfoot>
-          <tr class="do-line-subtotal font-weight-bold">
-            <td class="text-right"><small class="text-muted mr-1"><?=$t('total_code', 'Total')?></small><span class="do-line-do">0.00</span></td>
-            <td class="text-right do-line-received" data-label="<?=$t('received_weight_code', 'Received Weight')?>">0.00</td>
-            <td class="text-right do-line-loss" data-label="<?=$t('weight_loss_code', 'Weight Loss')?>">0.00</td>
-            <td colspan="2"></td>
-          </tr>
           <tr>
             <td colspan="2">
               <button type="button" class="btn btn-modern btn-modern-secondary btn-sm btn-block do-add-bag">
                 <i class="fas fa-plus mr-1"></i><?=$t('do_add_weight_entry_code', 'Add weight entry')?>
               </button>
             </td>
-            <td colspan="3"></td>
+            <td colspan="2"></td>
           </tr>
         </tfoot>
       </table>
@@ -261,7 +254,6 @@ var doText = <?=json_encode([
   'doWeight' => $t('do_weight_code', 'DO Weight'),
   'received' => $t('received_weight_code', 'Received Weight'),
   'loss' => $t('weight_loss_code', 'Weight Loss'),
-  'correct' => $t('correct_do_weight_code', 'Correct DO Weight'),
   'edit' => $t('edit_code', 'Edit'),
   'new' => $t('new_code', 'New'),
   'delete' => $t('delete_code', 'Delete'),
@@ -639,7 +631,6 @@ function addBag($row, pair) {
       '<td data-label="' + doText.doWeight + '"><input type="number" step="0.01" class="form-control form-control-sm do-bag-do"></td>' +
       '<td data-label="' + doText.received + '"><input type="number" step="0.01" class="form-control form-control-sm do-bag-received" placeholder="' + doText.notWeighed + '"></td>' +
       '<td class="text-right do-bag-loss" data-label="' + doText.loss + '"></td>' +
-      '<td class="text-right do-bag-correct" data-label="' + doText.correct + '"></td>' +
       '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm do-remove-bag" title="' + doText.deleteEntry + '" aria-label="' + doText.deleteEntry + '"><i class="fas fa-trash"></i></button></td>' +
     '</tr>'
   );
@@ -697,11 +688,8 @@ function doTolerance(product, doWeight) {
 
 // Loss = DO - received, only when both are filled; flagged when at least the product's tolerance off in either direction
 function updateDoTotals() {
-  var anyReceived = false;
-
   $('#doSuppliers .do-line').each(function() {
     var $line = $(this);
-    var total = { do: 0, received: 0, loss: 0 };
     var product = findProduct($line.find('.do-product').val());
 
     $line.find('.do-bag').each(function() {
@@ -723,29 +711,13 @@ function updateDoTotals() {
         flagClass = 'text-danger font-weight-bold';
       }
 
-      $bag.find('.do-bag-loss, .do-bag-correct').toggleClass('table-info', over).toggleClass('table-danger', short);
+      $bag.find('.do-bag-loss').toggleClass('table-info', over).toggleClass('table-danger', short);
       $bag.find('.do-bag-loss')
         .text(complete ? loss.toFixed(2) : '')
         .removeClass(DO_FLAG_CLASSES)
         .addClass(flagClass);
-      $bag.find('.do-bag-correct').text((over || short) ? recW.toFixed(2) : '');
-
-      if (recVal !== '') {
-        anyReceived = true;
-      }
-
-      total.do += doW;
-      total.received += recW;
-      total.loss += loss;
     });
-
-    $line.find('.do-line-do').text(total.do.toFixed(2));
-    $line.find('.do-line-received').text(total.received.toFixed(2));
-    $line.find('.do-line-loss').text(total.loss.toFixed(2));
-    $line.find('.do-line-subtotal').toggle($line.find('.do-bag').length > 1);
   });
-
-  $('#doSuppliers').toggleClass('do-show-correct', anyReceived);
 }
 
 // ============================================================================

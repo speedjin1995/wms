@@ -3926,7 +3926,6 @@ END
 $$
 DELIMITER ;
 
--- 27/10/2026 --
 ALTER TABLE `products` ADD `do_weight_tolerance` DECIMAL(10,2) NOT NULL DEFAULT 0.80 AFTER `colour`;
 ALTER TABLE `products` ADD `do_weight_tolerance_type` VARCHAR(10) NOT NULL DEFAULT 'KG' AFTER `do_weight_tolerance`;
 ALTER TABLE `products_log` ADD `do_weight_tolerance` DECIMAL(10,2) NULL AFTER `colour`;
