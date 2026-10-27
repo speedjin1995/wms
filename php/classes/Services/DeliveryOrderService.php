@@ -94,7 +94,7 @@ class DeliveryOrderService extends BaseService
     }
 
     /**
-     * Create or update the DO header. A blank DO No gets YYMMDD-NN from the DO date.
+     * Create or update the DO header. DO No is entered by the user and must be unique.
      */
     public function save(int $id, string $doNo, string $doDate, ?string $remark, array $items = []): array
     {
@@ -103,7 +103,7 @@ class DeliveryOrderService extends BaseService
         }
 
         if ($doNo === '') {
-            $doNo = $this->nextDoNo($doDate);
+            return ['status' => 'failed', 'message' => 'DO No is required'];
         }
 
         $duplicate = $this->fetchOne(
@@ -274,22 +274,210 @@ class DeliveryOrderService extends BaseService
     }
 
     /**
-     * Next YYMMDD-NN for the date; deleted DOs count so a number is never reused
+     * DO Excel upload matched to this company's suppliers, products and grades.
+     * The page fills the form from it; unmatched names come back as warnings.
      */
-    private function nextDoNo(string $doDate): string
+    public function importSheet(array $rows, array $categoryIds): array
     {
-        $prefix = date('ymd', strtotime($doDate)) . '-';
-        $rows = $this->fetchAll(
-            "SELECT do_no FROM delivery_orders WHERE company = ? AND do_no LIKE ?",
-            'is',
-            [$this->company, $prefix . '%']
-        );
+        $sheet = $this->parseTable($rows);
 
-        $max = 0;
-        foreach ($rows as $row) {
-            $max = max($max, (int)substr($row['do_no'], strlen($prefix)));
+        if ($sheet === null) {
+            return ['status' => 'failed', 'message' => 'Excel layout not recognised. Please download the latest template.'];
         }
 
-        return $prefix . str_pad((string)($max + 1), 2, '0', STR_PAD_LEFT);
+        if (empty($sheet['suppliers'])) {
+            return ['status' => 'failed', 'message' => 'No supplier found in the Excel file.'];
+        }
+
+        $opts = $this->getOptions($categoryIds);
+        $upper = function ($value) {
+            return mb_strtoupper(trim((string)$value));
+        };
+        // "code - name" or just the code / name, as picked from the template dropdown or typed
+        $matches = function ($text, $code, $name) use ($upper) {
+            [$textCode, $textName] = $this->splitCode($text);
+            return $upper($code) === $upper($textCode)
+                || $upper($name) === $upper($text)
+                || ($textName !== '' && $upper($name) === $upper($textName));
+        };
+        $suppliers = [];
+        $warnings = [];
+
+        foreach ($sheet['suppliers'] as $supplierText => $items) {
+            $supplier = $this->firstMatch($opts['suppliers'], function ($s) use ($matches, $supplierText) {
+                return $matches($supplierText, $s['supplier_code'], $s['supplier_name']);
+            });
+
+            if (!$supplier) {
+                $warnings[] = 'Supplier ' . $supplierText;
+            }
+
+            $lines = [];
+            foreach ($items as $item) {
+                $product = $this->firstMatch($opts['products'], function ($p) use ($matches, $item) {
+                    return $matches($item['product'], $p['product_code'], $p['product_name']);
+                });
+
+                $grade = null;
+                if ($product) {
+                    $grade = $this->firstMatch($product['grades'], function ($g) use ($upper, $item) {
+                        return $upper($g['grade_name']) === $upper($item['grade']);
+                    });
+                }
+
+                if (!$product || !$grade) {
+                    $warnings[] = $item['product'] . ' / ' . $item['grade'] . ' (' . $supplierText . ')';
+                }
+
+                $lines[] = [
+                    'category' => $product['category'] ?? null,
+                    'product' => $product['id'] ?? null,
+                    'grade_id' => $grade['grade_id'] ?? null,
+                    'pairs' => $item['pairs']
+                ];
+            }
+
+            $suppliers[] = ['supplier' => $supplier['id'] ?? null, 'lines' => $lines];
+        }
+
+        return [
+            'status' => 'success',
+            'data' => [
+                'date' => $sheet['date'],
+                'doNo' => $sheet['doNo'],
+                'suppliers' => $suppliers,
+                'warnings' => $warnings
+            ]
+        ];
+    }
+
+    /**
+     * DO table layout: "DATE:" / "DO NO:" label cells above the header (value after the colon or in the
+     * next filled cell), a header row with SUPPLIER, PRODUCT, GRADE, DO WEIGHT, then one
+     * row per weight. Rows with the same supplier + product + grade are grouped into one item.
+     * Returns null when no header row is found.
+     */
+    private function parseTable(array $rows): ?array
+    {
+        $result = ['date' => '', 'doNo' => '', 'suppliers' => []];
+        $columns = null;
+
+        foreach ($rows as $row) {
+            $row = array_values($row);
+            $cells = array_map(function ($value) {
+                return trim((string)($value ?? ''));
+            }, $row);
+
+            if ($columns === null) {
+                $keys = array_map(function ($cell) {
+                    return strtoupper(preg_replace('/\s+/', '', $cell));
+                }, $cells);
+
+                if (in_array('SUPPLIER', $keys, true) && in_array('DOWEIGHT', $keys, true)) {
+                    $columns = [
+                        'supplier' => array_search('SUPPLIER', $keys, true),
+                        'product' => array_search('PRODUCT', $keys, true),
+                        'grade' => array_search('GRADE', $keys, true),
+                        'do' => array_search('DOWEIGHT', $keys, true)
+                    ];
+                    continue;
+                }
+
+                foreach ($keys as $i => $key) {
+                    if (strpos($key, 'DATE:') === 0) {
+                        $label = 'date';
+                    } elseif (strpos($key, 'DONO:') === 0) {
+                        $label = 'doNo';
+                    } else {
+                        continue;
+                    }
+
+                    $value = trim(substr($cells[$i], strpos($cells[$i], ':') + 1));
+
+                    if ($value === '') {
+                        for ($j = $i + 1; $j < count($row); $j++) {
+                            if ($cells[$j] !== '') {
+                                $value = $row[$j];
+                                break;
+                            }
+                        }
+                    }
+
+                    $result[$label] = $label === 'date' ? $this->excelDate($value) : trim((string)$value);
+                }
+                continue;
+            }
+
+            $cell = function ($column) use ($columns, $cells) {
+                return $columns[$column] === false ? '' : ($cells[$columns[$column]] ?? '');
+            };
+            $weight = function ($column) use ($cell) {
+                return is_numeric($cell($column)) ? (float)$cell($column) : '';
+            };
+
+            $supplier = $cell('supplier');
+            $product = $cell('product');
+            $grade = $cell('grade');
+            $pair = ['do' => $weight('do')];
+
+            if ($supplier === '' && $product === '' && $grade === '' && $pair['do'] === '') {
+                continue;
+            }
+
+            $key = $product . "\n" . $grade;
+            if (!isset($result['suppliers'][$supplier][$key])) {
+                $result['suppliers'][$supplier][$key] = ['product' => $product, 'grade' => $grade, 'pairs' => []];
+            }
+            $result['suppliers'][$supplier][$key]['pairs'][] = $pair;
+        }
+
+        return $columns === null ? null : $result;
+    }
+
+    /**
+     * Excel date serial or dd.mm.yyyy / dd/mm/yyyy text to DD/MM/YYYY; '' when not a date
+     */
+    private function excelDate($value): string
+    {
+        if (is_int($value) || is_float($value)) {
+            return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)->format('d/m/Y');
+        }
+
+        if (preg_match('/^(\d{1,2})([.\/])(\d{1,2})\2(\d{4})$/', trim((string)$value), $m) && checkdate((int)$m[3], (int)$m[1], (int)$m[4])) {
+            return sprintf('%02d/%02d/%s', $m[1], $m[3], $m[4]);
+        }
+
+        return '';
+    }
+
+    /**
+     * Split on the first " - " (or "-"): "D197 - CC KP" -> ["D197", "CC KP"]
+     */
+    private function splitCode(string $text): array
+    {
+        $idx = strpos($text, ' - ');
+        $len = 3;
+
+        if ($idx === false) {
+            $idx = strpos($text, '-');
+            $len = 1;
+        }
+
+        if ($idx === false) {
+            return [trim($text), ''];
+        }
+
+        return [trim(substr($text, 0, $idx)), trim(substr($text, $idx + $len))];
+    }
+
+    private function firstMatch(array $items, callable $match): ?array
+    {
+        foreach ($items as $item) {
+            if ($match($item)) {
+                return $item;
+            }
+        }
+
+        return null;
     }
 }

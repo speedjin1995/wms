@@ -44,7 +44,7 @@ if(!isset($_SESSION['userID'])){
         <!-- Google Font: Source Sans Pro -->
         <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
         <!-- Home Page Styles -->
-        <link rel="stylesheet" href="assets/css/home.css">
+        <link rel="stylesheet" href="assets/css/home.css?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>">
     </head>
 
     <body>

@@ -78,6 +78,26 @@ class DeliveryOrderController extends BaseController
     }
 
     /**
+     * Read the uploaded DO Excel (first sheet) and match it to suppliers, products and grades
+     */
+    public function import(array $categoryIds): array
+    {
+        $file = $_FILES['file']['tmp_name'] ?? '';
+
+        if (!$file || !is_uploaded_file($file)) {
+            return ['status' => 'failed', 'message' => 'Please select an Excel file'];
+        }
+
+        try {
+            $rows = \PhpOffice\PhpSpreadsheet\IOFactory::load($file)->getSheet(0)->toArray(null, true, false, false);
+        } catch (\Throwable $e) {
+            return ['status' => 'failed', 'message' => 'Unable to read the Excel file'];
+        }
+
+        return $this->service->importSheet($rows, $categoryIds);
+    }
+
+    /**
      * Parse date from d/m/Y format to Y-m-d
      */
     private function parseDateInput(?string $date): ?string

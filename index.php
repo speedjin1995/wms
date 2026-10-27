@@ -113,8 +113,8 @@ else{
   <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
   
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="assets/css/modal-global.css">
-  <link rel="stylesheet" href="assets/css/page-global.css">
+  <link rel="stylesheet" href="assets/css/modal-global.css?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>">
+  <link rel="stylesheet" href="assets/css/page-global.css?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>">
 
   <style>
     body {
@@ -548,6 +548,14 @@ to get the desired effect
                 </a>
               </li> -->
               <?php if ($module == 'wholesale') { ?>
+                <?php if ($allowDeliveryOrder == 'Y') { ?>
+                <li class="nav-item">
+                  <a href="#deliveryOrder" data-file="modules/deliveryOrder/deliveryOrder.php" class="nav-link link">
+                    <i class="nav-icon fas fa-truck-loading"></i>
+                    <p><?=$languageArray['delivery_order_code'][$language] ?? 'Delivery Order'?></p>
+                  </a>
+                </li>
+                <?php } ?>
                 <li class="nav-item">
                   <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
                     <i class="nav-icon fas fa-cubes"></i>
@@ -559,20 +567,6 @@ to get the desired effect
                   <a href="#bulkPriceUpdate" data-file="modules/wholesales/bulkPriceUpdate.php" class="nav-link link">
                     <i class="nav-icon fas fa-tags"></i>
                     <p><?=$languageArray['bulk_price_update_code'][$language] ?? 'Bulk Price Update'?></p>
-                  </a>
-                </li>
-                <?php } ?>
-                <li class="nav-item">
-                  <a href="#repacking" data-file="modules/repacking/repacking.php" class="nav-link link">
-                    <i class="nav-icon fas fa-dolly"></i>
-                    <p><?=$languageArray['repacking_code'][$language]?></p>
-                  </a>
-                </li>
-                <?php if ($allowDeliveryOrder == 'Y') { ?>
-                <li class="nav-item">
-                  <a href="#deliveryOrder" data-file="modules/deliveryOrder/deliveryOrder.php" class="nav-link link">
-                    <i class="nav-icon fas fa-truck-loading"></i>
-                    <p><?=$languageArray['delivery_order_code'][$language] ?? 'Delivery Order'?></p>
                   </a>
                 </li>
                 <?php } ?>

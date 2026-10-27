@@ -14,6 +14,9 @@ if (($_SESSION['featureFlags']['include_delivery_order'] ?? 'N') != 'Y') {
 $language = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 $doAllowPrice = (($_SESSION['featureFlags']['include_price'] ?? 'N') == 'Y' && ($_SESSION['userAllowPrice'] ?? 'N') == 'Y') ? 'Y' : 'N';
+$userAllowAdd = $_SESSION['userAllowAdd'] ?? 'N';
+$userAllowEdit = $_SESSION['userAllowEdit'] ?? 'N';
+$userAllowDelete = $_SESSION['userAllowDelete'] ?? 'N';
 $t = function ($key, $default = '') use ($languageArray, $language) { return $languageArray[$key][$language] ?? $default; };
 ?>
 
@@ -47,10 +50,10 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
               </div>
             </div>
           </div>
-          <div class="filter-group filter-group-action" style="margin-left:auto;">
+          <div class="filter-group filter-group-action ml-auto">
             <label class="filter-label">&nbsp;</label>
-            <div class="d-flex" style="gap:0.5rem;">
-              <button type="button" class="btn btn-filter btn-filter-secondary" id="loadDoListBtn">
+            <div class="d-flex">
+              <button type="button" class="btn btn-filter btn-filter-primary" id="loadDoListBtn">
                 <i class="fas fa-search"></i> <?=$t('search_code', 'Search')?>
               </button>
             </div>
@@ -63,12 +66,14 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
     <div class="card results-card show-dt-controls">
       <div class="card-header">
         <div class="results-header-left">
-          <h3 class="results-title"><i class="fas fa-truck-loading"></i> <?=$t('delivery_order_code', 'Delivery Order')?></h3>
+          <h3 class="results-title"><i class="fas fa-list"></i> <?=$t('delivery_order_code', 'Delivery Order')?></h3>
         </div>
-        <div class="results-header-right d-flex" style="gap: 0.5rem;">
+        <div class="results-header-right d-flex">
+          <?php if($userAllowAdd == 'Y'){ ?>
           <button type="button" class="btn btn-action btn-action-primary" id="newDoBtn">
-            <i class="fas fa-plus"></i> <?=$t('new_code', 'New')?>
+            <i class="fas fa-plus"></i> <?=$t('add_new_code', 'Add New')?>
           </button>
+          <?php } ?>
         </div>
       </div>
       <div class="card-body">
@@ -82,7 +87,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
               <th><?=$t('received_weight_code', 'Received Weight')?></th>
               <th><?=$t('weight_loss_code', 'Weight Loss')?></th>
               <th><?=$t('created_by_code', 'Created By')?></th>
-              <th width="12%"><?=$t('actions_code', 'Actions')?></th>
+              <th><?=$t('actions_code', 'Actions')?></th>
             </tr>
           </thead>
         </table>
@@ -101,6 +106,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
             <input type="hidden" id="doId">
 
             <div class="modal-section">
+              <h6 class="section-title"><span class="badge badge-pill badge-primary mr-2">1</span><?=$t('do_order_details_code', 'Order Details')?></h6>
               <div class="row">
                 <div class="col-md-3">
                   <div class="form-group-modern">
@@ -115,36 +121,36 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
                 </div>
                 <div class="col-md-3">
                   <div class="form-group-modern">
-                    <label class="form-label-modern"><?=$t('do_no_code', 'DO No')?></label>
-                    <input type="text" class="form-control" id="doNo" placeholder="Auto">
+                    <label class="form-label-modern"><?=$t('do_no_code', 'DO No')?> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="doNo">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group-modern">
                     <label class="form-label-modern"><?=$t('remark_code', 'Remark')?></label>
-                    <input type="text" class="form-control" id="doRemark">
+                    <textarea class="form-control" id="doRemark" rows="1" placeholder="<?=$t('enter_remark_code', 'Enter remark')?>"></textarea>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="modal-section">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="section-title mb-0"><i class="fas fa-list mr-2"></i><?=$t('supplier_code', 'Supplier')?></div>
-                <div>
-                  <button type="button" class="btn btn-sm btn-secondary" id="doTemplateBtn"><i class="fas fa-download mr-1"></i><?=$t('download_template_code', 'Download Template')?></button>
-                  <input type="file" id="doExcelFile" accept=".xlsx,.xls" style="display:none">
-                  <button type="button" class="btn btn-sm btn-info" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
-                  <button type="button" class="btn btn-sm btn-success" id="doAddSupplierBtn"><i class="fas fa-plus mr-1"></i><?=$t('add_supplier_code', 'Add Supplier')?></button>
+              <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <h6 class="section-title mb-0"><span class="badge badge-pill badge-primary mr-2">2</span><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></h6>
+                <div class="d-flex align-items-center">
+                  <button type="button" class="btn btn-modern btn-modern-warning btn-sm mr-2" id="doTemplateBtn"><i class="fas fa-download mr-1"></i><?=$t('download_template_code', 'Download Template')?></button>
+                  <button type="button" class="btn btn-modern btn-modern-success btn-sm" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
                 </div>
+                <input type="file" id="doExcelFile" accept=".xlsx,.xls" class="d-none">
               </div>
-              <div id="doSuppliers"></div>
+              <div id="doSuppliers" class="do-suppliers"></div>
+              <button type="button" class="btn btn-modern btn-modern-primary btn-block" id="doAddSupplierBtn"><i class="fas fa-plus mr-1"></i><?=$t('add_supplier_code', 'Add Supplier')?></button>
             </div>
           </div>
           <div class="modal-footer">
-            <div class="mr-auto font-weight-bold"><?=$t('do_weight_code', 'DO Weight')?>: <span id="doGrandTotal">0.00</span> | <?=$t('received_weight_code', 'Received Weight')?>: <span id="doGrandReceived">0.00</span> | <?=$t('weight_loss_code', 'Weight Loss')?>: <span id="doGrandLoss">0.00</span></div>
+            <span class="mr-auto text-warning font-weight-bold" id="doUnsavedBadge" style="display:none;"><i class="fas fa-circle fa-xs mr-1"></i><?=$t('do_unsaved_code', 'Unsaved changes')?></span>
             <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('close_code', 'Close')?></button>
-            <button type="button" class="btn btn-modern btn-modern-success" id="saveDoBtn"><i class="fas fa-save mr-1"></i><?=$t('save_code', 'Save')?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="saveDoBtn"><i class="fas fa-save mr-1"></i><?=$t('save_code', 'Save')?></button>
           </div>
         </div>
       </div>
@@ -152,26 +158,125 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
   </div>
 </div>
 
+<!-- Supplier Card Template -->
+<script type="text/html" id="doSupplierTemplate">
+  <div class="cs-card do-supplier mb-3">
+    <div class="cs-card-header">
+      <span class="cs-card-number"></span>
+      <select class="form-control form-control-sm do-supplier-select"></select>
+      <button type="button" class="btn btn-modern btn-modern-danger btn-sm text-nowrap do-remove-supplier">
+        <i class="fas fa-trash mr-1"></i><?=$t('do_remove_supplier_code', 'Remove supplier')?>
+      </button>
+    </div>
+    <div class="p-2">
+      <div class="table-responsive">
+        <table class="table table-sm table-stack mb-2 do-items">
+          <colgroup><col><col><col><col><col></colgroup>
+          <thead class="thead-light">
+            <tr>
+              <th><?=$t('category_code', 'Category')?></th>
+              <th><?=$t('product_code', 'Product')?></th>
+              <th><?=$t('grade_code', 'Grade')?></th>
+              <th class="p-0">
+                <table class="do-bag-grid">
+                  <colgroup><col><col><col><col class="do-col-correct"><col></colgroup>
+                  <tbody>
+                    <tr>
+                      <th><?=$t('do_weight_code', 'DO Weight')?></th>
+                      <th><?=$t('received_weight_code', 'Received Weight')?></th>
+                      <th><?=$t('weight_loss_code', 'Weight Loss')?></th>
+                      <th class="do-col-correct"><?=$t('correct_do_weight_code', 'Correct DO Weight')?></th>
+                      <th></th>
+                    </tr>
+                  </tbody>
+                </table>
+              </th>
+              <th><?=$t('actions_code', 'Actions')?></th>
+            </tr>
+          </thead>
+          <tbody class="do-lines"></tbody>
+        </table>
+      </div>
+      <button type="button" class="btn btn-modern btn-modern-primary btn-sm do-add-line">
+        <i class="fas fa-plus mr-1"></i><?=$t('do_add_item_code', 'Add item')?>
+      </button>
+    </div>
+  </div>
+</script>
+
+<!-- Item Row Template -->
+<script type="text/html" id="doLineTemplate">
+  <tr class="do-line">
+    <td data-label="<?=$t('category_code', 'Category')?>"><select class="form-control form-control-sm do-category"></select></td>
+    <td data-label="<?=$t('product_code', 'Product')?>"><select class="form-control form-control-sm do-product"></select></td>
+    <td data-label="<?=$t('grade_code', 'Grade')?>"><select class="form-control form-control-sm do-grade"></select></td>
+    <td class="p-0">
+      <table class="do-bag-grid do-bags">
+        <!-- Same columns as the weight header so they line up (widths in modal-global.css) -->
+        <colgroup><col><col><col><col class="do-col-correct"><col></colgroup>
+        <tbody></tbody>
+        <tfoot>
+          <tr class="do-line-subtotal font-weight-bold">
+            <td class="text-right"><small class="text-muted mr-1"><?=$t('total_code', 'Total')?></small><span class="do-line-do">0.00</span></td>
+            <td class="text-right do-line-received" data-label="<?=$t('received_weight_code', 'Received Weight')?>">0.00</td>
+            <td class="text-right do-line-loss" data-label="<?=$t('weight_loss_code', 'Weight Loss')?>">0.00</td>
+            <td colspan="2"></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button type="button" class="btn btn-modern btn-modern-secondary btn-sm btn-block do-add-bag">
+                <i class="fas fa-plus mr-1"></i><?=$t('do_add_weight_entry_code', 'Add weight entry')?>
+              </button>
+            </td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </td>
+    <td class="text-center">
+      <button type="button" class="btn btn-modern btn-modern-danger btn-sm do-remove-line">
+        <i class="fas fa-trash mr-1"></i><?=$t('do_remove_item_code', 'Remove item')?>
+      </button>
+    </td>
+  </tr>
+</script>
+
 <script>
 var doListTable = null;
-var doOptions = { suppliers: [], categories: [], products: [], defaultCurrency: null };
+var doOptions = {
+  suppliers: [],
+  categories: [],
+  products: [],
+  defaultCurrency: null
+};
 var doRemovedIds = [];
+var doSaved = '';
+// Used until a product is picked; each product has its own do_weight_tolerance
 var DO_WEIGHT_TOLERANCE = 0.8;
-var DO_FLAG_CLASSES = 'text-primary text-danger font-weight-bold border border-primary border-danger';
+var DO_FLAG_CLASSES = 'text-primary text-danger font-weight-bold';
 var doAllowPrice = '<?=$doAllowPrice?>';
+var doAllowEdit = '<?=$userAllowEdit?>';
+var doAllowDelete = '<?=$userAllowDelete?>';
 var doText = <?=json_encode([
-  'category' => $t('category_code', 'Category'),
-  'product' => $t('product_code', 'Product'),
-  'grade' => $t('grade_code', 'Grade'),
-  'weight' => $t('weight_code', 'Weight'),
   'doWeight' => $t('do_weight_code', 'DO Weight'),
   'received' => $t('received_weight_code', 'Received Weight'),
   'loss' => $t('weight_loss_code', 'Weight Loss'),
   'correct' => $t('correct_do_weight_code', 'Correct DO Weight'),
-  'total' => $t('total_code', 'Total'),
   'edit' => $t('edit_code', 'Edit'),
   'new' => $t('new_code', 'New'),
-  'deleteConfirm' => 'Delete this delivery order? Its wholesales records will be deleted and stock reversed.'
+  'delete' => $t('delete_code', 'Delete'),
+  'deleteEntry' => $t('do_delete_entry_code', 'Delete entry'),
+  'removeLineConfirm' => $t('do_remove_item_confirm_code', 'Remove this item and its weight entries?'),
+  'removeSupplierConfirm' => $t('do_remove_supplier_confirm_code', 'Remove this supplier and all its items?'),
+  'notWeighed' => $t('do_not_weighed_code', 'Not weighed yet'),
+  'unsavedConfirm' => $t('do_unsaved_confirm_code', 'You have unsaved changes. Close without saving?'),
+  'deleteConfirm' => $t('do_delete_confirm_code', 'Delete this delivery order? Its wholesales records will be deleted and stock reversed.'),
+  'errDate' => $t('do_err_date_code', 'Please select DO date.'),
+  'errDoNo' => $t('do_err_do_no_code', 'Please enter DO No.'),
+  'errSupplier' => $t('do_err_supplier_code', 'Please select supplier for all cards.'),
+  'errLine' => $t('do_err_line_code', 'Please fill product, grade and weight for all lines.'),
+  'errNoLine' => $t('do_err_no_line_code', 'Each supplier needs at least one line.'),
+  'errNoSupplier' => $t('do_err_no_supplier_code', 'Please add at least one supplier.')
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 
 $(function() {
@@ -181,42 +286,99 @@ $(function() {
     defaultDate: new Date()
   });
 
-  $('#loadDoListBtn').on('click', loadDoList);
-  $('#newDoBtn').on('click', function() { openDoModal(); });
-  $('#doAddSupplierBtn').on('click', function() { addLine(addSupplierCard()); });
+  $('#loadDoListBtn').on('click', function() {
+    doListTable.ajax.reload();
+  });
+
+  $('#newDoBtn').on('click', function() {
+    openDoModal();
+  });
+
+  $('#doAddSupplierBtn').on('click', function() {
+    addLine(addSupplierCard());
+  });
+
   $('#saveDoBtn').on('click', saveDo);
-  $('#doTemplateBtn').on('click', function() { window.location.href = 'php/modules/deliveryOrder/api.php?action=template'; });
-  $('#doUploadBtn').on('click', function() { $('#doExcelFile').val('').click(); });
+
+  $('#doTemplateBtn').on('click', function() {
+    window.location.href = 'php/modules/deliveryOrder/api.php?action=template';
+  });
+
+  $('#doUploadBtn').on('click', function() {
+    $('#doExcelFile').val('').click();
+  });
+
   $('#doExcelFile').on('change', onExcelSelected);
 
   $('#doSuppliers')
     .on('click', '.do-remove-supplier', function() {
+      if (!confirm(doText.removeSupplierConfirm)) {
+        return;
+      }
+
       var $card = $(this).closest('.do-supplier');
-      if ($card.data('wid')) doRemovedIds.push($card.data('wid'));
+      if ($card.data('wid')) {
+        doRemovedIds.push($card.data('wid'));
+      }
+
       $card.remove();
+      numberDoSuppliers();
       updateDoTotals();
     })
-    .on('click', '.do-add-line', function() { addLine($(this).closest('.do-supplier')); })
+    .on('click', '.do-add-line', function() {
+      addLine($(this).closest('.do-supplier'));
+    })
     .on('click', '.do-remove-line', function() {
-      $(this).closest('tr').remove();
+      if (!confirm(doText.removeLineConfirm)) {
+        return;
+      }
+
+      $(this).closest('.do-line').remove();
       updateDoTotals();
     })
     .on('change', '.do-category', function() {
-      var $row = $(this).closest('tr');
+      var $row = $(this).closest('.do-line');
       fillProducts($row, $(this).val());
       fillGrades($row, null);
+      updateDoTotals();
     })
-    .on('change', '.do-product', function() { fillGrades($(this).closest('tr'), $(this).val()); })
+    .on('change', '.do-product', function() {
+      fillGrades($(this).closest('.do-line'), $(this).val());
+      updateDoTotals();
+    })
     .on('input', '.do-bag-do, .do-bag-received', updateDoTotals)
-    .on('click', '.do-add-bag', function() { addBag($(this).closest('.do-line')); })
+    .on('click', '.do-add-bag', function() {
+      addBag($(this).closest('.do-line'));
+    })
     .on('click', '.do-remove-bag', function() {
-      $(this).closest('tr').remove();
+      $(this).closest('.do-bag').remove();
       updateDoTotals();
     });
 
+  $('#doModal')
+    .on('input change', '.is-invalid', function() {
+      $(this).removeClass('is-invalid');
+    })
+    .on('input change click', function() {
+      $('#doUnsavedBadge').toggle(isDoDirty());
+    })
+    .on('hide.bs.modal', function(e) {
+      if (e.target !== this) {
+        return;
+      }
+
+      if (isDoDirty() && !confirm(doText.unsavedConfirm)) {
+        e.preventDefault();
+      }
+    });
+
   $('#doListTable')
-    .on('click', '.edit-do-btn', function() { editDo($(this).data('id')); })
-    .on('click', '.delete-do-btn', function() { deleteDo($(this).data('id')); });
+    .on('click', '.edit-do-btn', function() {
+      editDo($(this).data('id'));
+    })
+    .on('click', '.delete-do-btn', function() {
+      deleteDo($(this).data('id'));
+    });
 
   loadDoList();
 });
@@ -225,10 +387,9 @@ $(function() {
 // LIST
 // ============================================================================
 function loadDoList() {
-  if (doListTable) {
-    doListTable.clear().destroy();
-    doListTable = null;
-  }
+  var weightColumn = function(d) {
+    return (parseFloat(d) || 0).toFixed(2);
+  };
 
   doListTable = $('#doListTable').DataTable({
     responsive: true,
@@ -239,23 +400,50 @@ function loadDoList() {
     ajax: {
       url: 'php/modules/deliveryOrder/api.php',
       type: 'POST',
-      data: { action: 'list', date_from: $('#doDateFrom').val() || '', date_to: $('#doDateTo').val() || '' },
-      dataSrc: function(json) { return json.status === 'success' ? json.data : []; }
+      data: function(d) {
+        d.action = 'list';
+        d.date_from = $('#doDateFrom').val() || '';
+        d.date_to = $('#doDateTo').val() || '';
+      },
+      dataSrc: function(json) {
+        return json.status === 'success' ? json.data : [];
+      }
     },
     columns: [
       { data: 'do_no' },
       { data: 'do_date_display' },
       { data: 'supplier_count', className: 'text-center' },
-      { data: 'do_weight', className: 'text-right', render: function(d) { return (parseFloat(d) || 0).toFixed(2); } },
-      { data: 'received_weight', className: 'text-right', render: function(d) { return (parseFloat(d) || 0).toFixed(2); } },
-      { data: null, className: 'text-right', render: function(d) { return ((parseFloat(d.do_weight) || 0) - (parseFloat(d.received_weight) || 0)).toFixed(2); } },
+      { data: 'do_weight', className: 'text-right', render: weightColumn },
+      { data: 'received_weight', className: 'text-right', render: weightColumn },
+      {
+        data: null,
+        className: 'text-right',
+        render: function(d) {
+          var doWeight = parseFloat(d.do_weight) || 0;
+          var receivedWeight = parseFloat(d.received_weight) || 0;
+          return (doWeight - receivedWeight).toFixed(2);
+        }
+      },
       { data: 'created_by_name', defaultContent: '-' },
-      { data: null, orderable: false, className: 'action-button', render: function(d) {
-        return '<div class="expanded-actions">' +
-          '<button type="button" class="btn btn-sm btn-outline-primary edit-do-btn" data-id="' + d.id + '"><i class="fas fa-pen"></i></button>' +
-          '<button type="button" class="btn btn-sm btn-outline-danger delete-do-btn" data-id="' + d.id + '"><i class="fas fa-trash"></i></button>' +
-          '</div>';
-      } }
+      {
+        data: null,
+        orderable: false,
+        className: 'action-button',
+        width: '120px',
+        render: function(d) {
+          var html = '<div class="expanded-actions">';
+
+          if (doAllowEdit == 'Y') {
+            html += '<button type="button" class="btn btn-sm btn-outline-primary edit-do-btn" data-id="' + d.id + '" title="' + doText.edit + '"><i class="fas fa-pen"></i></button>';
+          }
+
+          if (doAllowDelete == 'Y') {
+            html += '<button type="button" class="btn btn-sm btn-outline-danger delete-do-btn" data-id="' + d.id + '" title="' + doText.delete + '"><i class="fas fa-trash"></i></button>';
+          }
+
+          return html + '</div>';
+        }
+      }
     ],
     'language': {
       'emptyTable': '<div class="datatable-empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div class="empty-title"><?=$languageArray['no_records_found_code'][$language] ?? 'No Records Found'?></div><div class="empty-message"><?=$languageArray['no_records_message_code'][$language] ?? 'Try adjusting your search or filter criteria'?></div></div>',
@@ -292,128 +480,179 @@ function openDoModal() {
   loadDoOptions(function() {
     resetDoModal(doText.new);
     addLine(addSupplierCard());
+    markDoSaved();
     $('#doModal').modal('show');
   });
 }
 
+// Every field value in the modal; adding or removing a row changes it too
+function doSnapshot() {
+  var values = $('#doModal')
+    .find('input, select, textarea')
+    .not('.select2-search__field')
+    .map(function() {
+      return $(this).val();
+    })
+    .get();
+
+  return JSON.stringify(values);
+}
+
+function isDoDirty() {
+  return doSnapshot() !== doSaved;
+}
+
+function markDoSaved() {
+  doSaved = doSnapshot();
+  $('#doUnsavedBadge').hide();
+}
+
 function findProduct(id) {
-  return doOptions.products.find(function(p) { return p.id == id; });
+  return doOptions.products.find(function(p) {
+    return p.id == id;
+  });
 }
 
 function findSupplier(id) {
-  return doOptions.suppliers.find(function(s) { return s.id == id; });
+  return doOptions.suppliers.find(function(s) {
+    return s.id == id;
+  });
 }
 
 function optionList(items, valueKey, textFn) {
   var $opts = [$('<option value="">-</option>')];
+
   items.forEach(function(item) {
     $opts.push($('<option>').val(item[valueKey]).text(textFn(item)));
   });
+
   return $opts;
 }
 
 function initSelect2($el) {
-  $el.select2({ width: '100%', dropdownParent: $('#doModal') });
+  $el.select2({
+    width: '100%',
+    dropdownParent: $('#doModal')
+  });
 }
 
 function addSupplierCard(supplierId, wholesaleId, serialNo) {
-  var $card = $(
-    '<div class="card do-supplier mb-3">' +
-      '<div class="card-header d-flex align-items-center" style="gap:0.5rem;">' +
-        '<div style="width:320px;"><select class="form-control form-control-sm do-supplier-select"></select></div>' +
-        '<span class="ml-auto">' + doText.doWeight + ': <b class="do-supplier-do">0.00</b> | ' + doText.received + ': <b class="do-supplier-received">0.00</b> | ' + doText.loss + ': <b class="do-supplier-loss">0.00</b></span>' +
-        '<button type="button" class="btn btn-sm btn-success do-add-line"><i class="fas fa-plus"></i></button>' +
-        '<button type="button" class="btn btn-sm btn-danger do-remove-supplier"><i class="fas fa-times"></i></button>' +
-      '</div>' +
-      '<div class="card-body p-2"><table class="table table-sm table-bordered mb-0">' +
-        '<thead><tr><th style="width:16%;">' + doText.category + '</th><th style="width:18%;">' + doText.product + '</th><th style="width:12%;">' + doText.grade + '</th>' +
-        '<th>' + doText.weight + '</th><th style="width:4%;"></th></tr></thead>' +
-        '<tbody class="do-lines"></tbody>' +
-      '</table></div>' +
-    '</div>'
-  );
+  // trim: jQuery only treats the string as HTML when it starts with "<"
+  var $card = $($.trim($('#doSupplierTemplate').html()));
 
   if (wholesaleId) {
     $card.data('wid', wholesaleId);
     $card.data('serial', serialNo);
   }
 
-  var $select = $card.find('.do-supplier-select').append(optionList(doOptions.suppliers, 'id', function(s) {
-    return (s.supplier_code ? s.supplier_code + ' - ' : '') + s.supplier_name;
-  }));
+  var supplierOptions = optionList(doOptions.suppliers, 'id', function(s) {
+    var code = s.supplier_code ? s.supplier_code + ' - ' : '';
+    return code + s.supplier_name;
+  });
+  var $select = $card.find('.do-supplier-select').append(supplierOptions);
+
   $('#doSuppliers').append($card);
+  numberDoSuppliers();
   initSelect2($select);
-  if (supplierId) $select.val(supplierId).trigger('change.select2');
+
+  if (supplierId) {
+    $select.val(supplierId).trigger('change.select2');
+  }
 
   return $card;
 }
 
+// Card numbers follow the on-screen order, same as the customer/supplier cards on the products page
+function numberDoSuppliers() {
+  $('#doSuppliers .cs-card-number').each(function(i) {
+    $(this).text(i + 1);
+  });
+}
+
 function addLine($card, data) {
   data = data || {};
-  var $row = $(
-    '<tr class="do-line">' +
-      '<td><select class="form-control form-control-sm do-category"></select></td>' +
-      '<td><select class="form-control form-control-sm do-product"></select></td>' +
-      '<td><select class="form-control form-control-sm do-grade"></select></td>' +
-      '<td><table class="table table-sm table-bordered mb-0 do-bags">' +
-        '<thead><tr><th>' + doText.doWeight + '</th><th>' + doText.received + '</th><th>' + doText.loss + '</th><th>' + doText.correct + '</th><th style="width:4%;"></th></tr></thead>' +
-        '<tbody></tbody>' +
-        '<tfoot><tr><th class="text-right">' + doText.total + '</th><th class="text-right do-line-do">0.00</th><th class="text-right do-line-received">0.00</th><th class="text-right do-line-loss">0.00</th>' +
-        '<th class="text-center"><button type="button" class="btn btn-sm btn-success do-add-bag"><i class="fas fa-plus"></i></button></th></tr></tfoot>' +
-      '</table></td>' +
-      '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger do-remove-line"><i class="fas fa-times"></i></button></td>' +
-    '</tr>'
-  );
+
+  var $row = $($.trim($('#doLineTemplate').html()));
   $card.find('.do-lines').append($row);
 
-  $row.find('.do-category').append(optionList(doOptions.categories, 'id', function(c) { return c.category_name; }));
+  var categoryOptions = optionList(doOptions.categories, 'id', function(c) {
+    return c.category_name;
+  });
+  $row.find('.do-category').append(categoryOptions);
   initSelect2($row.find('.do-category, .do-product, .do-grade'));
 
   if (data.category) {
     $row.find('.do-category').val(data.category).trigger('change.select2');
     fillProducts($row, data.category);
   }
+
   if (data.product) {
     $row.find('.do-product').val(data.product).trigger('change.select2');
     fillGrades($row, data.product);
   }
+
   if (data.grade_id) {
     $row.find('.do-grade').val(data.grade_id).trigger('change.select2');
   }
-  (data.pairs && data.pairs.length ? data.pairs : [{}]).forEach(function(p) { addBag($row, p); });
+
+  var pairs = (data.pairs && data.pairs.length) ? data.pairs : [{}];
+  pairs.forEach(function(p) {
+    addBag($row, p);
+  });
 
   updateDoTotals();
   return $row;
 }
 
 function fillProducts($row, categoryId) {
-  var products = categoryId ? doOptions.products.filter(function(p) { return p.category == categoryId; }) : [];
-  $row.find('.do-product').empty().append(optionList(products, 'id', function(p) {
-    return (p.product_code ? p.product_code + ' - ' : '') + p.product_name;
-  })).trigger('change.select2');
+  var products = [];
+  if (categoryId) {
+    products = doOptions.products.filter(function(p) {
+      return p.category == categoryId;
+    });
+  }
+
+  var productOptions = optionList(products, 'id', function(p) {
+    var code = p.product_code ? p.product_code + ' - ' : '';
+    return code + p.product_name;
+  });
+
+  $row.find('.do-product').empty().append(productOptions).trigger('change.select2');
 }
 
 function fillGrades($row, productId) {
   var product = productId ? findProduct(productId) : null;
-  $row.find('.do-grade').empty().append(optionList(product ? product.grades : [], 'grade_id', function(g) {
+  var grades = product ? product.grades : [];
+
+  var gradeOptions = optionList(grades, 'grade_id', function(g) {
     return g.grade_name;
-  })).trigger('change.select2');
+  });
+
+  $row.find('.do-grade').empty().append(gradeOptions).trigger('change.select2');
 }
 
 function addBag($row, pair) {
   pair = pair || {};
+
   var $bag = $(
     '<tr class="do-bag">' +
-      '<td><input type="number" step="0.01" class="form-control form-control-sm do-bag-do"></td>' +
-      '<td><input type="number" step="0.01" class="form-control form-control-sm do-bag-received"></td>' +
-      '<td class="text-right do-bag-loss"></td>' +
-      '<td class="text-right do-bag-correct"></td>' +
-      '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger do-remove-bag"><i class="fas fa-times"></i></button></td>' +
+      '<td data-label="' + doText.doWeight + '"><input type="number" step="0.01" class="form-control form-control-sm do-bag-do"></td>' +
+      '<td data-label="' + doText.received + '"><input type="number" step="0.01" class="form-control form-control-sm do-bag-received" placeholder="' + doText.notWeighed + '"></td>' +
+      '<td class="text-right do-bag-loss" data-label="' + doText.loss + '"></td>' +
+      '<td class="text-right do-bag-correct" data-label="' + doText.correct + '"></td>' +
+      '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm do-remove-bag" title="' + doText.deleteEntry + '" aria-label="' + doText.deleteEntry + '"><i class="fas fa-trash"></i></button></td>' +
     '</tr>'
   );
-  if (pair.do != null) $bag.find('.do-bag-do').val(pair.do);
-  if (pair.received != null) $bag.find('.do-bag-received').val(pair.received);
-  $row.find('.do-bags tbody').append($bag);
+
+  if (pair.do != null) {
+    $bag.find('.do-bag-do').val(pair.do);
+  }
+
+  if (pair.received != null) {
+    $bag.find('.do-bag-received').val(pair.received);
+  }
+
+  $row.find('.do-bags > tbody').append($bag);
   updateDoTotals();
   return $bag;
 }
@@ -421,80 +660,92 @@ function addBag($row, pair) {
 // Blank inputs stay blank so an unweighed bag is not read as a zero weight
 function linePairs($row) {
   return $row.find('.do-bag').map(function() {
-    return { do: $(this).find('.do-bag-do').val(), received: $(this).find('.do-bag-received').val() };
+    return {
+      do: $(this).find('.do-bag-do').val(),
+      received: $(this).find('.do-bag-received').val()
+    };
   }).get();
 }
 
 function hasWeight(pairs) {
-  return pairs.some(function(p) { return parseFloat(p.do) > 0 || parseFloat(p.received) > 0; });
+  return pairs.some(function(p) {
+    return parseFloat(p.do) > 0 || parseFloat(p.received) > 0;
+  });
 }
 
 function hasReceived(s) {
   return s.lines.some(function(line) {
-    return line.pairs.some(function(p) { return parseFloat(p.received) > 0; });
+    return line.pairs.some(function(p) {
+      return parseFloat(p.received) > 0;
+    });
   });
 }
 
-// Loss = DO - received; flagged when at least DO_WEIGHT_TOLERANCE off in either direction
+// Allowed difference in kg for one entry: the product's tolerance in kg, or a % of the entry's DO weight
+function doTolerance(product, doWeight) {
+  if (!product) {
+    return DO_WEIGHT_TOLERANCE;
+  }
+
+  var tolerance = parseFloat(product.do_weight_tolerance) || 0;
+  if (product.do_weight_tolerance_type === 'PERCENT') {
+    return doWeight * tolerance / 100;
+  }
+
+  return tolerance;
+}
+
+// Loss = DO - received, only when both are filled; flagged when at least the product's tolerance off in either direction
 function updateDoTotals() {
-  var grandDo = 0;
-  var grandReceived = 0;
-  var grandLoss = 0;
+  var anyReceived = false;
 
-  $('#doSuppliers .do-supplier').each(function() {
-    var supplierDo = 0;
-    var supplierReceived = 0;
-    var supplierLoss = 0;
+  $('#doSuppliers .do-line').each(function() {
+    var $line = $(this);
+    var total = { do: 0, received: 0, loss: 0 };
+    var product = findProduct($line.find('.do-product').val());
 
-    $(this).find('.do-line').each(function() {
-      var lineDo = 0;
-      var lineReceived = 0;
-      var lineLoss = 0;
+    $line.find('.do-bag').each(function() {
+      var $bag = $(this);
+      var doVal = $bag.find('.do-bag-do').val();
+      var recVal = $bag.find('.do-bag-received').val();
+      var doW = parseFloat(doVal) || 0;
+      var recW = parseFloat(recVal) || 0;
+      var complete = doVal !== '' && recVal !== '';
+      var loss = complete ? Math.round((doW - recW) * 100) / 100 : 0;
+      var tolerance = doTolerance(product, doW);
+      var over = complete && -loss >= tolerance;
+      var short = complete && loss >= tolerance;
 
-      $(this).find('.do-bag').each(function() {
-        var $bag = $(this);
-        var doVal = $bag.find('.do-bag-do').val();
-        var recVal = $bag.find('.do-bag-received').val();
-        var doW = parseFloat(doVal) || 0;
-        var recW = parseFloat(recVal) || 0;
-        var $loss = $bag.find('.do-bag-loss').removeClass(DO_FLAG_CLASSES).text('');
-        var $correct = $bag.find('.do-bag-correct').text('');
+      var flagClass = '';
+      if (over) {
+        flagClass = 'text-primary font-weight-bold';
+      } else if (short) {
+        flagClass = 'text-danger font-weight-bold';
+      }
 
-        lineDo += doW;
-        lineReceived += recW;
-        if (doVal === '' || recVal === '') return;
+      $bag.find('.do-bag-loss, .do-bag-correct').toggleClass('table-info', over).toggleClass('table-danger', short);
+      $bag.find('.do-bag-loss')
+        .text(complete ? loss.toFixed(2) : '')
+        .removeClass(DO_FLAG_CLASSES)
+        .addClass(flagClass);
+      $bag.find('.do-bag-correct').text((over || short) ? recW.toFixed(2) : '');
 
-        var diff = Math.round((doW - recW) * 100) / 100;
-        lineLoss += diff;
-        $loss.text(diff.toFixed(2));
-        if (-diff >= DO_WEIGHT_TOLERANCE) {
-          $loss.addClass('text-primary font-weight-bold border border-primary');
-          $correct.text(recW.toFixed(2));
-        } else if (diff >= DO_WEIGHT_TOLERANCE) {
-          $loss.addClass('text-danger font-weight-bold border border-danger');
-          $correct.text(recW.toFixed(2));
-        }
-      });
+      if (recVal !== '') {
+        anyReceived = true;
+      }
 
-      $(this).find('.do-line-do').text(lineDo.toFixed(2));
-      $(this).find('.do-line-received').text(lineReceived.toFixed(2));
-      $(this).find('.do-line-loss').text(lineLoss.toFixed(2));
-      supplierDo += lineDo;
-      supplierReceived += lineReceived;
-      supplierLoss += lineLoss;
+      total.do += doW;
+      total.received += recW;
+      total.loss += loss;
     });
 
-    $(this).find('.do-supplier-do').text(supplierDo.toFixed(2));
-    $(this).find('.do-supplier-received').text(supplierReceived.toFixed(2));
-    $(this).find('.do-supplier-loss').text(supplierLoss.toFixed(2));
-    grandDo += supplierDo;
-    grandReceived += supplierReceived;
-    grandLoss += supplierLoss;
+    $line.find('.do-line-do').text(total.do.toFixed(2));
+    $line.find('.do-line-received').text(total.received.toFixed(2));
+    $line.find('.do-line-loss').text(total.loss.toFixed(2));
+    $line.find('.do-line-subtotal').toggle($line.find('.do-bag').length > 1);
   });
 
-  $('#doGrandTotal').text(grandDo.toFixed(2));
-  $('#doGrandReceived').text(grandReceived.toFixed(2));
-  $('#doGrandLoss').text(grandLoss.toFixed(2));
+  $('#doSuppliers').toggleClass('do-show-correct', anyReceived);
 }
 
 // ============================================================================
@@ -504,21 +755,45 @@ function parseJson(d) {
   return typeof d === 'string' ? JSON.parse(d) : d;
 }
 
-// Collect the form; returns null and shows an error when incomplete
+// Marks the field, scrolls to it and shows the message; returns false so it can end an .each loop
+function doInvalid($el, message) {
+  var $target = $el.is('select') ? $el.next('.select2') : $el;
+  var $body = $('#doModal .modal-body');
+
+  $el.addClass('is-invalid');
+
+  if ($target.length) {
+    var scrollTop = $body.scrollTop() + $target.offset().top - $body.offset().top - 100;
+    $body.animate({ scrollTop: scrollTop }, 200);
+  }
+
+  toastr.error(message, 'Validation Error:');
+  return false;
+}
+
+// Collect the form as suppliers (for the wholesales) and items (for delivery_order_items); null when incomplete
 function collectDo() {
   if (!$('#doDate').val()) {
-    toastr.error('Please select DO date.', 'Validation Error:');
+    doInvalid($('#doDate'), doText.errDate);
+    return null;
+  }
+
+  if (!$.trim($('#doNo').val())) {
+    doInvalid($('#doNo'), doText.errDoNo);
     return null;
   }
 
   var suppliers = [];
-  var error = null;
+  var items = [];
+  var valid = true;
 
   $('#doSuppliers .do-supplier').each(function() {
     var $card = $(this);
-    var supplierId = $card.find('.do-supplier-select').val();
+    var $select = $card.find('.do-supplier-select');
+    var supplierId = $select.val();
+
     if (!supplierId) {
-      error = 'Please select supplier for all cards.';
+      valid = doInvalid($select, doText.errSupplier);
       return false;
     }
 
@@ -532,33 +807,62 @@ function collectDo() {
         grade: $row.find('.do-grade option:selected').text(),
         pairs: linePairs($row)
       };
-      if (!line.product || !line.grade_id || !hasWeight(line.pairs)) {
-        error = 'Please fill product, grade and weight for all lines.';
+
+      var $missing = null;
+      if (!line.product) {
+        $missing = $row.find('.do-product');
+      } else if (!line.grade_id) {
+        $missing = $row.find('.do-grade');
+      } else if (!hasWeight(line.pairs)) {
+        $missing = $row.find('.do-bag-do, .do-add-bag').first();
+      }
+
+      if ($missing) {
+        valid = doInvalid($missing, doText.errLine);
         return false;
       }
-      lines.push(line);
-    });
-    if (error) return false;
 
-    if (lines.length === 0) {
-      error = 'Each supplier needs at least one line.';
+      lines.push(line);
+      items.push({
+        supplier: supplierId,
+        category: line.category,
+        product: line.product,
+        grade_id: line.grade_id,
+        pairs: line.pairs
+      });
+    });
+
+    if (!valid) {
       return false;
     }
 
-    suppliers.push({ card: $card, id: $card.data('wid') || '', serial: $card.data('serial') || '', supplier: supplierId, lines: lines });
+    if (lines.length === 0) {
+      valid = doInvalid($card.find('.do-add-line'), doText.errNoLine);
+      return false;
+    }
+
+    suppliers.push({
+      card: $card,
+      id: $card.data('wid') || '',
+      serial: $card.data('serial') || '',
+      supplier: supplierId,
+      lines: lines
+    });
   });
 
-  if (error) {
-    toastr.error(error, 'Validation Error:');
+  if (!valid) {
     return null;
   }
 
   if (suppliers.length === 0) {
-    toastr.error('Please add at least one supplier.', 'Validation Error:');
+    doInvalid($('#doAddSupplierBtn'), doText.errNoSupplier);
     return null;
   }
 
-  return suppliers;
+  return {
+    suppliers: suppliers,
+    items: items
+  };
 }
 
 function supplierCurrency(supplierId) {
@@ -571,35 +875,44 @@ function loadPrices(suppliers) {
   var prices = {};
   var requests = [];
 
-  if (doAllowPrice !== 'Y') return $.Deferred().resolve(prices).promise();
+  if (doAllowPrice !== 'Y') {
+    return $.Deferred().resolve(prices).promise();
+  }
 
   suppliers.forEach(function(s) {
     var currency = supplierCurrency(s.supplier);
+
     s.lines.forEach(function(line) {
       var key = s.supplier + '_' + line.product + '_' + line.grade_id;
-      if (prices[key] || !currency) return;
+      if (prices[key] || !currency) {
+        return;
+      }
+
       prices[key] = { pricingType: '', price: 0 };
-      requests.push($.post('php/modules/products/getProduct.php', {
-        userID: line.product, status: 'RECEIVING', customerID: s.supplier, grade: line.grade_id, currency: currency, type: 'getPrice'
+
+      var request = $.post('php/modules/products/getProduct.php', {
+        userID: line.product,
+        status: 'RECEIVING',
+        customerID: s.supplier,
+        grade: line.grade_id,
+        currency: currency,
+        type: 'getPrice'
       }).done(function(data) {
         var obj = parseJson(data);
-        if (obj.status === 'success') prices[key] = obj.message;
-      }));
+        if (obj.status === 'success') {
+          prices[key] = obj.message;
+        }
+      });
+
+      requests.push(request);
     });
   });
 
-  return $.when.apply($, requests).then(function() { return prices; }, function() { return prices; });
-}
+  var returnPrices = function() {
+    return prices;
+  };
 
-// One item per product + grade line, with its DO / received pairs, for the delivery_order_items table
-function buildDoItems(suppliers) {
-  var items = [];
-  suppliers.forEach(function(s) {
-    s.lines.forEach(function(line) {
-      items.push({ supplier: s.supplier, category: line.category, product: line.product, grade_id: line.grade_id, pairs: line.pairs });
-    });
-  });
-  return items;
+  return $.when.apply($, requests).then(returnPrices, returnPrices);
 }
 
 function buildWholesalePost(s, header, prices) {
@@ -608,19 +921,40 @@ function buildWholesalePost(s, header, prices) {
 
   s.lines.forEach(function(line) {
     var product = findProduct(line.product);
+    var productName = product ? product.product_name : '';
     var price = prices[s.supplier + '_' + line.product + '_' + line.grade_id] || { pricingType: '', price: 0 };
     var unitPrice = parseFloat(price.price) || 0;
 
     line.pairs.forEach(function(pair) {
       var w = parseFloat(pair.received);
-      if (!(w > 0)) return;
+      if (!(w > 0)) {
+        return;
+      }
+
       var total = (price.pricingType == 'Float') ? unitPrice * w : unitPrice;
+
       weightDetails.push({
-        gross: w, tare: 0, pretare: '0.00', net: w, reject: '0.00', isRejected: 'NO',
-        product: line.product, product_name: product ? product.product_name : '', product_desc: product ? product.product_name : '',
-        grade_id: line.grade_id, grade: line.grade, unit: 'Kg', currency: currency,
-        price: unitPrice, fixedfloat: price.pricingType || '', before_discount: total.toFixed(2), discount: 0, discount_type: 'fixed', total: total.toFixed(2),
-        isedit: 'N', time: ''
+        gross: w,
+        tare: 0,
+        pretare: '0.00',
+        net: w,
+        reject: '0.00',
+        isRejected: 'NO',
+        product: line.product,
+        product_name: productName,
+        product_desc: productName,
+        grade_id: line.grade_id,
+        grade: line.grade,
+        unit: 'Kg',
+        currency: currency,
+        price: unitPrice,
+        fixedfloat: price.pricingType || '',
+        before_discount: total.toFixed(2),
+        discount: 0,
+        discount_type: 'fixed',
+        total: total.toFixed(2),
+        isedit: 'N',
+        time: ''
       });
     });
   });
@@ -641,43 +975,91 @@ function buildWholesalePost(s, header, prices) {
   };
 }
 
-// Run request factories one after another; each one always resolves
-function runInOrder(factories) {
-  return factories.reduce(function(chain, factory) {
-    return chain.then(factory);
+// Posts the requests one after another; failures are collected as "label: message" and the chain always resolves
+function postInOrder(requests, errors) {
+  return requests.reduce(function(chain, req) {
+    return chain.then(function() {
+      var done = $.Deferred();
+
+      $.post(req.url, req.data)
+        .done(function(res) {
+          var obj = parseJson(res);
+          if (obj.status !== 'success') {
+            errors.push(req.label + ': ' + obj.message);
+          } else if (req.onSuccess) {
+            req.onSuccess(obj);
+          }
+        })
+        .fail(function() {
+          errors.push(req.label + ': request failed');
+        })
+        .always(function() {
+          done.resolve();
+        });
+
+      return done.promise();
+    });
   }, $.Deferred().resolve().promise());
 }
 
-function postAndCollect(url, data, label, errors, onSuccess) {
-  return function() {
-    var done = $.Deferred();
-    $.post(url, data)
-      .done(function(res) {
-        var obj = parseJson(res);
-        if (obj.status !== 'success') {
-          errors.push(label + ': ' + obj.message);
-        } else if (onSuccess) {
-          onSuccess(obj);
+// One wholesale per supplier with received weight, then remove the dropped ones; resolves with the error list
+function saveWholesales(suppliers, header, prices) {
+  var errors = [];
+
+  suppliers.forEach(function(s) {
+    if (!hasReceived(s) && s.id) {
+      doRemovedIds.push(s.id);
+    }
+  });
+
+  var requests = suppliers.filter(hasReceived).map(function(s) {
+    var supplier = findSupplier(s.supplier);
+
+    return {
+      url: 'php/modules/wholesales/wholesales.php',
+      data: buildWholesalePost(s, header, prices),
+      label: supplier ? supplier.supplier_name : s.supplier,
+      onSuccess: function(res) {
+        // New rows keep their id so a retry after a part failure updates instead of duplicating
+        if (res.id) {
+          s.card.data('wid', res.id);
+          s.card.data('serial', res.serialNo);
         }
-      })
-      .fail(function() { errors.push(label + ': request failed'); })
-      .always(function() { done.resolve(); });
-    return done.promise();
-  };
+      }
+    };
+  });
+
+  doRemovedIds.slice().forEach(function(id) {
+    requests.push({
+      url: 'php/modules/wholesales/deleteWholesale.php',
+      data: { id: id, cancelReason: 'Removed from DO' },
+      label: 'Remove',
+      onSuccess: function() {
+        doRemovedIds.splice(doRemovedIds.indexOf(id), 1);
+      }
+    });
+  });
+
+  return postInOrder(requests, errors).then(function() {
+    return errors;
+  });
 }
 
 function saveDo() {
-  var suppliers = collectDo();
-  if (!suppliers) return;
+  var form = collectDo();
+  if (!form) {
+    return;
+  }
 
   $('#spinnerLoading').show();
+
   $.post('php/modules/deliveryOrder/api.php', {
     action: 'save',
     id: $('#doId').val(),
     do_no: $('#doNo').val(),
     do_date: $('#doDate').val(),
     remark: $('#doRemark').val(),
-    items: JSON.stringify(buildDoItems(suppliers))
+    items: JSON.stringify(form.items)
   }).done(function(obj) {
     if (obj.status !== 'success') {
       $('#spinnerLoading').hide();
@@ -685,41 +1067,28 @@ function saveDo() {
       return;
     }
 
-    var header = { id: obj.data.id, doNo: obj.data.do_no, date: $('#doDate').val() };
+    var header = {
+      id: obj.data.id,
+      doNo: obj.data.do_no,
+      date: $('#doDate').val()
+    };
     $('#doId').val(header.id);
     $('#doNo').val(header.doNo);
 
-    loadPrices(suppliers).then(function(prices) {
-      var errors = [];
-      suppliers.forEach(function(s) {
-        if (!hasReceived(s) && s.id) doRemovedIds.push(s.id);
-      });
-      var tasks = suppliers.filter(hasReceived).map(function(s) {
-        var supplier = findSupplier(s.supplier);
-        return postAndCollect('php/modules/wholesales/wholesales.php', buildWholesalePost(s, header, prices), supplier ? supplier.supplier_name : s.supplier, errors, function(res) {
-          // New rows keep their id so a retry after a part failure updates instead of duplicating
-          if (res.id) {
-            s.card.data('wid', res.id);
-            s.card.data('serial', res.serialNo);
-          }
-        });
-      });
-      doRemovedIds.slice().forEach(function(id) {
-        tasks.push(postAndCollect('php/modules/wholesales/deleteWholesale.php', { id: id, cancelReason: 'Removed from DO' }, 'Remove', errors, function() {
-          doRemovedIds.splice(doRemovedIds.indexOf(id), 1);
-        }));
-      });
+    loadPrices(form.suppliers).then(function(prices) {
+      return saveWholesales(form.suppliers, header, prices);
+    }).then(function(errors) {
+      $('#spinnerLoading').hide();
+      doListTable.ajax.reload(null, false);
 
-      runInOrder(tasks).then(function() {
-        $('#spinnerLoading').hide();
-        doListTable.ajax.reload(null, false);
-        if (errors.length) {
-          toastr.error(errors.join('<br>'), 'Failed:');
-          return;
-        }
-        toastr.success('Saved ' + header.doNo, 'Success:');
-        $('#doModal').modal('hide');
-      });
+      if (errors.length) {
+        toastr.error(errors.join('<br>'), 'Failed:');
+        return;
+      }
+
+      markDoSaved();
+      toastr.success('Saved ' + header.doNo, 'Success:');
+      $('#doModal').modal('hide');
     });
   }).fail(function() {
     $('#spinnerLoading').hide();
@@ -732,9 +1101,11 @@ function saveDo() {
 // ============================================================================
 function editDo(id) {
   $('#spinnerLoading').show();
+
   loadDoOptions(function() {
     $.post('php/modules/deliveryOrder/api.php', { action: 'get', id: id }).done(function(obj) {
       $('#spinnerLoading').hide();
+
       if (obj.status !== 'success') {
         toastr.error(obj.message, 'Failed:');
         return;
@@ -751,11 +1122,21 @@ function editDo(id) {
       d.suppliers.forEach(function(w) {
         cards[w.supplier] = addSupplierCard(w.supplier, w.id, w.serial_no);
       });
+
       d.items.forEach(function(item) {
-        var $card = cards[item.supplier] || (cards[item.supplier] = addSupplierCard(item.supplier));
-        addLine($card, { category: item.category, product: item.product, grade_id: item.grade_id, pairs: item.weight_details });
+        if (!cards[item.supplier]) {
+          cards[item.supplier] = addSupplierCard(item.supplier);
+        }
+
+        addLine(cards[item.supplier], {
+          category: item.category,
+          product: item.product,
+          grade_id: item.grade_id,
+          pairs: item.weight_details
+        });
       });
 
+      markDoSaved();
       $('#doModal').modal('show');
     }).fail(function() {
       $('#spinnerLoading').hide();
@@ -765,9 +1146,12 @@ function editDo(id) {
 }
 
 function deleteDo(id) {
-  if (!confirm(doText.deleteConfirm)) return;
+  if (!confirm(doText.deleteConfirm)) {
+    return;
+  }
 
   $('#spinnerLoading').show();
+
   $.post('php/modules/deliveryOrder/api.php', { action: 'get', id: id }).done(function(obj) {
     if (obj.status !== 'success') {
       $('#spinnerLoading').hide();
@@ -776,17 +1160,22 @@ function deleteDo(id) {
     }
 
     var errors = [];
-    var tasks = obj.data.suppliers.map(function(w) {
-      return postAndCollect('php/modules/wholesales/deleteWholesale.php', { id: w.id, cancelReason: 'DO deleted' }, w.serial_no, errors);
+    var requests = obj.data.suppliers.map(function(w) {
+      return {
+        url: 'php/modules/wholesales/deleteWholesale.php',
+        data: { id: w.id, cancelReason: 'DO deleted' },
+        label: w.serial_no
+      };
     });
 
-    runInOrder(tasks).then(function() {
+    postInOrder(requests, errors).then(function() {
       if (errors.length) {
         $('#spinnerLoading').hide();
         toastr.error(errors.join('<br>'), 'Failed:');
         doListTable.ajax.reload(null, false);
         return;
       }
+
       $.post('php/modules/deliveryOrder/api.php', { action: 'delete', id: id }).done(function(res) {
         if (res.status === 'success') {
           toastr.success(res.message, 'Success:');
@@ -794,7 +1183,9 @@ function deleteDo(id) {
           toastr.error(res.message, 'Failed:');
         }
         doListTable.ajax.reload(null, false);
-      }).always(function() { $('#spinnerLoading').hide(); });
+      }).always(function() {
+        $('#spinnerLoading').hide();
+      });
     });
   }).fail(function() {
     $('#spinnerLoading').hide();
@@ -807,159 +1198,65 @@ function deleteDo(id) {
 // ============================================================================
 function onExcelSelected() {
   var file = this.files[0];
-  if (!file) return;
-
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var workbook = XLSX.read(e.target.result, { type: 'binary' });
-    var sheet = workbook.Sheets[workbook.SheetNames[0]];
-    var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
-    fillFromExcel(parseDoSheet(rows));
-  };
-  reader.readAsBinaryString(file);
-}
-
-function cellText(v) {
-  return String(v === null || v === undefined ? '' : v).trim();
-}
-
-function isNumberCell(v) {
-  return cellText(v) !== '' && !isNaN(Number(v));
-}
-
-// Excel date serial or dd.mm.yyyy / dd/mm/yyyy text to DD/MM/YYYY
-function excelDate(v) {
-  if (typeof v === 'number') {
-    var p = XLSX.SSF.parse_date_code(v);
-    return p ? moment([p.y, p.m - 1, p.d]).format('DD/MM/YYYY') : '';
-  }
-  var m = moment(cellText(v), ['DD.MM.YYYY', 'D.M.YYYY', 'DD/MM/YYYY', 'D/M/YYYY'], true);
-  return m.isValid() ? m.format('DD/MM/YYYY') : '';
-}
-
-// Split on the first " - " (or "-"): "D197 - CC KP" -> ["D197", "CC KP"]
-function splitCode(text) {
-  var idx = text.indexOf(' - ');
-  var len = 3;
-  if (idx < 0) {
-    idx = text.indexOf('-');
-    len = 1;
-  }
-  return idx < 0 ? [text.trim(), ''] : [text.substring(0, idx).trim(), text.substring(idx + len).trim()];
-}
-
-function parseDoSheet(rows) {
-  var result = { date: '', doNo: '', blocks: [] };
-  var block = null;
-  var columns = null;
-  var state = 'supplier';
-
-  rows.forEach(function(row) {
-    var cells = row.map(cellText);
-    var filled = cells.filter(function(c) { return c !== ''; });
-
-    // DATE: / DO NO: labels, value in the same cell after the colon or in the next filled cell
-    var isLabelRow = false;
-    cells.forEach(function(c, i) {
-      var key = c.toUpperCase().replace(/\s+/g, '');
-      var label = key.indexOf('DATE:') === 0 ? 'date' : (key.indexOf('DONO:') === 0 ? 'doNo' : null);
-      if (!label) return;
-      isLabelRow = true;
-      var rawValue = c.substring(c.indexOf(':') + 1).trim();
-      if (rawValue === '') {
-        for (var j = i + 1; j < row.length; j++) {
-          if (cellText(row[j]) !== '') { rawValue = row[j]; break; }
-        }
-      }
-      result[label] = label === 'date' ? excelDate(rawValue) : cellText(rawValue);
-    });
-    if (isLabelRow) return;
-
-    if (filled.length === 0) {
-      state = 'supplier';
-      return;
-    }
-
-    var hasText = filled.some(function(c) { return isNaN(Number(c)); });
-
-    // A single text cell outside the header step starts a supplier block
-    if (state !== 'header' && filled.length === 1 && hasText) {
-      block = { supplier: splitCode(filled[0])[0], supplierText: filled[0], lines: [] };
-      result.blocks.push(block);
-      columns = {};
-      state = 'header';
-      return;
-    }
-
-    if (!block) return;
-
-    if (state === 'header') {
-      cells.forEach(function(c, i) {
-        if (c === '') return;
-        var parts = splitCode(c);
-        columns[i] = { productCode: parts[0], gradeName: parts[1], text: c, weights: [] };
-        block.lines.push(columns[i]);
-      });
-      state = 'weights';
-      return;
-    }
-
-    // Rows with a text label (e.g. TOTAL) end the block
-    if (hasText) {
-      state = 'supplier';
-      return;
-    }
-
-    row.forEach(function(v, i) {
-      if (columns[i] && isNumberCell(v)) columns[i].weights.push(parseFloat(v));
-    });
-  });
-
-  return result;
-}
-
-function fillFromExcel(parsed) {
-  if (parsed.blocks.length === 0) {
-    toastr.error('No supplier found in the Excel file.', 'Failed:');
+  if (!file) {
     return;
   }
 
-  var warnings = [];
-  var upper = function(v) { return cellText(v).toUpperCase(); };
+  var formData = new FormData();
+  formData.append('action', 'import');
+  formData.append('file', file);
 
-  $('#doSuppliers .do-supplier').each(function() {
-    if ($(this).data('wid')) doRemovedIds.push($(this).data('wid'));
+  $('#spinnerLoading').show();
+
+  $.ajax({
+    url: 'php/modules/deliveryOrder/api.php',
+    type: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false
+  }).done(function(obj) {
+    if (obj.status !== 'success') {
+      toastr.error(obj.message, 'Failed:');
+      return;
+    }
+
+    fillFromExcel(obj.data);
+  }).fail(function() {
+    toastr.error('Failed to read the Excel file.', 'Error:');
+  }).always(function() {
+    $('#spinnerLoading').hide();
   });
+}
+
+function fillFromExcel(d) {
+  $('#doSuppliers .do-supplier').each(function() {
+    if ($(this).data('wid')) {
+      doRemovedIds.push($(this).data('wid'));
+    }
+  });
+
   $('#doSuppliers').html('');
-  if (parsed.date) $('#doDate').val(parsed.date);
-  if (parsed.doNo) $('#doNo').val(parsed.doNo);
 
-  parsed.blocks.forEach(function(block) {
-    var supplier = doOptions.suppliers.find(function(s) {
-      return upper(s.supplier_code) === upper(block.supplier) || upper(s.supplier_name) === upper(block.supplierText);
-    });
-    if (!supplier) warnings.push('Supplier ' + block.supplierText);
+  if (d.date) {
+    $('#doDate').val(d.date);
+  }
 
-    var $card = addSupplierCard(supplier ? supplier.id : null);
-    block.lines.forEach(function(line) {
-      var product = doOptions.products.find(function(p) {
-        return upper(p.product_code) === upper(line.productCode) || upper(p.product_name) === upper(line.productCode);
-      });
-      var grade = product ? product.grades.find(function(g) { return upper(g.grade_name) === upper(line.gradeName); }) : null;
-      if (!product || !grade) warnings.push(line.text + ' (' + block.supplierText + ')');
+  if (d.doNo) {
+    $('#doNo').val(d.doNo);
+  }
 
-      addLine($card, {
-        category: product ? product.category : null,
-        product: product ? product.id : null,
-        grade_id: grade ? grade.grade_id : null,
-        pairs: line.weights.map(function(w) { return { do: w, received: '' }; })
-      });
+  d.suppliers.forEach(function(s) {
+    var $card = addSupplierCard(s.supplier);
+
+    s.lines.forEach(function(line) {
+      addLine($card, line);
     });
   });
 
   updateDoTotals();
-  if (warnings.length) {
-    toastr.warning('Not matched, please select: <br>' + warnings.join('<br>'), 'Check:');
+
+  if (d.warnings.length) {
+    toastr.warning('Not matched, please select: <br>' + d.warnings.join('<br>'), 'Check:');
   }
 }
 </script>
