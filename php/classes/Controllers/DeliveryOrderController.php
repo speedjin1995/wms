@@ -109,6 +109,47 @@ class DeliveryOrderController extends BaseController
     }
 
     /**
+     * DO Excel template download
+     */
+    public function template(array $categoryIds): void
+    {
+        $this->sendXlsx($this->service->buildTemplate($categoryIds), 'delivery_order_template.xlsx');
+    }
+
+    /**
+     * Daily receiving report as Excel
+     */
+    public function reportExcel(): void
+    {
+        $this->sendXlsx($this->service->reportSpreadsheet($this->report()['data'], $this->translator(), $_GET['date'] ?? ''), 'do_receiving_report.xlsx');
+    }
+
+    /**
+     * Daily receiving report as PDF
+     */
+    public function reportPdf(): void
+    {
+        $this->service->reportPdf($this->report()['data'], $this->translator(), $_GET['date'] ?? '')->Output('do_receiving_report.pdf', 'D');
+    }
+
+    private function translator(): callable
+    {
+        $language = $_SESSION['language'] ?? 'en';
+
+        return function ($key, $default) use ($language) {
+            return $_SESSION['languageArray'][$key][$language] ?? $default;
+        };
+    }
+
+    private function sendXlsx(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, string $filename): void
+    {
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save('php://output');
+    }
+
+    /**
      * Parse date from d/m/Y format to Y-m-d
      */
     private function parseDateInput(?string $date): ?string
