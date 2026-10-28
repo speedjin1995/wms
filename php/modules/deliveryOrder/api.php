@@ -76,17 +76,15 @@ try {
             $lists = $spreadsheet->createSheet();
             $lists->setTitle('Lists');
 
-            // Table layout: one row per DO weight; rows with the same supplier + product + grade become one item
+            // Table layout: one row per weight. Rows with the same DO No are one DO; within it the same supplier + product + grade are one item
             $lastRow = 504;
-            $sheet->setCellValue('A1', 'DATE:');
-            $sheet->setCellValue('B1', date('d/m/Y'));
-            $sheet->setCellValue('A2', 'DO NO:');
-            $sheet->fromArray(['SUPPLIER', 'PRODUCT', 'GRADE', 'DO WEIGHT'], null, 'A4');
-            $sheet->getStyle('A4:D4')->getFont()->setBold(true);
-            $sheet->getStyle('A4:D4')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('E2E8F0');
-            $sheet->getStyle('D5:D' . $lastRow)->getNumberFormat()->setFormatCode('0.00');
-            $sheet->freezePane('A5');
-            foreach (['A' => 40, 'B' => 36, 'C' => 14, 'D' => 16] as $col => $width) {
+            $sheet->fromArray(['DATE', 'DO NO', 'SUPPLIER', 'PRODUCT', 'GRADE', 'DO WEIGHT'], null, 'A1');
+            $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+            $sheet->getStyle('A1:F1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('E2E8F0');
+            $sheet->getStyle('A2:A' . $lastRow)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
+            $sheet->getStyle('F2:F' . $lastRow)->getNumberFormat()->setFormatCode('0.00');
+            $sheet->freezePane('A2');
+            foreach (['A' => 14, 'B' => 16, 'C' => 40, 'D' => 36, 'E' => 14, 'F' => 16] as $col => $width) {
                 $sheet->getColumnDimension($col)->setWidth($width);
             }
 
@@ -97,17 +95,18 @@ try {
                 return [$p['product_code'] . ' - ' . $p['product_name']];
             }, $opts['products']), null, 'B1');
 
-            $gradeNames = [];
-            foreach ($opts['products'] as $p) {
-                foreach ($p['grades'] as $g) {
-                    $gradeNames[$g['grade_name']] = [$g['grade_name']];
-                }
+            // Each product row: C = grade count, D onwards = that product's grades, for the GRADE dropdown lookup
+            foreach (array_values($opts['products']) as $i => $p) {
+                $grades = array_map(function ($g) {
+                    return $g['grade_name'];
+                }, $p['grades']);
+                $lists->fromArray(array_merge([count($grades)], $grades), null, 'C' . ($i + 1));
             }
-            $lists->fromArray(array_values($gradeNames), null, 'C1');
             $lists->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
             $spreadsheet->setActiveSheetIndex(0);
 
-            $addList = function ($col, $count) use ($sheet, $lastRow) {
+            // $col is the template column, $listCol the hidden Lists column holding its values
+            $addList = function ($col, $listCol, $count) use ($sheet, $lastRow) {
                 if ($count === 0) {
                     return;
                 }
@@ -116,12 +115,21 @@ try {
                 $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
                 $validation->setAllowBlank(true);
                 $validation->setShowDropDown(true);
-                $validation->setFormula1('Lists!$' . $col . '$1:$' . $col . '$' . $count);
-                $sheet->setDataValidation($col . '5:' . $col . $lastRow, $validation);
+                $validation->setFormula1('Lists!$' . $listCol . '$1:$' . $listCol . '$' . $count);
+                $sheet->setDataValidation($col . '2:' . $col . $lastRow, $validation);
             };
-            $addList('A', count($opts['suppliers']));
-            $addList('B', count($opts['products']));
-            $addList('C', count($gradeNames));
+            $addList('C', 'A', count($opts['suppliers']));
+            $addList('D', 'B', count($opts['products']));
+
+            // GRADE lists only the grades of the PRODUCT picked on the same row
+            if (count($opts['products']) > 0) {
+                $validation = new \PhpOffice\PhpSpreadsheet\Cell\DataValidation();
+                $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+                $validation->setAllowBlank(true);
+                $validation->setShowDropDown(true);
+                $validation->setFormula1('OFFSET(Lists!$D$1,MATCH($D2,Lists!$B:$B,0)-1,0,1,MAX(1,INDEX(Lists!$C:$C,MATCH($D2,Lists!$B:$B,0))))');
+                $sheet->setDataValidation('E2:E' . $lastRow, $validation);
+            }
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment; filename="delivery_order_template.xlsx"');

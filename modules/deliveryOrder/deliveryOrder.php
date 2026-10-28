@@ -69,7 +69,10 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
           <h3 class="results-title"><i class="fas fa-list"></i> <?=$t('delivery_order_code', 'Delivery Order')?></h3>
         </div>
         <div class="results-header-right d-flex">
+          <button type="button" class="btn btn-action btn-action-warning mr-2" id="doTemplateBtn"><i class="fas fa-download mr-1"></i><?=$t('download_template_code', 'Download Template')?></button>
           <?php if($userAllowAdd == 'Y'){ ?>
+          <button type="button" class="btn btn-action btn-action-success mr-2" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
+          <input type="file" id="doExcelFile" accept=".xlsx,.xls" class="d-none">
           <button type="button" class="btn btn-action btn-action-primary" id="newDoBtn">
             <i class="fas fa-plus"></i> <?=$t('add_new_code', 'Add New')?>
           </button>
@@ -138,13 +141,11 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
               <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                 <h6 class="section-title mb-0"><span class="badge badge-pill badge-primary mr-2">2</span><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></h6>
                 <div class="d-flex align-items-center">
-                  <button type="button" class="btn btn-modern btn-modern-warning btn-sm mr-2" id="doTemplateBtn"><i class="fas fa-download mr-1"></i><?=$t('download_template_code', 'Download Template')?></button>
-                  <button type="button" class="btn btn-modern btn-modern-success btn-sm" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
                 </div>
-                <input type="file" id="doExcelFile" accept=".xlsx,.xls" class="d-none">
               </div>
-              <div id="doSuppliers" class="do-suppliers"></div>
-              <button type="button" class="btn btn-modern btn-modern-primary btn-block" id="doAddSupplierBtn"><i class="fas fa-plus mr-1"></i><?=$t('add_supplier_code', 'Add Supplier')?></button>
+              <select id="doSupplierPicker" multiple class="form-control form-control-sm mb-2"></select>
+              <ul class="nav nav-tabs nav-tabs-modern mb-3" id="doSupplierTabs"></ul>
+              <div id="doSuppliers" class="tab-content do-suppliers"></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -158,17 +159,44 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
   </div>
 </div>
 
+<!-- Excel Upload Preview Modal -->
+<div class="modal fade modal-modern" id="doImportModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-file-excel mr-2 text-muted"></i><?=$t('do_import_preview_code', 'Upload Preview')?></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-sm mb-0">
+            <thead class="thead-light">
+              <tr>
+                <th><?=$t('do_no_code', 'DO No')?></th>
+                <th><?=$t('date_code', 'Date')?></th>
+                <th class="text-right"><?=$t('suppliers_code', 'Suppliers')?></th>
+                <th class="text-right"><?=$t('lines_code', 'Lines')?></th>
+                <th class="text-right"><?=$t('do_weight_code', 'DO Weight')?></th>
+                <th><?=$t('status_code', 'Status')?></th>
+              </tr>
+            </thead>
+            <tbody id="doImportTable"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('close_code', 'Close')?></button>
+        <button type="button" class="btn btn-modern btn-modern-primary" id="doImportSaveBtn"><i class="fas fa-save mr-1"></i><?=$t('do_save_valid_code', 'Save Valid DOs')?> (<span id="doImportCount">0</span>)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Supplier Card Template -->
 <script type="text/html" id="doSupplierTemplate">
-  <div class="cs-card do-supplier mb-3">
-    <div class="cs-card-header">
-      <span class="cs-card-number"></span>
-      <select class="form-control form-control-sm do-supplier-select"></select>
-      <button type="button" class="btn btn-modern btn-modern-danger btn-sm text-nowrap do-remove-supplier">
-        <i class="fas fa-trash mr-1"></i><?=$t('do_remove_supplier_code', 'Remove supplier')?>
-      </button>
-    </div>
+  <div class="tab-pane do-supplier">
     <div class="p-2">
+      <select class="form-control form-control-sm mb-2 do-supplier-select"></select>
       <div class="table-responsive">
         <table class="table table-sm table-stack mb-2 do-items">
           <colgroup><col><col><col><col><col></colgroup>
@@ -217,7 +245,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
         <tfoot>
           <tr>
             <td colspan="2">
-              <button type="button" class="btn btn-modern btn-modern-secondary btn-sm btn-block do-add-bag">
+              <button type="button" class="btn btn-modern btn-modern-success btn-sm btn-block do-add-bag">
                 <i class="fas fa-plus mr-1"></i><?=$t('do_add_weight_entry_code', 'Add weight entry')?>
               </button>
             </td>
@@ -243,6 +271,7 @@ var doOptions = {
   defaultCurrency: null
 };
 var doRemovedIds = [];
+var doSupplierSeq = 0;
 var doSaved = '';
 // Used until a product is picked; each product has its own do_weight_tolerance
 var DO_WEIGHT_TOLERANCE = 0.8;
@@ -271,6 +300,7 @@ var doText = <?=json_encode([
   'grade' => $t('grade_code', 'Grade'),
   'total' => $t('total_code', 'Total'),
   'category' => $t('category_code', 'Category'),
+  'addSupplier' => $t('add_supplier_code', 'Add Supplier'),
   'allSuppliers' => $t('all_suppliers_code', 'All Suppliers'),
   'allCategories' => $t('all_categories_code', 'All Categories'),
   'allProducts' => $t('all_products_code', 'All Products'),
@@ -283,7 +313,9 @@ var doText = <?=json_encode([
   'errSupplier' => $t('do_err_supplier_code', 'Please select supplier for all cards.'),
   'errLine' => $t('do_err_line_code', 'Please fill product, grade and weight for all lines.'),
   'errNoLine' => $t('do_err_no_line_code', 'Each supplier needs at least one line.'),
-  'errNoSupplier' => $t('do_err_no_supplier_code', 'Please add at least one supplier.')
+  'errNoSupplier' => $t('do_err_no_supplier_code', 'Please add at least one supplier.'),
+  'ready' => $t('do_ready_code', 'Ready'),
+  'skipped' => $t('do_skipped_code', 'Skipped')
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 
 $(function() {
@@ -301,11 +333,32 @@ $(function() {
     openDoModal();
   });
 
-  $('#doAddSupplierBtn').on('click', function() {
-    addLine(addSupplierCard());
+  $('#doSupplierPicker').select2({
+    width: '100%',
+    dropdownParent: $('#doModal'),
+    placeholder: doText.addSupplier
   });
 
+  $('#doSupplierPicker')
+    .on('select2:select', function(e) {
+      addLine(addSupplierCard(e.params.data.id));
+    })
+    .on('select2:unselecting', function(e) {
+      if (!confirm(doText.removeSupplierConfirm)) {
+        e.preventDefault();
+        return;
+      }
+
+      $('#doSuppliers .do-supplier').filter(function() {
+        return $(this).find('.do-supplier-select').val() == e.params.args.data.id;
+      }).each(function() {
+        removeSupplierCard($(this));
+      });
+    });
+
   $('#saveDoBtn').on('click', saveDo);
+
+  $('#doImportSaveBtn').on('click', saveDoImport);
 
   $('#doTemplateBtn').on('click', function() {
     window.location.href = 'php/modules/deliveryOrder/api.php?action=template';
@@ -318,19 +371,15 @@ $(function() {
   $('#doExcelFile').on('change', onExcelSelected);
 
   $('#doSuppliers')
-    .on('click', '.do-remove-supplier', function() {
-      if (!confirm(doText.removeSupplierConfirm)) {
+    .on('change', '.do-supplier-select', function() {
+      var supplierId = $(this).val();
+      if (!supplierId) {
         return;
       }
 
-      var $card = $(this).closest('.do-supplier');
-      if ($card.data('wid')) {
-        doRemovedIds.push($card.data('wid'));
-      }
-
-      $card.remove();
-      numberDoSuppliers();
-      updateDoTotals();
+      setSupplierTab($(this).closest('.do-supplier'), supplierId);
+      $(this).prop('disabled', true).trigger('change.select2');
+      syncSupplierPicker();
     })
     .on('click', '.do-add-line', function() {
       addLine($(this).closest('.do-supplier'));
@@ -700,6 +749,7 @@ function loadDoOptions(callback) {
   $.post('php/modules/deliveryOrder/api.php', { action: 'options' }).done(function(obj) {
     if (obj.status === 'success') {
       doOptions = obj.data;
+      fillSupplierPicker();
       callback();
     } else {
       toastr.error(obj.message, 'Failed:');
@@ -712,7 +762,8 @@ function resetDoModal(title) {
   $('#doModalTitle').text(title);
   $('#doDate').val(moment().format('DD/MM/YYYY'));
   $('#doNo, #doRemark').val('');
-  $('#doSuppliers').html('');
+  $('#doSuppliers, #doSupplierTabs').html('');
+  syncSupplierPicker();
   doRemovedIds = [];
   updateDoTotals();
 }
@@ -720,7 +771,6 @@ function resetDoModal(title) {
 function openDoModal() {
   loadDoOptions(function() {
     resetDoModal(doText.new);
-    addLine(addSupplierCard());
     markDoSaved();
     $('#doModal').modal('show');
   });
@@ -777,37 +827,81 @@ function initSelect2($el) {
   });
 }
 
+function supplierLabel(s) {
+  return (s.supplier_code ? s.supplier_code + ' - ' : '') + s.supplier_name;
+}
+
+function fillSupplierPicker() {
+  var $picker = $('#doSupplierPicker').empty();
+
+  doOptions.suppliers.forEach(function(s) {
+    $picker.append($('<option>').val(s.id).text(supplierLabel(s)));
+  });
+
+  $picker.trigger('change.select2');
+}
+
+// Picker follows the supplier tabs; set without firing select2:select so no card is added twice
+function syncSupplierPicker() {
+  var ids = $('#doSuppliers .do-supplier-select').map(function() {
+    return $(this).val();
+  }).get().filter(Boolean);
+
+  $('#doSupplierPicker').val(ids).trigger('change.select2');
+}
+
+// Tab shows the supplier name; '?' until an unmatched scan/Excel supplier is picked
+function setSupplierTab($card, supplierId) {
+  var supplier = findSupplier(supplierId);
+  $('#doSupplierTabs a[href="#' + $card.attr('id') + '"]').text(supplier ? supplierLabel(supplier) : '?');
+}
+
+function removeSupplierCard($card) {
+  var $tab = $('#doSupplierTabs a[href="#' + $card.attr('id') + '"]');
+  var wasActive = $tab.hasClass('active');
+
+  if ($card.data('wid')) {
+    doRemovedIds.push($card.data('wid'));
+  }
+
+  $tab.parent().remove();
+  $card.remove();
+
+  if (wasActive) {
+    $('#doSupplierTabs a:first').tab('show');
+  }
+
+  updateDoTotals();
+}
+
 function addSupplierCard(supplierId, wholesaleId, serialNo) {
   // trim: jQuery only treats the string as HTML when it starts with "<"
   var $card = $($.trim($('#doSupplierTemplate').html()));
+  var paneId = 'doSupplier' + (++doSupplierSeq);
+  $card.attr('id', paneId);
 
   if (wholesaleId) {
     $card.data('wid', wholesaleId);
     $card.data('serial', serialNo);
   }
 
-  var supplierOptions = optionList(doOptions.suppliers, 'id', function(s) {
-    var code = s.supplier_code ? s.supplier_code + ' - ' : '';
-    return code + s.supplier_name;
-  });
+  var supplierOptions = optionList(doOptions.suppliers, 'id', supplierLabel);
   var $select = $card.find('.do-supplier-select').append(supplierOptions);
 
   $('#doSuppliers').append($card);
-  numberDoSuppliers();
+  $('#doSupplierTabs').append($('<li class="nav-item">').append(
+    $('<a class="nav-link" data-toggle="tab">').attr('href', '#' + paneId)
+  ));
   initSelect2($select);
 
   if (supplierId) {
-    $select.val(supplierId).trigger('change.select2');
+    $select.val(supplierId).prop('disabled', true).trigger('change.select2');
   }
 
-  return $card;
-}
+  setSupplierTab($card, supplierId);
+  $('#doSupplierTabs a[href="#' + paneId + '"]').tab('show');
 
-// Card numbers follow the on-screen order, same as the customer/supplier cards on the products page
-function numberDoSuppliers() {
-  $('#doSuppliers .cs-card-number').each(function(i) {
-    $(this).text(i + 1);
-  });
+  return $card;
 }
 
 function addLine($card, data) {
@@ -983,6 +1077,11 @@ function doInvalid($el, message) {
 
   $el.addClass('is-invalid');
 
+  var $pane = $el.closest('.tab-pane');
+  if ($pane.length) {
+    $('#doSupplierTabs a[href="#' + $pane.attr('id') + '"]').tab('show');
+  }
+
   if ($target.length) {
     var scrollTop = $body.scrollTop() + $target.offset().top - $body.offset().top - 100;
     $body.animate({ scrollTop: scrollTop }, 200);
@@ -1076,7 +1175,7 @@ function collectDo() {
   }
 
   if (suppliers.length === 0) {
-    doInvalid($('#doAddSupplierBtn'), doText.errNoSupplier);
+    doInvalid($('#doSupplierPicker'), doText.errNoSupplier);
     return null;
   }
 
@@ -1357,6 +1456,7 @@ function editDo(id) {
         });
       });
 
+      syncSupplierPicker();
       markDoSaved();
       $('#doModal').modal('show');
     }).fail(function() {
@@ -1415,7 +1515,7 @@ function deleteDo(id) {
 }
 
 // ============================================================================
-// EXCEL UPLOAD - fills the modal, user checks then saves
+// EXCEL UPLOAD - previews the DOs in the file, then saves the ones with no warnings
 // ============================================================================
 function onExcelSelected() {
   var file = this.files[0];
@@ -1441,11 +1541,89 @@ function onExcelSelected() {
       return;
     }
 
-    fillFromExcel(obj.data);
+    showDoImport(obj.data.dos);
   }).fail(function() {
     toastr.error('Failed to read the Excel file.', 'Error:');
   }).always(function() {
     $('#spinnerLoading').hide();
+  });
+}
+
+// Preview of every DO in the upload; a DO with warnings is listed as skipped and not saved
+var doImportRows = [];
+
+function showDoImport(dos) {
+  doImportRows = dos;
+  var $tbody = $('#doImportTable').empty();
+
+  dos.forEach(function(d) {
+    var lines = 0;
+    var weight = 0;
+    d.suppliers.forEach(function(s) {
+      s.lines.forEach(function(line) {
+        lines++;
+        line.pairs.forEach(function(p) {
+          weight += parseFloat(p.do) || 0;
+        });
+      });
+    });
+
+    var ok = d.warnings.length === 0;
+    $tbody.append($('<tr>').toggleClass('text-muted', !ok).append(
+      $('<td>').text(d.doNo),
+      $('<td>').text(d.date),
+      $('<td class="text-right">').text(d.suppliers.length),
+      $('<td class="text-right">').text(lines),
+      $('<td class="text-right text-mono">').text(weight.toFixed(2)),
+      $('<td>').append(
+        ok ? $('<span class="badge badge-success">').text(doText.ready) : $('<span class="badge badge-warning">').text(doText.skipped),
+        ok ? '' : $('<div class="small text-danger mt-1">').text(d.warnings.join(', '))
+      )
+    ));
+  });
+
+  $('#doImportCount').text(dos.filter(function(d) { return d.warnings.length === 0; }).length);
+  $('#doImportModal').modal('show');
+}
+
+// Saves each DO with no warnings through the same save action as the modal, one after another
+function saveDoImport() {
+  var valid = doImportRows.filter(function(d) { return d.warnings.length === 0; });
+  if (!valid.length) {
+    return;
+  }
+
+  var errors = [];
+  var requests = valid.map(function(d) {
+    var items = [];
+    d.suppliers.forEach(function(s) {
+      s.lines.forEach(function(line) {
+        items.push({ supplier: s.supplier, product: line.product, grade_id: line.grade_id, pairs: line.pairs });
+      });
+    });
+
+    return {
+      url: 'php/modules/deliveryOrder/api.php',
+      data: { action: 'save', id: '', do_no: d.doNo, do_date: d.date, remark: '', items: JSON.stringify(items) },
+      label: d.doNo
+    };
+  });
+
+  $('#spinnerLoading').show();
+  $('#doImportSaveBtn').prop('disabled', true);
+
+  postInOrder(requests, errors).then(function() {
+    $('#spinnerLoading').hide();
+    $('#doImportSaveBtn').prop('disabled', false);
+    doListTable.ajax.reload(null, false);
+
+    if (errors.length) {
+      toastr.error(errors.join('<br>'), 'Failed:');
+    }
+    if (errors.length < valid.length) {
+      toastr.success('Saved ' + (valid.length - errors.length) + ' of ' + valid.length + ' DOs', 'Success:');
+    }
+    $('#doImportModal').modal('hide');
   });
 }
 
@@ -1456,7 +1634,7 @@ function fillFromExcel(d) {
     }
   });
 
-  $('#doSuppliers').html('');
+  $('#doSuppliers, #doSupplierTabs').html('');
 
   if (d.date) {
     $('#doDate').val(d.date);
@@ -1474,6 +1652,7 @@ function fillFromExcel(d) {
     });
   });
 
+  syncSupplierPicker();
   updateDoTotals();
 
   if (d.warnings.length) {

@@ -318,22 +318,50 @@ class DeliveryOrderService extends BaseService
     }
 
     /**
-     * DO Excel upload matched to this company's suppliers, products and grades.
-     * The page fills the form from it; unmatched names come back as warnings.
+     * DO Excel upload: one matched entry per DO No. Entries with warnings are not saved by the page.
      */
     public function importSheet(array $rows, array $categoryIds): array
     {
-        $sheet = $this->parseTable($rows);
+        $dos = $this->parseTable($rows);
 
-        if ($sheet === null) {
+        if ($dos === null) {
             return ['status' => 'failed', 'message' => 'Excel layout not recognised. Please download the latest template.'];
         }
 
-        if (empty($sheet['suppliers'])) {
-            return ['status' => 'failed', 'message' => 'No supplier found in the Excel file.'];
+        if (empty($dos)) {
+            return ['status' => 'failed', 'message' => 'No DO found in the Excel file.'];
         }
 
         $opts = $this->getOptions($categoryIds);
+        $result = [];
+
+        foreach ($dos as $do) {
+            $data = $this->matchSheet($do, $opts)['data'];
+
+            if ($do['doNo'] === '') {
+                $data['warnings'][] = 'DO No is missing';
+            } elseif ($do['date'] === '') {
+                $data['warnings'][] = 'Date is missing or invalid';
+            } elseif ($this->doNoExists($do['doNo'])) {
+                $data['warnings'][] = "DO No '{$do['doNo']}' already exists";
+            }
+
+            $result[] = $data;
+        }
+
+        return ['status' => 'success', 'data' => ['dos' => $result]];
+    }
+
+    private function doNoExists(string $doNo): bool
+    {
+        return (bool)$this->fetchOne("SELECT id FROM delivery_orders WHERE company = ? AND do_no = ? AND deleted = 0", 'is', [$this->company, $doNo]);
+    }
+
+    /**
+     * Grouped DO rows matched to this company's suppliers, products and grades
+     */
+    private function matchSheet(array $sheet, array $opts): array
+    {
         $upper = function ($value) {
             return mb_strtoupper(trim((string)$value));
         };
@@ -358,9 +386,24 @@ class DeliveryOrderService extends BaseService
 
             $lines = [];
             foreach ($items as $item) {
-                $product = $this->firstMatch($opts['products'], function ($p) use ($matches, $item) {
+                // Product codes can repeat: prefer a name match, then the product that has this grade
+                $candidates = array_values(array_filter($opts['products'], function ($p) use ($matches, $item) {
                     return $matches($item['product'], $p['product_code'], $p['product_name']);
-                });
+                }));
+                $textName = $this->splitCode($item['product'])[1];
+                $named = array_values(array_filter($candidates, function ($p) use ($upper, $item, $textName) {
+                    return $upper($p['product_name']) === $upper($item['product'])
+                        || ($textName !== '' && $upper($p['product_name']) === $upper($textName));
+                }));
+                $pool = $named ?: $candidates;
+                $product = $this->firstMatch($pool, function ($p) use ($upper, $item) {
+                    foreach ($p['grades'] as $g) {
+                        if ($upper($g['grade_name']) === $upper($item['grade'])) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }) ?? ($pool[0] ?? null);
 
                 $grade = null;
                 if ($product) {
@@ -396,15 +439,14 @@ class DeliveryOrderService extends BaseService
     }
 
     /**
-     * DO table layout: "DATE:" / "DO NO:" label cells above the header (value after the colon or in the
-     * next filled cell), a header row with SUPPLIER, PRODUCT, GRADE, DO WEIGHT, then one
-     * row per weight. Rows with the same supplier + product + grade are grouped into one item.
+     * DO table layout: a header row with DATE, DO NO, SUPPLIER, PRODUCT, GRADE, DO WEIGHT, then one row per weight.
+     * Rows with the same DO No are one DO; within it, rows with the same supplier + product + grade are one item.
      * Returns null when no header row is found.
      */
     private function parseTable(array $rows): ?array
     {
-        $result = ['date' => '', 'doNo' => '', 'suppliers' => []];
         $columns = null;
+        $dos = [];
 
         foreach ($rows as $row) {
             $row = array_values($row);
@@ -417,37 +459,15 @@ class DeliveryOrderService extends BaseService
                     return strtoupper(preg_replace('/\s+/', '', $cell));
                 }, $cells);
 
-                if (in_array('SUPPLIER', $keys, true) && in_array('DOWEIGHT', $keys, true)) {
+                if (in_array('SUPPLIER', $keys, true) && in_array('DONO', $keys, true) && in_array('DOWEIGHT', $keys, true)) {
                     $columns = [
+                        'date' => array_search('DATE', $keys, true),
+                        'doNo' => array_search('DONO', $keys, true),
                         'supplier' => array_search('SUPPLIER', $keys, true),
                         'product' => array_search('PRODUCT', $keys, true),
                         'grade' => array_search('GRADE', $keys, true),
                         'do' => array_search('DOWEIGHT', $keys, true)
                     ];
-                    continue;
-                }
-
-                foreach ($keys as $i => $key) {
-                    if (strpos($key, 'DATE:') === 0) {
-                        $label = 'date';
-                    } elseif (strpos($key, 'DONO:') === 0) {
-                        $label = 'doNo';
-                    } else {
-                        continue;
-                    }
-
-                    $value = trim(substr($cells[$i], strpos($cells[$i], ':') + 1));
-
-                    if ($value === '') {
-                        for ($j = $i + 1; $j < count($row); $j++) {
-                            if ($cells[$j] !== '') {
-                                $value = $row[$j];
-                                break;
-                            }
-                        }
-                    }
-
-                    $result[$label] = $label === 'date' ? $this->excelDate($value) : trim((string)$value);
                 }
                 continue;
             }
@@ -459,23 +479,34 @@ class DeliveryOrderService extends BaseService
                 return is_numeric($cell($column)) ? (float)$cell($column) : '';
             };
 
+            $doNo = $cell('doNo');
             $supplier = $cell('supplier');
             $product = $cell('product');
             $grade = $cell('grade');
             $pair = ['do' => $weight('do')];
 
-            if ($supplier === '' && $product === '' && $grade === '' && $pair['do'] === '') {
+            if ($doNo === '' && $supplier === '' && $product === '' && $grade === '' && $pair['do'] === '') {
                 continue;
             }
 
-            $key = $product . "\n" . $grade;
-            if (!isset($result['suppliers'][$supplier][$key])) {
-                $result['suppliers'][$supplier][$key] = ['product' => $product, 'grade' => $grade, 'pairs' => []];
+            // Date reads the raw cell: an Excel date is a serial number, not text
+            $date = $columns['date'] === false ? '' : $this->excelDate($row[$columns['date']] ?? '');
+
+            if (!isset($dos[$doNo])) {
+                $dos[$doNo] = ['date' => '', 'doNo' => $doNo, 'suppliers' => []];
             }
-            $result['suppliers'][$supplier][$key]['pairs'][] = $pair;
+            if ($dos[$doNo]['date'] === '') {
+                $dos[$doNo]['date'] = $date;
+            }
+
+            $key = $product . "\n" . $grade;
+            if (!isset($dos[$doNo]['suppliers'][$supplier][$key])) {
+                $dos[$doNo]['suppliers'][$supplier][$key] = ['product' => $product, 'grade' => $grade, 'pairs' => []];
+            }
+            $dos[$doNo]['suppliers'][$supplier][$key]['pairs'][] = $pair;
         }
 
-        return $columns === null ? null : $result;
+        return $columns === null ? null : array_values($dos);
     }
 
     /**
