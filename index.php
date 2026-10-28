@@ -20,6 +20,7 @@ else{
   $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
   $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
   $allowDeliveryOrder = $_SESSION['featureFlags']['include_delivery_order'] ?? 'N';
+  $allowDoAi = $_SESSION['featureFlags']['include_do_ai'] ?? 'N';
 
   // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
@@ -874,6 +875,16 @@ to get the desired effect
                             <p>'.$languageArray['staffs_code'][$language].'</p>
                           </a>
                         </li>';
+
+                  if ($allowDoAi == 'Y'){
+                    echo '
+                        <li class="nav-item">
+                          <a href="#integrations" data-file="modules/integrations/integrations.php" class="nav-link link">
+                            <i class="nav-icon fas fa-plug"></i>
+                            <p>'.$languageArray['integrations_code'][$language].'</p>
+                          </a>
+                        </li>';
+                  }
 
                   if ($enableDailySales == 'Y'){
                     echo '
