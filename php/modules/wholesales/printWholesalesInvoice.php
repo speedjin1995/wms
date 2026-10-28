@@ -55,6 +55,7 @@ if(isset($_GET['id'])){
                 $vehicleNo = $wholesale['vehicle_no'] ?? '';
                 $priceStatus = (floatval($wholesale['total_price']) > 0) ? 'FIXED' : 'FLOAT';
                 $weightBy = searchUserNameById($wholesale['weighted_by'], $db);
+                $remark = $wholesale['remark'] ?? '';
 
                 if ($wholesale['status'] == 'RECEIVING'){
                     // Supplier info for Bill To
@@ -302,7 +303,7 @@ if(isset($_GET['id'])){
                             .summary-list { font-size: 11px; line-height: 1.6; }
                             .summary-list-row { display: flex; }
                             .summary-list-bullet { width: 10px; }
-                            .summary-list-label { width: 140px; }
+                            .summary-list-label { width: 110px; }
                             .summary-list-colon { width: 10px; }
 
                             /* Footer */
@@ -435,6 +436,7 @@ if(isset($_GET['id'])){
                                             <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">Total Tare Weight</span><span class="summary-list-colon">:</span><span>' . $totalTareWeight . ' kg</span></div>
                                             <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">Start Weight Time</span><span class="summary-list-colon">:</span><span>' . $startWeightTime . '</span></div>
                                             <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">End Weight Time</span><span class="summary-list-colon">:</span><span>' . $endWeightTime . '</span></div>
+                                            <div class="summary-list-row"><span class="summary-list-bullet">*</span><span class="summary-list-label">Remarks</span><span class="summary-list-colon">:</span><span>' . $remark . '</span></div>
                                         </div>
                                     </div>
                                     <div class="item-col-qty-empty"></div>
