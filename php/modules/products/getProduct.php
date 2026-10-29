@@ -303,6 +303,8 @@ if(isset($_POST['userID'])){
                     $message['packaging_name'] = $row['packaging_name'];
                     $message['state'] = json_decode($row['state'], true);
                     $message['colour'] = $row['colour'];
+                    $message['do_weight_tolerance'] = $row['do_weight_tolerance'];
+                    $message['do_weight_tolerance_type'] = $row['do_weight_tolerance_type'];
                     
                     // retrieve product customers
                     $empQuery = "SELECT * FROM product_customers WHERE product_id = $id AND deleted = '0' ORDER BY type ASC, id ASC";

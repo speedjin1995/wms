@@ -269,6 +269,21 @@ else{
                   </div>
                 </div>
               </div>
+              <!-- Always posted so saving never resets it; only shown when the company uses Delivery Order -->
+              <div class="col-md-4 <?=(($_SESSION['featureFlags']['include_delivery_order'] ?? 'N') == 'Y') ? '' : 'd-none'?>">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['do_weight_tolerance_code'][$language] ?? 'DO Weight Tolerance'?></label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="productDoTolerance" name="doWeightTolerance" step="0.01" min="0" placeholder="0.80">
+                    <div class="input-group-append">
+                      <select class="form-control" id="productDoToleranceType" name="doWeightToleranceType">
+                        <option value="KG">kg</option>
+                        <option value="PERCENT">%</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="form-group-modern">
               <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
@@ -896,6 +911,8 @@ $(function () {
     $('#productModal').find('#productCategory').val("").trigger('change');
     $('#productModal').find('#productPackaging').val("").trigger('change');
     $('#productModal').find('#productColour').val("");
+    $('#productModal').find('#productDoTolerance').val("0.80");
+    $('#productModal').find('#productDoToleranceType').val("KG");
     $('#productModal').find('#state').val("").trigger('change');
     $('#productModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
@@ -1414,6 +1431,8 @@ function edit(id){
       $('#productModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
       $('#productModal').find('#productColour').val(obj.message.colour || '');
+      $('#productModal').find('#productDoTolerance').val(obj.message.do_weight_tolerance);
+      $('#productModal').find('#productDoToleranceType').val(obj.message.do_weight_tolerance_type || 'KG');
       $('#productModal').find('#state').val(obj.message.state).trigger('change');
       $('#productModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');

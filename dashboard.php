@@ -43,7 +43,7 @@ if (!isset($_SESSION['userID'])) {
 }
 ?>
 
-<link rel="stylesheet" href="assets/css/dashboard.css">
+<link rel="stylesheet" href="assets/css/dashboard.css?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>">
 
 <!-- ── Page Header ──────────────────────────────────────── -->
 <div class="content-header">
@@ -168,12 +168,12 @@ if (!isset($_SESSION['userID'])) {
 </div>
 
 <!-- ── JS — load shared utils first, then per-tab logic ── -->
-<script src="modules/dashboard/js/dashboard.js?v=<?=time()?>"></script>
-<script src="modules/dashboard/js/tab_wholesales.js?v=<?=time()?>"></script>
-<script src="modules/dashboard/js/tab_repacking.js?v=<?=time()?>"></script>
-<script src="modules/dashboard/js/tab_grading.js?v=<?=time()?>"></script>
-<script src="modules/dashboard/js/tab_packaging.js?v=<?=time()?>" ></script>
-<script src="modules/dashboard/js/tab_pulppaste.js"></script>
+<script src="modules/dashboard/js/dashboard.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/dashboard/js/tab_wholesales.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/dashboard/js/tab_repacking.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/dashboard/js/tab_grading.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/dashboard/js/tab_packaging.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>" ></script>
+<script src="modules/dashboard/js/tab_pulppaste.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
 <script>
 function toggleFilterCard() {
   var $body    = $('#dashFilterBody');

@@ -82,6 +82,10 @@
   max-width: 900px;
 }
 
+.modal-modern .modal-dialog.modal-xxl {
+  max-width: 1700px;
+}
+
 /* ============================================
    SECTIONS (card-like containers)
    ============================================ */
@@ -186,6 +190,10 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
+.modal-modern select.is-invalid + .select2-container .select2-selection {
+  border-color: var(--modal-danger);
+}
+
 /* ============================================
    BUTTONS
    ============================================ */
@@ -242,6 +250,16 @@
 
 .modal-modern .btn-modern-danger:hover {
   background: #dc2626;
+  color: #fff;
+}
+
+.modal-modern .btn-modern-warning {
+  color: #fff;
+  background: var(--modal-warning);
+}
+
+.modal-modern .btn-modern-warning:hover {
+  background: #d97706;
   color: #fff;
 }
 
@@ -527,6 +545,32 @@
   vertical-align: middle;
 }
 
+/* .table-stack: on phones each row stacks and every cell shows its data-label */
+@media (max-width: 767.98px) {
+  .modal-modern .table-stack,
+  .modal-modern .table-stack table,
+  .modal-modern .table-stack tbody,
+  .modal-modern .table-stack tfoot,
+  .modal-modern .table-stack tr,
+  .modal-modern .table-stack td {
+    display: block;
+    width: 100%;
+  }
+
+  .modal-modern .table-stack thead,
+  .modal-modern .table-stack colgroup {
+    display: none;
+  }
+
+  .modal-modern .table-stack [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: var(--modal-font-sm);
+    font-weight: 600;
+    color: var(--modal-text-secondary);
+  }
+}
+
 /* ============================================
    TABS INSIDE MODAL
    ============================================ */
@@ -698,3 +742,57 @@
     grid-column: span 2;
   }
 }
+
+/* ============================================
+   DELIVERY ORDER ITEMS (modules/deliveryOrder)
+   ============================================ */
+.modal-modern .do-items,
+.modal-modern .do-bag-grid {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.modal-modern .do-items > colgroup > col:nth-child(1) { width: 15%; }
+.modal-modern .do-items > colgroup > col:nth-child(2) { width: 19%; }
+.modal-modern .do-items > colgroup > col:nth-child(3) { width: 10%; }
+.modal-modern .do-items > colgroup > col:nth-child(5) { width: 130px; }
+
+/* Weight header and weight entries share these widths so they line up */
+.modal-modern .do-bag-grid > colgroup > col:nth-child(1) { width: 33%; }
+.modal-modern .do-bag-grid > colgroup > col:nth-child(2) { width: 33%; }
+.modal-modern .do-bag-grid > colgroup > col:nth-child(3) { width: 24%; }
+.modal-modern .do-bag-grid > colgroup > col:nth-child(4) { width: 10%; }
+
+.modal-modern .do-items > thead > tr > th {
+  vertical-align: top;
+  text-align: center;
+}
+
+.modal-modern .do-items > tbody > tr > td {
+  vertical-align: top;
+}
+
+.modal-modern .do-bag-grid td,
+.modal-modern .do-bag-grid th {
+  border: 0;
+  padding: 0.15rem 0.25rem;
+  vertical-align: middle;
+}
+
+@media (min-width: 768px) {
+  .modal-modern .do-items {
+    min-width: 960px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .modal-modern .do-line {
+    border-bottom: 2px solid var(--modal-border);
+    padding-bottom: 0.5rem;
+  }
+
+  .modal-modern .do-bag {
+    border-top: 1px dashed var(--modal-border);
+  }
+}
+
