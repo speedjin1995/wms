@@ -2,6 +2,89 @@
    modal.js - MODAL: building the DO modal, suppliers, lines, bags and totals
    ============================================================ */
 
+$(function() {
+  $('#doSupplierPicker').select2({
+    width: '100%',
+    dropdownParent: $('#doModal'),
+    placeholder: doText.addSupplier
+  });
+
+  $('#doSupplierPicker')
+    .on('select2:select', function(e) {
+      addLine(addSupplierCard(e.params.data.id));
+    })
+    .on('select2:unselecting', function(e) {
+      if (!confirm(doText.removeSupplierConfirm)) {
+        e.preventDefault();
+        return;
+      }
+
+      $('#doSuppliers .do-supplier').filter(function() {
+        return $(this).find('.do-supplier-select').val() == e.params.args.data.id;
+      }).each(function() {
+        removeSupplierCard($(this));
+      });
+    });
+
+  $('#doSuppliers')
+    .on('change', '.do-supplier-select', function() {
+      var supplierId = $(this).val();
+      if (!supplierId) {
+        return;
+      }
+
+      setSupplierTab($(this).closest('.do-supplier'), supplierId);
+      $(this).prop('disabled', true).trigger('change.select2');
+      syncSupplierPicker();
+    })
+    .on('click', '.do-add-line', function() {
+      addLine($(this).closest('.do-supplier'));
+    })
+    .on('click', '.do-remove-line', function() {
+      if (!confirm(doText.removeLineConfirm)) {
+        return;
+      }
+
+      $(this).closest('.do-line').remove();
+      updateDoTotals();
+    })
+    .on('change', '.do-category', function() {
+      var $row = $(this).closest('.do-line');
+      fillProducts($row, $(this).val());
+      fillGrades($row, null);
+      updateDoTotals();
+    })
+    .on('change', '.do-product', function() {
+      fillGrades($(this).closest('.do-line'), $(this).val());
+      updateDoTotals();
+    })
+    .on('input', '.do-bag-do, .do-bag-received', updateDoTotals)
+    .on('click', '.do-add-bag', function() {
+      addBag($(this).closest('.do-line'));
+    })
+    .on('click', '.do-remove-bag', function() {
+      $(this).closest('.do-bag').remove();
+      updateDoTotals();
+    });
+
+  $('#doModal')
+    .on('input change', '.is-invalid', function() {
+      $(this).removeClass('is-invalid');
+    })
+    .on('input change click', function() {
+      $('#doUnsavedBadge').toggle(isDoDirty());
+    })
+    .on('hide.bs.modal', function(e) {
+      if (e.target !== this) {
+        return;
+      }
+
+      if (isDoDirty() && !confirm(doText.unsavedConfirm)) {
+        e.preventDefault();
+      }
+    });
+});
+
 // ============================================================================
 // MODAL BUILDING
 // ============================================================================

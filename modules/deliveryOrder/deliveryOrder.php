@@ -314,9 +314,7 @@ var doText = <?=json_encode([
   'skipped' => $t('do_skipped_code', 'Skipped')
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 </script>
-<script src="modules/deliveryOrder/js/list.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
 <script src="modules/deliveryOrder/js/modal.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
 <script src="modules/deliveryOrder/js/save.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
-<script src="modules/deliveryOrder/js/editDelete.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
 <script src="modules/deliveryOrder/js/import.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
 <script src="modules/deliveryOrder/js/deliveryOrder.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
