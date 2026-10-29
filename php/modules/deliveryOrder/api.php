@@ -65,9 +65,7 @@ try {
         case 'import':
             echo json_encode($controller->import($categoryIds));
             break;
-
-            }
-
+            
         case 'template':
             $controller->template($categoryIds);
             exit;
