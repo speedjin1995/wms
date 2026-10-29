@@ -36,7 +36,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
     $productPackaging = null;
     $state = null;
     $colour = null;
-    $doWeightTolerance = '0.80';
+    $doWeightTolerance = '0';
+    $doWeightToleranceMinus = '0';
     $doWeightToleranceType = 'KG';
     $isManual = 'N';
     $deleteStatus = 1;
@@ -137,13 +138,17 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         $doWeightTolerance = $_POST['doWeightTolerance'];
     }
 
+    if(isset($_POST['doWeightToleranceMinus']) && is_numeric($_POST['doWeightToleranceMinus']) && $_POST['doWeightToleranceMinus'] >= 0){
+        $doWeightToleranceMinus = $_POST['doWeightToleranceMinus'];
+    }
+
     if(isset($_POST['doWeightToleranceType']) && in_array($_POST['doWeightToleranceType'], ['KG', 'PERCENT'], true)){
         $doWeightToleranceType = $_POST['doWeightToleranceType'];
     }
 
     if($_POST['id'] != null && $_POST['id'] != ''){
-        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, pricing_currency=?, price=?, purchasing_pricing_type=?, purchasing_pricing_currency=?, purchasing_price=?, weight=?, range_set=?, ok_weight=?, ok_weight_unit=?, lo_weight=?, lo_weight_unit=?, hi_weight=?, hi_weight_unit=?, category=?, packaging=?, state=?, colour=?, do_weight_tolerance=?, do_weight_tolerance_type=?, is_manual=?, modified_by=? WHERE id=?")) {
-            $update_stmt->bind_param('ssssssssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $pricingCurrency, $price, $purchasingPricingType, $purchasingPricingCurrency, $purchasingPrice, $weight, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $colour, $doWeightTolerance, $doWeightToleranceType, $isManual, $userID, $_POST['id']);
+        if ($update_stmt = $db->prepare("UPDATE products SET product_code=?, product_name=?, product_sn=?, batch_no=?, parts_no=?, uom=?, remark=?, pricing_type=?, pricing_currency=?, price=?, purchasing_pricing_type=?, purchasing_pricing_currency=?, purchasing_price=?, weight=?, range_set=?, ok_weight=?, ok_weight_unit=?, lo_weight=?, lo_weight_unit=?, hi_weight=?, hi_weight_unit=?, category=?, packaging=?, state=?, colour=?, do_weight_tolerance=?, do_weight_tolerance_minus=?, do_weight_tolerance_type=?, is_manual=?, modified_by=? WHERE id=?")) {
+            $update_stmt->bind_param('sssssssssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $pricingCurrency, $price, $purchasingPricingType, $purchasingPricingCurrency, $purchasingPrice, $weight, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $colour, $doWeightTolerance, $doWeightToleranceMinus, $doWeightToleranceType, $isManual, $userID, $_POST['id']);
 
             // Execute the prepared query.
             if (! $update_stmt->execute()) {
@@ -257,7 +262,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                             $update_stmt2->close();
                                         }
                                     }else{
-                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
                                             $product_stmt->bind_param('ssssssssss', $_POST['id'], $gradeId, $gType, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID);
                                             $product_stmt->execute();
                                             $product_stmt->close();
@@ -313,8 +318,8 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
         }
     }
     else{
-        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, category, packaging, state, colour, do_weight_tolerance, do_weight_tolerance_type, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-            $insert_stmt->bind_param('sssssssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $pricingCurrency, $price, $purchasingPricingType, $purchasingPricingCurrency, $purchasingPrice, $weight, $company, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $colour, $doWeightTolerance, $doWeightToleranceType, $userID);
+        if ($insert_stmt = $db->prepare("INSERT INTO products (product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, category, packaging, state, colour, do_weight_tolerance, do_weight_tolerance_minus, do_weight_tolerance_type, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $insert_stmt->bind_param('ssssssssssssssssssssssssssssss', $code, $product, $serial, $batch, $part, $uom, $remark, $pricingType, $pricingCurrency, $price, $purchasingPricingType, $purchasingPricingCurrency, $purchasingPrice, $weight, $company, $rangeSet, $okWeight, $okWeightUnit, $loWeight, $loWeightUnit, $hiWeight, $hiWeightUnit, $productCategory, $productPackaging, $state, $colour, $doWeightTolerance, $doWeightToleranceMinus, $doWeightToleranceType, $userID);
             
             // Execute the prepared query.
             if (! $insert_stmt->execute()) {

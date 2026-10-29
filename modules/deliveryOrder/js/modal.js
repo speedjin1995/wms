@@ -358,13 +358,13 @@ function hasReceived(s) {
   });
 }
 
-// Allowed difference in kg for one entry: the product's tolerance in kg, or a % of the entry's DO weight
-function doTolerance(product, doWeight) {
+// Allowed difference in kg for one entry: the product's over (+) or short (-) tolerance, or a % of the entry's DO weight
+function doTolerance(product, doWeight, short) {
   if (!product) {
     return DO_WEIGHT_TOLERANCE;
   }
 
-  var tolerance = parseFloat(product.do_weight_tolerance) || 0;
+  var tolerance = parseFloat(short ? product.do_weight_tolerance_minus : product.do_weight_tolerance) || 0;
   if (product.do_weight_tolerance_type === 'PERCENT') {
     return doWeight * tolerance / 100;
   }
@@ -386,9 +386,10 @@ function updateDoTotals() {
       var recW = parseFloat(recVal) || 0;
       var complete = doVal !== '' && recVal !== '';
       var loss = complete ? Math.round((doW - recW) * 100) / 100 : 0;
-      var tolerance = doTolerance(product, doW);
-      var over = complete && -loss >= tolerance;
-      var short = complete && loss >= tolerance;
+      var overTolerance = doTolerance(product, doW, false);
+      var shortTolerance = doTolerance(product, doW, true);
+      var over = complete && loss < 0 && -loss >= overTolerance;
+      var short = complete && loss > 0 && loss >= shortTolerance;
 
       var flagClass = '';
       if (over) {
