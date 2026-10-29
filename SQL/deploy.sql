@@ -3961,26 +3961,3 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTS` BEFORE UPDATE ON `products` FOR EAC
 END
 $$
 DELIMITER ;
-
--- 28/10/2026 --
--- Outside API connections (REST/SOAP). company = 0 is the platform default; a tenant row overrides it.
-CREATE TABLE `api_integrations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `company` int(11) NOT NULL DEFAULT 0,
-  `code` varchar(50) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `method` enum('rest','soap') NOT NULL DEFAULT 'rest',
-  `base_url` varchar(500) NOT NULL,
-  `auth_type` enum('none','bearer','basic','api_key','header') NOT NULL DEFAULT 'none',
-  `credentials` text DEFAULT NULL COMMENT 'AES-256-GCM encrypted JSON',
-  `secret_hint` varchar(10) DEFAULT NULL,
-  `headers` text DEFAULT NULL COMMENT 'JSON',
-  `options` text DEFAULT NULL COMMENT 'JSON: provider, model, timeout, soap opts',
-  `created_by` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `modified_by` int(11) DEFAULT NULL,
-  `modified_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `deleted` int(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `idx_company_code` (`company`, `code`, `deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -1,9 +1,7 @@
 <?php
 namespace App\Controllers;
 
-use App\Integrations\LlmExtractor;
 use App\Services\DeliveryOrderService;
-use App\Services\IntegrationService;
 
 class DeliveryOrderController extends BaseController
 {
@@ -108,39 +106,6 @@ class DeliveryOrderController extends BaseController
         }
 
         return $this->service->importSheet($rows, $categoryIds);
-    }
-
-    /**
-     * Read an uploaded DO photo / PDF with the company's AI connection (own key, else platform default)
-     */
-    public function extract(array $categoryIds, IntegrationService $integrations): array
-    {
-        $file = $_FILES['file']['tmp_name'] ?? '';
-
-        if (!$file || !is_uploaded_file($file)) {
-            return ['status' => 'failed', 'message' => 'Please select a photo or PDF'];
-        }
-
-        if (filesize($file) > 10 * 1024 * 1024) {
-            return ['status' => 'failed', 'message' => 'File is larger than 10 MB'];
-        }
-
-        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file);
-        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'], true)) {
-            return ['status' => 'failed', 'message' => 'Only JPG, PNG, WEBP or PDF files are allowed'];
-        }
-
-        $config = $integrations->getConfig('do_extract');
-        if (!$config) {
-            return ['status' => 'failed', 'message' => 'AI extraction is not configured'];
-        }
-
-        $json = (new LlmExtractor())->extract($config, $mime, base64_encode(file_get_contents($file)), $this->service->extractPrompt($categoryIds));
-        if ($json === null) {
-            return ['status' => 'failed', 'message' => 'Unable to read the document. Please try again or fill it in manually.'];
-        }
-
-        return $this->service->extractDocument($json, $categoryIds);
     }
 
     /**

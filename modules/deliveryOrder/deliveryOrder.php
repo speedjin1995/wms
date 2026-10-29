@@ -14,7 +14,6 @@ if (($_SESSION['featureFlags']['include_delivery_order'] ?? 'N') != 'Y') {
 $language = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 $doAllowPrice = (($_SESSION['featureFlags']['include_price'] ?? 'N') == 'Y' && ($_SESSION['userAllowPrice'] ?? 'N') == 'Y') ? 'Y' : 'N';
-$doAllowAi = $_SESSION['featureFlags']['include_do_ai'] ?? 'N';
 $userAllowAdd = $_SESSION['userAllowAdd'] ?? 'N';
 $userAllowEdit = $_SESSION['userAllowEdit'] ?? 'N';
 $userAllowDelete = $_SESSION['userAllowDelete'] ?? 'N';
@@ -142,11 +141,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
               <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                 <h6 class="section-title mb-0"><span class="badge badge-pill badge-primary mr-2">2</span><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></h6>
                 <div class="d-flex align-items-center">
-                  <?php if ($doAllowAi == 'Y') { ?>
-                  <button type="button" class="btn btn-modern btn-modern-primary btn-sm ml-2" id="doScanBtn"><i class="fas fa-magic mr-1"></i><?=$t('scan_do_ai_code', 'Scan DO (AI)')?></button>
-                  <?php } ?>
                 </div>
-                <input type="file" id="doScanFile" accept=".jpg,.jpeg,.png,.webp,.pdf" class="d-none">
               </div>
               <select id="doSupplierPicker" multiple class="form-control form-control-sm mb-2"></select>
               <ul class="nav nav-tabs nav-tabs-modern mb-3" id="doSupplierTabs"></ul>
@@ -281,7 +276,6 @@ var doText = <?=json_encode([
   'deleteEntry' => $t('do_delete_entry_code', 'Delete entry'),
   'removeLineConfirm' => $t('do_remove_item_confirm_code', 'Remove this item and its weight entries?'),
   'removeSupplierConfirm' => $t('do_remove_supplier_confirm_code', 'Remove this supplier and all its items?'),
-  'scanning' => $t('scan_do_ai_reading_code', 'Reading the document, this can take up to a minute...'),
   'notWeighed' => $t('do_not_weighed_code', 'Not weighed yet'),
   'matched' => $t('do_matched_code', 'Matched'),
   'short' => $t('do_short_code', 'Short'),

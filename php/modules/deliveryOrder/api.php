@@ -5,7 +5,6 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Controllers\DeliveryOrderController;
 use App\Services\DeliveryOrderService;
-use App\Services\IntegrationService;
 
 session_start();
 header('Content-Type: application/json');
@@ -67,15 +66,7 @@ try {
             echo json_encode($controller->import($categoryIds));
             break;
 
-        case 'extract':
-            if (($_SESSION['featureFlags']['include_do_ai'] ?? 'N') != 'Y') {
-                echo json_encode(['status' => 'failed', 'message' => 'AI scan is not enabled']);
-                break;
             }
-            set_time_limit(120);
-            $integrations = new IntegrationService($db, (int)$_SESSION['customer'], (int)$_SESSION['userID'], (string)($_SESSION['role'] ?? ''));
-            echo json_encode($controller->extract($categoryIds, $integrations));
-            break;
 
         case 'template':
             $controller->template($categoryIds);

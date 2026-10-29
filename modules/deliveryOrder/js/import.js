@@ -1,5 +1,5 @@
 /* ============================================================
-   import.js - EXCEL UPLOAD and AI SCAN: preview and save DOs from a file
+   import.js - EXCEL UPLOAD: preview and save DOs from a file
    ============================================================ */
 
 // ============================================================================
@@ -34,45 +34,6 @@ function onExcelSelected() {
     toastr.error('Failed to read the Excel file.', 'Error:');
   }).always(function() {
     $('#spinnerLoading').hide();
-  });
-}
-
-// ============================================================================
-// AI SCAN - photo / PDF read by the AI connection, filled the same way as the Excel upload
-// ============================================================================
-function onScanSelected() {
-  var file = this.files[0];
-  if (!file) {
-    return;
-  }
-
-  var formData = new FormData();
-  formData.append('action', 'extract');
-  formData.append('file', file);
-
-  $('#spinnerLoading').show();
-  $('#doScanBtn').prop('disabled', true);
-  toastr.info(doText.scanning, 'AI:');
-
-  $.ajax({
-    url: 'php/modules/deliveryOrder/api.php',
-    type: 'POST',
-    data: formData,
-    processData: false,
-    contentType: false,
-    timeout: 130000
-  }).done(function(obj) {
-    if (obj.status !== 'success') {
-      toastr.error(obj.message, 'Failed:');
-      return;
-    }
-
-    fillFromExcel(obj.data);
-  }).fail(function() {
-    toastr.error('Failed to read the document.', 'Error:');
-  }).always(function() {
-    $('#spinnerLoading').hide();
-    $('#doScanBtn').prop('disabled', false);
   });
 }
 

@@ -45,12 +45,6 @@ $(function() {
 
   $('#doExcelFile').on('change', onExcelSelected);
 
-  $('#doScanBtn').on('click', function() {
-    $('#doScanFile').val('').click();
-  });
-
-  $('#doScanFile').on('change', onScanSelected);
-
   $('#doListTable')
     .on('click', '.edit-do-btn', function() {
       editDo($(this).data('id'));
