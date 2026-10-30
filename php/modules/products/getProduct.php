@@ -304,6 +304,7 @@ if(isset($_POST['userID'])){
                     $message['state'] = json_decode($row['state'], true);
                     $message['colour'] = $row['colour'];
                     $message['do_weight_tolerance'] = $row['do_weight_tolerance'];
+                    $message['do_weight_tolerance_minus'] = $row['do_weight_tolerance_minus'];
                     $message['do_weight_tolerance_type'] = $row['do_weight_tolerance_type'];
                     
                     // retrieve product customers

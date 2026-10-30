@@ -269,21 +269,6 @@ else{
                   </div>
                 </div>
               </div>
-              <!-- Always posted so saving never resets it; only shown when the company uses Delivery Order -->
-              <div class="col-md-4 <?=(($_SESSION['featureFlags']['include_delivery_order'] ?? 'N') == 'Y') ? '' : 'd-none'?>">
-                <div class="form-group-modern">
-                  <label class="form-label-modern"><?=$languageArray['do_weight_tolerance_code'][$language] ?? 'DO Weight Tolerance'?></label>
-                  <div class="input-group">
-                    <input type="number" class="form-control" id="productDoTolerance" name="doWeightTolerance" step="0.01" min="0" placeholder="0.80">
-                    <div class="input-group-append">
-                      <select class="form-control" id="productDoToleranceType" name="doWeightToleranceType">
-                        <option value="KG">kg</option>
-                        <option value="PERCENT">%</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
             <div class="form-group-modern">
               <label class="form-label-modern"><?=$languageArray['remark_code'][$language]?></label>
@@ -431,6 +416,35 @@ else{
                       </select>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DO Weight Tolerance -->
+          <!-- Always posted so saving never resets it; only shown when the company uses Delivery Order -->
+          <div class="modal-section <?=(($_SESSION['featureFlags']['include_delivery_order'] ?? 'N') == 'Y') ? '' : 'd-none'?>">
+            <div class="section-title mb-3"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['do_weight_tolerance_section_code'][$language] ?? 'DO Weight Tolerance'?></div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern" style="color:#007bff;"><?=$languageArray['do_tolerance_gain_code'][$language] ?? 'Allowed Weight Gain (Received > DO)'?></label>
+                  <input type="number" class="form-control" id="productDoTolerance" name="doWeightTolerance" step="0.01" min="0" placeholder="0">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern" style="color:#dc3545;"><?=$languageArray['do_tolerance_loss_code'][$language] ?? 'Allowed Weight Loss (Received < DO)'?></label>
+                  <input type="number" class="form-control" id="productDoToleranceMinus" name="doWeightToleranceMinus" step="0.01" min="0" placeholder="0">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                  <select class="form-control" id="productDoToleranceType" name="doWeightToleranceType">
+                    <option value="KG">kg</option>
+                    <option value="PERCENT">%</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -911,7 +925,8 @@ $(function () {
     $('#productModal').find('#productCategory').val("").trigger('change');
     $('#productModal').find('#productPackaging').val("").trigger('change');
     $('#productModal').find('#productColour').val("");
-    $('#productModal').find('#productDoTolerance').val("0.80");
+    $('#productModal').find('#productDoTolerance').val("0");
+    $('#productModal').find('#productDoToleranceMinus').val("0");
     $('#productModal').find('#productDoToleranceType').val("KG");
     $('#productModal').find('#state').val("").trigger('change');
     $('#productModal').find('#uom').val("").trigger('change');
@@ -1432,6 +1447,7 @@ function edit(id){
       $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
       $('#productModal').find('#productColour').val(obj.message.colour || '');
       $('#productModal').find('#productDoTolerance').val(obj.message.do_weight_tolerance);
+      $('#productModal').find('#productDoToleranceMinus').val(obj.message.do_weight_tolerance_minus);
       $('#productModal').find('#productDoToleranceType').val(obj.message.do_weight_tolerance_type || 'KG');
       $('#productModal').find('#state').val(obj.message.state).trigger('change');
       $('#productModal').find('#company').val(obj.message.customer).trigger('change');

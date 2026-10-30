@@ -13,7 +13,7 @@ var doRemovedIds = [];
 var doSupplierSeq = 0;
 var doSaved = '';
 // Used until a product is picked; each product has its own do_weight_tolerance
-var DO_WEIGHT_TOLERANCE = 0.8;
+var DO_WEIGHT_TOLERANCE = 0;
 var DO_FLAG_CLASSES = 'text-primary text-danger font-weight-bold';
 
 $(function() {
@@ -320,13 +320,14 @@ function buildDoDetails(d, data) {
       var doW = parseFloat(p.do) || 0;
       var recW = parseFloat(p.received) || 0;
       var loss = Math.round((doW - recW) * 100) / 100;
-      var tolerance = doTolerance(product, doW);
+      var overTolerance = doTolerance(product, doW, false);
+      var shortTolerance = doTolerance(product, doW, true);
       var status = 'matched';
       if (recW <= 0) {
         status = 'notWeighed';
-      } else if (loss > 0 && loss >= tolerance) {
+      } else if (loss > 0 && loss >= shortTolerance) {
         status = 'short';
-      } else if (loss < 0 && -loss >= tolerance) {
+      } else if (loss < 0 && -loss >= overTolerance) {
         status = 'over';
       }
       var s = statuses[status];
