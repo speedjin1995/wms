@@ -19,6 +19,7 @@ final class ErrorCode
     public const UPSTREAM_ERROR = 'UPSTREAM_ERROR';
     public const TIMEOUT = 'TIMEOUT';
     public const UNREACHABLE = 'UNREACHABLE';
+    public const MAPPING_ERROR = 'MAPPING_ERROR';
     public const INTERNAL_ERROR = 'INTERNAL_ERROR';
 
     private const MESSAGES = [
@@ -35,7 +36,8 @@ final class ErrorCode
         self::CLIENT_ERROR => 'The service rejected the request',
         self::UPSTREAM_ERROR => 'The service returned an error',
         self::TIMEOUT => 'The service did not respond in time',
-        self::UNREACHABLE => 'Unable to reach the service'
+        self::UNREACHABLE => 'Unable to reach the service',
+        self::MAPPING_ERROR => 'The request could not be mapped'
     ];
 
     public static function message(string $code, int $httpStatus = 0): string

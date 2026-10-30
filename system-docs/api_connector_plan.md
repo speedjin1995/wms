@@ -6,7 +6,7 @@ One service for calling outside APIs (REST now, SOAP and GraphQL later). Each in
 | Milestone | Scope | Status |
 |---|---|---|
 | M1 Core + REST | 4 tables, `SecretStore`, `ConnectorRepository`, `RestAdapter`, auth none / api_key / bearer / basic / header, `ConnectorClient`, `CallLogger`, `Redactor`, `UrlGuard` | **Done** (branch `feature/api-connector`) |
-| M2 Mapping + admin console | `MappingEngine`; wms_admin `apiConnectors.php` (connectors, operations + mapping editor, credentials, test); tenant `php/modules/integrations/api.php` | Next |
+| M2 Mapping + admin console | `MappingEngine`; wms_admin `apiConnectors.php` (connectors, operations + mapping editor, credentials, test); tenant `php/modules/integrations/api.php` | **Built, not yet tested end to end.** Engine, client wiring, tenant `api.php` and the wms_admin console are written. The console's test button is deferred. |
 | M3 Resilience + OAuth2 | Retries, circuit breaker, oauth2_cc with token cache, Monitor tab, alert + purge crons | Planned |
 | M4 SOAP | `SoapAdapter`, SOAP_FAULT, WS-Security UsernameToken, mTLS | Planned (check the SOAP extension on Hostinger first) |
 | M5 Hardening | Key-rotation tool, GraphQL adapter if needed | Planned |
@@ -49,6 +49,8 @@ Until M2, the payload passes straight through. GET and DELETE send it as the que
 | `Auth/*` | One provider per `auth_type`, registered in `AuthRegistry` |
 | `Adapters/*` | One adapter per protocol (`ProtocolAdapter`), registered in `AdapterRegistry` |
 | `ErrorCode`, `NormalizedResult`, `PreparedRequest`, `RawResponse` | Value types |
+
+**wms_admin console.** The console is `apiConnectors.php` in the wms_admin repo, with its endpoint at `php/modules/apiConnectors/api.php`. It only saves configuration and never makes calls. wms_admin holds byte-identical copies of `SecretStore.php` and `MappingEngine.php` at the same path. When either file changes in wms, copy it to wms_admin as well.
 
 **Adding a protocol:** write one adapter class, add one `AdapterRegistry` entry, and add one ENUM value to `api_connectors.protocol`.
 
@@ -108,7 +110,7 @@ On an upstream error, `data` still carries the provider's (redacted) response bo
 
 ## Deploy
 1. Run the `29/10/2026 (part 2)` block of `SQL/deploy.sql`. It also drops the old draft's `api_integrations` table if it exists.
-2. On each server, copy `php/config/secret.example.php` to `php/config/secret.php` (git-ignored) and set a new key: `php -r "echo base64_encode(random_bytes(32));"`. Back the file up somewhere safe: if it is lost, every saved secret has to be entered again.
+2. On each server, copy `php/config/secret.example.php` to `php/config/secret.php` (git-ignored) and set a new key: `php -r "echo base64_encode(random_bytes(32));"`. Back the file up somewhere safe: if it is lost, every saved secret has to be entered again. wms_admin needs the same file with the **same key**, because it encrypts the secrets that wms decrypts.
 3. To rotate the key, add version 2 and point `WMS_SECRET_KEY_CURRENT` at it. Keep version 1 until every secret has been re-saved.
 
 ## Planned details (M2–M4)

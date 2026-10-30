@@ -35,6 +35,10 @@ class ConnectorClient
 
         try {
             $result = $this->run($connectorCode, $operationCode, $payload, $ctx, $call, $redactor);
+        } catch (\UnexpectedValueException $e) {
+            // Thrown by MappingEngine and buildRequest for bad specs or missing path values
+            $call['detail'] = $e->getMessage();
+            $result = NormalizedResult::failure(ErrorCode::MAPPING_ERROR);
         } catch (\Throwable $e) {
             $call['detail'] = $e->getMessage();
             $result = NormalizedResult::failure(ErrorCode::INTERNAL_ERROR);
@@ -44,7 +48,7 @@ class ConnectorClient
         $result->attempts = $call['attempts'];
         $result->latencyMs = (int)round((microtime(true) - $started) * 1000);
 
-        if ($call['connector']) {
+        if ($call['connector'] && empty($ctx['preview'])) {
             $this->logger->log($result, $call, $redactor);
         } elseif ($call['detail'] !== '') {
             error_log('ConnectorClient ' . $connectorCode . ' - ' . $redactor->text($call['detail']));
@@ -93,7 +97,12 @@ class ConnectorClient
         }
         $redactor->addSecrets($secret);
 
-        $request = $this->buildRequest($connector, $operation, $payload);
+        $mappingCtx = [
+            'input' => $payload,
+            'config' => $this->json($connector['options']),
+            'credential' => $this->json($credential['auth_config'])
+        ];
+        $request = $this->buildRequest($connector, $operation, $payload, $mappingCtx);
 
         $guard = UrlGuard::check($request->url, $connector['base_url'], (bool)$connector['allow_http'], !empty($this->json($connector['options'])['allow_private']));
         if ($guard['error']) {
@@ -110,6 +119,20 @@ class ConnectorClient
         $redactor->addSecrets(array_values(array_diff_assoc($request->headers, $plainHeaders)));
         $redactor->addSecrets(array_values($request->query));
 
+        // Preview shows what would be sent, with secrets masked, and sends nothing
+        if (!empty($ctx['preview'])) {
+            $result = new NormalizedResult();
+            $result->ok = true;
+            $result->data = [
+                'method' => $request->method,
+                'url' => $redactor->text($request->fullUrl()),
+                'headers' => $redactor->data($request->headers),
+                'body' => $request->body === null ? null : $redactor->text($request->body)
+            ];
+
+            return $result;
+        }
+
         $call['attempts'] = 1;
         $call['req_bytes'] = strlen((string)$request->body);
         $response = $adapter->send($request);
@@ -122,55 +145,103 @@ class ConnectorClient
 
         $result = new NormalizedResult();
         $result->httpStatus = $response->status;
-        // Upstream bodies can echo credentials back
-        $result->data = $redactor->data($this->decodeBody($response->body));
+        $decoded = $this->decodeBody($response->body);
 
         $errorCode = ErrorCode::fromHttpStatus($response->status);
         if ($errorCode) {
             $result->errorCode = $errorCode;
             $result->message = ErrorCode::message($errorCode, $response->status);
+            // Upstream bodies can echo credentials back
+            $result->data = $redactor->data($decoded);
+            $result->message = $this->errorMessage($operation, $decoded, $redactor) ?? $result->message;
         } else {
             $result->ok = true;
+            $result->data = $redactor->data($this->mapResponse($operation, $decoded));
         }
 
         return $result;
     }
 
     /**
-     * Payload passes straight through for now: query string for GET / DELETE, JSON (or form) body otherwise.
-     * request_spec mapping replaces this once MappingEngine exists.
+     * Without request_spec the payload passes straight through: query string for GET / DELETE, JSON (or form) body otherwise.
+     * With request_spec, the mapping picks path, query, headers and body.
      */
-    private function buildRequest(array $connector, array $operation, array $payload): PreparedRequest
+    private function buildRequest(array $connector, array $operation, array $payload, array $mappingCtx): PreparedRequest
     {
         $options = $this->json($operation['options']);
+        $spec = $this->json($operation['request_spec']);
+        $mapped = $spec ? MappingEngine::render($spec, $mappingCtx) : null;
+        $isBodiless = in_array($operation['http_method'], ['GET', 'DELETE'], true);
 
         $request = new PreparedRequest();
         $request->method = $operation['http_method'];
         $request->url = rtrim($connector['base_url'], '/');
-        if ($operation['path_template'] !== '') {
-            $request->url .= '/' . ltrim($operation['path_template'], '/');
+        $path = $mapped ? $this->fillPath($operation['path_template'], $mapped['path'] ?? []) : $operation['path_template'];
+        if ($path !== '') {
+            $request->url .= '/' . ltrim($path, '/');
         }
         $request->timeoutMs = max(1000, (int)($operation['timeout_ms'] ?: $connector['timeout_ms']));
         $request->connectTimeoutMs = min(10000, max(1000, (int)$connector['connect_timeout_ms']));
         $request->headers = array_merge(
             ['Accept' => 'application/json'],
             $this->json($connector['default_headers']),
-            is_array($options['headers'] ?? null) ? $options['headers'] : []
+            is_array($options['headers'] ?? null) ? $options['headers'] : [],
+            array_map('strval', $mapped['headers'] ?? [])
         );
 
-        if (in_array($request->method, ['GET', 'DELETE'], true)) {
-            if (!empty($payload)) {
-                $request->url .= (strpos($request->url, '?') === false ? '?' : '&') . http_build_query($payload);
+        $query = $mapped ? ($mapped['query'] ?? []) : ($isBodiless ? $payload : []);
+        if (!empty($query)) {
+            $request->url .= (strpos($request->url, '?') === false ? '?' : '&') . http_build_query($query);
+        }
+
+        $body = $mapped ? ($mapped['body'] ?? []) : $payload;
+        if (!$isBodiless) {
+            if (($options['body_format'] ?? 'json') === 'form') {
+                $request->body = http_build_query($body);
+                $request->headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            } else {
+                $request->body = json_encode($body ?: new \stdClass());
+                $request->headers['Content-Type'] = 'application/json';
             }
-        } elseif (($options['body_format'] ?? 'json') === 'form') {
-            $request->body = http_build_query($payload);
-            $request->headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        } else {
-            $request->body = json_encode($payload ?: new \stdClass());
-            $request->headers['Content-Type'] = 'application/json';
         }
 
         return $request;
+    }
+
+    private function fillPath(string $template, array $values): string
+    {
+        return preg_replace_callback('/\{([A-Za-z0-9_]+)\}/', function ($m) use ($values) {
+            if (!array_key_exists($m[1], $values)) {
+                throw new \UnexpectedValueException('Missing path value ' . $m[1]);
+            }
+
+            return rawurlencode((string)$values[$m[1]]);
+        }, $template);
+    }
+
+    /**
+     * Response mapped by response_spec on success. Passes the decoded body through when there is no spec.
+     */
+    private function mapResponse(array $operation, $decoded)
+    {
+        $spec = $this->json($operation['response_spec']);
+
+        return $spec ? MappingEngine::extract($decoded, $spec) : $decoded;
+    }
+
+    /**
+     * error_spec {"message": "path"} picks the upstream error text. Null when absent or not a string.
+     */
+    private function errorMessage(array $operation, $decoded, Redactor $redactor): ?string
+    {
+        $spec = $this->json($operation['error_spec']);
+        if (!isset($spec['message'])) {
+            return null;
+        }
+
+        $message = MappingEngine::extract($decoded, ['extract' => $spec['message']]);
+
+        return is_string($message) && $message !== '' ? $redactor->text($message) : null;
     }
 
     /**
