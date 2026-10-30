@@ -606,6 +606,35 @@ class DeliveryOrderService extends BaseService
         return ['status' => 'success', 'data' => ['dos' => $result]];
     }
 
+    /**
+     * Paper DO photo read by the tenant's LLM connector (llm_openai / extract_do), then matched like an Excel upload.
+     * The operation's response_spec must return {"rows":[{"date","do_no","supplier","product","grade","do_weight"}]}.
+     */
+    public function scanImage(string $base64, string $mime, array $categoryIds, string $provider): array
+    {
+        // Only the providers the vendor set up as connectors; each one's extract_do operation returns the same rows shape
+        if (!in_array($provider, ['llm_openai', 'llm_claude', 'llm_gemini'], true)) {
+            return ['status' => 'failed', 'message' => 'Please choose an AI provider'];
+        }
+
+        $client = new \App\Integrations\Connector\ConnectorClient(
+            new \App\Integrations\Connector\ConnectorRepository($this->db, $this->company, $this->user, $this->role)
+        );
+        $result = $client->execute($provider, 'extract_do', ['image' => $base64, 'mime' => $mime], ['exposed_only' => true]);
+
+        if (!$result->ok) {
+            return ['status' => 'failed', 'message' => $result->errorCode === 'CREDENTIALS_MISSING' ? 'Please set your AI API key first' : ($result->message ?: 'Unable to read the image')];
+        }
+
+        $rows = [['DATE', 'DO NO', 'SUPPLIER', 'PRODUCT', 'GRADE', 'DO WEIGHT']];
+        foreach ((array)($result->data['rows'] ?? []) as $r) {
+            $rows[] = [$r['date'] ?? '', $r['do_no'] ?? '', $r['supplier'] ?? '', $r['product'] ?? '', $r['grade'] ?? '', $r['do_weight'] ?? ''];
+        }
+
+        // Only the first DO on the paper fills the modal; doNoExists warnings still apply
+        return $this->importSheet($rows, $categoryIds);
+    }
+
     private function doNoExists(string $doNo): bool
     {
         return (bool)$this->fetchOne("SELECT id FROM delivery_orders WHERE company = ? AND do_no = ? AND deleted = 0", 'is', [$this->company, $doNo]);

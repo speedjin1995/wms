@@ -73,6 +73,11 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
           <?php if($userAllowAdd == 'Y'){ ?>
           <button type="button" class="btn btn-action btn-action-success mr-2" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
           <input type="file" id="doExcelFile" accept=".xlsx,.xls" class="d-none">
+          <div class="btn-group mr-2">
+            <button type="button" class="btn btn-action btn-action-secondary dropdown-toggle" id="doScanBtn" data-toggle="dropdown"><i class="fas fa-camera mr-1"></i><?=$t('do_scan_paper_code', 'Scan Paper DO')?></button>
+            <div class="dropdown-menu dropdown-menu-right" id="doScanProviders"></div>
+          </div>
+          <input type="file" id="doScanFile" accept="image/jpeg,image/png,image/webp" capture="environment" class="d-none">
           <button type="button" class="btn btn-action btn-action-primary" id="newDoBtn">
             <i class="fas fa-plus"></i> <?=$t('add_new_code', 'Add New')?>
           </button>
@@ -102,14 +107,23 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="fas fa-truck-loading mr-2 text-muted"></i><?=$t('delivery_order_code', 'Delivery Order')?> - <span id="doModalTitle"><?=$t('new_code', 'New')?></span></h5>
+            <div class="d-flex align-items-center">
+              <span class="do-modal-icon mr-3"><i class="fas fa-truck-loading"></i></span>
+              <div>
+                <h5 class="modal-title"><?=$t('delivery_order_code', 'Delivery Order')?> - <span id="doModalTitle"><?=$t('new_code', 'New')?></span></h5>
+                <div class="do-modal-subtitle"><?=$t('do_modal_subtitle_code', 'Good deliveries start with the right details.')?></div>
+              </div>
+            </div>
             <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
           </div>
           <div class="modal-body">
             <input type="hidden" id="doId">
 
             <div class="modal-section">
-              <h6 class="section-title"><span class="badge badge-pill badge-primary mr-2">1</span><?=$t('do_order_details_code', 'Order Details')?></h6>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="section-title mb-0"><span class="do-step mr-2">01</span><?=$t('do_order_details_code', 'Order Details')?></h6>
+                <span class="do-hint"><?=$t('do_order_details_hint_code', 'The essentials for this delivery')?></span>
+              </div>
               <div class="row">
                 <div class="col-md-3">
                   <div class="form-group-modern">
@@ -130,7 +144,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
                 </div>
                 <div class="col-md-6">
                   <div class="form-group-modern">
-                    <label class="form-label-modern"><?=$t('remark_code', 'Remark')?></label>
+                    <label class="form-label-modern"><?=$t('remark_code', 'Remark')?> <span class="do-hint ml-1"><?=$t('optional_code', 'Optional')?></span></label>
                     <textarea class="form-control" id="doRemark" rows="1" placeholder="<?=$t('enter_remark_code', 'Enter remark')?>"></textarea>
                   </div>
                 </div>
@@ -139,19 +153,18 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
 
             <div class="modal-section">
               <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                <h6 class="section-title mb-0"><span class="badge badge-pill badge-primary mr-2">2</span><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></h6>
-                <div class="d-flex align-items-center">
+                <h6 class="section-title mb-0"><span class="do-step mr-2">02</span><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></h6>
+                <div class="d-flex align-items-center" style="width:15%;">
+                  <select id="doSupplierPicker" class="form-control form-control-sm" style="width:100%;"></select>
                 </div>
               </div>
-              <select id="doSupplierPicker" multiple class="form-control form-control-sm mb-2"></select>
-              <ul class="nav nav-tabs nav-tabs-modern mb-3" id="doSupplierTabs"></ul>
+              <ul class="nav do-supplier-tabs mb-3" id="doSupplierTabs"></ul>
               <div id="doSuppliers" class="tab-content do-suppliers"></div>
             </div>
           </div>
           <div class="modal-footer">
-            <span class="mr-auto text-warning font-weight-bold" id="doUnsavedBadge" style="display:none;"><i class="fas fa-circle fa-xs mr-1"></i><?=$t('do_unsaved_code', 'Unsaved changes')?></span>
             <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('close_code', 'Close')?></button>
-            <button type="button" class="btn btn-modern btn-modern-primary" id="saveDoBtn"><i class="fas fa-save mr-1"></i><?=$t('save_code', 'Save')?></button>
+            <button type="button" class="btn btn-modern btn-modern-primary" id="saveDoBtn"><i class="fas fa-check mr-1"></i><?=$t('save_code', 'Save')?></button>
           </div>
         </div>
       </div>
@@ -195,37 +208,27 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
 <!-- Supplier Card Template -->
 <script type="text/html" id="doSupplierTemplate">
   <div class="tab-pane do-supplier">
-    <div class="p-2">
-      <select class="form-control form-control-sm mb-2 do-supplier-select"></select>
-      <div class="table-responsive">
-        <table class="table table-sm table-stack mb-2 do-items">
-          <colgroup><col><col><col><col><col></colgroup>
-          <thead class="thead-light">
-            <tr>
-              <th><?=$t('category_code', 'Category')?></th>
-              <th><?=$t('product_code', 'Product')?></th>
-              <th><?=$t('grade_code', 'Grade')?></th>
-              <th class="p-0">
-                <table class="do-bag-grid">
-                  <colgroup><col><col><col><col></colgroup>
-                  <tbody>
-                    <tr>
-                      <th><?=$t('do_weight_code', 'DO Weight')?></th>
-                      <th><?=$t('received_weight_code', 'Received Weight')?></th>
-                      <th><?=$t('weight_loss_code', 'Weight Loss')?></th>
-                      <th></th>
-                    </tr>
-                  </tbody>
-                </table>
-              </th>
-              <th><?=$t('actions_code', 'Actions')?></th>
-            </tr>
-          </thead>
-          <tbody class="do-lines"></tbody>
-        </table>
+    <div class="pt-1">
+      <div class="do-supplier-meta">
+        <span><i class="fas fa-circle fa-xs mr-1"></i><span class="do-supplier-code"></span> / <span class="do-item-count">0</span> <?=$t('do_items_in_delivery_code', 'items in this delivery')?></span>
+        <span>
+          <button type="button" class="btn btn-link btn-sm text-danger p-0 do-ask-remove-supplier"><i class="fas fa-trash mr-1"></i><?=$t('do_remove_supplier_code', 'Remove Supplier')?></button>
+        </span>
       </div>
-      <button type="button" class="btn btn-modern btn-modern-primary btn-sm do-add-line">
-        <i class="fas fa-plus mr-1"></i><?=$t('do_add_item_code', 'Add item')?>
+      <div class="do-remove-confirm" style="display:none;">
+        <div>
+          <div class="font-weight-bold"><?=$t('do_remove_supplier_code', 'Remove Supplier')?>?</div>
+          <small><?=$t('do_remove_supplier_confirm_code', 'Remove this supplier and all its items?')?></small>
+        </div>
+        <div>
+          <button type="button" class="btn btn-modern btn-modern-secondary btn-sm do-keep-supplier"><?=$t('do_keep_supplier_code', 'Keep Supplier')?></button>
+          <button type="button" class="btn btn-modern btn-modern-danger btn-sm ml-2 do-remove-supplier"><?=$t('do_remove_supplier_code', 'Remove Supplier')?></button>
+        </div>
+      </div>
+      <select class="form-control form-control-sm mb-2 do-supplier-select"></select>
+      <div class="do-lines"></div>
+      <button type="button" class="btn btn-block do-add-line">
+        <i class="fas fa-plus mr-1"></i><?=$t('do_add_item_code', 'Add Item')?>
       </button>
     </div>
   </div>
@@ -233,33 +236,38 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
 
 <!-- Item Row Template -->
 <script type="text/html" id="doLineTemplate">
-  <tr class="do-line">
-    <td data-label="<?=$t('category_code', 'Category')?>"><select class="form-control form-control-sm do-category"></select></td>
-    <td data-label="<?=$t('product_code', 'Product')?>"><select class="form-control form-control-sm do-product"></select></td>
-    <td data-label="<?=$t('grade_code', 'Grade')?>"><select class="form-control form-control-sm do-grade"></select></td>
-    <td class="p-0">
-      <table class="do-bag-grid do-bags">
-        <!-- Same columns as the weight header so they line up (widths in modal-global.css) -->
-        <colgroup><col><col><col><col></colgroup>
-        <tbody></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2">
-              <button type="button" class="btn btn-modern btn-modern-success btn-sm btn-block do-add-bag">
-                <i class="fas fa-plus mr-1"></i><?=$t('do_add_weight_entry_code', 'Add weight entry')?>
-              </button>
-            </td>
-            <td colspan="2"></td>
-          </tr>
-        </tfoot>
-      </table>
-    </td>
-    <td class="text-center">
-      <button type="button" class="btn btn-modern btn-modern-danger btn-sm do-remove-line">
-        <i class="fas fa-trash mr-1"></i><?=$t('do_remove_item_code', 'Remove item')?>
+  <div class="do-line">
+    <div class="do-line-head">
+      <span class="do-line-icon"><i class="fas fa-box-open"></i></span>
+      <div class="do-line-field">
+        <label class="do-field-label"><?=$t('category_code', 'Category')?></label>
+        <select class="form-control form-control-sm do-category"></select>
+      </div>
+      <div class="do-line-field">
+        <label class="do-field-label"><?=$t('product_code', 'Product')?></label>
+        <select class="form-control form-control-sm do-product"></select>
+      </div>
+      <div class="do-line-field">
+        <label class="do-field-label"><?=$t('grade_code', 'Grade')?></label>
+        <select class="form-control form-control-sm do-grade"></select>
+      </div>
+      <button type="button" class="btn btn-link text-danger do-remove-line" title="<?=$t('do_remove_item_code', 'Remove Item')?>" aria-label="<?=$t('do_remove_item_code', 'Remove Item')?>">
+        <i class="fas fa-trash"></i>
       </button>
-    </td>
-  </tr>
+    </div>
+    <div class="do-line-body">
+      <div class="do-bag-row do-bag-labels">
+        <span><?=$t('do_weight_code', 'DO Weight')?></span>
+        <span><?=$t('received_weight_code', 'Received Weight')?></span>
+        <span><?=$t('weight_loss_code', 'Weight Loss')?></span>
+        <span></span>
+      </div>
+      <div class="do-bags"></div>
+      <button type="button" class="btn btn-link btn-sm px-0 do-add-bag">
+        <i class="fas fa-plus mr-1"></i><?=$t('do_add_weight_entry_code', 'Add Weight Entry')?>
+      </button>
+    </div>
+  </div>
 </script>
 
 <script>
@@ -268,12 +276,13 @@ var doAllowEdit = '<?=$userAllowEdit?>';
 var doAllowDelete = '<?=$userAllowDelete?>';
 var doText = <?=json_encode([
   'doWeight' => $t('do_weight_code', 'DO Weight'),
+  'aiNotSetUp' => $t('do_ai_not_set_up_code', 'AI scan is not set up. Please contact support.'),
   'received' => $t('received_weight_code', 'Received Weight'),
   'loss' => $t('weight_loss_code', 'Weight Loss'),
   'edit' => $t('edit_code', 'Edit'),
   'new' => $t('new_code', 'New'),
   'delete' => $t('delete_code', 'Delete'),
-  'deleteEntry' => $t('do_delete_entry_code', 'Delete entry'),
+  'deleteEntry' => $t('do_delete_entry_code', 'Delete Entry'),
   'removeLineConfirm' => $t('do_remove_item_confirm_code', 'Remove this item and its weight entries?'),
   'removeSupplierConfirm' => $t('do_remove_supplier_confirm_code', 'Remove this supplier and all its items?'),
   'notWeighed' => $t('do_not_weighed_code', 'Not weighed yet'),
@@ -288,6 +297,7 @@ var doText = <?=json_encode([
   'total' => $t('total_code', 'Total'),
   'category' => $t('category_code', 'Category'),
   'addSupplier' => $t('add_supplier_code', 'Add Supplier'),
+  'supplierExists' => $t('do_supplier_exists_code', 'Supplier already added. Showing its tab.'),
   'allSuppliers' => $t('all_suppliers_code', 'All Suppliers'),
   'allCategories' => $t('all_categories_code', 'All Categories'),
   'allProducts' => $t('all_products_code', 'All Products'),
@@ -308,7 +318,7 @@ var doText = <?=json_encode([
   'skipped' => $t('do_skipped_code', 'Skipped')
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 </script>
-<script src="modules/deliveryOrder/js/modal.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
-<script src="modules/deliveryOrder/js/save.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
-<script src="modules/deliveryOrder/js/import.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
-<script src="modules/deliveryOrder/js/deliveryOrder.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/deliveryOrder/js/modal.js?ver=<?=filemtime(__DIR__ . "/js/modal.js")?>"></script>
+<script src="modules/deliveryOrder/js/save.js?ver=<?=filemtime(__DIR__ . "/js/save.js")?>"></script>
+<script src="modules/deliveryOrder/js/import.js?ver=<?=filemtime(__DIR__ . "/js/import.js")?>"></script>
+<script src="modules/deliveryOrder/js/deliveryOrder.js?ver=<?=filemtime(__DIR__ . "/js/deliveryOrder.js")?>"></script>

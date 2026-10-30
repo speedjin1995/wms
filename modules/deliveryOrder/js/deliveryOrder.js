@@ -45,6 +45,15 @@ $(function() {
 
   $('#doExcelFile').on('change', onExcelSelected);
 
+  $('#doScanProviders').on('click', '.do-scan-provider', function() {
+    doScanProvider = $(this).data('provider');
+    $('#doScanFile').val('').click();
+  });
+
+  $('#doScanFile').on('change', onScanSelected);
+
+  loadAiProviders();
+
   $('#doListTable')
     .on('click', '.edit-do-btn', function() {
       editDo($(this).data('id'));

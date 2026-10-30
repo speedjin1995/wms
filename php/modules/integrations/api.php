@@ -26,6 +26,44 @@ switch ($action) {
         echo json_encode(['status' => 'success', 'message' => 'Done', 'data' => $repo->listTenantOperations((string)($_POST['connector'] ?? ''))]);
         break;
 
+    case 'saveCredential':
+    case 'deleteCredential':
+        // Tenant admins manage only their own company's key; the secret is never echoed back
+        if (!in_array($_SESSION['role'] ?? '', ['ADMIN', 'SADMIN'], true)) {
+            echo json_encode(['status' => 'failed', 'message' => 'Unauthorized']);
+            break;
+        }
+
+        try {
+            $connectorId = (int)($_POST['connector_id'] ?? 0);
+            if ($action === 'deleteCredential') {
+                $repo->deleteTenantCredential($connectorId);
+                echo json_encode(['status' => 'success', 'message' => 'Credential deleted']);
+                break;
+            }
+
+            $authType = (string)($_POST['auth_type'] ?? '');
+            $key = trim((string)($_POST['key'] ?? ''));
+            if (!in_array($authType, ['bearer', 'api_key'], true) || $key === '') {
+                echo json_encode(['status' => 'failed', 'message' => 'Key is required']);
+                break;
+            }
+
+            $secret = $authType === 'bearer' ? ['token' => $key] : ['key' => $key];
+            $headerName = (string)($_POST['header_name'] ?? 'x-api-key');
+            if (!preg_match('/^[A-Za-z0-9-]{1,50}$/', $headerName)) {
+                echo json_encode(['status' => 'failed', 'message' => 'Invalid header name']);
+                break;
+            }
+            $authConfig = $authType === 'api_key' ? ['in' => 'header', 'name' => $headerName] : [];
+            $repo->saveTenantCredential($connectorId, $authType, $authConfig, $secret);
+            echo json_encode(['status' => 'success', 'message' => 'Credential saved']);
+        } catch (\Throwable $e) {
+            error_log('integrations ' . $action . ' - ' . $e->getMessage());
+            echo json_encode(['status' => 'failed', 'message' => 'Unable to save credential']);
+        }
+        break;
+
     case 'execute':
     case 'preview':
         $payload = json_decode($_POST['payload'] ?? '{}', true);

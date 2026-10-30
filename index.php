@@ -873,6 +873,12 @@ to get the desired effect
                             <i class="nav-icon fas fa-user"></i>
                             <p>'.$languageArray['staffs_code'][$language].'</p>
                           </a>
+                        </li>
+                        <li class="nav-item">
+                          <a href="#aiSetup" data-file="aiSetup.php" class="nav-link link">
+                            <i class="nav-icon fas fa-robot"></i>
+                            <p>'.($languageArray['ai_setup_code'][$language] ?? 'AI Setup').'</p>
+                          </a>
                         </li>';
 
                   if ($enableDailySales == 'Y'){

@@ -66,6 +66,10 @@ try {
             echo json_encode($controller->import($categoryIds));
             break;
             
+        case 'scan':
+            echo json_encode($controller->scan($categoryIds, (string)($_POST['provider'] ?? '')));
+            break;
+
         case 'template':
             $controller->template($categoryIds);
             exit;
