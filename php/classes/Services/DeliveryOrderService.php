@@ -608,7 +608,8 @@ class DeliveryOrderService extends BaseService
 
     /**
      * Paper DO photo read by the tenant's LLM connector (llm_openai / extract_do), then matched like an Excel upload.
-     * The operation's response_spec must return {"rows":[{"date","do_no","supplier","product","grade","do_weight"}]}.
+     * The operation's response_spec must return {"suppliers":[{"supplier","products":[{"product","grade","do_weight"}]}]}.
+     * Operations saved with the older prompt return {"rows":[{"date","do_no","supplier","product","grade","do_weight"}]}, which still works.
      */
     public function scanImage(string $base64, string $mime, array $categoryIds, string $provider): array
     {
@@ -626,13 +627,33 @@ class DeliveryOrderService extends BaseService
             return ['status' => 'failed', 'message' => $result->errorCode === 'CREDENTIALS_MISSING' ? 'Please set your AI API key first' : ($result->message ?: 'Unable to read the image')];
         }
 
-        $rows = [['DATE', 'DO NO', 'SUPPLIER', 'PRODUCT', 'GRADE', 'DO WEIGHT']];
-        foreach ((array)($result->data['rows'] ?? []) as $r) {
-            $rows[] = [$r['date'] ?? '', $r['do_no'] ?? '', $r['supplier'] ?? '', $r['product'] ?? '', $r['grade'] ?? '', $r['do_weight'] ?? ''];
+        // Only the first DO on the paper fills the modal; doNoExists warnings still apply
+        $imported = $this->importSheet($this->scanRows((array)$result->data), $categoryIds);
+
+        // The prompt does not read the DO No; the user types it in the modal
+        foreach ($imported['data']['dos'] ?? [] as $i => $do) {
+            $imported['data']['dos'][$i]['warnings'] = array_values(array_diff($do['warnings'], ['DO No is missing']));
         }
 
-        // Only the first DO on the paper fills the modal; doNoExists warnings still apply
-        return $this->importSheet($rows, $categoryIds);
+        return $imported;
+    }
+
+    /**
+     * Scan result as DO table rows for importSheet
+     */
+    private function scanRows(array $data): array
+    {
+        $rows = [['DATE', 'DO NO', 'SUPPLIER', 'PRODUCT', 'GRADE', 'DO WEIGHT']];
+        foreach ((array)($data['rows'] ?? []) as $r) {
+            $rows[] = [$r['date'] ?? '', $r['do_no'] ?? '', $r['supplier'] ?? '', $r['product'] ?? '', $r['grade'] ?? '', $r['do_weight'] ?? ''];
+        }
+        foreach ((array)($data['suppliers'] ?? []) as $s) {
+            foreach ((array)($s['products'] ?? []) as $p) {
+                $rows[] = ['', '', $s['supplier'] ?? '', $p['product'] ?? '', $p['grade'] ?? '', $p['do_weight'] ?? ''];
+            }
+        }
+
+        return $rows;
     }
 
     private function doNoExists(string $doNo): bool

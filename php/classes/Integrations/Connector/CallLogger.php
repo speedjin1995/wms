@@ -8,6 +8,7 @@ namespace App\Integrations\Connector;
 class CallLogger
 {
     private const BODY_LIMIT = 8192;
+    private const BLOB_MIN = 1024;
 
     private ConnectorRepository $repo;
 
@@ -85,9 +86,26 @@ class CallLogger
         return json_encode($this->expandValue($decoded), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: $text;
     }
 
+    // A photo would fill the whole log body and the cut would break its JSON. Plain or data: URI form.
+    private function isBase64Blob(string $value): bool
+    {
+        if (strlen($value) < self::BLOB_MIN) {
+            return false;
+        }
+
+        $start = strncmp($value, 'data:', 5) === 0 ? strpos($value, ';base64,') : false;
+        $data = $start === false ? $value : substr($value, $start + 8);
+
+        return strspn($data, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=_-') === strlen($data);
+    }
+
     private function expandValue($value)
     {
         if (is_string($value)) {
+            if ($this->isBase64Blob($value)) {
+                return '[base64 omitted, ' . strlen($value) . ' bytes]';
+            }
+
             $trimmed = ltrim($value);
             if ($trimmed === '' || ($trimmed[0] !== '{' && $trimmed[0] !== '[')) {
                 return $value;
