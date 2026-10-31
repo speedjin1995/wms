@@ -228,7 +228,10 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
           <button type="button" class="btn btn-modern btn-modern-danger btn-sm ml-2 do-remove-supplier"><?=$t('do_remove_supplier_code', 'Remove Supplier')?></button>
         </div>
       </div>
-      <select class="form-control form-control-sm mb-2 do-supplier-select"></select>
+      <div class="do-supplier-unmatched">
+        <span><i class="fas fa-exclamation-triangle mr-1"></i><?=$t('do_supplier_not_found_code', 'Supplier not found')?>: <strong class="do-scanned-name"></strong></span>
+        <div class="do-supplier-unmatched-select"><select class="form-control form-control-sm do-supplier-select"></select></div>
+      </div>
       <div class="do-lines"></div>
       <button type="button" class="btn btn-block do-add-line">
         <i class="fas fa-plus mr-1"></i><?=$t('do_add_item_code', 'Add Item')?>
@@ -300,6 +303,7 @@ var doText = <?=json_encode([
   'total' => $t('total_code', 'Total'),
   'category' => $t('category_code', 'Category'),
   'addSupplier' => $t('add_supplier_code', 'Add Supplier'),
+  'selectSupplier' => $t('select_supplier_code', 'Select Supplier'),
   'supplierExists' => $t('do_supplier_exists_code', 'Supplier already added. Showing its tab.'),
   'allSuppliers' => $t('all_suppliers_code', 'All Suppliers'),
   'allCategories' => $t('all_categories_code', 'All Categories'),

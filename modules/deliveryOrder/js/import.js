@@ -196,7 +196,7 @@ function fillFromExcel(d) {
   }
 
   d.suppliers.forEach(function(s) {
-    var $card = addSupplierCard(s.supplier);
+    var $card = addSupplierCard(s.supplier, null, null, s.name);
 
     s.lines.forEach(function(line) {
       addLine($card, line);

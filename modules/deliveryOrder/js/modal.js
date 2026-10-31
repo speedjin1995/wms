@@ -201,11 +201,17 @@ function syncSupplierPicker() {
   $('#doSupplierPicker').val(null).trigger('change.select2');
 }
 
-// Tab shows the supplier name; '?' until an unmatched scan/Excel supplier is picked
+// Tab shows the supplier name; the scanned name until an unmatched scan/Excel supplier is picked
 function setSupplierTab($card, supplierId) {
   var supplier = findSupplier(supplierId);
-  $('#doSupplierTabs a[data-target="#' + $card.attr('id') + '"] .do-tab-label').text(supplier ? supplier.supplier_name : '?');
-  $card.find('.do-supplier-code').text(supplier ? (supplier.supplier_code || supplier.supplier_name) : '?');
+  var scanned = $card.data('scanned') || '?';
+  var $tab = $('#doSupplierTabs a[data-target="#' + $card.attr('id') + '"]');
+
+  $tab.toggleClass('do-tab-unmatched', !supplier);
+  $tab.find('.do-tab-label').text(supplier ? supplier.supplier_name : scanned);
+  $card.find('.do-supplier-code').text(supplier ? (supplier.supplier_code || supplier.supplier_name) : scanned);
+  $card.find('.do-scanned-name').text(scanned);
+  $card.find('.do-supplier-unmatched').toggleClass('is-unmatched', !supplier);
 }
 
 function removeSupplierCard($card) {
@@ -226,11 +232,12 @@ function removeSupplierCard($card) {
   updateDoTotals();
 }
 
-function addSupplierCard(supplierId, wholesaleId, serialNo) {
+function addSupplierCard(supplierId, wholesaleId, serialNo, scannedName) {
   // trim: jQuery only treats the string as HTML when it starts with "<"
   var $card = $($.trim($('#doSupplierTemplate').html()));
   var paneId = 'doSupplier' + (++doSupplierSeq);
   $card.attr('id', paneId);
+  $card.data('scanned', scannedName);
 
   if (wholesaleId) {
     $card.data('wid', wholesaleId);
@@ -239,6 +246,7 @@ function addSupplierCard(supplierId, wholesaleId, serialNo) {
 
   var supplierOptions = optionList(doOptions.suppliers, 'id', supplierLabel);
   var $select = $card.find('.do-supplier-select').append(supplierOptions);
+  $select.find('option:first').text(doText.selectSupplier);
 
   $('#doSuppliers').append($card);
   $('#doSupplierTabs').append($('<li class="nav-item">').append(

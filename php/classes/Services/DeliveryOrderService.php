@@ -728,7 +728,7 @@ class DeliveryOrderService extends BaseService
                 ];
             }
 
-            $suppliers[] = ['supplier' => $supplier['id'] ?? null, 'lines' => $lines];
+            $suppliers[] = ['supplier' => $supplier['id'] ?? null, 'name' => (string)$supplierText, 'lines' => $lines];
         }
 
         return [
