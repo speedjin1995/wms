@@ -786,6 +786,10 @@
   border-radius: var(--modal-radius);
 }
 
+.modal-modern .do-supplier-tabs:empty {
+  display: none;
+}
+
 .modal-modern .do-supplier-tabs .nav-item {
   flex: 1 1 0;
 }
