@@ -11,6 +11,10 @@ if (!in_array($_SESSION['role'] ?? '', ['ADMIN', 'SADMIN'], true)) {
   exit;
 }
 
+if (($_SESSION['featureFlags']['include_api_integration'] ?? 'N') != 'Y') {
+  exit;
+}
+
 $language = $_SESSION['language'];
 $languageArray = $_SESSION['languageArray'];
 $t = function ($key, $default = '') use ($languageArray, $language) { return $languageArray[$key][$language] ?? $default; };

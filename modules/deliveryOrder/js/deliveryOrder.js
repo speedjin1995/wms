@@ -52,7 +52,9 @@ $(function() {
 
   $('#doScanFile').on('change', onScanSelected);
 
-  loadAiProviders();
+  if ($('#doScanGroup').length) {
+    loadAiProviders();
+  }
 
   $('#doListTable')
     .on('click', '.edit-do-btn', function() {

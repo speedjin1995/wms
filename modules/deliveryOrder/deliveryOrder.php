@@ -119,7 +119,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="section-title mb-0"><span class="do-step mr-2">01</span><?=$t('do_order_details_code', 'Order Details')?></h6>
                 <div class="d-flex align-items-center">
-                  <?php if($userAllowAdd == 'Y'){ ?>
+                  <?php if($userAllowAdd == 'Y' && ($_SESSION['featureFlags']['include_api_integration'] ?? 'N') == 'Y'){ ?>
                   <div class="btn-group" id="doScanGroup">
                     <button type="button" class="btn btn-modern btn-modern-primary btn-sm dropdown-toggle" id="doScanBtn" data-toggle="dropdown"><i class="fas fa-camera mr-1"></i><?=$t('do_scan_paper_code', 'Scan Paper DO')?></button>
                     <div class="dropdown-menu dropdown-menu-right" id="doScanProviders"></div>

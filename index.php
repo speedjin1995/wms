@@ -20,6 +20,7 @@ else{
   $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
   $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
   $allowDeliveryOrder = $_SESSION['featureFlags']['include_delivery_order'] ?? 'N';
+  $allowApiIntegration = $_SESSION['featureFlags']['include_api_integration'] ?? 'N';
 
   // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
@@ -873,13 +874,17 @@ to get the desired effect
                             <i class="nav-icon fas fa-user"></i>
                             <p>'.$languageArray['staffs_code'][$language].'</p>
                           </a>
-                        </li>
+                        </li>';
+
+                  if ($allowApiIntegration == 'Y'){
+                    echo '
                         <li class="nav-item">
                           <a href="#aiSetup" data-file="aiSetup.php" class="nav-link link">
                             <i class="nav-icon fas fa-robot"></i>
                             <p>'.($languageArray['ai_setup_code'][$language] ?? 'AI Setup').'</p>
                           </a>
                         </li>';
+                  }
 
                   if ($enableDailySales == 'Y'){
                     echo '

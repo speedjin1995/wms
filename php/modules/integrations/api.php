@@ -13,6 +13,11 @@ if (!isset($_SESSION['userID'])) {
     exit;
 }
 
+if (($_SESSION['featureFlags']['include_api_integration'] ?? 'N') != 'Y') {
+    echo json_encode(['status' => 'failed', 'message' => 'API integration is not enabled']);
+    exit;
+}
+
 $repo = new ConnectorRepository($db, (int)$_SESSION['customer'], (int)$_SESSION['userID'], (string)$_SESSION['role']);
 $client = new ConnectorClient($repo);
 $action = $_POST['action'] ?? $_GET['action'] ?? '';

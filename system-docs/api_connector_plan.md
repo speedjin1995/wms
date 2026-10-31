@@ -15,6 +15,7 @@ One service for calling outside APIs (REST now, SOAP and GraphQL later). Each in
 ## Decisions
 - **Hosting is Hostinger with PHP + MySQL only.** No Redis, Vault or Prometheus. Breaker state, the OAuth token cache and metrics all live in MySQL.
 - **Only the vendor (wms_admin) defines connectors and operations.** Tenants can only supply their own credentials, for connectors flagged `tenant_configurable`.
+- **Tenant access is behind the `include_api_integration` company feature** (off by default, set in wms_admin's company features). It is checked at the tenant entry points (`aiSetup.php`, `php/modules/integrations/api.php`, the DO `scan` action), not in `ConnectorClient`, so any new caller must check it too. It is separate from `include_integration`, which is the report export integrations.
 - **Calls are synchronous** within the PHP request.
 - **No PHPUnit.** Verification is done with ad-hoc scripts against a local mock server (`php -S`).
 
