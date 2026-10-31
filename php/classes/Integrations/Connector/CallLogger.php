@@ -2,11 +2,13 @@
 namespace App\Integrations\Connector;
 
 /**
- * One api_call_logs row per call (metadata only, no bodies), plus a redacted error_log line for failures.
+ * One api_call_logs row per call (metadata plus redacted, capped bodies), plus a redacted error_log line for failures.
  * Never breaks the call it is logging.
  */
 class CallLogger
 {
+    private const BODY_LIMIT = 8192;
+
     private ConnectorRepository $repo;
 
     public function __construct(ConnectorRepository $repo)
@@ -37,6 +39,10 @@ class CallLogger
                 'latency_ms' => $result->latencyMs,
                 'req_bytes' => $call['req_bytes'],
                 'resp_bytes' => $call['resp_bytes'],
+                'request_body' => $this->body($call['req_body'] ?? null, $redactor),
+                'response_body' => $this->body($call['resp_body'] ?? null, $redactor),
+                'request_at' => $call['req_at'] ?? null,
+                'response_at' => $call['resp_at'] ?? null,
                 'error_message' => $errorMessage
             ]);
         } catch (\Throwable $e) {
@@ -56,5 +62,51 @@ class CallLogger
                 'error' => $errorMessage
             ]));
         }
+    }
+
+    // Redacted before the cut, so a secret is never shown half-way at the end of the kept part
+    private function body(?string $text, Redactor $redactor): ?string
+    {
+        if ($text === null || $text === '') {
+            return null;
+        }
+
+        return mb_strcut($redactor->text($this->expandJson($text)), 0, self::BODY_LIMIT);
+    }
+
+    // LLM replies hold JSON as a string; store it as real JSON. Anything that is not JSON stays as it is.
+    private function expandJson(string $text): string
+    {
+        $decoded = json_decode($text);
+        if (!is_array($decoded) && !is_object($decoded)) {
+            return $text;
+        }
+
+        return json_encode($this->expandValue($decoded), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: $text;
+    }
+
+    private function expandValue($value)
+    {
+        if (is_string($value)) {
+            $trimmed = ltrim($value);
+            if ($trimmed === '' || ($trimmed[0] !== '{' && $trimmed[0] !== '[')) {
+                return $value;
+            }
+
+            $decoded = json_decode($trimmed);
+            if (!is_array($decoded) && !is_object($decoded)) {
+                return $value;
+            }
+            $value = $decoded;
+        }
+
+        if (is_array($value) || is_object($value)) {
+            foreach ($value as &$item) {
+                $item = $this->expandValue($item);
+            }
+            unset($item);
+        }
+
+        return $value;
     }
 }

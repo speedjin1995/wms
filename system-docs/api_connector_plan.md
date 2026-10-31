@@ -62,7 +62,7 @@ Until M2, the payload passes straight through. GET and DELETE send it as the que
 | `api_connectors` | Base URL, protocol, timeouts, retry/breaker settings, `allow_http`, `tenant_configurable`, `options` (`allow_private`) |
 | `api_connector_operations` | Method, path, `exposed`, `retry_safe`, and `request_spec` / `response_spec` / `error_spec` (JSON mappings, used from M2) |
 | `api_connector_credentials` | One row per connector + company (`company = 0` is the platform default). Holds `auth_config` (plain JSON) and `secret` (encrypted JSON), plus OAuth token cache and breaker columns (used from M3). |
-| `api_call_logs` | One row per call. Metadata only, no request or response bodies. |
+| `api_call_logs` | One row per call. Metadata, plus `request_body` and `response_body`. Bodies are redacted and capped at 8 KB each. |
 
 Soft delete sets `deleted = 1` and `deleted_at = NOW()`. `UNIQUE (…, deleted_at)` allows only one active row per key.
 
@@ -144,5 +144,5 @@ On an upstream error, `data` still carries the provider's (redacted) response bo
 ## Open questions
 - Is the SOAP extension enabled on Hostinger? This blocks M4.
 - How long should call logs be kept? The default is 90 days.
-- May request or response bodies ever be logged? The default is metadata only.
+- May request or response bodies ever be logged? Decided: yes, redacted and capped at 8 KB each.
 - Which integrations are next? This decides whether to build WS-Security X.509 signing.

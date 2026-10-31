@@ -125,6 +125,7 @@ function resetDoModal(title) {
 function openDoModal() {
   loadDoOptions(function() {
     resetDoModal(doText.new);
+    $('#doScanGroup').show();
     markDoSaved();
     $('#doModal').modal('show');
   });

@@ -73,10 +73,6 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
           <?php if($userAllowAdd == 'Y'){ ?>
           <button type="button" class="btn btn-action btn-action-success mr-2" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
           <input type="file" id="doExcelFile" accept=".xlsx,.xls" class="d-none">
-          <div class="btn-group mr-2">
-            <button type="button" class="btn btn-action btn-action-secondary dropdown-toggle" id="doScanBtn" data-toggle="dropdown"><i class="fas fa-camera mr-1"></i><?=$t('do_scan_paper_code', 'Scan Paper DO')?></button>
-            <div class="dropdown-menu dropdown-menu-right" id="doScanProviders"></div>
-          </div>
           <input type="file" id="doScanFile" accept="image/jpeg,image/png,image/webp" capture="environment" class="d-none">
           <button type="button" class="btn btn-action btn-action-primary" id="newDoBtn">
             <i class="fas fa-plus"></i> <?=$t('add_new_code', 'Add New')?>
@@ -122,7 +118,14 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
             <div class="modal-section">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="section-title mb-0"><span class="do-step mr-2">01</span><?=$t('do_order_details_code', 'Order Details')?></h6>
-                <span class="do-hint"><?=$t('do_order_details_hint_code', 'The essentials for this delivery')?></span>
+                <div class="d-flex align-items-center">
+                  <?php if($userAllowAdd == 'Y'){ ?>
+                  <div class="btn-group" id="doScanGroup">
+                    <button type="button" class="btn btn-modern btn-modern-primary btn-sm dropdown-toggle" id="doScanBtn" data-toggle="dropdown"><i class="fas fa-camera mr-1"></i><?=$t('do_scan_paper_code', 'Scan Paper DO')?></button>
+                    <div class="dropdown-menu dropdown-menu-right" id="doScanProviders"></div>
+                  </div>
+                  <?php } ?>
+                </div>
               </div>
               <div class="row">
                 <div class="col-md-3">

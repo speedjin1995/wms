@@ -135,8 +135,12 @@ class ConnectorClient
 
         $call['attempts'] = 1;
         $call['req_bytes'] = strlen((string)$request->body);
+        $call['req_body'] = $request->body;
+        $call['req_at'] = date('Y-m-d H:i:s');
         $response = $adapter->send($request);
+        $call['resp_at'] = date('Y-m-d H:i:s');
         $call['resp_bytes'] = strlen($response->body);
+        $call['resp_body'] = $response->body;
 
         if ($response->errorCode) {
             $call['detail'] = $response->errorDetail;

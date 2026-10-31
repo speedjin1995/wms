@@ -89,6 +89,8 @@ function editDo(id) {
 
       var d = obj.data;
       resetDoModal(doText.edit);
+      // Scan replaces all suppliers, which would remove this DO's saved records
+      $('#doScanGroup').hide();
       $('#doId').val(d.id);
       $('#doDate').val(d.do_date_display);
       $('#doNo').val(d.do_no);

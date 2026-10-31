@@ -38,7 +38,7 @@ function onExcelSelected() {
 }
 
 // ============================================================================
-// PAPER SCAN - the tenant's AI connector reads the photo; the first DO fills a new modal
+// PAPER SCAN - the tenant's AI connector reads the photo; the first DO fills the open modal
 // ============================================================================
 var doScanProvider = '';
 
@@ -68,12 +68,7 @@ function onScanSelected() {
       return;
     }
 
-    var d = obj.data.dos[0];
-    loadDoOptions(function() {
-      resetDoModal(doText.new);
-      fillFromExcel(d);
-      $('#doModal').modal('show');
-    });
+    fillFromExcel(obj.data.dos[0]);
   }).fail(function() {
     toastr.error('Failed to scan the image.', 'Error:');
   }).always(function() {
