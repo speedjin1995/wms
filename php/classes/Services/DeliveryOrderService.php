@@ -606,6 +606,56 @@ class DeliveryOrderService extends BaseService
         return ['status' => 'success', 'data' => ['dos' => $result]];
     }
 
+    /**
+     * Paper DO photo read by the tenant's LLM connector (llm_openai / extract_do), then matched like an Excel upload.
+     * The operation's response_spec must return {"suppliers":[{"supplier","products":[{"product","grade","do_weight"}]}]}.
+     * Operations saved with the older prompt return {"rows":[{"date","do_no","supplier","product","grade","do_weight"}]}, which still works.
+     */
+    public function scanImage(string $base64, string $mime, array $categoryIds, string $provider): array
+    {
+        // Only the providers the vendor set up as connectors; each one's extract_do operation returns the same rows shape
+        if (!in_array($provider, ['llm_openai', 'llm_claude', 'llm_gemini'], true)) {
+            return ['status' => 'failed', 'message' => 'Please choose an AI provider'];
+        }
+
+        $client = new \App\Integrations\Connector\ConnectorClient(
+            new \App\Integrations\Connector\ConnectorRepository($this->db, $this->company, $this->user, $this->role)
+        );
+        $result = $client->execute($provider, 'extract_do', ['image' => $base64, 'mime' => $mime], ['exposed_only' => true]);
+
+        if (!$result->ok) {
+            return ['status' => 'failed', 'message' => $result->errorCode === 'CREDENTIALS_MISSING' ? 'Please set your AI API key first' : ($result->message ?: 'Unable to read the image')];
+        }
+
+        // Only the first DO on the paper fills the modal; doNoExists warnings still apply
+        $imported = $this->importSheet($this->scanRows((array)$result->data), $categoryIds);
+
+        // The prompt does not read the DO No; the user types it in the modal
+        foreach ($imported['data']['dos'] ?? [] as $i => $do) {
+            $imported['data']['dos'][$i]['warnings'] = array_values(array_diff($do['warnings'], ['DO No is missing']));
+        }
+
+        return $imported;
+    }
+
+    /**
+     * Scan result as DO table rows for importSheet
+     */
+    private function scanRows(array $data): array
+    {
+        $rows = [['DATE', 'DO NO', 'SUPPLIER', 'PRODUCT', 'GRADE', 'DO WEIGHT']];
+        foreach ((array)($data['rows'] ?? []) as $r) {
+            $rows[] = [$r['date'] ?? '', $r['do_no'] ?? '', $r['supplier'] ?? '', $r['product'] ?? '', $r['grade'] ?? '', $r['do_weight'] ?? ''];
+        }
+        foreach ((array)($data['suppliers'] ?? []) as $s) {
+            foreach ((array)($s['products'] ?? []) as $p) {
+                $rows[] = ['', '', $s['supplier'] ?? '', $p['product'] ?? '', $p['grade'] ?? '', $p['do_weight'] ?? ''];
+            }
+        }
+
+        return $rows;
+    }
+
     private function doNoExists(string $doNo): bool
     {
         return (bool)$this->fetchOne("SELECT id FROM delivery_orders WHERE company = ? AND do_no = ? AND deleted = 0", 'is', [$this->company, $doNo]);
@@ -678,7 +728,7 @@ class DeliveryOrderService extends BaseService
                 ];
             }
 
-            $suppliers[] = ['supplier' => $supplier['id'] ?? null, 'lines' => $lines];
+            $suppliers[] = ['supplier' => $supplier['id'] ?? null, 'name' => (string)$supplierText, 'lines' => $lines];
         }
 
         return [

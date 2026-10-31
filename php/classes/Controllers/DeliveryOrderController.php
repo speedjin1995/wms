@@ -109,6 +109,24 @@ class DeliveryOrderController extends BaseController
     }
 
     /**
+     * Paper DO photo to the same shape as an Excel upload
+     */
+    public function scan(array $categoryIds, string $provider): array
+    {
+        $file = $_FILES['file']['tmp_name'] ?? '';
+        $mime = $file && is_uploaded_file($file) ? (mime_content_type($file) ?: '') : '';
+
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return ['status' => 'failed', 'message' => 'Please select a JPG, PNG or WEBP image'];
+        }
+        if (filesize($file) > 5 * 1024 * 1024) {
+            return ['status' => 'failed', 'message' => 'Image must be 5MB or smaller'];
+        }
+
+        return $this->service->scanImage(base64_encode(file_get_contents($file)), $mime, $categoryIds, $provider);
+    }
+
+    /**
      * DO Excel template download
      */
     public function template(array $categoryIds): void

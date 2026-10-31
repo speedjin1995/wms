@@ -18,7 +18,7 @@ function doInvalid($el, message) {
 
   var $pane = $el.closest('.tab-pane');
   if ($pane.length) {
-    $('#doSupplierTabs a[href="#' + $pane.attr('id') + '"]').tab('show');
+    $('#doSupplierTabs a[data-target="#' + $pane.attr('id') + '"]').tab('show');
   }
 
   if ($target.length) {

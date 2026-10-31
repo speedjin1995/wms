@@ -37,6 +37,69 @@ function onExcelSelected() {
   });
 }
 
+// ============================================================================
+// PAPER SCAN - the tenant's AI connector reads the photo; the first DO fills the open modal
+// ============================================================================
+var doScanProvider = '';
+
+function onScanSelected() {
+  var file = this.files[0];
+  if (!file) {
+    return;
+  }
+
+  var formData = new FormData();
+  formData.append('action', 'scan');
+  formData.append('provider', doScanProvider);
+  formData.append('file', file);
+
+  $('#spinnerLoading').show();
+  $('#doScanBtn').prop('disabled', true);
+
+  $.ajax({
+    url: 'php/modules/deliveryOrder/api.php',
+    type: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false
+  }).done(function(obj) {
+    if (obj.status !== 'success') {
+      toastr.error(obj.message, 'Failed:');
+      return;
+    }
+
+    fillFromExcel(obj.data.dos[0]);
+  }).fail(function() {
+    toastr.error('Failed to scan the image.', 'Error:');
+  }).always(function() {
+    $('#spinnerLoading').hide();
+    $('#doScanBtn').prop('disabled', false);
+  });
+}
+
+// AI providers the vendor can set up as connectors; auth decides how the key is sent
+var aiProviders = {
+  llm_openai: { label: 'OpenAI', auth: 'bearer' },
+  llm_claude: { label: 'Claude', auth: 'api_key', header: 'x-api-key' },
+  llm_gemini: { label: 'Gemini', auth: 'api_key', header: 'x-goog-api-key' }
+};
+
+// Fills the scan dropdown with the AI providers that have a key set (keys are set in Settings > AI Setup)
+function loadAiProviders() {
+  $.post('php/modules/integrations/api.php', { action: 'list' }).done(function(obj) {
+    var $menu = $('#doScanProviders').empty();
+    var keyed = (obj.data || []).filter(function(c) { return aiProviders[c.code] && c.secret_hint; });
+    if (!keyed.length) {
+      $menu.append($('<span class="dropdown-item-text text-muted">').text(doText.aiNotSetUp));
+      return;
+    }
+
+    keyed.forEach(function(c) {
+      $menu.append($('<button type="button" class="dropdown-item do-scan-provider">').text(aiProviders[c.code].label).data('provider', c.code));
+    });
+  });
+}
+
 // Preview of every DO in the upload; a DO with warnings is listed as skipped and not saved
 var doImportRows = [];
 
@@ -133,7 +196,7 @@ function fillFromExcel(d) {
   }
 
   d.suppliers.forEach(function(s) {
-    var $card = addSupplierCard(s.supplier);
+    var $card = addSupplierCard(s.supplier, null, null, s.name);
 
     s.lines.forEach(function(line) {
       addLine($card, line);
