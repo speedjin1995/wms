@@ -13,7 +13,7 @@ class MappingEngine
 {
     private const PLACEHOLDER = '/\{\{\s*([A-Za-z0-9_.]+)\s*((?:\|[^|{}]*)*)\}\}/';
     private const OPERATORS = ['$if', '$switch', '$omitIfEmpty', '$each'];
-    private const TRANSFORMS = ['trim', 'upper', 'lower', 'int', 'float', 'string', 'bool', 'json_encode', 'json_decode', 'default', 'number', 'date'];
+    private const TRANSFORMS = ['trim', 'upper', 'lower', 'int', 'float', 'string', 'bool', 'json_encode', 'json_decode', 'first_text', 'default', 'number', 'date'];
 
     /**
      * Renders $tpl against $ctx (roots: input, config, credential, plus any $each alias). Throws on a bad template.
@@ -179,7 +179,17 @@ class MappingEngine
             case 'json_encode':
                 return json_encode($value);
             case 'json_decode':
-                return is_string($value) ? json_decode($value, true) : $value;
+                // shortcut: strips one ``` / ```json fence, not nested fences, upgrade if a model wraps twice
+                return is_string($value) ? json_decode(preg_replace('/^\s*```(?:json)?\s*|\s*```\s*$/', '', $value), true) : $value;
+            case 'first_text':
+                // Claude replies: a thinking block can come before the text block
+                foreach (is_array($value) ? $value : [] as $block) {
+                    if (is_array($block) && ($block['type'] ?? '') === 'text') {
+                        return $block['text'];
+                    }
+                }
+
+                return null;
             case 'default':
                 return $value === null || $value === '' ? $arg : $value;
             case 'number':

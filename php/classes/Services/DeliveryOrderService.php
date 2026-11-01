@@ -627,8 +627,13 @@ class DeliveryOrderService extends BaseService
             return ['status' => 'failed', 'message' => $result->errorCode === 'CREDENTIALS_MISSING' ? 'Please set your AI API key first' : ($result->message ?: 'Unable to read the image')];
         }
 
+        $scanRows = $this->scanRows((array)$result->data);
+        if (count($scanRows) === 1) {
+            return ['status' => 'failed', 'message' => 'Unable to read the paper. Please try again.'];
+        }
+
         // Only the first DO on the paper fills the modal; doNoExists warnings still apply
-        $imported = $this->importSheet($this->scanRows((array)$result->data), $categoryIds);
+        $imported = $this->importSheet($scanRows, $categoryIds);
 
         // The prompt does not read the DO No; the user types it in the modal
         foreach ($imported['data']['dos'] ?? [] as $i => $do) {

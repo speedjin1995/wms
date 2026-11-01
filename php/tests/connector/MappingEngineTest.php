@@ -79,4 +79,18 @@ class MappingEngineTest extends TestCase
         $this->assertSame('got 7', MappingEngine::extract(['a' => [['b' => '7']]], ['extract' => 'a.0.b', 'map' => 'got {{response}}']), 'extract with map');
         $this->assertSame(['x' => 1], MappingEngine::extract(['x' => 1], []), 'extract without spec returns data');
     }
+
+    public function testThinkingBlockBeforeText(): void
+    {
+        $content = [['type' => 'thinking', 'thinking' => ''], ['type' => 'text', 'text' => '{"rows":[]}']];
+        $spec = ['extract' => 'content', 'then' => ['first_text', 'json_decode']];
+        $this->assertSame(['rows' => []], MappingEngine::extract(['content' => $content], $spec), 'first_text skips thinking block');
+        $this->assertNull(MappingEngine::extract(['content' => [['type' => 'thinking', 'thinking' => '']]], $spec), 'no text block gives null');
+    }
+
+    public function testFencedJsonDecode(): void
+    {
+        $this->assertSame(['rows' => [1]], MappingEngine::extract(['t' => "```json\n{\"rows\":[1]}\n```"], ['extract' => 't', 'then' => ['json_decode']]), 'json fence stripped');
+        $this->assertSame(['rows' => [1]], MappingEngine::extract(['t' => '{"rows":[1]}'], ['extract' => 't', 'then' => ['json_decode']]), 'plain json unchanged');
+    }
 }
