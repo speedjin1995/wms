@@ -11,7 +11,9 @@ class AuthRegistry
         'api_key' => ApiKeyAuth::class,
         'bearer' => BearerAuth::class,
         'basic' => BasicAuth::class,
-        'header' => HeaderAuth::class
+        'header' => HeaderAuth::class,
+        // ConnectorClient logs in through JwtSession and passes the token on as a bearer token
+        'jwt' => BearerAuth::class
     ];
 
     public static function for(string $authType): ?AuthProvider

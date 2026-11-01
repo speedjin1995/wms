@@ -11,13 +11,14 @@ One service for calling outside APIs (REST now, SOAP and GraphQL later). Each in
 | M4 SOAP | `SoapAdapter`, SOAP_FAULT, WS-Security UsernameToken, mTLS | Planned (check the SOAP extension on Hostinger first) |
 | M5 Hardening | Key-rotation tool, GraphQL adapter if needed | Planned |
 | M6 First consumer (optional) | e.g. rebuild the DO AI scan on the connector, behind a feature flag | Planned |
+| JWT login | `jwt` auth type: `JwtSession`, token cache, optional logout | **Done** (run the `01/11/2026` block of `SQL/deploy.sql`) |
 
 ## Decisions
 - **Hosting is Hostinger with PHP + MySQL only.** No Redis, Vault or Prometheus. Breaker state, the OAuth token cache and metrics all live in MySQL.
 - **Only the vendor (wms_admin) defines connectors and operations.** Tenants can only supply their own credentials, for connectors flagged `tenant_configurable`.
-- **Tenant access is behind the `include_api_integration` company feature** (off by default, set in wms_admin's company features). It is checked at the tenant entry points (`aiSetup.php`, `php/modules/integrations/api.php`, the DO `scan` action), not in `ConnectorClient`, so any new caller must check it too. It is separate from `include_integration`, which is the report export integrations.
+- **Tenant access is behind the `include_api_integration` company feature** (off by default, set in wms_admin's company features). It is checked at the tenant entry points (`apiIntegrations.php`, `php/modules/integrations/api.php`, the DO `scan` action), not in `ConnectorClient`, so any new caller must check it too. It is separate from `include_integration`, which is the report export integrations.
 - **Calls are synchronous** within the PHP request.
-- **No PHPUnit.** Verification is done with ad-hoc scripts against a local mock server (`php -S`).
+- **Tests run with PHPUnit as a local phar, never through Composer.** `vendor/` is committed, so `composer require --dev` would rewrite the tracked autoload files and the server could fail looking for PHPUnit files it doesn't have. The phar lives in the git-ignored `tools/` folder and is never deployed. See "How to test" in [api_connector_guide.md](api_connector_guide.md).
 
 ## Calling a connector
 ```php
@@ -48,6 +49,7 @@ Until M2, the payload passes straight through. GET and DELETE send it as the que
 | `UrlGuard` | SSRF checks, plus pinning the checked IP for curl |
 | `CallLogger` | Writes one `api_call_logs` row per call, and an `error_log` line on failure |
 | `Auth/*` | One provider per `auth_type`, registered in `AuthRegistry` |
+| `JwtSession` | JWT login, token cache and logout |
 | `Adapters/*` | One adapter per protocol (`ProtocolAdapter`), registered in `AdapterRegistry` |
 | `ErrorCode`, `NormalizedResult`, `PreparedRequest`, `RawResponse` | Value types |
 
@@ -63,7 +65,7 @@ Until M2, the payload passes straight through. GET and DELETE send it as the que
 | `api_connectors` | Base URL, protocol, timeouts, retry/breaker settings, `allow_http`, `tenant_configurable`, `options` (`allow_private`) |
 | `api_connector_operations` | Method, path, `exposed`, `retry_safe`, and `request_spec` / `response_spec` / `error_spec` (JSON mappings, used from M2) |
 | `api_connector_credentials` | One row per connector + company (`company = 0` is the platform default). Holds `auth_config` (plain JSON) and `secret` (encrypted JSON), plus OAuth token cache and breaker columns (used from M3). |
-| `api_call_logs` | One row per call. Metadata, plus `request_body` and `response_body`. Bodies are redacted and capped at 8 KB each. |
+| `api_call_logs` | One row per call. Metadata, plus `request_body` and `response_body`. Bodies are redacted and stored in full. |
 
 Soft delete sets `deleted = 1` and `deleted_at = NOW()`. `UNIQUE (…, deleted_at)` allows only one active row per key.
 
@@ -75,11 +77,32 @@ Soft delete sets `deleted = 1` and `deleted_at = NOW()`. `UNIQUE (…, deleted_a
 | bearer | — | `{"token"}` |
 | basic | `{"username"}` | `{"password"}` |
 | header | — | `{"X-Header-A": "...", ...}` |
+| jwt | `{"login_path","token_path","username"}` required, `{"username_field","password_field","expires_path","ttl_s","logout_path"}` optional | `{"password"}` |
 | oauth2_cc (M3) | `{"token_url","client_id","scope","audience","auth_style"}` | `{"client_secret"}` |
 | ws_security (M4) | `{"username","digest":true}` | `{"password"}` |
 | mtls (M4) | — | `{"cert_pem","key_pem","key_pass"}` |
 
 A connector with no credential row returns `CREDENTIALS_MISSING`. A public API still needs a `none` credential row.
+
+### JWT login (`JwtSession`)
+- The server logs in with a JSON POST to `base_url + login_path`, reads the token at `token_path`, and sends it as `Authorization: Bearer`. `username_field` and `password_field` default to `username` and `password`.
+- The token is cached encrypted on the credential row (`token_cipher`, `token_expires_at`) and renewed 60 s before expiry. Logins are serialized with `GET_LOCK`.
+- Expiry, first one found wins: the value at `expires_path` (date, Unix time or seconds from now), the token's `exp` claim, `ttl_s` (default 3600). A date with no timezone is read as `Asia/Kuala_Lumpur`.
+- On a 401, the server logs in again and resends once.
+- Logout is optional. `$client->logout('connector_code')` calls `logout_path` if it is set, and always clears the cached token. Nothing calls it automatically, and no page has a button for it.
+- Saving a credential clears the cached token, but wms_admin never makes calls, so the vendor session lasts until it expires.
+- `company = 0` credentials share one token across tenants.
+- Login and logout requests are not written to `api_call_logs` bodies, and a login has no row of its own.
+- Customer side: see "Customer logins" below.
+
+### Customer logins
+- The vendor sets `tenant_auth_type` (one of `api_key`, `bearer`, `basic`, `header`, `jwt`) and an optional `tenant_auth_config` preset on each `tenant_configurable` connector. The customer never picks the type.
+- The customer page `apiIntegrations.php` (menu: API Integrations, replaces AI Setup) shows one row per connector and draws only the boxes for that type. Field names come from the type: `key`, `token`, `username` and `password`, or the header names in the preset.
+- `ConnectorRepository::saveTenantLogin` keeps only the typed values. Blank secrets keep the saved one when the saved login has the same type.
+- `findCredential` merges the vendor preset under a customer login. A customer login whose type no longer matches the vendor's type is not used, so calls fail until the customer saves again.
+- Company 0 rows are never merged with a preset.
+- The three AI connectors were set in the `01/11/2026 (part 2)` block: `llm_openai` to bearer, `llm_claude` and `llm_gemini` to api_key.
+- Tenant endpoint actions: `setup` (list the boxes, ADMIN/SADMIN), `saveCredential` (takes `connector_id` and `fields`, ignores any browser `auth_type`), `deleteCredential`, `list`, `operations`, `execute`, `preview`.
 
 ## Error codes
 | Code | When |
@@ -145,5 +168,5 @@ On an upstream error, `data` still carries the provider's (redacted) response bo
 ## Open questions
 - Is the SOAP extension enabled on Hostinger? This blocks M4.
 - How long should call logs be kept? The default is 90 days.
-- May request or response bodies ever be logged? Decided: yes, redacted and capped at 8 KB each.
+- May request or response bodies ever be logged? Decided: yes, redacted and stored in full.
 - Which integrations are next? This decides whether to build WS-Security X.509 signing.

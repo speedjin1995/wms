@@ -56,9 +56,18 @@ class RestAdapter implements ProtocolAdapter
         }
 
         $response->status = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        $response->body = (string)$raw;
+        $response->body = $this->fromUtf16((string)$raw);
         curl_close($ch);
 
         return $response;
+    }
+
+    // A UTF-16 reply can't be JSON decoded, redacted or logged as it arrives. Only a BOM marks one, so PDFs and other files stay as they are.
+    private function fromUtf16(string $body): string
+    {
+        $encodings = ["\xFE\xFF" => 'UTF-16BE', "\xFF\xFE" => 'UTF-16LE'];
+        $encoding = $encodings[substr($body, 0, 2)] ?? null;
+
+        return $encoding ? mb_convert_encoding(substr($body, 2), 'UTF-8', $encoding) : $body;
     }
 }

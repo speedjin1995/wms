@@ -16,12 +16,14 @@ class ConnectorClient
     private ConnectorRepository $repo;
     private SecretStore $secrets;
     private CallLogger $logger;
+    private JwtSession $jwt;
 
     public function __construct(ConnectorRepository $repo, ?SecretStore $secrets = null, ?CallLogger $logger = null)
     {
         $this->repo = $repo;
         $this->secrets = $secrets ?? new SecretStore();
         $this->logger = $logger ?? new CallLogger($repo);
+        $this->jwt = new JwtSession($repo, $this->secrets);
     }
 
     /**
@@ -44,11 +46,83 @@ class ConnectorClient
             $result = NormalizedResult::failure(ErrorCode::INTERNAL_ERROR);
         }
 
+        return $this->finish($connectorCode, $result, $call, $redactor, $started, !empty($ctx['preview']));
+    }
+
+    /**
+     * Ends a jwt connector's session: calls logout_path if there is one and a token to end, and always forgets the cached token.
+     * Logged only when a request was sent.
+     */
+    public function logout(string $connectorCode): NormalizedResult
+    {
+        $started = microtime(true);
+        $redactor = new Redactor();
+        $call = ['connector' => null, 'operation' => null, 'attempts' => 0, 'req_bytes' => 0, 'resp_bytes' => 0, 'detail' => ''];
+
+        try {
+            $result = $this->runLogout($connectorCode, $call, $redactor);
+        } catch (\Throwable $e) {
+            $call['detail'] = $e->getMessage();
+            $result = NormalizedResult::failure(ErrorCode::INTERNAL_ERROR);
+        }
+
+        return $this->finish($connectorCode, $result, $call, $redactor, $started, false);
+    }
+
+    private function runLogout(string $connectorCode, array &$call, Redactor $redactor): NormalizedResult
+    {
+        $connector = $this->repo->findConnector($connectorCode);
+        if (!$connector) {
+            return NormalizedResult::failure(ErrorCode::CONFIG_NOT_FOUND);
+        }
+
+        $credential = $this->repo->findCredential((int)$connector['id']);
+        if (!$credential) {
+            return NormalizedResult::failure(ErrorCode::CREDENTIALS_MISSING);
+        }
+        if ($credential['auth_type'] !== 'jwt') {
+            return NormalizedResult::failure(ErrorCode::AUTH_UNSUPPORTED);
+        }
+
+        $adapter = AdapterRegistry::for($connector['protocol']);
+        if (!$adapter) {
+            return NormalizedResult::failure(ErrorCode::PROTOCOL_UNSUPPORTED);
+        }
+
+        $config = $this->json($credential['auth_config']);
+        $token = $this->jwt->cachedToken($credential);
+
+        $result = new NormalizedResult();
+        $result->ok = true;
+        if ($token !== null && !empty($config['logout_path'])) {
+            $redactor->addSecrets([$token]);
+            $call['connector'] = $connector;
+            $call['attempts'] = 1;
+            $call['req_at'] = date('Y-m-d H:i:s');
+            $sent = $this->jwt->sendLogout($connector, $config, $token, $adapter);
+            $call['resp_at'] = date('Y-m-d H:i:s');
+
+            if ($sent['error']) {
+                $call['detail'] = $sent['detail'];
+                $result = NormalizedResult::failure($sent['error'], '', $sent['status']);
+            } else {
+                $result->httpStatus = $sent['status'];
+            }
+        }
+
+        // Cleared even when the vendor call failed: the next call logs in again
+        $this->repo->clearToken((int)$credential['id']);
+
+        return $result;
+    }
+
+    private function finish(string $connectorCode, NormalizedResult $result, array $call, Redactor $redactor, float $started, bool $preview): NormalizedResult
+    {
         $result->callId = bin2hex(random_bytes(8));
         $result->attempts = $call['attempts'];
         $result->latencyMs = (int)round((microtime(true) - $started) * 1000);
 
-        if ($call['connector'] && empty($ctx['preview'])) {
+        if ($call['connector'] && !$preview) {
             $this->logger->log($result, $call, $redactor);
         } elseif ($call['detail'] !== '') {
             error_log('ConnectorClient ' . $connectorCode . ' - ' . $redactor->text($call['detail']));
@@ -111,6 +185,20 @@ class ConnectorClient
         }
         $request->resolve = $guard['resolve'];
 
+        $isJwt = $credential['auth_type'] === 'jwt';
+        if ($isJwt) {
+            // Preview sends nothing, so no login either
+            $session = !empty($ctx['preview'])
+                ? ['token' => 'preview-token', 'error' => null, 'detail' => '']
+                : $this->jwt->token($connector, $credential, $this->json($credential['auth_config']), $secret, $adapter);
+            if ($session['error']) {
+                $call['detail'] = $session['detail'];
+                return NormalizedResult::failure($session['error']);
+            }
+            $redactor->addSecrets([$session['token']]);
+            $secret['token'] = $session['token'];
+        }
+
         $plainHeaders = $request->headers;
         if (!$auth->apply($request, $this->json($credential['auth_config']), $secret)) {
             return NormalizedResult::failure(ErrorCode::CREDENTIALS_MISSING);
@@ -138,6 +226,20 @@ class ConnectorClient
         $call['req_body'] = $request->body;
         $call['req_at'] = date('Y-m-d H:i:s');
         $response = $adapter->send($request);
+
+        // The cached token may have been ended early by the vendor: log in again and resend once
+        if ($isJwt && !$response->errorCode && $response->status === 401) {
+            $session = $this->jwt->token($connector, $credential, $this->json($credential['auth_config']), $secret, $adapter, $secret['token']);
+            if ($session['error']) {
+                $call['detail'] = $session['detail'];
+                return NormalizedResult::failure($session['error']);
+            }
+            $redactor->addSecrets([$session['token']]);
+            $secret['token'] = $session['token'];
+            $auth->apply($request, $this->json($credential['auth_config']), $secret);
+            $call['attempts'] = 2;
+            $response = $adapter->send($request);
+        }
         $call['resp_at'] = date('Y-m-d H:i:s');
         $call['resp_bytes'] = strlen($response->body);
         $call['resp_body'] = $response->body;

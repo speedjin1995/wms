@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Run: php tools/phpunit.phar -c php/tests/connector/phpunit.xml   Add: - -exclude-group live   for no internet -->
+<phpunit bootstrap="phpunitBootstrap.php"
+         colors="true"
+         cacheResult="false"
+         failOnWarning="true"
+         failOnNotice="true"
+         failOnDeprecation="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnSkippedTests="true">
+    <testsuites>
+        <testsuite name="connector">
+            <directory suffix="Test.php">.</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

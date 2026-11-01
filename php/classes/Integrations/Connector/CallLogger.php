@@ -2,12 +2,11 @@
 namespace App\Integrations\Connector;
 
 /**
- * One api_call_logs row per call (metadata plus redacted, capped bodies), plus a redacted error_log line for failures.
+ * One api_call_logs row per call (metadata plus redacted bodies), plus a redacted error_log line for failures.
  * Never breaks the call it is logging.
  */
 class CallLogger
 {
-    private const BODY_LIMIT = 8192;
     private const BLOB_MIN = 1024;
 
     private ConnectorRepository $repo;
@@ -65,14 +64,15 @@ class CallLogger
         }
     }
 
-    // Redacted before the cut, so a secret is never shown half-way at the end of the kept part
+    // shortcut: bodies are stored in full, an insert over max_allowed_packet loses the row, add a cap if logs hit that
     private function body(?string $text, Redactor $redactor): ?string
     {
         if ($text === null || $text === '') {
             return null;
         }
 
-        return mb_strcut($redactor->text($this->expandJson($text)), 0, self::BODY_LIMIT);
+        // A file in the reply is not valid UTF-8 and the insert would fail, losing the whole log row
+        return mb_scrub($redactor->text($this->expandJson($text)));
     }
 
     // LLM replies hold JSON as a string; store it as real JSON. Anything that is not JSON stays as it is.
@@ -86,7 +86,7 @@ class CallLogger
         return json_encode($this->expandValue($decoded), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: $text;
     }
 
-    // A photo would fill the whole log body and the cut would break its JSON. Plain or data: URI form.
+    // A photo would fill the log with data nobody reads. Plain or data: URI form.
     private function isBase64Blob(string $value): bool
     {
         if (strlen($value) < self::BLOB_MIN) {

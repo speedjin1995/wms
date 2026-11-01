@@ -4106,3 +4106,13 @@ CREATE TABLE `api_call_logs` (
   KEY `idx_company_created` (`company`, `created_at`),
   KEY `idx_error_created` (`error_code`, `created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 01/11/2026 --
+ALTER TABLE `api_connector_credentials` MODIFY `auth_type` enum('none','api_key','bearer','basic','header','oauth2_cc','ws_security','mtls','jwt') NOT NULL DEFAULT 'none';
+
+ALTER TABLE `api_connectors` ADD COLUMN `tenant_auth_type` varchar(20) DEFAULT NULL COMMENT "api_key, bearer, basic, header or jwt" AFTER `tenant_configurable`, ADD COLUMN `tenant_auth_config` text DEFAULT NULL COMMENT "JSON preset, vendor only" AFTER `tenant_auth_type`;
+UPDATE `api_connectors` SET `tenant_auth_type` = 'bearer' WHERE `code` = 'llm_openai' AND `deleted` = 0;
+UPDATE `api_connectors` SET `tenant_auth_type` = 'api_key', `tenant_auth_config` = '{"in":"header","name":"x-api-key"}' WHERE `code` = 'llm_claude' AND `deleted` = 0;
+UPDATE `api_connectors` SET `tenant_auth_type` = 'api_key', `tenant_auth_config` = '{"in":"header","name":"x-goog-api-key"}' WHERE `code` = 'llm_gemini' AND `deleted` = 0;
+
+ALTER TABLE `api_call_logs` MODIFY `request_body` longtext DEFAULT NULL, MODIFY `response_body` longtext DEFAULT NULL;

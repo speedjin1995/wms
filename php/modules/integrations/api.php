@@ -31,9 +31,17 @@ switch ($action) {
         echo json_encode(['status' => 'success', 'message' => 'Done', 'data' => $repo->listTenantOperations((string)($_POST['connector'] ?? ''))]);
         break;
 
+    case 'setup':
+        if (!in_array($_SESSION['role'] ?? '', ['ADMIN', 'SADMIN'], true)) {
+            echo json_encode(['status' => 'failed', 'message' => 'Unauthorized']);
+            break;
+        }
+        echo json_encode(['status' => 'success', 'message' => 'Done', 'data' => $repo->listTenantSetup()]);
+        break;
+
     case 'saveCredential':
     case 'deleteCredential':
-        // Tenant admins manage only their own company's key; the secret is never echoed back
+        // Tenant admins manage only their own company's login; the secret is never echoed back
         if (!in_array($_SESSION['role'] ?? '', ['ADMIN', 'SADMIN'], true)) {
             echo json_encode(['status' => 'failed', 'message' => 'Unauthorized']);
             break;
@@ -47,22 +55,16 @@ switch ($action) {
                 break;
             }
 
-            $authType = (string)($_POST['auth_type'] ?? '');
-            $key = trim((string)($_POST['key'] ?? ''));
-            if (!in_array($authType, ['bearer', 'api_key'], true) || $key === '') {
-                echo json_encode(['status' => 'failed', 'message' => 'Key is required']);
-                break;
-            }
-
-            $secret = $authType === 'bearer' ? ['token' => $key] : ['key' => $key];
-            $headerName = (string)($_POST['header_name'] ?? 'x-api-key');
-            if (!preg_match('/^[A-Za-z0-9-]{1,50}$/', $headerName)) {
-                echo json_encode(['status' => 'failed', 'message' => 'Invalid header name']);
-                break;
-            }
-            $authConfig = $authType === 'api_key' ? ['in' => 'header', 'name' => $headerName] : [];
-            $repo->saveTenantCredential($connectorId, $authType, $authConfig, $secret);
-            echo json_encode(['status' => 'success', 'message' => 'Credential saved']);
+            // The login type is the vendor's; anything the browser sends as auth_type is ignored
+            $fields = is_array($_POST['fields'] ?? null) ? $_POST['fields'] : [];
+            $repo->saveTenantLogin($connectorId, $fields);
+            echo json_encode(['status' => 'success', 'message' => 'Login saved']);
+        } catch (\mysqli_sql_exception $e) {
+            error_log('integrations ' . $action . ' - ' . $e->getMessage());
+            echo json_encode(['status' => 'failed', 'message' => 'Unable to save credential']);
+        } catch (\RuntimeException $e) {
+            // Our own messages only, such as "Fill in: password"
+            echo json_encode(['status' => 'failed', 'message' => $e->getMessage()]);
         } catch (\Throwable $e) {
             error_log('integrations ' . $action . ' - ' . $e->getMessage());
             echo json_encode(['status' => 'failed', 'message' => 'Unable to save credential']);
@@ -79,7 +81,8 @@ switch ($action) {
 
         $ctx = ['exposed_only' => true, 'preview' => $action === 'preview'];
         $result = $client->execute((string)($_POST['connector'] ?? ''), (string)($_POST['operation'] ?? ''), $payload, $ctx);
-        echo json_encode($result->toArray());
+        // A file in the reply is not valid UTF-8 and would otherwise encode to an empty response
+        echo json_encode($result->toArray(), JSON_INVALID_UTF8_SUBSTITUTE);
         break;
 
     default:
