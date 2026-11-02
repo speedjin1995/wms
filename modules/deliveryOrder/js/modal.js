@@ -5,25 +5,36 @@
 $(function() {
   $('#doSupplierPicker').select2({
     width: '100%',
+    dropdownAutoWidth: true,
     dropdownParent: $('#doModal'),
     placeholder: doText.addSupplier
   });
 
-  $('#doSupplierPicker')
-    .on('select2:select', function(e) {
-      addLine(addSupplierCard(e.params.data.id));
-    })
-    .on('select2:unselecting', function(e) {
-      if (!confirm(doText.removeSupplierConfirm)) {
-        e.preventDefault();
-        return;
-      }
+  $('#doSupplierPicker').on('select2:select', function(e) {
+    var id = e.params.data.id;
+    var $existing = $('#doSuppliers .do-supplier').filter(function() {
+      return $(this).find('.do-supplier-select').val() == id;
+    }).first();
 
-      $('#doSuppliers .do-supplier').filter(function() {
-        return $(this).find('.do-supplier-select').val() == e.params.args.data.id;
-      }).each(function() {
-        removeSupplierCard($(this));
-      });
+    if ($existing.length) {
+      toastr.warning(doText.supplierExists);
+      $('#doSupplierTabs a[data-target="#' + $existing.attr('id') + '"]').tab('show');
+    } else {
+      addLine(addSupplierCard(id));
+    }
+
+    $(this).val(null).trigger('change.select2');
+  });
+
+  $('#doSuppliers')
+    .on('click', '.do-ask-remove-supplier', function() {
+      $(this).closest('.do-supplier').find('.do-remove-confirm').show();
+    })
+    .on('click', '.do-keep-supplier', function() {
+      $(this).closest('.do-remove-confirm').hide();
+    })
+    .on('click', '.do-remove-supplier', function() {
+      removeSupplierCard($(this).closest('.do-supplier'));
     });
 
   $('#doSuppliers')
@@ -34,7 +45,7 @@ $(function() {
       }
 
       setSupplierTab($(this).closest('.do-supplier'), supplierId);
-      $(this).prop('disabled', true).trigger('change.select2');
+      $(this).prop('disabled', true).trigger('change.select2').next('.select2').hide();
       syncSupplierPicker();
     })
     .on('click', '.do-add-line', function() {
@@ -114,6 +125,7 @@ function resetDoModal(title) {
 function openDoModal() {
   loadDoOptions(function() {
     resetDoModal(doText.new);
+    $('#doScanGroup').show();
     markDoSaved();
     $('#doModal').modal('show');
   });
@@ -175,7 +187,7 @@ function supplierLabel(s) {
 }
 
 function fillSupplierPicker() {
-  var $picker = $('#doSupplierPicker').empty();
+  var $picker = $('#doSupplierPicker').empty().append('<option></option>');
 
   doOptions.suppliers.forEach(function(s) {
     $picker.append($('<option>').val(s.id).text(supplierLabel(s)));
@@ -184,23 +196,26 @@ function fillSupplierPicker() {
   $picker.trigger('change.select2');
 }
 
-// Picker follows the supplier tabs; set without firing select2:select so no card is added twice
+// Picker stays empty; picking a supplier already on a tab jumps to that tab instead
 function syncSupplierPicker() {
-  var ids = $('#doSuppliers .do-supplier-select').map(function() {
-    return $(this).val();
-  }).get().filter(Boolean);
-
-  $('#doSupplierPicker').val(ids).trigger('change.select2');
+  $('#doSupplierPicker').val(null).trigger('change.select2');
 }
 
-// Tab shows the supplier name; '?' until an unmatched scan/Excel supplier is picked
+// Tab shows the supplier name; the scanned name until an unmatched scan/Excel supplier is picked
 function setSupplierTab($card, supplierId) {
   var supplier = findSupplier(supplierId);
-  $('#doSupplierTabs a[href="#' + $card.attr('id') + '"]').text(supplier ? supplierLabel(supplier) : '?');
+  var scanned = $card.data('scanned') || '?';
+  var $tab = $('#doSupplierTabs a[data-target="#' + $card.attr('id') + '"]');
+
+  $tab.toggleClass('do-tab-unmatched', !supplier);
+  $tab.find('.do-tab-label').text(supplier ? supplier.supplier_name : scanned);
+  $card.find('.do-supplier-code').text(supplier ? (supplier.supplier_code || supplier.supplier_name) : scanned);
+  $card.find('.do-scanned-name').text(scanned);
+  $card.find('.do-supplier-unmatched').toggleClass('is-unmatched', !supplier);
 }
 
 function removeSupplierCard($card) {
-  var $tab = $('#doSupplierTabs a[href="#' + $card.attr('id') + '"]');
+  var $tab = $('#doSupplierTabs a[data-target="#' + $card.attr('id') + '"]');
   var wasActive = $tab.hasClass('active');
 
   if ($card.data('wid')) {
@@ -217,11 +232,12 @@ function removeSupplierCard($card) {
   updateDoTotals();
 }
 
-function addSupplierCard(supplierId, wholesaleId, serialNo) {
+function addSupplierCard(supplierId, wholesaleId, serialNo, scannedName) {
   // trim: jQuery only treats the string as HTML when it starts with "<"
   var $card = $($.trim($('#doSupplierTemplate').html()));
   var paneId = 'doSupplier' + (++doSupplierSeq);
   $card.attr('id', paneId);
+  $card.data('scanned', scannedName);
 
   if (wholesaleId) {
     $card.data('wid', wholesaleId);
@@ -230,19 +246,24 @@ function addSupplierCard(supplierId, wholesaleId, serialNo) {
 
   var supplierOptions = optionList(doOptions.suppliers, 'id', supplierLabel);
   var $select = $card.find('.do-supplier-select').append(supplierOptions);
+  $select.find('option:first').text(doText.selectSupplier);
 
   $('#doSuppliers').append($card);
   $('#doSupplierTabs').append($('<li class="nav-item">').append(
-    $('<a class="nav-link" data-toggle="tab">').attr('href', '#' + paneId)
+    $('<a class="nav-link" data-toggle="tab" href="#">').attr('data-target', '#' + paneId).append(
+      $('<span class="do-tab-label">'),
+      $('<span class="do-tab-count">')
+    )
   ));
   initSelect2($select);
 
   if (supplierId) {
     $select.val(supplierId).prop('disabled', true).trigger('change.select2');
+    $select.next('.select2').hide();
   }
 
   setSupplierTab($card, supplierId);
-  $('#doSupplierTabs a[href="#' + paneId + '"]').tab('show');
+  $('#doSupplierTabs a[data-target="#' + paneId + '"]').tab('show');
 
   return $card;
 }
@@ -313,12 +334,12 @@ function addBag($row, pair) {
   pair = pair || {};
 
   var $bag = $(
-    '<tr class="do-bag">' +
-      '<td data-label="' + doText.doWeight + '"><input type="number" step="0.01" class="form-control form-control-sm do-bag-do"></td>' +
-      '<td data-label="' + doText.received + '"><input type="number" step="0.01" class="form-control form-control-sm do-bag-received" placeholder="' + doText.notWeighed + '"></td>' +
-      '<td class="text-right do-bag-loss" data-label="' + doText.loss + '"></td>' +
-      '<td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm do-remove-bag" title="' + doText.deleteEntry + '" aria-label="' + doText.deleteEntry + '"><i class="fas fa-trash"></i></button></td>' +
-    '</tr>'
+    '<div class="do-bag do-bag-row">' +
+      '<div class="input-group input-group-sm" data-label="' + doText.doWeight + '"><input type="number" step="0.01" class="form-control do-bag-do"><div class="input-group-append"><span class="input-group-text">kg</span></div></div>' +
+      '<div class="input-group input-group-sm" data-label="' + doText.received + '"><input type="number" step="0.01" class="form-control do-bag-received" placeholder="' + doText.notWeighed + '"><div class="input-group-append"><span class="input-group-text">kg</span></div></div>' +
+      '<div class="do-bag-loss" data-label="' + doText.loss + '"></div>' +
+      '<div class="text-center"><button type="button" class="btn btn-link text-muted btn-sm do-remove-bag" title="' + doText.deleteEntry + '" aria-label="' + doText.deleteEntry + '"><i class="fas fa-times"></i></button></div>' +
+    '</div>'
   );
 
   if (pair.do != null) {
@@ -329,7 +350,7 @@ function addBag($row, pair) {
     $bag.find('.do-bag-received').val(pair.received);
   }
 
-  $row.find('.do-bags > tbody').append($bag);
+  $row.find('.do-bags').append($bag);
   updateDoTotals();
   return $bag;
 }
@@ -374,6 +395,12 @@ function doTolerance(product, doWeight, short) {
 
 // Loss = DO - received, only when both are filled; flagged when at least the product's tolerance off in either direction
 function updateDoTotals() {
+  $('#doSuppliers .do-supplier').each(function() {
+    var count = $(this).find('.do-line').length;
+    $('#doSupplierTabs a[data-target="#' + this.id + '"] .do-tab-count').text(count);
+    $(this).find('.do-item-count').text(count);
+  });
+
   $('#doSuppliers .do-line').each(function() {
     var $line = $(this);
     var product = findProduct($line.find('.do-product').val());
@@ -398,9 +425,9 @@ function updateDoTotals() {
         flagClass = 'text-danger font-weight-bold';
       }
 
-      $bag.find('.do-bag-loss').toggleClass('table-info', over).toggleClass('table-danger', short);
+      var pct = complete && doW > 0 ? '<small class="d-block text-muted">' + (loss / doW * 100).toFixed(2) + '%</small>' : '';
       $bag.find('.do-bag-loss')
-        .text(complete ? loss.toFixed(2) : '')
+        .html(complete ? loss.toFixed(2) + ' kg' + pct : '—')
         .removeClass(DO_FLAG_CLASSES)
         .addClass(flagClass);
     });

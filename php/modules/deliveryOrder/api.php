@@ -66,6 +66,15 @@ try {
             echo json_encode($controller->import($categoryIds));
             break;
             
+        case 'scan':
+            if (($_SESSION['featureFlags']['include_api_integration'] ?? 'N') != 'Y') {
+                echo json_encode(['status' => 'failed', 'message' => 'API integration is not enabled']);
+                break;
+            }
+
+            echo json_encode($controller->scan($categoryIds, (string)($_POST['provider'] ?? '')));
+            break;
+
         case 'template':
             $controller->template($categoryIds);
             exit;

@@ -45,6 +45,17 @@ $(function() {
 
   $('#doExcelFile').on('change', onExcelSelected);
 
+  $('#doScanProviders').on('click', '.do-scan-provider', function() {
+    doScanProvider = $(this).data('provider');
+    $('#doScanFile').val('').click();
+  });
+
+  $('#doScanFile').on('change', onScanSelected);
+
+  if ($('#doScanGroup').length) {
+    loadAiProviders();
+  }
+
   $('#doListTable')
     .on('click', '.edit-do-btn', function() {
       editDo($(this).data('id'));
@@ -80,6 +91,8 @@ function editDo(id) {
 
       var d = obj.data;
       resetDoModal(doText.edit);
+      // Scan replaces all suppliers, which would remove this DO's saved records
+      $('#doScanGroup').hide();
       $('#doId').val(d.id);
       $('#doDate').val(d.do_date_display);
       $('#doNo').val(d.do_no);
