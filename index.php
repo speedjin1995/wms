@@ -875,7 +875,7 @@ to get the desired effect
                   if ($allowApiIntegration == 'Y'){
                     echo '
                         <li class="nav-item">
-                          <a href="#apiIntegrations" data-file="apiIntegrations.php" class="nav-link link">
+                          <a href="#apiIntegrations" data-file="modules/apiIntegrations/apiIntegrations.php" class="nav-link link">
                             <i class="nav-icon fas fa-plug"></i>
                             <p>'.($languageArray['api_integrations_code'][$language] ?? 'API Integrations').'</p>
                           </a>
