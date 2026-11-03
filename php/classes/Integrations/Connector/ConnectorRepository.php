@@ -1,7 +1,7 @@
 <?php
 namespace App\Integrations\Connector;
 
-use App\Services\BaseService;
+use App\Core\BaseService;
 
 /**
  * All connector SQL. Company and user come from the session via BaseService.

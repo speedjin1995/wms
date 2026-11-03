@@ -136,7 +136,10 @@ class ProductService extends BaseService
             'uom_name' => $row['uom_name'],
             'packaging_name' => $row['packaging_name'],
             'state' => $row['state'] !== null ? json_decode($row['state'], true) : null,
-            'colour' => $row['colour']
+            'colour' => $row['colour'],
+            'do_weight_tolerance' => $row['do_weight_tolerance'],
+            'do_weight_tolerance_minus' => $row['do_weight_tolerance_minus'],
+            'do_weight_tolerance_type' => $row['do_weight_tolerance_type']
         ];
 
         $product['productCustomers'] = [];
@@ -478,7 +481,7 @@ class ProductService extends BaseService
         $params[] = $type;
         $types .= 's';
 
-        $sql = "SELECT p.id, p.product_code, p.product_name, p.category, c.category_name
+        $sql = "SELECT p.id, p.product_code, p.product_name, p.category, p.do_weight_tolerance, p.do_weight_tolerance_minus, p.do_weight_tolerance_type, c.category_name
                 FROM products p
                 LEFT JOIN categories c ON p.category = c.id
                 WHERE $where

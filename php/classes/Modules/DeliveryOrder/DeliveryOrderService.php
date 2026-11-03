@@ -1,5 +1,7 @@
 <?php
-namespace App\Services;
+namespace App\Modules\DeliveryOrder;
+
+use App\Core\BaseService;
 
 /**
  * Delivery Order header. Each supplier in a DO is a normal wholesales record (RECEIVING)
@@ -305,7 +307,7 @@ class DeliveryOrderService extends BaseService
         }
         $categories = $this->fetchAll("SELECT id, category_name FROM categories WHERE $where ORDER BY category_name ASC", $types, $params);
 
-        $products = (new ProductService($this->db, $this->company))->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null, 'Local');
+        $products = (new \App\Modules\Product\ProductService($this->db, $this->company, $this->user, $this->role))->getProductsWithGrades(!empty($categoryIds) ? $categoryIds : null, 'Local');
 
         $currency = $this->fetchOne("SELECT id FROM currency WHERE deleted = 0 AND customer = ? AND is_default = 1", 'i', [$this->company]);
 

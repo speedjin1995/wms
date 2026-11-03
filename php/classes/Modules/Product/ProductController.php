@@ -99,6 +99,13 @@ class ProductController extends BaseController
         $data['range_set'] = (int)($_POST['rangeSet'] ?? 0);
         $data['state'] = !empty($_POST['state']) ? json_encode($_POST['state']) : null;
 
+        $doTolerance = $_POST['doWeightTolerance'] ?? '';
+        $doToleranceMinus = $_POST['doWeightToleranceMinus'] ?? '';
+        $doToleranceType = $_POST['doWeightToleranceType'] ?? '';
+        $data['do_weight_tolerance'] = (is_numeric($doTolerance) && $doTolerance >= 0) ? $doTolerance : '0';
+        $data['do_weight_tolerance_minus'] = (is_numeric($doToleranceMinus) && $doToleranceMinus >= 0) ? $doToleranceMinus : '0';
+        $data['do_weight_tolerance_type'] = in_array($doToleranceType, ['KG', 'PERCENT'], true) ? $doToleranceType : 'KG';
+
         $grades = null;
         if (isset($_POST['gradeNo']) && is_array($_POST['gradeNo'])) {
             $grades = [];

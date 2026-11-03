@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../db_connect.php';
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use App\Controllers\DeliveryOrderController;
-use App\Services\DeliveryOrderService;
+use App\Modules\DeliveryOrder\DeliveryOrderController;
+use App\Modules\DeliveryOrder\DeliveryOrderService;
 
 session_start();
 header('Content-Type: application/json');

@@ -1,7 +1,7 @@
 <?php
-namespace App\Controllers;
+namespace App\Modules\DeliveryOrder;
 
-use App\Services\DeliveryOrderService;
+use App\Core\BaseController;
 
 class DeliveryOrderController extends BaseController
 {

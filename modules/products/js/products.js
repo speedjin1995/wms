@@ -156,6 +156,9 @@ $(function () {
     $('#productModal').find('#productCategory').val("").trigger('change');
     $('#productModal').find('#productPackaging').val("").trigger('change');
     $('#productModal').find('#productColour').val("");
+    $('#productModal').find('#productDoTolerance').val("0");
+    $('#productModal').find('#productDoToleranceMinus').val("0");
+    $('#productModal').find('#productDoToleranceType').val("KG");
     $('#productModal').find('#state').val("").trigger('change');
     $('#productModal').find('#uom').val("").trigger('change');
     setRangeSet(0);
@@ -731,6 +734,9 @@ function edit(id){
       $('#productModal').find('#productCategory').val(obj.message.category).trigger('change');
       $('#productModal').find('#productPackaging').val(obj.message.packaging).trigger('change');
       $('#productModal').find('#productColour').val(obj.message.colour || '');
+      $('#productModal').find('#productDoTolerance').val(obj.message.do_weight_tolerance);
+      $('#productModal').find('#productDoToleranceMinus').val(obj.message.do_weight_tolerance_minus);
+      $('#productModal').find('#productDoToleranceType').val(obj.message.do_weight_tolerance_type || 'KG');
       $('#productModal').find('#state').val(obj.message.state).trigger('change');
       $('#productModal').find('#company').val(obj.message.customer).trigger('change');
       $('#productImage').val('');
