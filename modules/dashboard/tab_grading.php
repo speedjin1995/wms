@@ -20,7 +20,7 @@
         <div class="card-header" onclick="toggleCard('grGradeRecvBody','grGradeRecvChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="grGradeRecvChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></span>
+            <h3 class="results-title"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></h3>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
             <span class="text-muted dash-meta-text" id="grGradeRecvTotal"></span>
@@ -42,7 +42,7 @@
         <div class="card-header" onclick="toggleCard('grGradeGrdBody','grGradeGrdChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="grGradeGrdChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['grading_code'][$language]?></span>
+            <h3 class="results-title"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['grading_code'][$language]?></h3>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
             <span class="text-muted dash-meta-text" id="grGradeGrdTotal"></span>

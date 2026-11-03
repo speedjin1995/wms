@@ -58,20 +58,15 @@ if (!isset($_SESSION['userID'])) {
   </div>
 </div>
 
-<div class="content">
+<div class="content page-modern">
   <div class="container-fluid">
 
     <!-- ── Global Filter ──────────────────────────────────── -->
-    <div class="card dash-filter-card mb-3">
-      <div class="card-header dash-filter-header" onclick="toggleFilterCard()">
-        <span class="filter-icon"><i class="fas fa-sliders-h"></i></span>
-        <span><?=$languageArray['search_code'][$language]?></span>
-        <i class="fas fa-chevron-down" id="dashFilterChevron"></i>
-      </div>
-      <div id="dashFilterBody" class="card-body" style="display:none;">
-        <div class="row">
-          <div class="form-group col-6 col-md-3">
-            <label><?=$languageArray['from_date_code'][$language]?></label>
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['from_date_code'][$language]?></label>
             <div class="input-group date" id="dashFromDatePicker" data-target-input="nearest">
               <input type="text" class="form-control datetimepicker-input" data-target="#dashFromDatePicker" id="dashFromDate"/>
               <div class="input-group-append" data-target="#dashFromDatePicker" data-toggle="datetimepicker">
@@ -79,8 +74,8 @@ if (!isset($_SESSION['userID'])) {
               </div>
             </div>
           </div>
-          <div class="form-group col-6 col-md-3">
-            <label><?=$languageArray['to_date_code'][$language]?></label>
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['to_date_code'][$language]?></label>
             <div class="input-group date" id="dashToDatePicker" data-target-input="nearest">
               <input type="text" class="form-control datetimepicker-input" data-target="#dashToDatePicker" id="dashToDate"/>
               <div class="input-group-append" data-target="#dashToDatePicker" data-toggle="datetimepicker">
@@ -88,8 +83,8 @@ if (!isset($_SESSION['userID'])) {
               </div>
             </div>
           </div>
-          <div class="form-group col-12 col-md-3">
-            <label><?=$languageArray['locations_code'][$language]?></label>
+          <div class="filter-group">
+            <label class="filter-label"><?=$languageArray['locations_code'][$language]?></label>
             <select class="form-control select2" id="dashLocation">
               <option value=""><?=$languageArray['all_code'][$language]?></option>
               <?php while ($row = mysqli_fetch_assoc($locations)) { ?>
@@ -97,10 +92,9 @@ if (!isset($_SESSION['userID'])) {
               <?php } ?>
             </select>
           </div>
-        </div>
-        <div class="row mt-3">
-          <div class="form-group col-12 col-md-3 offset-md-9 d-flex align-items-end">
-            <button type="button" class="btn btn-primary btn-block" id="dashSearch">
+          <div class="filter-group filter-group-action ml-auto">
+            <label class="filter-label">&nbsp;</label>
+            <button type="button" class="btn btn-filter btn-filter-primary" id="dashSearch">
               <i class="fas fa-search"></i> <?=$languageArray['search_code'][$language]?>
             </button>
           </div>
@@ -175,16 +169,3 @@ if (!isset($_SESSION['userID'])) {
 <script src="modules/dashboard/js/tab_grading.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
 <script src="modules/dashboard/js/tab_packaging.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>" ></script>
 <script src="modules/dashboard/js/tab_pulppaste.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
-<script>
-function toggleFilterCard() {
-  var $body    = $('#dashFilterBody');
-  var $chevron = $('#dashFilterChevron');
-  $body.slideToggle(200, function () {
-    if ($body.is(':visible')) {
-      $chevron.removeClass('fa-chevron-down').addClass('fa-chevron-up');
-    } else {
-      $chevron.removeClass('fa-chevron-up').addClass('fa-chevron-down');
-    }
-  });
-}
-</script>

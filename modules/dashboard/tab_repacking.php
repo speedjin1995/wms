@@ -28,7 +28,7 @@
         <div class="card-header" onclick="toggleCard('rpBreakdownBody','rpBreakdownChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="rpBreakdownChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['source_product_code'][$language]?> &rarr; <?=$languageArray['target_product_code'][$language] ?? 'Target Product'?> (kg)</span>
+            <h3 class="results-title"><?=$languageArray['source_product_code'][$language]?> &rarr; <?=$languageArray['target_product_code'][$language] ?? 'Target Product'?> (kg)</h3>
           </div>
         </div>
         <div class="card-body" id="rpBreakdownBody">

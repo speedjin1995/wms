@@ -56,7 +56,7 @@
         <div class="card-header" onclick="toggleCard('ppSupplierBody','ppSupplierChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="ppSupplierChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</span>
+            <h3 class="results-title"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['supplier_code'][$language]?> (kg)</h3>
           </div>
           <div class="dash-pager" id="ppSupplierPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();ppSupplierPage(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -74,7 +74,7 @@
         <div class="card-header" onclick="toggleCard('ppCustomerBody','ppCustomerChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="ppCustomerChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</span>
+            <h3 class="results-title"><?=$languageArray['weight_code'][$language]?> by <?=$languageArray['customer_code'][$language]?> (kg)</h3>
           </div>
           <div class="dash-pager" id="ppCustomerPager" style="display:none;">
             <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation();ppCustomerPage(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -96,7 +96,7 @@
         <div class="card-header" onclick="toggleCard('ppTrendBody','ppTrendChevron')">
           <div class="d-flex align-items-center">
             <i class="fas fa-chevron-down dash-chevron" id="ppTrendChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['volume_trending_code'][$language] ?? 'Volume Trending'?> (kg)</span>
+            <h3 class="results-title"><?=$languageArray['volume_trending_code'][$language] ?? 'Volume Trending'?> (kg)</h3>
           </div>
         </div>
         <div class="card-body" id="ppTrendBody">

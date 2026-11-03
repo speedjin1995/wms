@@ -80,7 +80,7 @@
         <div class="card-header" onclick="toggleCard('wsSupplierBody','wsSupplierChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsSupplierChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['supplier_code'][$language]?> <?=$languageArray['breakdown_code'][$language]?> (kg)</span>
+            <h3 class="results-title"><?=$languageArray['supplier_code'][$language]?> <?=$languageArray['breakdown_code'][$language]?> (kg)</h3>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;">
             <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();openExportModal('supplier')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
@@ -101,7 +101,7 @@
         <div class="card-header" onclick="toggleCard('wsCustomerBody','wsCustomerChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsCustomerChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['customer_code'][$language]?> <?=$languageArray['breakdown_code'][$language]?> (kg)</span>
+            <h3 class="results-title"><?=$languageArray['customer_code'][$language]?> <?=$languageArray['breakdown_code'][$language]?> (kg)</h3>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;">
             <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();openExportModal('customer')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
@@ -127,7 +127,7 @@
         <div class="card-header" onclick="toggleCard('wsGradeRecvBody','wsGradeRecvChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsGradeRecvChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></span>
+            <h3 class="results-title"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['receiving_code'][$language]?></h3>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
             <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();exportGradeDistribution('RECEIVING')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
@@ -150,7 +150,7 @@
         <div class="card-header" onclick="toggleCard('wsGradeDispBody','wsGradeDispChevron')">
           <div class="d-flex align-items-center flex-1">
             <i class="fas fa-chevron-down dash-chevron" id="wsGradeDispChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['dispatch_code'][$language]?></span>
+            <h3 class="results-title"><?=$languageArray['grade_distribution_code'][$language]?> &mdash; <?=$languageArray['dispatch_code'][$language]?></h3>
           </div>
           <div class="d-flex align-items-center" style="gap:8px;flex-shrink:0;">
             <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation();exportGradeDistribution('DISPATCH')" title="Export Excel"><i class="fas fa-file-excel"></i></button>
@@ -178,7 +178,7 @@
         <div class="card-header" onclick="toggleCard('wsHourlyRecvBody','wsHourlyRecvChevron')">
           <div class="d-flex align-items-center">
             <i class="fas fa-chevron-down dash-chevron" id="wsHourlyRecvChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['receiving_code'][$language]?> by Hour (kg)</span>
+            <h3 class="results-title"><?=$languageArray['receiving_code'][$language]?> by Hour (kg)</h3>
           </div>
         </div>
         <div class="card-body" id="wsHourlyRecvBody">
@@ -191,7 +191,7 @@
         <div class="card-header" onclick="toggleCard('wsHourlyDispBody','wsHourlyDispChevron')">
           <div class="d-flex align-items-center">
             <i class="fas fa-chevron-down dash-chevron" id="wsHourlyDispChevron"></i>
-            <span class="section-title mb-0"><?=$languageArray['dispatch_code'][$language]?> by Hour (kg)</span>
+            <h3 class="results-title"><?=$languageArray['dispatch_code'][$language]?> by Hour (kg)</h3>
           </div>
         </div>
         <div class="card-body" id="wsHourlyDispBody">

@@ -54,88 +54,6 @@
   .content-header h1 { font-size: 17px !important; }
 }
 
-/* ── Global Filter Card ─────────────────────────────────── */
-.dash-filter-card {
-  background: var(--dash-surface);
-  border: 1px solid var(--dash-border) !important;
-  border-radius: var(--dash-radius) !important;
-  box-shadow: var(--dash-shadow);
-  overflow: visible;
-}
-
-.dash-filter-header {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 11px 16px;
-  background: var(--dash-surface);
-  font-size: var(--dash-font-sm);
-  font-weight: 600;
-  color: var(--dash-text-primary);
-  user-select: none;
-  border-bottom: 1px solid var(--dash-border);
-  transition: background var(--dash-transition);
-  gap: 8px;
-}
-.dash-filter-header:hover { background: var(--dash-bg); }
-.dash-filter-header .filter-icon {
-  width: 20px; height: 20px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--dash-primary-light);
-  color: var(--dash-primary);
-  border-radius: 4px;
-  font-size: 10px;
-  flex-shrink: 0;
-}
-.dash-filter-header #dashFilterChevron {
-  margin-left: auto;
-  color: var(--dash-text-tertiary);
-  font-size: 11px;
-  transition: transform var(--dash-transition);
-}
-
-.dash-filter-card .card-body { padding: 16px; }
-.dash-filter-card .form-group { margin-bottom: 12px; }
-.dash-filter-card label {
-  font-size: var(--dash-font-xs);
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: var(--dash-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: block;
-}
-.dash-filter-card .form-control,
-.dash-filter-card .input-group-text {
-  font-size: var(--dash-font-sm);
-  border-color: var(--dash-border);
-  color: var(--dash-text-primary);
-  height: 34px;
-}
-.dash-filter-card .form-control:focus {
-  border-color: var(--dash-primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
-}
-.dash-filter-card .input-group-text {
-  background: var(--dash-bg);
-  color: var(--dash-text-tertiary);
-}
-.dash-filter-card .btn {
-  font-size: var(--dash-font-sm);
-  font-weight: 600;
-  height: 34px;
-  padding: 0 16px;
-  border-radius: var(--dash-radius-sm);
-  transition: all var(--dash-transition);
-}
-.dash-filter-card .select2-selection,
-.dash-filter-card .select2-selection__rendered { font-size: var(--dash-font-sm); }
-
-@media (min-width: 768px) {
-  .dash-filter-card .form-group { margin-bottom: 0; }
-}
-
 /* ── Tab Navigation ─────────────────────────────────────── */
 #dashTabs {
   flex-wrap: wrap;
@@ -296,9 +214,9 @@
 /* ── Collapsible Section Cards ──────────────────────────── */
 .dash-section-card {
   margin-bottom: 16px;
-  border: 1px solid var(--dash-border) !important;
-  border-radius: var(--dash-radius) !important;
-  box-shadow: var(--dash-shadow);
+  border: 1px solid var(--page-border, var(--dash-border)) !important;
+  border-radius: var(--page-radius-lg, var(--dash-radius)) !important;
+  box-shadow: var(--page-shadow, var(--dash-shadow));
   overflow: hidden;
 }
 .dash-section-card .card-header {
@@ -307,14 +225,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 0.875rem 1.25rem;
   background: var(--dash-surface);
-  border-bottom: 1px solid var(--dash-border) !important;
+  border-bottom: 1px solid var(--page-border, var(--dash-border)) !important;
   user-select: none;
   transition: background var(--dash-transition);
 }
 .dash-section-card .card-header:hover { background: var(--dash-bg); }
-.dash-section-card .card-body { padding: 16px; }
+.dash-section-card .card-body { padding: 1rem 1.25rem; }
 .dash-chevron {
   font-size: 10px;
   color: var(--dash-text-tertiary);
@@ -605,39 +523,32 @@
 }
 
 /* ── Button overrides scoped to dashboard ───────────────── */
-.dash-filter-card .btn-primary,
 .dash-tab-filters .btn-primary {
   background: var(--dash-primary);
   border-color: var(--dash-primary);
   color: #fff;
 }
-.dash-filter-card .btn-primary:hover,
 .dash-tab-filters .btn-primary:hover {
   background: #1D4ED8;
   border-color: #1D4ED8;
 }
 
 /* ── Select2 scoped overrides ───────────────────────────── */
-.dash-filter-card .select2-container--default .select2-selection--single,
 .dash-tab-filters .select2-container--default .select2-selection--single {
   height: 34px;
   border-color: var(--dash-border);
   border-radius: var(--dash-radius-sm);
 }
-.dash-filter-card .select2-container--default .select2-selection--single .select2-selection__rendered,
 .dash-tab-filters .select2-container--default .select2-selection--single .select2-selection__rendered {
   line-height: normal;
   padding-top: 6px;
   font-size: var(--dash-font-sm);
   color: var(--dash-text-primary);
 }
-.dash-filter-card .select2-container--default .select2-selection--single .select2-selection__arrow,
 .dash-tab-filters .select2-container--default .select2-selection--single .select2-selection__arrow {
   height: 34px;
 }
 
 /* ── Input height alignment ─────────────────────────────── */
-.dash-filter-card .form-control,
 .dash-tab-filters .form-control { height: 34px; border-radius: var(--dash-radius-sm); }
-.dash-filter-card .input-group-text,
 .dash-tab-filters .input-group-text { height: 34px; border-radius: 0 var(--dash-radius-sm) var(--dash-radius-sm) 0; }
