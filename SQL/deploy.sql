@@ -3853,3 +3853,263 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_STK_ADJ` BEFORE UPDATE ON `stock_adjustments`
 END
 $$
 DELIMITER ;
+
+-- 27/10/2026 --
+CREATE TABLE `delivery_orders` (
+  `id` int(11) NOT NULL,
+  `do_no` varchar(50) NOT NULL,
+  `do_date` date NOT NULL,
+  `remark` text DEFAULT NULL,
+  `company` int(11) NOT NULL,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `created_by` int(11) DEFAULT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `delivery_orders` ADD PRIMARY KEY (`id`), ADD KEY `company_do_no` (`company`, `do_no`);
+
+ALTER TABLE `delivery_orders` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `wholesales` ADD `do_id` INT(11) NULL AFTER `pv_id`, ADD KEY `do_id` (`do_id`);
+
+ALTER TABLE `wholesales_log` ADD `do_id` INT(11) NULL AFTER `pv_id`;
+
+CREATE TABLE `delivery_order_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `do_id` int(11) NOT NULL,
+  `company` int(11) NOT NULL,
+  `supplier` int(11) NOT NULL,
+  `category` int(11) DEFAULT NULL,
+  `product` int(11) NOT NULL,
+  `grade_id` int(11) NOT NULL,
+  `weight_details` text DEFAULT NULL,
+  `total_do_weight` decimal(12,2) NOT NULL DEFAULT 0,
+  `total_received_weight` decimal(12,2) NOT NULL DEFAULT 0,
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `created_by` int(11) DEFAULT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `do_id` (`do_id`, `company`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_WHOLESALES` AFTER INSERT ON `wholesales` FOR EACH ROW INSERT INTO wholesales_log (
+    wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, type, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, do_id, location, category, payment_method, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.type, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.do_id, NEW.location, NEW.category, NEW.payment_method, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, 1, NEW.created_by, NOW()
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO wholesales_log (
+        wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, type, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, total_item, total_weight, total_reject, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, do_id, location, category, payment_method, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.type, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.do_id, NEW.location, NEW.category, NEW.payment_method, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;
+
+ALTER TABLE `products` ADD `do_weight_tolerance` DECIMAL(10,2) NOT NULL DEFAULT 0.80 AFTER `colour`;
+ALTER TABLE `products` ADD `do_weight_tolerance_type` VARCHAR(10) NOT NULL DEFAULT 'KG' AFTER `do_weight_tolerance`;
+ALTER TABLE `products_log` ADD `do_weight_tolerance` DECIMAL(10,2) NULL AFTER `colour`;
+ALTER TABLE `products_log` ADD `do_weight_tolerance_type` VARCHAR(10) NULL AFTER `do_weight_tolerance`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCTS` AFTER INSERT ON `products` FOR EACH ROW INSERT INTO products_log (
+    product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, colour, do_weight_tolerance, do_weight_tolerance_type, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, NEW.colour, NEW.do_weight_tolerance, NEW.do_weight_tolerance_type, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTS` BEFORE UPDATE ON `products` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into products_log table
+    INSERT INTO products_log (
+      product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, colour, do_weight_tolerance, do_weight_tolerance_type, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, NEW.colour, NEW.do_weight_tolerance, NEW.do_weight_tolerance_type, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+-- 29/10/2026 --
+ALTER TABLE `products` ADD `do_weight_tolerance_minus` DECIMAL(10,2) NOT NULL DEFAULT 0.80 AFTER `do_weight_tolerance`;
+ALTER TABLE `products` MODIFY `do_weight_tolerance` DECIMAL(10,2) NOT NULL DEFAULT 0;
+ALTER TABLE `products` MODIFY `do_weight_tolerance_minus` DECIMAL(10,2) NOT NULL DEFAULT 0;
+ALTER TABLE `products_log` ADD `do_weight_tolerance_minus` DECIMAL(10,2) NULL AFTER `do_weight_tolerance`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCTS` AFTER INSERT ON `products` FOR EACH ROW INSERT INTO products_log (
+    product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, colour, do_weight_tolerance, do_weight_tolerance_minus, do_weight_tolerance_type, action_id, action_by, event_date
+)
+VALUES (
+    NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, NEW.colour, NEW.do_weight_tolerance, NEW.do_weight_tolerance_minus, NEW.do_weight_tolerance_type, 1, NEW.created_by, NEW.created_datetime
+)
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTS` BEFORE UPDATE ON `products` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    -- Check if deleted = 1, set action_id to 3, otherwise set to 2
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    -- Insert into products_log table
+    INSERT INTO products_log (
+      product_id, product_code, product_name, product_sn, batch_no, parts_no, uom, remark, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, weight, customer, is_manual, range_set, ok_weight, ok_weight_unit, lo_weight, lo_weight_unit, hi_weight, hi_weight_unit, packaging, category, product_image, state, colour, do_weight_tolerance, do_weight_tolerance_minus, do_weight_tolerance_type, action_id, action_by, event_date
+    )
+    VALUES (
+        NEW.id, NEW.product_code, NEW.product_name, NEW.product_sn, NEW.batch_no, NEW.parts_no, NEW.uom, NEW.remark, NEW.pricing_type, NEW.pricing_currency, NEW.price, NEW.purchasing_pricing_type, NEW.purchasing_pricing_currency, NEW.purchasing_price, NEW.weight, NEW.customer, NEW.is_manual, NEW.range_set, NEW.ok_weight, NEW.ok_weight_unit, NEW.lo_weight, NEW.lo_weight_unit, NEW.hi_weight, NEW.hi_weight_unit, NEW.packaging, NEW.category, NEW.product_image, NEW.state, NEW.colour, NEW.do_weight_tolerance, NEW.do_weight_tolerance_minus, NEW.do_weight_tolerance_type, action_value, NEW.modified_by, NEW.modified_datetime
+    );
+END
+$$
+DELIMITER ;
+
+-- 29/10/2026 (part 2) --
+-- API connector: outside REST/SOAP APIs defined as data. Credentials company = 0 is the platform default; a tenant row overrides it.
+DROP TABLE IF EXISTS `api_integrations`;
+
+CREATE TABLE `api_connectors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `protocol` enum('rest','soap','graphql') NOT NULL DEFAULT 'rest',
+  `base_url` varchar(500) NOT NULL,
+  `default_headers` text DEFAULT NULL COMMENT 'JSON',
+  `timeout_ms` int(11) NOT NULL DEFAULT 30000,
+  `connect_timeout_ms` int(11) NOT NULL DEFAULT 10000,
+  `retry_max` tinyint(4) NOT NULL DEFAULT 0,
+  `retry_base_ms` int(11) NOT NULL DEFAULT 500,
+  `breaker_threshold` int(11) NOT NULL DEFAULT 5,
+  `breaker_cooldown_s` int(11) NOT NULL DEFAULT 60,
+  `allow_http` tinyint(1) NOT NULL DEFAULT 0,
+  `tenant_configurable` tinyint(1) NOT NULL DEFAULT 0,
+  `options` text DEFAULT NULL COMMENT 'JSON: allow_private',
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_code` (`code`, `deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `api_connector_operations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `connector_id` int(11) NOT NULL,
+  `code` varchar(50) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `http_method` enum('GET','POST','PUT','PATCH','DELETE') NOT NULL DEFAULT 'GET',
+  `path_template` varchar(500) NOT NULL DEFAULT '',
+  `soap_operation` varchar(100) DEFAULT NULL,
+  `soap_action` varchar(255) DEFAULT NULL,
+  `retry_safe` tinyint(1) NOT NULL DEFAULT 0,
+  `timeout_ms` int(11) DEFAULT NULL,
+  `exposed` tinyint(1) NOT NULL DEFAULT 0,
+  `request_spec` text DEFAULT NULL COMMENT 'JSON mapping',
+  `response_spec` text DEFAULT NULL COMMENT 'JSON mapping',
+  `error_spec` text DEFAULT NULL COMMENT 'JSON mapping',
+  `options` text DEFAULT NULL COMMENT 'JSON: headers, body_format',
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_connector_code` (`connector_id`, `code`, `deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `api_connector_credentials` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `connector_id` int(11) NOT NULL,
+  `company` int(11) NOT NULL DEFAULT 0,
+  `auth_type` enum('none','api_key','bearer','basic','header','oauth2_cc','ws_security','mtls') NOT NULL DEFAULT 'none',
+  `auth_config` text DEFAULT NULL COMMENT 'JSON, non-secret',
+  `secret` text DEFAULT NULL COMMENT 'AES-256-GCM encrypted JSON',
+  `key_version` smallint(6) DEFAULT NULL,
+  `secret_hint` varchar(10) DEFAULT NULL,
+  `options` text DEFAULT NULL COMMENT 'JSON',
+  `token_cipher` text DEFAULT NULL COMMENT 'OAuth token cache, encrypted',
+  `token_expires_at` datetime DEFAULT NULL,
+  `breaker_state` enum('closed','open','half_open') NOT NULL DEFAULT 'closed',
+  `breaker_failures` int(11) NOT NULL DEFAULT 0,
+  `breaker_opened_at` datetime DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_connector_company` (`connector_id`, `company`, `deleted_at`),
+  KEY `idx_company` (`company`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `api_call_logs` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `call_id` char(16) NOT NULL,
+  `company` int(11) NOT NULL DEFAULT 0,
+  `user_id` int(11) DEFAULT NULL,
+  `connector_id` int(11) NOT NULL,
+  `operation_id` int(11) DEFAULT NULL,
+  `ok` tinyint(1) NOT NULL DEFAULT 0,
+  `error_code` varchar(30) DEFAULT NULL,
+  `http_status` smallint(6) DEFAULT NULL,
+  `attempts` tinyint(4) NOT NULL DEFAULT 1,
+  `latency_ms` int(11) NOT NULL DEFAULT 0,
+  `req_bytes` int(11) NOT NULL DEFAULT 0,
+  `resp_bytes` int(11) NOT NULL DEFAULT 0,
+  `request_body` text DEFAULT NULL,
+  `response_body` text DEFAULT NULL,
+  `request_at` datetime DEFAULT NULL,
+  `response_at` datetime DEFAULT NULL,
+  `error_message` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_connector_created` (`connector_id`, `created_at`),
+  KEY `idx_company_created` (`company`, `created_at`),
+  KEY `idx_error_created` (`error_code`, `created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 01/11/2026 --
+ALTER TABLE `api_connector_credentials` MODIFY `auth_type` enum('none','api_key','bearer','basic','header','oauth2_cc','ws_security','mtls','jwt') NOT NULL DEFAULT 'none';
+
+ALTER TABLE `api_connectors` ADD COLUMN `tenant_auth_type` varchar(20) DEFAULT NULL COMMENT "api_key, bearer, basic, header or jwt" AFTER `tenant_configurable`, ADD COLUMN `tenant_auth_config` text DEFAULT NULL COMMENT "JSON preset, vendor only" AFTER `tenant_auth_type`;
+
+ALTER TABLE `api_call_logs` MODIFY `request_body` longtext DEFAULT NULL, MODIFY `response_body` longtext DEFAULT NULL;

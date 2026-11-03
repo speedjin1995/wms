@@ -19,6 +19,8 @@ else{
   // Feature Flagging
   $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
   $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
+  $allowDeliveryOrder = $_SESSION['featureFlags']['include_delivery_order'] ?? 'N';
+  $allowApiIntegration = $_SESSION['featureFlags']['include_api_integration'] ?? 'N';
 
   // User Details
   $stmt = $db->prepare("SELECT * from users where id = ?");
@@ -112,8 +114,8 @@ else{
   <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
   
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="assets/css/modal-global.css">
-  <link rel="stylesheet" href="assets/css/page-global.css">
+  <link rel="stylesheet" href="assets/css/modal-global.css?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>">
+  <link rel="stylesheet" href="assets/css/page-global.css?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>">
 
   <style>
     body {
@@ -543,6 +545,14 @@ to get the desired effect
                 </a>
               </li> -->
               <?php if ($module == 'wholesale') { ?>
+                <?php if ($allowDeliveryOrder == 'Y') { ?>
+                <li class="nav-item">
+                  <a href="#deliveryOrder" data-file="modules/deliveryOrder/deliveryOrder.php" class="nav-link link">
+                    <i class="nav-icon fas fa-truck-loading"></i>
+                    <p><?=$languageArray['delivery_order_code'][$language] ?? 'Delivery Order'?></p>
+                  </a>
+                </li>
+                <?php } ?>
                 <li class="nav-item">
                   <a href="#wholesales" data-file="modules/wholesales/wholesales.php" class="nav-link link">
                     <i class="nav-icon fas fa-cubes"></i>
@@ -557,12 +567,6 @@ to get the desired effect
                   </a>
                 </li>
                 <?php } ?>
-                <li class="nav-item">
-                  <a href="#repacking" data-file="modules/repacking/repacking.php" class="nav-link link">
-                    <i class="nav-icon fas fa-dolly"></i>
-                    <p><?=$languageArray['repacking_code'][$language]?></p>
-                  </a>
-                </li>
               <?php } ?>
               <?php if ($module == 'weighing') { ?>
               <li class="nav-item">
@@ -624,6 +628,14 @@ to get the desired effect
               <p><?=$languageArray['reports_code'][$language]?><i class="fas fa-angle-left right"></i></p>
             </a>
             <ul class="nav nav-treeview" style="display: block;">
+              <?php if ($allowDeliveryOrder == 'Y') { ?>
+              <li class="nav-item">
+                <a href="#doReport" data-file="modules/deliveryOrder/doReport.php" class="nav-link link">
+                  <i class="nav-icon fas fa-file-alt"></i>
+                  <p><?=$languageArray['do_receiving_report_code'][$language] ?? 'Daily Receiving Report'?></p>
+                </a>
+              </li>
+              <?php } ?>
               <li class="nav-item">
                 <a href="#reports" data-file="modules/wholesales/reports.php" class="nav-link link">
                   <i class="nav-icon fas fa-chart-bar"></i>
@@ -859,6 +871,16 @@ to get the desired effect
                             <p>'.$languageArray['staffs_code'][$language].'</p>
                           </a>
                         </li>';
+
+                  if ($allowApiIntegration == 'Y'){
+                    echo '
+                        <li class="nav-item">
+                          <a href="#apiIntegrations" data-file="apiIntegrations.php" class="nav-link link">
+                            <i class="nav-icon fas fa-plug"></i>
+                            <p>'.($languageArray['api_integrations_code'][$language] ?? 'API Integrations').'</p>
+                          </a>
+                        </li>';
+                  }
 
                   if ($enableDailySales == 'Y'){
                     echo '

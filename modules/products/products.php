@@ -422,6 +422,35 @@ else{
             </div>
           </div>
 
+          <!-- DO Weight Tolerance -->
+          <!-- Always posted so saving never resets it; only shown when the company uses Delivery Order -->
+          <div class="modal-section <?=(($_SESSION['featureFlags']['include_delivery_order'] ?? 'N') == 'Y') ? '' : 'd-none'?>">
+            <div class="section-title mb-3"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['do_weight_tolerance_section_code'][$language] ?? 'DO Weight Tolerance'?></div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern" style="color:#007bff;"><?=$languageArray['do_tolerance_gain_code'][$language] ?? 'Allowed Weight Gain (Received > DO)'?></label>
+                  <input type="number" class="form-control" id="productDoTolerance" name="doWeightTolerance" step="0.01" min="0" placeholder="0">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern" style="color:#dc3545;"><?=$languageArray['do_tolerance_loss_code'][$language] ?? 'Allowed Weight Loss (Received < DO)'?></label>
+                  <input type="number" class="form-control" id="productDoToleranceMinus" name="doWeightToleranceMinus" step="0.01" min="0" placeholder="0">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+                  <select class="form-control" id="productDoToleranceType" name="doWeightToleranceType">
+                    <option value="KG">kg</option>
+                    <option value="PERCENT">%</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Grades -->
           <div class="modal-section">
             <div class="section-title mb-3"><i class="fas fa-layer-group mr-2"></i><?=$languageArray['grades_code'][$language]?></div>
