@@ -20,14 +20,12 @@ $userAllowDelete = $_SESSION['userAllowDelete'] ?? 'N';
 $t = function ($key, $default = '') use ($languageArray, $language) { return $languageArray[$key][$language] ?? $default; };
 ?>
 
+<div class="content-header" style="padding-bottom: 0;">
+  <div class="container-fluid"></div>
+</div>
+
 <div class="content page-modern">
   <div class="container-fluid">
-
-    <!-- Page Header -->
-    <div class="page-header">
-      <h1 class="page-title"><i class="fas fa-truck-loading"></i> <?=$t('delivery_order_code', 'Delivery Order')?></h1>
-    </div>
-
     <!-- Filter Card -->
     <div class="card filter-card">
       <div class="card-body">
@@ -66,12 +64,12 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
     <div class="card results-card show-dt-controls">
       <div class="card-header">
         <div class="results-header-left">
-          <h3 class="results-title"><i class="fas fa-list"></i> <?=$t('delivery_order_code', 'Delivery Order')?></h3>
+          <h3 class="results-title"><i class="fas fa-truck-loading mr-2"></i><?=$t('delivery_order_code', 'Delivery Order')?></h3>
         </div>
-        <div class="results-header-right d-flex">
-          <button type="button" class="btn btn-action btn-action-warning mr-2" id="doTemplateBtn"><i class="fas fa-download mr-1"></i><?=$t('download_template_code', 'Download Template')?></button>
+        <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
+          <button type="button" class="btn btn-action btn-action-warning" id="doTemplateBtn"><i class="fas fa-download mr-1"></i><?=$t('download_template_code', 'Download Template')?></button>
           <?php if($userAllowAdd == 'Y'){ ?>
-          <button type="button" class="btn btn-action btn-action-success mr-2" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
+          <button type="button" class="btn btn-action btn-action-success" id="doUploadBtn"><i class="fas fa-file-excel mr-1"></i><?=$t('upload_excel_code', 'Upload Excel')?></button>
           <input type="file" id="doExcelFile" accept=".xlsx,.xls" class="d-none">
           <input type="file" id="doScanFile" accept="image/jpeg,image/png,image/webp" capture="environment" class="d-none">
           <button type="button" class="btn btn-action btn-action-primary" id="newDoBtn">
@@ -97,79 +95,73 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
         </table>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Delivery Order Modal -->
-    <div class="modal fade modal-modern" id="doModal" tabindex="-1">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-header">
+<!-- Delivery Order Modal -->
+<div class="modal fade modal-modern" id="doModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><?=$t('delivery_order_code', 'Delivery Order')?> - <span id="doModalTitle"><?=$t('new_code', 'New')?></span></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="doId">
+
+        <div class="modal-section">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="section-title mb-0"><i class="fas fa-file-alt mr-2"></i><?=$t('do_order_details_code', 'Order Details')?></div>
             <div class="d-flex align-items-center">
-              <span class="do-modal-icon mr-3"><i class="fas fa-truck-loading"></i></span>
-              <div>
-                <h5 class="modal-title"><?=$t('delivery_order_code', 'Delivery Order')?> - <span id="doModalTitle"><?=$t('new_code', 'New')?></span></h5>
-                <div class="do-modal-subtitle"><?=$t('do_modal_subtitle_code', 'Good deliveries start with the right details.')?></div>
+              <?php if($userAllowAdd == 'Y' && ($_SESSION['featureFlags']['include_api_integration'] ?? 'N') == 'Y'){ ?>
+              <div class="btn-group" id="doScanGroup">
+                <button type="button" class="btn btn-modern btn-modern-primary btn-sm dropdown-toggle" id="doScanBtn" data-toggle="dropdown"><i class="fas fa-camera mr-1"></i><?=$t('do_scan_paper_code', 'Scan Paper DO')?></button>
+                <div class="dropdown-menu dropdown-menu-right" id="doScanProviders"></div>
               </div>
-            </div>
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" id="doId">
-
-            <div class="modal-section">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="section-title mb-0"><span class="do-step mr-2">01</span><?=$t('do_order_details_code', 'Order Details')?></h6>
-                <div class="d-flex align-items-center">
-                  <?php if($userAllowAdd == 'Y' && ($_SESSION['featureFlags']['include_api_integration'] ?? 'N') == 'Y'){ ?>
-                  <div class="btn-group" id="doScanGroup">
-                    <button type="button" class="btn btn-modern btn-modern-primary btn-sm dropdown-toggle" id="doScanBtn" data-toggle="dropdown"><i class="fas fa-camera mr-1"></i><?=$t('do_scan_paper_code', 'Scan Paper DO')?></button>
-                    <div class="dropdown-menu dropdown-menu-right" id="doScanProviders"></div>
-                  </div>
-                  <?php } ?>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-3">
-                  <div class="form-group-modern">
-                    <label class="form-label-modern"><?=$t('date_code', 'Date')?> <span class="text-danger">*</span></label>
-                    <div class="input-group date" id="doDatePicker" data-target-input="nearest">
-                      <input type="text" class="form-control datetimepicker-input" data-target="#doDatePicker" id="doDate"/>
-                      <div class="input-group-append" data-target="#doDatePicker" data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="form-group-modern">
-                    <label class="form-label-modern"><?=$t('do_no_code', 'DO No')?> <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="doNo">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group-modern">
-                    <label class="form-label-modern"><?=$t('remark_code', 'Remark')?> <span class="do-hint ml-1"><?=$t('optional_code', 'Optional')?></span></label>
-                    <textarea class="form-control" id="doRemark" rows="1" placeholder="<?=$t('enter_remark_code', 'Enter remark')?>"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="modal-section">
-              <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                <h6 class="section-title mb-0"><span class="do-step mr-2">02</span><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></h6>
-                <div class="d-flex align-items-center" style="width:15%;">
-                  <select id="doSupplierPicker" class="form-control form-control-sm" style="width:100%;"></select>
-                </div>
-              </div>
-              <ul class="nav do-supplier-tabs mb-3" id="doSupplierTabs"></ul>
-              <div id="doSuppliers" class="tab-content do-suppliers"></div>
+              <?php } ?>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('close_code', 'Close')?></button>
-            <button type="button" class="btn btn-modern btn-modern-primary" id="saveDoBtn"><i class="fas fa-check mr-1"></i><?=$t('save_code', 'Save')?></button>
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="form-label-modern"><?=$t('date_code', 'Date')?> <span class="text-danger">*</span></label>
+                <div class="input-group date" id="doDatePicker" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#doDatePicker" id="doDate"/>
+                  <div class="input-group-append" data-target="#doDatePicker" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label class="form-label-modern"><?=$t('do_no_code', 'DO No')?> <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="doNo">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label-modern"><?=$t('remark_code', 'Remark')?> <span class="do-hint ml-1"><?=$t('optional_code', 'Optional')?></span></label>
+                <textarea class="form-control" id="doRemark" rows="1" placeholder="<?=$t('enter_remark_code', 'Enter remark')?>"></textarea>
+              </div>
+            </div>
           </div>
         </div>
+
+        <div class="modal-section">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div class="section-title mb-0"><i class="fas fa-users mr-2"></i><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></div>
+            <div class="d-flex align-items-center" style="width:15%;">
+              <select id="doSupplierPicker" class="form-control form-control-sm" style="width:100%;"></select>
+            </div>
+          </div>
+          <ul class="nav do-supplier-tabs mb-3" id="doSupplierTabs"></ul>
+          <div id="doSuppliers" class="tab-content do-suppliers"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$t('close_code', 'Close')?></button>
+        <button type="button" class="btn btn-modern btn-modern-primary" id="saveDoBtn"><i class="fas fa-check mr-1"></i><?=$t('save_code', 'Save')?></button>
       </div>
     </div>
   </div>
@@ -180,7 +172,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-file-excel mr-2 text-muted"></i><?=$t('do_import_preview_code', 'Upload Preview')?></h5>
+        <h4 class="modal-title"><i class="fas fa-file-excel mr-2 text-muted"></i><?=$t('do_import_preview_code', 'Upload Preview')?></h4>
         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
@@ -325,7 +317,7 @@ var doText = <?=json_encode([
   'skipped' => $t('do_skipped_code', 'Skipped')
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 </script>
-<script src="modules/deliveryOrder/js/modal.js?ver=<?=filemtime(__DIR__ . "/js/modal.js")?>"></script>
-<script src="modules/deliveryOrder/js/save.js?ver=<?=filemtime(__DIR__ . "/js/save.js")?>"></script>
-<script src="modules/deliveryOrder/js/import.js?ver=<?=filemtime(__DIR__ . "/js/import.js")?>"></script>
-<script src="modules/deliveryOrder/js/deliveryOrder.js?ver=<?=filemtime(__DIR__ . "/js/deliveryOrder.js")?>"></script>
+<script src="modules/deliveryOrder/js/modal.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/deliveryOrder/js/save.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/deliveryOrder/js/import.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
+<script src="modules/deliveryOrder/js/deliveryOrder.js?ver=<?=$_SESSION['ver'] ?? '1.0.0'?>"></script>
