@@ -154,7 +154,7 @@ if (!isset($_SESSION['userID'])) {
         <?php require_once __DIR__ . '/tab_repacking.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['processing']))) { ?>
-        <?php require_once 'modules/dashboard/tab_grading.php'; ?>
+        <?php require_once __DIR__ . '/tab_grading.php'; ?>
       <?php } ?>
       <?php if (!empty(array_intersect($companyProducts, ['industrial']))) { ?>
         <?php require_once __DIR__ . '/tab_pulppaste.php'; ?>
