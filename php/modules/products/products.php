@@ -262,7 +262,7 @@ if(isset($_POST['code'], $_POST['product'], $_POST['company'])){
                                             $update_stmt2->close();
                                         }
                                     }else{
-                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                                        if ($product_stmt = $db->prepare("INSERT INTO product_grades (product_id, grade_id, type, pricing_type, pricing_currency, price, purchasing_pricing_type, purchasing_pricing_currency, purchasing_price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
                                             $product_stmt->bind_param('ssssssssss', $_POST['id'], $gradeId, $gType, $gPricingType, $gPricingCurrency, $gPrice, $gPurchasingPricingType, $gPurchasingPricingCurrency, $gPurchasingPrice, $userID);
                                             $product_stmt->execute();
                                             $product_stmt->close();
