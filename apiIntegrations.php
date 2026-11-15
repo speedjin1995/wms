@@ -82,6 +82,7 @@ var apiText = <?=json_encode([
   'setLogin' => $t('ai_set_key_code', 'Set login'),
   'changeLogin' => $t('ai_change_key_code', 'Change login'),
   'remove' => $t('remove_code', 'Remove'),
+  'getKey' => $t('api_get_key_code', 'Get API Key'),
   'confirmRemove' => $t('api_login_confirm_remove_code', 'Remove this login? Calls will use the platform default, if any.'),
   'saved' => $t('api_login_saved_code', 'Saved:'),
   'keepSecret' => $t('api_login_keep_code', 'Leave blank to keep the saved value'),
@@ -107,6 +108,12 @@ var apiTypeLabels = <?=json_encode([
 
 var apiIntegrationApi = 'php/modules/integrations/api.php';
 
+// Provider consoles where the customer gets an API key
+var apiProviderLinks = {
+  llm_claude: 'https://platform.claude.com',
+  llm_openai: 'https://platform.openai.com'
+};
+
 // One row per connection the vendor opened to customers
 function loadApiIntegrations() {
   $.post(apiIntegrationApi, { action: 'setup' }).done(function(obj) {
@@ -129,6 +136,12 @@ function loadApiIntegrations() {
             .text(apiText.remove)
             .data('login', c));
         }
+      }
+
+      if (c.auth_type && !c.secret_hint && apiProviderLinks[c.code]) {
+        $action.prepend($('<a target="_blank" rel="noopener" class="btn btn-action btn-action-secondary mr-1"><i class="fas fa-external-link-alt mr-1"></i></a>')
+          .append($('<span>').text(apiText.getKey))
+          .attr({ href: apiProviderLinks[c.code], title: apiProviderLinks[c.code] }));
       }
 
       $tbody.append($('<tr>').append(
