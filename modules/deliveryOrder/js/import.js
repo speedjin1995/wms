@@ -90,7 +90,17 @@ function loadAiProviders() {
     var $menu = $('#doScanProviders').empty();
     var keyed = (obj.data || []).filter(function(c) { return aiProviders[c.code] && c.secret_hint; });
     if (!keyed.length) {
-      $menu.append($('<span class="dropdown-item-text text-muted">').text(doText.aiNotSetUp));
+      // Sidebar link only exists for users allowed to open API Integrations
+      var $setupLink = $("#sideMenu a[href='#apiIntegrations']");
+      if (!$setupLink.length) {
+        $menu.append($('<span class="dropdown-item-text text-muted">').text(doText.aiNotSetUp));
+        return;
+      }
+
+      $menu.append($('<span class="dropdown-item-text text-muted">').text(doText.aiNotSetUpAdmin));
+      $menu.append($('<button type="button" class="dropdown-item">').html('<i class="fas fa-plug mr-1"></i>').append($('<span>').text(doText.aiSetUpLink)).on('click', function() {
+        $('#doModal').one('hidden.bs.modal', function() { $setupLink.click(); }).modal('hide');
+      }));
       return;
     }
 

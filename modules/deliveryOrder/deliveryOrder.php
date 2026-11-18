@@ -275,6 +275,8 @@ var doAllowDelete = '<?=$userAllowDelete?>';
 var doText = <?=json_encode([
   'doWeight' => $t('do_weight_code', 'DO Weight'),
   'aiNotSetUp' => $t('do_ai_not_set_up_code', 'AI scan is not set up. Please contact support.'),
+  'aiNotSetUpAdmin' => $t('do_ai_not_set_up_admin_code', 'AI scan is not set up.'),
+  'aiSetUpLink' => $t('do_ai_set_up_link_code', 'Set up in API Integrations'),
   'received' => $t('received_weight_code', 'Received Weight'),
   'loss' => $t('weight_loss_code', 'Weight Loss'),
   'edit' => $t('edit_code', 'Edit'),
