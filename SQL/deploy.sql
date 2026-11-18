@@ -4113,3 +4113,58 @@ ALTER TABLE `api_connector_credentials` MODIFY `auth_type` enum('none','api_key'
 ALTER TABLE `api_connectors` ADD COLUMN `tenant_auth_type` varchar(20) DEFAULT NULL COMMENT "api_key, bearer, basic, header or jwt" AFTER `tenant_configurable`, ADD COLUMN `tenant_auth_config` text DEFAULT NULL COMMENT "JSON preset, vendor only" AFTER `tenant_auth_type`;
 
 ALTER TABLE `api_call_logs` MODIFY `request_body` longtext DEFAULT NULL, MODIFY `response_body` longtext DEFAULT NULL;
+
+-- 19/11/2026 --
+ALTER TABLE stock_movements
+  ADD KEY idx_company_product_grade (company, product_id, grade),
+  ADD KEY idx_company_created (company, created_date),
+  ADD KEY idx_module_source (module, source_id),
+  ADD KEY idx_original_movement (original_movement_id);
+
+ALTER TABLE stock_balances
+  ADD KEY idx_company_deleted_product (company, deleted, product_id, grade);
+ALTER TABLE raw_stock_balance
+  ADD KEY idx_company_deleted_product (company, deleted, product_id, grade);
+ALTER TABLE grading_stock_balance
+  ADD KEY idx_company_deleted_product (company, deleted, product_id, grade);
+
+ALTER TABLE packaging_batches
+  ADD KEY idx_company_deleted_date (company, deleted, packaging_date),
+  ADD KEY idx_company_batchno (company, batch_no);
+ALTER TABLE packaging_batch_items
+  ADD KEY idx_batch_deleted (packaging_batch_id, deleted),
+  ADD KEY idx_product_grade (product_id, grade),
+  ADD KEY idx_supplier (supplier_id);
+
+ALTER TABLE grading
+  ADD KEY idx_company_deleted_date (company, deleted, start_date),
+  ADD KEY idx_company_gradingno (company, grading_no);
+ALTER TABLE grading_items
+  ADD KEY idx_grading_deleted (grading_id, deleted),
+  ADD KEY idx_wholesales (wholesales_id);
+
+ALTER TABLE loading_orders
+  ADD KEY idx_company_deleted_date (company, deleted, loading_date);
+ALTER TABLE loading_order_items
+  ADD KEY idx_order_deleted (loading_order_id, deleted),
+  ADD KEY idx_pbi (packaging_batch_item_id);
+
+ALTER TABLE delivery_orders
+  ADD KEY idx_company_deleted_date (company, deleted, do_date);
+ALTER TABLE payment_vouchers
+  ADD KEY idx_company_deleted_date (company, deleted, voucher_date),
+  ADD KEY idx_entity (entity_id);
+ALTER TABLE repacking_items ADD KEY idx_repacking_deleted (repacking_id, deleted);
+ALTER TABLE stock_adjustments
+  ADD KEY idx_company_deleted_date (company, deleted, adjustment_date);
+ALTER TABLE stock_adjustment_items ADD KEY idx_adj_deleted (adjustment_id, deleted);
+ALTER TABLE stock_transfers ADD KEY idx_company_deleted (company, deleted, created_date);
+ALTER TABLE stock_transfer_items ADD KEY idx_transfer (stock_transfer_id, deleted);
+
+ALTER TABLE products          ADD KEY idx_customer_deleted (customer, deleted);
+ALTER TABLE product_suppliers ADD KEY idx_product_deleted (product_id, deleted), ADD KEY idx_supplier (supplier_id);
+ALTER TABLE product_customers ADD KEY idx_product_deleted (product_id, deleted), ADD KEY idx_customer (customer_id);
+ALTER TABLE categories        ADD KEY idx_customer_deleted (customer, deleted);
+ALTER TABLE locations         ADD KEY idx_customer_deleted (customer, deleted);
+ALTER TABLE drivers           ADD KEY idx_customer_deleted (customer, deleted);
+ALTER TABLE bin_type          ADD KEY idx_customer_deleted (customer, deleted);
