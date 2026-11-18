@@ -163,9 +163,9 @@ class ConnectorRepository extends BaseService
         $this->requireSuperAdmin();
 
         $this->db->begin_transaction();
-        $ok = $this->softDeleteRows('api_connector_operations', 'connector_id = ?', 'i', [$id])
-            && $this->softDeleteRows('api_connector_credentials', 'connector_id = ?', 'i', [$id])
-            && $this->softDeleteRows('api_connectors', 'id = ?', 'i', [$id]);
+        $ok = $this->softDeleteRows('api_connector_operations', 'connector_id = ? AND deleted = 0', 'i', [$id])
+            && $this->softDeleteRows('api_connector_credentials', 'connector_id = ? AND deleted = 0', 'i', [$id])
+            && $this->softDeleteRows('api_connectors', 'id = ? AND deleted = 0', 'i', [$id]);
         $ok ? $this->db->commit() : $this->db->rollback();
 
         return $ok;
@@ -289,7 +289,7 @@ class ConnectorRepository extends BaseService
             throw new \RuntimeException('Connector is not tenant configurable');
         }
 
-        return $this->softDeleteRows('api_connector_credentials', 'connector_id = ? AND company = ?', 'ii', [$connectorId, $this->company]);
+        return $this->softDeleteRows('api_connector_credentials', 'connector_id = ? AND company = ? AND deleted = 0', 'ii', [$connectorId, $this->company]);
     }
 
     /**
