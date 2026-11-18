@@ -149,13 +149,15 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
         </div>
 
         <div class="modal-section">
-          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div class="section-title mb-0"><i class="fas fa-users mr-2"></i><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></div>
-            <div class="d-flex align-items-center" style="width:15%;">
-              <select id="doSupplierPicker" class="form-control form-control-sm" style="width:100%;"></select>
+          <div class="do-supplier-bar">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+              <div class="section-title mb-0"><i class="fas fa-users mr-2"></i><?=$t('do_suppliers_items_code', 'Suppliers & Items')?></div>
+              <div class="d-flex align-items-center" style="width:15%;">
+                <select id="doSupplierPicker" class="form-control form-control-sm" style="width:100%;"></select>
+              </div>
             </div>
+            <ul class="nav do-supplier-tabs mb-3" id="doSupplierTabs"></ul>
           </div>
-          <ul class="nav do-supplier-tabs mb-3" id="doSupplierTabs"></ul>
           <div id="doSuppliers" class="tab-content do-suppliers"></div>
         </div>
       </div>
@@ -237,7 +239,7 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
   <div class="do-line">
     <div class="do-line-head">
       <span class="do-line-icon"><i class="fas fa-box-open"></i></span>
-      <div class="do-line-field">
+      <div class="do-line-field d-none">
         <label class="do-field-label"><?=$t('category_code', 'Category')?></label>
         <select class="form-control form-control-sm do-category"></select>
       </div>
@@ -257,7 +259,6 @@ $t = function ($key, $default = '') use ($languageArray, $language) { return $la
       <div class="do-bag-row do-bag-labels">
         <span><?=$t('do_weight_code', 'DO Weight')?></span>
         <span><?=$t('received_weight_code', 'Received Weight')?></span>
-        <span><?=$t('weight_loss_code', 'Weight Loss')?></span>
         <span></span>
       </div>
       <div class="do-bags"></div>

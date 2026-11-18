@@ -66,7 +66,9 @@ $(function() {
       updateDoTotals();
     })
     .on('change', '.do-product', function() {
-      fillGrades($(this).closest('.do-line'), $(this).val());
+      var $row = $(this).closest('.do-line');
+      setLineCategory($row, $(this).val());
+      fillGrades($row, $(this).val());
       updateDoTotals();
     })
     .on('input', '.do-bag-do, .do-bag-received', updateDoTotals)
@@ -279,14 +281,17 @@ function addLine($card, data) {
   });
   $row.find('.do-category').append(categoryOptions);
   initSelect2($row.find('.do-category, .do-product, .do-grade'));
+  fillProducts($row);
 
   if (data.category) {
     $row.find('.do-category').val(data.category).trigger('change.select2');
-    fillProducts($row, data.category);
   }
 
   if (data.product) {
     $row.find('.do-product').val(data.product).trigger('change.select2');
+    if (!data.category) {
+      setLineCategory($row, data.product);
+    }
     fillGrades($row, data.product);
   }
 
@@ -303,20 +308,18 @@ function addLine($card, data) {
   return $row;
 }
 
-function fillProducts($row, categoryId) {
-  var products = [];
-  if (categoryId) {
-    products = doOptions.products.filter(function(p) {
-      return p.category == categoryId;
-    });
-  }
-
-  var productOptions = optionList(products, 'id', function(p) {
-    var code = p.product_code ? p.product_code + ' - ' : '';
-    return code + p.product_name;
+// Category is hidden, so the picker lists every product by name; the category follows the product
+function fillProducts($row) {
+  var productOptions = optionList(doOptions.products, 'id', function(p) {
+    return p.product_name;
   });
 
   $row.find('.do-product').empty().append(productOptions).trigger('change.select2');
+}
+
+function setLineCategory($row, productId) {
+  var product = productId ? findProduct(productId) : null;
+  $row.find('.do-category').val(product ? product.category : '').trigger('change.select2');
 }
 
 function fillGrades($row, productId) {
@@ -337,7 +340,6 @@ function addBag($row, pair) {
     '<div class="do-bag do-bag-row">' +
       '<div class="input-group input-group-sm" data-label="' + doText.doWeight + '"><input type="number" step="0.01" class="form-control do-bag-do"><div class="input-group-append"><span class="input-group-text">kg</span></div></div>' +
       '<div class="input-group input-group-sm" data-label="' + doText.received + '"><input type="number" step="0.01" class="form-control do-bag-received" placeholder="' + doText.notWeighed + '"><div class="input-group-append"><span class="input-group-text">kg</span></div></div>' +
-      '<div class="do-bag-loss" data-label="' + doText.loss + '"></div>' +
       '<div class="text-center"><button type="button" class="btn btn-link text-muted btn-sm do-remove-bag" title="' + doText.deleteEntry + '" aria-label="' + doText.deleteEntry + '"><i class="fas fa-times"></i></button></div>' +
     '</div>'
   );
@@ -425,9 +427,7 @@ function updateDoTotals() {
         flagClass = 'text-danger font-weight-bold';
       }
 
-      var pct = complete && doW > 0 ? '<small class="d-block text-muted">' + (loss / doW * 100).toFixed(2) + '%</small>' : '';
-      $bag.find('.do-bag-loss')
-        .html(complete ? loss.toFixed(2) + ' kg' + pct : '—')
+      $bag.find('.do-bag-received')
         .removeClass(DO_FLAG_CLASSES)
         .addClass(flagClass);
     });
