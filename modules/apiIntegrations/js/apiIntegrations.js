@@ -1,5 +1,11 @@
 var apiIntegrationApi = 'php/modules/integrations/api.php';
 
+// Provider consoles where the customer gets an API key
+var apiProviderLinks = {
+  llm_claude: 'https://platform.claude.com',
+  llm_openai: 'https://platform.openai.com'
+};
+
 $(function() {
   loadApiIntegrations();
 
@@ -86,6 +92,11 @@ function loadApiIntegrations() {
             .attr('title', apiText.remove)
             .append($('<i class="fas fa-trash">'))
             .data('login', c));
+        }
+        if (!c.secret_hint && apiProviderLinks[c.code]) {
+          $action.prepend($('<a target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary text-nowrap">')
+            .attr({ href: apiProviderLinks[c.code], title: apiProviderLinks[c.code] })
+            .append($('<i class="fas fa-external-link-alt mr-1">'), $('<span>').text(apiText.getKey)));
         }
       }
 
