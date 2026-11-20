@@ -87,6 +87,7 @@ var apiText = <?=json_encode([
   'setLogin' => $t('ai_set_key_code', 'Set login'),
   'changeLogin' => $t('ai_change_key_code', 'Change login'),
   'remove' => $t('remove_code', 'Remove'),
+  'getKey' => $t('api_get_key_code', 'Get API Key'),
   'confirmRemove' => $t('api_login_confirm_remove_code', 'Remove this login? Calls will use the platform default, if any.'),
   'saved' => $t('api_login_saved_code', 'Saved:'),
   'keepSecret' => $t('api_login_keep_code', 'Leave blank to keep the saved value'),
