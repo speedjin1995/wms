@@ -41,9 +41,10 @@ else{
     $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
     $allowIntegration = $_SESSION['featureFlags']['include_integration'] ?? 'N';
     $allowPcsBasket = $_SESSION['featureFlags']['include_pcs_basket'] ?? 'N';
+    $allowProcessing = $_SESSION['featureFlags']['include_processing'] ?? 'N';
     $secRemarksExists = ($_SESSION['featureFlags']['include_sec_remark'] ?? '') == 'Y' ? true : false;
 
-    // Company Detail 
+    // Company Detail
     $companyDetail = searchCompanyById($company, $db);
     $columnSetup = [];
     if (!empty($companyDetail['column_setup'])) {
@@ -63,6 +64,7 @@ else{
     $allowPrice = 'Y';
     $allowIntegration = 'Y';
     $allowPcsBasket = 'Y';
+    $allowProcessing = 'Y';
     $secRemarksExists = true;
     $columnSetup = [];
   }
@@ -122,6 +124,9 @@ else{
             <select class="form-control" id="transactionStatusFilter">
               <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
               <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+              <?php if ($allowProcessing == 'Y') { ?>
+              <option value="PROCESSING"><?=$languageArray['processing_code'][$language]?></option>
+              <?php } ?>
               <?php if (in_array('stocks', $companyProducts)) { ?>
               <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
               <?php } ?>
@@ -343,6 +348,31 @@ else{
   </div>
 </div>
 
+<!-- Excel Export Modal -->
+<div class="modal fade modal-modern" id="excelModal" tabindex="-1">
+  <div class="modal-dialog" style="max-width:420px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-file-excel mr-2 text-muted"></i><?=$languageArray['export_excel_code'][$language]?></h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group-modern">
+          <label class="form-label-modern"><?=$languageArray['report_type_code'][$language]?></label>
+          <select class="form-control" id="excelExportType">
+            <option value="summary"><?=$languageArray['summary_report_code'][$language]?></option>
+            <option value="detail"><?=$languageArray['detail_report_code'][$language] ?? 'Detail Report'?></option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['cancel_code'][$language]?></button>
+        <button type="button" class="btn btn-modern btn-modern-primary" id="excelExportBtn"><?=$languageArray['export_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Integration Export Modal -->
 <div class="modal fade modal-modern" id="integrationModal" tabindex="-1">
   <div class="modal-dialog" style="max-width:420px;">
@@ -521,9 +551,15 @@ $(function () {
   });
 
   $('#exportExcel').on('click', function() {
+    $('#excelExportType').val('summary');
+    $('#excelModal').modal('show');
+  });
+
+  $('#excelExportBtn').on('click', function() {
     var params = buildParams();
     var selectedIds = getSelectedIds();
-    window.open("php/modules/wholesales/export.php?" + params.substring(1) + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N"));
+    window.open("php/modules/wholesales/export.php?" + params.substring(1) + (selectedIds.length > 0 ? "&isMulti=Y&ids=" + selectedIds : "&isMulti=N") + "&exportType=" + $('#excelExportType').val());
+    $('#excelModal').modal('hide');
   });
 
   if (allowIntegration === 'Y') {

@@ -3,6 +3,7 @@ require_once '../../db_connect.php';
 require_once '../../lookup.php';
 require_once '../../../vendor/autoload.php';
 
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -399,8 +400,8 @@ if (!empty($_GET['status']) && $_GET['status'] != '-') {
 $isMulti = $_GET['isMulti'] ?? '';
 
 if ($isMulti == 'Y') {
-    $ids   = $_GET['ids'] ?? '';
-    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (" . $ids . ")");
+    $ids   = implode(',', array_map('intval', explode(',', $_GET['ids'] ?? '0')));
+    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (" . $ids . ") AND wholesales.company = '$company'");
 } else {
     $query = $db->query("SELECT wholesales.* FROM wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id WHERE wholesales.deleted = '0' AND wholesales.company = '$company'" . $searchQuery);
 }
@@ -416,6 +417,186 @@ if ($defCurrRow = $defCurrResult->fetch_assoc()) {
     $defaultCurrency = $defCurrRow['currency'];
 }
 $defCurrStmt->close();
+
+// ─── Detail export: one sheet, weighing lines grouped by record ──────────────
+
+if (($_GET['exportType'] ?? '') === 'detail') {
+    $role           = $_SESSION['role'] ?? 'NORMAL';
+    $featureFlags   = $_SESSION['featureFlags'] ?? [];
+    $allowPhoto     = $role === 'SADMIN' ? 'Y' : ($featureFlags['include_photo'] ?? 'N');
+    $dAllowPrice    = $role === 'SADMIN' ? 'Y' : ($featureFlags['include_price'] ?? ($companyDetail['include_price'] ?? 'N'));
+    $dAllowPcs      = $role === 'SADMIN' ? 'Y' : ($featureFlags['include_pcs_basket'] ?? ($companyDetail['include_pcs_basket'] ?? 'N'));
+    $showPrice      = $dAllowPrice === 'Y' && $userAllowPrice === 'Y';
+    $languageArray  = $_SESSION['languageArray'] ?? [];
+    $language       = $_SESSION['language'] ?? '';
+    $label = static function ($key, $fallback) use ($languageArray, $language) {
+        return $languageArray[$key][$language] ?? $fallback;
+    };
+
+    $headers = [
+        $label('product_code', 'Product'),
+        $label('grade_code', 'Grade'),
+        $label('gross_code', 'Gross'),
+        $label('tare_code', 'Tare'),
+        $label('net_code', 'Net'),
+    ];
+    if ($dAllowPcs === 'Y') {
+        $headers[] = $label('pcs_basket_code', 'Pcs/Basket');
+    }
+    if ($showPrice) {
+        $headers[] = $label('currency_code', 'Currency');
+        $headers[] = $label('price_code', 'Price');
+        $headers[] = $label('before_disc_code', 'Before Disc');
+        $headers[] = $label('discount_code', 'Discount');
+        $headers[] = $label('total_code', 'Total');
+    }
+    $headers[] = $label('time_code', 'Time');
+    if ($allowPhoto === 'Y') {
+        $headers[] = $label('photo_code', 'Photo');
+    }
+    $lastColumn = colLetter(count($headers));
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setTitle('Weighing Details');
+    $sheet->setCellValue('A1', 'Date: ' . ($fromDate ?: '-') . ' to ' . ($toDate ?: '-'));
+    $sheet->getStyle('A1')->getFont()->setBold(true);
+    $sheet->mergeCells('A1:' . $lastColumn . '1');
+
+    // Writes a bold totals row; column positions follow $headers order
+    $writeTotals = static function ($sheet, $rowIndex, $text, $t) use ($dAllowPcs, $showPrice, $lastColumn) {
+        $sheet->setCellValue('A' . $rowIndex, $text);
+        $sheet->setCellValue('C' . $rowIndex, $t['gross']);
+        $sheet->setCellValue('D' . $rowIndex, $t['tare']);
+        $sheet->setCellValue('E' . $rowIndex, $t['net']);
+        $ci = 6;
+        if ($dAllowPcs === 'Y') {
+            $sheet->setCellValue(colLetter($ci++) . $rowIndex, $t['basket']);
+        }
+        if ($showPrice) {
+            $ci += 2;
+            $sheet->setCellValue(colLetter($ci++) . $rowIndex, $t['before_discount']);
+            $sheet->setCellValue(colLetter($ci++) . $rowIndex, $t['discount']);
+            $sheet->setCellValue(colLetter($ci) . $rowIndex, $t['total']);
+        }
+        $sheet->getStyle('A' . $rowIndex . ':' . $lastColumn . $rowIndex)->getFont()->setBold(true);
+        $sheet->getStyle('C' . $rowIndex . ':' . $lastColumn . $rowIndex)->getNumberFormat()->setFormatCode('#,##0.00');
+    };
+
+    $emptyTotals = ['gross' => 0.0, 'tare' => 0.0, 'net' => 0.0, 'basket' => 0, 'before_discount' => 0.0, 'discount' => 0.0, 'total' => 0.0];
+    $grandTotals = $emptyTotals;
+    $rowIndex = 3;
+
+    while ($row = $query->fetch_assoc()) {
+        $isDispatch = ($row['status'] == 'DISPATCH' || $row['status'] == 'STOCK-BAL' || $row['status'] == 'OUTGOING');
+        $partyLabel = $isDispatch ? 'Customer' : 'Supplier';
+        $partyName  = $isDispatch
+            ? searchCustomerNameById($row['customer'], $row['other_customer'], $db)
+            : searchSupplierNameById($row['supplier'], $row['other_supplier'], $db);
+        $startTime  = !empty($row['start_time']) ? (new DateTime($row['start_time']))->format('d/m/Y H:i') : '';
+
+        // Record header
+        $sheet->setCellValueExplicit('A' . $rowIndex, $label('serial_no_code', 'Serial No.') . ': ' . $row['serial_no'] . '   |   Date: ' . $startTime . '   |   ' . $partyLabel . ': ' . $partyName . '   |   Vehicle: ' . $row['vehicle_no'], DataType::TYPE_STRING);
+        $sheet->mergeCells('A' . $rowIndex . ':' . $lastColumn . $rowIndex);
+        $sheet->getStyle('A' . $rowIndex)->getFont()->setBold(true);
+        $sheet->getStyle('A' . $rowIndex . ':' . $lastColumn . $rowIndex)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFD6EAF8');
+        $rowIndex++;
+
+        $sheet->fromArray($headers, null, 'A' . $rowIndex);
+        $sheet->getStyle('A' . $rowIndex . ':' . $lastColumn . $rowIndex)->getBorders()->getAllBorders()
+            ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        $sheet->getStyle('A' . $rowIndex . ':' . $lastColumn . $rowIndex)->getFont()->setBold(true);
+        $sheet->getStyle('A' . $rowIndex . ':' . $lastColumn . $rowIndex)->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFE9ECEF');
+        $rowIndex++;
+
+        $weightDetails = json_decode($row['weight_details'] ?? '[]', true);
+        if (!is_array($weightDetails)) {
+            $weightDetails = [];
+        }
+
+        $totals = $emptyTotals;
+        $firstLineRow = $rowIndex;
+        foreach ($weightDetails as $detail) {
+            $rowData = [
+                searchProductNameById($detail['product'] ?? '', $db),
+                $detail['grade'] ?? '',
+                (float)($detail['gross'] ?? 0),
+                (float)($detail['tare'] ?? 0),
+                (float)($detail['net'] ?? 0),
+            ];
+            $totals['gross'] += (float)($detail['gross'] ?? 0);
+            $totals['tare']  += (float)($detail['tare'] ?? 0);
+            $totals['net']   += (float)($detail['net'] ?? 0);
+
+            if ($dAllowPcs === 'Y') {
+                $basketCount = (int)($detail['no_per_basket'] ?? 0);
+                $rowData[] = $basketCount;
+                $totals['basket'] += $basketCount;
+            }
+            if ($showPrice) {
+                $beforeDiscount = (float)($detail['before_discount'] ?? 0);
+                $discount = (float)($detail['discount'] ?? 0);
+                $discountAmount = ($detail['discount_type'] ?? '') === 'percent'
+                    ? $beforeDiscount * $discount / 100
+                    : $discount;
+                $rowData[] = searchCurrencyNameById($detail['currency'] ?? '', $db);
+                $rowData[] = (float)($detail['price'] ?? 0);
+                $rowData[] = $beforeDiscount;
+                $rowData[] = ($detail['discount_type'] ?? '') === 'percent'
+                    ? number_format($discount, 2) . '%'
+                    : $discount;
+                $rowData[] = (float)($detail['total'] ?? 0);
+                $totals['before_discount'] += $beforeDiscount;
+                $totals['discount'] += $discountAmount;
+                $totals['total'] += (float)($detail['total'] ?? 0);
+            }
+
+            $rowData[] = $detail['time'] ?? '';
+            if ($allowPhoto === 'Y') {
+                $rowData[] = $detail['photoPath'] ?? '';
+            }
+
+            foreach ($rowData as $columnIndex => $value) {
+                $cell = colLetter($columnIndex + 1) . $rowIndex;
+                if (is_string($value)) {
+                    $sheet->setCellValueExplicit($cell, $value, DataType::TYPE_STRING);
+                } else {
+                    $sheet->setCellValue($cell, $value);
+                }
+            }
+            $rowIndex++;
+        }
+        if ($rowIndex > $firstLineRow) {
+            $sheet->getStyle('C' . $firstLineRow . ':' . $lastColumn . ($rowIndex - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+        }
+
+        $writeTotals($sheet, $rowIndex, $label('subtotal_code', 'Subtotal'), $totals);
+        foreach ($grandTotals as $k => $v) {
+            $grandTotals[$k] += $totals[$k];
+        }
+        $rowIndex += 2; // blank row between records
+    }
+
+    if ($rowIndex === 3) {
+        $sheet->setCellValue('A3', 'No records found...');
+    } else {
+        $writeTotals($sheet, $rowIndex, $label('grand_total_code', 'Grand Total'), $grandTotals);
+    }
+
+    foreach (range(1, count($headers)) as $columnIndex) {
+        $sheet->getColumnDimension(colLetter($columnIndex))->setAutoSize(true);
+    }
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="Report_Detail_' . date('Y-m-d') . '.xlsx"');
+    header('Cache-Control: max-age=0');
+    (new Xlsx($spreadsheet))->save('php://output');
+    exit;
+}
 
 // ─── Build $allRows ───────────────────────────────────────────────────────────
 
@@ -562,6 +743,9 @@ $transactionStatus = $_GET['transactionStatus'] ?? '';
 
 if ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $transactionStatus == 'OUTGOING') {
     $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
+} else if ($transactionStatus == 'PROCESSING') {
+    // no security bill for processing, matches the data row condition in writeSheet()
+    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Supplier'];
 } else {
     $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
 }
