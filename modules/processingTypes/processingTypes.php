@@ -7,7 +7,7 @@ if (!isset($_SESSION['userID'])) {
     exit;
 }
 
-if (($_SESSION['featureFlags']['include_production'] ?? 'N') != 'Y') {
+if (($_SESSION['featureFlags']['include_processing'] ?? 'N') != 'Y') {
     exit;
 }
 
@@ -30,23 +30,23 @@ $companies = $role == 'SADMIN' ? $db->query("SELECT id, name FROM companies WHER
 				<div class="card results-card show-dt-controls">
 					<div class="card-header">
               <div class="results-header-left">
-                <h3 class="results-title"><i class="fas fa-cogs mr-2"></i><?=$languageArray['production_types_code'][$language]?></h3>
+                <h3 class="results-title"><i class="fas fa-cogs mr-2"></i><?=$languageArray['processing_types_code'][$language]?></h3>
               </div>
               <div class="results-header-right d-flex flex-wrap" style="gap: 0.5rem;">
                 <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
-                  <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_production_type_code'][$language]?>
+                  <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_processing_type_code'][$language]?>
                 </button>
-                <button type="button" class="btn btn-action btn-action-primary" id="addProductionType">
-                  <i class="fas fa-plus"></i> <?=$languageArray['add_production_type_code'][$language]?>
+                <button type="button" class="btn btn-action btn-action-primary" id="addProcessingType">
+                  <i class="fas fa-plus"></i> <?=$languageArray['add_processing_type_code'][$language]?>
                 </button>
               </div>
           </div>
 					<div class="card-body">
-						<table id="productionTypeTable" class="table data-table">
+						<table id="processingTypeTable" class="table data-table">
 							<thead>
 								<tr>
                   <th><input type="checkbox" id="selectAllCheckbox" class="selectAllCheckbox"></th>
-                  <th><?=$languageArray['production_types_code'][$language]?></th>
+                  <th><?=$languageArray['processing_types_code'][$language]?></th>
                   <th><?=$languageArray['description_code'][$language]?></th>
 									<th><?=$languageArray['actions_code'][$language]?></th>
 								</tr>
@@ -62,9 +62,9 @@ $companies = $role == 'SADMIN' ? $db->query("SELECT id, name FROM companies WHER
 <div class="modal fade modal-modern" id="addModal">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <form role="form" id="productionTypeForm">
+        <form role="form" id="processingTypeForm">
             <div class="modal-header">
-              <h4 class="modal-title"><?=$languageArray['add_production_type_code'][$language]?></h4>
+              <h4 class="modal-title"><?=$languageArray['add_processing_type_code'][$language]?></h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -85,8 +85,8 @@ $companies = $role == 'SADMIN' ? $db->query("SELECT id, name FROM companies WHER
               <?php } ?>
               <div class="modal-section">
                 <div class="form-group">
-                  <label class="form-label-modern" for="name"><?=$languageArray['production_types_code'][$language]?> <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_production_type_code'][$language]?>" required>
+                  <label class="form-label-modern" for="name"><?=$languageArray['processing_types_code'][$language]?> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="name" id="name" placeholder="<?=$languageArray['enter_processing_type_code'][$language]?>" required>
                 </div>
                 <div class="form-group mb-0">
                   <label class="form-label-modern" for="description"><?=$languageArray['description_code'][$language]?></label>
@@ -106,12 +106,12 @@ $companies = $role == 'SADMIN' ? $db->query("SELECT id, name FROM companies WHER
 </div>
 
 <script>
-var apiUrl = 'php/modules/productionTypes/api.php';
+var apiUrl = 'php/modules/processingTypes/api.php';
 var table;
 
 $(function () {
   $('#selectAllCheckbox').on('change', function() {
-    $('#productionTypeTable tbody input[type="checkbox"]').prop('checked', $(this).prop('checked'));
+    $('#processingTypeTable tbody input[type="checkbox"]').prop('checked', $(this).prop('checked'));
   });
 
   $('#addModal .select2').select2({
@@ -120,7 +120,7 @@ $(function () {
     dropdownParent: $('#addModal .modal-body')
   });
 
-  table = $("#productionTypeTable").DataTable({
+  table = $("#processingTypeTable").DataTable({
     "responsive": true,
     "autoWidth": false,
     'processing': true,
@@ -161,7 +161,7 @@ $(function () {
     ]
   });
 
-  $('#productionTypeForm').validate({
+  $('#processingTypeForm').validate({
       errorElement: 'span',
       errorPlacement: function (error, element) {
           error.addClass('invalid-feedback');
@@ -175,7 +175,7 @@ $(function () {
       },
       submitHandler: function () {
           $('#spinnerLoading').show();
-          $.post(apiUrl, $('#productionTypeForm').serialize() + '&action=save', function(obj){
+          $.post(apiUrl, $('#processingTypeForm').serialize() + '&action=save', function(obj){
               if(obj.status === 'success'){
                 $('#addModal').modal('hide');
                 toastr["success"](obj.message, "Success:");
@@ -189,7 +189,7 @@ $(function () {
       }
   });
 
-  $('#addProductionType').on('click', function(){
+  $('#addProcessingType').on('click', function(){
     $('#addModal').find('#id').val("");
     $('#addModal').find('#name').val("");
     $('#addModal').find('#description').val("");
@@ -199,12 +199,12 @@ $(function () {
   $('#multiDeactivate').on('click', function () {
     var selectedIds = [];
 
-    $("#productionTypeTable tbody input[type='checkbox']:checked").each(function () {
+    $("#processingTypeTable tbody input[type='checkbox']:checked").each(function () {
       selectedIds.push($(this).val());
     });
 
     if (selectedIds.length == 0) {
-      alert("Please select at least one production type to delete.");
+      alert("Please select at least one processing type to delete.");
       return;
     }
 

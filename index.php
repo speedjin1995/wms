@@ -20,7 +20,7 @@ else{
   $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
   $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
   $allowDeliveryOrder = $_SESSION['featureFlags']['include_delivery_order'] ?? 'N';
-  $allowProduction = $_SESSION['featureFlags']['include_production'] ?? 'N';
+  $allowProcessing = $_SESSION['featureFlags']['include_processing'] ?? 'N';
   $allowApiIntegration = $_SESSION['featureFlags']['include_api_integration'] ?? 'N';
 
   // User Details
@@ -841,12 +841,12 @@ to get the desired effect
                   </li>';
                 }
 
-                if ($allowProduction == 'Y') {
+                if ($allowProcessing == 'Y') {
                   echo '
                   <li class="nav-item">
-                    <a href="#productionTypes" data-file="modules/productionTypes/productionTypes.php" class="nav-link link">
+                    <a href="#processingTypes" data-file="modules/processingTypes/processingTypes.php" class="nav-link link">
                       <i class="nav-icon fas fa-cogs"></i>
-                      <p>'.$languageArray['production_types_code'][$language].'</p>
+                      <p>'.$languageArray['processing_types_code'][$language].'</p>
                     </a>
                   </li>';
                 }

@@ -1,9 +1,9 @@
 <?php
 namespace App\Services;
 
-class ProductionTypeService extends BaseService
+class ProcessingTypeService extends BaseService
 {
-    private const TABLE = 'production_types';
+    private const TABLE = 'processing_types';
 
     /**
      * DataTables list within the session company

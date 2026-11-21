@@ -1,13 +1,13 @@
 <?php
 namespace App\Controllers;
 
-use App\Services\ProductionTypeService;
+use App\Services\ProcessingTypeService;
 
-class ProductionTypeController extends BaseController
+class ProcessingTypeController extends BaseController
 {
-    private ProductionTypeService $service;
+    private ProcessingTypeService $service;
 
-    public function __construct(ProductionTypeService $service)
+    public function __construct(ProcessingTypeService $service)
     {
         $this->service = $service;
     }
@@ -22,7 +22,7 @@ class ProductionTypeController extends BaseController
         try {
             $result = $this->service->getList($p['start'], $p['length'], $p['orderColumn'], $p['orderDir'], $p['search']);
         } catch (\Exception $e) {
-            error_log('ProductionTypeController::list - ' . $e->getMessage());
+            error_log('ProcessingTypeController::list - ' . $e->getMessage());
             $result = $this->emptyListResult();
         }
 
@@ -43,7 +43,7 @@ class ProductionTypeController extends BaseController
         try {
             $record = $this->service->getById($id);
         } catch (\Exception $e) {
-            error_log('ProductionTypeController::get - ' . $e->getMessage());
+            error_log('ProcessingTypeController::get - ' . $e->getMessage());
             return ['status' => 'failed', 'message' => 'Something went wrong'];
         }
 
@@ -55,7 +55,7 @@ class ProductionTypeController extends BaseController
     }
 
     /**
-     * Create or update production type
+     * Create or update processing type
      */
     public function save(): array
     {
