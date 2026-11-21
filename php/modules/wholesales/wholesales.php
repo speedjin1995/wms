@@ -119,7 +119,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
         $doPoNo = $_POST['doPoNo'];
     }else{
         if ($runningNoType == 1){
-            if ($status == 'RECEIVING' || $status == 'INCOMING') {
+            if ($status == 'RECEIVING' || $status == 'INCOMING' || $status == 'PROCESSING') {
                 // Use Supplier table
                 $entityId = $_POST['supplier']; // supplier ID from form
                 $entityType = 'Supplier';

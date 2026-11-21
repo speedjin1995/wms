@@ -4257,3 +4257,7 @@ CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR
 END
 $$
 DELIMITER ;
+
+INSERT INTO `statuses` (`module`, `status`, `entity_type`, `prefix`)
+SELECT 'wholesale', 'PROCESSING', 'Supplier', 'PC' FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `statuses` WHERE `module` = 'wholesale' AND `status` = 'PROCESSING');
