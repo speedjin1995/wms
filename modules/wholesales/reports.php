@@ -333,6 +333,7 @@ else{
             <label class="form-label-modern"><?=$languageArray['report_type_code'][$language]?></label>
             <select class="form-control" id="pdfReportType">
               <option value="summary"><?=$languageArray['summary_report_code'][$language]?></option>
+              <option value="detail"><?=$languageArray['detail_report_code'][$language] ?? 'Detail Report'?></option>
               <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
               <option value="invoice"><?=$languageArray['invoice_listing_report_code'][$language]?></option>
               <?php } ?>
