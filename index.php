@@ -20,6 +20,7 @@ else{
   $_SESSION['featureFlags'] = searchCompanyFeatureById($company, $db) ?? [];
   $allowPrice = $_SESSION['featureFlags']['include_price'] ?? 'N';
   $allowDeliveryOrder = $_SESSION['featureFlags']['include_delivery_order'] ?? 'N';
+  $allowProduction = $_SESSION['featureFlags']['include_production'] ?? 'N';
   $allowApiIntegration = $_SESSION['featureFlags']['include_api_integration'] ?? 'N';
 
   // User Details
@@ -836,6 +837,16 @@ to get the desired effect
                     <a href="#productionLines" data-file="productionLines.php" class="nav-link link">
                       <i class="nav-icon fas fa-industry"></i>
                       <p>'.$languageArray['production_lines_code'][$language].'</p>
+                    </a>
+                  </li>';
+                }
+
+                if ($allowProduction == 'Y') {
+                  echo '
+                  <li class="nav-item">
+                    <a href="#productionTypes" data-file="modules/productionTypes/productionTypes.php" class="nav-link link">
+                      <i class="nav-icon fas fa-cogs"></i>
+                      <p>'.$languageArray['production_types_code'][$language].'</p>
                     </a>
                   </li>';
                 }

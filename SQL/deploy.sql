@@ -4168,3 +4168,59 @@ ALTER TABLE categories        ADD KEY idx_customer_deleted (customer, deleted);
 ALTER TABLE locations         ADD KEY idx_customer_deleted (customer, deleted);
 ALTER TABLE drivers           ADD KEY idx_customer_deleted (customer, deleted);
 ALTER TABLE bin_type          ADD KEY idx_customer_deleted (customer, deleted);
+
+-- 21/11/2026 --
+CREATE TABLE `production_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(100) NOT NULL,
+  `description` text NULL,
+  `customer` int(11) NOT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_datetime` datetime NOT NULL DEFAULT current_timestamp(),
+  `modified_by` int(11) DEFAULT NULL,
+  `modified_datetime` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted` int(1) NOT NULL DEFAULT 0,
+  KEY idx_customer_deleted (customer, deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `production_types_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `production_type_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` text NULL,
+  `customer` int(11) NOT NULL,
+  `action_id` int(1) NOT NULL,
+  `action_by` int(11) DEFAULT NULL,
+  `event_date` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_PRODUCTION_TYPES` AFTER INSERT ON `production_types` FOR EACH ROW INSERT INTO production_types_log (
+  production_type_id, name, description, customer, action_id, action_by, event_date
+)
+VALUES (
+  NEW.id, NEW.name, NEW.description, NEW.customer, 1, NEW.created_by, NOW()
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_PRODUCTION_TYPES` BEFORE UPDATE ON `production_types` FOR EACH ROW BEGIN
+  DECLARE action_value INT;
+
+  IF NEW.deleted = 1 THEN
+      SET action_value = 3;
+  ELSE
+      SET action_value = 2;
+  END IF;
+
+  INSERT INTO production_types_log (
+      production_type_id, name, description, customer, action_id, action_by, event_date
+  )
+  VALUES (
+      NEW.id, NEW.name, NEW.description, NEW.customer, action_value, NEW.modified_by, NOW()
+  );
+END
+$$
+DELIMITER ;
