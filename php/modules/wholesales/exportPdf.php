@@ -47,7 +47,7 @@ if(isset($_GET['toDate']) && $_GET['toDate'] != null && $_GET['toDate'] != ''){
 }
 
 if($transactionStatus != null && $transactionStatus != '' && $transactionStatus != '-'){
-  $searchQuery .= " and wholesales.status = '".$transactionStatus."'";
+  $searchQuery .= " and wholesales.status = '".mysqli_real_escape_string($db, $transactionStatus)."'";
 }
 
 if(isset($_GET['product']) && $_GET['product'] != null && $_GET['product'] != '' && $_GET['product'] != '-'){
@@ -126,7 +126,8 @@ if($isMulti == 'Y'){
     if(isset($_GET['ids']) && $_GET['ids'] != null && $_GET['ids'] != '' && $_GET['ids'] != '-'){
         $ids = $_GET['ids'];
     }
-    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (".$ids.")");
+    $ids = implode(',', array_map('intval', explode(',', $ids ?? '0')));
+    $query = $db->query("SELECT wholesales.* FROM wholesales WHERE wholesales.id IN (".$ids.") AND wholesales.company = '$company'");
 }else{
     $query = $db->query("SELECT wholesales.* FROM wholesales LEFT JOIN customers c ON wholesales.customer = c.id LEFT JOIN supplies s ON wholesales.supplier = s.id WHERE wholesales.deleted = '0' AND wholesales.company = '$company'".$searchQuery);
 }
@@ -151,6 +152,7 @@ try {
     $partialMap = [
         'summary' => __DIR__ . '/partial/pdf/pdfSummary.php',
         'invoice' => __DIR__ . '/partial/pdf/pdfInvoiceListing.php',
+        'detail'  => __DIR__ . '/partial/pdf/pdfDetail.php',
     ];
 
     $partial = $partialMap[$reportType] ?? $partialMap['summary'];
