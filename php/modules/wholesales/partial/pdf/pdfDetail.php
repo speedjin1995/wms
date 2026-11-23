@@ -55,7 +55,7 @@ while ($row = $query->fetch_assoc()) {
     $startTime  = !empty($row['start_time']) ? (new DateTime($row['start_time']))->format('d/m/Y H:i') : '';
 
     $content .= '<tr><td colspan="' . $colCount . '" style="text-align:left; font-weight:bold; background-color:#d6eaf8;">'
-        . htmlspecialchars($label('serial_no_code', 'Serial No.') . ': ' . $row['serial_no'] . '   |   Date: ' . $startTime . '   |   ' . ($isDispatch ? 'Customer' : 'Supplier') . ': ' . $partyName . '   |   Vehicle: ' . $row['vehicle_no'])
+        . htmlspecialchars($label('serial_no_code', 'Serial No.') . ': ' . $row['serial_no'] . '   |   Date: ' . $startTime . '   |   ' . ($isDispatch ? 'Customer' : 'Supplier') . ': ' . $partyName . '   |   Vehicle: ' . $row['vehicle_no'] . '   |   Status: ' . $row['status'])
         . '</td></tr>';
     $content .= $headerRow;
 
