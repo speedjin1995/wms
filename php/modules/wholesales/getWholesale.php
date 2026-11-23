@@ -60,6 +60,7 @@ if(isset($_POST['userID'])){
                 $message['basket_count'] = $row['basket_count'];
                 $message['avg_basket_weight'] = $row['avg_basket_weight'];
                 $message['type'] = $row['type'] ?? 'Local';
+                $message['processing_type'] = $row['processing_type'];
                 
                 if ($row['status'] == 'DISPATCH'){
                     $message['customer_supplier'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);

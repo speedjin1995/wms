@@ -41,6 +41,7 @@ else{
   $allowPayment = 'N';
   $allowPcsBasket = 'N';
   $allowBasketTare = 'N';
+  $allowProcessing = 'N';
   $secRemarksExists = false;
 
   $filterStates = [];
@@ -97,6 +98,7 @@ else{
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $indicators = $db->query("SELECT * FROM indicators WHERE customer = '$company' ORDER BY nickname ASC");
+    $processingTypes = $db->query("SELECT * FROM processing_types WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
 
     // Feature Flagging
     $allowPhoto = $_SESSION['featureFlags']['include_photo'] ?? 'N';
@@ -105,6 +107,7 @@ else{
     $allowPayment = $_SESSION['featureFlags']['include_payment'] ?? 'N';
     $allowPcsBasket = $_SESSION['featureFlags']['include_pcs_basket'] ?? 'N';
     $allowBasketTare = $_SESSION['featureFlags']['allow_basket_tare'] ?? 'N';
+    $allowProcessing = $_SESSION['featureFlags']['include_processing'] ?? 'N';
     $secRemarksExists = ($_SESSION['featureFlags']['include_sec_remark'] ?? '') == 'Y' ? true : false;
 
     $companyDetail = searchCompanyById($company, $db);
@@ -139,12 +142,14 @@ else{
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $indicators = $db->query("SELECT * FROM indicators ORDER BY nickname ASC");
+    $processingTypes = $db->query("SELECT * FROM processing_types WHERE deleted = '0' ORDER BY name ASC");
 
     $allowPhoto = 'Y';
     $allowPrice = 'Y';
     $allowInvoice = 'Y';
     $allowPayment = 'Y';
     $allowPcsBasket = 'Y';
+    $allowProcessing = 'Y';
     $secRemarksExists = true;
     $columnSetup = [];
   }
@@ -206,6 +211,9 @@ else{
             <select class="form-control" id="transactionStatusFilter" name="transactionStatusFilter">
               <option value="DISPATCH" selected><?=$languageArray['dispatch_code'][$language]?></option>
               <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+              <?php if ($allowProcessing == 'Y') { ?>
+              <option value="PROCESSING"><?=$languageArray['processing_code'][$language]?></option>
+              <?php } ?>
               <?php if (in_array('stocks', $companyProducts)) { ?>
               <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
               <?php } ?>
@@ -417,6 +425,9 @@ else{
                   <select class="form-control" id="status" name="status" required>
                     <option value="DISPATCH"><?=$languageArray['dispatch_code'][$language]?></option>
                     <option value="RECEIVING"><?=$languageArray['receiving_code'][$language]?></option>
+                    <?php if ($allowProcessing == 'Y') { ?>
+                    <option value="PROCESSING"><?=$languageArray['processing_code'][$language]?></option>
+                    <?php } ?>
                     <?php if (in_array('stocks', $companyProducts)) { ?>
                     <option value="STOCK-BAL"><?=$languageArray['stock_balance_code'][$language]?></option>
                     <?php } ?>
@@ -481,6 +492,19 @@ else{
                   </select>
                 </div>
               </div>
+              <?php if ($allowProcessing == 'Y') { ?>
+              <div class="col-md-3" id="processingTypeDiv" style="display: none;">
+                <div class="form-group-modern">
+                  <label class="form-label-modern"><?=$languageArray['processing_type_code'][$language]?> <span class="text-danger">*</span></label>
+                  <select class="form-control select2" id="processingType" name="processingType">
+                    <option value=""><?=$languageArray['please_select_code'][$language]?></option>
+                    <?php while($rowProcessingType=mysqli_fetch_assoc($processingTypes)){ ?>
+                      <option value="<?=$rowProcessingType['id'] ?>"><?=$rowProcessingType['name'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+              <?php } ?>
             </div>
           </div>
 
@@ -1146,6 +1170,9 @@ $(function () {
       $('#extendModal').find('#supplierDiv').show();
       $('#extendModal').find('#securityBillDiv').show();
     }
+
+    $('#extendModal').find('#processingTypeDiv').toggle(status == 'PROCESSING');
+    $('#extendModal').find('#processingType').prop('required', status == 'PROCESSING');
     
     $('#weightDetailsTable').find('select[id^="grade_id"]').trigger('change');
   });
@@ -2317,6 +2344,7 @@ function newEntry() {
   $('#extendModal').find('#category').val("").trigger('change');
   $('#extendModal').find('#paymentMethod').val("").trigger('change');
   $('#extendModal').find('#status').val("DISPATCH").trigger('change');
+  $('#extendModal').find('#processingType').val("").trigger('change');
   $('#extendModal').find('#doPoNo').val("");
   $('#extendModal').find('#securityBillNo').val("");
   $('#extendModal').find('#customer').val("").trigger('change');
@@ -2391,6 +2419,7 @@ function edit(id) {
       $('#extendModal').find('#category').val(obj.message.category).trigger('change');
       $('#extendModal').find('#paymentMethod').val(obj.message.payment_method).trigger('change');
       $('#extendModal').find('#status').val(obj.message.status).trigger('change');
+      $('#extendModal').find('#processingType').val(obj.message.processing_type || '').trigger('change');
       $('#extendModal').find('#doPoNo').val(obj.message.po_no).trigger('change');
       $('#extendModal').find('#securityBillNo').val(obj.message.security_bills).trigger('change');
       $('#extendModal').find('#customer').val(obj.message.customer).trigger('change');

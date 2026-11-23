@@ -1,0 +1,18 @@
+# Third-party / generated — keep graph to project-owned code
+plugins/
+vendor/
+docs/
+uploads/
+graphify-out/
+# Non-code (skips LLM semantic extraction)
+*.md
+*.txt
+*.rst
+*.html
+*.pdf
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.xlsx
