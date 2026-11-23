@@ -382,6 +382,24 @@ function searchLocationById($value, $db) {
     return $id;
 }
 
+function searchProcessingTypeById($value, $db) {
+    $name = '';
+
+    if(!empty($value)){
+        if ($select_stmt = $db->prepare("SELECT name FROM processing_types WHERE id=?")) {
+            $select_stmt->bind_param('s', $value);
+            $select_stmt->execute();
+            $result = $select_stmt->get_result();
+            if ($row = $result->fetch_assoc()) {
+                $name = $row['name'];
+            }
+            $select_stmt->close();
+        }
+    }
+
+    return $name;
+}
+
 function searchProductionLineById($value, $db) {
     $id = '';
 

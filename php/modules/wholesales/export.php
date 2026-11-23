@@ -497,7 +497,7 @@ if (($_GET['exportType'] ?? '') === 'detail') {
         $startTime  = !empty($row['start_time']) ? (new DateTime($row['start_time']))->format('d/m/Y H:i') : '';
 
         // Record header
-        $sheet->setCellValueExplicit('A' . $rowIndex, $label('serial_no_code', 'Serial No.') . ': ' . $row['serial_no'] . '   |   Date: ' . $startTime . '   |   ' . $partyLabel . ': ' . $partyName . '   |   Vehicle: ' . $row['vehicle_no'] . '   |   Status: ' . $row['status'], DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit('A' . $rowIndex, $label('serial_no_code', 'Serial No.') . ': ' . $row['serial_no'] . '   |   Date: ' . $startTime . '   |   ' . $partyLabel . ': ' . $partyName . '   |   Vehicle: ' . $row['vehicle_no'] . '   |   Status: ' . $row['status'] . ($row['status'] == 'PROCESSING' ? '   |   Processing Type: ' . searchProcessingTypeById($row['processing_type'], $db) : ''), DataType::TYPE_STRING);
         $sheet->mergeCells('A' . $rowIndex . ':' . $lastColumn . $rowIndex);
         $sheet->getStyle('A' . $rowIndex)->getFont()->setBold(true);
         $sheet->getStyle('A' . $rowIndex . ':' . $lastColumn . $rowIndex)->getFill()
