@@ -177,6 +177,7 @@ if (!empty($allRows)) {
         $content .= '<td>' . $rowData['location'] . '</td>';
         $content .= '<td>' . $rowData['indicator'] . '</td>';
         $content .= '<td>' . $rowData['serial_no'] . '</td>';
+        $content .= '<td>' . $rowData['status'] . '</td>';
         $content .= '<td>' . $rowData['po_no'] . '</td>';
         if ($transactionStatus == 'RECEIVING' || $transactionStatus == 'INCOMING') {
             $content .= '<td>' . $rowData['security_bills'] . '</td>';
@@ -217,7 +218,7 @@ if ($transactionStatus == 'STOCK-BAL') {
 }
 
 $isDispatchStatus = ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $transactionStatus == 'OUTGOING');
-$fixedColCount = ($transactionStatus == 'RECEIVING' || $transactionStatus == 'INCOMING') ? 9 : 8;
+$fixedColCount = ($transactionStatus == 'RECEIVING' || $transactionStatus == 'INCOMING') ? 10 : 9;
 $trailingCount = ($allowPrice == 'Y' && $userAllowPrice == 'Y') ? 14 : 11;
 
 // Set PDF header with logo and dynamic report title
@@ -304,6 +305,7 @@ $html = '
                         <th>Location</th>
                         <th>Machine Nickname</th>
                         <th>Weigh Slip No.</th>
+                        <th>Status</th>
                         <th>'.($status == 'DISPATCH' || $status == 'STOCK-BAL' || $status == 'OUTGOING' ? 'Delivery' : 'Purchase').' No.</th>';
                         if ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') {
                             $html .= '<th>Security Bill</th>';
@@ -342,7 +344,7 @@ $html = '
                 </tbody>
                 <tfoot>
                     <tr style="font-weight: bold; background-color: #f0f0f0;">
-                        <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '9' : '8').'">SUBTOTAL</td>';
+                        <td colspan="'.($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING' ? '10' : '9').'">SUBTOTAL</td>';
                         foreach ($productGradeColumns as $product => $grades) {
                             foreach ($grades as $grade) {
                                 $html .= '<td>'.number_format($subtotals['gradeWeights'][$product.'|'.$grade] ?? 0, 2).'</td>';
@@ -360,7 +362,7 @@ $html = '
                         }
                         $html .= '<td></td><td></td><td></td><td></td><td></td></tr>';
                         if ($allowPrice == 'Y' && $userAllowPrice == 'Y') {
-                            $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 9 : 8;
+                            $fixedColCount2 = ($_GET['transactionStatus'] == 'RECEIVING' || $_GET['transactionStatus'] == 'INCOMING') ? 10 : 9;
                             foreach ($subtotalCurrencyTotals as $cur => $curTotals) {
                                 $html .= '<tr style="font-weight: bold; background-color: #e8f4e8;">';
                                 $html .= '<td colspan="'.$fixedColCount2.'">TOTAL PRICE ('.$cur.')</td>';

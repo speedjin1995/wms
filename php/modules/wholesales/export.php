@@ -171,6 +171,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
             (!empty($rowData['location']) ? (searchLocationById($rowData['location'], $db) ?: 'Unknown') : 'Unknown'),
             $rowData['indicator'],
             $rowData['serial_no'],
+            $rowData['status'],
             $rowData['po_no'],
         ];
 
@@ -229,7 +230,7 @@ function writeSheet($sheet, $rows, $sheetProductGradeColumns, $fixedHeaders, $tr
     $dataStartRow = 4;
     $dataEndRow   = $rowIndex - 1;
 
-    $subtotalData = ['', '', '', '', '', '', ''];
+    $subtotalData = ['', '', '', '', '', '', '', ''];
     if ($transactionStatus == 'RECEIVING' || $transactionStatus == 'INCOMING') {
         $subtotalData[] = '';
     }
@@ -496,7 +497,7 @@ if (($_GET['exportType'] ?? '') === 'detail') {
         $startTime  = !empty($row['start_time']) ? (new DateTime($row['start_time']))->format('d/m/Y H:i') : '';
 
         // Record header
-        $sheet->setCellValueExplicit('A' . $rowIndex, $label('serial_no_code', 'Serial No.') . ': ' . $row['serial_no'] . '   |   Date: ' . $startTime . '   |   ' . $partyLabel . ': ' . $partyName . '   |   Vehicle: ' . $row['vehicle_no'], DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit('A' . $rowIndex, $label('serial_no_code', 'Serial No.') . ': ' . $row['serial_no'] . '   |   Date: ' . $startTime . '   |   ' . $partyLabel . ': ' . $partyName . '   |   Vehicle: ' . $row['vehicle_no'] . '   |   Status: ' . $row['status'], DataType::TYPE_STRING);
         $sheet->mergeCells('A' . $rowIndex . ':' . $lastColumn . $rowIndex);
         $sheet->getStyle('A' . $rowIndex)->getFont()->setBold(true);
         $sheet->getStyle('A' . $rowIndex . ':' . $lastColumn . $rowIndex)->getFill()
@@ -742,12 +743,12 @@ unset($grades);
 $transactionStatus = $_GET['transactionStatus'] ?? '';
 
 if ($transactionStatus == 'DISPATCH' || $transactionStatus == 'STOCK-BAL' || $transactionStatus == 'OUTGOING') {
-    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Delivery No.', 'Customer'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Status', 'Delivery No.', 'Customer'];
 } else if ($transactionStatus == 'PROCESSING') {
     // no security bill for processing, matches the data row condition in writeSheet()
-    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Supplier'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Status', 'Purchase No.', 'Supplier'];
 } else {
-    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Purchase No.', 'Security Bill No.', 'Supplier'];
+    $fixedHeaders = ['No', 'Date', 'Time', 'Location', 'Machine Nickname', 'Weigh Slip No.', 'Status', 'Purchase No.', 'Security Bill No.', 'Supplier'];
 }
 
 $trailingHeaders = ['Total Weight', 'Total Bin Weight', 'Actual Weight', 'Reject Weight'];
