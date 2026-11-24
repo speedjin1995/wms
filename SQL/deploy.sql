@@ -4261,3 +4261,37 @@ DELIMITER ;
 INSERT INTO `statuses` (`module`, `status`, `entity_type`, `prefix`)
 SELECT 'wholesale', 'PROCESSING', 'Supplier', 'PC' FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM `statuses` WHERE `module` = 'wholesale' AND `status` = 'PROCESSING');
+
+-- 24/11/2026 --
+ALTER TABLE `wholesales` ADD `weight_out_details` TEXT NULL DEFAULT '[]' AFTER `reject_details`, ADD `total_weight_out` VARCHAR(10) NOT NULL DEFAULT '0.0' AFTER `total_reject`;
+ALTER TABLE `wholesales_log` ADD `weight_out_details` TEXT NULL DEFAULT '[]' AFTER `reject_details`, ADD `total_weight_out` VARCHAR(10) NOT NULL DEFAULT '0.0' AFTER `total_reject`;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_INS_WHOLESALES` AFTER INSERT ON `wholesales` FOR EACH ROW INSERT INTO wholesales_log (
+    wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, type, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, weight_out_details, total_item, total_weight, total_reject, total_weight_out, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, do_id, location, category, payment_method, processing_type, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+) 
+VALUES (
+    NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.type, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.weight_out_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_weight_out, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.do_id, NEW.location, NEW.category, NEW.payment_method, NEW.processing_type, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, 1, NEW.created_by, NOW()
+)
+$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE OR REPLACE TRIGGER `TRG_UPD_WHOLESALES` BEFORE UPDATE ON `wholesales` FOR EACH ROW BEGIN
+    DECLARE action_value INT;
+
+    IF NEW.deleted = 1 THEN
+        SET action_value = 3;
+    ELSE
+        SET action_value = 2;
+    END IF;
+
+    INSERT INTO wholesales_log (
+        wholesale_id, serial_no, po_no, security_bills, status, customer, supplier, type, product, package, vehicle_no, driver, driver_ic, other_customer, other_supplier, units, weight_details, reject_details, weight_out_details, total_item, total_weight, total_reject, total_weight_out, total_price, pv_unit_price, remark, created_datetime, created_by, start_time, end_time, checked_by, company, weighted_by, indicator, deleted, delete_reason, records_type, pv_id, do_id, location, category, payment_method, processing_type, empty_baskets_weight, basket_count, avg_basket_weight, action_id, action_by, event_date
+    ) 
+    VALUES (
+        NEW.id, NEW.serial_no, NEW.po_no, NEW.security_bills, NEW.status, NEW.customer, NEW.supplier, NEW.type, NEW.product, NEW.package, NEW.vehicle_no, NEW.driver, NEW.driver_ic, NEW.other_customer, NEW.other_supplier, NEW.units, NEW.weight_details, NEW.reject_details, NEW.weight_out_details, NEW.total_item, NEW.total_weight, NEW.total_reject, NEW.total_weight_out, NEW.total_price, NEW.pv_unit_price, NEW.remark, NEW.created_datetime, NEW.created_by, NEW.start_time, NEW.end_time, NEW.checked_by, NEW.company, NEW.weighted_by, NEW.indicator, NEW.deleted, NEW.delete_reason, NEW.records_type, NEW.pv_id, NEW.do_id, NEW.location, NEW.category, NEW.payment_method, NEW.processing_type, NEW.empty_baskets_weight, NEW.basket_count, NEW.avg_basket_weight, action_value, NEW.modified_by, NOW()
+    );
+END
+$$
+DELIMITER ;

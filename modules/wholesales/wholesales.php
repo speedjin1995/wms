@@ -81,6 +81,7 @@ else{
     $products4 = $db->query($productQuery);
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
+    $supplies3 = $db->query("SELECT * FROM supplies WHERE deleted = '0' AND customer = '$company' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
     $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' AND customer = '$company' ORDER BY customer_name ASC");
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' AND customer = '$company' ORDER BY veh_number ASC");
@@ -97,6 +98,7 @@ else{
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
+    $currency5 = $db->query("SELECT * FROM currency WHERE deleted = '0' AND customer = '$company' ORDER BY currency ASC");
     $indicators = $db->query("SELECT * FROM indicators WHERE customer = '$company' ORDER BY nickname ASC");
     $processingTypes = $db->query("SELECT * FROM processing_types WHERE deleted = '0' AND customer = '$company' ORDER BY name ASC");
 
@@ -125,6 +127,7 @@ else{
     $products4 = $db->query("SELECT * FROM products WHERE deleted = '0' ORDER BY product_name ASC");
     $supplies = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $supplies2 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
+    $supplies3 = $db->query("SELECT * FROM supplies WHERE deleted = '0' ORDER BY supplier_name ASC");
     $customers = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
     $customers2 = $db->query("SELECT * FROM customers WHERE deleted = '0' ORDER BY customer_name ASC");
     $vehicles = $db->query("SELECT * FROM vehicles WHERE deleted = '0' ORDER BY veh_number ASC");
@@ -141,6 +144,7 @@ else{
     $currency2 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency3 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $currency4 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
+    $currency5 = $db->query("SELECT * FROM currency WHERE deleted = '0' ORDER BY currency ASC");
     $indicators = $db->query("SELECT * FROM indicators ORDER BY nickname ASC");
     $processingTypes = $db->query("SELECT * FROM processing_types WHERE deleted = '0' ORDER BY name ASC");
 
@@ -395,7 +399,7 @@ else{
 </div>
 
 <div class="modal fade modal-modern" id="extendModal">
-  <div class="modal-dialog modal-xl" style="max-width: 1700px;">
+  <div class="modal-dialog modal-xl" style="max-width: 98vw; width: 98vw; margin: 1vh auto;">
     <div class="modal-content">
       <form role="form" id="extendForm">
         <div class="modal-header">
@@ -652,7 +656,9 @@ else{
           <!-- Weight Details Section -->
           <div class="modal-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="section-title mb-0"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['weight_details_code'][$language]?></h6>
+              <div class="d-flex align-items-center" style="gap:1rem;">
+                <h6 class="section-title mb-0"><i class="fas fa-balance-scale mr-2"></i><span id="weightDetailsTitle"><?=$languageArray['weight_details_code'][$language]?></span></h6>
+              </div>
               <div class="d-flex align-items-center" style="gap:0.5rem;">
                 <div class="d-flex align-items-center">
                   <label class="form-label-modern mb-0 mr-2" style="font-size:0.75rem;"><?=$languageArray['unit_price_code'][$language]?></label>
@@ -668,6 +674,7 @@ else{
                 <thead class="thead-light">
                   <tr class="text-center">
                     <th style="width:3%;"><input type="checkbox" id="selectAllWeightCheckbox"></th>
+                    <th class="processing-col" style="width:11%; display:none;"><?=$languageArray['supplier_code'][$language]?></th>
                     <th style="width:11%;"><?=$languageArray['product_code'][$language]?></th>
                     <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
                     <th style="width:7%;"><?=$languageArray['gross_code'][$language]?></th>
@@ -693,6 +700,7 @@ else{
                 <tbody id="weightDetailsTable"></tbody>
                 <tfoot class="bg-light font-weight-bold" id="weightDetailsFooter">
                   <tr class="text-center">
+                    <td class="processing-col" style="display:none;"></td>
                     <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
                     <td id="totalWeightGross">0.00</td>
                     <td id="totalWeightTare">0.00</td>
@@ -715,6 +723,71 @@ else{
               </table>
             </div>
           </div>
+
+          <?php if ($allowProcessing == 'Y') { ?>
+          <!-- Weigh Out Details Section (PROCESSING only) -->
+          <div class="modal-section" id="weightOutSection" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center" style="gap:1rem;">
+                <h6 class="section-title mb-0"><i class="fas fa-sign-out-alt mr-2"></i><?=$languageArray['weigh_out_code'][$language] ?? 'Weigh Out'?></h6>
+              </div>
+              <button type="button" class="btn btn-modern btn-modern-primary btn-sm" id="addWeightOutBtn">
+                <i class="fas fa-plus mr-1"></i><?=$languageArray['add_weigh_out_code'][$language] ?? 'Add Weigh Out'?>
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0" style="font-size:0.72rem;">
+                <thead class="thead-light">
+                  <tr class="text-center">
+                    <th style="width:3%;">#</th>
+                    <th style="width:11%;"><?=$languageArray['product_code'][$language]?></th>
+                    <th style="width:8%;"><?=$languageArray['grade_code'][$language]?></th>
+                    <th style="width:7%;"><?=$languageArray['gross_code'][$language]?></th>
+                    <th style="width:7%;"><?=$languageArray['tare_code'][$language]?></th>
+                    <th style="width:7%;"><?=$languageArray['net_code'][$language]?></th>
+                    <?php if($allowPcsBasket == 'Y') { ?>
+                    <th style="width:6%;"><?=$languageArray['pcs_basket_code'][$language] ?? 'Pcs/Basket'?></th>
+                    <?php } ?>
+                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
+                    <th style="width:6%;"><?=$languageArray['currency_code'][$language]?></th>
+                    <th style="width:7%;"><?=$languageArray['price_code'][$language]?></th>
+                    <th style="width:7%;"><?=$languageArray['before_disc_code'][$language] ?? "Before Disc"?></th>
+                    <th style="width:11%;"><?=$languageArray['discount_code'][$language] ?? "Discount"?></th>
+                    <th style="width:7%;"><?=$languageArray['total_code'][$language]?></th>
+                    <?php } ?>
+                    <th style="width:5%;"><?=$languageArray['time_code'][$language]?></th>
+                    <?php if($allowPhoto == 'Y') { ?>
+                    <th style="width:3%;"><?=$languageArray['photo_code'][$language]?></th>
+                    <?php } ?>
+                    <th style="width:5%;"><?=$languageArray['actions_code'][$language]?></th>
+                  </tr>
+                </thead>
+                <tbody id="weightOutDetailsTable"></tbody>
+                <tfoot class="bg-light font-weight-bold" id="weightOutDetailsFooter">
+                  <tr class="text-center">
+                    <td colspan="3" class="text-right"><?=$languageArray['total_code'][$language]?></td>
+                    <td id="totalOutGross">0.00</td>
+                    <td id="totalOutTare">0.00</td>
+                    <td class="text-primary font-weight-bold" id="totalOutNet">0.00</td>
+                    <?php if($allowPcsBasket == 'Y') { ?>
+                    <td id="totalOutBasket">0</td>
+                    <?php } ?>
+                    <?php if($allowPrice == 'Y' && $userAllowPrice == 'Y') { ?>
+                    <td></td>
+                    <td></td>
+                    <td class="font-weight-bold" id="totalOutBeforeDiscount">0.00</td>
+                    <td class="text-danger font-weight-bold" id="totalOutDiscount">0.00</td>
+                    <td class="text-success font-weight-bold" id="totalOutPrice">0.00</td>
+                    <?php } ?>
+                    <td></td>
+                    <?php if($allowPhoto == 'Y') { ?><td></td><?php } ?>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <?php } ?>
 
           <!-- Reject Details Section -->
           <div class="modal-section">
@@ -861,6 +934,25 @@ var netFromCalc = false; // variable to see where trigger nett weight from calcu
 var currency = "1";
 var weightCount = 0;
 var rejectCount = 0;
+var weightOutCount = 0;
+var weightDetailsLabel = '<?=$languageArray['weight_details_code'][$language]?>';
+var weighInLabel = '<?=$languageArray['weigh_in_code'][$language] ?? 'Weigh In'?>';
+var weighOutLabel = '<?=$languageArray['weigh_out_code'][$language] ?? 'Weigh Out'?>';
+var defaultCurrencyId = '<?= $defaultCurrencyId ?>';
+var currencyOptions = <?php
+  $currencyOptionsHtml = '<option value="" selected disabled>Select Currency</option>';
+  while ($rowCurrency = mysqli_fetch_assoc($currency5)) {
+    $currencyOptionsHtml .= '<option value="' . htmlspecialchars($rowCurrency['id']) . '" data-currency="' . htmlspecialchars($rowCurrency['currency']) . '">' . htmlspecialchars($rowCurrency['currency']) . '</option>';
+  }
+  echo json_encode($currencyOptionsHtml);
+?>;
+var supplierOptions = <?php
+  $supplierOptionsHtml = '<option value="">Select Supplier</option>';
+  while ($rowSupplier = mysqli_fetch_assoc($supplies3)) {
+    $supplierOptionsHtml .= '<option value="' . htmlspecialchars($rowSupplier['id']) . '" data-currency="' . htmlspecialchars($rowSupplier['currency']) . '">' . htmlspecialchars($rowSupplier['supplier_name']) . '</option>';
+  }
+  echo json_encode($supplierOptionsHtml);
+?>;
 var allowPhoto = '<?=$allowPhoto?>';
 var allowPrice = '<?=$allowPrice?>';
 var userAllowPrice = '<?=$userAllowPrice?>';
@@ -1014,8 +1106,42 @@ $(function () {
           });
         }
         
+        // PROCESSING: every Weigh In row needs a supplier, and Weigh Out needs rows
+        var processingError = '';
+        if ($('#extendModal').find('#status').val() == 'PROCESSING') {
+          $('#weightDetailsTable tr').each(function() {
+            if (!$(this).find('select[name$="[supplier]"]').val()) {
+              processingError = 'Please select a supplier for every Weigh In row.';
+              return false;
+            }
+          });
+          if (!processingError && $('#weightOutDetailsTable tr').length == 0) {
+            processingError = 'Please add at least one Weigh Out row.';
+          }
+          if (!processingError) {
+            $('#weightOutDetailsTable tr').each(function() {
+              var product = $(this).find('select[name*="[product]"]').val();
+              var grade = $(this).find('select[name*="[grade_id]"]').val();
+              var gross = parseFloat($(this).find('input[name*="[gross]"]').val());
+              var nettWeight = parseFloat($(this).find('input[name*="[net]"]').val());
+              if (!product || !grade || isNaN(gross) || gross <= 0) {
+                processingError = 'Please fill in Product, Grade and Gross for all Weigh Out rows.';
+                return false;
+              }
+              if (nettWeight < 0) {
+                processingError = 'Weigh Out nett weight cannot be negative.';
+                return false;
+              }
+            });
+          }
+        }
+
         if (weightRowError) {
           toastr["error"]("Please fill in Product, Grade and Gross for all weight detail rows.", "Validation Error:");
+          return false;
+        }
+        if (processingError) {
+          toastr["error"](processingError, "Validation Error:");
           return false;
         }
         if (nettWeightError) {
@@ -1160,12 +1286,22 @@ $(function () {
 
   $('#extendModal').find('#status').on('change', function () {
     var status = $(this).val();
-    if(status == "DISPATCH" || status == 'STOCK-BAL'){
+    if(status == 'PROCESSING'){
+      toggleProcessingLayout(true);
+      $('#extendModal').find('#customerDiv').hide();
+      $('#extendModal').find('#customerOtherDiv').hide();
+      $('#extendModal').find('#supplierDiv').hide();
+      $('#extendModal').find('#supplierOtherDiv').hide();
+      $('#extendModal').find('#securityBillDiv').show();
+    }
+    else if(status == "DISPATCH" || status == 'STOCK-BAL'){
+      toggleProcessingLayout(false);
       $('#extendModal').find('#customerDiv').show();
       $('#extendModal').find('#supplierDiv').hide();
       $('#extendModal').find('#securityBillDiv').hide();
     }
     else{
+      toggleProcessingLayout(false);
       $('#extendModal').find('#customerDiv').hide();
       $('#extendModal').find('#supplierDiv').show();
       $('#extendModal').find('#securityBillDiv').show();
@@ -1188,6 +1324,12 @@ $(function () {
 
     var customerId = customer;
     var status = $('#extendModal').find('#status').val();
+
+    // PROCESSING has no customer, so it must not reprice or recurrency any rows
+    if (status == 'PROCESSING') {
+      return;
+    }
+
     if (allowPrice == 'Y' && userAllowPrice == 'Y' && customerId && status) {
       $('#weightDetailsTable tr.details').each(function() {
         $(this).find('select[id^="grade_id"]').trigger('change');
@@ -1423,6 +1565,7 @@ $(function () {
 
     // Initialize Select2 for the newly added row's select elements
     var newRow = $('#weightDetailsTable tr:last');
+    addRowSupplierCell(newRow, '', false);
     newRow.find('.select2').each(function() {
       $(this).select2({
         allowClear: true,
@@ -1433,7 +1576,7 @@ $(function () {
     });
 
     var status = $('#extendModal').find('#status').val();
-    var currencyId = status === 'RECEIVING' || status === 'INCOMING'
+    var currencyId = status === 'RECEIVING' || status === 'INCOMING' || status === 'PROCESSING'
       ? $('#extendModal').find('#supplier option:selected').data('currency')
       : $('#extendModal').find('#customer option:selected').data('currency');
     if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
@@ -1442,7 +1585,22 @@ $(function () {
     }
   });
 
-  $('#weightDetailsTable').on('change', 'select[name*="[product]"]', function() {
+  // PROCESSING: a Weigh In row's supplier sets its currency and price
+  $('#weightDetailsTable').on('change', 'select[name$="[supplier]"]', function() {
+    var row = $(this).closest('tr');
+    var currencyId = $(this).find('option:selected').data('currency');
+    if (currencyId) {
+      row.find('select[name*="[currency]"]').val(currencyId).trigger('change');
+    } else {
+      row.find('select[id^="grade_id"]').trigger('change');
+    }
+  });
+
+  $('#addWeightOutBtn').on('click', function() {
+    addWeightOutRow(null);
+  });
+
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change', 'select[name*="[product]"]', function() {
     var row = $(this).closest('tr');
     var productId = $(this).val();
     var productName = $(this).find('option:selected').data('name');
@@ -1461,42 +1619,30 @@ $(function () {
     });
   });
 
-  $('#weightDetailsTable').on('change', 'select[id^="grade_id"]', function() {
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change', 'select[id^="grade_id"]', function() {
     var gradeId = $(this).val();
     var gradeName = $(this).find('option:selected').data('name');
     var productId = $(this).closest('tr').find('select[id^="product"]').val();
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
-    var status = $('#extendModal').find('#status').val();
+    var pricing = getPricingContext($(this).closest('tr'));
     $(this).closest('tr').find('input[name*="[grade]"]').val(gradeName);
 
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
-      if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
-      }else{
-        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
-      }
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && pricing.status){
+      calculatePrice(productId, pricing.status, pricing.partyId, gradeId, $(this), undefined, true);
     }
   });
 
-  $('#weightDetailsTable').on('change', 'select[name*="[currency]"]', function() {
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change', 'select[name*="[currency]"]', function() {
     var row = $(this).closest('tr');
     var productId = row.find('select[id^="product"]').val();
     var gradeId = row.find('select[id^="grade_id"]').val();
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
-    var status = $('#extendModal').find('#status').val();
+    var pricing = getPricingContext(row);
 
-    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && status){
-      if (status == 'RECEIVING' || status == 'INCOMING'){
-        calculatePrice(productId, status, supplierId, gradeId, $(this), undefined, true);
-      }else{
-        calculatePrice(productId, status, customerId, gradeId, $(this), undefined, true);
-      }
+    if (allowPrice == 'Y' && userAllowPrice == 'Y' && productId && pricing.status){
+      calculatePrice(productId, pricing.status, pricing.partyId, gradeId, $(this), undefined, true);
     }
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="gross"]', function(){
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change', 'input[id^="gross"]', function(){
     // Retrieve the input's attributes
     var gross = parseFloat($(this).val());
     var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val());
@@ -1513,7 +1659,7 @@ $(function () {
     netFromCalc = false;
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="tare"]', function(){
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change', 'input[id^="tare"]', function(){
     // Retrieve the input's attributes
     var gross = parseFloat($(this).closest('tr').find('input[id^="gross"]').val());
     var tare = parseFloat($(this).val());
@@ -1530,7 +1676,7 @@ $(function () {
     netFromCalc = false;
   });
 
-  $("#weightDetailsTable").on('change', 'input[id^="net"]', function(){
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change', 'input[id^="net"]', function(){
     if (!netFromCalc) {
       var nett = parseFloat($(this).val()) || 0;
       var tare = parseFloat($(this).closest('tr').find('input[id^="tare"]').val()) || 0;
@@ -1564,38 +1710,34 @@ $(function () {
       totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
     });
     $('#totalWeightBasket').text(totalBasket);
+    updateTotals();
 
     $(this).closest('tr').find('input[id^="price"]').trigger("blur");
   });
 
-  $("#weightDetailsTable").on('blur', 'input[id^="price"]', function(){
+  $('#weightDetailsTable, #weightOutDetailsTable').on('blur', 'input[id^="price"]', function(){
     var row = $(this).closest('tr');
     var price = parseFloat($(this).val());
     var productId = row.find('select[id^="product"]').val();
-    var status = $('#extendModal').find('#status').val();
-    var customerId = $('#extendModal').find('#customer').val();
-    var supplierId = $('#extendModal').find('#supplier').val();
     var gradeId = row.find('select[id^="grade"]').val();
+    var pricing = getPricingContext(row);
 
-    if (productId && status) {
-      if (status == 'RECEIVING' || status == 'INCOMING') {
-        calculatePrice(productId, status, supplierId, gradeId, $(this), price);
-      } else {
-        calculatePrice(productId, status, customerId, gradeId, $(this), price);
-      }
+    if (productId && pricing.status) {
+      calculatePrice(productId, pricing.status, pricing.partyId, gradeId, $(this), price);
     }
   });
 
-  $('#weightDetailsTable').on('change', 'input[name*="[total]"]', function() {
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change', 'input[name*="[total]"]', function() {
     updateTotals();
   });
 
-  $('#weightDetailsTable').on('change input', 'input[name*="[no_basket]"]', function() {
+  $('#weightDetailsTable, #weightOutDetailsTable').on('change input', 'input[name*="[no_basket]"]', function() {
     var totalBasket = 0;
     $('#weightDetailsTable tr').each(function() {
       totalBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
     });
     $('#totalWeightBasket').text(totalBasket);
+    updateTotals();
   });
 
   $('#rejectDetailsTable').on('change', 'select[name*="[product_name]"]', function() {
@@ -1742,7 +1884,7 @@ $(function () {
     updateTotals();
   });
 
-  $('#weightDetailsTable, #rejectDetailsTable').on('change', 'input[id^="discount"], select[id^="discount_type"]', function() {
+  $('#weightDetailsTable, #rejectDetailsTable, #weightOutDetailsTable').on('change', 'input[id^="discount"], select[id^="discount_type"]', function() {
     var row = $(this).closest('tr');
     var beforeDiscount = parseFloat(row.find('input[id^="before_discount"]').val()) || 0;
     var discountType = row.find('select[id^="discount_type"]').val();
@@ -1940,10 +2082,13 @@ function getTableColumns() {
 // FORM HELPERS
 // ============================================================================
 
-function applyCustomerCurrency(currencyId) {
+function applyCustomerCurrency(currencyId, rowSelector) {
   if (!currencyId) currencyId = '<?= $defaultCurrencyId ?>';
   if (!currencyId) return;
-  $('#weightDetailsTable tr.details, #rejectDetailsTable tr.details').each(function() {
+  if (!rowSelector) {
+    rowSelector = '#weightDetailsTable tr.details, #rejectDetailsTable tr.details';
+  }
+  $(rowSelector).each(function() {
     $(this).find('select[name*="[currency]"]').val(currencyId).trigger('change');
   });
 }
@@ -1999,6 +2144,87 @@ function buildGradeOptions(productId) {
 // ============================================================================
 // DATATABLE ROW EXPANSION
 // ============================================================================
+
+function escapeHtml(text) {
+  return $('<div>').text(text == null ? '' : String(text)).html();
+}
+
+// Child row block for PROCESSING weigh out (customer) lines
+function buildWeighOutDetailsHtml(row) {
+  var showPrice = allowPrice == 'Y' && userAllowPrice == 'Y';
+  var details = row.weightOutDetails || [];
+  var html = `
+    <div class="details-section">
+      <div class="details-header">
+        <span class="details-title"><i class="fas fa-sign-out-alt mr-1"></i>${escapeHtml(weighOutLabel)}</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table details-table mb-0">
+          <thead>
+            <tr>
+              <th><?=$languageArray['product_code'][$language]?></th>
+              <th><?=$languageArray['grade_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['gross_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['tare_code'][$language]?></th>
+              <th class="text-right"><?=$languageArray['net_code'][$language]?></th>
+              ${allowPcsBasket == 'Y' ? '<th class="text-right"><?=$languageArray['pcs_basket_code'][$language] ?? 'Pcs/Basket'?></th>' : ''}
+              ${showPrice ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
+              <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
+              ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+            </tr>
+          </thead>
+          <tbody>`;
+
+  var totalGross = 0, totalTare = 0, totalNet = 0, totalPrice = 0, totalBeforeDiscount = 0, totalBasket = 0;
+  for (var i = 0; i < details.length; i++) {
+    var detail = details[i];
+    var discVal = parseFloat(detail.discount) || 0;
+    var discountDisplay = discVal.toFixed(2);
+    if (detail.discount_type === 'percent') {
+      discountDisplay = discVal.toFixed(2) + '%';
+    }
+
+    html += `
+            <tr>
+              <td>${escapeHtml(detail.product_name)}</td>
+              <td><span class="grade-badge">${escapeHtml(detail.grade)}</span></td>
+              <td class="text-right text-mono">${(parseFloat(detail.gross)||0).toFixed(2)}</td>
+              <td class="text-right text-mono">${(parseFloat(detail.tare)||0).toFixed(2)}</td>
+              <td class="text-right text-mono text-primary font-weight-bold">${(parseFloat(detail.net)||0).toFixed(2)}</td>
+              ${allowPcsBasket == 'Y' ? '<td class="text-right text-mono">' + (parseInt(detail.no_per_basket)||0) + '</td>' : ''}
+              ${showPrice ? '<td>' + escapeHtml(detail.currency_name) + '</td><td class="text-right text-mono">' + (parseFloat(detail.price)||0).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-success font-weight-bold">' + (parseFloat(detail.total)||0).toFixed(2) + '</td>' : ''}
+              <td class="text-center text-muted">${escapeHtml(detail.time)}</td>
+              ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + encodeURIComponent(detail.photoPath) + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
+            </tr>`;
+
+    totalGross += parseFloat(detail.gross) || 0;
+    totalTare += parseFloat(detail.tare) || 0;
+    totalNet += parseFloat(detail.net) || 0;
+    totalPrice += parseFloat(detail.total) || 0;
+    totalBeforeDiscount += parseFloat(detail.before_discount) || 0;
+    totalBasket += parseInt(detail.no_per_basket) || 0;
+  }
+
+  html += `
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2"><?=$languageArray['total_code'][$language]?></td>
+              <td class="text-right text-mono">${totalGross.toFixed(2)}</td>
+              <td class="text-right text-mono">${totalTare.toFixed(2)}</td>
+              <td class="text-right text-mono text-primary">${totalNet.toFixed(2)}</td>
+              ${allowPcsBasket == 'Y' ? '<td class="text-right text-mono">' + totalBasket + '</td>' : ''}
+              ${showPrice ? '<td></td><td></td><td class="text-right text-mono">' + totalBeforeDiscount.toFixed(2) + '</td><td></td><td class="text-right text-mono text-success">' + totalPrice.toFixed(2) + '</td>' : ''}
+              <td></td>
+              ${allowPhoto == 'Y' ? '<td></td>' : ''}
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>`;
+
+  return html;
+}
 
 function format(row) {
   var returnString = `
@@ -2065,7 +2291,7 @@ function format(row) {
     <!-- Weighing Details -->
     <div class="details-section">
       <div class="details-header">
-        <span class="details-title"><?=$languageArray['weighing_details_code'][$language]?></span>
+        <span class="details-title">${row.status == 'PROCESSING' ? escapeHtml(weighInLabel) : '<?=$languageArray['weighing_details_code'][$language]?>'}</span>
         <div class="details-filters">
           <button type="button" class="btn btn-sm btn-outline-success" onclick="exportExcel(${row.id})" title="<?=$languageArray['export_excel_code'][$language] ?? 'Export Excel'?>"><i class="fas fa-file-excel"></i></button>
           <select class="form-control form-control-sm details-filter-select" id="productFilter_${row.id}" onchange="filterWeightTable('${row.id}')">
@@ -2089,6 +2315,7 @@ function format(row) {
               ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<th><?=$languageArray['currency_code'][$language]?></th><th class="text-right"><?=$languageArray['price_code'][$language]?></th><th class="text-right">Before Disc</th><th class="text-right">Discount</th><th class="text-right"><?=$languageArray['total_code'][$language]?></th>' : ''}
               <th class="text-center"><?=$languageArray['time_code'][$language]?></th>
               ${allowPhoto == 'Y' ? '<th class="text-center"><?=$languageArray['photo_code'][$language]?></th>' : ''}
+              ${row.status == 'PROCESSING' ? '<th><?=$languageArray['supplier_code'][$language]?></th>' : ''}
             </tr>
           </thead>
           <tbody>`;
@@ -2127,6 +2354,7 @@ function format(row) {
                 ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td>'+detail.currency_name+'</td><td class="text-right text-mono">' + parseFloat(detail.price).toFixed(2) + '</td><td class="text-right text-mono">' + (parseFloat(detail.before_discount)||0).toFixed(2) + '</td><td class="text-right text-mono">' + discountDisplay + '</td><td class="text-right text-mono text-success font-weight-bold">' + parseFloat(detail.total).toFixed(2) + '</td>' : ''}
                 <td class="text-center text-muted">${detail.time}</td>
                 ${allowPhoto == 'Y' ? '<td class="text-center">' + (detail.photoPath ? '<a href="php/viewPhoto.php?file=' + detail.photoPath + '" target="_blank" class="btn btn-outline-secondary btn-sm btn-photo"><i class="fas fa-image"></i></a>' : '-') + '</td>' : ''}
+                ${row.status == 'PROCESSING' ? '<td>' + escapeHtml(detail.supplier_name || '-') + '</td>' : ''}
               </tr>`;
 
         totalWeightGross += parseFloat(detail.gross);
@@ -2150,11 +2378,14 @@ function format(row) {
               ${allowPrice == 'Y' && userAllowPrice == 'Y' ? '<td></td><td></td><td class="text-right text-mono" id="footBeforeDiscount_' + row.id + '">' + totalWeightBeforeDiscount.toFixed(2) + '</td><td class="text-right text-mono text-danger" id="footDiscount_' + row.id + '">' + totalWeightDiscount.toFixed(2) + '</td><td class="text-right text-mono text-success" id="footPrice_' + row.id + '">' + totalWeightPrice.toFixed(2) + '</td>' : ''}
               <td></td>
               ${allowPhoto == 'Y' ? '<td></td>' : ''}
+              ${row.status == 'PROCESSING' ? '<td></td>' : ''}
             </tr>
           </tfoot>
         </table>
       </div>
     </div>
+
+    ${row.status == 'PROCESSING' ? buildWeighOutDetailsHtml(row) : ''}
 
     <!-- Reject Details -->
     <div class="details-section">
@@ -2375,9 +2606,12 @@ function newEntry() {
   $('#extendModal').find('#avgBasketWeight').val('0.00');
   $('#weightDetailsTable').empty();
   $('#rejectDetailsTable').empty();
+  $('#weightOutDetailsTable').empty();
   weightCount = 0;
   rejectCount = 0;
-  
+  weightOutCount = 0;
+  updateTotals();
+
   // Load products by type then show modal
   loadProductsByType('Local', function() {
     $('#extendModal').modal('show');
@@ -2540,6 +2774,7 @@ function edit(id) {
           `;
           tbody.append(row);
 
+          addRowSupplierCell(tbody.find('tr:last'), detail.supplier || '', false);
           tbody.find(`select[name="weightDetails[${idx}][currency]"]`).val(detail.currency || defaultCurrencyId).trigger('change');
           
           // Store original options and filter by selected category
@@ -2696,8 +2931,17 @@ function edit(id) {
         });
       });
 
+      // Weigh out rows need productsDataByType, so fill them once products are loaded
+      $('#weightOutDetailsTable').empty();
+      weightOutCount = 0;
+      var weightOutDetails = obj.message.weightOutDetails || [];
+
       // Load products by type then show modal
       loadProductsByType('Local', function() {
+        for (var o = 0; o < weightOutDetails.length; o++) {
+          addWeightOutRow(weightOutDetails[o]);
+        }
+        updateTotals();
         $('#extendModal').modal('show');
       });
 
@@ -2808,6 +3052,13 @@ function calculatePrice(productId, status, customerId, currentGrade, element, ov
 
 function rejectRow(button) {
   var row = $(button).closest('tr');
+  var supplierCell = row.children('td.processing-col');
+  supplierCell.find('select').each(function() {
+    if ($(this).hasClass('select2-hidden-accessible')) {
+      $(this).select2('destroy');
+    }
+  });
+  supplierCell.remove();
   var rejectIndex = $('#rejectDetailsTable tr').length;
   
   row.find('input[type="hidden"], input[type="number"], input[type="time"], select').each(function() {
@@ -2889,6 +3140,7 @@ function acceptRow(button) {
   row.find('button[onclick*="removeRejectDetail"]').attr('onclick', 'removeWeightDetail(this)');
   
   $('#weightDetailsTable').append(row);
+  addRowSupplierCell(row, '', false);
   reindexWeightDetails();
   reindexRejectDetails();
   updateTotals();
@@ -2989,6 +3241,253 @@ function updateTotals() {
   $('#totalRejectPrice').text(totalRejectPrice.toFixed(2));
   $('#totalRejectBeforeDiscount').text(totalRejectBeforeDiscount.toFixed(2));
   $('#totalRejectDiscount').text(totalRejectDiscount.toFixed(2));
+
+  var totalOutGross = 0, totalOutTare = 0, totalOutNet = 0, totalOutPrice = 0, totalOutBeforeDiscount = 0, totalOutDiscount = 0, totalOutBasket = 0;
+  $('#weightOutDetailsTable tr').each(function() {
+    totalOutGross += parseFloat($(this).find('input[name*="[gross]"]').val() || 0);
+    totalOutTare += parseFloat($(this).find('input[name*="[tare]"]').val() || 0);
+    totalOutNet += parseFloat($(this).find('input[name*="[net]"]').val() || 0);
+    totalOutPrice += parseFloat($(this).find('input[name*="[total]"]').val() || 0);
+    totalOutBeforeDiscount += parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    totalOutBasket += parseInt($(this).find('input[name*="[no_basket]"]').val() || 0);
+    var discType = $(this).find('select[name*="[discount_type]"]').val();
+    var discVal = parseFloat($(this).find('input[name*="[discount]"]').val() || 0);
+    var beforeDisc = parseFloat($(this).find('input[name*="[before_discount]"]').val() || 0);
+    if (discType === 'percent') {
+      totalOutDiscount += beforeDisc * discVal / 100;
+    } else {
+      totalOutDiscount += discVal;
+    }
+  });
+  $('#totalOutGross').text(totalOutGross.toFixed(2));
+  $('#totalOutTare').text(totalOutTare.toFixed(2));
+  $('#totalOutNet').text(totalOutNet.toFixed(2));
+  $('#totalOutPrice').text(totalOutPrice.toFixed(2));
+  $('#totalOutBeforeDiscount').text(totalOutBeforeDiscount.toFixed(2));
+  $('#totalOutDiscount').text(totalOutDiscount.toFixed(2));
+  $('#totalOutBasket').text(totalOutBasket);
+}
+
+// ============================================================================
+// PROCESSING: WEIGH IN (SUPPLIER) / WEIGH OUT (CUSTOMER)
+// ============================================================================
+
+// Price list and party for a weight row. PROCESSING prices weigh in from the row's supplier and weigh out from the product default.
+function getPricingContext(row) {
+  var status = $('#extendModal').find('#status').val();
+  var customerId = $('#extendModal').find('#customer').val();
+  var supplierId = $('#extendModal').find('#supplier').val();
+  var context = { status: status, partyId: customerId };
+
+  if (status == 'PROCESSING') {
+    if (row.closest('#weightOutDetailsTable').length) {
+      // No customer on PROCESSING: weigh out uses the product's default selling price
+      context.status = 'DISPATCH';
+      context.partyId = '';
+    } else {
+      // Weigh In: each row has its own supplier
+      context.status = 'RECEIVING';
+      context.partyId = row.find('select[name$="[supplier]"]').val() || '';
+    }
+  } else if (status == 'RECEIVING' || status == 'INCOMING') {
+    context.partyId = supplierId;
+  }
+
+  return context;
+}
+
+// PROCESSING layout: supplier column on Weigh In rows and the Weigh Out section
+function toggleProcessingLayout(isProcessing) {
+  var modal = $('#extendModal');
+  if (isProcessing && modal.find('#weightOutSection').length > 0) {
+    modal.find('#weightDetailsTable').closest('table').find('.processing-col').show();
+    modal.find('#weightOutSection').show();
+    modal.find('#weightDetailsTitle').text(weighInLabel);
+  } else {
+    modal.find('#weightDetailsTable').closest('table').find('.processing-col').hide();
+    modal.find('#weightOutSection').hide();
+    modal.find('#weightDetailsTitle').text(weightDetailsLabel);
+  }
+}
+
+// Supplier cell for a Weigh In row; only visible on PROCESSING
+function buildRowSupplierCell(namePrefix, supplierId) {
+  var isProcessing = $('#extendModal').find('#status').val() == 'PROCESSING';
+  var cell = $('<td class="processing-col"></td>');
+  if (!isProcessing) {
+    cell.hide();
+  }
+  var select = $('<select class="form-control select2"></select>').attr('name', namePrefix + '[supplier]').html(supplierOptions);
+  if (supplierId) {
+    select.val(supplierId);
+  }
+  cell.append(select);
+  return cell;
+}
+
+// Give a Weigh In row its supplier cell (after the checkbox cell) if it has none
+function addRowSupplierCell(row, supplierId, initSelect2) {
+  if (row.children('td.processing-col').length > 0) {
+    return;
+  }
+  var name = row.find('select[name*="[product]"], input[name*="[product]"]').first().attr('name') || '';
+  var namePrefix = name.replace(/\[product\]$/, '');
+  var cell = buildRowSupplierCell(namePrefix, supplierId);
+  row.children('td').first().after(cell);
+  if (!initSelect2) {
+    return;
+  }
+  cell.find('select').select2({
+    allowClear: true,
+    placeholder: "Select Supplier",
+    dropdownParent: $('#extendModal .modal-content'),
+    width: '100%'
+  });
+}
+
+
+// Add a weigh out row; detail is a saved line when editing, null for a new row
+function addWeightOutRow(detail) {
+  var isNew = !detail;
+  if (isNew) {
+    var now = new Date();
+    detail = {
+      product: '', product_name: '', product_desc: '', grade: '', grade_id: '',
+      pretare: '0.00', unit: 'Kg', package: '', fixedfloat: '', isedit: 'N',
+      reject: '0.00', isRejected: 'NO', gross: 0, tare: 0, net: 0, no_per_basket: 0,
+      currency: '', price: 0, before_discount: 0, discount: 0, discount_type: 'fixed', total: 0,
+      time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0') + ':' + now.getSeconds().toString().padStart(2, '0'),
+      photoPath: ''
+    };
+  }
+
+  var idx = weightOutCount++;
+  var rowNum = $('#weightOutDetailsTable tr').length + 1;
+  var n = 'weightOutDetails[' + (rowNum - 1) + ']';
+  var showPrice = allowPrice == 'Y' && userAllowPrice == 'Y';
+  var priceCell = showPrice ? '' : 'style="display:none"';
+
+  var row = `
+    <tr class="details">
+      <td style="text-align: center">${rowNum}</td>
+      <td style="display:none">
+        <input type="hidden" id="product_nameOut${idx}" name="${n}[product_name]" value="">
+        <input type="hidden" id="product_descOut${idx}" name="${n}[product_desc]" value="">
+        <input type="hidden" id="pretareOut${idx}" name="${n}[pretare]" value="">
+        <input type="hidden" id="unitOut${idx}" name="${n}[unit]" value="">
+        <input type="hidden" id="packageOut${idx}" name="${n}[package]" value="">
+        <input type="hidden" id="fixedfloatOut${idx}" name="${n}[fixedfloat]" value="">
+        <input type="hidden" id="iseditOut${idx}" name="${n}[isedit]" value="">
+        <input type="hidden" id="rejectOut${idx}" name="${n}[reject]" value="">
+        <input type="hidden" id="isRejectedOut${idx}" name="${n}[isRejected]" value="">
+        <input type="hidden" id="gradeOut${idx}" name="${n}[grade]" value="">
+      </td>
+      <td>
+        <select class="form-control select2" id="productOut${idx}" name="${n}[product]">
+          ${buildProductOptions()}
+        </select>
+      </td>
+      <td>
+        <select class="form-control select2" id="grade_idOut${idx}" name="${n}[grade_id]">
+          ${buildGradeOptions(detail.product)}
+        </select>
+      </td>
+      <td><input type="number" class="form-control" id="grossOut${idx}" name="${n}[gross]" step="0.01" value="${(parseFloat(detail.gross)||0).toFixed(2)}"></td>
+      <td><input type="number" class="form-control" id="tareOut${idx}" name="${n}[tare]" step="0.01" value="${(parseFloat(detail.tare)||0).toFixed(2)}"></td>
+      <td><input type="number" class="form-control" id="netOut${idx}" name="${n}[net]" step="0.01" value="${(parseFloat(detail.net)||0).toFixed(2)}"></td>
+      <td ${allowPcsBasket == 'Y' ? '' : 'style="display:none"'}>
+        <input type="number" class="form-control" id="no_basketOut${idx}" name="${n}[no_basket]" step="1" min="0" value="${parseInt(detail.no_per_basket)||0}">
+      </td>
+      <td ${priceCell}>
+        <select class="form-control select2" id="currencyOut${idx}" name="${n}[currency]">${currencyOptions}</select>
+      </td>
+      <td ${priceCell}><input type="number" class="form-control" id="priceOut${idx}" name="${n}[price]" step="0.01" value="${(parseFloat(detail.price)||0).toFixed(2)}"></td>
+      <td ${priceCell}><input type="number" class="form-control" id="before_discountOut${idx}" name="${n}[before_discount]" step="0.01" value="${(parseFloat(detail.before_discount)||0).toFixed(2)}" readonly></td>
+      <td ${priceCell}>
+        <div class="input-group input-group-sm">
+          <select class="form-control" id="discount_typeOut${idx}" name="${n}[discount_type]" style="max-width:60px;">
+            <option value="fixed">Fix</option>
+            <option value="percent">%</option>
+          </select>
+          <input type="number" class="form-control" id="discountOut${idx}" name="${n}[discount]" step="0.01" value="${(parseFloat(detail.discount)||0).toFixed(2)}">
+        </div>
+      </td>
+      <td ${priceCell}><input type="number" class="form-control" id="totalOut${idx}" name="${n}[total]" step="0.01" value="${(parseFloat(detail.total)||0).toFixed(2)}" readonly></td>
+      <td><input type="time" class="form-control" id="timeOut${idx}" name="${n}[time]" value=""></td>
+      <td ${allowPhoto == 'Y' ? '' : 'style="display:none"'}>
+        <input type="hidden" id="photoOut${idx}" name="${n}[photoPath]" value="">
+        <input type="file" name="photoOutFiles[${rowNum - 1}]" id="photoOutFile${idx}" accept=".png,.jpg,.jpeg" style="display:none">
+        ${detail.photoPath ? '<a href="php/viewPhoto.php?file=' + encodeURIComponent(detail.photoPath) + '" target="_blank" class="btn btn-success btn-sm mr-1"><i class="fas fa-image"></i></a>' : ''}
+        <button type="button" class="btn btn-info btn-sm" onclick="$('#photoOutFile${idx}').click()"><i class="fas fa-camera"></i></button>
+        <span id="photoOutStatus${idx}"></span>
+      </td>
+      <td>
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeWeightOutDetail(this)"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>
+  `;
+  $('#weightOutDetailsTable').append(row);
+  var newRow = $('#weightOutDetailsTable tr:last');
+
+  // Set saved values with .val() so text from the DB is never parsed as HTML
+  newRow.find('input[name$="[product_name]"]').val(detail.product_name || '');
+  newRow.find('input[name$="[product_desc]"]').val(detail.product_desc || '');
+  newRow.find('input[name$="[pretare]"]').val(detail.pretare || '0.00');
+  newRow.find('input[name$="[unit]"]').val(detail.unit || 'Kg');
+  newRow.find('input[name$="[package]"]').val(detail.package || '');
+  newRow.find('input[name$="[fixedfloat]"]').val(detail.fixedfloat || '');
+  newRow.find('input[name$="[isedit]"]').val(detail.isedit || 'N');
+  newRow.find('input[name$="[reject]"]').val(detail.reject || '0.00');
+  newRow.find('input[name$="[isRejected]"]').val(detail.isRejected || 'NO');
+  newRow.find('input[name$="[grade]"]').val(detail.grade || '');
+  newRow.find('input[name$="[time]"]').val(detail.time || '');
+  newRow.find('input[name$="[photoPath]"]').val(detail.photoPath || '');
+  newRow.find('select[name$="[discount_type]"]').val(detail.discount_type || 'fixed');
+  if (detail.product) {
+    newRow.find('select[name$="[product]"]').val(detail.product);
+  }
+  if (detail.grade_id) {
+    newRow.find('select[name$="[grade_id]"]').val(detail.grade_id);
+  }
+
+  newRow.find('.select2').each(function() {
+    $(this).select2({
+      allowClear: true,
+      placeholder: "Please Select",
+      dropdownParent: $('#extendModal .modal-content'),
+      width: '100%'
+    });
+  });
+
+  var currencySelect = newRow.find('select[name$="[currency]"]');
+  if (isNew) {
+    // New row: default currency, which also fetches the product price
+    var currencyId = defaultCurrencyId;
+    if (currencyId) {
+      currencySelect.val(currencyId).trigger('change');
+    }
+  } else {
+    // Saved row: keep the saved price, only refresh the select2 display
+    currencySelect.val(detail.currency || defaultCurrencyId).trigger('change.select2');
+  }
+}
+
+function reindexWeightOutDetails() {
+  $('#weightOutDetailsTable tr').each(function(index) {
+    $(this).find('td:first').text(index + 1);
+    $(this).find('input, select').each(function() {
+      var name = $(this).attr('name');
+      if (name) {
+        $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
+      }
+    });
+  });
+}
+
+function removeWeightOutDetail(button) {
+  $(button).closest('tr').remove();
+  reindexWeightOutDetails();
+  updateTotals();
 }
 
 // ============================================================================

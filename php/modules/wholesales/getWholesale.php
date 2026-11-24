@@ -8,8 +8,20 @@ session_start();
 if(isset($_POST['userID'])){
 	$id = filter_input(INPUT_POST, 'userID', FILTER_SANITIZE_STRING);
 
-    if ($update_stmt = $db->prepare("SELECT * FROM wholesales WHERE id=?")) {
-        $update_stmt->bind_param('s', $id);
+    // SADMIN lists every company's records (filterWholesale.php), so only scope other roles
+    if ($_SESSION['role'] == 'SADMIN') {
+        $update_stmt = $db->prepare("SELECT * FROM wholesales WHERE id=?");
+        if ($update_stmt) {
+            $update_stmt->bind_param('s', $id);
+        }
+    } else {
+        $update_stmt = $db->prepare("SELECT * FROM wholesales WHERE id=? AND company=?");
+        if ($update_stmt) {
+            $update_stmt->bind_param('ss', $id, $_SESSION['customer']);
+        }
+    }
+
+    if ($update_stmt) {
         
         // Execute the prepared query.
         if (! $update_stmt->execute()) {
@@ -97,6 +109,10 @@ if(isset($_POST['userID'])){
                             $weight['grade'] = searchGradeNameById($weight['grade_id'], $db);
                         }
 
+                        if (!empty($weight['supplier'])) {
+                            $weight['supplier_name'] = searchSupplierNameById($weight['supplier'], '', $db);
+                        }
+
                         $totalWeight += floatval($weight['net']);
                         $totalPrice += floatval($weight['total']);
                         $weightDetailsOut[] = $weight;
@@ -128,6 +144,36 @@ if(isset($_POST['userID'])){
 
                 $message['totalReject'] = $totalReject;
                 $message['rejectDetails'] = $rejectDetails;
+
+                // PROCESSING weigh out (customer) lines
+                $weightOutDetails = array();
+                $totalWeightOut = 0;
+                if (isset($row['weight_out_details']) && !empty($row['weight_out_details'])){
+                    $decodedOut = json_decode($row['weight_out_details'], true);
+                    if (is_array($decodedOut)) {
+                        foreach ($decodedOut as $weight){
+                            $weight['product_name'] = searchProductNameById($weight['product'], $db);
+                            $currencyId = $weight['currency'] ?? null;
+                            if (!$currencyId || $currencyId == '0' || $currencyId == 'null') {
+                                $currencyId = null;
+                            }
+                            $weight['currency'] = $currencyId;
+                            $weight['currency_name'] = $currencyId ? searchCurrencyNameById($currencyId, $db) : '';
+                            if (!empty($weight['grade_id'])) {
+                                $weight['grade'] = searchGradeNameById($weight['grade_id'], $db);
+                            }
+                            $totalWeightOut += floatval($weight['net']);
+                            $weightOutDetails[] = $weight;
+                        }
+                    }
+                }
+                $message['weightOutDetails'] = $weightOutDetails;
+                $message['totalWeightOut'] = $totalWeightOut;
+
+                if ($row['status'] == 'PROCESSING'){
+                    $message['customer_name'] = searchCustomerNameById($row['customer'], $row['other_customer'], $db);
+                    $message['supplier_name'] = searchSupplierNameById($row['supplier'], $row['other_supplier'], $db);
+                }
             }
             
             echo json_encode(
