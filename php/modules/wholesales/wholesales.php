@@ -117,7 +117,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
 		$supplierOther = $_POST['supplierOther'];
 	}
 
-    // PROCESSING: suppliers are per Weigh In row; the record keeps the first one (running number, list column)
+    // PROCESSING: suppliers are per Weigh In row; the record keeps the first one (list column)
     if ($status == 'PROCESSING') {
         $supplier = null;
         $supplierOther = null;
@@ -135,8 +135,9 @@ if(isset($_POST['status'], $_POST['startTime'])){
     if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
         $doPoNo = $_POST['doPoNo'];
     }else{
-        if ($runningNoType == 1){
-            if ($status == 'RECEIVING' || $status == 'INCOMING' || $status == 'PROCESSING') {
+        // PROCESSING has many suppliers, so it always uses the per company/status counter
+        if ($runningNoType == 1 && $status != 'PROCESSING'){
+            if ($status == 'RECEIVING' || $status == 'INCOMING') {
                 // Use Supplier table
                 $entityId = $_POST['supplier']; // supplier ID from form
                 $entityType = 'Supplier';
@@ -723,7 +724,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                     $curval = $curval + 1;
                     $curval = strval($curval);
                     
-                    if($runningNoType == 1){
+                    if($runningNoType == 1 && $status != 'PROCESSING'){
                         if($runningNoEntityExists){
                             // Update existing running_no_entity record
                             $stmtUS = $db->prepare("UPDATE running_no_entity SET value = ? WHERE company_id = ? AND module = ? AND entity_id = ? AND transaction_status = ?");
