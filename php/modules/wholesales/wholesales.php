@@ -117,19 +117,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
 		$supplierOther = $_POST['supplierOther'];
 	}
 
-    // PROCESSING: suppliers are per Weigh In row; the record keeps the first one (list column)
+    // PROCESSING: suppliers are per Weigh In row, so the record itself has no supplier
     if ($status == 'PROCESSING') {
         $supplier = null;
         $supplierOther = null;
-        if (isset($_POST['weightDetails']) && is_array($_POST['weightDetails'])) {
-            foreach ($_POST['weightDetails'] as $rowDetail) {
-                if (!empty($rowDetail['supplier'])) {
-                    $supplier = $rowDetail['supplier'];
-                    break;
-                }
-            }
-        }
-        $_POST['supplier'] = $supplier;
     }
 
     if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
