@@ -80,4 +80,27 @@ class ProductService
         
         return $grades;
     }
+
+    /**
+     * Set DO weight tolerance on all active products of this company
+     */
+    public function bulkUpdateDoTolerance(float $gain, float $loss, string $type, int $userId): int
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE products SET do_weight_tolerance = ?, do_weight_tolerance_minus = ?, do_weight_tolerance_type = ?, modified_by = ?
+             WHERE customer = ? AND deleted = 0"
+        );
+        if (!$stmt) {
+            throw new \RuntimeException('Prepare failed');
+        }
+        $stmt->bind_param('ddsii', $gain, $loss, $type, $userId, $this->company);
+        if (!$stmt->execute()) {
+            $stmt->close();
+            throw new \RuntimeException('Execute failed');
+        }
+        $affected = $stmt->affected_rows;
+        $stmt->close();
+
+        return $affected;
+    }
 }

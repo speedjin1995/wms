@@ -52,6 +52,8 @@ if(isset($_POST['status'], $_POST['startTime'])){
     $totalReject = 0.00;
     $weightDetails = [];
     $rejectDetails = [];
+    $weightOutDetails = [];
+    $totalWeightOut = 0;
     $totalItem = 0;
     $totalNet = 0;
     $totalPrice = 0;
@@ -115,11 +117,18 @@ if(isset($_POST['status'], $_POST['startTime'])){
 		$supplierOther = $_POST['supplierOther'];
 	}
 
+    // PROCESSING: suppliers are per Weigh In row, so the record itself has no supplier
+    if ($status == 'PROCESSING') {
+        $supplier = null;
+        $supplierOther = null;
+    }
+
     if(isset($_POST['doPoNo']) && $_POST['doPoNo'] != null && $_POST['doPoNo'] != ''){
         $doPoNo = $_POST['doPoNo'];
     }else{
-        if ($runningNoType == 1){
-            if ($status == 'RECEIVING' || $status == 'INCOMING' || $status == 'PROCESSING') {
+        // PROCESSING has many suppliers, so it always uses the per company/status counter
+        if ($runningNoType == 1 && $status != 'PROCESSING'){
+            if ($status == 'RECEIVING' || $status == 'INCOMING') {
                 // Use Supplier table
                 $entityId = $_POST['supplier']; // supplier ID from form
                 $entityType = 'Supplier';
@@ -279,6 +288,10 @@ if(isset($_POST['status'], $_POST['startTime'])){
             exit;
         }
         $processingType = intval($_POST['processingType']);
+
+        // PROCESSING has a supplier only (weigh in); weigh out carries no customer
+        $customer = null;
+        $customerOther = null;
     }
 
     if(isset($_POST['emptyBasketWeight']) && $_POST['emptyBasketWeight'] != null && $_POST['emptyBasketWeight'] != ''){
@@ -332,6 +345,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                 'grade_id' => $weightDetail['grade_id'] ?? '',
                 'currency' => $weightDetail['currency'] ?? '',
                 'no_per_basket' => $weightDetail['no_basket'] ?? '',
+                'supplier' => $status == 'PROCESSING' ? ($weightDetail['supplier'] ?? '') : '',
                 'isedit' => $weightDetail['isedit'] ?? 'N',
                 'photoPath' => (function() use ($key, $db, $company) {
                     if (isset($_FILES['photoFiles']['name'][$key]) && $_FILES['photoFiles']['error'][$key] === UPLOAD_ERR_OK) {
@@ -409,6 +423,59 @@ if(isset($_POST['status'], $_POST['startTime'])){
             ];
 
             $totalReject += floatval($rejectDetail['net'] ?? 0.0);
+        }
+    }
+
+    // PROCESSING weigh out (customer) lines
+    if($status == 'PROCESSING' && isset($_POST['weightOutDetails']) && is_array($_POST['weightOutDetails'])){
+        foreach($_POST['weightOutDetails'] as $key => $outDetail){
+            $weightOutDetails[] = [
+                'gross' => $outDetail['gross'] ?? '',
+                'tare' => $outDetail['tare'] ?? '',
+                'pretare' => $outDetail['pretare'] ?? '0.0',
+                'net' => $outDetail['net'] ?? '',
+                'reject' => $outDetail['reject'] ?? '',
+                'isRejected' => $outDetail['isRejected'] ?? 'N',
+                'product' => $outDetail['product'] ?? '',
+                'product_name' => $outDetail['product_name'] ?? '',
+                'product_desc' => $outDetail['product_desc'] ?? '',
+                'price' => $outDetail['price'] ?? '',
+                'unit' => $outDetail['unit'] ?? '',
+                'package' => $outDetail['package'] ?? '',
+                'total' => $outDetail['total'] ?? '',
+                'before_discount' => $outDetail['before_discount'] ?? '',
+                'discount' => $outDetail['discount'] ?? '0',
+                'discount_type' => $outDetail['discount_type'] ?? 'fixed',
+                'fixedfloat' => $outDetail['fixedfloat'] ?? '',
+                'time' => $outDetail['time'] ?? '',
+                'grade' => $outDetail['grade'] ?? '',
+                'grade_id' => $outDetail['grade_id'] ?? '',
+                'currency' => $outDetail['currency'] ?? '',
+                'no_per_basket' => $outDetail['no_basket'] ?? '',
+                'isedit' => $outDetail['isedit'] ?? 'N',
+                'photoPath' => (function() use ($key, $db, $company) {
+                    if (isset($_FILES['photoOutFiles']['name'][$key]) && $_FILES['photoOutFiles']['error'][$key] === UPLOAD_ERR_OK) {
+                        $oldPhoto = $_POST['weightOutDetails'][$key]['photoPath'] ?? '';
+                        if ($oldPhoto) {
+                            deleteOldFile($oldPhoto, $db, 'photoPath');
+                        }
+                        $f = [
+                            'name' => $_FILES['photoOutFiles']['name'][$key],
+                            'tmp_name' => $_FILES['photoOutFiles']['tmp_name'][$key],
+                            'size' => $_FILES['photoOutFiles']['size'][$key],
+                            'type' => $_FILES['photoOutFiles']['type'][$key],
+                            'error' => $_FILES['photoOutFiles']['error'][$key],
+                        ];
+                        $result = uploadFile($f, 'photo', $company, $db, 'photoPath');
+                        if ($result['status'] === 'success' && $result['fid']) {
+                            return (string)$result['fid'];
+                        }
+                    }
+                    return $_POST['weightOutDetails'][$key]['photoPath'] ?? '';
+                })(),
+            ];
+
+            $totalWeightOut += floatval($outDetail['net'] ?? 0.0);
         }
     }
 
@@ -508,10 +575,11 @@ if(isset($_POST['status'], $_POST['startTime'])){
             }
         }
 
-        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, category=?, payment_method=?, processing_type=?, start_time=?, end_time=?, modified_by=?, location=?, empty_baskets_weight=?, basket_count=?, avg_basket_weight=?, type=? WHERE id=?")){
+        if ($update_stmt = $db->prepare("UPDATE wholesales SET serial_no=?, po_no=?, security_bills=?, status=?, customer=?, other_customer=?, supplier=?, other_supplier=?, vehicle_no=?, driver=?, weight_details=?, reject_details=?, total_item=?, total_weight=?, total_reject=?, total_price=?, remark=?, remarks2=?, category=?, payment_method=?, processing_type=?, start_time=?, end_time=?, modified_by=?, location=?, empty_baskets_weight=?, basket_count=?, avg_basket_weight=?, type=?, weight_out_details=?, total_weight_out=? WHERE id=?")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $update_stmt->bind_param('ssssssssssssssssssssissssddssi', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $processingType, $startDateTime3, $endDateTime, $userID, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType, $_POST['id']);
+            $weightOutDetailsJson = json_encode($weightOutDetails);
+            $update_stmt->bind_param('ssssssssssssssssssssissssddssssi', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $processingType, $startDateTime3, $endDateTime, $userID, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType, $weightOutDetailsJson, $totalWeightOut, $_POST['id']);
             
             // Execute the prepared query.
             if (! $update_stmt->execute()){
@@ -613,10 +681,11 @@ if(isset($_POST['status'], $_POST['startTime'])){
             exit;
         }
 
-        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, category, payment_method, processing_type, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location, empty_baskets_weight, basket_count, avg_basket_weight, type, do_id) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+        if ($insert_stmt = $db->prepare("INSERT INTO wholesales (serial_no, po_no, security_bills, status, customer, other_customer, supplier, other_supplier, vehicle_no, driver, weight_details, reject_details, total_item, total_weight, total_reject, total_price, remark, remarks2, category, payment_method, processing_type, created_by, start_time, end_time, company, weighted_by, indicator, records_type, location, empty_baskets_weight, basket_count, avg_basket_weight, type, do_id, weight_out_details, total_weight_out) VALUES  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
             $weightDetailsJson = json_encode($weightDetails);
             $rejectDetailsJson = json_encode($rejectDetails);
-            $insert_stmt->bind_param('ssssssssssssssssssssissssssssdidsi', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $processingType, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType, $doId);
+            $weightOutDetailsJson = json_encode($weightOutDetails);
+            $insert_stmt->bind_param('ssssssssssssssssssssissssssssdidsiss', $serialNo, $doPoNo, $securityBillNo, $status, $customer, $customerOther, $supplier, $supplierOther, $vehicle, $driver, $weightDetailsJson, $rejectDetailsJson, $totalItem, $totalNet, $totalReject, $totalPrice, $remarks, $remarks2, $category, $paymentMethod, $processingType, $userID, $startDateTime3, $endDateTime, $company, $userID, $indicator, $recordType, $location, $emptyBasketsWeight, $basketCount, $avgBasketWeight, $productType, $doId, $weightOutDetailsJson, $totalWeightOut);
                         
             // Execute the prepared query.
             if (! $insert_stmt->execute()){
@@ -646,7 +715,7 @@ if(isset($_POST['status'], $_POST['startTime'])){
                     $curval = $curval + 1;
                     $curval = strval($curval);
                     
-                    if($runningNoType == 1){
+                    if($runningNoType == 1 && $status != 'PROCESSING'){
                         if($runningNoEntityExists){
                             // Update existing running_no_entity record
                             $stmtUS = $db->prepare("UPDATE running_no_entity SET value = ? WHERE company_id = ? AND module = ? AND entity_id = ? AND transaction_status = ?");
