@@ -49,7 +49,7 @@ if(($row = $result->fetch_assoc()) !== null){
 			$_SESSION['packages']=$packages;
 			$_SESSION['enableDailySales']=$row['enable_daily_sales'];
 			$_SESSION['dailySalesModules']=$dailySalesModules;
-			$_SESSION['ver']='1.0.0';
+			$_SESSION['ver']='1.0.1';
 			$stmt->close();
 			$db->close();
 			
