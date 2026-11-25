@@ -94,6 +94,11 @@ else{
               <button type="button" id="multiDeactivate" class="btn btn-action btn-action-danger">
                 <i class="fas fa-trash-alt"></i> <?=$languageArray['delete_product_code'][$language]?>
               </button>
+              <?php if(($_SESSION['featureFlags']['include_delivery_order'] ?? 'N') == 'Y') { ?>
+              <button type="button" class="btn btn-action btn-action-purple" id="bulkDoTolerance">
+                <i class="fas fa-balance-scale"></i> <?=$languageArray['bulk_update_do_tolerance_code'][$language] ?? 'Bulk Update DO Tolerance'?>
+              </button>
+              <?php } ?>
               <button type="button" class="btn btn-action btn-action-primary" id="addProducts">
                 <i class="fas fa-plus"></i> <?=$languageArray['add_products_code'][$language]?>
               </button>
@@ -594,6 +599,58 @@ else{
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i><?=$languageArray['close_code'][$language]?></button>
         <button type="button" class="btn-modern btn-modern-primary" id="bulkPriceByStateSave"><i class="fas fa-check mr-1"></i><?=$languageArray['save_code'][$language]?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk DO Tolerance Modal -->
+<div class="modal fade modal-modern" id="bulkDoToleranceModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-gradient-purple">
+        <h5 class="modal-title text-white"><i class="fas fa-balance-scale mr-2"></i><?=$languageArray['bulk_update_do_tolerance_code'][$language] ?? 'Bulk Update DO Tolerance'?></h5>
+        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-light border small mb-4">
+          <i class="fas fa-info-circle text-purple mr-1"></i><?=$languageArray['bulk_do_tolerance_note_code'][$language] ?? 'Applies to all active products of this company and replaces their current tolerance.'?>
+        </div>
+        <div class="form-group-modern mb-4">
+          <label class="form-label-modern"><?=$languageArray['type_code'][$language] ?? 'Type'?></label>
+          <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+            <label class="btn btn-outline-primary w-50 active">
+              <input type="radio" name="bulkDoToleranceType" value="KG" checked> kg
+            </label>
+            <label class="btn btn-outline-primary w-50">
+              <input type="radio" name="bulkDoToleranceType" value="PERCENT"> %
+            </label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern" style="color:#007bff;"><i class="fas fa-arrow-up mr-1"></i><?=$languageArray['do_tolerance_gain_code'][$language] ?? 'Allowed Weight Gain (Received > DO)'?></label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="bulkDoToleranceGain" step="0.01" min="0" value="0">
+                <div class="input-group-append"><span class="input-group-text bulkDoToleranceUnit">kg</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group-modern">
+              <label class="form-label-modern" style="color:#dc3545;"><i class="fas fa-arrow-down mr-1"></i><?=$languageArray['do_tolerance_loss_code'][$language] ?? 'Allowed Weight Loss (Received < DO)'?></label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="bulkDoToleranceLoss" step="0.01" min="0" value="0">
+                <div class="input-group-append"><span class="input-group-text bulkDoToleranceUnit">kg</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn-modern btn-modern-secondary" data-dismiss="modal"><?=$languageArray['close_code'][$language]?></button>
+        <button type="button" class="btn-modern btn-modern-primary" id="bulkDoToleranceSave"><i class="fas fa-check mr-1"></i><?=$languageArray['submit_code'][$language]?></button>
       </div>
     </div>
   </div>
@@ -1337,6 +1394,52 @@ $(function () {
 
     $('#bulkPriceByStateModal').modal('hide');
     toastr["success"](updated + " row(s) updated.", "Success:");
+  });
+
+  $('#bulkDoTolerance').on('click', function() {
+    $('#bulkDoToleranceGain').val(0);
+    $('#bulkDoToleranceLoss').val(0);
+    $('input[name="bulkDoToleranceType"][value="KG"]').prop('checked', true).trigger('change');
+    $('input[name="bulkDoToleranceType"]').closest('.btn').removeClass('active');
+    $('input[name="bulkDoToleranceType"][value="KG"]').closest('.btn').addClass('active');
+    $('#bulkDoToleranceModal').modal('show');
+  });
+
+  $('input[name="bulkDoToleranceType"]').on('change', function() {
+    if ($(this).val() === 'PERCENT') {
+      $('.bulkDoToleranceUnit').text('%');
+    } else {
+      $('.bulkDoToleranceUnit').text('kg');
+    }
+  });
+
+  $('#bulkDoToleranceSave').on('click', function() {
+    var gain = $('#bulkDoToleranceGain').val();
+    var loss = $('#bulkDoToleranceLoss').val();
+    var type = $('input[name="bulkDoToleranceType"]:checked').val();
+    if (gain === '' || loss === '' || Number(gain) < 0 || Number(loss) < 0) {
+      toastr["error"]("Tolerance must be 0 or more.", "Error:");
+      return;
+    }
+    if (!confirm('Apply this DO tolerance to all active products of this company?')) {
+      return;
+    }
+    var $btn = $(this).prop('disabled', true);
+    $.post('php/modules/products/api.php', {
+      action: 'bulkUpdateDoTolerance',
+      doWeightTolerance: gain,
+      doWeightToleranceMinus: loss,
+      doWeightToleranceType: type
+    }, function(data) {
+      $btn.prop('disabled', false);
+      if (data.status === 'success') {
+        toastr["success"](data.message, "Success:");
+        $('#bulkDoToleranceModal').modal('hide');
+        $('#productTable').DataTable().ajax.reload();
+      } else {
+        toastr["error"](data.message, "Error:");
+      }
+    }, 'json');
   });
 });
 

@@ -372,6 +372,17 @@
   color: var(--page-text);
 }
 
+.page-modern .btn-action-purple {
+  background: #6f42c1;
+  border: none;
+  color: #fff;
+}
+
+.page-modern .btn-action-purple:hover {
+  background: #5a32a3;
+  color: #fff;
+}
+
 /* ============================================
    DATA TABLE STYLING
    ============================================ */

@@ -32,4 +32,25 @@ class ProductController
             ];
         }
     }
+
+    /**
+     * Bulk set DO weight tolerance for all active products of the company
+     */
+    public function bulkUpdateDoTolerance(array $input, int $userId): array
+    {
+        $gain = $input['doWeightTolerance'] ?? null;
+        $loss = $input['doWeightToleranceMinus'] ?? null;
+        $type = $input['doWeightToleranceType'] ?? null;
+
+        if (!is_numeric($gain) || !is_numeric($loss) || $gain < 0 || $loss < 0 || !in_array($type, ['KG', 'PERCENT'], true)) {
+            return ['status' => 'failed', 'message' => 'Invalid DO tolerance values'];
+        }
+
+        try {
+            $count = $this->service->bulkUpdateDoTolerance((float)$gain, (float)$loss, $type, $userId);
+            return ['status' => 'success', 'message' => $count . ' product(s) updated'];
+        } catch (\Exception $e) {
+            return ['status' => 'failed', 'message' => 'Failed to update DO tolerance'];
+        }
+    }
 }

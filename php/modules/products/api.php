@@ -33,6 +33,10 @@ switch ($action) {
         echo json_encode($controller->getProductsByType($categoryIds));
         break;
 
+    case 'bulkUpdateDoTolerance':
+        echo json_encode($controller->bulkUpdateDoTolerance($_POST, (int)$_SESSION['userID']));
+        break;
+
     default:
         echo json_encode(['status' => 'failed', 'message' => 'Invalid action']);
 }
