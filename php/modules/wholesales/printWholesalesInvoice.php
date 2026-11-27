@@ -140,7 +140,8 @@ if(isset($_GET['id'])){
                             'qty' => 0,
                             'pcs_per_basket' => 0,
                             'uom' => strtoupper($detail['unit'] ?? 'KG'),
-                            'unit_price' => floatval($detail['price'] ?? 0),
+                            'prices' => [],
+                            'unit_price' => 0,
                             'total_price' => 0,
                         ];
                     }
@@ -151,11 +152,14 @@ if(isset($_GET['id'])){
                     $grouped[$key]['tare'][] = $tare;
                     $grouped[$key]['qty'] += $net;
                     $grouped[$key]['pcs_per_basket'] += $pcsPerBasket;
-                    $grouped[$key]['total_price'] += floatval($detail['total'] ?? 0);
+                    $grouped[$key]['prices'][] = floatval($detail['price'] ?? 0);
                 }
                 $items = [];
                 foreach ($grouped as $item) {
                     $item['bin'] = count($item['weights']);
+                    // Unit price = average of all record prices in this product + grade; rounded so Unit Price x Qty matches Amount
+                    $item['unit_price'] = round(array_sum($item['prices']) / count($item['prices']), 2);
+                    $item['total_price'] = round($item['unit_price'] * $item['qty'], 2);
                     $items[] = $item;
                 }
 
